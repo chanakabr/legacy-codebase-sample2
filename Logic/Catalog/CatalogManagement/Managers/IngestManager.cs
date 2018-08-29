@@ -156,7 +156,7 @@ namespace Core.Catalog.CatalogManagement
                                 FinalEndDate = GetDateTimeFromString(media.Basic.Dates.End, endDate),
                                 GeoBlockRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
                                 DeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
-                                Metas = GetMetasList(media.Structure, mainLanguageCode, catalogGroupCache),
+                                Metas = GetMetasList(media.Structure, mainLanguageCode),
                                 Tags = GetTagsList(media.Structure.Metas, mainLanguageCode, ref tagsTranslations)
                             };
 
@@ -449,7 +449,7 @@ namespace Core.Catalog.CatalogManagement
             return null;
         }
         
-        private static List<Metas> GetMetasList(IngestStructure structure, string mainLanguageCode, CatalogGroupCache catalogGroupCache)
+        private static List<Metas> GetMetasList(IngestStructure structure, string mainLanguageCode)
         {
             List<Metas> metas = null;
 
@@ -489,18 +489,15 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (var stringMeta in structure.Strings.MetaStrings)
                 {
-                    if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(stringMeta.Name))
+                    if (metas == null)
                     {
-                        if (metas == null)
-                        {
-                            metas = new List<Metas>();
-                        }
-
-                        metas.Add(new Metas(new TagMeta(stringMeta.Name, catalogGroupCache.TopicsMapBySystemName[stringMeta.Name].Type.ToString()),
-                                            stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(mainLanguageCode)).Text,
-                                            stringMeta.Values.Where(x => !x.LangCode.Equals(mainLanguageCode))
-                                                             .Select(x => new LanguageContainer(x.LangCode, x.Text))));
+                        metas = new List<Metas>();
                     }
+
+                    metas.Add(new Metas(new TagMeta(stringMeta.Name, MetaType.MultilingualString.ToString()),
+                                        stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(mainLanguageCode)).Text,
+                                        stringMeta.Values.Where(x => !x.LangCode.Equals(mainLanguageCode))
+                                                         .Select(x => new LanguageContainer(x.LangCode, x.Text))));
                 }
             }
 
