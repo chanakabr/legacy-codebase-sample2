@@ -14,7 +14,7 @@ namespace ApiObjects
         public int Id { get; set; }
 
         [JsonProperty("Name")]
-        public int Name;
+        public string Name;
 
         [JsonProperty("Timestamp")]
         public long Timestamp;
