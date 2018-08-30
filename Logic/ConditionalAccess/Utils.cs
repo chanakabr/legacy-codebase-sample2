@@ -1065,7 +1065,7 @@ namespace Core.ConditionalAccess
             purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "CREATE_DATE");
             endDate = ODBCWrapper.Utils.ExtractDateTime(dataRow, "END_DATE");
             gracePeriodMin = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
-            int subscriptionStatus = ODBCWrapper.Utils.GetIntSafeVal(dataRow["subscription_status"]);
+            int subscriptionStatus = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "subscription_status");
             isSuspend = SubscriptionPurchaseStatus.Suspended == (SubscriptionPurchaseStatus)subscriptionStatus;
         }
 
