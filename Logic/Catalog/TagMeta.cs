@@ -74,15 +74,15 @@ namespace Core.Catalog
 
             if (valueCount > 0)
             {
-                Dictionary<string, string> bla = new Dictionary<string, string>();
+                Dictionary<string, string> languageContainerDic = new Dictionary<string, string>();
                 foreach (LanguageContainer lc in Value)
                 {
-                    bla.Add(lc.LanguageCode, lc.Value);
+                    languageContainerDic.Add(lc.LanguageCode, lc.Value);
                 }
 
                 foreach (LanguageContainer lc in other.Value)
                 {
-                    if (!bla.ContainsKey(lc.LanguageCode) || !bla[lc.LanguageCode].Equals(lc.Value))
+                    if (!languageContainerDic.ContainsKey(lc.LanguageCode) || !languageContainerDic[lc.LanguageCode].Equals(lc.Value))
                         return false;
                 }
             }
