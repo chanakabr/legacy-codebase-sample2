@@ -157,7 +157,10 @@ namespace APILogic.Api.Managers
                     if (permissions != null && permissions.Any())
                     {
                         List<PermissionItem> permissionItems = permissions.Where(x => x.PermissionItems != null).SelectMany(x => x.PermissionItems).ToList();
-                        result = permissionItems != null && permissionItems.Any(x => x.Name.ToLower() == permissionItem.ToLower() && !x.IsExcluded);
+                        if (permissionItems != null)
+                        {
+                            result = !permissionItems.Any(x => x.Name.ToLower() == permissionItem.ToLower() && x.IsExcluded);
+                        }
                     }
                 }
             }

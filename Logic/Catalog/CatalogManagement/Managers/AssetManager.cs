@@ -754,11 +754,11 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static bool ExtractMediaAssetNamesAndDescriptionsFromMetas(List<Metas> metas, ref string name, ref string description, ref List<LanguageContainer> namesWithLanguages,
-                                                                            ref List<LanguageContainer> descriptionsWithLanguages)
+                                                                           ref List<LanguageContainer> descriptionsWithLanguages)
         {
             if (metas != null && metas.Count > 0)
             {
-                Metas nameMeta = metas.Where(x => x.m_oTagMeta.m_sName.ToLower() == NAME_META_SYSTEM_NAME.ToLower()).FirstOrDefault();
+                Metas nameMeta = metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == NAME_META_SYSTEM_NAME.ToLower());
                 if (nameMeta != null && !string.IsNullOrEmpty(nameMeta.m_sValue))
                 {
                     name = nameMeta.m_sValue;
@@ -774,7 +774,7 @@ namespace Core.Catalog.CatalogManagement
                     return false;
                 }
 
-                Metas descMeta = metas.Where(x => x.m_oTagMeta.m_sName.ToLower() == DESCRIPTION_META_SYSTEM_NAME.ToLower()).FirstOrDefault();
+                Metas descMeta = metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == DESCRIPTION_META_SYSTEM_NAME.ToLower());
                 if (descMeta != null && !string.IsNullOrEmpty(descMeta.m_sValue))
                 {
                     description = descMeta.m_sValue;
@@ -1130,7 +1130,14 @@ namespace Core.Catalog.CatalogManagement
                 assetToUpdate.FinalEndDate = assetFinalEndDate;
 
                 // Add Name meta values (for languages that are not default), Name can only be updated
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
+                if (string.IsNullOrEmpty(currentAsset.Name))
+                {
+                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, NAME_META_SYSTEM_NAME);
+                }
+                else
+                {
+                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
+                }
 
                 // Add Description meta values (for languages that are not default), Description can be updated or added
                 if (string.IsNullOrEmpty(currentAsset.Description))
@@ -1142,9 +1149,9 @@ namespace Core.Catalog.CatalogManagement
                     ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
                 }
 
-                DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : currentAsset.StartDate.Value;
-                DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : currentAsset.CatalogStartDate.Value;
-                DateTime endDate = assetToUpdate.EndDate.HasValue ? assetToUpdate.EndDate.Value : currentAsset.EndDate.Value;
+                DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : currentAsset.StartDate.HasValue ? currentAsset.StartDate.Value : DateTime.UtcNow;
+                DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : currentAsset.CatalogStartDate.HasValue ? currentAsset.CatalogStartDate.Value : DateTime.UtcNow;
+                DateTime endDate = assetToUpdate.EndDate.HasValue ? assetToUpdate.EndDate.Value : currentAsset.EndDate.HasValue ? currentAsset.EndDate.Value : DateTime.MaxValue;
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
                 DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
                                                         assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
@@ -2003,7 +2010,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<Asset> UpdateAsset(int groupId, long id, eAssetTypes assetType, Asset assetToUpdate, long userId, bool isFromIngest = false)
+        public static GenericResponse<Asset> UpdateAsset(int groupId, long id, eAssetTypes assetType, Asset assetToUpdate, long userId, bool isFromIngest = false, bool isCleared = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -2017,13 +2024,18 @@ namespace Core.Catalog.CatalogManagement
 
                 // validate that asset exist
                 // isAllowedToViewInactiveAssets = true because only operator can update asset
-                List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
-                if (assets == null || assets.Count != 1)
-                {
-                    result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
-                    return result;
-                }
+                List<Asset> assets = null;
 
+                if (!isCleared)
+                {
+                    assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
+                    if (assets == null || assets.Count != 1)
+                    {
+                        result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
+                        return result;
+                    }
+                }
+                
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
@@ -2033,7 +2045,21 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.MEDIA:
                         bool isLinear = assetToUpdate is LiveAsset;
                         MediaAsset mediaAssetToUpdate = assetToUpdate as MediaAsset;
-                        MediaAsset currentAsset = assets[0] as MediaAsset;
+                        MediaAsset currentAsset = null;
+
+                        if (isFromIngest && isCleared)
+                        {
+                            currentAsset = new MediaAsset()
+                            {
+                                MediaType = mediaAssetToUpdate.MediaType,
+                                MediaAssetType = mediaAssetToUpdate.MediaAssetType
+                            };
+                        }
+                        else
+                        {
+                            currentAsset = assets[0] as MediaAsset;
+                        }
+                        
                         // validate that existing asset is indeed linear media
                         if (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear)
                         {

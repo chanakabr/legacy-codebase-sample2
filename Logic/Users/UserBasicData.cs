@@ -306,125 +306,71 @@ namespace Core.Users
 
             return isRoleIdsSet;
         }
-
+        
         /// <summary>
-        /// copy all properites from other UserBasicData to currenct object
+        /// copy all relevent properites from other UserBasicData to currenct object befor update
         /// </summary>
         /// <param name="other"></param>
-        public bool Copy(UserBasicData other)
+        /// <param name="isSSOMCImplementation"></param>
+        /// <returns></returns>
+        public bool CopyForUpdate(UserBasicData other, bool isSSOMCImplementation)
         {
             bool isBasicChanged = false;
 
-            if (!string.IsNullOrEmpty(other.m_sPassword))
-            {
-                this.m_sPassword = other.m_sPassword;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sSalt))
-            {
-                this.m_sSalt = other.m_sSalt;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sUserName))
+            if (!isSSOMCImplementation && !string.IsNullOrEmpty(other.m_sUserName))
             {
                 this.m_sUserName = other.m_sUserName;
             }
-
-            if (!string.IsNullOrEmpty(other.m_sFirstName) && !this.m_sFirstName.Equals(other.m_sFirstName))
+            else if (isSSOMCImplementation && !this.m_sUserName.Equals(other.m_sUserName))
+            {
+                this.m_sUserName = other.m_sUserName;
+                this.m_sPassword = other.m_sUserName.ToLower();
+                this.m_sEmail = other.m_sUserName;
+                isBasicChanged = true;
+            }
+            
+            if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sFirstName) && !this.m_sFirstName.Equals(other.m_sFirstName)))
             {
                 this.m_sFirstName = other.m_sFirstName;
                 isBasicChanged = true;
             }
 
-            if (!string.IsNullOrEmpty(other.m_sLastName) && !this.m_sLastName.Equals(other.m_sLastName))
+            if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sLastName) && !this.m_sLastName.Equals(other.m_sLastName)))
             {
                 this.m_sLastName = other.m_sLastName;
                 isBasicChanged = true;
             }
-
-            if (!string.IsNullOrEmpty(other.m_sEmail))
-            {
-                this.m_sEmail = other.m_sEmail;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sAddress))
-            {
-                this.m_sAddress = other.m_sAddress;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sCity) && !this.m_sCity.Equals(other.m_sCity))
+            
+            if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sCity) && !this.m_sCity.Equals(other.m_sCity)))
             {
                 this.m_sCity = other.m_sCity;
                 isBasicChanged = true;
             }
 
-            if (other.m_State != null)
-            {
-                this.m_State = other.m_State;
-            }
-
-            if (other.m_Country != null)
-            {
-                this.m_Country = other.m_Country;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sZip) && !this.m_sZip.Equals(other.m_sZip))
-            {
-                this.m_sZip = other.m_sZip;
-                isBasicChanged = true;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sPhone) && !this.m_sPhone.Equals(other.m_sPhone))
+            if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sPhone) && !this.m_sPhone.Equals(other.m_sPhone)))
             {
                 this.m_sPhone = other.m_sPhone;
                 isBasicChanged = true;
             }
-
-            if (!string.IsNullOrEmpty(other.m_sFacebookID))
+            
+            if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sZip) && !this.m_sZip.Equals(other.m_sZip)))
             {
+                this.m_sZip = other.m_sZip;
+                isBasicChanged = true;
+            }
+            
+            if (!isSSOMCImplementation)
+            {
+                this.m_sEmail = other.m_sEmail;
+                this.m_Country = other.m_Country;
+                this.m_sAddress = other.m_sAddress;
+                this.m_State = other.m_State;
                 this.m_sFacebookID = other.m_sFacebookID;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sFacebookImage))
-            {
                 this.m_sFacebookImage = other.m_sFacebookImage;
-            }
-
-            this.m_bIsFacebookImagePermitted = other.m_bIsFacebookImagePermitted;
-
-            if (!string.IsNullOrEmpty(other.m_sAffiliateCode))
-            {
-                this.m_sAffiliateCode = other.m_sAffiliateCode;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_CoGuid))
-            {
-                this.m_CoGuid = other.m_CoGuid;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_ExternalToken))
-            {
-                this.m_ExternalToken = other.m_ExternalToken;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sFacebookToken))
-            {
+                this.m_bIsFacebookImagePermitted = other.m_bIsFacebookImagePermitted;
                 this.m_sFacebookToken = other.m_sFacebookToken;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sTwitterToken))
-            {
-                this.m_sTwitterToken = other.m_sTwitterToken;
-            }
-
-            if (!string.IsNullOrEmpty(other.m_sTwitterTokenSecret))
-            {
-                this.m_sTwitterTokenSecret = other.m_sTwitterTokenSecret;
-            }
-
-            if (!other.m_UserType.Equals(default(UserType)))
-            {
                 this.m_UserType = other.m_UserType;
+                this.m_CoGuid = other.m_CoGuid;
             }
             
             if (other.RoleIds != null && other.RoleIds.Count > 0)
@@ -432,7 +378,7 @@ namespace Core.Users
                 this.RoleIds = other.RoleIds;
                 isBasicChanged = true;
             }
-            
+
             return isBasicChanged;
         }
     }

@@ -255,7 +255,7 @@ namespace Core.Catalog.CatalogManagement
             List<Ratio> groupRatios = GetGroupImageRatios(groupId);
             if (groupRatios != null && groupRatios.Count > 0)
             {
-                ratio = groupRatios.Where(x => x.Id == ratioId).Count() == 1 ? groupRatios.Where(x => x.Id == ratioId).FirstOrDefault() : null;
+                ratio = groupRatios.Count(x => x.Id == ratioId) == 1 ? groupRatios.FirstOrDefault(x => x.Id == ratioId) : null;
             }
 
             return ratio;
@@ -536,14 +536,14 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                ImageType cachedImageType = imageTypeListResponse.Objects.Where(x => x.Id == id).FirstOrDefault();
+                ImageType cachedImageType = imageTypeListResponse.Objects.FirstOrDefault(x => x.Id == id);
                 if (cachedImageType == null)
                 {
                     result.SetStatus(eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
                     return result;
                 }
 
-                cachedImageType = imageTypeListResponse.Objects.Where(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != id).FirstOrDefault();
+                cachedImageType = imageTypeListResponse.Objects.FirstOrDefault(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != id);
                 if (cachedImageType != null)
                 {
                     result.SetStatus(eResponseStatus.ImageTypeAlreadyInUse, eResponseStatus.ImageTypeAlreadyInUse.ToString());

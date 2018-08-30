@@ -248,7 +248,7 @@ namespace Core.Users
                 }
 
                 //Update basic and dynamic data
-                this.m_oBasicData.Copy(oBasicData);
+                this.m_oBasicData.CopyForUpdate(oBasicData, false);
                 this.m_oDynamicData = oDynamicData;
             }
 

@@ -762,9 +762,9 @@ namespace Core.ConditionalAccess
                         purchaseDate = DateTime.MinValue;
                         endDate = DateTime.MinValue;
                         int gracePeriodMinutes = 0;
-
+                        bool isSuspend = false;
                         GetSubscriptionBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
-                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes);
+                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref isSuspend);
 
                         // decide which is the correct end period
                         if (endDate < DateTime.UtcNow)
@@ -951,9 +951,26 @@ namespace Core.ConditionalAccess
             public DateTime dtPurchaseDate;
             public DateTime dtEndDate;
             public int nNumOfUses;
-            public int nMaxNumOfUses;
+            public int nMaxNumOfUses;            
 
             public UserBundlePurchase() { }
+        }
+
+        /// <summary>
+        /// Partially defines a user's purchase of a bundle, so data is easily transferred between methods
+        /// </summary>
+        [Serializable]
+        public class UserBundlePurchaseWithSuspend
+        {
+            public string sBundleCode;
+            public int nWaiver;
+            public DateTime dtPurchaseDate;
+            public DateTime dtEndDate;
+            public int nNumOfUses;
+            public int nMaxNumOfUses;
+            public bool isSuspend;
+
+            public UserBundlePurchaseWithSuspend() : base() { }
         }
 
         private static List<int> GetFinalCollectionCodes(Dictionary<int, bool> collsAfterPPVCreditValidation)
@@ -1039,7 +1056,7 @@ namespace Core.ConditionalAccess
         }
 
         private static void GetSubscriptionBundlePurchaseData(DataRow dataRow, string codeColumnName, ref int numOfUses, ref int maxNumOfUses, ref string bundleCode, ref int waiver,
-                                                                ref DateTime purchaseDate, ref DateTime endDate, ref int gracePeriodMin)
+                                                                ref DateTime purchaseDate, ref DateTime endDate, ref int gracePeriodMin, ref bool isSuspend)
         {
             numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
             maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
@@ -1048,6 +1065,8 @@ namespace Core.ConditionalAccess
             purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "CREATE_DATE");
             endDate = ODBCWrapper.Utils.ExtractDateTime(dataRow, "END_DATE");
             gracePeriodMin = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
+            int subscriptionStatus = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "subscription_status");
+            isSuspend = SubscriptionPurchaseStatus.Suspended == (SubscriptionPurchaseStatus)subscriptionStatus;
         }
 
 
@@ -3884,8 +3903,9 @@ namespace Core.ConditionalAccess
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
                         int gracePeriodMinutes = 0;
+                        bool isSuspend = false;
                         GetSubscriptionBundlePurchaseData(subsRow, "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
-                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes);
+                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref isSuspend);
 
                         // decide which is the correct end period
                         if (endDate < DateTime.UtcNow)
@@ -4321,8 +4341,9 @@ namespace Core.ConditionalAccess
                             int maxNumOfUses = 0;
                             string bundleCode = string.Empty;
                             int gracePeriodMinutes = 0;
+                            bool isSuspend = false;
                             GetSubscriptionBundlePurchaseData(subsRow, "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
-                                                                ref purchaseDate, ref endDate, ref gracePeriodMinutes);
+                                                                ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref isSuspend);
 
                             // decide which is the correct end period
                             if (endDate < DateTime.UtcNow)
@@ -4333,17 +4354,18 @@ namespace Core.ConditionalAccess
                             {
                                 if (!result.EntitledSubscriptions.ContainsKey(bundleCode))
                                 {
-                                    result.EntitledSubscriptions[bundleCode] = new List<UserBundlePurchase>();
+                                    result.EntitledSubscriptions[bundleCode] = new List<UserBundlePurchaseWithSuspend>();
                                 }
 
-                                result.EntitledSubscriptions[bundleCode].Add(new UserBundlePurchase()
+                                result.EntitledSubscriptions[bundleCode].Add(new UserBundlePurchaseWithSuspend()
                                 {
                                     sBundleCode = bundleCode,
                                     nWaiver = waiver,
                                     dtPurchaseDate = purchaseDate,
                                     dtEndDate = endDate,
                                     nNumOfUses = numOfUses,
-                                    nMaxNumOfUses = maxNumOfUses
+                                    nMaxNumOfUses = maxNumOfUses,
+                                    isSuspend = isSuspend
                                 });
                             }
                         }
@@ -4433,21 +4455,21 @@ namespace Core.ConditionalAccess
                 DomainBundles tempDomainBundles = null;
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
                 if (LayeredCache.Instance.Get<DomainBundles>(key, ref tempDomainBundles, InitializeDomainBundles, funcParams, groupId, LayeredCacheConfigNames.GET_DOMAIN_BUNDLES_LAYERED_CACHE_CONFIG_NAME,
-                                                                LayeredCacheKeys.GetDomainEntitlementInvalidationKeys(domainId)) && tempDomainBundles != null)
+                                                                LayeredCacheKeys.GetDomainBundlesInvalidationKeys(domainId)) && tempDomainBundles != null)
                 {
                     domainBundles = ObjectCopier.Clone<DomainBundles>(tempDomainBundles);
                     // remove expired subscriptions
                     if (tempDomainBundles.EntitledSubscriptions != null)
                     {
-                        foreach (KeyValuePair<string, List<UserBundlePurchase>> pair in tempDomainBundles.EntitledSubscriptions)
+                        foreach (KeyValuePair<string, List<UserBundlePurchaseWithSuspend>> pair in tempDomainBundles.EntitledSubscriptions)
                         {
-                            List<UserBundlePurchase> validPurchases = new List<UserBundlePurchase>();
+                            List<UserBundlePurchaseWithSuspend> validPurchases = new List<UserBundlePurchaseWithSuspend>();
                             if (pair.Value != null)
                             {
-                                validPurchases = pair.Value.Where(x => x.dtEndDate > DateTime.UtcNow).ToList();
+                                validPurchases = pair.Value.Where(x => x.dtEndDate > DateTime.UtcNow || x.isSuspend).ToList();
                                 if (validPurchases != null && validPurchases.Count > 0)
                                 {
-                                    domainBundles.EntitledSubscriptions[pair.Key] = new List<UserBundlePurchase>(validPurchases);
+                                    domainBundles.EntitledSubscriptions[pair.Key] = new List<UserBundlePurchaseWithSuspend>(validPurchases);
                                 }
                                 else
                                 {

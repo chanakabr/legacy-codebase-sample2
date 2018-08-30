@@ -1529,7 +1529,7 @@ namespace PermissionsManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed loading folder of permissions. ex = {0}, jsonString = {1}", ex, jsonString);
+                log.ErrorFormat("Failed loading folder of permissions. ex = {0}", ex);
             }
 
             return result;

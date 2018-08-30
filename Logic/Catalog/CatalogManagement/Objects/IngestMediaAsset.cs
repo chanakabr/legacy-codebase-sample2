@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ApiObjects.Response;
 using System;
 using System.Linq;
+using ApiObjects;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -78,12 +79,12 @@ namespace Core.Catalog.CatalogManagement
         public IngestDates Dates { get; set; }
     }
     
-    public class IngestMultilingual
+    public class IngestMultilingual : IngestBaseMeta
     {
         [XmlElement("value")]
         public List<IngestLanguageValue> Values { get; set; }
 
-        internal Status Validate(string parameterName, string groupDefaultLanguageCode, HashSet<string> groupLanguageCodes, bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true, bool shouldValidateRequestLanguage = true)
+        internal Status Validate(string parameterName, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
@@ -103,25 +104,24 @@ namespace Core.Catalog.CatalogManagement
                     return status;
                 }
 
-                if (shouldValidateValues)
+                //Validate Values
+                if (string.IsNullOrEmpty(ingestLanguageValue.Text))
                 {
-                    if (string.IsNullOrEmpty(ingestLanguageValue.Text))
-                    {
-                        status.Set((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
-                        return status;
-                    }
+                    status.Set((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
+                    return status;
+                }
 
-                    if (groupLanguageCodes != null && !groupLanguageCodes.Contains(ingestLanguageValue.LangCode))
-                    {
-                        status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
-                        return status;
-                    }
+                if (languageMapByCode != null && !languageMapByCode.ContainsKey(ingestLanguageValue.LangCode))
+                {
+                    status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
+                    return status;
                 }
 
                 languageCodes.Add(ingestLanguageValue.LangCode);
             }
 
-            if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(groupDefaultLanguageCode))
+            // Check Default Language Is Sent
+            if (!languageCodes.Contains(defaultLanguageCode))
             {
                 status.Set((int)eResponseStatus.Error, string.Format("Default language must be one of the values sent for {0}", parameterName));
                 return status;
@@ -205,16 +205,15 @@ namespace Core.Catalog.CatalogManagement
         [XmlElement("metas")]
         public IngestMetas Metas { get; set; }
 
-        internal Status ValidateStrings(Dictionary<string, Topic> topicsMapBySystemName, string groupDefaultLanguageCode, HashSet<string> groupLanguageCodes)
+        internal Status ValidateStrings(Dictionary<string, Topic> topicsMapBySystemName, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
         {
             if (Strings != null && Strings.MetaStrings != null && Strings.MetaStrings.Count > 0)
             {
                 foreach (var metaString in Strings.MetaStrings)
                 {
-                    Topic topic = topicsMapBySystemName[metaString.Name];
-                    if (topic != null && topic.Type == ApiObjects.MetaType.MultilingualString)
+                    if (topicsMapBySystemName.ContainsKey(metaString.Name) && topicsMapBySystemName[metaString.Name].Type == ApiObjects.MetaType.MultilingualString)
                     {
-                        Status status = metaString.Validate("media.structure.strings.meta", groupDefaultLanguageCode, groupLanguageCodes);
+                        Status status = metaString.Validate("media.structure.strings.meta", defaultLanguageCode, languageMapByCode);
                         if (status != null && status.Code != (int)eResponseStatus.OK)
                         {
                             return status;
@@ -226,28 +225,29 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
-        internal Status ValidateMetaTags(string mainLanguageName, HashSet<string> groupLanguageCodes)
+        internal Status ValidateMetaTags(string mainLanguageName, Dictionary<string, LanguageObj> languageMapByCode)
         {
-            if (Metas != null && Metas.MetaTags != null && Metas.MetaTags.Count > 0)
-            {
-                foreach (var metaTag in Metas.MetaTags)
-                {
-                    if (metaTag.Containers != null && metaTag.Containers.Count > 0)
-                    {
-                        foreach (var item in metaTag.Containers)
-                        {
-                            if (item.Values != null && item.Values.Count > 0)
-                            {
-                                var otherTagLangCount = item.Values.Count(x => !mainLanguageName.Equals(x.LangCode));
-                                if (otherTagLangCount > 0)
-                                {
-                                    return new Status((int)eResponseStatus.Error, "Tag translations are not allowed using ingest controller, please use tag controller");   
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            // TODO SHIR - THIS IS FALSE, FIX VALIDATION FOR ValidateMetaTags
+            //if (Metas != null && Metas.MetaTags != null && Metas.MetaTags.Count > 0)
+            //{
+            //    foreach (var metaTag in Metas.MetaTags)
+            //    {
+            //        if (metaTag.Containers != null && metaTag.Containers.Count > 0)
+            //        {
+            //            foreach (var item in metaTag.Containers)
+            //            {
+            //                if (item.Values != null && item.Values.Count > 0)
+            //                {
+            //                    var otherTagLangCount = item.Values.Count(x => !mainLanguageName.Equals(x.LangCode));
+            //                    if (otherTagLangCount > 0)
+            //                    {
+            //                        return new Status((int)eResponseStatus.Error, "Tag translations are not allowed using ingest controller, please use tag controller");   
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
 
             return new Status((int)eResponseStatus.OK);
         }
@@ -282,60 +282,9 @@ namespace Core.Catalog.CatalogManagement
     public class IngestStrings
     {
         [XmlElement("meta")]
-        public List<IngestMeta> MetaStrings { get; set; }
+        public List<IngestMultilingual> MetaStrings { get; set; }
     }
-
-    public class IngestMeta : IngestBaseMeta
-    {
-        [XmlElement("value")]
-        public List<IngestLanguageValue> Values { get; set; }
-
-        // TODO SHIR - SET DEPENDENCY INJECTION WITH MULTILINGUAL
-        internal Status Validate(string parameterName, string groupDefaultLanguageCode, HashSet<string> groupLanguageCodes, bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true, bool shouldValidateRequestLanguage = true)
-        {
-            Status status = new Status((int)eResponseStatus.OK);
-
-            if (Values != null && Values.Count > 0)
-            {
-                HashSet<string> languageCodes = new HashSet<string>();
-
-                foreach (IngestLanguageValue ingestLanguageValue in Values)
-                {
-                    if (languageCodes.Contains(ingestLanguageValue.LangCode))
-                    {
-                        status.Set((int)eResponseStatus.Error, string.Format("languageCode: {0} has been sent more than once", ingestLanguageValue.LangCode));
-                        return status;
-                    }
-
-                    if (shouldValidateValues)
-                    {
-                        if (string.IsNullOrEmpty(ingestLanguageValue.Text))
-                        {
-                            status.Set((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
-                            return status;
-                        }
-
-                        if (groupLanguageCodes != null && !groupLanguageCodes.Contains(ingestLanguageValue.LangCode))
-                        {
-                            status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
-                            return status;
-                        }
-                    }
-
-                    languageCodes.Add(ingestLanguageValue.LangCode);
-                }
-
-                if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(groupDefaultLanguageCode))
-                {
-                    status.Set((int)eResponseStatus.Error, string.Format("Default language must be one of the values sent for {0}", parameterName));
-                    return status;
-                }
-            }
-
-            return status;
-        }
-    }
-
+    
     public class IngestMetas
     {
         [XmlElement("meta")]
