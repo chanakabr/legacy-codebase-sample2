@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
                 }
                 
-                return ClientsManager.ApiClient().AddPersonalListItemToUser(groupId, userId, personalList);
+                return ClientsManager.ApiClient().AddPersonalListItemToUser(groupId, personalList, userId);
             }
             catch (ClientException ex)
             {
@@ -124,7 +124,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)eResponseStatus.InvalidUser, "Invalid Username");
                 }
 
-                ClientsManager.ApiClient().DeletePersonalListItemFromUser(groupId, userId, personalListId);
+                ClientsManager.ApiClient().DeletePersonalListItemFromUser(groupId, personalListId, userId);
             }
             catch (ClientException ex)
             {
