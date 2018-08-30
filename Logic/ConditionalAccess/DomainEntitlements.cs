@@ -86,13 +86,13 @@ namespace Core.ConditionalAccess
     public class DomainBundles
     {
         [JsonProperty("EntitledSubscriptions")]
-        public Dictionary<string, List<ConditionalAccess.Utils.UserBundlePurchase>> EntitledSubscriptions { get; set; }
+        public Dictionary<string, List<ConditionalAccess.Utils.UserBundlePurchaseWithSuspend>> EntitledSubscriptions { get; set; }
         [JsonProperty("EntitledCollections")]
         public Dictionary<string, List<ConditionalAccess.Utils.UserBundlePurchase>> EntitledCollections { get; set; }
 
         public DomainBundles()
         {
-            EntitledSubscriptions = new Dictionary<string, List<Utils.UserBundlePurchase>>();
+            EntitledSubscriptions = new Dictionary<string, List<Utils.UserBundlePurchaseWithSuspend>>();
             EntitledCollections = new Dictionary<string, List<Utils.UserBundlePurchase>>();
         }
     }

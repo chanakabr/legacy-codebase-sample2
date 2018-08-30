@@ -16531,6 +16531,14 @@ namespace Core.ConditionalAccess
                         {
                             log.ErrorFormat("Failed to suspend household entitlements. householdId = {0}, proccessId = {1}", householdId, string.Join(",", unifiedProcessIds));
                         }
+                        else
+                        {
+                            string invalidationKey = LayeredCacheKeys.GetSubscriptionSuspendInvalidationKey(householdId);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on SuspendPaymentGatewayEntitlements key = {0}", invalidationKey);
+                            }                            
+                        }
                     }
                 }
                 else
