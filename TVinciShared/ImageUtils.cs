@@ -884,7 +884,31 @@ namespace TVinciShared
             selectQuery = null;
             return rationId;
         }
-        
+
+        // TODO SHIR - USE GOOD METHOD
+        public static string GetGroupDefaultRatioName(int groupId)
+        {
+            int ratioId = GetGroupDefaultRatio(groupId);
+            string ratioName = string.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            selectQuery += "select RATIO from lu_pics_ratios (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", ratioId);
+            selectQuery.SetCachedSec(120);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    ratioName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "RATIO", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return ratioName;
+        }
+
         public static int GetGroupDefaultEpgRatio(int groupId)
         {
             int rationId = 0;
