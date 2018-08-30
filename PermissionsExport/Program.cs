@@ -26,7 +26,6 @@ namespace PermissionsDeployment
 
             if (arguments == null || arguments.Count == 0 || arguments.ContainsKey(HELP))
             {
-
                 string version = string.Empty;
 
                 try
