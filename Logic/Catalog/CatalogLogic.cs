@@ -393,7 +393,7 @@ namespace Core.Catalog
                 List<LanguageObj> languages = new List<LanguageObj>();
                 LanguageObj language = null;
 
-                if (group.isGeoAvailabilityWindowingEnabled)
+                if (group.isGeoAvailabilityWindowingEnabled && !managementData)
                     sEndDate = "GEO";
                 else
                     sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
