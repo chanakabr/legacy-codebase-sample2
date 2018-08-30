@@ -154,7 +154,7 @@ namespace Core.Catalog.CatalogManagement
                                 FinalEndDate = GetDateTimeFromString(media.Basic.Dates.End, endDate),
                                 GeoBlockRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
                                 DeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
-                                Metas = GetMetasList(media.Structure, catalogGroupCache.DefaultLanguage.Code),
+                                Metas = GetMetasList(media.Structure, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache),
                                 Tags = GetTagsList(media.Structure.Metas, catalogGroupCache.DefaultLanguage.Code, ref tagsTranslations)
                             };
 
@@ -450,7 +450,7 @@ namespace Core.Catalog.CatalogManagement
             return null;
         }
         
-        private static List<Metas> GetMetasList(IngestStructure structure, string mainLanguageCode)
+        private static List<Metas> GetMetasList(IngestStructure structure, string mainLanguageCode, CatalogGroupCache catalogGroupCache)
         {
             List<Metas> metas = null;
 
@@ -495,7 +495,10 @@ namespace Core.Catalog.CatalogManagement
                         metas = new List<Metas>();
                     }
 
-                    metas.Add(new Metas(new TagMeta(stringMeta.Name, MetaType.MultilingualString.ToString()),
+                    MetaType metaType = catalogGroupCache.TopicsMapBySystemName.ContainsKey(stringMeta.Name) ?
+                        catalogGroupCache.TopicsMapBySystemName[stringMeta.Name].Type : MetaType.MultilingualString;
+
+                    metas.Add(new Metas(new TagMeta(stringMeta.Name, metaType.ToString()),
                                         stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(mainLanguageCode)).Text,
                                         stringMeta.Values.Where(x => !x.LangCode.Equals(mainLanguageCode))
                                                          .Select(x => new LanguageContainer(x.LangCode, x.Text))));

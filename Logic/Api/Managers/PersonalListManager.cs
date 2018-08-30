@@ -18,7 +18,7 @@ namespace APILogic.Api.Managers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const eCouchbaseBucket COUCHBASE_BUCKET = eCouchbaseBucket.NOTIFICATION;
 
-        public static GenericResponse<PersonalListItem> AddPersonalListItemForUser(int groupId, long userId, PersonalListItem personalListItem)
+        public static GenericResponse<PersonalListItem> AddPersonalListItemForUser(int groupId, PersonalListItem personalListItem, long userId)
         {
             GenericResponse<PersonalListItem> response = new GenericResponse<PersonalListItem>();
 
@@ -69,26 +69,21 @@ namespace APILogic.Api.Managers
             return response;
         }
 
-        public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageIndex, int pageSize, OrderDiretion order, HashSet<int> partnerListTypes)
+        public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageSize, int pageIndex, OrderDiretion order, HashSet<int> partnerListTypes)
         {
             GenericListResponse<PersonalListItem> response = new GenericListResponse<PersonalListItem>();
 
             try
             {
                 UserPersonalList userPersonalList = GetUserPersonalListCB(userId);
-
-                if (userPersonalList == null)
-                {
-                    return response;
-                }
-
-                if (userPersonalList.Items != null && userPersonalList.Items.Count > 0)
+                
+                if (userPersonalList != null && userPersonalList.Items != null && userPersonalList.Items.Count > 0)
                 {
                     List<PersonalListItem> items = new List<PersonalListItem>();
 
                     if (partnerListTypes != null && partnerListTypes.Count > 0)
                     {
-                        items = userPersonalList.Items.Where(x => partnerListTypes.Contains(x.PartnerListType)).ToList();
+                        items.AddRange(userPersonalList.Items.Where(x => partnerListTypes.Contains(x.PartnerListType)));
                     }
                     else
                     {
@@ -117,13 +112,13 @@ namespace APILogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error get personal list, userId:{0}", userId), ex);
+                log.Error(string.Format("Error GetUserPersonalListItems, userId:{0}", userId), ex);
             }
 
             return response;
         }
 
-        public static Status DeletePersonalListItemForUser(int groupId, long userId, long personalListItemId)
+        public static Status DeletePersonalListItemForUser(int groupId, long personalListItemId, long userId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
