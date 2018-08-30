@@ -3877,51 +3877,35 @@ namespace WebAPI.Clients
 
         internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy, HashSet<int> partnerListTypes)
         {
-            GenericListResponse<PersonalListItem> response = null;
+            KalturaPersonalListListResponse result = new KalturaPersonalListListResponse();
 
             // create order object
             OrderDiretion order = OrderDiretion.Desc;
             if (orderBy == KalturaPersonalListOrderBy.CREATE_DATE_ASC)
                 order = OrderDiretion.Asc;
 
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    //response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, partnerListTypes, true);
-                    response = Core.Api.Module.GetUserPersonalListItems(groupId, userId, pageSize, pageIndex, order, partnerListTypes);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetPersonalListItems.  groupID: {0}, userId: {1}, exception: {2}", groupId, userId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-            if (response.Status.Code != (int)eResponseStatus.OK)
-            {
-                // Bad response received from WS
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
+            Func<GenericListResponse<PersonalListItem>> getUserPersonalListItemsFunc = () =>
+               Core.Api.Module.GetUserPersonalListItems(groupId, userId, pageSize, pageIndex, order, partnerListTypes);
 
-            KalturaPersonalListListResponse result = new KalturaPersonalListListResponse()
-            {
-                PersonalListList = Mapper.Map<List<KalturaPersonalList>>(response.Objects),
-                TotalCount = response.TotalItems
-            };
+            KalturaGenericListResponse<KalturaPersonalList> response =
+                ClientUtils.GetResponseListFromWS<KalturaPersonalList, PersonalListItem>(getUserPersonalListItemsFunc);
+
+            result.PersonalListList = response.Objects;
+            result.TotalCount = response.TotalCount;
 
             return result;
         }
 
-        internal void DeletePersonalListItemFromUser(int groupId, int userId, long personalListItemId)
+        internal void DeletePersonalListItemFromUser(int groupId, long personalListItemId, int userId)
         {
-            Func<Status> deletePersonalListItemFromUserFunc = () => Core.Api.Module.DeletePersonalListItemForUser(groupId, userId, personalListItemId);
+            Func<Status> deletePersonalListItemFromUserFunc = () => Core.Api.Module.DeletePersonalListItemForUser(groupId, personalListItemId, userId);
             ClientUtils.GetResponseStatusFromWS(deletePersonalListItemFromUserFunc);
         }
 
-        internal KalturaPersonalList AddPersonalListItemToUser(int groupId, int userId, KalturaPersonalList kalturaPersonalList)
+        internal KalturaPersonalList AddPersonalListItemToUser(int groupId, KalturaPersonalList kalturaPersonalList, int userId)
         {
             Func<PersonalListItem, GenericResponse<PersonalListItem>> addPersonalListItemToUserFunc = (PersonalListItem personalListItemToFollow) =>
-                Core.Api.Module.AddPersonalListItemForUser(userId, groupId, personalListItemToFollow);
+                Core.Api.Module.AddPersonalListItemForUser(groupId, personalListItemToFollow, userId);
 
             KalturaPersonalList result =
                 ClientUtils.GetResponseFromWS<KalturaPersonalList, PersonalListItem>(kalturaPersonalList, addPersonalListItemToUserFunc);
