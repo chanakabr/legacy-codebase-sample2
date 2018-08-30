@@ -445,10 +445,12 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
                                                             ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
-        {
-            // TODO - Lior - change error codes and add new ones
+        {            
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
+
+            SetInheritedValue(groupId, catalogGroupCache, assetStruct, asset);
+
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, asset.Metas, asset.Tags, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc,
                                                                  ref assetCatalogStartDate, ref assetFinalEndDate);
             if (result.Code != (int)eResponseStatus.OK)
@@ -1081,6 +1083,8 @@ namespace Core.Catalog.CatalogManagement
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
                     && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
+                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, assetStruct, assetToAdd, null);
+
                     // UpdateIndex
                     bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                     if (!indexingResult)
@@ -1149,6 +1153,9 @@ namespace Core.Catalog.CatalogManagement
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
                     && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
+                    // update metadate inInherited
+                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, assetStruct, result.Object, currentAsset);
+
                     // UpdateIndex
                     bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                     if (!indexingResult)
@@ -1642,6 +1649,96 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static void SetInheritedValue(int groupId, CatalogGroupCache catalogGroupCache, AssetStruct assetStruct, MediaAsset asset)
+        {
+            // Add to asset.Metas, asset.Tags the missing values from parent
+            var inherited = assetStruct.AssetStructMetas.Where(x => x.Value.IsInherited.HasValue && x.Value.IsInherited.Value).ToList();
+            if (inherited != null && inherited.Count > 0)
+            {
+                List<Topic> topicsToInherit = new List<Topic>();
+                foreach (var kvp in inherited)
+                {
+                    Topic topic = catalogGroupCache.TopicsMapById[kvp.Value.MetaId];
+                    if (topic.Type == MetaType.Tag)
+                    {
+                        Tags tag = asset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
+                        if (tag == null)
+                        {
+                            topicsToInherit.Add(topic);
+                        }
+                    }
+                    else
+                    {
+                        Metas meta = asset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
+                        if (meta == null)
+                        {
+                            topicsToInherit.Add(topic);
+                        }
+                    }
+                }
+
+                if (topicsToInherit.Count > 0 && assetStruct.ParentId.HasValue)
+                {
+                    Topic parentConnectingTopic = catalogGroupCache.TopicsMapById[assetStruct.ConnectedParentMetaId.Value];
+                    Topic childConnectingTopic = catalogGroupCache.TopicsMapById[assetStruct.ConnectingMetaId.Value];
+
+                    string connectedValue = string.Empty;
+                    if (childConnectingTopic.Type == MetaType.Tag)
+                    {
+                        Tags t = asset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(childConnectingTopic.SystemName.ToLower()));
+                        if (t != null && t.m_lValues != null && t.m_lValues.Count > 0)
+                        {
+                            connectedValue = t.m_lValues[0];
+                        }
+                    }
+                    else
+                    {
+                        Metas meta = asset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(childConnectingTopic.SystemName.ToLower()));
+                        if (meta != null)
+                        {
+                            connectedValue = meta.m_sValue;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(connectedValue))
+                    {
+                        string filter = string.Format("(and asset_type='{0}' {1}='{2}')", assetStruct.ParentId.Value, parentConnectingTopic.SystemName, connectedValue);
+                        UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
+                        if (assets != null && assets.Length > 0)
+                        {
+                            GenericResponse<Asset> parentAsset = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+
+                            if (parentAsset.Status.Code != (int)eResponseStatus.OK || parentAsset.Object == null)
+                            {
+                                log.ErrorFormat("");
+                                return;
+                            }
+
+                            foreach (var topic in topicsToInherit)
+                            {
+                                if (topic.Type == MetaType.Tag)
+                                {
+                                    Tags tag = parentAsset.Object.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
+                                    if (tag != null)
+                                    {
+                                        asset.Tags.Add(tag);
+                                    }
+                                }
+                                else
+                                {
+                                    Metas meta = parentAsset.Object.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
+                                    if (meta != null)
+                                    {
+                                        asset.Metas.Add(meta);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -2059,6 +2156,8 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 int dbAssetType = -1;
+                MediaAsset mediaAsset = null;
+
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
@@ -2068,7 +2167,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.MEDIA:
                         dbAssetType = 0;
                         // validate topicsIds exist on asset
-                        MediaAsset mediaAsset = assets[0] as MediaAsset;
+                        mediaAsset = assets[0] as MediaAsset;
                         if (mediaAsset != null)
                         {
                             List<long> existingTopicsIds = mediaAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
@@ -2096,6 +2195,8 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId))
                 {
+                    CatalogManager.RemoveInheritedValue(groupId, catalogGroupCache, mediaAsset, metaIds, tagIds);
+
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     // UpdateIndex
                     bool indexingResult = false;
