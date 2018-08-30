@@ -696,7 +696,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                //// validate that asset file type exist
+                // validate that asset file type exist
                 List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
                 if (mediaFileTypes == null || mediaFileTypes.Count < 1)
                 {
@@ -704,7 +704,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                MediaFileType mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToUpdate.TypeId).SingleOrDefault();
+                MediaFileType mediaFileType = mediaFileTypes.FirstOrDefault(x => x.Id == assetFileToUpdate.TypeId);
                 if (mediaFileType == null)
                 {
                     result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
@@ -712,10 +712,10 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate media doesn't already have a file with this type
-                if (assetFileToUpdate.TypeId.HasValue)
+                if (assetFileToUpdate.TypeId.HasValue && assetFileToUpdate.Id != currentAssetFile.Object.Id)
                 {
                     List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToUpdate.AssetId);
-                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToUpdate.TypeId && x.Id != assetFileToUpdate.Id).Any())
+                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Any(x => x.TypeId == assetFileToUpdate.TypeId && x.Id != assetFileToUpdate.Id))
                     {
                         result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                         return result;
