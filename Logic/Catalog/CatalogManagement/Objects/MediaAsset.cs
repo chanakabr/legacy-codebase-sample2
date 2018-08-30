@@ -96,6 +96,5 @@ namespace Core.Catalog.CatalogManagement
             this.IsActive = mediaAssetToCopy.IsActive;
             this.MediaAssetType = mediaAssetToCopy.MediaAssetType;
         }
-
     }
 }

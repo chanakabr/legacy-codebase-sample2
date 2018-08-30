@@ -245,6 +245,16 @@ namespace Core.Api
                     return response;
                 }
 
+                // validate that there is such a role
+                var roles = GetRoles(groupId, new List<long>() { role.Id });
+
+                if (roles == null || roles.Status == null || roles.Roles == null || roles.Roles.Count == 0)
+                {
+
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PermissionNameNotExists, eResponseStatus.PermissionNameNotExists.ToString());
+                    return response;
+                }
+
                 XmlDocument xmlDoc = new XmlDocument();
                 BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
 
@@ -11232,6 +11242,21 @@ namespace Core.Api
             }
 
             return response;
+        }
+
+        public static GenericResponse<PersonalListItem> AddPersonalListItemForUser(int groupId, long userId, PersonalListItem personalListItem)
+        {
+            return APILogic.Api.Managers.PersonalListManager.AddPersonalListItemForUser(groupId, userId, personalListItem);
+        }
+
+        public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageIndex, int pageSize, OrderDiretion order, HashSet<int> partnerListTypes)
+        {    
+            return APILogic.Api.Managers.PersonalListManager.GetUserPersonalListItems(groupId, userId, pageIndex, pageSize, order, partnerListTypes);
+        }
+
+        public static Status DeletePersonalListItemForUser(int groupId, long userId, long personalListItemId)
+        {
+            return APILogic.Api.Managers.PersonalListManager.DeletePersonalListItemForUser(groupId, userId, personalListItemId);
         }
     }
 }

@@ -54,15 +54,11 @@ namespace Core.Catalog.Request
                                                         long recordingId, int platform, int countryId, eExpirationTTL ttl = eExpirationTTL.Short)
         {
             DevicePlayData currDevicePlayData = CatalogDAL.GetDevicePlayData(this.m_sUDID);
-            string playCycleKey = string.Empty;
-
-            int userId;
-            int.TryParse(this.m_sSiteGuid, out userId);
-
+            int userId = StringUtils.ConvertTo<int>(this.m_sSiteGuid);
             string npvrId = recordingId != 0 ? recordingId.ToString() : string.Empty;
-
+            
             // create and save new DevicePlayData if not exist
-            if (currDevicePlayData == null && userId > 0)
+            if (userId > 0 && (currDevicePlayData == null || IsReportingMode))
             {
                 //get domain by user
                 if (domainId == 0)
@@ -70,26 +66,42 @@ namespace Core.Catalog.Request
                     domainId = UsersDal.GetUserDomainID(m_sSiteGuid);
                 }
 
-                List<int> mediaConcurrencyRuleIds = null;
-                List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
-                List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
                 int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
-               
-                currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds, 
-                                                                         mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
-
-                //FPNPC -  on First Play create New Play Cycle
-                if (CatalogLogic.IsGroupUseFPNPC(groupId)) 
+                
+                if (IsReportingMode)
                 {
-                    // We still insert to DB incase needed by other process
-                    if (currDevicePlayData != null && !string.IsNullOrEmpty(currDevicePlayData.PlayCycleKey))
+                    DevicePlayData devicePlayDataReportingMode = new DevicePlayData(this.m_sUDID, mediaId, userId, 0, playType, action, deviceFamilyId, DateTime.UtcNow.ToUnixTimestamp(), 
+                                                                                    this.ProgramId, npvrId, domainId, null, null, null);
+
+                    if (currDevicePlayData != null)
                     {
-                        CatalogDAL.InsertPlayCycleKey(currDevicePlayData.UserId.ToString(), currDevicePlayData.AssetId, this.m_nMediaFileID,
-                                                      currDevicePlayData.UDID, platform, countryId, 0, groupId, currDevicePlayData.PlayCycleKey);
+                        devicePlayDataReportingMode.PlayCycleKey = currDevicePlayData.PlayCycleKey;
                     }
-                    else
+
+                    currDevicePlayData = devicePlayDataReportingMode;
+                }
+                else
+                {
+                    List<int> mediaConcurrencyRuleIds = null;
+                    List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
+                    List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
+
+                    currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds,
+                                                                             mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
+
+                    //FPNPC -  on First Play create New Play Cycle
+                    if (CatalogLogic.IsGroupUseFPNPC(groupId))
                     {
-                        CatalogDAL.GetOrInsertPlayCycleKey(userId.ToString(), mediaId, this.m_nMediaFileID, this.m_sUDID, platform, countryId, 0, groupId, true);
+                        // We still insert to DB incase needed by other process
+                        if (currDevicePlayData != null && !string.IsNullOrEmpty(currDevicePlayData.PlayCycleKey))
+                        {
+                            CatalogDAL.InsertPlayCycleKey(currDevicePlayData.UserId.ToString(), currDevicePlayData.AssetId, this.m_nMediaFileID,
+                                                          currDevicePlayData.UDID, platform, countryId, 0, groupId, currDevicePlayData.PlayCycleKey);
+                        }
+                        else
+                        {
+                            CatalogDAL.GetOrInsertPlayCycleKey(userId.ToString(), mediaId, this.m_nMediaFileID, this.m_sUDID, platform, countryId, 0, groupId, true);
+                        }
                     }
                 }
             }
@@ -101,7 +113,7 @@ namespace Core.Catalog.Request
             }
 
             // update program assetEpgRules for linearChannel
-            if (currDevicePlayData != null && playType == ePlayType.MEDIA && isLinearChannel && currDevicePlayData.ProgramId != this.ProgramId && this.ProgramId != 0)
+            if (!IsReportingMode && currDevicePlayData != null && playType == ePlayType.MEDIA && isLinearChannel && currDevicePlayData.ProgramId != this.ProgramId && this.ProgramId != 0)
             {
                 // if not we need to update the devicePlayData with new assetrules according to the new programId
                 List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);

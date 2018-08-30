@@ -33,6 +33,7 @@ namespace Core.Catalog.CatalogManagement
         private const string PLAYERS_RULE_NOT_RECOGNIZED = "Players rule not recognized ";
         private const string UPDATE_INDEX_FAILED = "Update index failed";
         private const string MEDIA_ID_NOT_EXIST = "Media Id not exist";
+        private const string CANNOT_BE_EMPTY = "{0} cannot be empty";
         // TODO SHIR - ADD MORE CONSTS ERRORS 
 
         private const long USER_ID = 999;
@@ -52,7 +53,7 @@ namespace Core.Catalog.CatalogManagement
 
             IngestResponse ingestResponse = ConvertToMediaAssets(xml, groupId);
             
-            if (ingestResponse == null || string.IsNullOrEmpty(ingestResponse.Description))
+            if (ingestResponse == null)
             {
                 log.Warn("For input " + xml + " response is empty");
                 return new IngestResponse() { Status = "ERROR" };
@@ -90,35 +91,27 @@ namespace Core.Catalog.CatalogManagement
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling ConvertToMediaAssets", groupId);
                 return ingestResponse;
             }
-
-            string mainLanguageName = GetMainLanguageName(groupId);
-            if (string.IsNullOrEmpty(mainLanguageName))
-            {
-                // TODO SHIR - SET SOME ERROR
-            }
-
+            
             // get data for group
-            GenericListResponse<ImageType> imageTypes = ImageManager.GetImageTypes(groupId, false, null);
             GenericListResponse<MediaFileType> mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
-            int groupDefaultRatioId = ImageUtils.GetGroupDefaultRatio(groupId);
-            Dictionary<string, int> groupRatios = GetGroupRatios(groupId);
-            HashSet<string> groupLanguageCodes = GetGroupLanguageCodes(groupId);
+            string groupDefaultRatio = groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
+            Dictionary<string, ImageType> groupRatioNamesToImageTypes = GetGroupRatioNamesToImageTypes(groupId);
+            Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
 
             for (int i = 0; i < feed.Export.MediaList.Count; i++)
             {
                 IngestMedia media = feed.Export.MediaList[i];
-                IngestAssetStatus ingestAssetStatus = new IngestAssetStatus()
+                ingestResponse.AssetsStatus.Add(new IngestAssetStatus()
                 {
                     Warnings = new List<Status>(),
                     Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() }
-                };
+                });
 
                 // check media.CoGuid
                 if (string.IsNullOrEmpty(media.CoGuid))
                 {
-                    ingestAssetStatus.Status.Set((int)eResponseStatus.MissingExternalIdentifier, MISSING_EXTERNAL_IDENTIFIER);
+                    ingestResponse.AssetsStatus[i].Status.Set((int)eResponseStatus.MissingExternalIdentifier, MISSING_EXTERNAL_IDENTIFIER);
                     ingestResponse.Set(string.Empty, "Missing co_guid", "FAILED", 0);
-                    ingestResponse.AssetsStatus.Add(ingestAssetStatus);
                     log.ErrorFormat("Error import mediaIndex{0}, ErrorMessage:{1}", i, ingestResponse.Description);
                     continue;
                 }
@@ -127,12 +120,11 @@ namespace Core.Catalog.CatalogManagement
                 {
                     int mediaId = GetMediaIdByCoGuid(groupId, media.CoGuid);
 
-                    if (ValidateMedia(i, media, groupId, catalogGroupCache, mediaId, mainLanguageName, groupLanguageCodes, 
-                                      ref ingestAssetStatus, ref ingestResponse))
+                    if (ValidateMedia(i, media, groupId, catalogGroupCache, mediaId, ref ingestResponse))
                     {
                         if (media.Action.Equals(DELETE_ACTION))
                         {
-                            if (!DeleteMediaAsset(mediaId, media.CoGuid, groupId, ref ingestResponse, ref ingestAssetStatus))
+                            if (!DeleteMediaAsset(mediaId, media.CoGuid, groupId, ref ingestResponse, i))
                             {
                                 continue;
                             }
@@ -150,20 +142,20 @@ namespace Core.Catalog.CatalogManagement
                                 MediaAssetType = MediaAssetType.Media,
                                 CoGuid = media.CoGuid,
                                 EntryId = media.EntryId,
-                                IsActive = StringUtils.ConvertTo<bool>(media.IsActive),
+                                IsActive = StringUtils.TryConvertTo<bool>(media.IsActive),
                                 MediaType = new MediaType(media.Basic.MediaType, (int)catalogGroupCache.AssetStructsMapBySystemName[media.Basic.MediaType].Id),
-                                Name = GetMainLanguageValue(mainLanguageName, media.Basic.Name),
-                                NamesWithLanguages = GetOtherLanguages(mainLanguageName, media.Basic.Name),
-                                Description = GetMainLanguageValue(mainLanguageName, media.Basic.Description),
-                                DescriptionsWithLanguages = GetOtherLanguages(mainLanguageName, media.Basic.Description),
+                                Name = GetMainLanguageValue(catalogGroupCache.DefaultLanguage.Code, media.Basic.Name),
+                                NamesWithLanguages = GetOtherLanguages(catalogGroupCache.DefaultLanguage.Code, media.Basic.Name),
+                                Description = GetMainLanguageValue(catalogGroupCache.DefaultLanguage.Code, media.Basic.Description),
+                                DescriptionsWithLanguages = GetOtherLanguages(catalogGroupCache.DefaultLanguage.Code, media.Basic.Description),
                                 StartDate = startDate,
                                 CatalogStartDate = GetDateTimeFromString(media.Basic.Dates.CatalogStart, startDate),
                                 EndDate = endDate,
                                 FinalEndDate = GetDateTimeFromString(media.Basic.Dates.End, endDate),
                                 GeoBlockRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
                                 DeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
-                                Metas = GetMetasList(media.Structure, mainLanguageName, catalogGroupCache),
-                                Tags = GetTagsList(media.Structure.Metas, mainLanguageName),
+                                Metas = GetMetasList(media.Structure, catalogGroupCache.DefaultLanguage.Code),
+                                Tags = GetTagsList(media.Structure.Metas, catalogGroupCache.DefaultLanguage.Code, ref tagsTranslations)
                             };
 
                             // TODO SHIR - ASK IRA IF SOMEONE SENT IT AND THE MEDIA IS NEW, NEED EXAMPLE
@@ -171,16 +163,14 @@ namespace Core.Catalog.CatalogManagement
 
                             if (mediaAsset.Id == 0)
                             {
-                                if (!InsertMediaAsset(mediaAsset, media, groupId, imageTypes, mediaFileTypes, groupDefaultRatioId, 
-                                                      groupRatios, ref ingestResponse, ref ingestAssetStatus))
+                                if (!InsertMediaAsset(mediaAsset, media, groupId, mediaFileTypes, groupDefaultRatio, groupRatioNamesToImageTypes, ref ingestResponse, i))
                                 {
                                     continue;
                                 }
                             }
                             else
                             {
-                                if (!UpdateMediaAsset(mediaAsset, media, groupId, imageTypes, mediaFileTypes, !FALSE.Equals(media.Erase), 
-                                                      groupDefaultRatioId, groupRatios, ref ingestResponse, ref ingestAssetStatus))
+                                if (!UpdateMediaAsset(mediaAsset, media, groupId, mediaFileTypes, TRUE.Equals(media.Erase), groupDefaultRatio, groupRatioNamesToImageTypes, ref ingestResponse, i))
                                 {
                                     continue;
                                 }
@@ -213,11 +203,9 @@ namespace Core.Catalog.CatalogManagement
                         //    UpdateNotificationsRequests(groupId, mediaAsset.Id);
                         //}
 
-                        // succeeded export media
-                        ingestResponse.Set(media.CoGuid, "succeeded import media", "OK", mediaId);
+                        // succeeded import media
+                        ingestResponse.AssetsStatus[i].Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         log.DebugFormat("succeeded import media. CoGuid:{0}, MediaID:{1}, ErrorMessage:{2}", media.CoGuid, mediaId, media.IsActive, ingestResponse.Description);
-                        ingestAssetStatus.InternalAssetId = mediaId;
-                        ingestAssetStatus.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                     else
                     {
@@ -227,152 +215,185 @@ namespace Core.Catalog.CatalogManagement
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Converting media from xml to MediaAsset Failed. mediaIndex: {0}, Exception:{1}", i, ex);
+                    string errorMsg = string.Format("Exception while ConvertToMediaAssets for mediaIndex: {0}, Exception:{1}", i, ex);
+                    log.Error(errorMsg);
+                    ingestResponse.AssetsStatus[i].Status.Set((int)eResponseStatus.Error, errorMsg);
                 }
-
-                ingestResponse.AssetsStatus.Add(ingestAssetStatus);
             }
-
+            
             if (ingestResponse.AssetsStatus.All(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK))
             {
                 ingestResponse.IngestStatus.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
+            HandleTagsTranslations(tagsTranslations, groupId, catalogGroupCache, ref ingestResponse);
+                
             return ingestResponse;
         }
 
-        private static bool DeleteMediaAsset(int mediaId, string coGuid, int groupId, ref IngestResponse ingestResponse, ref IngestAssetStatus ingestAssetStatus)
+        private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations, int groupId, CatalogGroupCache catalogGroupCache, 
+                                                   ref IngestResponse ingestResponse)
+        {
+            foreach (var topic in tagsTranslations)
+            {
+                // tagsTranslation.Key == Genre
+                if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topic.Key))
+                {
+                    Topic catalogTopic = catalogGroupCache.TopicsMapBySystemName[topic.Key];
+
+                    foreach (var tag in topic.Value)
+                    {
+                        //topic.Key == drama
+                        var tagValues = CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, 0, 0, 0);
+
+                        if (tagValues == null || !tagValues.HasObjects())
+                        {
+                            ApiObjects.SearchObjects.TagValue tagValueToAdd = new ApiObjects.SearchObjects.TagValue()
+                            {
+                                topicId = (int)catalogTopic.Id,
+                                value = tag.Key,
+                                languageId = catalogGroupCache.DefaultLanguage.ID,
+                                TagsInOtherLanguages = new List<LanguageContainer>(tag.Value.Select(x => new LanguageContainer(x.Key, x.Value)))
+                            };
+                            
+                            var addTagResponse = CatalogManager.AddTag(groupId, tagValueToAdd, USER_ID);
+                            if (addTagResponse != null && !addTagResponse.HasObject())
+                            {
+                                string errorMsg = string.Format("HandleTagsTranslations - AddTag faild. topicId: {0}, addTagStatus: {1}.", catalogTopic.Id, addTagResponse.ToStringStatus());
+                                ingestResponse.AddError(errorMsg);
+                                log.Debug(errorMsg);
+                            }
+                        }
+                        else
+                        {
+                            foreach (var otherLanguage in tag.Value)
+                            {
+                                int otherLanguageIndex = tagValues.Objects[0].TagsInOtherLanguages.FindIndex(x => x.LanguageCode.Equals(otherLanguage.Key));
+                                if (otherLanguageIndex == -1)
+                                {
+                                    tagValues.Objects[0].TagsInOtherLanguages.Add(new LanguageContainer(otherLanguage.Key, otherLanguage.Value));
+                                }
+                                else
+                                {
+                                    tagValues.Objects[0].TagsInOtherLanguages[otherLanguageIndex].Value = otherLanguage.Value;
+                                }
+                            }
+
+                            var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValues.Objects[0].tagId, tagValues.Objects[0], USER_ID);
+                            if (updateTagResponse != null && !updateTagResponse.HasObject())
+                            {
+                                string errorMsg = string.Format("HandleTagsTranslations - UpdateTag faild. tagId: {0}, updateTagStatus: {1}.", tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
+                                ingestResponse.AddError(errorMsg);
+                                log.Debug(errorMsg);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static bool DeleteMediaAsset(int mediaId, string coGuid, int groupId, ref IngestResponse ingestResponse, int mediaIndex)
         {
             if (mediaId == 0)
             {
-                ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.MediaIdNotExist, Message = MEDIA_ID_NOT_EXIST });
-                log.Debug("ConvertToMediaAssets - Action:Delete; Error: media not exist");
+                ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.MediaIdNotExist, MEDIA_ID_NOT_EXIST));
+                log.DebugFormat("DeleteMediaAsset - {0}", MEDIA_ID_NOT_EXIST);
                 ingestResponse.Set(coGuid, "Cant delete. the item is not exist", "OK", mediaId);
-                ingestResponse.AssetsStatus.Add(ingestAssetStatus);
                 return false;
             }
 
             log.DebugFormat("Delete Media:{0}", mediaId);
 
-            Status status = AssetManager.DeleteAsset(groupId, mediaId, eAssetTypes.MEDIA, USER_ID);
-            if (status.Code != (int)eResponseStatus.OK)
+            Status deleteStatus = AssetManager.DeleteAsset(groupId, mediaId, eAssetTypes.MEDIA, USER_ID);
+            if (deleteStatus.Code != (int)eResponseStatus.OK)
             {
-                ingestAssetStatus.Status.Set(status.Code, status.Message);
-                log.Debug("ConvertToMediaAssets - DeleteAsset faild");
+                ingestResponse.AssetsStatus[mediaIndex].Status = deleteStatus;
+                log.Debug("DeleteMediaAsset - faild");
                 ingestResponse.Set(coGuid, "DeleteAsset faild", "FAILED", mediaId);
-                ingestResponse.AssetsStatus.Add(ingestAssetStatus);
                 return false;
             }
 
+            ingestResponse.Set(coGuid, "succeeded delete media", "OK", mediaId);
+            ingestResponse.AssetsStatus[mediaIndex].InternalAssetId = mediaId;
             return true;
         }
 
-        private static bool InsertMediaAsset(MediaAsset mediaAsset, IngestMedia media, int groupId, GenericListResponse<ImageType> imageTypes,
-                                             GenericListResponse<MediaFileType> mediaFileTypes, int groupDefaultRatioId, Dictionary<string, int> groupRatios,
-                                             ref IngestResponse ingestResponse, ref IngestAssetStatus ingestAssetStatus)
+        private static bool InsertMediaAsset(MediaAsset mediaAsset, IngestMedia media, int groupId, GenericListResponse<MediaFileType> mediaFileTypes, string groupDefaultRatio, 
+                                             Dictionary<string, ImageType> groupRatioNamesToImageTypes, ref IngestResponse ingestResponse, int mediaIndex)
         {
             GenericResponse<Asset> genericResponse = AssetManager.AddAsset(groupId, eAssetTypes.MEDIA, mediaAsset, USER_ID, true);
             if (genericResponse.Status.Code != (int)eResponseStatus.OK)
             {
-                ingestAssetStatus.Status.Set(genericResponse.Status.Code, genericResponse.Status.Message);
+                ingestResponse.AssetsStatus[mediaIndex].Status = genericResponse.Status;
                 log.Debug("InsertMediaAsset - AddAsset faild");
                 ingestResponse.Set(mediaAsset.CoGuid, "AddAsset faild", "FAILED", 0);
-                ingestResponse.AssetsStatus.Add(ingestAssetStatus);
                 return false; ;
             }
-            else
-            {
-                mediaAsset.Id = genericResponse.Object.Id;
-            }
-                       
-            var images = GetImages(media.Basic, groupId, imageTypes, groupDefaultRatioId, groupRatios);
-            if (images != null && images.Count > 0)
-            {
-                Status handleAssetImagesStatus = HandleAssetImages(groupId, mediaAsset.Id, eAssetImageType.Media, images, false);
-                if (handleAssetImagesStatus != null && handleAssetImagesStatus.Code != (int)eResponseStatus.OK)
-                {
-                    // TODO SHIR - ASK IRA IF NEED TO STOP HERE - RETURN FALSE
-                    ingestAssetStatus.Status.Set(handleAssetImagesStatus.Code, handleAssetImagesStatus.Message);
-                    ingestResponse.AssetsStatus.Add(ingestAssetStatus);
-                }
-            }
-            else
-            {
-                // TODO SHIR - SET SOME ERROR
-            }
 
-            var assetFiles = GetAssetFiles(media.Files, mediaFileTypes);
-            if (assetFiles != null && assetFiles.Count > 0)
-            {
-                Status HandleAssetFilesStatus = HandleAssetFiles(groupId, mediaAsset.Id, assetFiles, true);
-                if (HandleAssetFilesStatus != null && HandleAssetFilesStatus.Code != (int)eResponseStatus.OK)
-                {
-                    // TODO SHIR - ASK IRA IF NEED TO STOP HERE - RETURN FALSE
-                    ingestAssetStatus.Status.Set(HandleAssetFilesStatus.Code, HandleAssetFilesStatus.Message);
-                    ingestResponse.AssetsStatus.Add(ingestAssetStatus);
-                }
-            }
-            else
-            {
-                // TODO SHIR - SET SOME ERROR
-            }
+            mediaAsset.Id = genericResponse.Object.Id;
             
-            return true;
-        }
+            if (UpsertMediaAssetImagesAndFiles(false, mediaAsset.Id, true, groupId, media, groupDefaultRatio, groupRatioNamesToImageTypes, mediaFileTypes, ref ingestResponse, mediaIndex))
+            {
+                ingestResponse.Set(mediaAsset.CoGuid, "succeeded insert media", "OK", (int)mediaAsset.Id);
+                ingestResponse.AssetsStatus[mediaIndex].InternalAssetId = (int)mediaAsset.Id;
+                return true;
+            }
 
-        private static bool UpdateMediaAsset(MediaAsset mediaAsset, IngestMedia media, int groupId, GenericListResponse<ImageType> imageTypes,
-                                             GenericListResponse<MediaFileType> mediaFileTypes, bool eraseMedia, int groupDefaultRatioId,
-                                             Dictionary<string, int> groupRatios, ref IngestResponse ingestResponse, 
-                                             ref IngestAssetStatus ingestAssetStatus)
+            return false;
+        }
+        
+        private static bool UpdateMediaAsset(MediaAsset mediaAsset, IngestMedia media, int groupId, GenericListResponse<MediaFileType> mediaFileTypes, bool eraseMedia, string groupDefaultRatio,
+                                             Dictionary<string, ImageType> groupRatioNamesToImageTypes, ref IngestResponse ingestResponse, int mediaIndex)
         {
+            bool isCleared = false;
+
             if (eraseMedia)
             {
-                if (!AssetManager.ClearAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, USER_ID))
+                if (AssetManager.ClearAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, USER_ID))
+                {
+                    isCleared = true;
+                }
+                else
                 {
                     // TODO SHIR - SET SOME ERROR
                 }
             }
             
-            GenericResponse<Asset> genericResponse = AssetManager.UpdateAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, mediaAsset, USER_ID);
+            GenericResponse<Asset> genericResponse = AssetManager.UpdateAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, mediaAsset, USER_ID, true, isCleared);
             if (genericResponse.Status.Code != (int)eResponseStatus.OK)
             {
-                ingestAssetStatus.Status.Set(genericResponse.Status.Code, genericResponse.Status.Message);
+                ingestResponse.AssetsStatus[mediaIndex].Status = genericResponse.Status;
                 log.Debug("UpdateMediaAsset - UpdateAsset faild");
                 ingestResponse.Set(mediaAsset.CoGuid, "UpdateAsset faild", "FAILED", (int)mediaAsset.Id);
-                ingestResponse.AssetsStatus.Add(ingestAssetStatus);
                 return false;
             }
-            
-            var images = GetImages(media.Basic, groupId, imageTypes, groupDefaultRatioId, groupRatios);
+
+            mediaAsset.Id = genericResponse.Object.Id;
+
+            if (UpsertMediaAssetImagesAndFiles(true, mediaAsset.Id, eraseMedia, groupId, media, groupDefaultRatio, groupRatioNamesToImageTypes, mediaFileTypes, ref ingestResponse, mediaIndex))
+            {
+                ingestResponse.Set(mediaAsset.CoGuid, "succeeded update media", "OK", (int)mediaAsset.Id);
+                ingestResponse.AssetsStatus[mediaIndex].InternalAssetId = (int)mediaAsset.Id;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool UpsertMediaAssetImagesAndFiles(bool isUpdateRequest, long mediaAssetId, bool eraseExistingFiles, int groupId, IngestMedia media, string groupDefaultRatio,
+                                                           Dictionary<string, ImageType> groupRatioNamesToImageTypes, GenericListResponse<MediaFileType> mediaFileTypes,
+                                                           ref IngestResponse ingestResponse, int mediaIndex)
+        {
+            var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
             if (images != null && images.Count > 0)
             {
-                Status handleAssetImagesStatus = HandleAssetImages(groupId, mediaAsset.Id, eAssetImageType.Media, images, true);
-                if (handleAssetImagesStatus != null && handleAssetImagesStatus.Code != (int)eResponseStatus.OK)
-                {
-                    // TODO SHIR - ASK IRA IF NEED TO STOP HERE - RETURN FALSE
-                    ingestAssetStatus.Status.Set(handleAssetImagesStatus.Code, handleAssetImagesStatus.Message);
-                    ingestResponse.AssetsStatus.Add(ingestAssetStatus);
-                }
-            }
-            else
-            {
-                // TODO SHIR - SET SOME ERROR
+                HandleAssetImages(groupId, mediaAssetId, eAssetImageType.Media, images, isUpdateRequest, ref ingestResponse, mediaIndex);
             }
 
             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes);
             if (assetFiles != null && assetFiles.Count > 0)
             {
-                Status HandleAssetFilesStatus = HandleAssetFiles(groupId, mediaAsset.Id, assetFiles, eraseMedia);
-                if (HandleAssetFilesStatus != null && HandleAssetFilesStatus.Code != (int)eResponseStatus.OK)
-                {
-                    // TODO SHIR - ASK IRA IF NEED TO STOP HERE - RETURN FALSE
-                    ingestAssetStatus.Status.Set(HandleAssetFilesStatus.Code, HandleAssetFilesStatus.Message);
-                    ingestResponse.AssetsStatus.Add(ingestAssetStatus);
-                }
-            }
-            else
-            {
-                // TODO SHIR - SET SOME ERROR
+                HandleAssetFiles(groupId, mediaAssetId, assetFiles, eraseExistingFiles, ref ingestResponse, mediaIndex);
             }
 
             return true;
@@ -391,51 +412,45 @@ namespace Core.Catalog.CatalogManagement
 
             return null;
         }
-
-        private static HashSet<string> GetGroupLanguageCodes(int groupId)
+        
+        private static Dictionary<string, ImageType> GetGroupRatioNamesToImageTypes(int groupId)
         {
-            HashSet<string> groupLanguageCodes = null;
-
-            var groupLanguages = Api.Module.GetGroupLanguages(groupId);
-            if (groupLanguages != null && groupLanguages.Count > 0)
+            Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
+           
+            GenericListResponse<ImageType> imageTypes = ImageManager.GetImageTypes(groupId, false, null);
+            if (imageTypes != null && imageTypes.HasObjects())
             {
-                groupLanguageCodes = new HashSet<string>(groupLanguages.Select(x => x.Code));
-            }
+                var groupRatios = ImageManager.GetRatios(groupId);
 
-            return groupLanguageCodes;
-        }
-
-        private static Dictionary<string, int> GetGroupRatios(int groupId)
-        {
-            Dictionary<string, int> groupRatios = null;
-
-            var ratios = CatalogCache.Instance().GetGroupRatios(groupId);
-            if (ratios != null && ratios.Count > 0)
-            {
-                groupRatios = new Dictionary<string, int>(ratios.Count);
-                foreach (var ratio in ratios)
+                if (groupRatios != null && groupRatios.HasObjects())
                 {
-                    if (!groupRatios.ContainsKey(ratio.Name))
+                    groupRatioNamesToImageTypes = new Dictionary<string, ImageType>();
+
+                    foreach (var imageType in imageTypes.Objects)
                     {
-                        groupRatios.Add(ratio.Name, ratio.Id);
+                        var currRatio = groupRatios.Objects.FirstOrDefault(x => imageType.RatioId.HasValue && imageType.RatioId.Value == x.Id);
+                        if (currRatio != null && !groupRatioNamesToImageTypes.ContainsKey(currRatio.Name))
+                        {
+                            groupRatioNamesToImageTypes.Add(currRatio.Name, imageType);
+                        }
                     }
                 }
             }
-
-            return groupRatios;
+            
+            return groupRatioNamesToImageTypes;
         }
 
-        private static List<LanguageContainer> GetOtherLanguages(string mainLanguageName, IngestMultilingual multilingual)
+        private static List<LanguageContainer> GetOtherLanguages(string mainLanguageCode, IngestMultilingual multilingual)
         {
             if (multilingual != null && multilingual.Values != null && multilingual.Values.Count > 0)
             {
-                return new List<LanguageContainer>(multilingual.Values.Where(x => !x.LangCode.Equals(mainLanguageName)).Select(x => new LanguageContainer(x.LangCode, x.Text)));
+                return new List<LanguageContainer>(multilingual.Values.Where(x => !x.LangCode.Equals(mainLanguageCode)).Select(x => new LanguageContainer(x.LangCode, x.Text)));
             }
 
             return null;
         }
         
-        private static List<Metas> GetMetasList(IngestStructure structure, string mainLanguageName, CatalogGroupCache catalogGroupCache)
+        private static List<Metas> GetMetasList(IngestStructure structure, string mainLanguageCode)
         {
             List<Metas> metas = null;
 
@@ -453,9 +468,9 @@ namespace Core.Catalog.CatalogManagement
                 {
                     metas = new List<Metas>();
                 }
-
+                
                 metas.AddRange(structure.Booleans.Metas.Select
-                    (boolMeta => new Metas(new TagMeta(boolMeta.Name, MetaType.Bool.ToString()), boolMeta.Value)));
+                    (boolMeta => new Metas(new TagMeta(boolMeta.Name, MetaType.Bool.ToString()), boolMeta.Value.Equals(TRUE) ? "1" : "0")));
             }
 
             // add metas-dates
@@ -475,27 +490,29 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (var stringMeta in structure.Strings.MetaStrings)
                 {
-                    Topic topic = catalogGroupCache.TopicsMapBySystemName[stringMeta.Name];
-
-                    if (topic != null)
+                    if (metas == null)
                     {
-                        if (metas == null)
-                        {
-                            metas = new List<Metas>();
-                        }
-                        
-                        metas.Add(new Metas(new TagMeta(stringMeta.Name, topic.Type.ToString()),
-                                            stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(mainLanguageName)).Text,
-                                            stringMeta.Values.Where(x => !x.LangCode.Equals(mainLanguageName))
-                                                             .Select(x => new LanguageContainer(x.LangCode, x.Text))));
+                        metas = new List<Metas>();
                     }
+
+                    metas.Add(new Metas(new TagMeta(stringMeta.Name, MetaType.MultilingualString.ToString()),
+                                        stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(mainLanguageCode)).Text,
+                                        stringMeta.Values.Where(x => !x.LangCode.Equals(mainLanguageCode))
+                                                         .Select(x => new LanguageContainer(x.LangCode, x.Text))));
                 }
             }
 
             return metas;
         }
 
-        private static List<Tags> GetTagsList(IngestMetas metas, string mainLanguageName)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="metas"></param>
+        /// <param name="mainLanguageCode"></param>
+        /// <param name="tagsTranslations">{Genre, {Drama, {[heb, דרמה], [jap, ドラマ]}, }}</param>
+        /// <returns></returns>
+        private static List<Tags> GetTagsList(IngestMetas metas, string mainLanguageCode, ref Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations)
         {
             List<Tags> tags = null;
 
@@ -504,31 +521,48 @@ namespace Core.Catalog.CatalogManagement
                 // add metas-tags
                 foreach (var metaTag in metas.MetaTags)
                 {
-                    List<string> finalValues = new List<string>();
+                    List<string> finalMainValues = new List<string>();
 
+                    if (!tagsTranslations.ContainsKey(metaTag.Name))
+                    {
+                        tagsTranslations.Add(metaTag.Name, new Dictionary<string, Dictionary<string, string>>());
+                    }
+                    
                     foreach (var container in metaTag.Containers)
                     {
-                        IEnumerable<string[]> mainLanguageValues =
-                            container.Values.Where(x => mainLanguageName.Equals(x.LangCode) && !string.IsNullOrEmpty(x.Text))
-                                            .Select(x => x.Text.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
+                        Dictionary<string, string> translations = new Dictionary<string, string>();
 
-                        if (mainLanguageValues != null)
+                        foreach (var langValue in container.Values)
                         {
-                            foreach (var value in mainLanguageValues)
+                            if (string.IsNullOrEmpty(langValue.Text))
                             {
-                                finalValues.AddRange(value);
+                                continue;
+                            }
+
+                            if (mainLanguageCode.Equals(langValue.LangCode))
+                            {
+                                if (!tagsTranslations[metaTag.Name].ContainsKey(langValue.Text) && langValue.Text.IndexOf(';') == -1)
+                                {
+                                    tagsTranslations[metaTag.Name].Add(langValue.Text, translations);
+                                }
+                                
+                                finalMainValues.AddRange(langValue.Text.Split(';'));           
+                            }
+                            else
+                            {
+                                translations.Add(langValue.LangCode, langValue.Text);
                             }
                         }
                     }
-
-                    if (finalValues.Count > 0)
+                    
+                    if (finalMainValues.Count > 0)
                     {
                         if (tags == null)
                         {
                             tags = new List<Tags>();
                         }
 
-                        tags.Add(new Tags() { m_oTagMeta = new TagMeta(metaTag.Name, MetaType.Tag.ToString()), m_lValues = finalValues });
+                        tags.Add(new Tags() { m_oTagMeta = new TagMeta(metaTag.Name, MetaType.Tag.ToString()), m_lValues = finalMainValues });
                     }
                 }
             }
@@ -536,18 +570,16 @@ namespace Core.Catalog.CatalogManagement
             return tags;
         }
 
-        private static bool ValidateMedia(int mediaIndex, IngestMedia media, int groupId, CatalogGroupCache catalogGroupCache,
-                                          int mediaId, string mainLanguageName, HashSet<string> groupLanguageCodes,
-                                          ref IngestAssetStatus ingestAssetStatus, ref IngestResponse ingestResponse)
+        private static bool ValidateMedia(int mediaIndex, IngestMedia media, int groupId, CatalogGroupCache catalogGroupCache, int mediaId, ref IngestResponse ingestResponse)
         {
             if (string.IsNullOrEmpty(media.EntryId))
             {
-                ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.MissingEntryId, Message = MISSING_ENTRY_ID });
+                ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.MissingEntryId, MISSING_ENTRY_ID));
             }
 
             if (string.IsNullOrEmpty(media.Action))
             {
-                ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.MissingAction, Message = MISSING_ACTION });
+                ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.MissingAction, MISSING_ACTION));
             }
             
             if (string.IsNullOrEmpty(media.IsActive))
@@ -559,8 +591,9 @@ namespace Core.Catalog.CatalogManagement
             {   
                 if (media.Basic == null)
                 {
-                    ingestResponse.AddError("media.Basic cannot be empty");
-                    ingestAssetStatus.Status.Set((int)eResponseStatus.NameRequired, "media.Basic cannot be empty");
+                    string errMsg = string.Format(CANNOT_BE_EMPTY, "media.Basic");
+                    ingestResponse.AddError(errMsg);
+                    ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, errMsg);
                     return false;
                 }
 
@@ -571,7 +604,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     ingestResponse.AddError("Item type not recognized");
                     log.DebugFormat("ValidateMedia - Item type not recognized. co-guid:{0}", media.CoGuid);
-                    ingestAssetStatus.Status.Set((int)eResponseStatus.InvalidMediaType, string.Format("Invalid media type \"{0}\"", media.Basic.MediaType));
+                    ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.InvalidMediaType, string.Format("Invalid media type \"{0}\"", media.Basic.MediaType));
                     return false;
                 }
 
@@ -579,7 +612,7 @@ namespace Core.Catalog.CatalogManagement
                 if (media.Basic.Rules == null)
                 {
                     ingestResponse.AddError("media.Basic.Rules cannot be empty");
-                    ingestAssetStatus.Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Rules cannot be empty");
+                    ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Rules cannot be empty");
                     return false;
                 }
 
@@ -590,7 +623,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         ingestResponse.AddError(GEO_BLOCK_RULE_NOT_RECOGNIZED);
                         log.DebugFormat("ValidateMedia - Geo block rule not recognized. mediaIndex:{0}, GeoBlockRule:{1}", mediaIndex, media.Basic.Rules.GeoBlockRule);
-                        ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedGeoBlockRule, Message = GEO_BLOCK_RULE_NOT_RECOGNIZED });
+                        ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.NotRecognizedGeoBlockRule, GEO_BLOCK_RULE_NOT_RECOGNIZED));
                     }
                 }
 
@@ -601,7 +634,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         ingestResponse.AddError(DEVICE_RULE_NOT_RECOGNIZED);
                         log.DebugFormat("ValidateMedia - Device rule not recognized. mediaIndex:{0}, DeviceRule:{1}", mediaIndex, media.Basic.Rules.DeviceRule);
-                        ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedDeviceRule, Message = DEVICE_RULE_NOT_RECOGNIZED });
+                        ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.NotRecognizedDeviceRule, DEVICE_RULE_NOT_RECOGNIZED));
                     }
                 }
 
@@ -609,14 +642,14 @@ namespace Core.Catalog.CatalogManagement
                 if (media.Basic.Dates == null)
                 {
                     ingestResponse.AddError("media.Basic.Dates cannot be empty");
-                    ingestAssetStatus.Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Dates cannot be empty");
+                    ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Dates cannot be empty");
                     return false;
                 }
 
                 if (media.Structure == null)
                 {
                     ingestResponse.AddError("media.Structure cannot be empty");
-                    ingestAssetStatus.Status.Set((int)eResponseStatus.NameRequired, "media.Structure cannot be empty");
+                    ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Structure cannot be empty");
                     return false;
                 }
 
@@ -626,56 +659,56 @@ namespace Core.Catalog.CatalogManagement
                     if (media.Basic.Name == null)
                     {
                         ingestResponse.AddError("media.Basic.Name cannot be empty");
-                        ingestAssetStatus.Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Name cannot be empty");
+                        ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Name cannot be empty");
                         return false;
                     }
 
-                    Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", mainLanguageName, groupLanguageCodes);
+                    Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (nameValidationStatus != null && nameValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(nameValidationStatus.Message);
-                        ingestAssetStatus.Status.Set(nameValidationStatus.Code, nameValidationStatus.Message);
+                        ingestResponse.AssetsStatus[mediaIndex].Status = nameValidationStatus;
                         return false;
                     }
 
                     if (media.Basic.Description != null && media.Basic.Description.Values != null && media.Basic.Description.Values.Count == 0)
                     {
                         ingestResponse.AddError("media.Basic.Description cannot be empty");
-                        ingestAssetStatus.Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Description cannot be empty");
+                        ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Description cannot be empty");
                         return false;
                     }
 
                     if (media.Basic.Description != null)
                     {
-                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", mainLanguageName, groupLanguageCodes);
+                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                         if (descriptionValidationStatus != null && descriptionValidationStatus.Code != (int)eResponseStatus.OK)
                         {
                             ingestResponse.AddError(descriptionValidationStatus.Message);
-                            ingestAssetStatus.Status.Set(descriptionValidationStatus.Code, descriptionValidationStatus.Message);
+                            ingestResponse.AssetsStatus[mediaIndex].Status = descriptionValidationStatus;
                             return false;
                         }
                     }
                     
-                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, mainLanguageName, groupLanguageCodes);
+                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (stringsValidationStatus != null && stringsValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(stringsValidationStatus.Message);
-                        ingestAssetStatus.Status.Set(stringsValidationStatus.Code, stringsValidationStatus.Message);
+                        ingestResponse.AssetsStatus[mediaIndex].Status = stringsValidationStatus;
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(mainLanguageName, groupLanguageCodes);
+                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(metasValidationStatus.Message);
-                        ingestAssetStatus.Status.Set(metasValidationStatus.Code, metasValidationStatus.Message);
+                        ingestResponse.AssetsStatus[mediaIndex].Status = metasValidationStatus;
                         return false;
                     }
 
-                    if (!media.IsActive.Equals(TRUE) && !media.IsActive.Equals(FALSE))
+                    if (!TRUE.Equals(media.IsActive) && !FALSE.Equals(media.IsActive))
                     {
                         ingestResponse.AddError("media.IsActive cannot be empty");
-                        ingestAssetStatus.Status.Set((int)eResponseStatus.NameRequired, "media.IsActive cannot be empty");
+                        ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.IsActive cannot be empty");
                         return false;
                     }
                 }
@@ -685,39 +718,39 @@ namespace Core.Catalog.CatalogManagement
                     if (media.Basic.Name != null)
                     {
                         // TODO SHIR - SET METHOD COMMON FOR ALL ERROS
-                        Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", mainLanguageName, groupLanguageCodes);
+                        Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                         if (nameValidationStatus != null && nameValidationStatus.Code != (int)eResponseStatus.OK)
                         {
                             ingestResponse.AddError(nameValidationStatus.Message);
-                            ingestAssetStatus.Status.Set(nameValidationStatus.Code, nameValidationStatus.Message);
+                            ingestResponse.AssetsStatus[mediaIndex].Status = nameValidationStatus;
                             return false;
                         }
                     }
 
                     if (media.Basic.Description != null)
                     {
-                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", mainLanguageName, groupLanguageCodes);
+                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                         if (descriptionValidationStatus != null && descriptionValidationStatus.Code != (int)eResponseStatus.OK)
                         {
                             ingestResponse.AddError(descriptionValidationStatus.Message);
-                            ingestAssetStatus.Status.Set(descriptionValidationStatus.Code, descriptionValidationStatus.Message);
+                            ingestResponse.AssetsStatus[mediaIndex].Status = descriptionValidationStatus;
                             return false;
                         }
                     }
                     
-                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, mainLanguageName, groupLanguageCodes);
+                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (stringsValidationStatus != null && stringsValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(stringsValidationStatus.Message);
-                        ingestAssetStatus.Status.Set(stringsValidationStatus.Code, stringsValidationStatus.Message);
+                        ingestResponse.AssetsStatus[mediaIndex].Status = stringsValidationStatus;
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(mainLanguageName, groupLanguageCodes);
+                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(metasValidationStatus.Message);
-                        ingestAssetStatus.Status.Set(metasValidationStatus.Code, metasValidationStatus.Message);
+                        ingestResponse.AssetsStatus[mediaIndex].Status = metasValidationStatus;
                         return false;
                     }
                 }
@@ -832,38 +865,7 @@ namespace Core.Catalog.CatalogManagement
 
             return null;
         }
-
-        // TODO SHIR - use good method
-        static protected string GetMainLanguageName(int groupId)
-        {
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-
-            try
-            {
-                selectQuery += "select ll.id,ll.code3 from lu_languages ll (nolock),groups g (nolock) where g.LANGUAGE_ID=ll.id and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", groupId);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        return selectQuery.Table("query").DefaultView[0].Row["code3"].ToString();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                log.ErrorFormat("GetMainLanguageName failed for groupId: {0}.", groupId);
-            }
-            finally
-            {
-                selectQuery.Finish();
-                selectQuery = null;
-            }
-
-            return null;
-        }
-
+        
         // TODO SHIR - use good method
         private static int GetBillingTypeIdByName(string billingTypeName)
         {
@@ -903,18 +905,18 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="filesToHandle">the files of the asset that need handling</param>
         /// <param name="eraseExistingFiles">should erase asset existing files, relevant only when updating existing asset</param>
         /// <returns></returns>
-        private static Status HandleAssetFiles(int groupId, long assetId, List<AssetFile> filesToHandle, bool eraseExistingFiles)
+        private static void HandleAssetFiles(int groupId, long assetId, List<Tuple<AssetFile, string>> filesToHandle, bool eraseExistingFiles, ref IngestResponse ingestResponse, int index)
         {
             // TODO SHIR - UPDATE PREFORMENCE HandleAssetImages
-            List<AssetFile> filesToAdd = null;
-            List<AssetFile> filesToUpdate = null;
+            List<Tuple<AssetFile, string>> filesToAdd = null;
+            List<Tuple<AssetFile, string>> filesToUpdate = null;
             try
             {
                 // get the files we need to update
                 if (assetId > 0 && !eraseExistingFiles)
                 {
                     GenericListResponse<AssetFile> assetFilesResponse = FileManager.GetMediaFiles(groupId, 0, assetId);
-                    HashSet<string> filesToHandleExternalIds = new HashSet<string>(filesToHandle.Select(x => x.ExternalId), StringComparer.OrdinalIgnoreCase);
+                    HashSet<string> filesToHandleExternalIds = new HashSet<string>(filesToHandle.Select(x => x.Item1.ExternalId), StringComparer.OrdinalIgnoreCase);
                     Dictionary<string, long> updateFilesExternalIdToId = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
                     if (assetFilesResponse != null && assetFilesResponse.HasObjects())
                     {
@@ -922,16 +924,39 @@ namespace Core.Catalog.CatalogManagement
                         {
                             updateFilesExternalIdToId = assetFilesResponse.Objects.Where(x => filesToHandleExternalIds.Contains(x.ExternalId)).ToDictionary(x => x.ExternalId,
                                                                                                                                                     x => x.Id, StringComparer.OrdinalIgnoreCase);
-                            filesToUpdate = filesToHandle.Where(x => updateFilesExternalIdToId.ContainsKey(x.ExternalId)).ToList();
-                            foreach (AssetFile assetFile in filesToUpdate)
+                            filesToUpdate = filesToHandle.Where(x => updateFilesExternalIdToId.ContainsKey(x.Item1.ExternalId)).ToList();
+
+                            if (filesToUpdate != null && filesToUpdate.Count > 0)
                             {
-                                assetFile.Id = updateFilesExternalIdToId[assetFile.ExternalId];
-                                assetFile.AssetId = assetId;
+                                // handle files to update
+                                foreach (var assetFileToUpdate in filesToUpdate)
+                                {
+                                    assetFileToUpdate.Item1.Id = updateFilesExternalIdToId[assetFileToUpdate.Item1.ExternalId];
+                                    assetFileToUpdate.Item1.AssetId = assetId;
+
+                                    GenericResponse<AssetFile> updateFileResponse = FileManager.UpdateMediaFile(groupId, assetFileToUpdate.Item1, USER_ID, true);
+                                    if (updateFileResponse == null || !updateFileResponse.HasObject() || updateFileResponse.Object.Id == 0)
+                                    {
+                                        log.ErrorFormat("Failed updating asset file with externalId {0}, fileId: {1} for asset with id {2}, groupId: {3}",
+                                                        assetFileToUpdate.Item1.ExternalId, assetFileToUpdate.Item1.Id, assetId, groupId);
+
+                                        updateFileResponse.Status.Args = new List<KeyValuePair>()
+                                        {
+                                            new KeyValuePair("assetFileToUpdate.ExternalId", assetFileToUpdate.Item1.ExternalId),
+                                            new KeyValuePair("assetFileToUpdate.Id", assetFileToUpdate.Item1.Id.ToString()),
+                                            new KeyValuePair("assetFileToUpdate.TypeId", assetFileToUpdate.Item1.TypeId.HasValue ? assetFileToUpdate.Item1.TypeId.Value.ToString() : string.Empty),
+                                        };
+                                        ingestResponse.AssetsStatus[index].Warnings.Add(updateFileResponse.Status);
+                                        continue;
+                                    }
+
+                                    HandleAssetFilePpvModels(assetFileToUpdate.Item2, groupId, assetFileToUpdate.Item1.Id, assetFileToUpdate.Item1.AssetId);
+                                }
                             }
                         }
                     }
 
-                    filesToAdd = filesToHandle.Where(x => !updateFilesExternalIdToId.ContainsKey(x.ExternalId)).ToList();
+                    filesToAdd = filesToHandle.Where(x => !updateFilesExternalIdToId.ContainsKey(x.Item1.ExternalId)).ToList();
                 }
                 else
                 {
@@ -941,39 +966,32 @@ namespace Core.Catalog.CatalogManagement
                 // handle files to add
                 if (filesToAdd != null && filesToAdd.Count > 0)
                 {
-                    foreach (AssetFile assetFileToAdd in filesToAdd)
+                    foreach (var assetFileToAdd in filesToAdd)
                     {
-                        assetFileToAdd.AssetId = assetId;
-                        GenericResponse<AssetFile> addFileResponse = FileManager.InsertMediaFile(groupId, USER_ID, assetFileToAdd, true);
+                        assetFileToAdd.Item1.AssetId = assetId;
+                        GenericResponse<AssetFile> addFileResponse = FileManager.InsertMediaFile(groupId, USER_ID, assetFileToAdd.Item1, true);
                         if (addFileResponse == null || !addFileResponse.HasObject() || addFileResponse.Object.Id == 0)
                         {
-                            log.ErrorFormat("Failed adding asset file with externalId {0} for asset with id {1}, groupId: {2}", assetFileToAdd.ExternalId, assetId, groupId);
-                            return addFileResponse.Status;
+                            log.ErrorFormat("Failed adding asset file with externalId {0} for asset with id {1}, groupId: {2}", assetFileToAdd.Item1.ExternalId, assetId, groupId);
+                            addFileResponse.Status.Args = new List<KeyValuePair>()
+                            {
+                                new KeyValuePair("assetFileToAdd.ExternalId", assetFileToAdd.Item1.ExternalId),
+                                new KeyValuePair("assetFileToAdd.TypeId", assetFileToAdd.Item1.TypeId.HasValue ? assetFileToAdd.Item1.TypeId.Value.ToString() : string.Empty),
+                            };
+                            ingestResponse.AssetsStatus[index].Warnings.Add(addFileResponse.Status);
+                            continue;
                         }
-                    }
-                }
 
-                // handle files to update
-                if (filesToUpdate != null && filesToUpdate.Count > 0)
-                {
-                    foreach (AssetFile assetFileToUpdate in filesToUpdate)
-                    {
-                        GenericResponse<AssetFile> updateFileResponse = FileManager.UpdateMediaFile(groupId, assetFileToUpdate, USER_ID, true);
-                        if (updateFileResponse == null || !updateFileResponse.HasObject() || updateFileResponse.Object.Id == 0)
-                        {
-                            log.ErrorFormat("Failed updating asset file with externalId {0}, fileId: {1} for asset with id {2}, groupId: {3}",
-                                            assetFileToUpdate.ExternalId, assetFileToUpdate.Id, assetId, groupId);
-                            return updateFileResponse.Status;
-                        }
+                        HandleAssetFilePpvModels(assetFileToAdd.Item2, groupId, addFileResponse.Object.Id, assetFileToAdd.Item1.AssetId);
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new Status((int)eResponseStatus.Error, string.Format("HandleAssetFiles faild for assetId {0}", assetId));
+                string errorMsg = string.Format("Exception while HandleAssetFiles for assetId: {0}", assetId);
+                log.Error(errorMsg, ex);
+                ingestResponse.AssetsStatus[index].Warnings.Add(new Status((int)eResponseStatus.Error, errorMsg));
             }
-
-            return new Status((int)eResponseStatus.OK);
         }
 
         /// <summary>
@@ -984,7 +1002,8 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="imagesToHandle">the images of the asset that need handling</param>
         /// <param name="isUpdateRequest">is the request for updating the asset</param>
         /// <returns></returns>
-        private static Status HandleAssetImages(int groupId, long assetId, eAssetImageType imageObjectType, Dictionary<long, Image> imagesToHandle, bool isUpdateRequest)
+        private static void HandleAssetImages(int groupId, long assetId, eAssetImageType imageObjectType, Dictionary<long, Image> imagesToHandle, bool isUpdateRequest, 
+                                              ref IngestResponse ingestResponse, int index)
         {
             // TODO SHIR - UPDATE PREFORMENCE HandleAssetImages
             List<Image> imagesToAdd = null;
@@ -1028,7 +1047,14 @@ namespace Core.Catalog.CatalogManagement
                         if (addImageResponse == null || !addImageResponse.HasObject() || addImageResponse.Object.Id == 0)
                         {
                             log.ErrorFormat("Failed adding image with imageTypeId {0} for asset with id {1}, groupId: {2}", imageToAdd.ImageTypeId, assetId, groupId);
-                            return addImageResponse.Status;
+                            
+                            addImageResponse.Status.Args = new List<KeyValuePair>()
+                            {
+                                new KeyValuePair("imageToAdd.Id", imageToAdd.Id.ToString()),
+                                new KeyValuePair("imageToAdd.Url", imageToAdd.Url),
+                            };
+
+                            ingestResponse.AssetsStatus[index].Warnings.Add(addImageResponse.Status);
                         }
                         else
                         {
@@ -1046,65 +1072,63 @@ namespace Core.Catalog.CatalogManagement
                         Status setContentResponse = ImageManager.SetContent(groupId, USER_ID, imageToUpdate.Id, imageToUpdate.Url);
                         if (setContentResponse == null || !setContentResponse.IsOkStatusCode())
                         {
-                            log.ErrorFormat("Failed setContent for image with Id {0}, ImageTypeId {1} for assetId {2} and groupId: {3}", imageToUpdate.Id, imageToUpdate.ImageTypeId, assetId, groupId);
-                            return setContentResponse;
+                            log.ErrorFormat("Failed setContent for image with Id {0}, ImageTypeId {1} for assetId {2} and groupId: {3}",
+                                             imageToUpdate.Id, imageToUpdate.ImageTypeId, assetId, groupId);
+                            
+                            setContentResponse.Args = new List<KeyValuePair>()
+                            {
+                                new KeyValuePair("imageToUpdate.Id", imageToUpdate.Id.ToString()),
+                                new KeyValuePair("imageToUpdate.Url", imageToUpdate.Url),
+                            };
+
+                            ingestResponse.AssetsStatus[index].Warnings.Add(setContentResponse);
                         }
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return new Status((int)eResponseStatus.Error, string.Format("HandleAssetImages faild for assetId {0}", assetId));
+                string errorMsg = string.Format("Exception while HandleAssetImages for assetId: {0}", assetId);
+                log.Error(errorMsg, ex);
+                ingestResponse.AssetsStatus[index].Warnings.Add(new Status((int)eResponseStatus.Error, errorMsg));
             }
-
-            return new Status((int)eResponseStatus.OK);
         }
 
-        private static Dictionary<long, Image> GetImages(IngestBasic basic, int groupId, GenericListResponse<ImageType> imageTypes, int groupDefaultRatioId,
-                                             Dictionary<string, int> groupRatios)
+        private static Dictionary<long, Image> GetImages(IngestBasic basic, int groupId, string groupDefaultRatio, Dictionary<string, ImageType> groupRatioNamesToImageTypes)
         {
             Dictionary<long, Image> images = null;
 
-            if (imageTypes != null && imageTypes.HasObjects())
+            if (groupRatioNamesToImageTypes != null && groupRatioNamesToImageTypes.Count > 0)
             {
-                if (basic.Thumb != null && !string.IsNullOrEmpty(basic.Thumb.Url) && groupDefaultRatioId != 0)
+                if (basic.Thumb != null && !string.IsNullOrEmpty(basic.Thumb.Url) && !string.IsNullOrEmpty(groupDefaultRatio) && groupRatioNamesToImageTypes.ContainsKey(groupDefaultRatio))
                 {
-                    var imageType = imageTypes.Objects.FirstOrDefault(x => x.RatioId.HasValue && x.RatioId.Value == groupDefaultRatioId);
-                    
-                    if (imageType != null)
+                    Image image = new Image()
                     {
-                        Image image = new Image()
-                        {
-                            Url = basic.Thumb.Url,
-                            ImageTypeId = imageType.Id
-                        };
+                        Url = basic.Thumb.Url,
+                        ImageTypeId = groupRatioNamesToImageTypes[groupDefaultRatio].Id
+                    };
 
-                        images = new Dictionary<long, Image>() { { imageType.Id, image } };
-                    }
+                    images = new Dictionary<long, Image>() { { image.ImageTypeId, image } };
                 }
 
-                if (basic.PicsRatio.Ratios != null && basic.PicsRatio.Ratios.Count > 0 && groupRatios != null && groupRatios.Count > 0)
+                if (basic.PicsRatio.Ratios != null && basic.PicsRatio.Ratios.Count > 0)
                 {
                     foreach (var ratio in basic.PicsRatio.Ratios)
                     {
-                        if (groupRatios.ContainsKey(ratio.RatioText))
+                        if (groupRatioNamesToImageTypes.ContainsKey(ratio.RatioText))
                         {
-                            var imageType = imageTypes.Objects.FirstOrDefault(x => x.RatioId.HasValue && x.RatioId.Value == groupRatios[ratio.RatioText]);
-                            if (imageType != null)
+                            if (images == null)
                             {
-                                if (images == null)
-                                {
-                                    images = new Dictionary<long, Image>();
-                                }
+                                images = new Dictionary<long, Image>();
+                            }
 
-                                if (images.ContainsKey(imageType.Id))
-                                {
-                                    images[imageType.Id].Url = ratio.Thumb;
-                                }
-                                else
-                                {
-                                    images.Add(imageType.Id, new Image() { ImageTypeId = imageType.Id, Url = ratio.Thumb });
-                                }
+                            if (images.ContainsKey(groupRatioNamesToImageTypes[ratio.RatioText].Id))
+                            {
+                                images[groupRatioNamesToImageTypes[ratio.RatioText].Id].Url = ratio.Thumb;
+                            }
+                            else
+                            {
+                                images.Add(groupRatioNamesToImageTypes[ratio.RatioText].Id, new Image() { ImageTypeId = groupRatioNamesToImageTypes[ratio.RatioText].Id, Url = ratio.Thumb });
                             }
                         }
                     }
@@ -1114,9 +1138,9 @@ namespace Core.Catalog.CatalogManagement
             return images;
         }
 
-        private static List<AssetFile> GetAssetFiles(IngestFiles files, GenericListResponse<MediaFileType> mediaFileTypes)
+        private static List<Tuple<AssetFile, string>> GetAssetFiles(IngestFiles files, GenericListResponse<MediaFileType> mediaFileTypes)
         {
-            List<AssetFile> assetFiles = null;
+            List<Tuple<AssetFile, string>> assetFiles = null;
 
             if (files != null && files.MediaFiles != null && files.MediaFiles.Count > 0 && mediaFileTypes != null && mediaFileTypes.HasObjects())
             {
@@ -1127,33 +1151,221 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (assetFiles == null)
                         {
-                            assetFiles = new List<AssetFile>();
+                            assetFiles = new List<Tuple<AssetFile, string>>();
                         }
                         
-                        assetFiles.Add(new AssetFile(mediaFile.Type)
+                        assetFiles.Add(new Tuple<AssetFile, string>(new AssetFile(mediaFile.Type)
                         {
                             TypeId = (int)mediaFileType.Id,
                             Url = mediaFile.CdnCode,
-                            Duration = StringUtils.ConvertTo<long>(mediaFile.AssetDuration),
+                            Duration = StringUtils.TryConvertTo<long>(mediaFile.AssetDuration),
                             ExternalId = mediaFile.CoGuid,
                             AltExternalId = mediaFile.AltCoGuid,
                             ExternalStoreId = mediaFile.ProductCode,
                             AltStreamingCode = mediaFile.AltCdnCode,
                             BillingType = GetBillingTypeIdByName(mediaFile.BillingType),
                             Language = mediaFile.Language,
-                            IsDefaultLanguage = StringUtils.ConvertTo<bool>(mediaFile.IsDefaultLanguage),
-                            // TODO SHIR - ASK LIOR ABOUT OutputProtecationLevel
-                            // OutputProtecationLevel = mediaFile.OutputProtecationLevel,
+                            IsDefaultLanguage = StringUtils.TryConvertTo<bool>(mediaFile.IsDefaultLanguage),
+                            OutputProtecationLevel = StringUtils.ConvertTo<int>(mediaFile.OutputProtecationLevel),
                             StartDate = ExtractDate(mediaFile.FileStartDate, ASSET_FILE_DATE_FORMAT),
                             EndDate = ExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT),
-                            FileSize = StringUtils.ConvertTo<long>(mediaFile.FileSize),
+                            FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
                             IsActive = true
-                        });
+                        }, mediaFile.PpvModule));
                     }
                 }
             }
 
             return assetFiles;
+        }
+
+        private static void HandleAssetFilePpvModels(string ppvModuleName, int groupId, long assetFileId, long assetId)
+        {
+            if (!string.IsNullOrEmpty(ppvModuleName))
+            {
+                if (ppvModuleName.Contains(";"))
+                {
+                    string ParsedPPVModuleName = string.Empty;
+                    string[] parameters = ppvModuleName.Split(';');
+
+                    for (int i = 0; i < parameters.Length; i += 3)
+                    {
+                        int ppvID = GetPPVModuleID(parameters[i], groupId);
+
+                        if (ppvID <= 0)
+                        {
+                            continue;
+                        }
+
+                        DateTime? ppvStartDate = ExtractDate(parameters[i + 1], ASSET_FILE_DATE_FORMAT);
+                        DateTime? ppvEndDate = ExtractDate(parameters[i + 2], ASSET_FILE_DATE_FORMAT);
+
+                        DateTime? prevPPVFileStartDate = null;
+                        DateTime? prevPPVFileEndDate = null;
+
+                        if (ppvStartDate.HasValue && ppvEndDate.HasValue)
+                        {
+                            DataRow updatedppvModuleMediaFileDetails = 
+                                ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("ppv_modules_media_files", 
+                                                                                       "media_file_id", 
+                                                                                       assetFileId.ToString(), 
+                                                                                       new List<string>() { "start_date", "end_date" }, 
+                                                                                       "pricing_connection");
+
+                            prevPPVFileStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedppvModuleMediaFileDetails, "start_date");
+                            prevPPVFileEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedppvModuleMediaFileDetails, "end_date");
+                        }
+
+                        if (InsertFilePPVModule(ppvID, assetFileId, groupId, ppvStartDate, ppvEndDate, (i == 0)))
+                        {
+                            // check if changes in the start date require future index update call, incase ppvStartDate is in more than 2 years we don't update the index (per Ira's request)
+                            if (RabbitHelper.IsFutureIndexUpdate(prevPPVFileStartDate, ppvStartDate))
+                            {
+                                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<int>() { (int)assetId }, ppvStartDate.Value))
+                                {
+                                    log.Error(string.Format("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", ppvStartDate.Value, assetId, groupId));
+                                }
+                            }
+
+                            // check if changes in the end date require future index update call, incase ppvEndDate is in more than 2 years we don't update the index (per Ira's request)
+                            if (RabbitHelper.IsFutureIndexUpdate(prevPPVFileEndDate, ppvStartDate))
+                            {
+                                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<int>() { (int)assetId }, ppvEndDate.Value))
+                                {
+                                    log.Error(string.Format("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", ppvEndDate.Value, assetId, groupId));
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    int ppvID = GetPPVModuleID(ppvModuleName, groupId);
+                    InsertFilePPVModule(ppvID, assetFileId, groupId, null, null, true);
+                }
+            }
+        }
+
+        // TODO SHIR - use good method
+        static private int GetPPVModuleID(string moduleName, int groupId)
+        {
+            int nRet = 0;
+
+            if (string.IsNullOrEmpty(moduleName))
+            {
+                return 0;
+            }
+            
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("pricing_connection");
+            selectQuery += "select id from ppv_modules where IS_ACTIVE = 1 and STATUS = 1 and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", moduleName);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCopunt = selectQuery.Table("query").DefaultView.Count;
+                if (nCopunt > 0)
+                    nRet = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
+
+        // TODO SHIR - use good method
+        static private bool InsertFilePPVModule(int ppvModule, long fileID, int groupId, DateTime? startDate, DateTime? endDate, bool clear)
+        {
+            bool res = false;
+            if (ppvModule == 0)
+            {
+                return res;
+            }
+
+            //First initialize all previous entries.
+            if (clear)
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
+                updateQuery.SetConnectionKey("pricing_connection");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 0);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0);
+                updateQuery += "where";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", fileID);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+
+            int ppvFileID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("pricing_connection");
+            selectQuery += "select id from ppv_modules_media_files (nolock) where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", fileID);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    ppvFileID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            //If doesnt exist - create new entry
+            if (ppvFileID == 0)
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ppv_modules_media_files");
+                insertQuery.SetConnectionKey("pricing_connection");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", fileID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+
+                if (startDate.HasValue)
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
+                }
+
+                if (endDate.HasValue)
+                {
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
+                }
+
+                res = insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
+            }
+            else
+            {
+                //Update status of previous entry
+                ODBCWrapper.UpdateQuery updateOldQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
+                updateOldQuery.SetConnectionKey("pricing_connection");
+                updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("PPV_MODULE_ID", "=", ppvModule);
+
+                if (startDate.HasValue)
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
+                }
+
+                if (endDate.HasValue)
+                {
+                    updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
+                }
+
+                updateOldQuery += "where";
+                updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", ppvFileID);
+                res = updateOldQuery.Execute();
+                updateOldQuery.Finish();
+                updateOldQuery = null;
+            }
+
+            return res;
         }
     }
 }

@@ -5,6 +5,7 @@ using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using Core.Api.Managers;
 using Core.Api.Modules;
@@ -1986,5 +1987,132 @@ namespace Core.Api
             return CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(key);
         }
 
+        public static SegmentationTypeResponse AddSegmentationType(int groupId, SegmentationType segmentationType)
+        {
+            SegmentationTypeResponse response = new SegmentationTypeResponse();
+
+            bool insertResult = false;
+
+            try
+            {
+                segmentationType.GroupId = groupId;
+                insertResult = segmentationType.Insert();
+
+                if (!insertResult)
+                {
+                    response.Status = new Status((int)eResponseStatus.Error, "Failed inserting segmentation type.");
+                }
+                else
+                {
+                    response.Status = new Status();
+                    response.SegmentationType = segmentationType;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed inserting segmentation type. ex = {0}", ex);
+                response.Status = new Status((int)eResponseStatus.Error, "Error while inserting segmentation type.");
+            }
+
+            return response;
+        }
+
+        public static SegmentationTypeResponse UpdateSegmentationType(int groupId, SegmentationType segmentationType)
+        {
+            SegmentationTypeResponse response = new SegmentationTypeResponse();
+
+            bool updateResult = false;
+            try
+            {
+                segmentationType.GroupId = groupId;
+                updateResult = segmentationType.Update();
+
+                if (!updateResult)
+               {
+                    response.Status = segmentationType.ActionStatus;
+                }
+                else
+                {
+                    response.Status = new Status();
+                    response.SegmentationType = segmentationType;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed inserting segmentation type. ex = {0}", ex);
+                response.Status = new Status((int)eResponseStatus.Error, "Error while updating segmentation type.");
+            }
+
+            return response;
+        }
+
+        public static Status DeleteSegmentationType(int groupId, long id)
+        {
+            Status result = null;
+            bool deleteResult = false;
+            try
+            {
+                SegmentationType segmentationType = new SegmentationType()
+                {
+                    GroupId = groupId,
+                    Id = id
+                };
+
+                deleteResult = segmentationType.Delete();
+
+                if (!deleteResult)
+                {
+                    result = segmentationType.ActionStatus;
+                }
+                else
+                {
+                    result = new Status();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed inserting segmentation type. ex = {0}", ex);
+                result = new Status((int)eResponseStatus.Error, "Error while updating segmentation type.");
+            }
+
+            return result;
+        }
+
+        public static SegmentationTypesResponse ListSegmentationTypes(int groupId, int pageIndex, int pageSize)
+        {
+            SegmentationTypesResponse result = new SegmentationTypesResponse();
+
+            try
+            {
+                int totalCount;
+                List<SegmentationType> segementationTypes = SegmentationType.List(groupId, pageIndex, pageSize, out totalCount);
+
+                result.Status = new Status();
+                result.SegmentationTypes = segementationTypes;
+                result.TotalCount = totalCount;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed getting segmentation types of group id = {0}. ex = {0}", groupId, ex);
+                result.Status = new Status((int)eResponseStatus.Error, "Failed getting segmentation types");
+            }
+
+            return result;
+        }
+
+        public static GenericResponse<PersonalListItem> AddPersonalListItemForUser(int groupId, long userId, PersonalListItem personalListItem)
+        {
+            return Core.Api.api.AddPersonalListItemForUser(groupId, userId, personalListItem);
+        }
+
+        public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageIndex, int pageSize, OrderDiretion order, HashSet<int> partnerListTypes)
+        {
+            return Core.Api.api.GetUserPersonalListItems(groupId, userId, pageIndex, pageSize, order, partnerListTypes);
+        }
+
+        public static Status DeletePersonalListItemForUser(int groupId, long userId, long personalListItemId)
+        {
+            return Core.Api.api.DeletePersonalListItemForUser(groupId, userId, personalListItemId);
+        }
     }
 }
