@@ -1662,7 +1662,7 @@ namespace ElasticSearch.Common
             JObject json = new JObject();
 
             json["name"] = JToken.FromObject(channel.m_sName);
-            json["description"] = JToken.FromObject(channel.m_sDescription);
+            json["description"] = channel.m_sDescription != null ? JToken.FromObject(channel.m_sDescription) : JToken.FromObject(string.Empty);
             json["system_name"] = JToken.FromObject(channel.SystemName);
             json["channel_type"] = JToken.FromObject(channel.m_nChannelTypeID);
             json["channel_id"] = JToken.FromObject(channel.m_nChannelID);
