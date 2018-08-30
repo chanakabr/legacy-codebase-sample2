@@ -7543,7 +7543,7 @@
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaSegmentValue.Threshold">
             <summary>
-            Threshold - minimuim score to be met for this specific value
+            Threshold - minimum score to be met for this specific value
             </summary>
         </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaSegmentValues">

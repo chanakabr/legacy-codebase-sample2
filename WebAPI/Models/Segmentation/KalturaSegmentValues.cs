@@ -43,7 +43,7 @@ namespace WebAPI.Models.Segmentation
         public string Value { get; set; }
 
         /// <summary>
-        /// Threshold - minimuim score to be met for this specific value
+        /// Threshold - minimum score to be met for this specific value
         /// </summary>
         [DataMember(Name = "threshold")]
         [JsonProperty(PropertyName = "threshold")]
