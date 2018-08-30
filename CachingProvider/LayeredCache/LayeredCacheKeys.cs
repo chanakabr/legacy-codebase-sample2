@@ -81,7 +81,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainBundlesKey(int groupId, int domainId)
         {
-            return string.Format("domainBundles_groupId_{0}_domainId_{1}", groupId, domainId);
+            return string.Format("domainBundlesV2_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
         public static string GetPermissionsRolesIdsKey(int groupId)
@@ -483,6 +483,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("cancel_subscription_renewal_domainId_{0}", domainId);
         }
 
+        public static string GetSubscriptionSuspendInvalidationKey(long domainId)
+        {
+            return string.Format("subscription_suspend_domainId_{0}", domainId);
+        }
+
         public static string GetCancelTransactionInvalidationKey(long domainId)
         {
             return string.Format("cancel_transaction_domainId_{0}", domainId);
@@ -872,6 +877,15 @@ namespace CachingProvider.LayeredCache
                 GetRenewInvalidationKey(domainId),
                 GetCancelSubscriptionRenewalInvalidationKey(domainId)
             };
+        }
+
+        public static List<string> GetDomainBundlesInvalidationKeys(int domainId)
+        {
+            List<string> invalidationKeys = new List<string>();
+            invalidationKeys.Add(GetSubscriptionSuspendInvalidationKey(domainId);
+            invalidationKeys.AddRange(GetDomainEntitlementInvalidationKeys(domainId));
+
+            return invalidationKeys;
         }
 
         // call this when changes on asset may affect your cache
