@@ -20,6 +20,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Api;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
@@ -4050,8 +4051,8 @@ namespace WebAPI.Clients
         {
             KalturaAssetListResponse response = new KalturaAssetListResponse();
 
-            Models.Notification.KalturaPersonalListListResponse personalListRespnse = 
-                ClientsManager.NotificationClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Notification.KalturaPersonalListOrderBy.CREATE_DATE_ASC, partnerListTypes);
+            KalturaPersonalListListResponse personalListRespnse = 
+                ClientsManager.ApiClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Api.KalturaPersonalListOrderBy.CREATE_DATE_ASC, partnerListTypes);
             if (personalListRespnse.PersonalListList != null && personalListRespnse.PersonalListList.Count > 0)
             {
                 StringBuilder ksqlBuilder = new StringBuilder();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -141,6 +142,7 @@ namespace WebAPI.Controllers
         [Action("update")]       
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
+        [Throws(eResponseStatus.PermissionNameNotExists)]
         static public KalturaUserRole Update(long id, KalturaUserRole role)
         {
             if (id < 1)

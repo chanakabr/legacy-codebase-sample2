@@ -20,6 +20,7 @@ using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Api;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -3894,6 +3895,44 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy, HashSet<int> partnerListTypes)
+        {
+            KalturaPersonalListListResponse result = new KalturaPersonalListListResponse();
+
+            // create order object
+            OrderDiretion order = OrderDiretion.Desc;
+            if (orderBy == KalturaPersonalListOrderBy.CREATE_DATE_ASC)
+                order = OrderDiretion.Asc;
+
+            Func<GenericListResponse<PersonalListItem>> getUserPersonalListItemsFunc = () =>
+               Core.Api.Module.GetUserPersonalListItems(groupId, userId, pageSize, pageIndex, order, partnerListTypes);
+
+            KalturaGenericListResponse<KalturaPersonalList> response =
+                ClientUtils.GetResponseListFromWS<KalturaPersonalList, PersonalListItem>(getUserPersonalListItemsFunc);
+
+            result.PersonalListList = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal void DeletePersonalListItemFromUser(int groupId, long personalListItemId, int userId)
+        {
+            Func<Status> deletePersonalListItemFromUserFunc = () => Core.Api.Module.DeletePersonalListItemForUser(groupId, personalListItemId, userId);
+            ClientUtils.GetResponseStatusFromWS(deletePersonalListItemFromUserFunc);
+        }
+
+        internal KalturaPersonalList AddPersonalListItemToUser(int groupId, KalturaPersonalList kalturaPersonalList, int userId)
+        {
+            Func<PersonalListItem, GenericResponse<PersonalListItem>> addPersonalListItemToUserFunc = (PersonalListItem personalListItemToFollow) =>
+                Core.Api.Module.AddPersonalListItemForUser(groupId, personalListItemToFollow, userId);
+
+            KalturaPersonalList result =
+                ClientUtils.GetResponseFromWS<KalturaPersonalList, PersonalListItem>(kalturaPersonalList, addPersonalListItemToUserFunc);
+
+            return result;
+        }
+
         internal KalturaSegmentationType AddSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
         {
             KalturaSegmentationType newSegmentationType = null;
@@ -3969,7 +4008,7 @@ namespace WebAPI.Clients
         internal bool DeleteSegmentationType(int groupId, long id)
         {
             bool success = false;
-            
+
             Status response = null;
 
             try
