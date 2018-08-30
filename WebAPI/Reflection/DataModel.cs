@@ -21,12 +21,14 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.API;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Users;
+using WebAPI.Models.Segmentation;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.Api;
 
 namespace WebAPI.Reflection
 {
@@ -1315,6 +1317,38 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaContentActionCondition":
+                    switch(property.Name)
+                    {
+                        case "Action":
+                            return "action";
+                        case "Length":
+                            return "length";
+                        case "Multiplier":
+                            return "multiplier";
+                    }
+                    break;
+                    
+                case "KalturaContentScoreCondition":
+                    switch(property.Name)
+                    {
+                        case "Actions":
+                            return "actions";
+                        case "Score":
+                            return "score";
+                    }
+                    break;
+                    
+                case "KalturaContentSource":
+                    switch(property.Name)
+                    {
+                        case "Field":
+                            return "field";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     
@@ -3118,6 +3152,28 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaMonetizationCondition":
+                    switch(property.Name)
+                    {
+                        case "MinimumPrice":
+                            return "minimumPrice";
+                        case "Multiplier":
+                            return "multiplier";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaMonetizationSource":
+                    switch(property.Name)
+                    {
+                        case "Operator":
+                            return "operator";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
                 case "KalturaMultilingualString":
                     switch(property.Name)
                     {
@@ -4492,6 +4548,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaScoredMonetizationCondition":
+                    switch(property.Name)
+                    {
+                        case "Actions":
+                            return "actions";
+                        case "Score":
+                            return "score";
+                    }
+                    break;
+                    
                 case "KalturaSearchAssetFilter":
                     switch(property.Name)
                     {
@@ -4561,6 +4627,90 @@ namespace WebAPI.Reflection
                             return "seasonNumberIn";
                         case "SeriesIdEqual":
                             return "seriesIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaSegmentAllValues":
+                    switch(property.Name)
+                    {
+                        case "NameFormat":
+                            return "nameFormat";
+                    }
+                    break;
+                    
+                case "KalturaSegmentationType":
+                    switch(property.Name)
+                    {
+                        case "Conditions":
+                            return "conditions";
+                        case "Description":
+                            return "description";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
+                case "KalturaSegmentationTypeListResponse":
+                    switch(property.Name)
+                    {
+                        case "SegmentationTypes":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaSegmentRange":
+                    switch(property.Name)
+                    {
+                        case "GreaterThan":
+                            return "gt";
+                        case "GreaterThanOrEquals":
+                            return "gte";
+                        case "LessThan":
+                            return "lt";
+                        case "LessThanOrEquals":
+                            return "lte";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaSegmentRanges":
+                    switch(property.Name)
+                    {
+                        case "Ranges":
+                            return "ranges";
+                        case "Source":
+                            return "source";
+                    }
+                    break;
+                    
+                case "KalturaSegmentValue":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "Threshold":
+                            return "threshold";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
+                case "KalturaSegmentValues":
+                    switch(property.Name)
+                    {
+                        case "Source":
+                            return "source";
+                        case "Threshold":
+                            return "threshold";
+                        case "Values":
+                            return "values";
                     }
                     break;
                     
@@ -5415,6 +5565,24 @@ namespace WebAPI.Reflection
                             return "userFullName";
                         case "UserID":
                             return "userId";
+                    }
+                    break;
+                    
+                case "KalturaUserDataCondition":
+                    switch(property.Name)
+                    {
+                        case "Field":
+                            return "field";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
+                case "KalturaUserDynamicDataSource":
+                    switch(property.Name)
+                    {
+                        case "Field":
+                            return "field";
                     }
                     break;
                     
@@ -8124,6 +8292,28 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("searchHistory", "list", false);
                             return SearchHistoryController.List((KalturaSearchHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "segmentationtype":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("segmentationType", "add", false);
+                            return SegmentationTypeController.Add((KalturaSegmentationType) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("segmentationType", "delete", false);
+                            return SegmentationTypeController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("segmentationType", "list", false);
+                            return SegmentationTypeController.List((KalturaSegmentationTypeFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("segmentationType", "update", false);
+                            return SegmentationTypeController.Update((int) methodParams[0], (KalturaSegmentationType) methodParams[1]);
                             
                     }
                     break;
@@ -14919,6 +15109,54 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "segmentationtype":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("segmentationType", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSegmentationType),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSegmentationTypeFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("segmentationTypeId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("segmentationType", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSegmentationType),
                             });
                             return ret;
                             

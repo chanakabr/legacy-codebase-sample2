@@ -1149,19 +1149,18 @@ namespace WebAPI.Controllers
             asset.ValidateTags();
 
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
-            Type KalturaLinearMediaAssetType = typeof(KalturaLiveAsset);
-
             if ((kalturaMediaAssetType.IsAssignableFrom(asset.GetType())) && !(asset as KalturaMediaAsset).Status.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
             }
 
-            if (KalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            Type kalturaLinearMediaAssetType = typeof(KalturaLiveAsset);
+            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
                 KalturaLiveAsset linearAsset = asset as KalturaLiveAsset;
                 linearAsset.ValidateForInsert();
             }
-
+            
             try
             {
                 response = ClientsManager.CatalogClient().AddAsset(groupId, asset, userId);

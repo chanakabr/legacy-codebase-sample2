@@ -2,9 +2,8 @@
   "permission_items": [
     {
       "permissions": [
-        "Anonymous",
-        "Master",
-        "Operator"
+        "ASSETSTRUCT_MNG",
+        "ASSETSTRUCT_VIEW"
       ],
       "excluded_permissions": [],
       "name": "AssetStructMeta_List",
@@ -14,7 +13,7 @@
     },
     {
       "permissions": [
-        "Operator"
+        "ASSETSTRUCT_MNG"
       ],
       "excluded_permissions": [],
       "name": "AssetStructMeta_Update",

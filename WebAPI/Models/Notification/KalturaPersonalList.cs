@@ -9,7 +9,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.Notification
+namespace WebAPI.Models.Api
 {
     [Serializable]
     public partial class KalturaPersonalList : KalturaOTTObject

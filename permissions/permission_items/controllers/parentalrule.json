@@ -3,7 +3,9 @@
     {
       "permissions": [
         "Master",
-        "Operator"
+        "Operator",
+        "RULES_MNG",
+        "RULES_VIEW"
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_List",
@@ -14,7 +16,8 @@
     {
       "permissions": [
         "Master",
-        "Operator"
+        "Operator",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_Enable",
@@ -25,7 +28,8 @@
     {
       "permissions": [
         "Master",
-        "Operator"
+        "Operator",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_Disable",
@@ -36,7 +40,8 @@
     {
       "permissions": [
         "Master",
-        "Operator"
+        "Operator",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_DisableDefault",
@@ -47,7 +52,9 @@
     {
       "permissions": [
         "Master",
-        "Operator"
+        "Operator",
+        "RULES_MNG",
+        "RULES_VIEW"
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_Get",
@@ -57,7 +64,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator", 
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_Add",
@@ -67,7 +75,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_Delete",
@@ -77,7 +86,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "ParentalRule_Update",

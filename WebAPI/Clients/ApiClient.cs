@@ -5,6 +5,7 @@ using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using AutoMapper;
 using Core.Catalog;
@@ -19,12 +20,14 @@ using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Api;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Partner;
+using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
@@ -55,7 +58,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
         }
-        
+
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
@@ -2312,8 +2315,6 @@ namespace WebAPI.Clients
         internal KalturaExportTask UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
             string notificationUrl, List<int> vodTypes, bool? isActive)
         {
-
-
             BulkExportTaskResponse response = null;
 
             eBulkExportExportType wsExportType = ApiMappings.ConvertExportType(exportType);
@@ -3894,5 +3895,186 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaPersonalListListResponse GetPersonalListItems(int groupId, int userId, int pageSize, int pageIndex, KalturaPersonalListOrderBy orderBy, HashSet<int> partnerListTypes)
+        {
+            KalturaPersonalListListResponse result = new KalturaPersonalListListResponse();
+
+            // create order object
+            OrderDiretion order = OrderDiretion.Desc;
+            if (orderBy == KalturaPersonalListOrderBy.CREATE_DATE_ASC)
+                order = OrderDiretion.Asc;
+
+            Func<GenericListResponse<PersonalListItem>> getUserPersonalListItemsFunc = () =>
+               Core.Api.Module.GetUserPersonalListItems(groupId, userId, pageSize, pageIndex, order, partnerListTypes);
+
+            KalturaGenericListResponse<KalturaPersonalList> response =
+                ClientUtils.GetResponseListFromWS<KalturaPersonalList, PersonalListItem>(getUserPersonalListItemsFunc);
+
+            result.PersonalListList = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal void DeletePersonalListItemFromUser(int groupId, long personalListItemId, int userId)
+        {
+            Func<Status> deletePersonalListItemFromUserFunc = () => Core.Api.Module.DeletePersonalListItemForUser(groupId, personalListItemId, userId);
+            ClientUtils.GetResponseStatusFromWS(deletePersonalListItemFromUserFunc);
+        }
+
+        internal KalturaPersonalList AddPersonalListItemToUser(int groupId, KalturaPersonalList kalturaPersonalList, int userId)
+        {
+            Func<PersonalListItem, GenericResponse<PersonalListItem>> addPersonalListItemToUserFunc = (PersonalListItem personalListItemToFollow) =>
+                Core.Api.Module.AddPersonalListItemForUser(groupId, personalListItemToFollow, userId);
+
+            KalturaPersonalList result =
+                ClientUtils.GetResponseFromWS<KalturaPersonalList, PersonalListItem>(kalturaPersonalList, addPersonalListItemToUserFunc);
+
+            return result;
+        }
+
+        internal KalturaSegmentationType AddSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
+        {
+            KalturaSegmentationType newSegmentationType = null;
+            SegmentationTypeResponse response = null;
+            try
+            {
+                SegmentationType segmentationType = AutoMapper.Mapper.Map<SegmentationType>(kalturaSegmentationType);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.AddSegmentationType(groupId, segmentationType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SegmentationType != null)
+            {
+                newSegmentationType = AutoMapper.Mapper.Map<KalturaSegmentationType>(response.SegmentationType);
+            }
+
+            return newSegmentationType;
+        }
+
+        internal KalturaSegmentationType UpdateSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
+        {
+            SegmentationTypeResponse response = null;
+            KalturaSegmentationType updatedSegmentationType = null;
+
+            try
+            {
+                SegmentationType segmentationType = AutoMapper.Mapper.Map<SegmentationType>(kalturaSegmentationType);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.UpdateSegmentationType(groupId, segmentationType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SegmentationType != null)
+            {
+                updatedSegmentationType = AutoMapper.Mapper.Map<KalturaSegmentationType>(response.SegmentationType);
+            }
+
+            return updatedSegmentationType;
+        }
+
+        internal bool DeleteSegmentationType(int groupId, long id)
+        {
+            bool success = false;
+
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.DeleteSegmentationType(groupId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, int pageIndex, int pageSize)
+        {
+            KalturaSegmentationTypeListResponse result = null;
+            SegmentationTypesResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.ListSegmentationTypes(groupId, pageIndex, pageSize);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = new KalturaSegmentationTypeListResponse()
+            {
+                SegmentationTypes = AutoMapper.Mapper.Map<List<KalturaSegmentationType>>(response.SegmentationTypes),
+                TotalCount = response.TotalCount
+            };
+
+            return result;
+        }
     }
 }

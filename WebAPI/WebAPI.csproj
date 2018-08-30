@@ -225,6 +225,7 @@
     </Compile>
     <Compile Include="Clients\ClientUtils.cs" />
     <Compile Include="Clients\DMSClient.cs" />
+    <Compile Include="Controllers\SegmentationTypeController.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
@@ -260,6 +261,18 @@
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecording.cs" />
+    <Compile Include="Models\Segmentation\KalturaBaseSegmentCondition.cs" />
+    <Compile Include="Models\Segmentation\KalturaBaseSegmentValue.cs" />
+    <Compile Include="Models\Segmentation\KalturaScoredMonetizationCondition.cs" />
+    <Compile Include="Models\Segmentation\KalturaSegmentationType.cs" />
+    <Compile Include="Models\Segmentation\KalturaContentScoreCondition.cs" />
+    <Compile Include="Models\Segmentation\KalturaContentActionCondition.cs" />
+    <Compile Include="Models\Segmentation\KalturaSegmentAllValues.cs" />
+    <Compile Include="Models\Segmentation\KalturaSegmentationTypeListResponse.cs" />
+    <Compile Include="Models\Segmentation\KalturaSegmentRanges.cs" />
+    <Compile Include="Models\Segmentation\KalturaSegmentSource.cs" />
+    <Compile Include="Models\Segmentation\KalturaSegmentValues.cs" />
+    <Compile Include="Models\Segmentation\KalturaUserDataCondition.cs" />
     <Compile Include="Models\Upload\KalturaBulkFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
     <Compile Include="Models\General\KalturaGenericListResponse.cs" />

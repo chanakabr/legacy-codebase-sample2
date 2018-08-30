@@ -61,7 +61,12 @@ namespace WebAPI.Managers.Models
             {
                 if (Result is IEnumerable)
                 {
-                    propertyValue = "<item>" + String.Join("</item><item>", (Result as IEnumerable<object>).Select(item => (item is IKalturaSerializable) ? (item as IKalturaSerializable).ToXml(currentVersion, omitObsolete) : item.ToString())) + "</item>";
+                    propertyValue = "<item>" + 
+                            String.Join("</item><item>", 
+                                (Result as IEnumerable<object>).Select(item => item == null ? string.Empty : 
+                                    (item is IKalturaSerializable) ? (item as IKalturaSerializable).ToXml(currentVersion, omitObsolete) : 
+                                        item.ToString()))
+                                    + "</item>";
                 }
                 else if (Result is IKalturaSerializable)
                 {

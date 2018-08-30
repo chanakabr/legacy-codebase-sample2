@@ -2,7 +2,9 @@
   "permission_items": [
     {
       "permissions": [
-        "Anonymous"
+        "Anonymous",
+        "ADMIN_MNG",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_AnonymousLogin",
@@ -12,7 +14,9 @@
     },
     {
       "permissions": [
-        "Anonymous"
+        "Anonymous",
+        "ADMIN_MNG",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_LoginWithPin",
@@ -22,7 +26,10 @@
     },
     {
       "permissions": [
-        "Anonymous"
+        "Anonymous",
+        "ADMIN_MNG",
+        "MANAGER_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Login",
@@ -99,7 +106,11 @@
     },
     {
       "permissions": [
-        "Anonymous"
+        "Anonymous",
+        "Master",
+        "ADMIN_MNG",
+        "MANAGER_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Logout",
@@ -112,7 +123,8 @@
         "Anonymous",
         "User",
         "Master",
-        "Operator"
+        "ADMIN_MNG",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Activate",
@@ -125,7 +137,10 @@
         "Anonymous",
         "User",
         "Master",
-        "Operator"
+        "User",
+        "ADMIN_MNG",
+        "MANAGER_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_ResendActivationToken",
@@ -149,7 +164,10 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "ADMIN_MNG",
+        "MANAGER_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Update",
@@ -161,7 +179,9 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "ADMIN_MNG",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Get",
@@ -173,7 +193,9 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "ADMIN_MNG",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OttUser_GetEncryptedUserId",
@@ -185,7 +207,11 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "ADMIN_MNG",
+        "MANAGER_MNG",
+        "MY_USER_MNG",
+        "TEAM_VIEW"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_List",
@@ -197,7 +223,9 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "ADMIN_MNG",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OttUser_UpdateLoginData",
@@ -209,7 +237,10 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "ADMIN_MNG",
+        "MANAGER_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_UpdateDynamicData",
@@ -220,7 +251,10 @@
     {
       "permissions": [
         "Master",
-        "Operator"
+        "Operator",
+        "ADMIN_MNG",
+        "MANAGER_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_resetPassword",
@@ -232,7 +266,9 @@
       "permissions": [
         "Master",
         "Operator",
-        "Administrator"
+        "Administrator",
+        "ADMIN_MNG",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Delete",
@@ -242,7 +278,10 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "ADMIN_MNG",
+        "MANAGER_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OttUser_UpdatePassword",
@@ -263,7 +302,9 @@
     },
     {
       "permissions": [
-        "Manager"
+        "Manager",
+        "ADMIN_MNG",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_AddRole",

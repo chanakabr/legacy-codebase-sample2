@@ -71,6 +71,54 @@
     {
       "name": "OLD_SUSPEND",
       "users_group": ""
+    },
+    {
+      "name": "ASSETSTRUCT_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "IMAGETYPE_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "MEDIAFILETYPE_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "ASSETSTRUCT_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "IMAGETYPE_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "MEDIAFILETYPE_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "ADMIN_MNG",
+      "users_group": ""
+    },
+        {
+      "name": "MANAGER_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "MY_USER_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "TEAM_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "RULES_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "RULES_VIEW",
+      "users_group": ""
     }
   ]
 }

@@ -4,7 +4,8 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "UserRole_List",
