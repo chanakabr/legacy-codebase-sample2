@@ -882,7 +882,7 @@ namespace CachingProvider.LayeredCache
         public static List<string> GetDomainBundlesInvalidationKeys(int domainId)
         {
             List<string> invalidationKeys = new List<string>();
-            invalidationKeys.Add(GetSubscriptionSuspendInvalidationKey(domainId);
+            invalidationKeys.Add(GetSubscriptionSuspendInvalidationKey(domainId));
             invalidationKeys.AddRange(GetDomainEntitlementInvalidationKeys(domainId));
 
             return invalidationKeys;
