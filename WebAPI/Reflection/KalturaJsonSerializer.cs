@@ -8371,11 +8371,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("ingestReferencePath", "\"ingestReferencePath\": " + "\"" + EscapeJson(IngestReferencePath) + "\"");
             }
-            ret.Add("metaId", "\"metaId\": " + MetaId);
             if(IsInherited.HasValue)
             {
-                ret.Add("isInherited", "\"isInherited\": " + IsInherited);
+                ret.Add("isInherited", "\"isInherited\": " + IsInherited.ToString().ToLower());
             }
+            ret.Add("metaId", "\"metaId\": " + MetaId);
             if(ProtectFromIngest.HasValue)
             {
                 ret.Add("protectFromIngest", "\"protectFromIngest\": " + ProtectFromIngest.ToString().ToLower());
@@ -8394,16 +8394,16 @@ namespace WebAPI.Models.Catalog
             if(DefaultIngestValue != null)
             {
                 ret.Add("defaultIngestValue", "<defaultIngestValue>" + EscapeXml(DefaultIngestValue) + "</defaultIngestValue>");
-            }           
+            }
             if(IngestReferencePath != null)
             {
                 ret.Add("ingestReferencePath", "<ingestReferencePath>" + EscapeXml(IngestReferencePath) + "</ingestReferencePath>");
             }
-            ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
             if(IsInherited.HasValue)
             {
-                ret.Add("isInherited", "<isInherited>" + IsInherited + "</isInherited>");
-            }            
+                ret.Add("isInherited", "<isInherited>" + IsInherited.ToString().ToLower() + "</isInherited>");
+            }
+            ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
             if(ProtectFromIngest.HasValue)
             {
                 ret.Add("protectFromIngest", "<protectFromIngest>" + ProtectFromIngest.ToString().ToLower() + "</protectFromIngest>");
