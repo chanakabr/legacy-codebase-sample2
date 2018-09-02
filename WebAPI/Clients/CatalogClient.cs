@@ -3554,6 +3554,8 @@ namespace WebAPI.Clients
 
         internal KalturaMediaFile UpdateMediaFile(int groupId, long id, KalturaMediaFile assetFile, long userId)
         {
+            assetFile.Id = (int)id;
+
             Func<AssetFile, GenericResponse<AssetFile>> updateMediaFileFunc = (AssetFile assetFileToUpdate) =>
                 Core.Catalog.CatalogManagement.FileManager.UpdateMediaFile(groupId, assetFileToUpdate, userId);
 
