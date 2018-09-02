@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>
         [Action("list")]
-        [ApiAuthorize]        
+        [ApiAuthorize]
         static public KalturaAssetStructMetaListResponse List(KalturaAssetStructMetaFilter filter)
         {
             KalturaAssetStructMetaListResponse response = null;
@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response =  ClientsManager.CatalogClient().GetAssetStructMetaList(groupId, filter.AssetStructIdEqual, filter.MetaIdEqual);                 
+                response = ClientsManager.CatalogClient().GetAssetStructMetaList(groupId, filter.AssetStructIdEqual, filter.MetaIdEqual);
             }
             catch (ClientException ex)
             {
@@ -65,12 +65,13 @@ namespace WebAPI.Controllers
         static public KalturaAssetStructMeta Update(long assetStructId, long metaId, KalturaAssetStructMeta assetStructMeta)
         {
             KalturaAssetStructMeta response = null;
-            
+
             if (assetStructMeta.IngestReferencePath == null &&
                 assetStructMeta.DefaultIngestValue == null &&
-                !assetStructMeta.ProtectFromIngest.HasValue)
+                !assetStructMeta.ProtectFromIngest.HasValue &&
+                !assetStructMeta.IsInherited.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "IngestReferencePath", "DefaultIngestValue", "ProtectFromIngest");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "ingestReferencePath", "defaultIngestValue", "protectFromIngest", "isInherited");
             }
 
             int groupId = KS.GetFromRequest().GroupId;
