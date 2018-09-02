@@ -1104,7 +1104,7 @@ namespace Core.Catalog.CatalogManagement
                                 List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList, true);
                                 if (childAssets == null || childAssets.Count == 0)
                                 {
-                                    continue; 
+                                    continue;
                                 }
 
                                 foreach (var childAsset in childAssets)
@@ -2267,6 +2267,7 @@ namespace Core.Catalog.CatalogManagement
                 if (assetStructMeta.IsInherited.HasValue && assetStructMeta.IsInherited.Value)
                 {
                     metaDataInheritanceStatus = ValidateMetadataInheritance(catalogGroupCache, assetStructId, metaId, assetStructMeta, out needToHandleHeritage);
+                    response.SetStatus(metaDataInheritanceStatus);
                 }
 
                 if (metaDataInheritanceStatus.Code == (int)eResponseStatus.OK)
@@ -2318,12 +2319,12 @@ namespace Core.Catalog.CatalogManagement
             }
 
             AssetStruct currentAssetStruct = catalogGroupCache.AssetStructsMapById[assetStructId];
-            if (!currentAssetStruct.ParentId.HasValue)
+            if (!currentAssetStruct.ParentId.HasValue || currentAssetStruct.ParentId.Value == 0)
             {
                 return new Status((int)eResponseStatus.NoParentAssociatedToTopic, "No parent associated to topic");
             }
 
-            // check meta existed at parent        
+            // check meta existed at parent                    
             AssetStruct parentAssetStruct = catalogGroupCache.AssetStructsMapById[currentAssetStruct.ParentId.Value];
             if (!parentAssetStruct.MetaIds.Contains(metaId))
             {
