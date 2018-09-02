@@ -294,8 +294,11 @@ namespace Core.Catalog.Request
             {
                 NPVR.INPVRProvider npvrProvider;
 
-                if (!NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null) &&
-                    !CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
+                if (NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null))
+                {
+                    recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+                }
+                else if (!CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId, this.m_nGroupID, this.domainId))
                 {
                     mediaMarkResponse.status.Set((int)eResponseStatus.RecordingNotFound, "Recording doesn't exist");
                     return mediaMarkResponse;
@@ -554,8 +557,7 @@ namespace Core.Catalog.Request
                         {
                             isConcurrent = true;
                         }
-
-                        if (!isConcurrent)
+                        else
                         {
                             CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, this.m_oMediaPlayRequestData.m_nLoc, fileDuration, mediaPlayAction,
                                                         ttl, this.m_oMediaPlayRequestData.IsReportingMode, mediaTypeId, true, isLinearChannel);
