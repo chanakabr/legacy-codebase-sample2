@@ -96,5 +96,28 @@ namespace Core.Catalog.CatalogManagement
             this.IsActive = mediaAssetToCopy.IsActive;
             this.MediaAssetType = mediaAssetToCopy.MediaAssetType;
         }
+
+        public MediaAsset(int groupId, Core.Catalog.Response.MediaObj mediaObj)
+            : base(mediaObj)
+        {
+            this.CatalogStartDate = mediaObj.m_dCatalogStartDate;
+            this.FinalEndDate = mediaObj.m_dFinalDate;
+            this.MediaType = new MediaType(mediaObj.m_oMediaType.m_sTypeName, mediaObj.m_oMediaType.m_nTypeID);
+            this.EntryId = mediaObj.EntryId;
+            if (!string.IsNullOrEmpty(mediaObj.DeviceRule))
+            {
+                this.DeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, mediaObj.DeviceRule);
+            }
+
+            if (!string.IsNullOrEmpty(mediaObj.GeoblockRule))
+            {
+                this.GeoBlockRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, mediaObj.GeoblockRule);
+            }
+
+            this.Files = new List<AssetFile>();
+            this.UserTypes = string.Empty;
+            this.IsActive = mediaObj.IsActive;
+            this.MediaAssetType = string.IsNullOrEmpty(mediaObj.m_ExternalIDs) ? MediaAssetType.Media : MediaAssetType.Linear;
+        }
     }
 }

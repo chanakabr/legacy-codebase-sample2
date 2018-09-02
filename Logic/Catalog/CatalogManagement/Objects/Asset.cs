@@ -110,5 +110,28 @@ namespace Core.Catalog.CatalogManagement
             this.CoGuid = assetToCopy.CoGuid;
         }
 
+        public Asset(Core.Catalog.Response.MediaObj mediaObj)
+        {
+            long id;
+            if (long.TryParse(mediaObj.AssetId, out id))
+            {
+                this.Id = id;
+            }
+
+            this.AssetType = eAssetTypes.MEDIA;
+            this.Name = mediaObj.m_sName;
+            this.NamesWithLanguages = mediaObj.Name != null ? mediaObj.Name.ToList() : new List<LanguageContainer>();
+            this.Description = mediaObj.m_sDescription;
+            this.DescriptionsWithLanguages = mediaObj.Description != null ? mediaObj.Description.ToList() : new List<LanguageContainer>();
+            this.CreateDate = mediaObj.m_dCreationDate;
+            this.UpdateDate = mediaObj.m_dUpdateDate;
+            this.StartDate = mediaObj.m_dStartDate;
+            this.EndDate = mediaObj.m_dEndDate;
+            this.Metas = mediaObj.m_lMetas != null ? new List<Metas>(mediaObj.m_lMetas) : new List<Metas>();
+            this.Tags = mediaObj.m_lTags != null ? new List<Tags>(mediaObj.m_lTags) : new List<Tags>();
+            this.Images = new List<Image>();
+            this.CoGuid = mediaObj.CoGuid;
+        }
+
     }
 }
