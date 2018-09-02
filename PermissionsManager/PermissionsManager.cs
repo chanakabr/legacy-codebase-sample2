@@ -40,6 +40,7 @@ namespace PermissionsManager
 
             if (string.IsNullOrEmpty(fileName))
             {
+                Console.WriteLine("No file provided.");
                 return result;
             }
 
@@ -88,21 +89,20 @@ namespace PermissionsManager
 
             if (string.IsNullOrEmpty(fileName))
             {
+                Console.WriteLine("No file provided.");
+                return result;
+            }
+
+            if (!File.Exists(fileName))
+            {
+                Console.WriteLine("File {0} not found.", fileName);
                 return result;
             }
 
             InitializeLogging();
 
             log.InfoFormat("Starting import of permission from file {0}", fileName);
-
-            // create output directory
-            string directory = Path.GetDirectoryName(fileName);
-
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
+            
             ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
 
             try
@@ -594,6 +594,7 @@ namespace PermissionsManager
 
             if (string.IsNullOrEmpty(fileName))
             {
+                Console.WriteLine("No file provided.");
                 return result;
             }
 
@@ -865,6 +866,7 @@ namespace PermissionsManager
             {
                 if (string.IsNullOrEmpty(folderName))
                 {
+                    Console.WriteLine("No folder provided.");
                     return result;
                 }
 
@@ -973,6 +975,13 @@ namespace PermissionsManager
 
             if (string.IsNullOrEmpty(folderName))
             {
+                Console.WriteLine("No folder provided.");
+                return result;
+            }
+
+            if (!Directory.Exists(folderName))
+            {
+                Console.WriteLine("Folder {0} was not found.", folderName);
                 return result;
             }
 
