@@ -556,7 +556,7 @@ namespace WebAPI.Controllers
         /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Logical conjunction: and, or. 
         /// Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
-        /// (maximum length of entire filter is 2048 characters)]]></param>
+        /// (maximum length of entire filter is 4096 characters)]]></param>
         /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
         /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>
         /// <param name="with"> Additional data to return per asset, formatted as a comma-separated array. 
@@ -567,7 +567,7 @@ namespace WebAPI.Controllers
         [Action("search")]
         [ApiAuthorize]
         [Obsolete]
-        [SchemeArgument("filter", MaxLength = 2048)]
+        [SchemeArgument("filter", MaxLength = 4096)]
         [Throws(eResponseStatus.BadSearchRequest)]
         [Throws(eResponseStatus.IndexMissing)]
         [Throws(eResponseStatus.SyntaxError)]
@@ -824,7 +824,7 @@ namespace WebAPI.Controllers
         /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Logical conjunction: and, or. 
         /// Search values are limited to 20 characters each for the next operators: ~, !~, ^, ^=
-        /// (maximum length of entire filter is 2048 characters)]]></param>
+        /// (maximum length of entire filter is 4096 characters)]]></param>
         /// <remarks>Possible status codes: 
         /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
         /// </remarks>

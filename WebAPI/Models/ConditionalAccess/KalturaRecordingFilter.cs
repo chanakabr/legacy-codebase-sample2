@@ -35,7 +35,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("filterExpression")]
         [XmlElement(ElementName = "filterExpression", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(MaxLength = 2048)]
+        [SchemeProperty(MaxLength = 4096)]
         [Deprecated("5.0.0.0")]
         public string FilterExpression { get; set; }
 
@@ -54,7 +54,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("kSql")]
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(MaxLength = 2048)]
+        [SchemeProperty(MaxLength = 4096)]
         public string Ksql { get; set; }
 
         public override KalturaRecordingOrderBy GetDefaultOrderByValue()
