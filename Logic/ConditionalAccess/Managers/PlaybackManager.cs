@@ -197,7 +197,8 @@ namespace Core.ConditionalAccess
                             }
                             else if (assetType == eAssetTypes.NPVR)
                             {
-                                concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, (int)mediaId, (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR);
+                                // TODO SHIR - DONT FORGET befor assetId i use mediaId
+                                concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, int.Parse(assetId), (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR);
                             }
                             else
                             {
@@ -225,6 +226,11 @@ namespace Core.ConditionalAccess
                         }
 
                         response.ConcurrencyData = concurrencyResponse.Data;
+
+                        if (response.ConcurrencyData != null)
+                        {
+                            log.DebugFormat("GetPlaybackContext - {0}", response.ConcurrencyData.ToString());
+                        }
 
                         response.Files = files.Where(f => assetFileIdsAds.Keys.Contains(f.Id)).ToList();
                         foreach (MediaFile file in response.Files)
@@ -271,6 +277,8 @@ namespace Core.ConditionalAccess
                                             PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, 
                                                                            string.Empty, domainId, groupId);
                                             cas.InsertDevicePlayData(concurrencyResponse.Data, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
+
+                                            log.Debug("PlaybackManager.GetPlaybackContext - exec PlayUsesManager.HandlePlayUses and cas.InsertDevicePlayData methods");
                                         }
                                     }
                                 }
@@ -423,6 +431,8 @@ namespace Core.ConditionalAccess
                     {
                         PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
                         cas.InsertDevicePlayData(playbackContextResponse.ConcurrencyData, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
+
+                        log.Debug("PlaybackManager.GetPlayManifest - exec PlayUsesManager.HandlePlayUses and cas.InsertDevicePlayData methods");
                     }
                 }
             }
