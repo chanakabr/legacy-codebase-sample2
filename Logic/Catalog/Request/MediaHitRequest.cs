@@ -153,6 +153,8 @@ namespace Core.Catalog.Request
                         return response;
                     }
 
+                    log.Debug(devicePlayData.ToString());
+
                     this.domainId = devicePlayData.DomainId;
 
                     if (!m_oMediaPlayRequestData.IsReportingMode && CatalogLogic.IsConcurrent(this.m_nGroupID, ref devicePlayData))
@@ -230,6 +232,8 @@ namespace Core.Catalog.Request
                     mediaHitResponse.m_sDescription = "No devicePlayData";
                     return mediaHitResponse;
                 }
+
+                log.Debug(currDevicePlayData.ToString());
 
                 this.domainId = currDevicePlayData.DomainId;
 

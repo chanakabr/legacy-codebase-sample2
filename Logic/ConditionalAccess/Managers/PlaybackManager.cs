@@ -226,6 +226,11 @@ namespace Core.ConditionalAccess
 
                         response.ConcurrencyData = concurrencyResponse.Data;
 
+                        if (response.ConcurrencyData != null)
+                        {
+                            log.DebugFormat("GetPlaybackContext - {0}", response.ConcurrencyData.ToString());
+                        }
+
                         response.Files = files.Where(f => assetFileIdsAds.Keys.Contains(f.Id)).ToList();
                         foreach (MediaFile file in response.Files)
                         {

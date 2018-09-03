@@ -367,6 +367,8 @@ namespace Core.Catalog.Request
                 return null;
             }
 
+            log.Debug(currDevicePlayData.ToString());
+
             if (currDevicePlayData.DomainId > 0)
             {
                 domainId = currDevicePlayData.DomainId;
@@ -543,6 +545,8 @@ namespace Core.Catalog.Request
             {
                 return;
             }
+
+            log.Debug(devicePlayData.ToString());
 
             if (devicePlayData.DomainId > 0)
             {
