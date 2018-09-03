@@ -150,6 +150,7 @@ namespace ApiObjects.MediaMarks
             sb.AppendLine(String.Concat("PlayCycleKey: ", this.PlayCycleKey));
 
             return sb.ToString();
+        }
     }
 }
 
