@@ -1994,7 +1994,7 @@ namespace WebAPI.Clients
                 streamerType = type;
             }
 
-            log.DebugFormat("ConditionalAccessClient - GetPlaybackContext parameters: groupId {0}, userId {1}, udid {2}, assetId {3}, assetType {4}.",
+            log.DebugFormat("ConditionalAccessClient.GetPlaybackContext parameters: groupId {0}, userId {1}, udid {2}, assetId {3}, assetType {4}.",
                             groupId, userId, udid, assetId, assetType);
 
             try
@@ -2056,6 +2056,9 @@ namespace WebAPI.Clients
         internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaPlaybackContextType contextType)
         {
             PlayManifestResponse response = null;
+
+            log.DebugFormat("ConditionalAccessClient.GetPlayManifest parameters: groupId {0}, userId {1}, udid {2}, assetId {3}, assetType {4}, assetFileId {5}.",
+                                        groupId, userId, udid, assetId, assetType, assetFileId);
 
             try
             {
