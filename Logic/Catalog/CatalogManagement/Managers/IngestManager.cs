@@ -906,94 +906,124 @@ namespace Core.Catalog.CatalogManagement
 
             return 0;
         }
-
+        
         /// <summary>
         /// Handle asset files for ingest
         /// </summary>
-        /// <param name="groupId">groupId</param>
-        /// <param name="assetId">the asset id</param>
-        /// <param name="filesToHandle">the files of the asset that need handling</param>
-        /// <param name="eraseExistingFiles">should erase asset existing files, relevant only when updating existing asset</param>
-        /// <returns></returns>
-        private static void HandleAssetFiles(int groupId, long assetId, List<Tuple<AssetFile, string>> filesToHandle, bool eraseExistingFiles, ref IngestResponse ingestResponse, int index)
+        /// <param name="groupId"></param>
+        /// <param name="assetId"></param>
+        /// <param name="filesToHandle">key: assetFileToHandle.TypeId, value: { assetFileToHandle, ppvModule } </param>
+        /// <param name="eraseExistingFiles"></param>
+        /// <param name="ingestResponse"></param>
+        /// <param name="index"></param>
+        private static void HandleAssetFiles(int groupId, long assetId, Dictionary<int, Tuple<AssetFile, string>> filesToHandle, bool eraseExistingFiles, ref IngestResponse ingestResponse, int index)
         {
-            bool res = true;
-            List<Tuple<AssetFile, string>> filesToAdd = null;
-            List<Tuple<AssetFile, string>> filesToUpdate = null;
             try
             {
-                // get the files we need to update
-                if (assetId > 0 && !eraseExistingFiles)
+                // handle existing assetFiles
+                GenericListResponse<AssetFile> assetFilesResponse = FileManager.GetMediaFiles(groupId, 0, assetId);
+                if (assetFilesResponse != null && assetFilesResponse.HasObjects())
                 {
-                    GenericListResponse<AssetFile> assetFilesResponse = FileManager.GetMediaFiles(groupId, 0, assetId);
-                    HashSet<string> filesToHandleExternalIds = new HashSet<string>(filesToHandle.Select(x => x.Item1.ExternalId).ToList(), StringComparer.OrdinalIgnoreCase);
-                    Dictionary<string, long> updateFilesExternalIdToId = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
-                    if (assetFilesResponse != null && assetFilesResponse.HasObjects())
+                    foreach (var assetFile in assetFilesResponse.Objects)
                     {
-                        if (assetFilesResponse.Objects.Any(x => filesToHandleExternalIds.Contains(x.ExternalId)))
+                        if (filesToHandle.ContainsKey(assetFile.TypeId.Value))
                         {
-                            updateFilesExternalIdToId = assetFilesResponse.Objects.Where(x => filesToHandleExternalIds.Contains(x.ExternalId)).ToDictionary(x => x.ExternalId,
-                                                                                                                                                    x => x.Id, StringComparer.OrdinalIgnoreCase);
-                            filesToUpdate = filesToHandle.Where(x => updateFilesExternalIdToId.ContainsKey(x.Item1.ExternalId)).ToList();
-                            foreach (var assetFile in filesToUpdate)
+                            if (eraseExistingFiles)
                             {
-                                assetFile.Item1.Id = updateFilesExternalIdToId[assetFile.Item1.ExternalId];
+                                var deleteMediaFileStatus = FileManager.DeleteMediaFile(groupId, USER_ID, assetFile.Id);
+                                if (deleteMediaFileStatus.Code != (int)eResponseStatus.OK)
+                                {
+                                    log.ErrorFormat("Failed DeleteMediaFile befor InsertMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.", 
+                                                    assetId, filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName());
+
+                                    deleteMediaFileStatus.Args = new List<KeyValuePair>()
+                                    {
+                                        new KeyValuePair("assetFileToDelete.typeName", filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName()),
+                                    };
+
+                                    ingestResponse.AssetsStatus[index].Warnings.Add(deleteMediaFileStatus);
+                                }
+                                else
+                                {
+                                    var insertMediaFileResponse = FileManager.InsertMediaFile(groupId, USER_ID, filesToHandle[assetFile.TypeId.Value].Item1, true);
+                                    if (!insertMediaFileResponse.HasObject())
+                                    {
+                                        log.ErrorFormat("Failed InsertMediaFile after DeleteMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.",
+                                                        assetId, filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName());
+
+                                        insertMediaFileResponse.Status.Args = new List<KeyValuePair>()
+                                        {
+                                            new KeyValuePair("assetFileToInsert.typeName", filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName()),
+                                        };
+
+                                        ingestResponse.AssetsStatus[index].Warnings.Add(insertMediaFileResponse.Status);
+                                    }
+                                    else
+                                    {
+                                        HandleAssetFilePpvModels(filesToHandle[assetFile.TypeId.Value].Item2, groupId, insertMediaFileResponse.Object.Id, filesToHandle[assetFile.TypeId.Value].Item1.AssetId);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                filesToHandle[assetFile.TypeId.Value].Item1.Id = assetFile.Id;
+                                var updateMediaFileResponse = FileManager.UpdateMediaFile(groupId, filesToHandle[assetFile.TypeId.Value].Item1, USER_ID, true);
+                                if (!updateMediaFileResponse.HasObject())
+                                {
+                                    log.ErrorFormat("Failed UpdateMediaFile for assetId {0}, assetFile.typeName {1}.",
+                                                     assetId, filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName());
+
+                                    updateMediaFileResponse.Status.Args = new List<KeyValuePair>()
+                                    {
+                                        new KeyValuePair("assetFileToUpdate.typeName", filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName()),
+                                    };
+
+                                    ingestResponse.AssetsStatus[index].Warnings.Add(updateMediaFileResponse.Status);
+                                }
+                                else
+                                {
+                                    HandleAssetFilePpvModels(filesToHandle[assetFile.TypeId.Value].Item2, groupId, updateMediaFileResponse.Object.Id, filesToHandle[assetFile.TypeId.Value].Item1.AssetId);
+                                }
+                            }
+
+                            filesToHandle.Remove(assetFile.TypeId.Value);
+                        }
+                        else if (eraseExistingFiles)
+                        {
+                            var deleteMediaFileStatus = FileManager.DeleteMediaFile(groupId, USER_ID, assetFile.Id);
+                            if (deleteMediaFileStatus.Code != (int)eResponseStatus.OK)
+                            {
+                                log.ErrorFormat("Failed DeleteMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.", assetId, assetFile.GetTypeName());
+
+                                deleteMediaFileStatus.Args = new List<KeyValuePair>()
+                                {
+                                    new KeyValuePair("assetFileToDelete.typeName", assetFile.GetTypeName()),
+                                };
+
+                                ingestResponse.AssetsStatus[index].Warnings.Add(deleteMediaFileStatus);
                             }
                         }
                     }
-
-                    filesToAdd = filesToHandle.Where(x => !updateFilesExternalIdToId.ContainsKey(x.Item1.ExternalId)).ToList();
-                }
-                else
-                {
-                    filesToAdd = filesToHandle;
                 }
 
-                // handle files to add
-                if (res && filesToAdd != null && filesToAdd.Count > 0)
+                // handle new assetFiles
+                foreach (var assetFileToAdd in filesToHandle)
                 {
-                    foreach (var assetFileToAdd in filesToAdd)
+                    var insertMediaFileResponse = FileManager.InsertMediaFile(groupId, USER_ID, assetFileToAdd.Value.Item1, true);
+                    if (!insertMediaFileResponse.HasObject())
                     {
-                        GenericResponse<AssetFile> addFileResponse = FileManager.InsertMediaFile(groupId, USER_ID, assetFileToAdd.Item1);
-                        if (addFileResponse == null || !addFileResponse.HasObject() || addFileResponse.Object.Id == 0)
+                        log.ErrorFormat("Failed InsertMediaFile for assetId {0}, assetFile.typeName {1}.", assetId, assetFileToAdd.Value.Item1.GetTypeName());
+
+                        insertMediaFileResponse.Status.Args = new List<KeyValuePair>()
                         {
-                            log.ErrorFormat("Failed adding asset file with externalId {0} for asset with id {1}, groupId: {2}", assetFileToAdd.Item1.ExternalId, assetId, groupId);
-                            addFileResponse.Status.Args = new List<KeyValuePair>()
-                            {
-                                new KeyValuePair("assetFileToAdd.ExternalId", assetFileToAdd.Item1.ExternalId),
-                                new KeyValuePair("assetFileToAdd.TypeId", assetFileToAdd.Item1.TypeId.HasValue ? assetFileToAdd.Item1.TypeId.Value.ToString() : string.Empty),
-                            };
-                            ingestResponse.AssetsStatus[index].Warnings.Add(addFileResponse.Status);
-                            continue;
-                        }
+                            new KeyValuePair("assetFileToInsert.typeName", assetFileToAdd.Value.Item1.GetTypeName()),
+                        };
 
-                        HandleAssetFilePpvModels(assetFileToAdd.Item2, groupId, addFileResponse.Object.Id, assetFileToAdd.Item1.AssetId);
+                        ingestResponse.AssetsStatus[index].Warnings.Add(insertMediaFileResponse.Status);
+                        continue;
                     }
-                }
 
-                // handle files to update
-                if (res && filesToUpdate != null && filesToUpdate.Count > 0)
-                {
-                    foreach (var assetFileToUpdate in filesToUpdate)
-                    {
-                        GenericResponse<AssetFile> updateFileResponse = FileManager.UpdateMediaFile(groupId, assetFileToUpdate.Item1, USER_ID);
-                        if (updateFileResponse == null || !updateFileResponse.HasObject() || updateFileResponse.Object.Id == 0)
-                        {
-                            log.ErrorFormat("Failed updating asset file with externalId {0}, fileId: {1} for asset with id {2}, groupId: {3}",
-                                                       assetFileToUpdate.Item1.ExternalId, assetFileToUpdate.Item1.Id, assetId, groupId);
-
-                            updateFileResponse.Status.Args = new List<KeyValuePair>()
-                            {
-                                new KeyValuePair("assetFileToUpdate.ExternalId", assetFileToUpdate.Item1.ExternalId),
-                                new KeyValuePair("assetFileToUpdate.Id", assetFileToUpdate.Item1.Id.ToString()),
-                                new KeyValuePair("assetFileToUpdate.TypeId", assetFileToUpdate.Item1.TypeId.HasValue ? assetFileToUpdate.Item1.TypeId.Value.ToString() : string.Empty),
-                            };
-                            ingestResponse.AssetsStatus[index].Warnings.Add(updateFileResponse.Status);
-                            continue;
-                        }
-
-                        HandleAssetFilePpvModels(assetFileToUpdate.Item2, groupId, assetFileToUpdate.Item1.Id, assetFileToUpdate.Item1.AssetId);
-                    }
+                    HandleAssetFilePpvModels(assetFileToAdd.Value.Item2, groupId, insertMediaFileResponse.Object.Id, assetFileToAdd.Value.Item1.AssetId);
                 }
             }
             catch (Exception ex)
@@ -1148,9 +1178,9 @@ namespace Core.Catalog.CatalogManagement
             return images;
         }
 
-        private static List<Tuple<AssetFile, string>> GetAssetFiles(IngestFiles files, GenericListResponse<MediaFileType> mediaFileTypes)
+        private static Dictionary<int, Tuple<AssetFile, string>> GetAssetFiles(IngestFiles files, GenericListResponse<MediaFileType> mediaFileTypes)
         {
-            List<Tuple<AssetFile, string>> assetFiles = null;
+            Dictionary<int, Tuple<AssetFile, string>> assetFiles = null;
 
             if (files != null && files.MediaFiles != null && files.MediaFiles.Count > 0 && mediaFileTypes != null && mediaFileTypes.HasObjects())
             {
@@ -1161,27 +1191,31 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (assetFiles == null)
                         {
-                            assetFiles = new List<Tuple<AssetFile, string>>();
+                            assetFiles = new Dictionary<int, Tuple<AssetFile, string>>();
                         }
 
-                        assetFiles.Add(new Tuple<AssetFile, string>(new AssetFile(mediaFile.Type)
+                        int mediaFileTypeId = (int)mediaFileType.Id;
+                        if (!assetFiles.ContainsKey(mediaFileTypeId))
                         {
-                            TypeId = (int)mediaFileType.Id,
-                            Url = mediaFile.CdnCode,
-                            Duration = StringUtils.TryConvertTo<long>(mediaFile.AssetDuration),
-                            ExternalId = mediaFile.CoGuid,
-                            AltExternalId = mediaFile.AltCoGuid,
-                            ExternalStoreId = mediaFile.ProductCode,
-                            AltStreamingCode = mediaFile.AltCdnCode,
-                            BillingType = GetBillingTypeIdByName(mediaFile.BillingType),
-                            Language = mediaFile.Language,
-                            IsDefaultLanguage = StringUtils.TryConvertTo<bool>(mediaFile.IsDefaultLanguage),
-                            OutputProtecationLevel = StringUtils.ConvertTo<int>(mediaFile.OutputProtecationLevel),
-                            StartDate = ExtractDate(mediaFile.FileStartDate, ASSET_FILE_DATE_FORMAT),
-                            EndDate = ExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT),
-                            FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
-                            IsActive = true
-                        }, mediaFile.PpvModule));
+                            assetFiles.Add(mediaFileTypeId, new Tuple<AssetFile, string>(new AssetFile(mediaFile.Type)
+                            {
+                                TypeId = mediaFileTypeId,
+                                Url = mediaFile.CdnCode,
+                                Duration = StringUtils.TryConvertTo<long>(mediaFile.AssetDuration),
+                                ExternalId = mediaFile.CoGuid,
+                                AltExternalId = mediaFile.AltCoGuid,
+                                ExternalStoreId = mediaFile.ProductCode,
+                                AltStreamingCode = mediaFile.AltCdnCode,
+                                BillingType = GetBillingTypeIdByName(mediaFile.BillingType),
+                                Language = mediaFile.Language,
+                                IsDefaultLanguage = StringUtils.TryConvertTo<bool>(mediaFile.IsDefaultLanguage),
+                                OutputProtecationLevel = StringUtils.ConvertTo<int>(mediaFile.OutputProtecationLevel),
+                                StartDate = ExtractDate(mediaFile.FileStartDate, ASSET_FILE_DATE_FORMAT),
+                                EndDate = ExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT),
+                                FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
+                                IsActive = true
+                            }, mediaFile.PpvModule));
+                        }
                     }
                 }
             }

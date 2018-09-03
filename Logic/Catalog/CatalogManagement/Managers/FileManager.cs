@@ -567,7 +567,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // validate media doesn't already have a file with this type
                 List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToAdd.AssetId);
-                if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToAdd.TypeId).Any())
+                if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Any(x => x.TypeId == assetFileToAdd.TypeId))
                 {
                     result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                     return result;
@@ -638,14 +638,12 @@ namespace Core.Catalog.CatalogManagement
 
         public static Status DeleteMediaFile(int groupId, long userId, long id)
         {
-            Status result = null;
-            GenericResponse<AssetFile> assetFileResponse = null;
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
             try
             {
-
                 DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
-                assetFileResponse = CreateAssetFileResponseFromDataSet(groupId, ds);
-
+                GenericResponse<AssetFile> assetFileResponse = CreateAssetFileResponseFromDataSet(groupId, ds);
                 if (assetFileResponse != null && assetFileResponse.Status != null && assetFileResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     return assetFileResponse.Status;
@@ -653,20 +651,17 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteMediaFile(groupId, userId, id))
                 {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                    if (result.Code == (int)eResponseStatus.OK)
+                    // UpdateIndex
+                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileResponse.Object.AssetId);
+                    if (!indexingResult)
                     {
-                        // UpdateIndex
-                        bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileResponse.Object.AssetId);
-                        if (!indexingResult)
-                        {
-                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after DeleteMediaFile", assetFileResponse.Object.AssetId, groupId);
-                        }
-
-                        // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileResponse.Object.AssetId);
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after DeleteMediaFile", assetFileResponse.Object.AssetId, groupId);
                     }
+
+                    // invalidate asset
+                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileResponse.Object.AssetId);
                 }
             }
             catch (Exception ex)
