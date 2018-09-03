@@ -277,7 +277,7 @@ namespace Core.ConditionalAccess
                                                                            string.Empty, domainId, groupId);
                                             cas.InsertDevicePlayData(concurrencyResponse.Data, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
 
-                                            log.Debug("GetPlaybackContext - PlayUsesManager.HandlePlayUses and InsertDevicePlayData");
+                                            log.Debug("PlaybackManager.GetPlaybackContext - exec PlayUsesManager.HandlePlayUses and cas.InsertDevicePlayData methods");
                                         }
                                     }
                                 }
@@ -430,6 +430,8 @@ namespace Core.ConditionalAccess
                     {
                         PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
                         cas.InsertDevicePlayData(playbackContextResponse.ConcurrencyData, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
+
+                        log.Debug("PlaybackManager.GetPlayManifest - exec PlayUsesManager.HandlePlayUses and cas.InsertDevicePlayData methods");
                     }
                 }
             }
