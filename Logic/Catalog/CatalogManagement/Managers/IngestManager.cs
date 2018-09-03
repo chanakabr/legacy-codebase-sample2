@@ -192,6 +192,9 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after Ingest", mediaAsset.Id, groupId);
                             }
+                            
+                            // invalidate asset
+                            AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)mediaAsset.Id);
                         }
 
                         // TODO SHIR - ASK IRA ABOUT THIS
@@ -926,63 +929,46 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (var assetFile in assetFilesResponse.Objects)
                     {
-                        if (filesToHandle.ContainsKey(assetFile.TypeId.Value))
+                        int assetFileTypeId = assetFile.TypeId.Value;
+                        if (filesToHandle.ContainsKey(assetFileTypeId))
                         {
                             if (eraseExistingFiles)
                             {
-                                var deleteMediaFileStatus = FileManager.DeleteMediaFile(groupId, USER_ID, assetFile.Id);
-                                if (deleteMediaFileStatus.Code != (int)eResponseStatus.OK)
+                                if (!CatalogDAL.DeleteMediaFile(groupId, USER_ID, assetFile.Id))
                                 {
-                                    log.ErrorFormat("Failed DeleteMediaFile befor InsertMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.", 
-                                                    assetId, filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName());
-
-                                    deleteMediaFileStatus.Args = new List<KeyValuePair>()
-                                    {
-                                        new KeyValuePair("assetFileToDelete.typeName", filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName()),
-                                    };
-
-                                    ingestResponse.AssetsStatus[index].Warnings.Add(deleteMediaFileStatus);
+                                    string errMsg = string.Format("Failed DeleteMediaFile befor InsertMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.", 
+                                                                  assetId, filesToHandle[assetFileTypeId].Item1.GetTypeName());
+                                    log.Error(errMsg);
+                                    ingestResponse.AssetsStatus[index].Warnings.Add(new Status((int)eResponseStatus.Error, errMsg, new List<KeyValuePair>() { new KeyValuePair("assetFileToDelete.typeName", filesToHandle[assetFileTypeId].Item1.GetTypeName()) }));
                                 }
                                 else
                                 {
-                                    var insertMediaFileResponse = FileManager.InsertMediaFile(groupId, USER_ID, filesToHandle[assetFile.TypeId.Value].Item1, true);
+                                    var insertMediaFileResponse = FileManager.InsertMediaFile(groupId, USER_ID, filesToHandle[assetFileTypeId].Item1, true);
                                     if (!insertMediaFileResponse.HasObject())
                                     {
-                                        log.ErrorFormat("Failed InsertMediaFile after DeleteMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.",
-                                                        assetId, filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName());
-
-                                        insertMediaFileResponse.Status.Args = new List<KeyValuePair>()
-                                        {
-                                            new KeyValuePair("assetFileToInsert.typeName", filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName()),
-                                        };
-
+                                        log.ErrorFormat("Failed InsertMediaFile after DeleteMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.", assetId, filesToHandle[assetFileTypeId].Item1.GetTypeName());
+                                        insertMediaFileResponse.Status.AddArg("assetFileToInsert.typeName", filesToHandle[assetFileTypeId].Item1.GetTypeName());
                                         ingestResponse.AssetsStatus[index].Warnings.Add(insertMediaFileResponse.Status);
                                     }
                                     else
                                     {
-                                        HandleAssetFilePpvModels(filesToHandle[assetFile.TypeId.Value].Item2, groupId, insertMediaFileResponse.Object.Id, filesToHandle[assetFile.TypeId.Value].Item1.AssetId);
+                                        HandleAssetFilePpvModels(filesToHandle[assetFileTypeId].Item2, groupId, insertMediaFileResponse.Object.Id, filesToHandle[assetFileTypeId].Item1.AssetId);
                                     }
                                 }
                             }
                             else
                             {
-                                filesToHandle[assetFile.TypeId.Value].Item1.Id = assetFile.Id;
-                                var updateMediaFileResponse = FileManager.UpdateMediaFile(groupId, filesToHandle[assetFile.TypeId.Value].Item1, USER_ID, true);
+                                filesToHandle[assetFileTypeId].Item1.Id = assetFile.Id;
+                                var updateMediaFileResponse = FileManager.UpdateMediaFile(groupId, filesToHandle[assetFileTypeId].Item1, USER_ID, true, assetFile);
                                 if (!updateMediaFileResponse.HasObject())
                                 {
-                                    log.ErrorFormat("Failed UpdateMediaFile for assetId {0}, assetFile.typeName {1}.",
-                                                     assetId, filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName());
-
-                                    updateMediaFileResponse.Status.Args = new List<KeyValuePair>()
-                                    {
-                                        new KeyValuePair("assetFileToUpdate.typeName", filesToHandle[assetFile.TypeId.Value].Item1.GetTypeName()),
-                                    };
-
+                                    log.ErrorFormat("Failed UpdateMediaFile for assetId {0}, assetFile.typeName {1}.", assetId, filesToHandle[assetFileTypeId].Item1.GetTypeName());
+                                    updateMediaFileResponse.Status.AddArg("assetFileToUpdate.typeName", filesToHandle[assetFileTypeId].Item1.GetTypeName());
                                     ingestResponse.AssetsStatus[index].Warnings.Add(updateMediaFileResponse.Status);
                                 }
                                 else
                                 {
-                                    HandleAssetFilePpvModels(filesToHandle[assetFile.TypeId.Value].Item2, groupId, updateMediaFileResponse.Object.Id, filesToHandle[assetFile.TypeId.Value].Item1.AssetId);
+                                    HandleAssetFilePpvModels(filesToHandle[assetFileTypeId].Item2, groupId, updateMediaFileResponse.Object.Id, filesToHandle[assetFileTypeId].Item1.AssetId);
                                 }
                             }
 
@@ -990,17 +976,11 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else if (eraseExistingFiles)
                         {
-                            var deleteMediaFileStatus = FileManager.DeleteMediaFile(groupId, USER_ID, assetFile.Id);
-                            if (deleteMediaFileStatus.Code != (int)eResponseStatus.OK)
+                            if (!CatalogDAL.DeleteMediaFile(groupId, USER_ID, assetFile.Id))
                             {
-                                log.ErrorFormat("Failed DeleteMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.", assetId, assetFile.GetTypeName());
-
-                                deleteMediaFileStatus.Args = new List<KeyValuePair>()
-                                {
-                                    new KeyValuePair("assetFileToDelete.typeName", assetFile.GetTypeName()),
-                                };
-
-                                ingestResponse.AssetsStatus[index].Warnings.Add(deleteMediaFileStatus);
+                                string errMsg = string.Format("Failed DeleteMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.", assetId, assetFile.GetTypeName());
+                                log.Error(errMsg);
+                                ingestResponse.AssetsStatus[index].Warnings.Add(new Status((int)eResponseStatus.Error, errMsg, new List<KeyValuePair>() { new KeyValuePair("assetFileToDelete.typeName", filesToHandle[assetFileTypeId].Item1.GetTypeName()) }));
                             }
                         }
                     }
@@ -1013,12 +993,7 @@ namespace Core.Catalog.CatalogManagement
                     if (!insertMediaFileResponse.HasObject())
                     {
                         log.ErrorFormat("Failed InsertMediaFile for assetId {0}, assetFile.typeName {1}.", assetId, assetFileToAdd.Value.Item1.GetTypeName());
-
-                        insertMediaFileResponse.Status.Args = new List<KeyValuePair>()
-                        {
-                            new KeyValuePair("assetFileToInsert.typeName", assetFileToAdd.Value.Item1.GetTypeName()),
-                        };
-
+                        insertMediaFileResponse.Status.AddArg("assetFileToInsert.typeName", assetFileToAdd.Value.Item1.GetTypeName());
                         ingestResponse.AssetsStatus[index].Warnings.Add(insertMediaFileResponse.Status);
                         continue;
                     }

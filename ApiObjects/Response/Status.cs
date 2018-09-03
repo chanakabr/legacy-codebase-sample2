@@ -17,7 +17,7 @@ namespace ApiObjects.Response
         private int code;
         private List<KeyValuePair> args;
 
-        public Status(int code = 0, string message = "", List<KeyValuePair>  args= null)
+        public Status(int code = 0, string message = "", List<KeyValuePair> args = null)
         {
             this.Code = code;
             this.Message = message;
@@ -75,6 +75,16 @@ namespace ApiObjects.Response
         {
             this.code = newCode;
             this.message = newMessage;
+        }
+
+        public void AddArg(string key, string value)
+        {
+            if (args == null)
+            {
+                args = new List<KeyValuePair>();
+            }
+
+            args.Add(new KeyValuePair(key, value));
         }
 
         public bool IsOkStatusCode()

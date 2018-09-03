@@ -543,36 +543,39 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
             try
             {
-                // validate that asset exist - isAllowedToViewInactiveAssets = true becuase only operator can insert media file
-                GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, eAssetTypes.MEDIA, true);
-                if (assetResponse == null || !assetResponse.HasObject())
+                if (!isFromIngest)
                 {
-                    result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
-                    return result;
-                }
+                    // validate that asset exist - isAllowedToViewInactiveAssets = true becuase only operator can insert media file
+                    GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, eAssetTypes.MEDIA, true);
+                    if (assetResponse == null || !assetResponse.HasObject())
+                    {
+                        result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
+                        return result;
+                    }
 
-                // validate that asset file type exist 
-                List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
-                if (mediaFileTypes == null || mediaFileTypes.Count < 1)
-                {
-                    result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
-                    return result;
+                    // validate that asset file type exist 
+                    List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
+                    if (mediaFileTypes == null || mediaFileTypes.Count < 1)
+                    {
+                        result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                        return result;
+                    }
+
+                    if (!mediaFileTypes.Any(x => x.Id == assetFileToAdd.TypeId))
+                    {
+                        result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                        return result;
+                    }
+
+                    // validate media doesn't already have a file with this type
+                    List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToAdd.AssetId);
+                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Any(x => x.TypeId == assetFileToAdd.TypeId))
+                    {
+                        result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
+                        return result;
+                    }
                 }
                 
-                if (!mediaFileTypes.Any(x => x.Id == assetFileToAdd.TypeId))
-                {
-                    result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
-                    return result;
-                }
-
-                // validate media doesn't already have a file with this type
-                List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToAdd.AssetId);
-                if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Any(x => x.TypeId == assetFileToAdd.TypeId))
-                {
-                    result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
-                    return result;
-                }
-
                 // validate ExternalId and AltExternalId  are unique 
                 result.SetStatus(ValidateMediaFileExternalIdUniqueness(groupId, assetFileToAdd));
                 if (result.Status.Code != (int)eResponseStatus.OK)
@@ -611,7 +614,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
-                    if (isFromIngest)
+                    if (!isFromIngest)
                     {
                         // UpdateIndex
                         bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileToAdd.AssetId);
@@ -619,11 +622,11 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
                         }
+
+                        // invalidate asset
+                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToAdd.AssetId);
                     }
-
-                    // invalidate asset
-                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToAdd.AssetId);
-
+                    
                     // free item index update 
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToAdd.AssetId, null, assetFileToAdd.StartDate, null, assetFileToAdd.EndDate);
                 }
@@ -672,60 +675,65 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId, bool isFromIngest = false)
+        public static GenericResponse<AssetFile> UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId, bool isFromIngest = false, AssetFile currentAssetFile = null)
         {
             GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
             try
             {
-                DataSet ds = CatalogDAL.GetMediaFile(groupId, assetFileToUpdate.Id);
-                GenericResponse<AssetFile> currentAssetFile = CreateAssetFileResponseFromDataSet(groupId, ds);
-
-                if (currentAssetFile != null && currentAssetFile.Status != null && currentAssetFile.Status.Code != (int)eResponseStatus.OK)
+                if (!isFromIngest || currentAssetFile == null)
                 {
-                    return currentAssetFile;
-                }
+                    DataSet dsCurrMediaFile = CatalogDAL.GetMediaFile(groupId, assetFileToUpdate.Id);
+                    GenericResponse<AssetFile> currentAssetFileResponse = CreateAssetFileResponseFromDataSet(groupId, dsCurrMediaFile);
 
-                if (currentAssetFile.Object != null && currentAssetFile.Object.AssetId != assetFileToUpdate.AssetId)
-                {                 
-                    result.SetStatus(eResponseStatus.MediaFileNotBelongToAsset, eResponseStatus.MediaFileNotBelongToAsset.ToString());
-                    return result;
-                }
-
-                // validate that asset file type exist
-                List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
-                if (mediaFileTypes == null || mediaFileTypes.Count < 1)
-                {
-                    result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
-                    return result;
-                }
-
-                MediaFileType mediaFileType = mediaFileTypes.FirstOrDefault(x => x.Id == assetFileToUpdate.TypeId);
-                if (mediaFileType == null)
-                {
-                    result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
-                    return result;
-                }
-
-                // validate media doesn't already have a file with this type
-                if (assetFileToUpdate.TypeId.HasValue && assetFileToUpdate.Id != currentAssetFile.Object.Id)
-                {
-                    List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToUpdate.AssetId);
-                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Any(x => x.TypeId == assetFileToUpdate.TypeId && x.Id != assetFileToUpdate.Id))
+                    if (currentAssetFileResponse != null && currentAssetFileResponse.Status != null && currentAssetFileResponse.Status.Code != (int)eResponseStatus.OK)
                     {
-                        result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
+                        return currentAssetFileResponse;
+                    }
+
+                    currentAssetFile = currentAssetFileResponse.Object;
+
+                    if (currentAssetFile != null && currentAssetFile.AssetId != assetFileToUpdate.AssetId)
+                    {
+                        result.SetStatus(eResponseStatus.MediaFileNotBelongToAsset, eResponseStatus.MediaFileNotBelongToAsset.ToString());
                         return result;
                     }
-                }
 
+                    // validate that asset file type exist
+                    List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
+                    if (mediaFileTypes == null || mediaFileTypes.Count < 1)
+                    {
+                        result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                        return result;
+                    }
+
+                    MediaFileType mediaFileType = mediaFileTypes.FirstOrDefault(x => x.Id == assetFileToUpdate.TypeId);
+                    if (mediaFileType == null)
+                    {
+                        result.SetStatus(eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                        return result;
+                    }
+
+                    // validate media doesn't already have a file with this type
+                    if (assetFileToUpdate.TypeId.HasValue && assetFileToUpdate.Id != currentAssetFile.Id)
+                    {
+                        List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToUpdate.AssetId);
+                        if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Any(x => x.TypeId == assetFileToUpdate.TypeId && x.Id != assetFileToUpdate.Id))
+                        {
+                            result.SetStatus(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
+                            return result;
+                        }
+                    }
+                }
+                
                 // ExternalId and AltExternalId cannot be the same value
                 if (string.IsNullOrEmpty(assetFileToUpdate.ExternalId))
                 {
-                    assetFileToUpdate.ExternalId = currentAssetFile.Object.ExternalId;
+                    assetFileToUpdate.ExternalId = currentAssetFile.ExternalId;
                 }
 
-                if (string.IsNullOrEmpty(assetFileToUpdate.AltExternalId) && !string.IsNullOrEmpty(currentAssetFile.Object.AltExternalId))
+                if (string.IsNullOrEmpty(assetFileToUpdate.AltExternalId) && !string.IsNullOrEmpty(currentAssetFile.AltExternalId))
                 {
-                    assetFileToUpdate.AltExternalId = currentAssetFile.Object.AltExternalId;
+                    assetFileToUpdate.AltExternalId = currentAssetFile.AltExternalId;
                 }
 
                 // validate ExternalId and AltExternalId  are unique 
@@ -758,17 +766,18 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetFileToUpdate.StartDate.HasValue ? assetFileToUpdate.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToUpdate.EndDate.HasValue ? assetFileToUpdate.EndDate.Value : startDate;
 
-                ds = CatalogDAL.UpdateMediaFile(groupId, assetFileToUpdate.Id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AlternativeCdnAdapaterProfileId,
-                                                assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId,
-                                                assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language,
-                                                assetFileToUpdate.OrderNum, assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId,
-                                                assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive);
+                var ds = CatalogDAL.UpdateMediaFile(groupId, assetFileToUpdate.Id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, 
+                                                    assetFileToUpdate.AlternativeCdnAdapaterProfileId, assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, 
+                                                    assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId, assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, 
+                                                    assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum, 
+                                                    assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId, 
+                                                    assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive);
 
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
-                    if (isFromIngest)
+                    if (!isFromIngest)
                     {
                         // UpdateIndex
                         bool indexingResult = IndexManager.UpsertMedia(groupId, (int)assetFileToUpdate.AssetId);
@@ -776,15 +785,14 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);
                         }
+
+                        // invalidate asset
+                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToUpdate.AssetId);
                     }
 
-                    // invalidate asset
-                    // invalidate asset
-                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToUpdate.AssetId);
-
                     // free item index update 
-                    DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToUpdate.AssetId, currentAssetFile.Object.StartDate, assetFileToUpdate.StartDate,
-                                                    currentAssetFile.Object.EndDate, assetFileToUpdate.EndDate);
+                    DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToUpdate.AssetId, currentAssetFile.StartDate, assetFileToUpdate.StartDate,
+                                                  currentAssetFile.EndDate, assetFileToUpdate.EndDate);
                 }
             }
             catch (Exception ex)
