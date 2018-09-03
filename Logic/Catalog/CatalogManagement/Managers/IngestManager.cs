@@ -94,7 +94,7 @@ namespace Core.Catalog.CatalogManagement
 
             // get data for group
             GenericListResponse<MediaFileType> mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
-            string groupDefaultRatio = groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
+            string groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
             Dictionary<string, ImageType> groupRatioNamesToImageTypes = GetGroupRatioNamesToImageTypes(groupId);
             Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
 
@@ -400,7 +400,7 @@ namespace Core.Catalog.CatalogManagement
                 HandleAssetImages(groupId, mediaAssetId, eAssetImageType.Media, images, isUpdateRequest, ref ingestResponse, mediaIndex);
             }
 
-            var assetFiles = GetAssetFiles(media.Files, mediaFileTypes);
+            var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, mediaAssetId);
             if (assetFiles != null && assetFiles.Count > 0)
             {
                 HandleAssetFiles(groupId, mediaAssetId, assetFiles, eraseExistingFiles, ref ingestResponse, mediaIndex);
@@ -1178,7 +1178,7 @@ namespace Core.Catalog.CatalogManagement
             return images;
         }
 
-        private static Dictionary<int, Tuple<AssetFile, string>> GetAssetFiles(IngestFiles files, GenericListResponse<MediaFileType> mediaFileTypes)
+        private static Dictionary<int, Tuple<AssetFile, string>> GetAssetFiles(IngestFiles files, GenericListResponse<MediaFileType> mediaFileTypes, long assetId)
         {
             Dictionary<int, Tuple<AssetFile, string>> assetFiles = null;
 
@@ -1199,6 +1199,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             assetFiles.Add(mediaFileTypeId, new Tuple<AssetFile, string>(new AssetFile(mediaFile.Type)
                             {
+                                AssetId = assetId,
                                 TypeId = mediaFileTypeId,
                                 Url = mediaFile.CdnCode,
                                 Duration = StringUtils.TryConvertTo<long>(mediaFile.AssetDuration),
@@ -1214,6 +1215,9 @@ namespace Core.Catalog.CatalogManagement
                                 EndDate = ExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT),
                                 FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
                                 IsActive = true
+                                //AlternativeCdnAdapaterProfileId,
+                                //AdditionalData
+                                //OrderNum
                             }, mediaFile.PpvModule));
                         }
                     }

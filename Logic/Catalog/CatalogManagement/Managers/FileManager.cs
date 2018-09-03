@@ -545,7 +545,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 // validate that asset exist - isAllowedToViewInactiveAssets = true becuase only operator can insert media file
                 GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, eAssetTypes.MEDIA, true);
-                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
+                if (assetResponse == null || !assetResponse.HasObject())
                 {
                     result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
