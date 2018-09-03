@@ -1198,20 +1198,31 @@ namespace Core.Catalog.CatalogManagement
         {
             bool res = false;
             Dictionary<long, List<LanguageContainer>> topicIdToMeta = new Dictionary<long, List<LanguageContainer>>();
+            Dictionary<long, LanguageObj> languagesDictionary = new Dictionary<long, LanguageObj>();
+
+            foreach (var language in groupLanguages)
+            {
+                languagesDictionary[language.ID] = language;
+            }
+
             foreach (DataRow dr in metasTable.Rows)
             {
                 long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
                 long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
                 string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
-                LanguageObj language = groupLanguages.Where(x => x.ID == languageId).FirstOrDefault();
-                if (!topicIdToMeta.ContainsKey(topicId))
-                {
 
-                    topicIdToMeta.Add(topicId, new List<LanguageContainer>() { new LanguageContainer(language.Code, translation, language.IsDefault) });
-                }
-                else
+                if (languagesDictionary.ContainsKey(languageId))
                 {
-                    topicIdToMeta[topicId].Add(new LanguageContainer(language.Code, translation, language.IsDefault));
+                    LanguageObj language = languagesDictionary[languageId];
+
+                    if (!topicIdToMeta.ContainsKey(topicId))
+                    {
+                        topicIdToMeta.Add(topicId, new List<LanguageContainer>() { new LanguageContainer(language.Code, translation, language.IsDefault) });
+                    }
+                    else
+                    {
+                        topicIdToMeta[topicId].Add(new LanguageContainer(language.Code, translation, language.IsDefault));
+                    }
                 }
             }
 
@@ -1223,19 +1234,24 @@ namespace Core.Catalog.CatalogManagement
                 long tagId = ODBCWrapper.Utils.GetLongSafeVal(dr, "tag_id");
                 long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
                 string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
-                LanguageObj language = groupLanguages.Where(x => x.ID == languageId).FirstOrDefault();
-                if (!topicIdToTag.ContainsKey(topicId))
+
+                if (languagesDictionary.ContainsKey(languageId))
                 {
-                    topicIdToTag.Add(topicId, new Dictionary<long, List<LanguageContainer>>());
-                    topicIdToTag[topicId].Add(tagId, new List<LanguageContainer>() { new LanguageContainer(language.Code, translation, language.IsDefault) });
-                }
-                else if (!topicIdToTag[topicId].ContainsKey(tagId))
-                {
-                    topicIdToTag[topicId].Add(tagId, new List<LanguageContainer>() { new LanguageContainer(language.Code, translation, language.IsDefault) });
-                }
-                else
-                {
-                    topicIdToTag[topicId][tagId].Add(new LanguageContainer(language.Code, translation, language.IsDefault));
+                    LanguageObj language = languagesDictionary[languageId];
+                
+                    if (!topicIdToTag.ContainsKey(topicId))
+                    {
+                        topicIdToTag.Add(topicId, new Dictionary<long, List<LanguageContainer>>());
+                        topicIdToTag[topicId].Add(tagId, new List<LanguageContainer>() { new LanguageContainer(language.Code, translation, language.IsDefault) });
+                    }
+                    else if (!topicIdToTag[topicId].ContainsKey(tagId))
+                    {
+                        topicIdToTag[topicId].Add(tagId, new List<LanguageContainer>() { new LanguageContainer(language.Code, translation, language.IsDefault) });
+                    }
+                    else
+                    {
+                        topicIdToTag[topicId][tagId].Add(new LanguageContainer(language.Code, translation, language.IsDefault));
+                    }
                 }
             }
 
@@ -1257,8 +1273,8 @@ namespace Core.Catalog.CatalogManagement
                             if (topicIdToTag.ContainsKey(topic.Id))
                             {
                                 Dictionary<long, List<LanguageContainer>> topicTags = topicIdToTag[topic.Id];
-                                List<LanguageContainer> defaultLanugeValues = topicTags.SelectMany(x => x.Value.Where(y => y.IsDefault)).ToList();
-                                List<string> defaultValues = defaultLanugeValues.Select(x => x.Value).ToList();
+                                List<LanguageContainer> defaultLanguageValues = topicTags.SelectMany(x => x.Value.Where(y => y.IsDefault)).ToList();
+                                List<string> defaultValues = defaultLanguageValues.Select(x => x.Value).ToList();
                                 List<LanguageContainer[]> tagLanguages = topicIdToTag[topic.Id].Select(x => x.Value.Select(y => y).ToArray()).ToList();
                                 tags.Add(new Tags(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValues, tagLanguages));
                             }
