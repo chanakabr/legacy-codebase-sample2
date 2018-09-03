@@ -276,6 +276,8 @@ namespace Core.ConditionalAccess
                                             PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, 
                                                                            string.Empty, domainId, groupId);
                                             cas.InsertDevicePlayData(concurrencyResponse.Data, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
+
+                                            log.Debug("GetPlaybackContext - PlayUsesManager.HandlePlayUses and InsertDevicePlayData");
                                         }
                                     }
                                 }
