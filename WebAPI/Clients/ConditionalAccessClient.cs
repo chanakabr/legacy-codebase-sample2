@@ -1994,6 +1994,9 @@ namespace WebAPI.Clients
                 streamerType = type;
             }
 
+            log.DebugFormat("ConditionalAccessClient - GetPlaybackContext parameters: groupId {0}, userId {1}, udid {2}, assetId {3}, assetType {4}.",
+                            groupId, userId, udid, assetId, assetType);
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
