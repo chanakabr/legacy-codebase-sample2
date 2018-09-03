@@ -917,7 +917,7 @@ namespace Core.Catalog.CatalogManagement
         /// <returns></returns>
         private static void HandleAssetFiles(int groupId, long assetId, List<Tuple<AssetFile, string>> filesToHandle, bool eraseExistingFiles, ref IngestResponse ingestResponse, int index)
         {
-            // TODO SHIR - UPDATE PREFORMENCE HandleAssetImages
+            bool res = true;
             List<Tuple<AssetFile, string>> filesToAdd = null;
             List<Tuple<AssetFile, string>> filesToUpdate = null;
             try
@@ -926,7 +926,7 @@ namespace Core.Catalog.CatalogManagement
                 if (assetId > 0 && !eraseExistingFiles)
                 {
                     GenericListResponse<AssetFile> assetFilesResponse = FileManager.GetMediaFiles(groupId, 0, assetId);
-                    HashSet<string> filesToHandleExternalIds = new HashSet<string>(filesToHandle.Select(x => x.Item1.ExternalId), StringComparer.OrdinalIgnoreCase);
+                    HashSet<string> filesToHandleExternalIds = new HashSet<string>(filesToHandle.Select(x => x.Item1.ExternalId).ToList(), StringComparer.OrdinalIgnoreCase);
                     Dictionary<string, long> updateFilesExternalIdToId = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
                     if (assetFilesResponse != null && assetFilesResponse.HasObjects())
                     {
@@ -935,33 +935,9 @@ namespace Core.Catalog.CatalogManagement
                             updateFilesExternalIdToId = assetFilesResponse.Objects.Where(x => filesToHandleExternalIds.Contains(x.ExternalId)).ToDictionary(x => x.ExternalId,
                                                                                                                                                     x => x.Id, StringComparer.OrdinalIgnoreCase);
                             filesToUpdate = filesToHandle.Where(x => updateFilesExternalIdToId.ContainsKey(x.Item1.ExternalId)).ToList();
-
-                            if (filesToUpdate != null && filesToUpdate.Count > 0)
+                            foreach (var assetFile in filesToUpdate)
                             {
-                                // handle files to update
-                                foreach (var assetFileToUpdate in filesToUpdate)
-                                {
-                                    assetFileToUpdate.Item1.Id = updateFilesExternalIdToId[assetFileToUpdate.Item1.ExternalId];
-                                    assetFileToUpdate.Item1.AssetId = assetId;
-
-                                    GenericResponse<AssetFile> updateFileResponse = FileManager.UpdateMediaFile(groupId, assetFileToUpdate.Item1, USER_ID, true);
-                                    if (updateFileResponse == null || !updateFileResponse.HasObject() || updateFileResponse.Object.Id == 0)
-                                    {
-                                        log.ErrorFormat("Failed updating asset file with externalId {0}, fileId: {1} for asset with id {2}, groupId: {3}",
-                                                        assetFileToUpdate.Item1.ExternalId, assetFileToUpdate.Item1.Id, assetId, groupId);
-
-                                        updateFileResponse.Status.Args = new List<KeyValuePair>()
-                                        {
-                                            new KeyValuePair("assetFileToUpdate.ExternalId", assetFileToUpdate.Item1.ExternalId),
-                                            new KeyValuePair("assetFileToUpdate.Id", assetFileToUpdate.Item1.Id.ToString()),
-                                            new KeyValuePair("assetFileToUpdate.TypeId", assetFileToUpdate.Item1.TypeId.HasValue ? assetFileToUpdate.Item1.TypeId.Value.ToString() : string.Empty),
-                                        };
-                                        ingestResponse.AssetsStatus[index].Warnings.Add(updateFileResponse.Status);
-                                        continue;
-                                    }
-
-                                    HandleAssetFilePpvModels(assetFileToUpdate.Item2, groupId, assetFileToUpdate.Item1.Id, assetFileToUpdate.Item1.AssetId);
-                                }
+                                assetFile.Item1.Id = updateFilesExternalIdToId[assetFile.Item1.ExternalId];
                             }
                         }
                     }
@@ -974,12 +950,11 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // handle files to add
-                if (filesToAdd != null && filesToAdd.Count > 0)
+                if (res && filesToAdd != null && filesToAdd.Count > 0)
                 {
                     foreach (var assetFileToAdd in filesToAdd)
                     {
-                        assetFileToAdd.Item1.AssetId = assetId;
-                        GenericResponse<AssetFile> addFileResponse = FileManager.InsertMediaFile(groupId, USER_ID, assetFileToAdd.Item1, true);
+                        GenericResponse<AssetFile> addFileResponse = FileManager.InsertMediaFile(groupId, USER_ID, assetFileToAdd.Item1);
                         if (addFileResponse == null || !addFileResponse.HasObject() || addFileResponse.Object.Id == 0)
                         {
                             log.ErrorFormat("Failed adding asset file with externalId {0} for asset with id {1}, groupId: {2}", assetFileToAdd.Item1.ExternalId, assetId, groupId);
@@ -993,6 +968,31 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         HandleAssetFilePpvModels(assetFileToAdd.Item2, groupId, addFileResponse.Object.Id, assetFileToAdd.Item1.AssetId);
+                    }
+                }
+
+                // handle files to update
+                if (res && filesToUpdate != null && filesToUpdate.Count > 0)
+                {
+                    foreach (var assetFileToUpdate in filesToUpdate)
+                    {
+                        GenericResponse<AssetFile> updateFileResponse = FileManager.UpdateMediaFile(groupId, assetFileToUpdate.Item1, USER_ID);
+                        if (updateFileResponse == null || !updateFileResponse.HasObject() || updateFileResponse.Object.Id == 0)
+                        {
+                            log.ErrorFormat("Failed updating asset file with externalId {0}, fileId: {1} for asset with id {2}, groupId: {3}",
+                                                       assetFileToUpdate.Item1.ExternalId, assetFileToUpdate.Item1.Id, assetId, groupId);
+
+                            updateFileResponse.Status.Args = new List<KeyValuePair>()
+                            {
+                                new KeyValuePair("assetFileToUpdate.ExternalId", assetFileToUpdate.Item1.ExternalId),
+                                new KeyValuePair("assetFileToUpdate.Id", assetFileToUpdate.Item1.Id.ToString()),
+                                new KeyValuePair("assetFileToUpdate.TypeId", assetFileToUpdate.Item1.TypeId.HasValue ? assetFileToUpdate.Item1.TypeId.Value.ToString() : string.Empty),
+                            };
+                            ingestResponse.AssetsStatus[index].Warnings.Add(updateFileResponse.Status);
+                            continue;
+                        }
+
+                        HandleAssetFilePpvModels(assetFileToUpdate.Item2, groupId, assetFileToUpdate.Item1.Id, assetFileToUpdate.Item1.AssetId);
                     }
                 }
             }
