@@ -2424,6 +2424,15 @@ namespace WebAPI.Clients
                 }
             };
 
+            log.DebugFormat("BookmarkAdd - MediaMarkRequest details: userId {0}, assetId {1}, action {2}, udid {3}, programId {4}, assetType {5}, isReportingMode {6}",
+                            request.m_sSiteGuid,
+                            request.m_oMediaPlayRequestData.m_sAssetID,
+                            request.m_oMediaPlayRequestData.m_sAction,
+                            request.m_oMediaPlayRequestData.m_sUDID,
+                            request.m_oMediaPlayRequestData.ProgramId,
+                            request.m_oMediaPlayRequestData.m_eAssetType,
+                            request.m_oMediaPlayRequestData.IsReportingMode);
+
             // fire search request
             MediaMarkResponse response = new MediaMarkResponse();
 
