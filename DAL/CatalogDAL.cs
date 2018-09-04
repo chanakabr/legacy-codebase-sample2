@@ -5415,7 +5415,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataTable UpdateAssetStructMeta(long assetStructId, long metaId, string ingestReferencePath, bool? protectFromIngest, string defaultIngestValue, int groupId, long userId,
-            bool? IsInherited)
+            bool? isInherited)
         {
             StoredProcedure sp = new StoredProcedure("UpdateAssetStructMeta");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5426,7 +5426,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@DefaultIngestValue", defaultIngestValue);
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@UserId", userId);
-            sp.AddParameter("@IsInherited", IsInherited);
+            sp.AddParameter("@IsInherited", isInherited);
             
             return sp.Execute();
         }
