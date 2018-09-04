@@ -976,7 +976,7 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 Topic topic = catalogGroupCache.TopicsMapById[inheritedTopic.MetaId];
 
-                                if (currentAsset != null && newAsset == null)
+                                if (newAsset != null && currentAsset == null)
                                 {
                                     topicsForAssetUpdate.Add(topic);
                                 }
