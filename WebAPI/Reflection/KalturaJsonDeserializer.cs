@@ -4038,7 +4038,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            MaxLength = 2048,
+            MaxLength = 4096,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute KsqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecordingFilter")
@@ -4047,7 +4047,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            MaxLength = 2048,
+            MaxLength = 4096,
             MinLength = -1,
         };
         public KalturaRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)

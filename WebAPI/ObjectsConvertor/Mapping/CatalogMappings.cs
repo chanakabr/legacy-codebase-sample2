@@ -2144,7 +2144,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     if (!string.IsNullOrEmpty(meta.m_sValue))
                     {
-                        value = new KalturaLongValue() { value = SerializationUtils.ConvertToUnixTimestamp(DateTime.Parse(meta.m_sValue, CultureInfo.InvariantCulture)) };
+                        DateTime parsedDate;
+                        if (DateTime.TryParse(meta.m_sValue, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                        {
+                            value = new KalturaLongValue() { value = SerializationUtils.ConvertToUnixTimestamp(parsedDate) };
+                        }
+                        else
+                        {
+                            value = new KalturaLongValue() { value = 0 };
+                        }
                     }
                 }
                 else

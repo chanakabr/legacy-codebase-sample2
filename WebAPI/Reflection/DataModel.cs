@@ -10135,7 +10135,7 @@ namespace WebAPI.Reflection
                                 Type = typeof(string),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("filter", "asset", "search") {
                                     RequiresPermission = false,
-                                    MaxLength = 2048,
+                                    MaxLength = 4096,
                                     MinLength = -1,
                                 },
                             });

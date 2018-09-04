@@ -197,15 +197,17 @@ namespace WebAPI.Models.Catalog
 
             Name.Validate("multilingualName");
 
-            if (Description == null || Description.Values == null || Description.Values.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
-            }
-
             if (Description != null)
             {
-                Description.Validate("multilingualDescription");
-            }
+                if (Description.Values == null || Description.Values.Count == 0)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+                }
+                else
+                {
+                    Description.Validate("multilingualDescription");
+                }
+            }            
 
             OrderBy.Validate(this.GetType());
         }
@@ -237,7 +239,7 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    Description.Validate("multilingualName");
+                    Description.Validate("multilingualDescription");
                 }
             }
 

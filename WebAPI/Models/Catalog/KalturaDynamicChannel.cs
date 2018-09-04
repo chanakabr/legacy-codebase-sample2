@@ -27,7 +27,7 @@ namespace WebAPI.Models.Catalog
         /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Logical conjunction: and, or. 
         /// Search values are limited to 20 characters each.
-        /// (maximum length of entire filter is 2048 characters)]]>
+        /// (maximum length of entire filter is 4096 characters)]]>
         /// </summary>
         [DataMember(Name = "kSql")]
         [JsonProperty("kSql")]
