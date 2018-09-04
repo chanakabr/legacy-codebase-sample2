@@ -132,22 +132,22 @@ namespace ApiObjects.MediaMarks
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder("DevicePlayData DATA: ");
-            sb.Append(String.Concat(" UDID: ", this.UDID));
-            sb.Append(String.Concat(" Asset Id: ", this.AssetId));
-            sb.Append(String.Concat(" User Id: ", this.UserId));
-            sb.Append(String.Concat(" TimeStamp: ", this.TimeStamp));
-            sb.Append(String.Concat(" playType: ", this.playType));
-            sb.Append(String.Concat(" Asset Action: ", this.AssetAction));
-            sb.Append(String.Concat(" Device Family Id: ", this.DeviceFamilyId));
-            sb.Append(String.Concat(" Create dAt: ", this.CreatedAt));
-            sb.Append(String.Concat(" Program Id: ", this.ProgramId));
-            sb.Append(String.Concat(" Npvr Id: ", this.NpvrId));
-            sb.Append(String.Concat(" Domain Id: ", this.DomainId));
-            sb.Append(String.Concat(" Media Concurrency Rule Ids: ", this.MediaConcurrencyRuleIds == null ? "null" : string.Join(", ", this.MediaConcurrencyRuleIds)));
-            sb.Append(String.Concat(" Asset Media Concurrency Rule Ids: ", this.AssetMediaConcurrencyRuleIds == null ? "null" : string.Join(", ", this.AssetMediaConcurrencyRuleIds)));
-            sb.Append(String.Concat(" Asset Epg Concurrency Rule Ids: ", this.AssetEpgConcurrencyRuleIds == null ? "null" : string.Join(", ", this.AssetEpgConcurrencyRuleIds)));
-            sb.Append(String.Concat(" Play Cycle Key: ", this.PlayCycleKey));
+            StringBuilder sb = new StringBuilder("DevicePlayData Details:");
+            sb.AppendLine(String.Concat("UDID: ", this.UDID));
+            sb.AppendLine(String.Concat("AssetId: ", this.AssetId));
+            sb.AppendLine(String.Concat("UserId: ", this.UserId));
+            sb.AppendLine(String.Concat("TimeStamp: ", this.TimeStamp));
+            sb.AppendLine(String.Concat("playType: ", this.playType));
+            sb.AppendLine(String.Concat("AssetAction: ", this.AssetAction));
+            sb.AppendLine(String.Concat("DeviceFamilyId: ", this.DeviceFamilyId));
+            sb.AppendLine(String.Concat("CreatedAt: ", this.CreatedAt));
+            sb.AppendLine(String.Concat("ProgramId: ", this.ProgramId));
+            sb.AppendLine(String.Concat("NpvrId: ", this.NpvrId));
+            sb.AppendLine(String.Concat("DomainId: ", this.DomainId));
+            sb.AppendLine(String.Concat("MediaConcurrencyRuleIds: ", this.MediaConcurrencyRuleIds == null ? "null" : string.Join(", ", this.MediaConcurrencyRuleIds)));
+            sb.AppendLine(String.Concat("AssetMediaConcurrencyRuleIds: ", this.AssetMediaConcurrencyRuleIds == null ? "null" : string.Join(", ", this.AssetMediaConcurrencyRuleIds)));
+            sb.AppendLine(String.Concat("AssetEpgConcurrencyRuleIds: ", this.AssetEpgConcurrencyRuleIds == null ? "null" : string.Join(", ", this.AssetEpgConcurrencyRuleIds)));
+            sb.AppendLine(String.Concat("PlayCycleKey: ", this.PlayCycleKey));
 
             return sb.ToString();
         }

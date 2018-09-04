@@ -960,14 +960,8 @@ namespace Core.ConditionalAccess
         /// Partially defines a user's purchase of a bundle, so data is easily transferred between methods
         /// </summary>
         [Serializable]
-        public class UserBundlePurchaseWithSuspend
+        public class UserBundlePurchaseWithSuspend : UserBundlePurchase
         {
-            public string sBundleCode;
-            public int nWaiver;
-            public DateTime dtPurchaseDate;
-            public DateTime dtEndDate;
-            public int nNumOfUses;
-            public int nMaxNumOfUses;
             public bool isSuspend;
 
             public UserBundlePurchaseWithSuspend() : base() { }

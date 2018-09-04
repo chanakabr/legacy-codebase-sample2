@@ -128,7 +128,7 @@ namespace Core.Catalog.Request
                 CatalogDAL.UpdateOrInsertDevicePlayData(newDevicePlayData, false, ttl);
                 currDevicePlayData = newDevicePlayData;
             }
-
+            
             return currDevicePlayData;
         }
 
