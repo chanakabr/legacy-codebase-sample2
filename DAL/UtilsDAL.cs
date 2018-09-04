@@ -25,8 +25,7 @@ namespace DAL
         private const int NUM_OF_TRIES = 3;
 
         #region Generic Methods
-
-        // TODO SHIR - CHECK serializeToString, SEE IF CAN BE REMOVE
+        
         public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key, bool serializeToString = false)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
@@ -87,8 +86,7 @@ namespace DAL
 
             return responseT;
         }
-
-        // TODO SHIR - CHECK serializeToString, SEE IF CAN BE REMOVE
+        
         public static List<T> GetObjectListFromCB<T>(eCouchbaseBucket couchbaseBucket, List<string> keys, bool serializeToString = false)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
@@ -133,8 +131,7 @@ namespace DAL
 
             return null;
         }
-
-        // TODO SHIR - CHECK serializeToString, SEE IF CAN BE REMOVE
+        
         public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, bool serializeToString = false, uint expirationTTL = 0)
         {
             if (objectToSave != null)

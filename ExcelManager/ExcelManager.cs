@@ -188,7 +188,7 @@ namespace ExcelManager
                         {
                             if (file.Id > 0)
                             {
-                                assetFileGenResponse = FileManager.UpdateMediaFile(groupId, file, userId);
+                                assetFileGenResponse = FileManager.UpdateMediaFile(groupId, file, userId, false, file);
                             }
                             else
                             {
