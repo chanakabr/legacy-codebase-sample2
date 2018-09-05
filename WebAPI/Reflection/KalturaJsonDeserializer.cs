@@ -11302,10 +11302,48 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaProgramAsset
     {
+        private static RuntimeSchemePropertyAttribute CdvrEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CatchUpEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute StartOverEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute TrickPlayEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaProgramAsset(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("epgChannelId") && parameters["epgChannelId"] != null)
                 {
                     EpgChannelId = (Int64) Convert.ChangeType(parameters["epgChannelId"], typeof(Int64));
@@ -11325,6 +11363,38 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("linearAssetId") && parameters["linearAssetId"] != null)
                 {
                     LinearAssetId = (Int64) Convert.ChangeType(parameters["linearAssetId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("enableCdvr") && parameters["enableCdvr"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CdvrEnabledSchemaProperty.Validate("enableCdvr", parameters["enableCdvr"]);
+                    }
+                    CdvrEnabled = (Boolean) Convert.ChangeType(parameters["enableCdvr"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("enableCatchUp") && parameters["enableCatchUp"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CatchUpEnabledSchemaProperty.Validate("enableCatchUp", parameters["enableCatchUp"]);
+                    }
+                    CatchUpEnabled = (Boolean) Convert.ChangeType(parameters["enableCatchUp"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("enableStartOver") && parameters["enableStartOver"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        StartOverEnabledSchemaProperty.Validate("enableStartOver", parameters["enableStartOver"]);
+                    }
+                    StartOverEnabled = (Boolean) Convert.ChangeType(parameters["enableStartOver"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("enableTrickPlay") && parameters["enableTrickPlay"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        TrickPlayEnabledSchemaProperty.Validate("enableTrickPlay", parameters["enableTrickPlay"]);
+                    }
+                    TrickPlayEnabled = (Boolean) Convert.ChangeType(parameters["enableTrickPlay"], typeof(Boolean));
                 }
             }
         }

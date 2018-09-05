@@ -10,10 +10,7 @@ namespace WebAPI.ObjectsConvertor
     public class RecordingObj : BaseObject
     {
         public long RecordingId { get; set; }
-
         public KalturaRecordingType? RecordingType { get; set; }
-
         public ProgramObj Program { get; set; }
     }
-
 }
