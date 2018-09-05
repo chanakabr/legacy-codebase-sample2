@@ -15,7 +15,8 @@ namespace Core.Catalog.CatalogManagement
         public bool? ProtectFromIngest { get; set; }
         public string DefaultIngestValue { get; set; }
         public long CreateDate { get; set; }
-        public long UpdateDate { get; set; }
+        public long UpdateDate { get; set; }        
+        public bool? IsInherited { get; set; }
 
         public AssetStructMeta()
         {
@@ -37,7 +38,8 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("DefaultIngestValue: {0}, ", DefaultIngestValue);
             sb.AppendFormat("CreateDate: {0} ", CreateDate);
             sb.AppendFormat("UpdateDate: {0} ", UpdateDate);            
+            sb.AppendFormat("IsInherited: {0} ", IsInherited);            
             return sb.ToString();
         }
-    }
+    }   
 }

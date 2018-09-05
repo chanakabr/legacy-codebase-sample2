@@ -1555,5 +1555,55 @@ namespace Core.Catalog
 
             return result;
         }
+
+        internal static UnifiedSearchResult[] SearchAssets(int groupId, string filter, int pageIndex, int pageSize, bool OnlyIsActive, bool UseStartDate)
+        {
+            UnifiedSearchResult[] assets = null;
+
+            try
+            {
+                string catalogSignString = Guid.NewGuid().ToString();
+                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+
+                string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
+
+                try
+                {
+                    UnifiedSearchRequest assetRequest = new UnifiedSearchRequest()
+                    {
+                        m_nGroupID = groupId,
+                        m_oFilter = new Filter()
+                        {
+                            m_bOnlyActiveMedia = OnlyIsActive,
+                            m_bUseStartDate = UseStartDate,
+                        },
+                        m_sSignature = catalogSignature,
+                        m_sSignString = catalogSignString,
+                        m_nPageIndex = pageIndex,
+                        m_nPageSize = pageSize,
+                        filterQuery = filter,
+                        shouldIgnoreDeviceRuleID = true,
+                        order = new OrderObj()
+                        {
+                            m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
+                            m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+                        }
+                    };
+
+                    BaseResponse response = assetRequest.GetResponse(assetRequest);
+                    assets = ((UnifiedSearchResponse)response).searchResults.ToArray();
+                }
+                catch (Exception ex)
+                {
+                   
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Configuration Reading - Couldn't read values from configuration ", ex);
+            }
+
+            return assets;
+        }
     }
 }
