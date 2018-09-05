@@ -8364,6 +8364,26 @@
             Id of linear media asset
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.CdvrEnabled">
+            <summary>
+            Is CDVR enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.CatchUpEnabled">
+            <summary>
+            Is catch-up enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.StartOverEnabled">
+            <summary>
+            Is start over enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.TrickPlayEnabled">
+            <summary>
+            Is trick-play enabled for this asset
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaRecordingAsset">
             <summary>
             Recording-asset info
