@@ -325,7 +325,7 @@ namespace Core.Users
             foreach (KeyValuePair<string, string> kvp in dynamicDataToInsert)
             {
                 directQuery += "insert into #x (id, user_id, data_type, data_value, is_active, status, group_id, create_date, update_date, publish_date) values";
-                directQuery += "(0, " + UserId.ToString() + ", '" + kvp.Key + "' , '" + kvp.Value + "' ,1 , 1, " + this.GroupId.ToString() + ",";
+                directQuery += "(0, " + UserId.ToString() + ", '" + kvp.Key + "' , N'" + kvp.Value + "' ,1 , 1, " + this.GroupId.ToString() + ",";
                 directQuery += "getdate() , getdate(), getdate() )";
             }
 
@@ -352,7 +352,7 @@ namespace Core.Users
 
             foreach (int id in dynamicDataToUpdate.Keys)
             {
-                directQuery += "insert into #x (id, data_type, data_value,status, update_date) values (" + id.ToString() + ", '" + dynamicDataToUpdate[id].Key + "' , '" + dynamicDataToUpdate[id].Value + "', 1, getdate())";
+                directQuery += "insert into #x (id, data_type, data_value,status, update_date) values (" + id.ToString() + ", '" + dynamicDataToUpdate[id].Key + "' , N'" + dynamicDataToUpdate[id].Value + "', 1, getdate())";
             }
 
             //update the rows that already exist
