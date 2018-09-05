@@ -984,8 +984,8 @@ namespace Core.Catalog.CatalogManagement
                                 {
                                     if (topic.Type == MetaType.Tag)
                                     {
-                                        Tags currentInheratedTagsObj = currentAsset.Tags.Where(x => x.m_oTagMeta.m_sName == topic.SystemName).FirstOrDefault();
-                                        Tags assetToUpdateInheratedTagsObj = newAsset.Tags.Where(x => x.m_oTagMeta.m_sName == topic.SystemName).FirstOrDefault();
+                                        Tags currentInheratedTagsObj = currentAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
+                                        Tags assetToUpdateInheratedTagsObj = newAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
                                         if (currentInheratedTagsObj != null && !currentInheratedTagsObj.Equals(assetToUpdateInheratedTagsObj))
                                         {
                                             topicsForAssetUpdate.Add(topic);
@@ -993,8 +993,8 @@ namespace Core.Catalog.CatalogManagement
                                     }
                                     else
                                     {
-                                        Metas currentInheratedMetaObj = currentAsset.Metas.Where(x => x.m_oTagMeta.m_sName == topic.SystemName).FirstOrDefault();
-                                        Metas assetToUpdateInheratedMetaObj = newAsset.Metas.Where(x => x.m_oTagMeta.m_sName == topic.SystemName).FirstOrDefault();
+                                        Metas currentInheratedMetaObj = currentAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
+                                        Metas assetToUpdateInheratedMetaObj = newAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
                                         if (currentInheratedMetaObj != null && !currentInheratedMetaObj.Equals(assetToUpdateInheratedMetaObj))
                                         {
                                             topicsForAssetUpdate.Add(topic);
@@ -1035,11 +1035,11 @@ namespace Core.Catalog.CatalogManagement
 
                                     if (inhertiedMeta.Type == MetaType.Tag)
                                     {
-                                        inheratedTagsObj = newAsset.Tags.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
+                                        inheratedTagsObj = newAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
                                     }
                                     else
                                     {
-                                        inheratedMetaObj = newAsset.Metas.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
+                                        inheratedMetaObj = newAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
                                     }
 
                                     UpdateInheritedChildAsset(groupId, inhertiedMeta, inheratedMetaObj, inheratedTagsObj, childAssets);
@@ -2261,7 +2261,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Validate Metadata Inheritance
-                Status metaDataInheritanceStatus = new Status(0, eResponseStatus.OK.ToString());
+                Status metaDataInheritanceStatus = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                 bool needToHandleHeritage = false;
                 if (assetStructMeta.IsInherited.HasValue && assetStructMeta.IsInherited.Value)
@@ -2278,6 +2278,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (needToHandleHeritage)
                     {
+                        //TODO ANAT: rabbit
                         bool result = HandleHeritage(groupId, assetStructId, metaId);
                         if (!result)
                         {
@@ -2407,7 +2408,7 @@ namespace Core.Catalog.CatalogManagement
 
             // Getting all parent assets that contains value for connected meta
             string filter = string.Format("(and asset_type='{0}' {1}+'')", parentAssetStruct.Id, parentConnectingTopic.SystemName);
-            UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
+            UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true); //TODO ANAT: paging
             if (assets == null || assets.Length == 0)
             {
                 return true;
@@ -2430,7 +2431,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // Getting all parent assets that contains value for this meta
                 filter = string.Format("(and asset_type='{0}' {1}='{2}')", currentAssetStruct.Id, childConnectingTopic.SystemName, connectingMetaValue);
-                UnifiedSearchResult[] childAssetIds = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
+                UnifiedSearchResult[] childAssetIds = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);  //TODO ANAT: paging
 
                 if (childAssetIds == null || childAssetIds.Length == 0)
                 {
