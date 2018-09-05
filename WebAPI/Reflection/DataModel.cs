@@ -4038,6 +4038,10 @@ namespace WebAPI.Reflection
                 case "KalturaProgramAsset":
                     switch(property.Name)
                     {
+                        case "CatchUpEnabled":
+                            return "enableCatchUp";
+                        case "CdvrEnabled":
+                            return "enableCdvr";
                         case "Crid":
                             return "crid";
                         case "EpgChannelId":
@@ -4048,6 +4052,10 @@ namespace WebAPI.Reflection
                             return "linearAssetId";
                         case "RelatedMediaId":
                             return "relatedMediaId";
+                        case "StartOverEnabled":
+                            return "enableStartOver";
+                        case "TrickPlayEnabled":
+                            return "enableTrickPlay";
                     }
                     break;
                     

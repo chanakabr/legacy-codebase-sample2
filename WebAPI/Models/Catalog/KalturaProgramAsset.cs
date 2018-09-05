@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
@@ -53,5 +54,41 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "linearAssetId")]
         [XmlElement(ElementName = "linearAssetId")]
         public long? LinearAssetId { get; set; }
+
+        /// <summary>
+        /// Is CDVR enabled for this asset
+        /// </summary>
+        [DataMember(Name = "enableCdvr")]
+        [JsonProperty(PropertyName = "enableCdvr")]
+        [XmlElement(ElementName = "enableCdvr")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool CdvrEnabled { get; set; }
+
+        /// <summary>
+        /// Is catch-up enabled for this asset
+        /// </summary>
+        [DataMember(Name = "enableCatchUp")]
+        [JsonProperty(PropertyName = "enableCatchUp")]
+        [XmlElement(ElementName = "enableCatchUp")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool CatchUpEnabled { get; set; }
+
+        /// <summary>
+        /// Is start over enabled for this asset
+        /// </summary>
+        [DataMember(Name = "enableStartOver")]
+        [JsonProperty(PropertyName = "enableStartOver")]
+        [XmlElement(ElementName = "enableStartOver")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool StartOverEnabled { get; set; }
+
+        /// <summary>
+        /// Is trick-play enabled for this asset
+        /// </summary>
+        [DataMember(Name = "enableTrickPlay")]
+        [JsonProperty(PropertyName = "enableTrickPlay")]
+        [XmlElement(ElementName = "enableTrickPlay")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool TrickPlayEnabled { get; set; }
     }
 }
