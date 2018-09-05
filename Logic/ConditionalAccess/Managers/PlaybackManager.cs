@@ -197,7 +197,6 @@ namespace Core.ConditionalAccess
                             }
                             else if (assetType == eAssetTypes.NPVR)
                             {
-                                // TODO SHIR - DONT FORGET befor assetId i use mediaId
                                 concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, int.Parse(assetId), (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR);
                             }
                             else
