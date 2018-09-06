@@ -135,6 +135,9 @@ namespace Core.Catalog.CatalogManagement
             DateTime? catalogStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CATALOG_START_DATE");
             DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
 
+            int InheritancePolicy = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "INHERITANCE_POLICY");
+            AssetInheritancePolicy assetInheritancePolicy = (AssetInheritancePolicy)Enum.ToObject(typeof(AssetInheritancePolicy) , InheritancePolicy);
+
             // Metas and Tags table
             List<Metas> metas = null;
             List<Tags> tags = null;
@@ -255,7 +258,7 @@ namespace Core.Catalog.CatalogManagement
             int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "GEO_BLOCK_RULE_ID", -1);
             string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");
             result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, images, coGuid,
-                                    isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes);
+                                    isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes, assetInheritancePolicy);
 
             // if media is linear we also have the epg channel table returned
             if (ds.Tables.Count == 7)
@@ -449,7 +452,10 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
 
-            SetInheritedValue(groupId, catalogGroupCache, assetStruct, asset);
+            if (asset.InheritancePolicy == AssetInheritancePolicy.Enable)
+            {
+                SetInheritedValue(groupId, catalogGroupCache, assetStruct, asset);
+            }
 
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, asset.Metas, asset.Tags, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc,
                                                                  ref assetCatalogStartDate, ref assetFinalEndDate);
@@ -1054,6 +1060,7 @@ namespace Core.Catalog.CatalogManagement
                 // validate asset
                 XmlDocument metasXmlDoc = null, tagsXmlDoc = null;
                 DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
+                
                 Status validateAssetTopicsResult = ValidateMediaAssetForInsert(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc,
                                                                                 ref assetCatalogStartDate, ref assetFinalEndDate);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
@@ -1077,13 +1084,13 @@ namespace Core.Catalog.CatalogManagement
                 DateTime endDate = assetToAdd.EndDate.HasValue ? assetToAdd.EndDate.Value : DateTime.MaxValue;                
                 DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
                                                         assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
-                                                        startDate, endDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
+                                                        startDate, endDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId, (int)assetToAdd.InheritancePolicy);
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
 
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
                     && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
-                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, assetStruct, assetToAdd, null);
+                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, assetToAdd, null);
 
                     // UpdateIndex
                     bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
@@ -1152,16 +1159,19 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : currentAsset.StartDate.HasValue ? currentAsset.StartDate.Value : DateTime.UtcNow;
                 DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : currentAsset.CatalogStartDate.HasValue ? currentAsset.CatalogStartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetToUpdate.EndDate.HasValue ? assetToUpdate.EndDate.Value : currentAsset.EndDate.HasValue ? currentAsset.EndDate.Value : DateTime.MaxValue;
+                AssetInheritancePolicy InheritancePolicy = assetToUpdate.InheritancePolicy.HasValue ? assetToUpdate.InheritancePolicy.Value : currentAsset.InheritancePolicy.HasValue ? currentAsset.InheritancePolicy.Value : AssetInheritancePolicy.Enable;
+
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
                 DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
                                                         assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
-                                                        endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId);
+                                                        endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId, (int)InheritancePolicy);
+
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
                     && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
                     // update metadate inInherited
-                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, assetStruct, result.Object, currentAsset);
+                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, result.Object, currentAsset);
 
                     // UpdateIndex
                     bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
@@ -1556,7 +1566,8 @@ namespace Core.Catalog.CatalogManagement
                     m_dTagValues = tags,
                     m_sMFTypes = fileTypes != null ? string.Join(";", fileTypes) : string.Empty,
                     freeFileTypes = freeFileTypes != null ? new List<int>(freeFileTypes) : new List<int>(),
-                    isFree = freeFileTypes != null && freeFileTypes.Count > 0
+                    isFree = freeFileTypes != null && freeFileTypes.Count > 0,
+                    inheritancePolicy = (int)mediaAsset.InheritancePolicy
                 };
 
                 result.Add(language.ID, media);

@@ -723,7 +723,7 @@ namespace Core.Catalog.CatalogManagement
             return connectingMetaValue;
         }
 
-        private static void UpdateInheritedChildAsset(int groupId, Topic inhertiedMeta, Metas inheratedMetaObj, Tags inheratedTagsObj, List<Asset> childAssets)
+        private static void UpdateInheritedChildAsset(int groupId, long userId, Topic inhertiedMeta, Metas inheratedMetaObj, Tags inheratedTagsObj, List<Asset> childAssets)
         {
             foreach (Asset childAsset in childAssets)
             {
@@ -745,7 +745,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (tagIndex > -1)
                         {
-                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
+                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, userId);
                         }
                     }
                     else
@@ -778,7 +778,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (metaIndex > -1)
                         {
-                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, 999);
+                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, userId);
                         }
                     }
                     else
@@ -798,7 +798,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (update)
                 {
-                    AssetManager.UpdateAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, childAsset, 999);
+                    AssetManager.UpdateAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, childAsset, userId);
                 }
             }
         }
@@ -955,7 +955,7 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        internal static void UpdateChildAssetsMetaInherited(int groupId, CatalogGroupCache catalogGroupCache, AssetStruct currentAssetStruct,
+        internal static void UpdateChildAssetsMetaInherited(int groupId, CatalogGroupCache catalogGroupCache, long userId, AssetStruct currentAssetStruct,
             Asset newAsset, Asset currentAsset)
         {
             List<AssetStruct> connectedAssetStructs = catalogGroupCache.AssetStructsMapById.Select(x => x.Value).Where(x => x.ParentId.HasValue && x.ParentId.Value == currentAssetStruct.Id).ToList();
@@ -1012,15 +1012,15 @@ namespace Core.Catalog.CatalogManagement
                             string connectingMetaValue = GetConnectingMetaValue(parentConectingTopic, newAsset);
                             if (!string.IsNullOrEmpty(connectingMetaValue))
                             {
+                                //TODO ANAT: filter InheritancePolicy
                                 string filter = string.Format("(and asset_type='{0}' {1}='{2}')", connectedAssetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
-                                UnifiedSearchResult[] childAssetIds = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
-
-                                if (childAssetIds == null || childAssetIds.Length == 0)
+                                HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
+                                if (childAssetsIds == null || childAssetsIds.Count == 0)
                                 {
                                     return;
                                 }
 
-                                List<KeyValuePair<eAssetTypes, long>> assetList = childAssetIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
+                                List<KeyValuePair<eAssetTypes, long>> assetList = childAssetsIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x)).ToList();
 
                                 List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList, true);
                                 if (childAssets == null || childAssets.Count == 0)
@@ -1042,7 +1042,7 @@ namespace Core.Catalog.CatalogManagement
                                         inheratedMetaObj = newAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
                                     }
 
-                                    UpdateInheritedChildAsset(groupId, inhertiedMeta, inheratedMetaObj, inheratedTagsObj, childAssets);
+                                    UpdateInheritedChildAsset(groupId, userId, inhertiedMeta, inheratedMetaObj, inheratedTagsObj, childAssets);
                                 }
                             }
                         }
@@ -2279,7 +2279,21 @@ namespace Core.Catalog.CatalogManagement
                     if (needToHandleHeritage)
                     {
                         //TODO ANAT: rabbit
-                        bool result = HandleHeritage(groupId, assetStructId, metaId);
+                        //QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+
+                        //InheritanceAssetStructMeta data = new InheritanceAssetStructMeta()
+                        //{
+                        //    AssetStructId = assetStructId,
+                        //    MetaId = metaId
+                        //};
+                        //InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, data.ToString(), userId);
+                        //bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
+                        //if (!enqueueSuccessful)
+                        //{
+                        //    log.ErrorFormat("Failed enqueue of inheritance {0}", data);
+                        //}
+                        
+                        bool result = HandleHeritage(groupId, assetStructId, metaId, userId);
                         if (!result)
                         {
                             log.ErrorFormat("Failed to HandleHeritage. groupId:{0}, assetStructId:{1}, metaId:{2}", groupId, assetStructId, metaId);
@@ -2383,7 +2397,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static bool HandleHeritage(int groupId, long assetStructId, long metaId)
+        public static bool HandleHeritage(int groupId, long assetStructId, long metaId, long userId)
         {
             bool result = false;
             CatalogGroupCache catalogGroupCache = null;
@@ -2409,14 +2423,12 @@ namespace Core.Catalog.CatalogManagement
             // Getting all parent assets that contains value for connected meta
             string filter = string.Format("(and asset_type='{0}' {1}+'')", parentAssetStruct.Id, parentConnectingTopic.SystemName);
             UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true); //TODO ANAT: paging
-            if (assets == null || assets.Length == 0)
-            {
-                return true;
-            }
 
-            foreach (UnifiedSearchResult asset in assets)
+            HashSet<long> parentAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
+
+            foreach (long assetId in parentAssetsIds)
             {
-                GenericResponse<Asset> mediaAsset = AssetManager.GetAsset(groupId, long.Parse(asset.AssetId), eAssetTypes.MEDIA, true);
+                GenericResponse<Asset> mediaAsset = AssetManager.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
 
                 if (mediaAsset.Status.Code != (int)eResponseStatus.OK || mediaAsset.Object == null)
                 {
@@ -2429,11 +2441,12 @@ namespace Core.Catalog.CatalogManagement
                 if (string.IsNullOrEmpty(connectingMetaValue))
                     continue;
 
-                // Getting all parent assets that contains value for this meta
+                // Getting all child assets
+                //TODO ANAT: filter InheritancePolicy
                 filter = string.Format("(and asset_type='{0}' {1}='{2}')", currentAssetStruct.Id, childConnectingTopic.SystemName, connectingMetaValue);
-                UnifiedSearchResult[] childAssetIds = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);  //TODO ANAT: paging
+                HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
 
-                if (childAssetIds == null || childAssetIds.Length == 0)
+                if (childAssetsIds == null || childAssetsIds.Count == 0)
                 {
                     continue;
                 }
@@ -2443,14 +2456,14 @@ namespace Core.Catalog.CatalogManagement
 
                 if (inhertiedMeta.Type == MetaType.Tag)
                 {
-                    inheratedTagsObj = mediaAsset.Object.Tags.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
+                    inheratedTagsObj = mediaAsset.Object.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
                 }
                 else
                 {
-                    inheratedMetaObj = mediaAsset.Object.Metas.Where(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName).FirstOrDefault();
+                    inheratedMetaObj = mediaAsset.Object.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
                 }
 
-                List<KeyValuePair<eAssetTypes, long>> assetList = childAssetIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
+                List<KeyValuePair<eAssetTypes, long>> assetList = childAssetsIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x)).ToList();
 
                 List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList, true);
                 if (childAssets == null || childAssets.Count == 0)
@@ -2459,10 +2472,46 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Update Inherited Child Asset
-                UpdateInheritedChildAsset(groupId, inhertiedMeta, inheratedMetaObj, inheratedTagsObj, childAssets);
+                UpdateInheritedChildAsset(groupId, userId, inhertiedMeta, inheratedMetaObj, inheratedTagsObj, childAssets);
             }
 
             return result;
+        }
+
+        private static HashSet<long> GetAssetsIdsWithPaging(int groupId, string filter)
+        {
+            int pageSize = 1000;
+            int pageIndex = 0;
+            HashSet<long> parentAssetsIds = new HashSet<long>();
+
+            while (true)
+            {
+                UnifiedSearchResult[] parentAssets = Core.Catalog.Utils.SearchAssets(groupId, filter, pageIndex, pageSize, false, true);
+                if (parentAssets == null || parentAssets.Length == 0)
+                {
+                    break;
+                }
+
+                foreach (UnifiedSearchResult asset in parentAssets)
+                {
+                    long assetId = long.Parse(asset.AssetId);
+                    if (!parentAssetsIds.Contains(assetId))
+                    {
+                        parentAssetsIds.Add(assetId);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                if (parentAssets.Length < pageSize)
+                    break;
+
+                pageIndex++;
+            }
+
+            return parentAssetsIds;
         }
 
 
