@@ -128,9 +128,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language, VERSION);
-
-                #region Join tags and metas of EPG and media to same mapping
-
+                
                 Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
                 List<string> tags = null;
                 if (!ElasticSearchTaskUtils.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags, serializer, group, catalogGroupCache))
@@ -138,8 +136,6 @@ namespace ElasticSearchHandler.IndexBuilders
                     log.Error("Failed GetMetasAndTagsForMapping as part of BuildIndex");
                     return false;
                 }
-
-                #endregion
 
                 // Ask serializer to create the mapping definitions string
                 string mapping = serializer.CreateMediaMapping(metas, tags, specificMappingAnalyzers, defaultMappingAnalyzers);

@@ -276,27 +276,7 @@ namespace ElasticSearchHandler
                             }
                         }
                     }
-
-                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
-                    {
-                        foreach (string epgMeta in group.m_oEpgGroupSettings.m_lMetasName)
-                        {
-                            string nullValue;
-                            eESFieldType metaType;
-                            serializer.GetMetaType(epgMeta, out metaType, out nullValue);
-                            metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-
-                            if (!metas.ContainsKey(epgMeta))
-                            {
-                                metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                            }
-                            else
-                            {
-                                log.ErrorFormat("Duplicate epg meta found for group {0} name {1}", groupId, epgMeta);
-                            }
-                        }
-                    }
-
+                    
                     if (group.m_oMetasValuesByGroupId != null)
                     {
                         foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
@@ -311,6 +291,29 @@ namespace ElasticSearchHandler
                                 {
                                     metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
                                 }
+                                else
+                                {
+                                    log.ErrorFormat("Duplicate media meta found for group {0} name {1}", groupId, meta.Value);
+                                }
+                            }
+                        }
+                    }
+
+                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
+                    {
+                        foreach (string epgMeta in group.m_oEpgGroupSettings.m_lMetasName)
+                        {
+                            string nullValue;
+                            eESFieldType metaType;
+                            serializer.GetMetaType(epgMeta, out metaType, out nullValue);
+
+                            if (!metas.ContainsKey(epgMeta))
+                            {
+                                metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Duplicate epg meta found for group {0} name {1}", groupId, epgMeta);
                             }
                         }
                     }
