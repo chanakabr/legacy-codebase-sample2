@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -126,5 +127,13 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("status")]
         [XmlElement(ElementName = "status", IsNullable = true)]        
         public bool? Status { get; set; }
+
+        /// <summary>
+        ///  The media asset inheritance policy
+        /// </summary>
+        [DataMember(Name = "inheritancePolicy")]
+        [JsonProperty("InheritancePolicy")]
+        [XmlElement(ElementName = "InheritancePolicy", IsNullable = true)]
+        public AssetInheritancePolicy? InheritancePolicy { get; set; }
     }
 }

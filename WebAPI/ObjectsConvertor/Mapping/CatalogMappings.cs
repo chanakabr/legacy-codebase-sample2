@@ -442,7 +442,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.MapFrom(src => src.WatchPermissionRule))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
+                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
+                .ForMember(dest => dest.InheritancePolicy, opt => opt.Ignore());
             
             // KalturaAsset to Asset
             cfg.CreateMap<KalturaAsset, Asset>()
@@ -466,7 +467,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.GeoBlockRuleId, opt => opt.MapFrom(src => src.GeoBlockRuleId))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.CoGuid, opt => opt.MapFrom(src => src.ExternalId))
-                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
+                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
+                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => src.InheritancePolicy));
 
             //KalturaLinearMediaAsset to LinearMediaAsset
             cfg.CreateMap<KalturaLiveAsset, LiveAsset>()
@@ -530,7 +532,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
-                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
+                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
+                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => src.InheritancePolicy));
             
             //LinearMediaAsset to KalturaLinearMediaAsset
             cfg.CreateMap<LiveAsset, KalturaLiveAsset>()
