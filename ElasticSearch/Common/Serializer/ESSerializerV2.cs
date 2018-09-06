@@ -1054,11 +1054,20 @@ namespace ElasticSearch.Common
                 name = "metas"
             };
 
+            HashSet<string> mappedMetas = new HashSet<string>();
+
             foreach (string metaName in lMetasNames)
             {
                 if (!string.IsNullOrEmpty(metaName))
                 {
                     string sMetaName = metaName.ToLower();
+
+                    // don't create double mapping for metas to avoid errrors
+                    if (mappedMetas.Contains(sMetaName))
+                    {
+                        continue;
+                    }
+
                     string sNullValue;
                     eESFieldType eMetaType;
                     GetMetaType(metaName, out eMetaType, out sNullValue);
@@ -1171,7 +1180,7 @@ namespace ElasticSearch.Common
                     }
 
                     metas.AddProperty(multiField);
-
+                    mappedMetas.Add(sMetaName);
                 }
             }
 
