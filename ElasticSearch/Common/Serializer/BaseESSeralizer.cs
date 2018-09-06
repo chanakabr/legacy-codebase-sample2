@@ -266,6 +266,12 @@ namespace ElasticSearch.Common
                 recordBuilder.Append("]");
             }
 
+            // Add this field only if there are Inheritance Policy on the media object
+            if (media.inheritancePolicy.HasValue)
+            {
+                recordBuilder.AppendFormat(", \"inheritance_policy\": {0}", media.inheritancePolicy.Value);
+            }
+
             #endregion
 
             recordBuilder.Append(" }");
