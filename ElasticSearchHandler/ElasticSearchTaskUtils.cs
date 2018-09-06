@@ -207,7 +207,7 @@ namespace ElasticSearchHandler
                 throw ex;
             }
         }
-
+        
         public static bool GetMetasAndTagsForMapping(int groupId, bool? doesGroupUsesTemplates, ref Dictionary<string, KeyValuePair<eESFieldType, string>> metas, ref List<string> tags,
                                                     BaseESSeralizer serializer, Group group = null, CatalogGroupCache catalogGroupCache = null, bool isEpg = false)
         {
@@ -224,7 +224,7 @@ namespace ElasticSearchHandler
                 try
                 {
                     HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                    HashSet<long> epgAssetStructMetaIds = catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManager.EPG_ASSET_STRUCT_SYSTEM_NAME) ? 
+                    HashSet<long> epgAssetStructMetaIds = catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManager.EPG_ASSET_STRUCT_SYSTEM_NAME) ?
                                                             new HashSet<long>(catalogGroupCache.AssetStructsMapBySystemName[CatalogManager.EPG_ASSET_STRUCT_SYSTEM_NAME].MetaIds) : new HashSet<long>();
                     tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)
                                                                             && (!isEpg || epgAssetStructMetaIds.Contains(x.Value.Id))).Select(x => x.Key).ToList();
@@ -277,6 +277,28 @@ namespace ElasticSearchHandler
                         }
                     }
                     
+                    if (group.m_oMetasValuesByGroupId != null)
+                    {
+                        foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
+                        {
+                            foreach (KeyValuePair<string, string> meta in metaMap)
+                            {
+                                string nullValue;
+                                eESFieldType metaType;
+                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
+
+                                if (!metas.ContainsKey(meta.Value))
+                                {
+                                    metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                                }
+                                else
+                                {
+                                    log.ErrorFormat("Duplicate media meta found for group {0} name {1}", groupId, meta.Value);
+                                }
+                            }
+                        }
+                    }
+
                     if (group.m_oMetasValuesByGroupId != null)
                     {
                         foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
