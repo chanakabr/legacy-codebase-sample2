@@ -163,6 +163,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     }
                 }
 
+                HashSet<string> existingMetas = new HashSet<string>();
                 Dictionary<int, Dictionary<string, string>> metas = new Dictionary<int, Dictionary<string, string>>();
 
                 if (group.m_oMetasValuesByGroupId != null)
@@ -170,6 +171,11 @@ namespace ElasticSearchHandler.IndexBuilders
                     foreach (var item in group.m_oMetasValuesByGroupId)
                     {
                         metas.Add(item.Key, item.Value);
+
+                        foreach (var meta in item.Value)
+                        {
+                            existingMetas.Add(meta.Value.ToLower());
+                        }
                     }
                 }
 
@@ -179,7 +185,10 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     foreach (var item in group.m_oEpgGroupSettings.m_lMetasName)
                     {
-                        metas[0].Add(item, item);
+                        if (!existingMetas.Contains(item.ToLower()))
+                        {
+                            metas[0].Add(item, item);
+                        }
                     }
                 }
 
