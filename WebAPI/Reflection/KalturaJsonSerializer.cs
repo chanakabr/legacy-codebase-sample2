@@ -10061,6 +10061,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("geoBlockRuleId", "\"geoBlockRuleId\": " + GeoBlockRuleId);
             }
+            if(InheritancePolicy.HasValue)
+            {
+                ret.Add("inheritancePolicy", "\"inheritancePolicy\": " + "\"" + Enum.GetName(typeof(KalturaAssetInheritancePolicy), InheritancePolicy) + "\"");
+            }
             if(Status.HasValue)
             {
                 ret.Add("status", "\"status\": " + Status.ToString().ToLower());
@@ -10116,6 +10120,10 @@ namespace WebAPI.Models.Catalog
             if(GeoBlockRuleId.HasValue)
             {
                 ret.Add("geoBlockRuleId", "<geoBlockRuleId>" + GeoBlockRuleId + "</geoBlockRuleId>");
+            }
+            if(InheritancePolicy.HasValue)
+            {
+                ret.Add("inheritancePolicy", "<inheritancePolicy>" + "" + Enum.GetName(typeof(KalturaAssetInheritancePolicy), InheritancePolicy) + "" + "</inheritancePolicy>");
             }
             if(Status.HasValue)
             {

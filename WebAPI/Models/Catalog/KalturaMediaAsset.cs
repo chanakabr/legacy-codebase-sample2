@@ -134,6 +134,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "inheritancePolicy")]
         [JsonProperty("InheritancePolicy")]
         [XmlElement(ElementName = "InheritancePolicy", IsNullable = true)]
-        public AssetInheritancePolicy? InheritancePolicy { get; set; }
+        public KalturaAssetInheritancePolicy? InheritancePolicy { get; set; }
     }
 }

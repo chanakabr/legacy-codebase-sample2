@@ -2875,6 +2875,8 @@ namespace WebAPI.Reflection
                             return "geoBlockRule";
                         case "GeoBlockRuleId":
                             return "geoBlockRuleId";
+                        case "InheritancePolicy":
+                            return "inheritancePolicy";
                         case "Status":
                             return "status";
                         case "TrickPlayBuffer":

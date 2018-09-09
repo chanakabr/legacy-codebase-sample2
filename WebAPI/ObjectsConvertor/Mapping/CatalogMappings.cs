@@ -468,7 +468,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.CoGuid, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
-                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => src.InheritancePolicy));
+                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => ConvertInheritancePolicy(src.InheritancePolicy)));
 
             //KalturaLinearMediaAsset to LinearMediaAsset
             cfg.CreateMap<KalturaLiveAsset, LiveAsset>()
@@ -533,7 +533,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
-                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => src.InheritancePolicy));
+                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => ConvertInheritancePolicy(src.InheritancePolicy)));
             
             //LinearMediaAsset to KalturaLinearMediaAsset
             cfg.CreateMap<LiveAsset, KalturaLiveAsset>()
@@ -907,7 +907,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status));
 
             #endregion
-        }      
+        }
+
+        private static AssetInheritancePolicy? ConvertInheritancePolicy(KalturaAssetInheritancePolicy? inheritancePolicy)
+        {
+            if (!inheritancePolicy.HasValue)
+            {
+                return null;
+            }
+
+            switch (inheritancePolicy)
+            {
+                case KalturaAssetInheritancePolicy.Disable:
+                    return AssetInheritancePolicy.Disable;
+
+                case KalturaAssetInheritancePolicy.Enable:
+                    return AssetInheritancePolicy.Enable;
+
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
+            }
+        }
+
+        private static KalturaAssetInheritancePolicy? ConvertInheritancePolicy(AssetInheritancePolicy? inheritancePolicy)
+        {
+            if (!inheritancePolicy.HasValue)
+            {
+                return null;
+            }
+
+            switch (inheritancePolicy)
+            {
+                case AssetInheritancePolicy.Disable:
+                    return KalturaAssetInheritancePolicy.Disable;
+
+                case AssetInheritancePolicy.Enable:
+                    return KalturaAssetInheritancePolicy.Enable;
+
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
+            }
+        }
 
         private static List<GroupsCacheManager.ManualMedia> ConvertToManualMedias(string mediaIdString)
         {
