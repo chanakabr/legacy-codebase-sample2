@@ -532,7 +532,7 @@ namespace Core.Catalog.CatalogManagement
                     if (channelToAdd.m_nChannelTypeID == (int)ChannelType.KSQL && channelToAdd.m_nMediaType != null && channelToAdd.m_nMediaType.Count > 0)
                     {
                         Status validateAssetTypesResult = ValidateChannelMediaTypes(groupId, channelToAdd);
-                        if (validateAssetTypesResult.IsOkStatusCode())
+                        if (!validateAssetTypesResult.IsOkStatusCode())
                         {
                             response.Status.Set(validateAssetTypesResult.Code, validateAssetTypesResult.Message);
                             return response;
@@ -696,7 +696,7 @@ namespace Core.Catalog.CatalogManagement
                 if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && channelToUpdate.m_nMediaType != null && channelToUpdate.m_nMediaType.Count > 0)
                 {
                     Status validateAssetTypesResult = ValidateChannelMediaTypes(groupId, channelToUpdate);
-                    if (validateAssetTypesResult.IsOkStatusCode())
+                    if (!validateAssetTypesResult.IsOkStatusCode())
                     {
                         response.Status.Set(validateAssetTypesResult.Code, validateAssetTypesResult.Message);
                         return response;
