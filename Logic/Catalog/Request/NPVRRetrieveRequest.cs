@@ -50,7 +50,10 @@ namespace Core.Catalog.Request
         //public string type;
 
         [DataMember]
-        public int? version { get; set; } 
+        public int? version { get; set; }
+
+        [DataMember]
+        public string timeFormat { get; set; }
 
         protected override void CheckRequestValidness()
         {

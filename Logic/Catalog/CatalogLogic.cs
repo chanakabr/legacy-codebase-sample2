@@ -5596,6 +5596,11 @@ namespace Core.Catalog
                     args.SearchBy.Add(SearchByField.bySeriesId);
                 }
 
+                if (!string.IsNullOrEmpty(request.timeFormat))
+                {
+                    args.TimeFormat = request.timeFormat;
+                }
+
                 NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
                 if (npvrResp != null)
                 {
