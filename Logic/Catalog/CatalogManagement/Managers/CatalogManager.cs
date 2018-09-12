@@ -1012,8 +1012,7 @@ namespace Core.Catalog.CatalogManagement
                             string connectingMetaValue = GetConnectingMetaValue(parentConectingTopic, newAsset);
                             if (!string.IsNullOrEmpty(connectingMetaValue))
                             {
-                                //TODO ANAT: filter InheritancePolicy
-                                string filter = string.Format("(and asset_type='{0}' {1}='{2}')", connectedAssetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
+                                string filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", connectedAssetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
                                 HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
                                 if (childAssetsIds == null || childAssetsIds.Count == 0)
                                 {
@@ -2267,48 +2266,48 @@ namespace Core.Catalog.CatalogManagement
                 if (assetStructMeta.IsInherited.HasValue && assetStructMeta.IsInherited.Value)
                 {
                     metaDataInheritanceStatus = ValidateMetadataInheritance(catalogGroupCache, assetStructId, metaId, assetStructMeta, out needToHandleHeritage);
-                    response.SetStatus(metaDataInheritanceStatus);
+                    if (metaDataInheritanceStatus.Code != (int)eResponseStatus.OK)
+                    {
+                        response.SetStatus(metaDataInheritanceStatus);
+                        return response;
+                    }
                 }
 
-                if (metaDataInheritanceStatus.Code == (int)eResponseStatus.OK)
+                DataTable dt = CatalogDAL.UpdateAssetStructMeta
+                                        (assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId,
+                    assetStructMeta.IsInherited);
+
+                List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
+
+                if (assetStructMetaList != null)
                 {
-                    DataTable dt = CatalogDAL.UpdateAssetStructMeta
-                                            (assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId,
-                        assetStructMeta.IsInherited);
+                    response.Object = assetStructMetaList.FirstOrDefault();
+                }
 
-                    if (needToHandleHeritage)
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
+
+                if (needToHandleHeritage)
+                {                    
+                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+
+                    InheritanceAssetStructMeta data = new InheritanceAssetStructMeta()
                     {
-                        //TODO ANAT: rabbit
-                        //QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-
-                        //InheritanceAssetStructMeta data = new InheritanceAssetStructMeta()
-                        //{
-                        //    AssetStructId = assetStructId,
-                        //    MetaId = metaId
-                        //};
-                        //InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, data.ToString(), userId);
-                        //bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
-                        //if (!enqueueSuccessful)
-                        //{
-                        //    log.ErrorFormat("Failed enqueue of inheritance {0}", data);
-                        //}
-                        
-                        bool result = HandleHeritage(groupId, assetStructId, metaId, userId);
-                        if (!result)
-                        {
-                            log.ErrorFormat("Failed to HandleHeritage. groupId:{0}, assetStructId:{1}, metaId:{2}", groupId, assetStructId, metaId);
-                        }
+                        AssetStructId = assetStructId,
+                        MetaId = metaId
+                    };
+                    InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, data.ToString(), userId);
+                    bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
+                    if (!enqueueSuccessful)
+                    {
+                        log.ErrorFormat("Failed enqueue of inheritance {0}", data);
                     }
 
-                    List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
-
-                    if (assetStructMetaList != null)
+                    bool result = HandleHeritage(groupId, assetStructId, metaId, userId);
+                    if (!result)
                     {
-                        response.Object = assetStructMetaList.FirstOrDefault();
+                        log.ErrorFormat("Failed to HandleHeritage. groupId:{0}, assetStructId:{1}, metaId:{2}", groupId, assetStructId, metaId);
                     }
-
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
                 }
             }
             catch (Exception ex)
@@ -2399,7 +2398,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static bool HandleHeritage(int groupId, long assetStructId, long metaId, long userId)
         {
-            bool result = false;
+            bool result = true;
             CatalogGroupCache catalogGroupCache = null;
             AssetStruct currentAssetStruct = null;
             AssetStruct parentAssetStruct = null;
@@ -2422,7 +2421,6 @@ namespace Core.Catalog.CatalogManagement
 
             // Getting all parent assets that contains value for connected meta
             string filter = string.Format("(and asset_type='{0}' {1}+'')", parentAssetStruct.Id, parentConnectingTopic.SystemName);
-            UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true); //TODO ANAT: paging
 
             HashSet<long> parentAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
 
@@ -2441,11 +2439,11 @@ namespace Core.Catalog.CatalogManagement
                 if (string.IsNullOrEmpty(connectingMetaValue))
                     continue;
 
-                // Getting all child assets
-                //TODO ANAT: filter InheritancePolicy
-                filter = string.Format("(and asset_type='{0}' {1}='{2}')", currentAssetStruct.Id, childConnectingTopic.SystemName, connectingMetaValue);
+                // Getting all child assets                
+                filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", currentAssetStruct.Id, childConnectingTopic.SystemName, connectingMetaValue);
                 HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
 
+                //TODO Anat:  Paging
                 if (childAssetsIds == null || childAssetsIds.Count == 0)
                 {
                     continue;
@@ -2465,10 +2463,10 @@ namespace Core.Catalog.CatalogManagement
 
                 List<KeyValuePair<eAssetTypes, long>> assetList = childAssetsIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x)).ToList();
 
-                List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList, true);
+                List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList, true); 
                 if (childAssets == null || childAssets.Count == 0)
                 {
-                    return false;
+                    return true;
                 }
 
                 // Update Inherited Child Asset
