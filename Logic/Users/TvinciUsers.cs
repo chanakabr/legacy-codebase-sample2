@@ -572,7 +572,7 @@ namespace Core.Users
                             log.ErrorFormat("Failed to set invalidation key on AddNewUser key = {0}", invalidationKey);
                         }
                     }
-                    else
+                    else if (newUser.m_oBasicData.RoleIds.Count == 0)
                     {
                         userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, newUser);
                         log.ErrorFormat("User created with no role. userId = {0}", userId);

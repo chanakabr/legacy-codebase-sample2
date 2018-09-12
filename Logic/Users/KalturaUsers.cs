@@ -362,14 +362,17 @@ namespace Core.Users
                     {
                         log.ErrorFormat("Failed to set invalidation key on MidCreateDefaultRules key = {0}", invalidationKey);
                     }
-                    
-                    return true;
                 }
             }
 
-            userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, userResponse.m_user);
-            log.ErrorFormat("User created with no role. userId = {0}", siteGuid);
-            return false;
+            if (userResponse.m_user.m_oBasicData.RoleIds.Count == 0)
+            {
+                userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, userResponse.m_user);
+                log.ErrorFormat("User created with no role. userId = {0}", siteGuid);
+                return false;
+            }
+
+            return true;
         }
 
         public override void PostDefaultRules(ref UserResponseObject userResponse, bool passed, string siteGuid, int groupId, ref User userBo, ref List<KeyValuePair> keyValueList) { }
