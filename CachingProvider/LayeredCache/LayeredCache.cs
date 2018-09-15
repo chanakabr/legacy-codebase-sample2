@@ -505,6 +505,28 @@ namespace CachingProvider.LayeredCache
             return ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig);
         }
 
+        public bool IncrementLayeredCacheGroupConfigVersion(int groupId)
+        {
+            bool result = false;
+            try
+            {
+                string key = GetLayeredCacheGroupConfigKey(groupId);
+                LayeredCacheGroupConfig groupConfig;
+                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig, false))
+                {
+                    groupConfig.Version++;
+                    result = TrySetLayeredGroupCacheConfig(key, groupConfig);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IncrementLayeredCacheGroupConfigVersion, groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Static Methods
