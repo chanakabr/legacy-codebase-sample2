@@ -11,7 +11,7 @@ namespace ApiObjects
     public enum InheritanceType
     {
         AssetStructMeta = 0,
-        UpdateParent = 1
+        ParentUpdate = 1
     }
 
     public class InheritanceData : BaseCeleryData
@@ -50,5 +50,15 @@ namespace ApiObjects
 
         [JsonProperty("MetaId")]
         public long MetaId;
+    }
+
+    [Serializable]
+    public class InheritanceParentUpdate
+    {        
+        [JsonProperty("AssetId")]
+        public long AssetId;
+
+        [JsonProperty("TopicsIds")]
+        public List<long> TopicsIds;
     }
 }

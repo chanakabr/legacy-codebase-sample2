@@ -3,6 +3,7 @@ using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -798,7 +799,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (update)
                 {
-                    AssetManager.UpdateAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, childAsset, userId);
+                    CatalogLogic.UpdateIndex(new List<long>() { childAsset.Id }, groupId, eAction.Update);
                 }
             }
         }
@@ -1006,48 +1007,98 @@ namespace Core.Catalog.CatalogManagement
 
                         if (topicsForAssetUpdate.Count > 0)
                         {
-                            Topic parentConectingTopic = catalogGroupCache.TopicsMapById[connectedAssetStruct.ConnectedParentMetaId.Value];
-                            Topic childConectingTopic = catalogGroupCache.TopicsMapById[connectedAssetStruct.ConnectingMetaId.Value];
+                            QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
 
-                            string connectingMetaValue = GetConnectingMetaValue(parentConectingTopic, newAsset);
-                            if (!string.IsNullOrEmpty(connectingMetaValue))
+                            InheritanceParentUpdate data = new InheritanceParentUpdate()
                             {
-                                string filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", connectedAssetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
-                                HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
-                                if (childAssetsIds == null || childAssetsIds.Count == 0)
-                                {
-                                    return;
-                                }
-
-                                List<KeyValuePair<eAssetTypes, long>> assetList = childAssetsIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x)).ToList();
-
-                                List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList, true);
-                                if (childAssets == null || childAssets.Count == 0)
-                                {
-                                    return;
-                                }
-
-                                foreach (Topic inhertiedMeta in topicsForAssetUpdate)
-                                {
-                                    Metas inheratedMetaObj = null;
-                                    Tags inheratedTagsObj = null;
-
-                                    if (inhertiedMeta.Type == MetaType.Tag)
-                                    {
-                                        inheratedTagsObj = newAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
-                                    }
-                                    else
-                                    {
-                                        inheratedMetaObj = newAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
-                                    }
-
-                                    UpdateInheritedChildAsset(groupId, userId, inhertiedMeta, inheratedMetaObj, inheratedTagsObj, childAssets);
-                                }
+                                AssetId = newAsset.Id,
+                                TopicsIds = topicsForAssetUpdate.Select(x => x.Id).ToList()
+                            };
+                            InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
+                            bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
+                            if (!enqueueSuccessful)
+                            {
+                                log.ErrorFormat("Failed enqueue of inheritance {0}", data);
                             }
                         }
                     }
                 }
             }
+        }
+
+        public static bool HandleParentUpdate(int groupId, long userId, long assetId, List<long> TopicsIds)
+        {
+            CatalogGroupCache catalogGroupCache = null;
+            if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling HandleParentUpdate", groupId);
+                return true;
+            }            
+
+            GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
+
+            if (asset.Status.Code != (int)eResponseStatus.OK || asset.Object == null)
+            {
+                log.ErrorFormat("failed to get Asset {0} for groupId: {1} when calling HandleParentUpdate", assetId, groupId);
+                return true;
+            }
+
+            MediaAsset mediaAsset = asset.Object as MediaAsset;
+            if (mediaAsset == null)
+            {
+                log.ErrorFormat("failed to get Asset {0}. Not MediaAsset for groupId: {1} when calling HandleParentUpdate", assetId, groupId);
+                return true;
+            }
+            AssetStruct assetStruct = catalogGroupCache.AssetStructsMapById[mediaAsset.MediaType.m_nTypeID];
+            if (assetStruct == null)
+            {
+                log.ErrorFormat("failed to get assetStruct {0} for groupId: {1} when calling HandleParentUpdate", mediaAsset.MediaType.m_nTypeID, groupId);
+                return true;
+            }
+
+            Topic parentConectingTopic = catalogGroupCache.TopicsMapById[assetStruct.ConnectedParentMetaId.Value];
+            Topic childConectingTopic = catalogGroupCache.TopicsMapById[assetStruct.ConnectingMetaId.Value];
+
+            string connectingMetaValue = GetConnectingMetaValue(parentConectingTopic, asset.Object);
+            if (!string.IsNullOrEmpty(connectingMetaValue))
+            {
+                string filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", assetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
+                HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
+                if (childAssetsIds == null || childAssetsIds.Count == 0)
+                {
+                    return true;
+                }
+
+                List<KeyValuePair<eAssetTypes, long>> assetList = childAssetsIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x)).ToList();
+
+                List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList, true);
+                if (childAssets == null || childAssets.Count == 0)
+                {
+                    return true;
+                }
+
+                foreach (long topicId in TopicsIds)
+                {
+                    Topic topic = catalogGroupCache.TopicsMapById[topicId];
+
+                    Metas inheratedMetaObj = null;
+                    Tags inheratedTagsObj = null;
+
+                    if (topic.Type == MetaType.Tag)
+                    {
+                        inheratedTagsObj = asset.Object.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
+                    }
+                    else
+                    {
+                        inheratedMetaObj = asset.Object.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
+                    }
+
+                    UpdateInheritedChildAsset(groupId, userId, topic, inheratedMetaObj, inheratedTagsObj, childAssets);
+                }
+            }
+
+
+            return true;
         }
 
         internal static void RemoveInheritedValue(int groupId, CatalogGroupCache catalogGroupCache, MediaAsset asset, List<long> metaIds, List<long> tagIds)
@@ -2299,17 +2350,11 @@ namespace Core.Catalog.CatalogManagement
                         AssetStructId = assetStructId,
                         MetaId = metaId
                     };
-                    InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, data.ToString(), userId);
+                    InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
                     bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
                     if (!enqueueSuccessful)
                     {
                         log.ErrorFormat("Failed enqueue of inheritance {0}", data);
-                    }
-
-                    bool result = HandleHeritage(groupId, assetStructId, metaId, userId);
-                    if (!result)
-                    {
-                        log.ErrorFormat("Failed to HandleHeritage. groupId:{0}, assetStructId:{1}, metaId:{2}", groupId, assetStructId, metaId);
                     }
                 }
             }
@@ -2433,7 +2478,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (mediaAsset.Status.Code != (int)eResponseStatus.OK || mediaAsset.Object == null)
                 {
-                    log.ErrorFormat("");
+                    log.ErrorFormat("Error while getting Asset {0}. groupId {1}", assetId, groupId);
                     continue;
                 }
 

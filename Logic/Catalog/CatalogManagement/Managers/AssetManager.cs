@@ -484,11 +484,33 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status ValidateMediaAssetForUpdate(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, HashSet<string> currentAssetMetasAndTags,
                                                             ref XmlDocument metasXmlDocToAdd, ref XmlDocument tagsXmlDocToAdd, ref XmlDocument metasXmlDocToUpdate, ref XmlDocument tagsXmlDocToUpdate,
-                                                            ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
+                                                            ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate, bool isFromIngest = false)
         {
-            // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
+
+            // in case isFromIngest = true. need to filter out the protected metas and tags. Should not update their values.
+            List<AssetStructMeta> protectedMetasAndTagsNames = new List<AssetStructMeta>();
+            if (isFromIngest && assetStruct.AssetStructMetas != null && assetStruct.AssetStructMetas.Count > 0)
+            {
+                protectedMetasAndTagsNames = assetStruct.AssetStructMetas.Values.Where(x => x.ProtectFromIngest.HasValue && x.ProtectFromIngest.Value).ToList();
+                if (protectedMetasAndTagsNames != null && protectedMetasAndTagsNames.Count > 0)
+                {
+                    foreach (var protectedMetasAndTagsName in protectedMetasAndTagsNames)
+                    {
+                        if (assetStructMetaIds.Contains(protectedMetasAndTagsName.MetaId))
+                        {
+                            assetStructMetaIds.Remove(protectedMetasAndTagsName.MetaId);
+                        }
+
+                        if (currentAssetMetasAndTags.Contains(catalogGroupCache.TopicsMapById[protectedMetasAndTagsName.MetaId].SystemName))
+                        {
+                            currentAssetMetasAndTags.Remove(catalogGroupCache.TopicsMapById[protectedMetasAndTagsName.MetaId].SystemName);
+                        }
+                    }
+                }
+            }
+
             List<Metas> metasToAdd = asset.Metas != null && currentAssetMetasAndTags != null ? asset.Metas.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Metas>();
             List<Tags> tagsToAdd = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToAdd, tagsToAdd, assetStructMetaIds, ref metasXmlDocToAdd, ref tagsXmlDocToAdd,
@@ -525,10 +547,8 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static Status ValidateMediaAssetMetasAndTagsNamesAndTypes(int groupId, CatalogGroupCache catalogGroupCache, List<Metas> metas, List<Tags> tags, HashSet<long> assetStructMetaIds,
-                                                                            ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate,
-                                                                            ref DateTime? assetFinalEndDate)
+                                                                            ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
         {
-            // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<string> tempHashSet = new HashSet<string>();
             if (metas != null && metas.Count > 0)
@@ -1037,7 +1057,6 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        //TODO Anat: Ask IRA is it needed isFromIngest
         private static GenericResponse<Asset> AddMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset assetToAdd, bool isLinear, long userId,
             bool isFromIngest = false)
         {
@@ -1098,14 +1117,21 @@ namespace Core.Catalog.CatalogManagement
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
                     && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
-                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, assetToAdd, null);
-
                     // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
-                    if (!indexingResult)
+                    if (isFromIngest)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Object.Id, groupId);
+                        CatalogLogic.UpdateIndex(new List<long>() { (int)result.Object.Id }, groupId, eAction.Update);
                     }
+                    else
+                    {
+                        bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Object.Id, groupId);
+                        }
+                    }
+
+                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, assetToAdd, null);
                 }
             }
             catch (Exception ex)
@@ -1116,7 +1142,8 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear, long userId)
+        private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear,
+            long userId, bool isFromIngest = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -1133,7 +1160,8 @@ namespace Core.Catalog.CatalogManagement
                 HashSet<string> currentAssetMetasAndTags = new HashSet<string>(currentAsset.Metas.Select(x => x.m_oTagMeta.m_sName).ToList(), StringComparer.OrdinalIgnoreCase);
                 currentAssetMetasAndTags.UnionWith(currentAsset.Tags.Select(x => x.m_oTagMeta.m_sName).ToList());
                 Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
-                                                                                ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate, ref assetFinalEndDate);
+                                                                                ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate,
+                                                                                ref assetFinalEndDate, isFromIngest);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
                     result.SetStatus(validateAssetTopicsResult);
@@ -1178,15 +1206,22 @@ namespace Core.Catalog.CatalogManagement
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
                     && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
-                    // update meta inherited
-                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, result.Object, currentAsset);
-
                     // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
-                    if (!indexingResult)
+                    if (isFromIngest)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
+                        CatalogLogic.UpdateIndex(new List<long>() { (int)result.Object.Id }, groupId, eAction.Update);
                     }
+                    else
+                    {
+                        bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
+                        }
+                    }
+
+                    // update meta inherited
+                    CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, result.Object, currentAsset);                   
                 }
             }
             catch (Exception ex)
@@ -1700,12 +1735,6 @@ namespace Core.Catalog.CatalogManagement
                 List<Topic> topicsToInherit = new List<Topic>();
                 foreach (var kvp in inherited)
                 {
-                    // in case of ProtectFromIngest true - value should be updated/add
-                    if (kvp.Value.ProtectFromIngest.HasValue && kvp.Value.ProtectFromIngest.Value)
-                    {
-                        continue;
-                    }
-
                     Topic topic = catalogGroupCache.TopicsMapById[kvp.Value.MetaId];
                     if (topic.Type == MetaType.Tag)
                     {
@@ -2111,7 +2140,7 @@ namespace Core.Catalog.CatalogManagement
                         mediaAssetToUpdate.Id = id;
                         if (currentAsset != null && mediaAssetToUpdate != null)
                         {
-                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, isLinear, userId);
+                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, isLinear, userId, isFromIngest);
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LiveAsset linearMediaAssetToUpdate = assetToUpdate as LiveAsset;
