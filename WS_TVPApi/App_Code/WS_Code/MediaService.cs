@@ -3557,7 +3557,7 @@ namespace TVPApiServices
         [PrivateMethod]
         public List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex,
             NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, 
-            List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj, int? version)
+            List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj, int? version, string timeFormat)
         {
             List<RecordedEPGChannelProgrammeObject> res = null;
 
@@ -3573,7 +3573,7 @@ namespace TVPApiServices
                         m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
                     };
                     res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, 
-                        epgChannelID, recordingStatus, recordingIDs, programIDs, seriesIDs, startDate, catalogOrderObj, version)
+                        epgChannelID, recordingStatus, recordingIDs, programIDs, seriesIDs, startDate, catalogOrderObj, version, timeFormat)
                     {
                         Platform = initObj.Platform.ToString()
                     }.Execute() as List<RecordedEPGChannelProgrammeObject>;
