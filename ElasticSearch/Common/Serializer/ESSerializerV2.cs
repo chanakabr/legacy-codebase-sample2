@@ -1201,7 +1201,7 @@ namespace ElasticSearch.Common
             {
                 name = "metas"
             };
-
+            
             if (metasMap != null && metasMap.Count > 0)
             {
                 HashSet<string> mappedMetas = new HashSet<string>();
@@ -1211,14 +1211,15 @@ namespace ElasticSearch.Common
                     if (!string.IsNullOrEmpty(sMetaName))
                     {
                         sMetaName = sMetaName.ToLower();
+
                         // Don't create double mapping for metas to avoid errors
                         if (mappedMetas.Contains(sMetaName))
                         {
                             continue;
                         }
+
                         if (meta.Value.Key != eESFieldType.DATE)
                         {
-
                             FieldsMappingPropertyV2 multiField = null;
 
                             if (meta.Value.Key == eESFieldType.STRING)

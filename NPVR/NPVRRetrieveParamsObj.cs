@@ -21,6 +21,8 @@ namespace NPVR
         protected int seasonNumber;
         protected string type;
 
+        protected string timeFormat;
+
         public virtual List<SearchByField> SearchBy
         {
             get
@@ -188,7 +190,20 @@ namespace NPVR
             }
 
         }
-              
+
+        public virtual string TimeFormat
+        {
+            get
+            {
+                return timeFormat;
+            }
+            set
+            {
+                timeFormat = value;
+            }
+
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(String.Concat("NPVRRetrieveParamsObj. Base Obj:", base.ToString()));

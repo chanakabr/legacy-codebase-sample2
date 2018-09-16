@@ -115,6 +115,7 @@ namespace NPVR
         private static readonly string ALU_TYPE = "type";
         private static readonly string ALU_FIELDS = "fields";
         private static readonly string ALU_ADDITIONAL_FIELDS = "additionalFields";
+        private static readonly string ALU_TIME_FORMAT = "timeFormat";
 
         /********************************************************************************/
         #endregion
@@ -573,6 +574,11 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ADDITIONAL_FIELDS, "customMetadata"));
+
+                    if (!string.IsNullOrEmpty(args.TimeFormat))
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_TIME_FORMAT, args.TimeFormat));
+                    }
 
                     if (args.PageSize > 0)
                     {
@@ -1383,10 +1389,14 @@ namespace NPVR
                                     obj.RecordSource = item.Value.ToString();
                                     break;
                                 case ALU_START_TIME_URL_PARAM:
-                                    obj.START_DATE = GetStartTime(entry);
+                                    //obj.START_DATE = GetStartTime(entry);
+                                    obj.START_DATE = GetTime(item.Value.ToString());
+                                    obj.EPG_TAGS.Add(new EPGDictionary() { Key = item.Key, Value = item.Value.ToString() });
                                     break;
                                 case ALU_END_TIME:
-                                    obj.END_DATE = GetEndTime(entry);
+                                    //obj.END_DATE = GetEndTime(entry);
+                                    obj.END_DATE = GetTime(item.Value.ToString());
+                                    obj.EPG_TAGS.Add(new EPGDictionary() { Key = item.Key, Value = item.Value.ToString() });
                                     break;
                                 // special cases (do nothing) 
                                 case ALU_THUMBNAIL:
@@ -1761,6 +1771,28 @@ namespace NPVR
             {
                 return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
             }
+        }
+
+        private string GetTime(string value)
+        {
+            long unixTime;
+            if (long.TryParse(value, out unixTime))
+            {
+                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
+            }
+            else
+            {
+                Regex rx = new Regex(@"(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})(.\d*)?Z",
+                    RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+                if (rx.IsMatch(value))
+                {
+                    DateTime date = DateTime.Parse(value, null, System.Globalization.DateTimeStyles.RoundtripKind);
+                    return date.ToString(DATE_FORMAT);
+                }
+            }
+
+            return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
         }
 
         private bool GetBooleanValueFromJson(JToken token, string field)
@@ -2313,6 +2345,14 @@ namespace NPVR
 
                     }
                 } //foreach
+
+                if (!string.IsNullOrEmpty(args.TimeFormat))
+                {
+                    if (!args.TimeFormat.ToLower().Equals("timestamp") && !args.TimeFormat.ToLower().Equals("iso8601"))
+                    {
+                        return false;
+                    }
+                }
 
                 return true;
 
