@@ -230,10 +230,17 @@ namespace Core.Catalog.CatalogManagement
             long imageId = id == 0 ? ODBCWrapper.Utils.GetLongSafeVal(row, "ID") : id;
             if (imageId > 0)
             {
+                string contentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL");
+                long ratioId = ODBCWrapper.Utils.GetLongSafeVal(row, "RATIO_ID", -1);
+                if (ratioId > 0)
+                {
+                    contentId = string.Format("{0}_{1}", contentId, ratioId);
+                }
+
                 image = new Image()
                 {
                     Id = imageId,
-                    ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),
+                    ContentId = contentId,
                     ImageObjectId = ODBCWrapper.Utils.GetLongSafeVal(row, "ASSET_ID"),
                     ImageObjectType = (eAssetImageType)ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_IMAGE_TYPE"),
                     Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),

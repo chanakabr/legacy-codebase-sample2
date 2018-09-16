@@ -4727,7 +4727,7 @@ namespace Core.ConditionalAccess
             return new Tuple<TimeShiftedTvPartnerSettings, bool>(tstvAccountSettings, res);
         }
 
-        internal static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupId)
+        public static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupId)
         {
             TimeShiftedTvPartnerSettings tstvAccountSettings = null;
             try

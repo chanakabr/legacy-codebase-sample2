@@ -40,7 +40,7 @@ namespace Core.Catalog.CatalogManagement
         {
             NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, ENTRY_ID_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
             PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_TIME_META_SYSTEM_NAME
-        };
+        };        
 
         #endregion
 
@@ -1101,7 +1101,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
         
-        private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear, long userId)
+        private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear, long userId, bool isFromIngest = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -1157,7 +1157,7 @@ namespace Core.Catalog.CatalogManagement
                                                         assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
                                                         endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId);
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
+                if (!isFromIngest && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
                     && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
                     // update metadate inInherited
@@ -2086,7 +2086,7 @@ namespace Core.Catalog.CatalogManagement
                         mediaAssetToUpdate.Id = id;
                         if (currentAsset != null && mediaAssetToUpdate != null)
                         {
-                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, isLinear, userId);
+                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, isLinear, userId, isFromIngest);
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LiveAsset linearMediaAssetToUpdate = assetToUpdate as LiveAsset;
@@ -2099,7 +2099,7 @@ namespace Core.Catalog.CatalogManagement
                         break;
                 }
 
-                if (result.Status.Code == (int)eResponseStatus.OK)
+                if (!isFromIngest && result.Status.Code == (int)eResponseStatus.OK)
                 {
                     // invalidate asset
                     InvalidateAsset(assetType, id);
@@ -2278,7 +2278,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
+        }        
 
         #endregion
     }

@@ -2478,6 +2478,37 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static Dictionary<string, MetaType> GetBasicMetasSystemNamesToMetaType()
+        {
+            Dictionary<string, MetaType> result = new Dictionary<string, MetaType>();
+            foreach (string metaSystemName in AssetManager.BasicMetasSystemNames)
+            {
+                switch (metaSystemName)
+                {
+                    case AssetManager.NAME_META_SYSTEM_NAME:                        
+                    case AssetManager.DESCRIPTION_META_SYSTEM_NAME:
+                        result.Add(metaSystemName, MetaType.MultilingualString);
+                        break;
+                    case AssetManager.EXTERNAL_ID_META_SYSTEM_NAME:
+                    case AssetManager.ENTRY_ID_META_SYSTEM_NAME:
+                        result.Add(metaSystemName, MetaType.String);
+                        break;                                            
+                    case AssetManager.STATUS_META_SYSTEM_NAME:
+                        result.Add(metaSystemName, MetaType.Bool);
+                        break;
+                    case AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME:
+                    case AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME:
+                    case AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
+                    case AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME:
+                        result.Add(metaSystemName, MetaType.DateTime);
+                        break;
+                    default:
+                        throw new Exception(string.Format("missing mapping for metaSystemName: {0} on GetBasicMetasSystemNamesToMetaType", metaSystemName));
+                }
+            }
+
+            return result;    
+        }
 
         #endregion
     }
