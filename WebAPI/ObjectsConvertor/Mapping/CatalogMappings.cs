@@ -2156,11 +2156,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     value = new KalturaBooleanValue() { value = meta.m_sValue == "1" ? true : false };
                 }
-                else if (currentMetaTypeLowered == typeof(string).ToString().ToLower() || currentMetaType == ApiObjects.MetaType.String.ToString())
+                else if (currentMetaType == ApiObjects.MetaType.String.ToString())
                 {
                     value = new KalturaStringValue() { value = meta.m_sValue };
                 }
-                else if (currentMetaType == ApiObjects.MetaType.MultilingualString.ToString())
+                else if (currentMetaTypeLowered == typeof(string).ToString().ToLower() || currentMetaType == ApiObjects.MetaType.MultilingualString.ToString())
                 {
                     if (string.IsNullOrEmpty(meta.m_sValue))
                     {
