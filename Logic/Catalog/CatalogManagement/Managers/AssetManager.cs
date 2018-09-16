@@ -24,7 +24,7 @@ namespace Core.Catalog.CatalogManagement
 
         private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
         internal const string NAME_META_SYSTEM_NAME = "Name";
-        internal const string DESCRIPTION_META_SYSTEM_NAME = "SummaryMedium";        
+        internal const string DESCRIPTION_META_SYSTEM_NAME = "SummaryMedium";
         internal const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
         internal const string STATUS_META_SYSTEM_NAME = "Status";
         internal const string DEVICE_RULE_ID = "DeviceRuleId";
@@ -33,7 +33,7 @@ namespace Core.Catalog.CatalogManagement
         internal const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
         public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
         public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";        
+        public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -65,7 +65,7 @@ namespace Core.Catalog.CatalogManagement
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 foreach (DataRow dr in dt.Rows)
-                {                    
+                {
                     InvalidateAsset(eAssetTypes.MEDIA, ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"));
                 }
             }
@@ -135,8 +135,9 @@ namespace Core.Catalog.CatalogManagement
             DateTime? catalogStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CATALOG_START_DATE");
             DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
 
-            int InheritancePolicy = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "INHERITANCE_POLICY");
-            AssetInheritancePolicy assetInheritancePolicy = (AssetInheritancePolicy)Enum.ToObject(typeof(AssetInheritancePolicy) , InheritancePolicy);
+            // TODO: Ask Ira.. AssetInheritancePolicy can be null
+            int inheritancePolicy = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "INHERITANCE_POLICY");
+            AssetInheritancePolicy assetInheritancePolicy = (AssetInheritancePolicy)Enum.ToObject(typeof(AssetInheritancePolicy), inheritancePolicy);
 
             // Metas and Tags table
             List<Metas> metas = null;
@@ -268,7 +269,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         internal static bool ClearAsset(int groupId, long id, eAssetTypes assetType, long userId)
         {
             bool result = false;
@@ -423,8 +424,8 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         EnumerableRowCollection<DataRow> linearMediaRow = (from row in linearMedias
-                                                                               where (Int64)row["MEDIA_ID"] == id
-                                                                               select row);
+                                                                           where (Int64)row["MEDIA_ID"] == id
+                                                                           select row);
                         if (linearMediaRow != null && linearMediaRow.Any())
                         {
                             assetDataset.Tables.Add(linearMediaRow.CopyToDataTable());
@@ -448,7 +449,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
                                                             ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
-        {            
+        {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
 
@@ -945,10 +946,10 @@ namespace Core.Catalog.CatalogManagement
                         MediaAsset mediaAsset = jobject.ToObject<MediaAsset>();
                         if (mediaAsset.MediaAssetType == MediaAssetType.Linear)
                         {
-                            mediaAsset = jobject.ToObject<LiveAsset>();                            
+                            mediaAsset = jobject.ToObject<LiveAsset>();
                         }
 
-                        mediaAssets.Add(mediaAsset);                        
+                        mediaAssets.Add(mediaAsset);
                     }
                 }
             }
@@ -1036,7 +1037,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static GenericResponse<Asset> AddMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset assetToAdd, bool isLinear, long userId)
+        //TODO Anat: Ask IRA is it needed isFromIngest
+        private static GenericResponse<Asset> AddMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset assetToAdd, bool isLinear, long userId,
+            bool isFromIngest = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -1060,7 +1063,7 @@ namespace Core.Catalog.CatalogManagement
                 // validate asset
                 XmlDocument metasXmlDoc = null, tagsXmlDoc = null;
                 DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
-                
+
                 Status validateAssetTopicsResult = ValidateMediaAssetForInsert(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc,
                                                                                 ref assetCatalogStartDate, ref assetFinalEndDate);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
@@ -1073,6 +1076,11 @@ namespace Core.Catalog.CatalogManagement
                 assetToAdd.CatalogStartDate = assetCatalogStartDate;
                 assetToAdd.FinalEndDate = assetFinalEndDate;
 
+                if (!assetToAdd.InheritancePolicy.HasValue)
+                {
+                    assetToAdd.InheritancePolicy = AssetInheritancePolicy.Enable;
+                }
+
                 // Add Name meta values (for languages that are not default)
                 ExtractTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, NAME_META_SYSTEM_NAME);
 
@@ -1081,7 +1089,7 @@ namespace Core.Catalog.CatalogManagement
 
                 DateTime startDate = assetToAdd.StartDate.HasValue ? assetToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime catalogStartDate = assetToAdd.CatalogStartDate.HasValue ? assetToAdd.CatalogStartDate.Value : startDate;
-                DateTime endDate = assetToAdd.EndDate.HasValue ? assetToAdd.EndDate.Value : DateTime.MaxValue;                
+                DateTime endDate = assetToAdd.EndDate.HasValue ? assetToAdd.EndDate.Value : DateTime.MaxValue;
                 DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
                                                         assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
                                                         startDate, endDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId, (int)assetToAdd.InheritancePolicy);
@@ -1107,7 +1115,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear, long userId)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
@@ -1170,7 +1178,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
                     && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
-                    // update metadate inInherited
+                    // update meta inherited
                     CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, result.Object, currentAsset);
 
                     // UpdateIndex
@@ -1255,7 +1263,7 @@ namespace Core.Catalog.CatalogManagement
                 if (languagesDictionary.ContainsKey(languageId))
                 {
                     LanguageObj language = languagesDictionary[languageId];
-                
+
                     if (!topicIdToTag.ContainsKey(topicId))
                     {
                         topicIdToTag.Add(topicId, new Dictionary<long, List<LanguageContainer>>());
@@ -1459,7 +1467,7 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();
             // File Types + is free
             HashSet<int> fileTypes = null;
-            HashSet<int> freeFileTypes = null;            
+            HashSet<int> freeFileTypes = null;
             if (assetFileTypes != null && assetFileTypes.Any())
             {
                 fileTypes = new HashSet<int>();
@@ -1605,7 +1613,7 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
-            DataRow dr = dt.Rows[0];            
+            DataRow dr = dt.Rows[0];
             TstvState enableCdvr = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR");
             TstvState enableCatchUp = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CATCH_UP");
             TstvState enableStartOver = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_START_OVER");
@@ -1692,6 +1700,12 @@ namespace Core.Catalog.CatalogManagement
                 List<Topic> topicsToInherit = new List<Topic>();
                 foreach (var kvp in inherited)
                 {
+                    // in case of ProtectFromIngest true - value should be updated/add
+                    if (kvp.Value.ProtectFromIngest.HasValue && kvp.Value.ProtectFromIngest.Value)
+                    {
+                        continue;
+                    }
+
                     Topic topic = catalogGroupCache.TopicsMapById[kvp.Value.MetaId];
                     if (topic.Type == MetaType.Tag)
                     {
@@ -1795,7 +1809,7 @@ namespace Core.Catalog.CatalogManagement
                     List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, false);
                     if (assets != null && assets.Count == 1)
                     {
-                        result = new MediaObj(groupId, assets[0] as MediaAsset);                   
+                        result = new MediaObj(groupId, assets[0] as MediaAsset);
                     }
                 }
             }
@@ -1806,7 +1820,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         public static GenericResponse<Asset> GetAsset(int groupId, long id, eAssetTypes assetType, bool isAllowedToViewInactiveAssets)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
@@ -1842,7 +1856,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    result= GetAssetsFromCache(groupId, assets, isAllowedToViewInactiveAssets);
+                    result = GetAssetsFromCache(groupId, assets, isAllowedToViewInactiveAssets);
                     if (result == null || result.Count != assets.Count)
                     {
                         log.ErrorFormat("Failed getting assets from GetAssetsFromCache, for groupId: {0}, assets: {1}", groupId,
@@ -1875,7 +1889,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
                     else if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
-                    {                        
+                    {
                         log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
                                         assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty);
                         result.SetStatus(eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
@@ -1885,14 +1899,14 @@ namespace Core.Catalog.CatalogManagement
                     string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
                     Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
                     foreach (BaseObject baseAsset in assets)
-                    {                        
+                    {
                         if (!isAllowedToViewInactiveAssets || Math.Abs((baseAsset.m_dUpdateDate - mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)].UpdateDate.Value).TotalSeconds) <= 1)
                         {
                             result.Objects.Add(mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)]);
                         }
                         else
                         {
-                            result.SetStatus(eResponseStatus.ElasticSearchReturnedUnupdatedItem, string.Format("{0}, itemId: {1}", 
+                            result.SetStatus(eResponseStatus.ElasticSearchReturnedUnupdatedItem, string.Format("{0}, itemId: {1}",
                                                                                                 eResponseStatus.ElasticSearchReturnedUnupdatedItem.ToString(), baseAsset.AssetId));
                             return result;
                         }
@@ -1994,7 +2008,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static GenericResponse<Asset> AddAsset(int groupId, eAssetTypes assetType, Asset assetToAdd, long userId, bool isFromIngest = false)
         {
-            // TODO ANAT - SET SOME VAL IF isFromIngest = TRUE
+            // TODO ANAT (DONE) - SET SOME VAL IF isFromIngest = TRUE
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
@@ -2016,7 +2030,7 @@ namespace Core.Catalog.CatalogManagement
                         MediaAsset mediaAssetToAdd = assetToAdd as MediaAsset;
                         if (mediaAssetToAdd != null)
                         {
-                            result = AddMediaAsset(groupId, ref catalogGroupCache, mediaAssetToAdd, isLinear, userId);
+                            result = AddMediaAsset(groupId, ref catalogGroupCache, mediaAssetToAdd, isLinear, userId, isFromIngest);
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LiveAsset linearMediaAssetToAdd = assetToAdd as LiveAsset;
@@ -2062,7 +2076,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
                 }
-                
+
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
@@ -2086,7 +2100,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             currentAsset = assets[0] as MediaAsset;
                         }
-                        
+
                         // validate that existing asset is indeed linear media
                         if (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear)
                         {
@@ -2241,7 +2255,7 @@ namespace Core.Catalog.CatalogManagement
                         break;
                 }
 
-                List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag 
+                List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag
                                                                           && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
                 List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type != ApiObjects.MetaType.Tag
                                                                           && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();

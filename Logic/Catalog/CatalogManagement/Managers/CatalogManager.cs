@@ -1071,7 +1071,10 @@ namespace Core.Catalog.CatalogManagement
                 // for-each connectedAssetStruct get connectedParentMetaSystemName
                 foreach (AssetStruct connectedAssetStruct in connectedAssetStructs)
                 {
-                    List<AssetStructMeta> inheritedTopics = connectedAssetStruct.AssetStructMetas.Values.Where(x => x.IsInherited.HasValue && x.IsInherited.Value).ToList();
+                    // Get only inheritedTopics and filtered with ProtectFromIngest false
+                    List<AssetStructMeta> inheritedTopics = connectedAssetStruct.AssetStructMetas.Values.Where(
+                        x => (x.IsInherited.HasValue && x.IsInherited.Value) && (!x.ProtectFromIngest.HasValue || x.ProtectFromIngest.Value == false))
+                        .ToList();
                     if (inheritedTopics != null && inheritedTopics.Count > 0)
                     {
                         List<long> inheritedTopicsToRemove = inheritedTopics.Select(x => x.MetaId).Where(x => metaIds.Contains(x) || tagIds.Contains(x)).ToList();
@@ -2288,7 +2291,7 @@ namespace Core.Catalog.CatalogManagement
                 InvalidateCatalogGroupCache(groupId, response.Status, true, response.Object);
 
                 if (needToHandleHeritage)
-                {                    
+                {
                     QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
 
                     InheritanceAssetStructMeta data = new InheritanceAssetStructMeta()
@@ -2443,37 +2446,46 @@ namespace Core.Catalog.CatalogManagement
                 filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", currentAssetStruct.Id, childConnectingTopic.SystemName, connectingMetaValue);
                 HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
 
-                //TODO Anat:  Paging
                 if (childAssetsIds == null || childAssetsIds.Count == 0)
                 {
                     continue;
                 }
 
-                Metas inheratedMetaObj = null;
-                Tags inheratedTagsObj = null;
+                UpdateInheritedChildAssetWithPaging(groupId, userId, inhertiedMeta, mediaAsset.Object, childAssetsIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x)).ToList());
+            }
 
-                if (inhertiedMeta.Type == MetaType.Tag)
-                {
-                    inheratedTagsObj = mediaAsset.Object.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
-                }
-                else
-                {
-                    inheratedMetaObj = mediaAsset.Object.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
-                }
+            return result;
+        }
 
-                List<KeyValuePair<eAssetTypes, long>> assetList = childAssetsIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x)).ToList();
+        private static void UpdateInheritedChildAssetWithPaging(int groupId, long userId, Topic inhertiedMeta, Asset mediaAsset, List<KeyValuePair<eAssetTypes, long>> assetList)
+        {
+            Metas inheratedMetaObj = null;
+            Tags inheratedTagsObj = null;
+            int pageSize = 1000;
+            int pageIndex = 0;
 
-                List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList, true); 
+            if (inhertiedMeta.Type == MetaType.Tag)
+            {
+                inheratedTagsObj = mediaAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
+            }
+            else
+            {
+                inheratedMetaObj = mediaAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == inhertiedMeta.SystemName);
+            }
+
+            while (true)
+            {
+                List<Asset> childAssets = AssetManager.GetAssets(groupId, assetList.Skip(pageSize * pageIndex).Take(pageSize).ToList(), true);
                 if (childAssets == null || childAssets.Count == 0)
                 {
-                    return true;
+                    break;
                 }
 
                 // Update Inherited Child Asset
                 UpdateInheritedChildAsset(groupId, userId, inhertiedMeta, inheratedMetaObj, inheratedTagsObj, childAssets);
-            }
 
-            return result;
+                pageIndex++;
+            }
         }
 
         private static HashSet<long> GetAssetsIdsWithPaging(int groupId, string filter)
