@@ -1298,7 +1298,8 @@ namespace Core.Catalog.CatalogManagement
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 List<KeyValuePair<long, int>> metaIdsToPriority = null;
                 List<long> removedTopicIds = new List<long>();
-                bool shouldUpdateAssetStructAssets = shouldUpdateMetaIds;
+                bool shouldUpdateAssetStructAssets = shouldUpdateMetaIds && shouldCheckRegularFlowValidations;
+                AssetStruct assetStruct = null;
 
                 if (shouldCheckRegularFlowValidations)
                 {
@@ -1329,7 +1330,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    AssetStruct assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
+                    assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
                     if (assetStruct.IsPredefined.HasValue &&
                         assetStruct.IsPredefined.Value &&
                         assetStructToUpdate.SystemName != null &&
@@ -1358,45 +1359,45 @@ namespace Core.Catalog.CatalogManagement
                             return result;
                         }
                     }
+                }
 
-                    if (assetStructToUpdate.MetaIds != null && shouldUpdateMetaIds)
+                if (assetStructToUpdate.MetaIds != null && shouldUpdateMetaIds)
+                {
+                    metaIdsToPriority = new List<KeyValuePair<long, int>>();
+                    int priority = 1;
+                    foreach (long metaId in assetStructToUpdate.MetaIds)
                     {
-                        metaIdsToPriority = new List<KeyValuePair<long, int>>();
-                        int priority = 1;
-                        foreach (long metaId in assetStructToUpdate.MetaIds)
-                        {
-                            metaIdsToPriority.Add(new KeyValuePair<long, int>(metaId, priority));
-                            priority++;
-                        }
-
-                        // no need to update DB if lists are equal
-                        if (assetStruct.MetaIds != null && assetStructToUpdate.MetaIds.SequenceEqual(assetStruct.MetaIds))
-                        {
-                            shouldUpdateMetaIds = false;
-                        }
+                        metaIdsToPriority.Add(new KeyValuePair<long, int>(metaId, priority));
+                        priority++;
                     }
 
-                    // check if assets and index should be updated now
-                    if (shouldUpdateAssetStructAssets && assetStruct.MetaIds != null && assetStructToUpdate.MetaIds != null)
+                    // no need to update DB if lists are equal
+                    if (assetStruct != null && assetStruct.MetaIds != null && assetStructToUpdate.MetaIds.SequenceEqual(assetStruct.MetaIds))
                     {
-                        removedTopicIds = assetStruct.MetaIds.Except(assetStructToUpdate.MetaIds).ToList();
-                        // if its just the oreder of the metas being changed on the asset struct we don't need to update the assets
-                        if (removedTopicIds == null || removedTopicIds.Count == 0)
-                        {
-                            shouldUpdateAssetStructAssets = false;
-                        }
-                    }
-
-                    if (assetStructToUpdate.NamesInOtherLanguages != null)
-                    {
-                        shouldUpdateOtherNames = true;
-                        languageCodeToName = new List<KeyValuePair<string, string>>();
-                        foreach (LanguageContainer language in assetStructToUpdate.NamesInOtherLanguages)
-                        {
-                            languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
-                        }
+                        shouldUpdateMetaIds = false;
                     }
                 }
+
+                // check if assets and index should be updated now
+                if (shouldUpdateAssetStructAssets && assetStruct != null && assetStruct.MetaIds != null && assetStructToUpdate.MetaIds != null)
+                {
+                    removedTopicIds = assetStruct.MetaIds.Except(assetStructToUpdate.MetaIds).ToList();
+                    // if its just the oreder of the metas being changed on the asset struct we don't need to update the assets
+                    if (removedTopicIds == null || removedTopicIds.Count == 0)
+                    {
+                        shouldUpdateAssetStructAssets = false;
+                    }
+                }
+
+                if (assetStructToUpdate.NamesInOtherLanguages != null)
+                {
+                    shouldUpdateOtherNames = true;
+                    languageCodeToName = new List<KeyValuePair<string, string>>();
+                    foreach (LanguageContainer language in assetStructToUpdate.NamesInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }                
 
                 DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName,
                                                           shouldUpdateMetaIds, metaIdsToPriority, userId, assetStructToUpdate.GetCommaSeparatedFeatures(),

@@ -127,10 +127,45 @@ namespace Core.Catalog.CatalogManagement
             this.UpdateDate = mediaObj.m_dUpdateDate;
             this.StartDate = mediaObj.m_dStartDate;
             this.EndDate = mediaObj.m_dEndDate;
-            this.Metas = mediaObj.m_lMetas != null ? new List<Metas>(mediaObj.m_lMetas) : new List<Metas>();
+            this.Metas = mediaObj.m_lMetas != null ? ConvertMediaObjMetasToAssetMetas(mediaObj.m_lMetas) : new List<Metas>();
             this.Tags = mediaObj.m_lTags != null ? new List<Tags>(mediaObj.m_lTags) : new List<Tags>();
+            this.Tags.ForEach(x => x.m_oTagMeta.m_sType = MetaType.Tag.ToString());
             this.Images = new List<Image>();
             this.CoGuid = mediaObj.CoGuid;
+        }
+
+        private List<Metas> ConvertMediaObjMetasToAssetMetas(List<Metas> metas)
+        {
+            List<Metas> result = new List<Catalog.Metas>();
+            foreach (Metas meta in metas)
+            {
+                Metas metaToAdd = new Catalog.Metas() { m_oTagMeta = new TagMeta(meta.m_oTagMeta.m_sName, meta.m_oTagMeta.m_sType), m_sValue = meta.m_sValue, Value = meta.Value };
+                string currentMetaTypeLowered = meta.m_oTagMeta.m_sType.ToLower();
+                if (currentMetaTypeLowered == typeof(bool).ToString().ToLower())
+                {
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.Bool.ToString();
+                }
+                else if (currentMetaTypeLowered == typeof(string).ToString().ToLower())
+                {
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.MultilingualString.ToString();
+                }
+                else if (currentMetaTypeLowered == typeof(double).ToString().ToLower())
+                {
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.Number.ToString();
+                }
+                else if (currentMetaTypeLowered == typeof(DateTime).ToString().ToLower())
+                {
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.DateTime.ToString();
+                }
+                else
+                {
+                    throw new Exception("Unknown meta type when ConvertMediaObjMetasToAssetMetas");
+                }
+
+                result.Add(metaToAdd);
+            }
+
+            return result;
         }
 
     }
