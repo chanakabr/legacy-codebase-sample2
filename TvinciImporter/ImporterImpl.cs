@@ -596,10 +596,10 @@ namespace TvinciImporter
             // use new image server
             if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
             {
-                log.DebugFormat("Delete images for media id:{0}",nMediaID);
+                log.DebugFormat("Delete images for media id:{0}", nMediaID);
                 DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(nMediaID, eAssetImageType.Media);
 
-                if (picsDataRows != null && picsDataRows.Count > 0) 
+                if (picsDataRows != null && picsDataRows.Count > 0)
                 {
                     int parentGroupId = DAL.UtilsDal.GetParentGroupID((int)nGroupID);
                     string url = ImageUtils.GetImageServerUrl(parentGroupId, eHttpRequestType.Delete);
@@ -621,7 +621,7 @@ namespace TvinciImporter
 
                         //Update pic status to 2 with updater_id 999
                         var queryRes = ApiDAL.UpdateImageState((int)nGroupID, picId, version, eTableStatus.Failed, 999);
-                        if(queryRes > 0)
+                        if (queryRes > 0)
                         {
                             log.DebugFormat("Update status in database finish with Success. pic:{0}, version:{1}", picId, version);
                         }
@@ -1724,10 +1724,10 @@ namespace TvinciImporter
 
         }
 
-        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID, ref bool isActive, ref IngestAssetStatus ingestAssetStatus, int parentGroupId)
+        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID, ref bool isActive, ref IngestAssetStatus ingestAssetStatus, int parentGroupId, out eAction action)
         {
             sErrorMessage = "";
-            eAction action = eAction.Update; // default
+            action = eAction.Update; // default
             sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
             if (string.IsNullOrEmpty(sCoGuid))
             {
@@ -3239,7 +3239,7 @@ namespace TvinciImporter
             {
                 return TVinciShared.WS_Utils.GetTcmConfigValue(key);
             }
-            if (!string.IsNullOrEmpty( ApplicationConfiguration.PicsBasePath.Value))
+            if (!string.IsNullOrEmpty(ApplicationConfiguration.PicsBasePath.Value))
             {
                 return ApplicationConfiguration.PicsBasePath.Value;
             }
@@ -3706,7 +3706,7 @@ namespace TvinciImporter
                     if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, rawStrFromConfig, ';')) // OLD_DRM_EXC_GROUPS not releventAnyMore
                     {
                         // old policy attachment
-                        string sWSURL =   ApplicationConfiguration.EncryptorService.Value;
+                        string sWSURL = ApplicationConfiguration.EncryptorService.Value;
                         string sWSPassword = ApplicationConfiguration.EncryptorPassword.Value;
 
                         WS_Encryptor.Encryptor service = new WS_Encryptor.Encryptor();
@@ -4653,12 +4653,12 @@ namespace TvinciImporter
                     }
                 }
 
-                
+
                 ClearMediaTags(nMediaID, tagTypeID);
                 if (nCount1 > 0)
                 {
                     if (tagTypeID != 0 || sName.ToLower().Trim() == "free")
-                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", tagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true", 
+                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", tagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true",
                             sMainLang, metaHolder, nGroupID, nMediaID);
 
                 }
@@ -5088,8 +5088,9 @@ namespace TvinciImporter
                             string sCoGuid = "";
                             string sErrorMessage = "";
                             bool isActive = false;
-                            
-                            if (ProcessItem(mediaItems[mediaIndex], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID, ref isActive, ref ingestAssetStatus, nParentGroupID))
+                            eAction action = eAction.Update;
+
+                            if (ProcessItem(mediaItems[mediaIndex], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID, ref isActive, ref ingestAssetStatus, nParentGroupID, out action))
                             {
                                 ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
                                 ingestAssetStatus.Status.Message = eResponseStatus.OK.ToString();
@@ -5098,26 +5099,21 @@ namespace TvinciImporter
 
                                 // Update record in Catalog (see the flow inside Update Index
                                 //change eAction.Delete
-                                if (ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update))
+                                if (ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, action))
                                 {
-                                    log.DebugFormat("UpdateIndex: Succeeded. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
+                                    log.DebugFormat("UpdateIndex: Succeeded. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}, action:{4}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage, action.ToString());
                                 }
                                 else
                                 {
-                                    log.ErrorFormat("UpdateIndex: Failed. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
+                                    log.ErrorFormat("UpdateIndex: Failed. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}, action:{4}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage, action.ToString());
                                     ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.UpdateIndexFailed, Message = UPDATE_INDEX_FAILED });
                                 }
 
                                 // update notification 
-                                if (isActive)
+                                if (action == eAction.Update && isActive)
                                 {
                                     UpdateNotificationsRequests(nGroupID, nMediaID);
                                 }
-                            }
-                            else
-                            {
-                                log.ErrorFormat("Error import mediaIndex{0}. CoGuid:{1}, MediaID:{2}, ErrorMessage:{3}", mediaIndex, sCoGuid, nMediaID, sErrorMessage);
-                                sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
                             }
                         }
                         catch (Exception exc)
@@ -5480,7 +5476,7 @@ namespace TvinciImporter
 
         #region Notification
 
-        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, 
+        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date,
             string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS, ref int id)
         {
             AddMessageAnnouncementResponse response = null;
@@ -5522,8 +5518,8 @@ namespace TvinciImporter
             }
         }
 
-        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date,                 
-            string timezone, string imageUrl, bool includeMail ,string  mailTemplate, string mailSubject, bool includeSms)
+        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date,
+            string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSms)
         {
             try
             {
@@ -5736,8 +5732,8 @@ namespace TvinciImporter
                         DateFormat = response.MessageTemplate.DateFormat,
                         TemplateType = response.MessageTemplate.TemplateType,
                         MailSubject = response.MessageTemplate.MailSubject,
-                        MailTemplate  = response.MessageTemplate.MailTemplate,
-                        Action =   response.MessageTemplate.Action,
+                        MailTemplate = response.MessageTemplate.MailTemplate,
+                        Action = response.MessageTemplate.Action,
                         Sound = response.MessageTemplate.Sound,
                         URL = response.MessageTemplate.URL,
                         RatioId = response.MessageTemplate.RatioId
@@ -5745,7 +5741,7 @@ namespace TvinciImporter
                 }
                 return response.Status;
             }
-            catch(Exception exc)
+            catch (Exception exc)
             {
                 log.ErrorFormat("Error while call service.SetMessageTemplate ex:{0}", exc);
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
