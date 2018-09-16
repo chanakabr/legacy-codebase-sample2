@@ -38,6 +38,12 @@ namespace AssetInheritanceHandler
                             success = Core.Catalog.CatalogManagement.CatalogManager.HandleHeritage(request.GroupId, inheritanceAssetStructMeta.AssetStructId, inheritanceAssetStructMeta.MetaId, request.UserId);
                             break;
                         }
+                    case InheritanceType.ParentUpdate:
+                        {
+                            InheritanceParentUpdate inheritanceParentUpdate = JsonConvert.DeserializeObject<InheritanceParentUpdate>(request.Data);
+                            success = Core.Catalog.CatalogManagement.CatalogManager.HandleParentUpdate(request.GroupId, request.UserId, inheritanceParentUpdate.AssetId, inheritanceParentUpdate.TopicsIds);
+                            break;
+                        }
                     default:
                         break;
                 }
