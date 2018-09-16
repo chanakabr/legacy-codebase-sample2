@@ -22,12 +22,13 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public RecordedEPGOrderObj RecordedEPGOrderObj { get; set; }
         public List<string> SeriesIDs { get; set; }
         public int? Version { get; set; }
+        public string TimeFormat{ get; set; }
 
         #region ctr
 
         public NPVRRetrieveLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex,
             NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate,
-            RecordedEPGOrderObj recordedEPGOrderObj, int? version)
+            RecordedEPGOrderObj recordedEPGOrderObj, int? version, string timeFormat)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             NPVRSearchBy = searchBy;
@@ -40,6 +41,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             SiteGuid = siteGuid;
             SeriesIDs = seriesIDs;
             Version = version;
+            TimeFormat = timeFormat;
         }
 
 
@@ -58,7 +60,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_oOrderObj = RecordedEPGOrderObj,
                 m_sSiteGuid = SiteGuid,
                 m_lSeriesIDs = SeriesIDs,
-                version = Version
+                version = Version,
+                timeFormat = TimeFormat
             };
         }
 
