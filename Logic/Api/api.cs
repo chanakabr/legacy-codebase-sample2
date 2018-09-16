@@ -11249,7 +11249,7 @@ namespace Core.Api
             return APILogic.Api.Managers.PersonalListManager.AddPersonalListItemForUser(groupId, personalListItem, userId);
         }
 
-        public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageIndex, int pageSize, OrderDiretion order, HashSet<int> partnerListTypes)
+        public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageSize, int pageIndex, OrderDiretion order, HashSet<int> partnerListTypes)
         {    
             return APILogic.Api.Managers.PersonalListManager.GetUserPersonalListItems(groupId, userId, pageSize, pageIndex, order, partnerListTypes);
         }

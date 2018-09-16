@@ -1165,7 +1165,14 @@ namespace Core.Catalog
 
         internal static bool ValidateGeoBlockRuleExists(int groupId, int geoBlockRuleId)
         {
-            return false;
+            bool res = false;
+            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
+            if (geoblockRules != null)
+            {
+                res = geoblockRules.ContainsKey(geoBlockRuleId);
+            }
+
+            return res;
         }        
 
         internal static string GetGeoBlockRuleName(int groupId, int geoblockRuleId)
@@ -1208,7 +1215,14 @@ namespace Core.Catalog
 
         internal static bool ValidateDeviceRuleExists(int groupId, int deviceRuleId)
         {
-            return false;
+            bool res = false;
+            Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
+            if (deviceRules != null)
+            {
+                res = deviceRules.ContainsKey(deviceRuleId);
+            }
+
+            return res;            
         }        
 
         internal static string GetDeviceRuleName(int groupId, int deviceRuleId)
@@ -5595,6 +5609,11 @@ namespace Core.Catalog
                 {
                     args.SeriesIDs.AddRange(request.m_lSeriesIDs.Distinct());
                     args.SearchBy.Add(SearchByField.bySeriesId);
+                }
+
+                if (!string.IsNullOrEmpty(request.timeFormat))
+                {
+                    args.TimeFormat = request.timeFormat;
                 }
 
                 NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
