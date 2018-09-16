@@ -21,8 +21,18 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty()]
+        [SchemeProperty(ReadOnly = true)]
         public long Id { get; set; }
+
+        /// <summary>
+        /// Systematic name of segment
+        /// </summary>
+        [DataMember(Name = "systematicName")]
+        [JsonProperty(PropertyName = "systematicName")]
+        [XmlElement(ElementName = "systematicName")]
+        [SchemeProperty()]
+        public string SystematicName { get; set; }
+
 
         /// <summary>
         /// Name of segment
@@ -65,16 +75,7 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "source")]
         [SchemeProperty()]
         public KalturaSegmentSource Source { get; set; }
-
-        /// <summary>
-        /// Threshold - minimum score to be met for all values in general (can be overriden)
-        /// </summary>
-        [DataMember(Name = "threshold")]
-        [JsonProperty(PropertyName = "threshold")]
-        [XmlElement(ElementName = "threshold")]
-        [SchemeProperty()]
-        public int Threshold { get; set; }
-
+        
         /// <summary>
         /// List of segment values
         /// </summary>

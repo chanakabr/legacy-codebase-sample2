@@ -70,10 +70,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// ...
+        /// Delete a segmentation type from the system
         /// </summary>
-        /// <param name="id">.</param>
-        /// <returns>.</returns>
+        /// <param name="id">Segmentation type id</param>
+        /// <returns>Whether action succeeded or not</returns>
         [Action("delete")]
         [ApiAuthorize]
         static public bool Delete(long id)

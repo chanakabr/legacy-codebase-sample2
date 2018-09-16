@@ -51,10 +51,10 @@
         </member>
         <member name="M:WebAPI.Controllers.SegmentationTypeController.Delete(System.Int64)">
             <summary>
-            ...
+            Delete a segmentation type from the system
             </summary>
-            <param name="id">.</param>
-            <returns>.</returns>
+            <param name="id">Segmentation type id</param>
+            <returns>Whether action succeeded or not</returns>
         </member>
         <member name="M:WebAPI.Controllers.SegmentationTypeController.List(WebAPI.Models.Segmentation.KalturaSegmentationTypeFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -1038,6 +1038,32 @@
             Delete an existing tag
             </summary>
             <param name="id">Tag Identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserSegment.List(WebAPI.Models.Segmentation.KalturaUserSegmentFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Retrieve all the segments that apply for this user
+            </summary>
+            <remarks>Possible status codes: 
+            User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
+            <param name="filter">Filter</param>
+            <param name="pager">Pager</param>
+            <returns>...</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserSegment.Add(WebAPI.Models.Segmentation.KalturaUserSegment)">
+            <summary>
+            Adds a segment to a user
+            </summary>
+            <param name="userSegment">User segment</param>
+            <param name="userId">User Identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserSegment.Delete(System.String,System.Int64)">
+            <summary>
+            Deletes a segment from a user
+            </summary>
+            <param name="userId">User id</param>
+            <param name="segmentId">Segment id</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.CollectionController.List(WebAPI.Models.Pricing.KalturaCollectionFilter)">
@@ -7308,6 +7334,11 @@
             The minimum score to be met
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaScoredMonetizationCondition.Days">
+            <summary>
+            How many days back should the actions be considered
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaScoredMonetizationCondition.Actions">
             <summary>
             List of the actions that consist the condition
@@ -7373,6 +7404,11 @@
             The minimum score to be met
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Days">
+            <summary>
+            How many days back should the actions be considered
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Actions">
             <summary>
             List of the actions that consist the condition
@@ -7433,6 +7469,16 @@
             Segment that is based on a range of values
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaSegmentRange.Id">
+            <summary>
+            Id of segment
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaSegmentRange.SystematicName">
+            <summary>
+            Systematic name of segment
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaSegmentRange.Name">
             <summary>
             Specific segment name
@@ -7456,6 +7502,11 @@
         <member name="P:WebAPI.Models.Segmentation.KalturaSegmentRange.LessThan">
             <summary>
             Less than 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaSegmentRange.Equals">
+            <summary>
+            Equals 
             </summary>
         </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaSegmentRanges">
@@ -7498,14 +7549,9 @@
             Content based source (meta, tag etc.)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Segmentation.KalturaContentSource.Type">
-            <summary>
-            Content data type
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaContentSource.Field">
             <summary>
-            Field name
+            Topic (meta or tag) name
             </summary>
         </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaUserDynamicDataSource">
@@ -7526,6 +7572,11 @@
         <member name="P:WebAPI.Models.Segmentation.KalturaSegmentValue.Id">
             <summary>
             Id of segment
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaSegmentValue.SystematicName">
+            <summary>
+            Systematic name of segment
             </summary>
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaSegmentValue.Name">
@@ -7553,11 +7604,6 @@
             Segment values source
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Segmentation.KalturaSegmentValues.Threshold">
-            <summary>
-            Threshold - minimum score to be met for all values in general (can be overriden)
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaSegmentValues.Values">
             <summary>
             List of segment values
@@ -7576,6 +7622,51 @@
         <member name="P:WebAPI.Models.Segmentation.KalturaUserDataCondition.Value">
             <summary>
             Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Segmentation.KalturaUserSegment">
+            <summary>
+            Indicates a segment of a user
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaUserSegment.SegmentId">
+            <summary>
+            Segment Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaUserSegment.SegmentationTypeId">
+            <summary>
+            Segmentation type Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaUserSegment.UserId">
+            <summary>
+            User Id of segment
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Segmentation.KalturaUserSegmentListResponse">
+            <summary>
+            List of user segments
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaUserSegmentListResponse.Segments">
+            <summary>
+            Segmentation Types
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Segmentation.KalturaUserSegmentFilter">
+            <summary>
+            Filter for user segments
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaUserSegmentFilter.UserIdEqual">
+            <summary>
+            User ID
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Segmentation.KalturaUserSegmentOrder">
+            <summary>
+            User segments order
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkFilter.StatusEqual">

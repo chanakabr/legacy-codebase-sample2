@@ -624,12 +624,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // Content source
             cfg.CreateMap<KalturaContentSource, ContentSource>()
-                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertContentType(src.Type)))
                 .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
                 ;
 
             cfg.CreateMap<ContentSource, KalturaContentSource>()
-                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertContentType(src.Type)))
                 .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
                 ;
 
@@ -670,11 +668,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaContentScoreCondition, ContentScoreCondition>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 ;
 
             cfg.CreateMap<ContentScoreCondition, KalturaContentScoreCondition>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 ;
 
             // content action condition
@@ -717,6 +717,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // segment value
             cfg.CreateMap<KalturaSegmentValue, SegmentValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SystematicName, opt => opt.MapFrom(src => src.SystematicName))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
                 .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
@@ -725,6 +726,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<SegmentValue, KalturaSegmentValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SystematicName, opt => opt.MapFrom(src => src.SystematicName))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
                 .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
@@ -733,13 +735,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // segment values
             cfg.CreateMap<KalturaSegmentValues, SegmentValues>()
                 .ForMember(dest => dest.Source, opt => opt.MapFrom(src => src.Source))
-                .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
                 .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values))
                 ;
 
             cfg.CreateMap<SegmentValues, KalturaSegmentValues>()
                 .ForMember(dest => dest.Source, opt => opt.MapFrom(src => src.Source))
-                .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
                 .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values))
                 ;
 
@@ -765,6 +765,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // segment range
             cfg.CreateMap<KalturaSegmentRange, SegmentRange>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SystematicName, opt => opt.MapFrom(src => src.SystematicName))
+                .ForMember(dest => dest.Equals, opt => opt.MapFrom(src => src.Equals))
                 .ForMember(dest => dest.GreaterThan, opt => opt.MapFrom(src => src.GreaterThan))
                 .ForMember(dest => dest.GreaterThanOrEquals, opt => opt.MapFrom(src => src.GreaterThanOrEquals))
                 .ForMember(dest => dest.LessThan, opt => opt.MapFrom(src => src.LessThan))
@@ -774,6 +777,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ;
 
             cfg.CreateMap<SegmentRange, KalturaSegmentRange>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SystematicName, opt => opt.MapFrom(src => src.SystematicName))
+                .ForMember(dest => dest.Equals, opt => opt.MapFrom(src => src.Equals))
                 .ForMember(dest => dest.GreaterThan, opt => opt.MapFrom(src => src.GreaterThan))
                 .ForMember(dest => dest.GreaterThanOrEquals, opt => opt.MapFrom(src => src.GreaterThanOrEquals))
                 .ForMember(dest => dest.LessThan, opt => opt.MapFrom(src => src.LessThan))
@@ -782,55 +788,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ;
 
             #endregion
+
+            #region User Segment
+
+            // User Segment
+            cfg.CreateMap<KalturaUserSegment, UserSegment>()
+                .ForMember(d => d.UserId, opt => opt.MapFrom(s => s.UserId))
+                .ForMember(d => d.SegmentationTypeId, opt => opt.MapFrom(s => s.SegmentationTypeId))
+                .ForMember(d => d.SegmentId, opt => opt.MapFrom(s => s.SegmentId))
+                ;
+
+            cfg.CreateMap<UserSegment, KalturaUserSegment>()
+                .ForMember(d => d.UserId, opt => opt.MapFrom(s => s.UserId))
+                .ForMember(d => d.SegmentationTypeId, opt => opt.MapFrom(s => s.SegmentationTypeId))
+                .ForMember(d => d.SegmentId, opt => opt.MapFrom(s => s.SegmentId))
+                ;
+
+            #endregion
         }
-
-        private static ContentFieldType ConvertContentType(KalturaContentFieldType type)
-        {
-            ContentFieldType result;
-
-            switch (type)
-            {
-                case KalturaContentFieldType.meta:
-                    {
-                        result = ContentFieldType.meta;
-                        break;
-                    }
-                case KalturaContentFieldType.tag:
-                    {
-                        result = ContentFieldType.tag;
-                        break;
-                    }
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown ContentFieldType");
-                    break;
-            }
-
-            return result;
-        }
-        private static KalturaContentFieldType ConvertContentType(ContentFieldType type)
-        {
-            KalturaContentFieldType result;
-
-            switch (type)
-            {
-                case ContentFieldType.meta:
-                    {
-                        result = KalturaContentFieldType.meta;
-                        break;
-                    }
-                case ContentFieldType.tag:
-                    {
-                        result = KalturaContentFieldType.tag;
-                        break;
-                    }
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown ContentFieldType");
-                    break;
-            }
-
-            return result;
-        }
-
+        
         private static ContentAction ConvertContentAction(KalturaContentAction action)
         {
             ContentAction result;
@@ -941,6 +917,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaMonetizationType.subscription:
                     result = MonetizationType.subscription;
                     break;
+                case KalturaMonetizationType.boxset:
+                    result = MonetizationType.boxset;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown MonetizationType");
                     break;
@@ -960,6 +939,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case MonetizationType.subscription:
                     result = KalturaMonetizationType.subscription;
+                    break;
+                case MonetizationType.boxset:
+                    result = KalturaMonetizationType.boxset;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown MonetizationType");

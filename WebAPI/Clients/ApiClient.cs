@@ -129,7 +129,7 @@ namespace WebAPI.Clients
 
             return rules;
         }
-        
+
         internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
             ParentalRulesResponse response = null;
@@ -2136,9 +2136,7 @@ namespace WebAPI.Clients
         {
             ExternalChannelResponse response = null;
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
-
-
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -4076,5 +4074,116 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+
+        internal KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
+        {
+            KalturaUserSegmentListResponse result = null;
+            UserSegmentsResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetUserSegments(groupId, userId, pageIndex, pageSize);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = new KalturaUserSegmentListResponse()
+            {
+                Segments = AutoMapper.Mapper.Map<List<KalturaUserSegment>>(response.Segments),
+                TotalCount = response.TotalCount
+            };
+
+            return result;
+        }
+
+        internal KalturaUserSegment AddUserSegment(int groupId, KalturaUserSegment kalturaUserSegment)
+        {
+            KalturaUserSegment newUserSegment = null;
+            UserSegmentResponse response = null;
+            try
+            {
+                UserSegment userSegment = AutoMapper.Mapper.Map<UserSegment>(kalturaUserSegment);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.AddUserSegment(groupId, userSegment);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.UserSegment != null)
+            {
+                newUserSegment = AutoMapper.Mapper.Map<KalturaUserSegment>(response.UserSegment);
+            }
+
+            return newUserSegment;
+        }
+
+
+        internal bool DeleteUserSegment(int groupId, string userId, long segmentId)
+        {
+            bool success = false;
+
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.DeleteUserSegment(groupId, userId, segmentId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
     }
 }

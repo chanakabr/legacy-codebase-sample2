@@ -47,16 +47,7 @@ namespace WebAPI.Models.Segmentation
     public partial class KalturaContentSource : KalturaSegmentSource
     {
         /// <summary>
-        /// Content data type
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
-        [SchemeProperty()]
-        public KalturaContentFieldType Type { get; set; }
-
-        /// <summary>
-        /// Field name
+        /// Topic (meta or tag) name
         /// </summary>
         [DataMember(Name = "field")]
         [JsonProperty(PropertyName = "field")]

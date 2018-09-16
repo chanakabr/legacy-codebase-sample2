@@ -73,17 +73,12 @@ namespace WebAPI.Models.Segmentation
         recording,
         social_action
     }
-
-    public enum KalturaContentFieldType
-    {
-        meta,
-        tag
-    }
     
     public enum KalturaMonetizationType
     {
         ppv,
-        subscription
+        subscription,
+        boxset
     }
 
     public enum KalturaMathemticalOperatorType
