@@ -171,6 +171,7 @@
     <Compile Include="Segmentation\SegmentSource.cs" />
     <Compile Include="Segmentation\SegmentBaseValue.cs" />
     <Compile Include="Segmentation\SegmentValues.cs" />
+    <Compile Include="Segmentation\UserSegment.cs" />
     <Compile Include="SSOAdapter\SSOAdapter.cs" />
     <Compile Include="SSOAdapter\SSOAdapterParam.cs" />
     <Compile Include="SSOAdapter\SSOAdaptersResponse.cs" />
