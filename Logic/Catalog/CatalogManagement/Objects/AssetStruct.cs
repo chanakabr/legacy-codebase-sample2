@@ -29,6 +29,12 @@ namespace Core.Catalog.CatalogManagement
         public long? ConnectedParentMetaId { get; set; }
         public string PluralName { get; set; }
 
+        // currently used only for internal use for migration and migrated accounts
+        public bool IsLinearAssetStruct { get; set; }
+
+        // currently used only for internal use for migration and migrated accounts
+        public bool IsProgramAssetStruct { get; set; }
+
         public AssetStruct()
         {
             this.Id = 0;

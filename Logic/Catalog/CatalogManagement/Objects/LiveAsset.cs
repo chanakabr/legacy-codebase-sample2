@@ -26,7 +26,7 @@ namespace Core.Catalog.CatalogManagement
         public long SummedCatchUpBuffer { get; set; }
         public long SummedTrickPlayBuffer { get; set; }
         public bool RecordingPlaybackNonEntitledChannelEnabled { get; set; }
-        public LinearChannelType ChannelType { get; set; }
+        public LinearChannelType? ChannelType { get; set; }
 
         public LiveAsset()
             :base()
@@ -48,10 +48,33 @@ namespace Core.Catalog.CatalogManagement
             this.SummedTrickPlayBuffer = 0;
             this.RecordingPlaybackNonEntitledChannelEnabled = false;
             this.MediaAssetType = MediaAssetType.Linear;
-            this.ChannelType = LinearChannelType.Unknown;
+            this.ChannelType = null;
         }
 
-        public LiveAsset(TstvState enableCdvr, TstvState enableCatchUp, TstvState enableStartOver, TstvState enableTrickPlay, TstvState enableRecordingPlaybackNonEntitledChannel, long catchUpBuffer,
+        public LiveAsset(MediaAsset mediaAsset)
+            : base(mediaAsset)
+        {
+            this.EnableCdvrState = null;
+            this.EnableCatchUpState = null;
+            this.EnableStartOverState = null;
+            this.EnableTrickPlayState = null;
+            this.EnableRecordingPlaybackNonEntitledChannelState = null;
+            this.BufferCatchUp = null;
+            this.BufferTrickPlay = null;
+            this.ExternalEpgIngestId = null;
+            this.ExternalCdvrId = null;
+            this.CdvrEnabled = false;
+            this.CatchUpEnabled = false;
+            this.StartOverEnabled = false;
+            this.TrickPlayEnabled = false;
+            this.SummedCatchUpBuffer = 0;
+            this.SummedTrickPlayBuffer = 0;
+            this.RecordingPlaybackNonEntitledChannelEnabled = false;
+            this.MediaAssetType = MediaAssetType.Linear;
+            this.ChannelType = null;
+        }
+
+        public LiveAsset(TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableStartOver, TstvState? enableTrickPlay, TstvState? enableRecordingPlaybackNonEntitledChannel, long catchUpBuffer,
                                 long trickPlayBuffer, string externalIngestId, string externalCdvrId, MediaAsset mediaAsset, TimeShiftedTvPartnerSettings accountTstvSettings, LinearChannelType channelType)
             : base(mediaAsset)
         {

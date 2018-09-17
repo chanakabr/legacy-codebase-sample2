@@ -24,7 +24,7 @@ namespace Core.Catalog.CatalogManagement
 
         private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
         internal const string NAME_META_SYSTEM_NAME = "Name";
-        internal const string DESCRIPTION_META_SYSTEM_NAME = "SummaryMedium";        
+        internal const string DESCRIPTION_META_SYSTEM_NAME = "SummaryMedium";
         internal const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
         internal const string STATUS_META_SYSTEM_NAME = "Status";
         internal const string DEVICE_RULE_ID = "DeviceRuleId";
@@ -33,7 +33,7 @@ namespace Core.Catalog.CatalogManagement
         internal const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
         public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
         public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";        
+        public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
