@@ -224,8 +224,12 @@ namespace ElasticSearchHandler
                 try
                 {
                     HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                    HashSet<long> epgAssetStructMetaIds = catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManager.EPG_ASSET_STRUCT_SYSTEM_NAME) ?
-                                                            new HashSet<long>(catalogGroupCache.AssetStructsMapBySystemName[CatalogManager.EPG_ASSET_STRUCT_SYSTEM_NAME].MetaIds) : new HashSet<long>();
+                    HashSet<long> epgAssetStructMetaIds = new HashSet<long>();
+                    if (catalogGroupCache.AssetStructsMapById.Values.Any(x => x.IsProgramAssetStruct))
+                    {
+                        epgAssetStructMetaIds = new HashSet<long>(catalogGroupCache.AssetStructsMapById.Values.Where(x => x.IsProgramAssetStruct).First().MetaIds);
+                    }
+                                                    
                     tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)
                                                                             && (!isEpg || epgAssetStructMetaIds.Contains(x.Value.Id))).Select(x => x.Key).ToList();
                     foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)
