@@ -4690,8 +4690,8 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet UpdateMediaAsset(int groupId, long id, long defaultLanguageId, System.Xml.XmlDocument metasToAdd, System.Xml.XmlDocument tagsToAdd, System.Xml.XmlDocument metasToUpdate,
-                                                System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime startDate,
-                                                DateTime endDate, DateTime catalogStartDate, DateTime? finalEndDate, long userId, int inheritancePolicy)
+                                                System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime? startDate,
+                                                DateTime? endDate, DateTime? catalogStartDate, DateTime? finalEndDate, long userId, int inheritancePolicy)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
