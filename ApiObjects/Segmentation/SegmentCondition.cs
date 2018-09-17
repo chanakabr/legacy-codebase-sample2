@@ -22,6 +22,9 @@ namespace ApiObjects.Segmentation
         public int Score { get; set; }
 
         [JsonProperty()]
+        public int Days { get; set; }
+
+        [JsonProperty()]
         public List<ContentActionCondition> Actions { get; set; }
     }
 
