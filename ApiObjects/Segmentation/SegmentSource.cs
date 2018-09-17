@@ -17,9 +17,6 @@ namespace ApiObjects.Segmentation
     public class ContentSource : SegmentSource
     {
         [JsonProperty()]
-        public ContentFieldType Type;
-
-        [JsonProperty()]
         public string Field;
     }
 

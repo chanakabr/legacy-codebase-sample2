@@ -2044,7 +2044,7 @@ namespace Core.Api
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed inserting segmentation type. ex = {0}", ex);
+                log.ErrorFormat("Failed updating segmentation type. ex = {0}", ex);
                 response.Status = new Status((int)eResponseStatus.Error, "Error while updating segmentation type.");
             }
 
@@ -2076,8 +2076,8 @@ namespace Core.Api
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed inserting segmentation type. ex = {0}", ex);
-                result = new Status((int)eResponseStatus.Error, "Error while updating segmentation type.");
+                log.ErrorFormat("Failed deleting segmentation type. ex = {0}", ex);
+                result = new Status((int)eResponseStatus.Error, "Error while deleting segmentation type.");
             }
 
             return result;
@@ -2098,7 +2098,7 @@ namespace Core.Api
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed getting segmentation types of group id = {0}. ex = {0}", groupId, ex);
+                log.ErrorFormat("Failed getting segmentation types of group id = {0}. ex = {1}", groupId, ex);
                 result.Status = new Status((int)eResponseStatus.Error, "Failed getting segmentation types");
             }
 
@@ -2118,6 +2118,91 @@ namespace Core.Api
         public static Status DeletePersonalListItemForUser(int groupId, long personalListItemId, long userId)
         {
             return api.DeletePersonalListItemForUser(groupId, personalListItemId, userId);
+        }
+
+        public static UserSegmentsResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
+        {
+            UserSegmentsResponse result = new UserSegmentsResponse();
+
+            try
+            {
+                int totalCount;
+                List<UserSegment> userSegments = UserSegment.List(groupId, userId, pageIndex, pageSize, out totalCount);
+
+                result.Status = new Status();
+                result.Segments = userSegments;
+                result.TotalCount = totalCount;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed getting user segments of user id {0} in group id = {1}. ex = {2}", userId, groupId, ex);
+                result.Status = new Status((int)eResponseStatus.Error, "Failed getting user segments");
+            }
+
+            return result;
+        }
+
+        public static UserSegmentResponse AddUserSegment(int groupId, UserSegment userSegment)
+        {
+            UserSegmentResponse response = new UserSegmentResponse();
+
+            bool insertResult = false;
+
+            try
+            {
+                userSegment.GroupId = groupId;
+                insertResult = userSegment.Insert();
+
+                if (!insertResult)
+                {
+                    response.Status = new Status((int)eResponseStatus.Error, "Failed inserting user segment.");
+                }
+                else
+                {
+                    response.Status = new Status();
+                    response.UserSegment = userSegment;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed inserting user segment. ex = {0}", ex);
+                response.Status = new Status((int)eResponseStatus.Error, "Error while inserting user segment.");
+            }
+
+            return response;
+        }
+
+        public static Status DeleteUserSegment(int groupId, string userId, long segmentId)
+        {
+            Status result = null;
+            bool deleteResult = false;
+            try
+            {
+                UserSegment segmentationType = new UserSegment()
+                {
+                    GroupId = groupId,
+                    UserId = userId,
+                    SegmentId = segmentId
+                };
+
+                deleteResult = segmentationType.Delete();
+
+                if (!deleteResult)
+                {
+                    result = segmentationType.ActionStatus;
+                }
+                else
+                {
+                    result = new Status();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed deleting user segment. ex = {0}", ex);
+                result = new Status((int)eResponseStatus.Error, "Error while deleting user segment.");
+            }
+
+            return result;
         }
     }
 }

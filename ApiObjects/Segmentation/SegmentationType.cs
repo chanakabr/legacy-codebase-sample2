@@ -48,33 +48,25 @@ namespace ApiObjects.Segmentation
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-            ulong versionMaximumId;
+            long newId = couchbaseManager.GetSequenceValue(GetSegmentationTypeSequenceDocument());
 
-            int maximumId = couchbaseManager.GetWithVersion<int>(GetMaximumSegmentationTypeIdDocumentKey(), out versionMaximumId);
-            int newId = maximumId + 1;
-
-            bool setResult = false;
-            
-            for (int retryCount = 0; (retryCount < 3) && !setResult; retryCount++)
+            if (newId == 0)
             {
-                setResult = couchbaseManager.SetWithVersion<int>(GetMaximumSegmentationTypeIdDocumentKey(), newId, versionMaximumId, out versionMaximumId);
-
-                if (!setResult)
-                {
-                    maximumId = couchbaseManager.GetWithVersion<int>(GetMaximumSegmentationTypeIdDocumentKey(), out versionMaximumId);
-                    newId = maximumId + 1;
-                }
-            }
-
-            if (!setResult)
-            {
-                log.ErrorFormat("Error updating maximum id of segmentation type.");
+                log.ErrorFormat("Error setting segmentation type id");
                 return false;
             }
 
             this.Id = newId;
 
             string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(this.GroupId);
+
+            bool addSegmentIdsResult = this.Value.AddSegmentsIds();
+
+            if (!addSegmentIdsResult)
+            {
+                log.ErrorFormat("error setting segment Ids");
+                return false;
+            }
 
             GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
 
@@ -90,7 +82,7 @@ namespace ApiObjects.Segmentation
 
             groupSegmentationTypes.segmentationTypes.Add(newId);
 
-            setResult = couchbaseManager.Set<GroupSegmentationTypes>(segmentationTypesKey, groupSegmentationTypes);
+            bool setResult = couchbaseManager.Set<GroupSegmentationTypes>(segmentationTypesKey, groupSegmentationTypes);
 
             if (!setResult)
             {
@@ -121,10 +113,20 @@ namespace ApiObjects.Segmentation
             string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(this.GroupId);
 
             GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
+            SegmentationType source = couchbaseManager.Get<SegmentationType>(GetSegmentationTypeDocumentKey(this.GroupId, this.Id), true);
 
-            if (groupSegmentationTypes == null || groupSegmentationTypes.segmentationTypes == null || !groupSegmentationTypes.segmentationTypes.Contains(this.Id))
+            if (groupSegmentationTypes == null || groupSegmentationTypes.segmentationTypes == null || !groupSegmentationTypes.segmentationTypes.Contains(this.Id) ||
+                source == null)
             {
                 this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Given Id does not exist for group");
+                return false;
+            }
+
+            bool updateSegmentIdsResult = this.Value.UpdateSegmentIds(source.Value);
+
+            if (!updateSegmentIdsResult)
+            {
+                log.ErrorFormat("error setting segment Ids");
                 return false;
             }
 
@@ -192,9 +194,14 @@ namespace ApiObjects.Segmentation
             return string.Format("segment_type_{0}_{1}", groupId, id);
         }
 
-        public static string GetMaximumSegmentationTypeIdDocumentKey()
+        public static string GetSegmentationTypeSequenceDocument()
         {
-            return "maximum_segmentation_type_id";
+            return "segmentation_type_sequence";
+        }
+
+        public static string GetSegmentSequenceDocument()
+        {
+            return "segment_sequence";
         }
 
         public static string GetGroupSegmentationTypeDocumentKey(int groupId)
@@ -270,17 +277,13 @@ namespace ApiObjects.Segmentation
         recording,
         social_action
     }
-
-    public enum ContentFieldType
-    {
-        meta,
-        tag
-    }
+    
 
     public enum MonetizationType
     {
         ppv,
-        subscription
+        subscription,
+        boxset
     }
 
     public enum MathemticalOperatorType
