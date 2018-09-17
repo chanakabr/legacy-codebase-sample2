@@ -233,13 +233,13 @@ namespace QueueWrapper
                     }
                     catch (OperationInterruptedException ex)
                     {
-                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}", ex.Message, ex, this.m_FailCounter);
+                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}", message, ex, this.m_FailCounter);
                         ClearConnection();
                         return Publish(configuration, message);
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", ex.Message, ex, this.m_FailCounter);
+                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", message, ex, this.m_FailCounter);
                         IncreaseFailCounter();
                         ClearConnection();
                         return Publish(configuration, message);
