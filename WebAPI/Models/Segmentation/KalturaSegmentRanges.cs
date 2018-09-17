@@ -16,6 +16,25 @@ namespace WebAPI.Models.Segmentation
     public partial class KalturaSegmentRange : KalturaOTTObject
     {
         /// <summary>
+        /// Id of segment
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
+        public long Id { get; set; }
+
+        /// <summary>
+        /// Systematic name of segment
+        /// </summary>
+        [DataMember(Name = "systematicName")]
+        [JsonProperty(PropertyName = "systematicName")]
+        [XmlElement(ElementName = "systematicName")]
+        [SchemeProperty()]
+        public string SystematicName { get; set; }
+
+
+        /// <summary>
         /// Specific segment name
         /// </summary>
         [DataMember(Name = "name")]
@@ -59,6 +78,15 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "lt")]
         [SchemeProperty()]
         public double LessThan { get; set; }
+
+        /// <summary>
+        /// Equals 
+        /// </summary>
+        [DataMember(Name = "equals")]
+        [JsonProperty(PropertyName = "equals")]
+        [XmlElement(ElementName = "equals")]
+        [SchemeProperty()]
+        public double Equals { get; set; }
     }
 
     /// <summary>

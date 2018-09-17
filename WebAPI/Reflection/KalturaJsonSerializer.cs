@@ -19520,6 +19520,7 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = "[" + String.Join(", ", Actions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("actions", "\"actions\": " + propertyValue);
             }
+            ret.Add("days", "\"days\": " + Days);
             ret.Add("score", "\"score\": " + Score);
             return ret;
         }
@@ -19534,6 +19535,7 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
+            ret.Add("days", "<days>" + Days + "</days>");
             ret.Add("score", "<score>" + Score + "</score>");
             return ret;
         }
@@ -19549,7 +19551,6 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("field", "\"field\": " + "\"" + EscapeJson(Field) + "\"");
             }
-            ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaContentFieldType), Type) + "\"");
             return ret;
         }
         
@@ -19562,7 +19563,6 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("field", "<field>" + EscapeXml(Field) + "</field>");
             }
-            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaContentFieldType), Type) + "" + "</type>");
             return ret;
         }
     }
@@ -19624,6 +19624,7 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = "[" + String.Join(", ", Actions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("actions", "\"actions\": " + propertyValue);
             }
+            ret.Add("days", "\"days\": " + Days);
             ret.Add("score", "\"score\": " + Score);
             return ret;
         }
@@ -19638,6 +19639,7 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
+            ret.Add("days", "<days>" + Days + "</days>");
             ret.Add("score", "<score>" + Score + "</score>");
             return ret;
         }
@@ -19773,14 +19775,20 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("equals", "\"equals\": " + Equals);
             ret.Add("gt", "\"gt\": " + GreaterThan);
             ret.Add("gte", "\"gte\": " + GreaterThanOrEquals);
+            ret.Add("id", "\"id\": " + Id);
             ret.Add("lt", "\"lt\": " + LessThan);
             ret.Add("lte", "\"lte\": " + LessThanOrEquals);
             propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
             if(propertyValue != null)
             {
                 ret.Add("name", propertyValue);
+            }
+            if(SystematicName != null)
+            {
+                ret.Add("systematicName", "\"systematicName\": " + "\"" + EscapeJson(SystematicName) + "\"");
             }
             return ret;
         }
@@ -19790,11 +19798,17 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("equals", "<equals>" + Equals + "</equals>");
             ret.Add("gt", "<gt>" + GreaterThan + "</gt>");
             ret.Add("gte", "<gte>" + GreaterThanOrEquals + "</gte>");
+            ret.Add("id", "<id>" + Id + "</id>");
             ret.Add("lt", "<lt>" + LessThan + "</lt>");
             ret.Add("lte", "<lte>" + LessThanOrEquals + "</lte>");
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            if(SystematicName != null)
+            {
+                ret.Add("systematicName", "<systematicName>" + EscapeXml(SystematicName) + "</systematicName>");
+            }
             return ret;
         }
     }
@@ -19867,6 +19881,10 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("name", propertyValue);
             }
+            if(SystematicName != null)
+            {
+                ret.Add("systematicName", "\"systematicName\": " + "\"" + EscapeJson(SystematicName) + "\"");
+            }
             ret.Add("threshold", "\"threshold\": " + Threshold);
             if(Value != null)
             {
@@ -19882,6 +19900,10 @@ namespace WebAPI.Models.Segmentation
             string propertyValue;
             ret.Add("id", "<id>" + Id + "</id>");
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            if(SystematicName != null)
+            {
+                ret.Add("systematicName", "<systematicName>" + EscapeXml(SystematicName) + "</systematicName>");
+            }
             ret.Add("threshold", "<threshold>" + Threshold + "</threshold>");
             if(Value != null)
             {
@@ -19902,7 +19924,6 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = Source.ToJson(currentVersion, omitObsolete);
                 ret.Add("source", "\"source\": " + propertyValue);
             }
-            ret.Add("threshold", "\"threshold\": " + Threshold);
             if(Values != null)
             {
                 propertyValue = "[" + String.Join(", ", Values.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -19921,7 +19942,6 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = Source.ToXml(currentVersion, omitObsolete);
                 ret.Add("source", "<source>" + propertyValue + "</source>");
             }
-            ret.Add("threshold", "<threshold>" + Threshold + "</threshold>");
             if(Values != null)
             {
                 propertyValue = Values.Count > 0 ? "<item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -19986,6 +20006,90 @@ namespace WebAPI.Models.Segmentation
             if(Field != null)
             {
                 ret.Add("field", "<field>" + EscapeXml(Field) + "</field>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaUserSegment
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("segmentationTypeId", "\"segmentationTypeId\": " + SegmentationTypeId);
+            ret.Add("segmentId", "\"segmentId\": " + SegmentId);
+            if(UserId != null)
+            {
+                ret.Add("userId", "\"userId\": " + "\"" + EscapeJson(UserId) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("segmentationTypeId", "<segmentationTypeId>" + SegmentationTypeId + "</segmentationTypeId>");
+            ret.Add("segmentId", "<segmentId>" + SegmentId + "</segmentId>");
+            if(UserId != null)
+            {
+                ret.Add("userId", "<userId>" + EscapeXml(UserId) + "</userId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaUserSegmentFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(UserIdEqual != null)
+            {
+                ret.Add("userIdEqual", "\"userIdEqual\": " + "\"" + EscapeJson(UserIdEqual) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(UserIdEqual != null)
+            {
+                ret.Add("userIdEqual", "<userIdEqual>" + EscapeXml(UserIdEqual) + "</userIdEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaUserSegmentListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Segments != null)
+            {
+                propertyValue = "[" + String.Join(", ", Segments.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Segments != null)
+            {
+                propertyValue = Segments.Count > 0 ? "<item>" + String.Join("</item><item>", Segments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }

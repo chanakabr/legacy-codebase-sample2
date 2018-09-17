@@ -24,6 +24,15 @@ namespace WebAPI.Models.Segmentation
         public int Score { get; set; }
 
         /// <summary>
+        /// How many days back should the actions be considered
+        /// </summary>
+        [DataMember(Name = "days")]
+        [JsonProperty(PropertyName = "days")]
+        [XmlElement(ElementName = "days")]
+        [SchemeProperty()]
+        public int Days { get; set; }
+
+        /// <summary>
         /// List of the actions that consist the condition
         /// </summary>
         [DataMember(Name = "actions", EmitDefaultValue = true)]

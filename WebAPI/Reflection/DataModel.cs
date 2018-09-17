@@ -1333,6 +1333,8 @@ namespace WebAPI.Reflection
                     {
                         case "Actions":
                             return "actions";
+                        case "Days":
+                            return "days";
                         case "Score":
                             return "score";
                     }
@@ -1343,8 +1345,6 @@ namespace WebAPI.Reflection
                     {
                         case "Field":
                             return "field";
-                        case "Type":
-                            return "type";
                     }
                     break;
                     
@@ -4559,6 +4559,8 @@ namespace WebAPI.Reflection
                     {
                         case "Actions":
                             return "actions";
+                        case "Days":
+                            return "days";
                         case "Score":
                             return "score";
                     }
@@ -4671,16 +4673,22 @@ namespace WebAPI.Reflection
                 case "KalturaSegmentRange":
                     switch(property.Name)
                     {
+                        case "Equals":
+                            return "equals";
                         case "GreaterThan":
                             return "gt";
                         case "GreaterThanOrEquals":
                             return "gte";
+                        case "Id":
+                            return "id";
                         case "LessThan":
                             return "lt";
                         case "LessThanOrEquals":
                             return "lte";
                         case "Name":
                             return "name";
+                        case "SystematicName":
+                            return "systematicName";
                     }
                     break;
                     
@@ -4701,6 +4709,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Name":
                             return "name";
+                        case "SystematicName":
+                            return "systematicName";
                         case "Threshold":
                             return "threshold";
                         case "Value":
@@ -4713,8 +4723,6 @@ namespace WebAPI.Reflection
                     {
                         case "Source":
                             return "source";
-                        case "Threshold":
-                            return "threshold";
                         case "Values":
                             return "values";
                     }
@@ -5666,6 +5674,34 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "UserRoles":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaUserSegment":
+                    switch(property.Name)
+                    {
+                        case "SegmentationTypeId":
+                            return "segmentationTypeId";
+                        case "SegmentId":
+                            return "segmentId";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
+                case "KalturaUserSegmentFilter":
+                    switch(property.Name)
+                    {
+                        case "UserIdEqual":
+                            return "userIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaUserSegmentListResponse":
+                    switch(property.Name)
+                    {
+                        case "Segments":
                             return "objects";
                     }
                     break;
@@ -8934,6 +8970,24 @@ namespace WebAPI.Reflection
                         case "update":
                             RolesManager.ValidateActionPermitted("userRole", "update", false);
                             return UserRoleController.Update((long) methodParams[0], (KalturaUserRole) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "usersegment":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("userSegment", "add", false);
+                            return UserSegment.Add((KalturaUserSegment) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("userSegment", "delete", false);
+                            return UserSegment.Delete((string) methodParams[0], (long) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("userSegment", "list", false);
+                            return UserSegment.List((KalturaUserSegmentFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -16476,6 +16530,46 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaUserRole),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "usersegment":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("userSegment", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserSegment),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("userId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("segmentId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserSegmentFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

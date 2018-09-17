@@ -257,6 +257,7 @@
     <Compile Include="Controllers\RatioController.cs" />
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
+    <Compile Include="Controllers\UserSegmentController.cs" />
     <Compile Include="Models\API\KalturaDRMProfile.cs" />
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
@@ -274,6 +275,7 @@
     <Compile Include="Models\Segmentation\KalturaSegmentSource.cs" />
     <Compile Include="Models\Segmentation\KalturaSegmentValues.cs" />
     <Compile Include="Models\Segmentation\KalturaUserDataCondition.cs" />
+    <Compile Include="Models\Segmentation\KalturaUserSegment.cs" />
     <Compile Include="Models\Upload\KalturaBulkFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
     <Compile Include="Models\General\KalturaGenericListResponse.cs" />

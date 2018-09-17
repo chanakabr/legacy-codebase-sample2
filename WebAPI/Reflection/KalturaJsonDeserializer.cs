@@ -1506,6 +1506,15 @@ namespace WebAPI.Reflection
                 case "KalturaUserRoleListResponse":
                     return new KalturaUserRoleListResponse(parameters);
                     
+                case "KalturaUserSegment":
+                    return new KalturaUserSegment(parameters);
+                    
+                case "KalturaUserSegmentFilter":
+                    return new KalturaUserSegmentFilter(parameters);
+                    
+                case "KalturaUserSegmentListResponse":
+                    return new KalturaUserSegmentListResponse(parameters);
+                    
                 case "KalturaUserSocialActionResponse":
                     return new KalturaUserSocialActionResponse(parameters);
                     
@@ -12399,11 +12408,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
+            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13232,11 +13241,11 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14673,13 +14682,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollection")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaCollection(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -14964,53 +14973,53 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberOnRenewableSubSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute MaxHouseholdUsesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute DiscountCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute DiscountIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaCouponsGroup(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -15966,13 +15975,13 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlan")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaPricePlan(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -18303,6 +18312,15 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         private static RuntimeSchemePropertyAttribute ActionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
@@ -18326,6 +18344,14 @@ namespace WebAPI.Models.Segmentation
                     }
                     Score = (Int32) Convert.ChangeType(parameters["score"], typeof(Int32));
                 }
+                if (parameters.ContainsKey("days") && parameters["days"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DaysSchemaProperty.Validate("days", parameters["days"]);
+                    }
+                    Days = (Int32) Convert.ChangeType(parameters["days"], typeof(Int32));
+                }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
                     if(!isOldVersion)
@@ -18342,15 +18368,6 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaContentSource
     {
-        private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentSource")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentSource")
         {
             ReadOnly = false,
@@ -18366,14 +18383,6 @@ namespace WebAPI.Models.Segmentation
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("type") && parameters["type"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
-                    Type = (KalturaContentFieldType) Enum.Parse(typeof(KalturaContentFieldType), parameters["type"].ToString(), true);
-                }
                 if (parameters.ContainsKey("field") && parameters["field"] != null)
                 {
                     if(!isOldVersion)
@@ -18503,6 +18512,15 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaScoredMonetizationCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         private static RuntimeSchemePropertyAttribute ActionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaScoredMonetizationCondition")
         {
             ReadOnly = false,
@@ -18525,6 +18543,14 @@ namespace WebAPI.Models.Segmentation
                         ScoreSchemaProperty.Validate("score", parameters["score"]);
                     }
                     Score = (Int32) Convert.ChangeType(parameters["score"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("days") && parameters["days"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DaysSchemaProperty.Validate("days", parameters["days"]);
+                    }
+                    Days = (Int32) Convert.ChangeType(parameters["days"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
@@ -18727,6 +18753,24 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaSegmentRange
     {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
@@ -18772,12 +18816,37 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute EqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaSegmentRange(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("systematicName") && parameters["systematicName"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SystematicNameSchemaProperty.Validate("systematicName", parameters["systematicName"]);
+                    }
+                    SystematicName = (String) Convert.ChangeType(parameters["systematicName"], typeof(String));
+                }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
                     if(!isOldVersion)
@@ -18824,6 +18893,14 @@ namespace WebAPI.Models.Segmentation
                         LessThanSchemaProperty.Validate("lt", parameters["lt"]);
                     }
                     LessThan = (Double) Convert.ChangeType(parameters["lt"], typeof(Double));
+                }
+                if (parameters.ContainsKey("equals") && parameters["equals"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        EqualsSchemaProperty.Validate("equals", parameters["equals"]);
+                    }
+                    Equals = (Double) Convert.ChangeType(parameters["equals"], typeof(Double));
                 }
             }
         }
@@ -18893,6 +18970,15 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
+        {
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -18941,6 +19027,14 @@ namespace WebAPI.Models.Segmentation
                     }
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("systematicName") && parameters["systematicName"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SystematicNameSchemaProperty.Validate("systematicName", parameters["systematicName"]);
+                    }
+                    SystematicName = (String) Convert.ChangeType(parameters["systematicName"], typeof(String));
+                }
                 if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
                     if(!isOldVersion)
@@ -18986,15 +19080,6 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ThresholdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValues")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValues")
         {
             ReadOnly = false,
@@ -19024,14 +19109,6 @@ namespace WebAPI.Models.Segmentation
                     {
                         Source = (KalturaSegmentSource) Deserializer.deserialize(typeof(KalturaSegmentSource), (Dictionary<string, object>) parameters["source"]);
                     }
-                }
-                if (parameters.ContainsKey("threshold") && parameters["threshold"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        ThresholdSchemaProperty.Validate("threshold", parameters["threshold"]);
-                    }
-                    Threshold = (Int32) Convert.ChangeType(parameters["threshold"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("values") && parameters["values"] != null)
                 {
@@ -19116,6 +19193,127 @@ namespace WebAPI.Models.Segmentation
                         FieldSchemaProperty.Validate("field", parameters["field"]);
                     }
                     Field = (String) Convert.ChangeType(parameters["field"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaUserSegment
+    {
+        private static RuntimeSchemePropertyAttribute SegmentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute SegmentationTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = true,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaUserSegment(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("segmentId") && parameters["segmentId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SegmentIdSchemaProperty.Validate("segmentId", parameters["segmentId"]);
+                    }
+                    SegmentId = (Int64) Convert.ChangeType(parameters["segmentId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("segmentationTypeId") && parameters["segmentationTypeId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SegmentationTypeIdSchemaProperty.Validate("segmentationTypeId", parameters["segmentationTypeId"]);
+                    }
+                    SegmentationTypeId = (Int64) Convert.ChangeType(parameters["segmentationTypeId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("userId") && parameters["userId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
+                    }
+                    UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaUserSegmentFilter
+    {
+        private static RuntimeSchemePropertyAttribute UserIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegmentFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaUserSegmentFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("userIdEqual") && parameters["userIdEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserIdEqualSchemaProperty.Validate("userIdEqual", parameters["userIdEqual"]);
+                    }
+                    UserIdEqual = (String) Convert.ChangeType(parameters["userIdEqual"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaUserSegmentListResponse
+    {
+        private static RuntimeSchemePropertyAttribute SegmentsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegmentListResponse")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaUserSegmentListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SegmentsSchemaProperty.Validate("objects", parameters["objects"]);
+                    }
+                    if (parameters["objects"] is JArray)
+                    {
+                        Segments = buildList<KalturaUserSegment>(typeof(KalturaUserSegment), (JArray) parameters["objects"]);
+                    }
                 }
             }
         }
