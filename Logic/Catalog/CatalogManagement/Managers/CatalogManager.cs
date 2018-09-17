@@ -724,18 +724,18 @@ namespace Core.Catalog.CatalogManagement
             return connectingMetaValue;
         }
 
-        private static void UpdateInheritedChildAsset(int groupId, long userId, Topic inhertiedMeta, Metas inheratedMetaObj, Tags inheratedTagsObj, List<Asset> childAssets)
+        private static void UpdateInheritedChildAsset(int groupId, long userId, Topic inhertiedTopic, Metas inheratedMetaObj, Tags inheratedTagsObj, List<Asset> childAssets)
         {
             foreach (Asset childAsset in childAssets)
             {
                 bool update = false;
                 // take only asset that need to be updated                    
-                if (inhertiedMeta.Type == MetaType.Tag)
+                if (inhertiedTopic.Type == MetaType.Tag)
                 {
                     int tagIndex = -1;
                     for (int i = 0; i < childAsset.Tags.Count; i++)
                     {
-                        if (childAsset.Tags[i].m_oTagMeta.m_sName == inhertiedMeta.SystemName)
+                        if (childAsset.Tags[i].m_oTagMeta.m_sName == inhertiedTopic.SystemName)
                         {
                             tagIndex = i;
                             break;
@@ -746,7 +746,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (tagIndex > -1)
                         {
-                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, userId);
+                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedTopic.Id }, userId);
                         }
                     }
                     else
@@ -768,7 +768,7 @@ namespace Core.Catalog.CatalogManagement
                     int metaIndex = -1;
                     for (int i = 0; i < childAsset.Metas.Count; i++)
                     {
-                        if (childAsset.Metas[i].m_oTagMeta.m_sName == inhertiedMeta.SystemName)
+                        if (childAsset.Metas[i].m_oTagMeta.m_sName == inhertiedTopic.SystemName)
                         {
                             metaIndex = i;
                             break;
@@ -779,7 +779,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (metaIndex > -1)
                         {
-                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedMeta.Id }, userId);
+                            AssetManager.RemoveTopicsFromAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, new HashSet<long>() { inhertiedTopic.Id }, userId);
                         }
                     }
                     else

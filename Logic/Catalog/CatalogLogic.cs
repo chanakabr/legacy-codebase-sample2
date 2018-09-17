@@ -7789,6 +7789,11 @@ namespace Core.Catalog
                     }
                     else if (searchKeyLowered == INHERITANCE_POLICY)
                     {
+                        if (!definitions.isAllowedToViewInactiveAssets)
+                        {
+                            throw new KalturaException("Unauthorized use of field inheritance_policy", (int)eResponseStatus.BadSearchRequest);
+                        }
+
                         if (leaf.operand != ComparisonOperator.Equals)
                         {
                             throw new KalturaException("Invalid search value or operator was sent for inheritance_policy", (int)eResponseStatus.BadSearchRequest);
