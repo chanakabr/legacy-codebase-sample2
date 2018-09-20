@@ -1,0 +1,37 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "UserSegment_Add",
+      "service": "UserSegment",
+      "action": "Add",
+      "type": "Action"
+    },
+	{
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "UserSegment_Delete",
+      "service": "UserSegment",
+      "action": "Delete",
+      "type": "Action"
+    },
+	{
+      "permissions": [
+        "Operator",
+		"User",
+		"Master"
+      ],
+      "excluded_permissions": [],
+      "name": "UserSegment_List",
+      "service": "UserSegment",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
