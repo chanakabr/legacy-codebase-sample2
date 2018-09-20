@@ -226,6 +226,11 @@ namespace QueueWrapper
 
                             if (m_Model != null)
                             {
+                                if (m_Model.IsOpen)
+                                {
+                                    m_Model.Close();
+                                }
+
                                 m_Model.Dispose();
                             }
 
@@ -381,13 +386,15 @@ namespace QueueWrapper
 
         public bool IsQueueExist(RabbitConfigurationData configData)
         {
+            IModel m_Model = null;
+
             try
             {
                 if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null)
                 {
-                    IModel m_Model = this.m_Connection.CreateModel();
+                    m_Model = this.m_Connection.CreateModel();
                     var res = m_Model.QueueDeclarePassive(configData.QueueName);
-                    m_Model.Dispose();
+
                     return res != null;
                 }
 
@@ -396,6 +403,17 @@ namespace QueueWrapper
             catch { return false; }
             finally
             {
+                if (m_Model != null)
+                {
+                    if (m_Model.IsOpen)
+                    {
+                        m_Model.Close();
+                    }
+
+                    m_Model.Dispose();
+                    m_Model = null;
+                }
+
                 Close();
             }
         }
@@ -408,6 +426,8 @@ namespace QueueWrapper
                 return false;
             }
 
+            IModel m_Model = null;
+
             try
             {
                 if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null)
@@ -419,13 +439,11 @@ namespace QueueWrapper
                         args.Add("x-expires", expirationMiliSec);
                     }
 
-                    IModel m_Model = this.m_Connection.CreateModel();
+                    m_Model = this.m_Connection.CreateModel();
 
                     QueueDeclareOk res = m_Model.QueueDeclare(configData.QueueName, true, false, false,args);
                     m_Model.QueueBind(configData.QueueName, "scheduled_tasks", configData.RoutingKey);
-
-                    m_Model.Dispose();
-
+                    
                     return res != null && res.QueueName == configData.QueueName;
                 }
 
@@ -438,6 +456,17 @@ namespace QueueWrapper
             }
             finally
             {
+                if (m_Model != null)
+                {
+                    if (m_Model.IsOpen)
+                    {
+                        m_Model.Close();
+                    }
+
+                    m_Model.Dispose();
+                    m_Model = null;
+                }
+
                 Close();
             }
         }
@@ -450,13 +479,13 @@ namespace QueueWrapper
                 return false;
             }
 
+            IModel m_Model = null;
             try
             {
                 if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null)
                 {
-                    IModel m_Model = this.m_Connection.CreateModel();
+                    m_Model = this.m_Connection.CreateModel();
                     m_Model.QueueDelete(configData.QueueName);
-                    m_Model.Dispose();
                     return true;
                 }
 
@@ -469,6 +498,18 @@ namespace QueueWrapper
             }
             finally
             {
+
+                if (m_Model != null)
+                {
+                    if (m_Model.IsOpen)
+                    {
+                        m_Model.Close();
+                    }
+
+                    m_Model.Dispose();
+                    m_Model = null;
+                }
+
                 Close();
             }
         }
