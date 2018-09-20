@@ -59,7 +59,11 @@ namespace WebAPI.Managers.Models
             ret.Add("executionTime", "<executionTime>" + ExecutionTime + "</executionTime>");
             if (Result != null)
             {
-                if (Result is IEnumerable)
+                if (Result is string)
+                {
+                    propertyValue = Result.ToString();
+                }
+                else if (Result is IEnumerable)
                 {
                     propertyValue = "<item>" + 
                             String.Join("</item><item>", 
