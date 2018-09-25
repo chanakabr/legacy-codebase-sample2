@@ -39,5 +39,28 @@ namespace WebAPI.Controllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Returns all ppv objects
+        /// </summary>                
+        /// <remarks>Possible status codes: ModuleNotExists = 9016</remarks>     
+        [Action("list")]
+        [ApiAuthorize]
+        static public KalturaPpvListResponse List()
+        {
+            KalturaPpvListResponse response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                // call client                
+                response = ClientsManager.PricingClient().GetPPVModulesData(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
     }
 }

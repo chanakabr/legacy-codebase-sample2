@@ -263,6 +263,7 @@
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecording.cs" />
+    <Compile Include="Models\Pricing\KalturaPpvListResponse.cs" />
     <Compile Include="Models\Segmentation\KalturaBaseSegmentCondition.cs" />
     <Compile Include="Models\Segmentation\KalturaBaseSegmentValue.cs" />
     <Compile Include="Models\Segmentation\KalturaScoredMonetizationCondition.cs" />

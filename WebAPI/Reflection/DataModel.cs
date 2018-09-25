@@ -3904,6 +3904,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPpvListResponse":
+                    switch(property.Name)
+                    {
+                        case "Ppvs":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaPpvPrice":
                     switch(property.Name)
                     {
@@ -8061,6 +8069,10 @@ namespace WebAPI.Reflection
                         case "get":
                             RolesManager.ValidateActionPermitted("ppv", "get", false);
                             return PpvController.Get((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("ppv", "list", false);
+                            return PpvController.List();
                             
                     }
                     break;
@@ -14686,6 +14698,9 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(long),
                             });
+                            return ret;
+                            
+                        case "list":
                             return ret;
                             
                     }

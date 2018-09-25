@@ -63,7 +63,7 @@ namespace WebAPI.Clients
             subscriptions = AutoMapper.Mapper.Map<List<KalturaSubscription>>(response.Subscriptions);
 
             return subscriptions;
-        }
+        }        
 
         internal List<int> GetSubscriptionIDsContainingMediaFile(int groupId, int mediaFileID)
         {
@@ -135,8 +135,6 @@ namespace WebAPI.Clients
         {
             PPVModuleDataResponse response = null;
             KalturaPpv result = new KalturaPpv();
-
-
 
             try
             {
@@ -1128,6 +1126,22 @@ namespace WebAPI.Clients
             discounts = AutoMapper.Mapper.Map<List<KalturaDiscountDetails>>(response.Objects);
 
             return discounts;
+        }
+
+        internal KalturaPpvListResponse GetPPVModulesData(int groupId)
+        {
+            KalturaPpvListResponse result = new KalturaPpvListResponse();
+
+            Func<GenericListResponse<PPVModule>> getPPVModulesDataFunc = () =>
+               Core.Pricing.Module.GetPPVModuleList(groupId);
+
+            KalturaGenericListResponse<KalturaPpv> response =
+                ClientUtils.GetResponseListFromWS<KalturaPpv, PPVModule>(getPPVModulesDataFunc);
+
+            result.Ppvs = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
         }
     }
 }

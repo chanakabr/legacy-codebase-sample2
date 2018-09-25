@@ -2050,6 +2050,12 @@
             <returns></returns>
             <remarks>Possible status codes: ModuleNotExists = 9016</remarks>     
         </member>
+        <member name="M:WebAPI.Controllers.PpvController.List">
+            <summary>
+            Returns all ppv objects
+            </summary>                
+            <remarks>Possible status codes: ModuleNotExists = 9016</remarks>     
+        </member>
         <member name="M:WebAPI.Controllers.RecordingController.Get(System.Int64)">
             <summary>
             Returns recording object by internal identifier
@@ -9535,6 +9541,1126 @@
             The Identifier of the purchasing household
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPpvListResponse">
+            <summary>
+            Prices list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvListResponse.Ppvs">
+            <summary>
+            A list of PPV
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCollectionPrice">
+            <summary>
+            Collection price details
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCollection">
+            <summary>
+            Collection
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Id">
+            <summary>
+            Collection identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Channels">
+            <summary>
+            A list of channels associated with this collection 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.StartDate">
+            <summary>
+            The first date the collection is available for purchasing 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.EndDate">
+            <summary>
+            The last date the collection is available for purchasing
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.DiscountModule">
+            <summary>
+            The internal discount module for the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Name">
+            <summary>
+            Name of the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Description">
+            <summary>
+            description of the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.UsageModule">
+            <summary>
+            Collection usage module
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.CouponGroups">
+            <summary>
+            List of Coupons group
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.ExternalId">
+            <summary>
+            External ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.ProductCodes">
+            <summary>
+            List of Collection product codes
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.PriceDetailsId">
+            <summary>
+            The ID of the price details associated with this collection
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCollectionListResponse">
+            <summary>
+            Collections list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollectionListResponse.Collections">
+            <summary>
+            A list of collections
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCollectionFilter">
+            <summary>
+            Collection Filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollectionFilter.CollectionIdIn">
+            <summary>
+            Comma separated collection IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollectionFilter.MediaFileIdEqual">
+            <summary>
+            Media-file ID to get the subscriptions by
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCouponGenerationOptions">
+            <summary>
+            Coupon generation options
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPublicCouponGenerationOptions.Code">
+            <summary>
+            Coupon code (name)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaRandomCouponGenerationOptions.NumberOfCoupons">
+            <summary>
+            Number of coupons to generate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaRandomCouponGenerationOptions.UseLetters">
+            <summary>
+            Indicates whether to use letters in the generated codes (default is true)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaRandomCouponGenerationOptions.UseNumbers">
+            <summary>
+            Indicates whether to use numbers in the generated codes (default is true)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaRandomCouponGenerationOptions.UseSpecialCharacters">
+            <summary>
+            Indicates whether to use special characters in the generated codes(default is true)
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaDiscount">
+            <summary>
+            Discount
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscount.Percentage">
+            <summary>
+            The discount percentage
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaDiscountDetails">
+            <summary>
+            Discount details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.Id">
+            <summary>
+            The discount ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.name">
+            <summary>
+            The price code name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.MultiCurrencyDiscount">
+            <summary>
+            Multi currency discounts for all countries and currencies
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.StartDate">
+            <summary>
+            Start date represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.EndtDate">
+            <summary>
+            End date represented as epoch
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetailsListResponse.Discounts">
+            <summary>
+            A list of price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetailsFilter.IdIn">
+            <summary>
+            Comma separated discount codes
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlanFilter.IdIn">
+            <summary>
+            Comma separated price plans identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetailsFilter.IdIn">
+            <summary>
+            Comma separated price identifiers 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionDependencySet">
+            <summary>
+            Subscription Dependency Set
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionDependencySet.BaseSubscriptionId">
+            <summary>
+            Base Subscription identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionDependencySetFilter.BaseSubscriptionIdIn">
+            <summary>
+            Comma separated identifiers
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaProductCode">
+            <summary>
+            Product Code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductCode.InappProvider">
+            <summary>
+            Provider Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductCode.Code">
+            <summary>
+            Product Code
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSwitchSet">
+            <summary>
+            Subscription details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.IdIn">
+            <summary>
+            Comma separated identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.SubscriptionIdContains">
+            <summary>
+            Comma separated subscription identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.TypeEqual">
+            <summary>
+            Subscription Type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse">
+            <summary>
+            SubscriptionSets list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse.SubscriptionSets">
+            <summary>
+            A list of subscriptionSets
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSet">
+            <summary>
+            Subscription details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.Id">
+            <summary>
+            SubscriptionSet identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.Name">
+            <summary>
+            SubscriptionSet name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.Type">
+            <summary>
+            Type of the Subscription Set
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.SubscriptionIds">
+            <summary>
+            A list of comma separated subscription ids associated with this set ordered by priority ascending
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPpvPrice">
+            <summary>
+            PPV price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FileId">
+            <summary>
+            Media file identifier  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PPVModuleId">
+            <summary>
+            The associated PPV module identifier  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.IsSubscriptionOnly">
+            <summary>
+            Denotes whether this object is available only as part of a subscription or can be sold separately
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FullPrice">
+            <summary>
+            The full price of the item (with no discounts)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.SubscriptionId">
+            <summary>
+            The identifier of the relevant subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.CollectionId">
+            <summary>
+            The identifier of the relevant collection
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PrePaidId">
+            <summary>
+            The identifier of the relevant pre paid
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PPVDescriptions">
+            <summary>
+            A list of the descriptions of the PPV module on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PurchaseUserId">
+            <summary>
+            If the item already purchased - the identifier of the user (in the household) who purchased this item 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PurchasedMediaFileId">
+            <summary>
+            If the item already purchased - the identifier of the purchased file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.RelatedMediaFileIds">
+            <summary>
+            Related media files identifiers (different types)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.StartDate">
+            <summary>
+            If the item already purchased - since when the user can start watching the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.EndDate">
+            <summary>
+            If the item already purchased - until when the user can watch the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.DiscountEndDate">
+            <summary>
+            Discount end date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FirstDeviceName">
+            <summary>
+            If the item already purchased and played - the name of the device on which it was first played 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.IsInCancelationPeriod">
+            <summary>
+            If waiver period is enabled - donates whether the user is still in the cancelation window
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.ProductCode">
+            <summary>
+            The PPV product code
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaProductPriceListResponse">
+            <summary>
+            Prices list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPriceListResponse.ProductsPrices">
+            <summary>
+            A list of prices
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.SubscriptionIdIn">
+            <summary>
+            Comma separated subscription IDs to get the subscriptions by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.MediaFileIdEqual">
+            <summary>
+            Media-file ID to get the subscriptions by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.ExternalIdIn">
+            <summary>
+            Comma separated subscription external IDs to get the subscriptions by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaAssetPrice.AssetId">
+            <summary>
+            Asset identifier  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaAssetPrice.AssetType">
+            <summary>
+            Asset type  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaAssetPrice.FilePrices">
+            <summary>
+            Files and their prices
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCoupon">
+            <summary>
+            Coupon details container
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.CouponsGroup">
+            <summary>
+            Coupons group details 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.Status">
+            <summary>
+            Coupon status 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.TotalUses">
+            <summary>
+            Total available coupon uses
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.LeftUses">
+            <summary>
+            Left coupon uses
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaItemPriceListResponse">
+            <summary>
+            ItemPrice list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaItemPriceListResponse.ItemPrice">
+            <summary>
+            A list of item prices
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPpv">
+            <summary>
+            PPV details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Id">
+            <summary>
+            PPV identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Name">
+            <summary>
+            the name for the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Price">
+            <summary>
+            The price of the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.FileTypes">
+            <summary>
+            A list of file types identifiers that are supported in this ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.DiscountModule">
+            <summary>
+            The internal discount module for the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.CouponsGroup">
+            <summary>
+            Coupons group for the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Descriptions">
+            <summary>
+            A list of the descriptions of the ppv on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.ProductCode">
+            <summary>
+            Product code for the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.IsSubscriptionOnly">
+            <summary>
+            Indicates whether or not this ppv can be purchased standalone or only as part of a subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.FirstDeviceLimitation">
+            <summary>
+            Indicates whether or not this ppv can be consumed only on the first device
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.UsageModule">
+            <summary>
+            PPV usage module
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails">
+            <summary>
+            PPV item price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PPVModuleId">
+            <summary>
+            The associated PPV module identifier  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.IsSubscriptionOnly">
+            <summary>
+            Denotes whether this object is available only as part of a subscription or can be sold separately
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.Price">
+            <summary>
+            The calculated price of the item after discounts (as part of a purchased subscription by the user or by using a coupon) 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.FullPrice">
+            <summary>
+            The full price of the item (with no discounts)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PurchaseStatus">
+            <summary>
+            Subscription purchase status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.SubscriptionId">
+            <summary>
+            The identifier of the relevant subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.CollectionId">
+            <summary>
+            The identifier of the relevant collection
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PrePaidId">
+            <summary>
+            The identifier of the relevant pre paid
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PPVDescriptions">
+            <summary>
+            A list of the descriptions of the PPV module on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PurchaseUserId">
+            <summary>
+            If the item already purchased - the identifier of the user (in the household) who purchased this item 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PurchasedMediaFileId">
+            <summary>
+            If the item already purchased - the identifier of the purchased file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.RelatedMediaFileIds">
+            <summary>
+            Related media files identifiers (different types)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.StartDate">
+            <summary>
+            If the item already purchased - since when the user can start watching the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.EndDate">
+            <summary>
+            If the item already purchased - until when the user can watch the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.DiscountEndDate">
+            <summary>
+            Discount end date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.FirstDeviceName">
+            <summary>
+            If the item already purchased and played - the name of the device on which it was first played 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.IsInCancelationPeriod">
+            <summary>
+            If waiver period is enabled - donates whether the user is still in the cancelation window
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.ProductCode">
+            <summary>
+            The PPV product code
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCouponsGroup">
+            <summary>
+            Coupons group details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.Id">
+            <summary>
+            Coupon group identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.Name">
+            <summary>
+            Coupon group name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.Descriptions">
+            <summary>
+            A list of the descriptions of the coupon group on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.StartDate">
+            <summary>
+            The first date the coupons in this coupons group are valid
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.EndDate">
+            <summary>
+            The last date the coupons in this coupons group are valid
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.MaxUsesNumber">
+            <summary>
+            Maximum number of uses for each coupon in the group
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.MaxUsesNumberOnRenewableSub">
+            <summary>
+            Maximum number of uses for each coupon in the group on a renewable subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.CouponGroupType">
+            <summary>
+            Type of the coupon group
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.MaxHouseholdUses">
+            <summary>
+            Maximum number of uses per household for each coupon in the group
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.DiscountCode">
+            <summary>
+            Discount code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.DiscountId">
+            <summary>
+            Discount ID
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCouponsGroupListResponse">
+            <summary>
+            Coupons group list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroupListResponse.couponsGroups">
+            <summary>
+            A list of coupons groups
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaDiscountModule">
+            <summary>
+            Discount module
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountModule.Percent">
+            <summary>
+            The discount percentage
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountModule.StartDate">
+            <summary>
+            The first date the discount is available
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaDiscountModule.EndDate">
+            <summary>
+            The last date the discount is available
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaItemPrice">
+            <summary>
+            PPV price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaItemPrice.FileId">
+            <summary>
+            Media file identifier  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaItemPrice.PPVPriceDetails">
+            <summary>
+            PPV price details
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPreviewModule">
+            <summary>
+            Preview module
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPreviewModule.Id">
+            <summary>
+            Preview module identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPreviewModule.Name">
+            <summary>
+            Preview module name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPreviewModule.LifeCycle">
+            <summary>
+            Preview module life cycle - for how long the preview module is active
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPreviewModule.NonRenewablePeriod">
+            <summary>
+            The time you can't buy the item to which the preview module is assigned to again
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPriceDetails">
+            <summary>
+            Price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.Id">
+            <summary>
+            The price code identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.name">
+            <summary>
+            The price code name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.Price">
+            <summary>
+            The price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.MultiCurrencyPrice">
+            <summary>
+            Multi currency prices for all countries and currencies
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.Descriptions">
+            <summary>
+            A list of the descriptions for this price on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetailsListResponse.Prices">
+            <summary>
+            A list of price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductId">
+            <summary>
+            Product identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductType">
+            <summary>
+            Product Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.Price">
+            <summary>
+            Product price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.PurchaseStatus">
+            <summary>
+            Product purchase status  
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPricePlan">
+            <summary>
+            Price plan
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.IsRenewable">
+            <summary>
+            Denotes whether or not this object can be renewed
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.RenewalsNumber">
+            <summary>
+            Defines the number of times the module will be renewed (for the life_cycle period)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.PriceId">
+            <summary>
+            Unique identifier associated with this object's price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.DiscountId">
+            <summary>
+            The discount module identifier of the price plan
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.PriceDetailsId">
+            <summary>
+            The ID of the price details associated with this price plan
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlanListResponse.PricePlans">
+            <summary>
+            A list of price plans
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionListResponse">
+            <summary>
+            Subscriptions list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionListResponse.Subscriptions">
+            <summary>
+            A list of subscriptions
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionPrice">
+            <summary>
+            Subscription price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.Price">
+            <summary>
+            Product price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.PurchaseStatus">
+            <summary>
+            Product purchase status  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.EndDate">
+            <summary>
+            If the item related to unified billing cycle purchased - until when the this price is relevant
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionsFilter.Ids">
+            <summary>
+            Subscription identifiers or file identifier (only 1) to get the subscriptions by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionsFilter.By">
+            <summary>
+            The type of the identifiers to get the subscriptions by
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaProductsPriceListResponse">
+            <summary>
+            Prices list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductsPriceListResponse.ProductsPrices">
+            <summary>
+            A list of prices
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaUsageModule">
+            <summary>
+            Pricing usage module
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.Id">
+            <summary>
+            Usage module identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.Name">
+            <summary>
+            Usage module name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.MaxViewsNumber">
+            <summary>
+            The maximum number of times an item in this usage module can be viewed
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.ViewLifeCycle">
+            <summary>
+            The amount time an item is available for viewing since a user started watching the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.FullLifeCycle">
+            <summary>
+            The amount time an item is available for viewing
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.CouponId">
+            <summary>
+            Identifies a specific coupon linked to this object
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.WaiverPeriod">
+            <summary>
+            Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.IsWaiverEnabled">
+            <summary>
+            Indicates whether or not the end user has the right to waive his rights to cancel a purchase
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.IsOfflinePlayback">
+            <summary>
+            Indicates that usage is targeted for offline playback
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPrice">
+            <summary>
+            Price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPrice.Amount">
+             <summary>
+            Price
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPrice.Currency">
+             <summary>
+            Currency
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPrice.CurrencySign">
+             <summary>
+            Currency Sign
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPrice.CountryId">
+             <summary>
+            Country ID
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscription">
+            <summary>
+            Subscription details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Id">
+            <summary>
+            Subscription identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Channels">
+            <summary>
+            A list of channels associated with this subscription 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.StartDate">
+            <summary>
+            The first date the subscription is available for purchasing 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.EndDate">
+            <summary>
+            The last date the subscription is available for purchasing
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.FileTypes">
+            <summary>
+            A list of file types identifiers that are supported in this subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsRenewable">
+            <summary>
+            Denotes whether or not this subscription can be renewed
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.RenewalsNumber">
+            <summary>
+            Defines the number of times this subscription will be renewed
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsInfiniteRenewal">
+            <summary>
+            Indicates whether the subscription will renew forever
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Price">
+            <summary>
+            The price of the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.DiscountModule">
+            <summary>
+            The internal discount module for the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.CouponsGroup">
+            <summary>
+            Coupons group for the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Name">
+            <summary>
+            Name of the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Names">
+            <summary>
+            A list of the name of the subscription on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Description">
+            <summary>
+            description of the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Descriptions">
+            <summary>
+            A list of the descriptions of the subscriptions on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.MediaId">
+            <summary>
+            Identifier of the media associated with the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ProrityInOrder">
+            <summary>
+            Subscription order (when returned in methods that retrieve subscriptions)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ProductCode">
+            <summary>
+            Product code for the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PricePlans">
+            <summary>
+            Subscription price plans
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PricePlanIds">
+            <summary>
+            Comma separated subscription price plan IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PreviewModule">
+            <summary>
+            Subscription preview module
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.HouseholdLimitationsId">
+            <summary>
+            The household limitation module identifier associated with this subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.GracePeriodMinutes">
+            <summary>
+            The subscription grace period in minutes
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PremiumServices">
+            <summary>
+            List of premium services included in the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.MaxViewsNumber">
+            <summary>
+            The maximum number of times an item in this usage module can be viewed
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ViewLifeCycle">
+            <summary>
+            The amount time an item is available for viewing since a user started watching the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.WaiverPeriod">
+            <summary>
+            Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsWaiverEnabled">
+            <summary>
+            Indicates whether or not the end user has the right to waive his rights to cancel a purchase
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.UserTypes">
+            <summary>
+            List of permitted user types for the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.CouponGroups">
+            <summary>
+            List of Coupons group
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ProductCodes">
+            <summary>
+            List of Subscription product codes
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.DependencyType">
+             <summary>
+            Dependency Type
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ExternalId">
+            <summary>
+            External ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsCancellationBlocked">
+            <summary>
+            Is cancellation blocked for the subscription
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaBaseSegmentCondition">
             <summary>
             Base class that defines segment condition
@@ -11178,1116 +12304,6 @@
             <summary>
             Comma separated list of partner list types to search within. 
             If omitted – all types should be included.
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaCollectionPrice">
-            <summary>
-            Collection price details
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaCollection">
-            <summary>
-            Collection
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Id">
-            <summary>
-            Collection identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Channels">
-            <summary>
-            A list of channels associated with this collection 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.StartDate">
-            <summary>
-            The first date the collection is available for purchasing 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.EndDate">
-            <summary>
-            The last date the collection is available for purchasing
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.DiscountModule">
-            <summary>
-            The internal discount module for the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Name">
-            <summary>
-            Name of the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Description">
-            <summary>
-            description of the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.UsageModule">
-            <summary>
-            Collection usage module
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.CouponGroups">
-            <summary>
-            List of Coupons group
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.ExternalId">
-            <summary>
-            External ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.ProductCodes">
-            <summary>
-            List of Collection product codes
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.PriceDetailsId">
-            <summary>
-            The ID of the price details associated with this collection
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaCollectionListResponse">
-            <summary>
-            Collections list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollectionListResponse.Collections">
-            <summary>
-            A list of collections
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaCollectionFilter">
-            <summary>
-            Collection Filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollectionFilter.CollectionIdIn">
-            <summary>
-            Comma separated collection IDs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollectionFilter.MediaFileIdEqual">
-            <summary>
-            Media-file ID to get the subscriptions by
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaCouponGenerationOptions">
-            <summary>
-            Coupon generation options
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPublicCouponGenerationOptions.Code">
-            <summary>
-            Coupon code (name)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaRandomCouponGenerationOptions.NumberOfCoupons">
-            <summary>
-            Number of coupons to generate
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaRandomCouponGenerationOptions.UseLetters">
-            <summary>
-            Indicates whether to use letters in the generated codes (default is true)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaRandomCouponGenerationOptions.UseNumbers">
-            <summary>
-            Indicates whether to use numbers in the generated codes (default is true)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaRandomCouponGenerationOptions.UseSpecialCharacters">
-            <summary>
-            Indicates whether to use special characters in the generated codes(default is true)
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaDiscount">
-            <summary>
-            Discount
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscount.Percentage">
-            <summary>
-            The discount percentage
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaDiscountDetails">
-            <summary>
-            Discount details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.Id">
-            <summary>
-            The discount ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.name">
-            <summary>
-            The price code name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.MultiCurrencyDiscount">
-            <summary>
-            Multi currency discounts for all countries and currencies
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.StartDate">
-            <summary>
-            Start date represented as epoch
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetails.EndtDate">
-            <summary>
-            End date represented as epoch
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetailsListResponse.Discounts">
-            <summary>
-            A list of price details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountDetailsFilter.IdIn">
-            <summary>
-            Comma separated discount codes
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPricePlanFilter.IdIn">
-            <summary>
-            Comma separated price plans identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetailsFilter.IdIn">
-            <summary>
-            Comma separated price identifiers 
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionDependencySet">
-            <summary>
-            Subscription Dependency Set
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionDependencySet.BaseSubscriptionId">
-            <summary>
-            Base Subscription identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionDependencySetFilter.BaseSubscriptionIdIn">
-            <summary>
-            Comma separated identifiers
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaProductCode">
-            <summary>
-            Product Code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductCode.InappProvider">
-            <summary>
-            Provider Name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductCode.Code">
-            <summary>
-            Product Code
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSwitchSet">
-            <summary>
-            Subscription details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.IdIn">
-            <summary>
-            Comma separated identifiers
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.SubscriptionIdContains">
-            <summary>
-            Comma separated subscription identifiers
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.TypeEqual">
-            <summary>
-            Subscription Type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse">
-            <summary>
-            SubscriptionSets list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse.SubscriptionSets">
-            <summary>
-            A list of subscriptionSets
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSet">
-            <summary>
-            Subscription details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.Id">
-            <summary>
-            SubscriptionSet identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.Name">
-            <summary>
-            SubscriptionSet name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.Type">
-            <summary>
-            Type of the Subscription Set
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.SubscriptionIds">
-            <summary>
-            A list of comma separated subscription ids associated with this set ordered by priority ascending
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaPpvPrice">
-            <summary>
-            PPV price details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FileId">
-            <summary>
-            Media file identifier  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PPVModuleId">
-            <summary>
-            The associated PPV module identifier  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.IsSubscriptionOnly">
-            <summary>
-            Denotes whether this object is available only as part of a subscription or can be sold separately
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FullPrice">
-            <summary>
-            The full price of the item (with no discounts)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.SubscriptionId">
-            <summary>
-            The identifier of the relevant subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.CollectionId">
-            <summary>
-            The identifier of the relevant collection
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PrePaidId">
-            <summary>
-            The identifier of the relevant pre paid
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PPVDescriptions">
-            <summary>
-            A list of the descriptions of the PPV module on different languages (language code and translation)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PurchaseUserId">
-            <summary>
-            If the item already purchased - the identifier of the user (in the household) who purchased this item 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PurchasedMediaFileId">
-            <summary>
-            If the item already purchased - the identifier of the purchased file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.RelatedMediaFileIds">
-            <summary>
-            Related media files identifiers (different types)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.StartDate">
-            <summary>
-            If the item already purchased - since when the user can start watching the item
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.EndDate">
-            <summary>
-            If the item already purchased - until when the user can watch the item
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.DiscountEndDate">
-            <summary>
-            Discount end date
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FirstDeviceName">
-            <summary>
-            If the item already purchased and played - the name of the device on which it was first played 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.IsInCancelationPeriod">
-            <summary>
-            If waiver period is enabled - donates whether the user is still in the cancelation window
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.ProductCode">
-            <summary>
-            The PPV product code
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaProductPriceListResponse">
-            <summary>
-            Prices list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductPriceListResponse.ProductsPrices">
-            <summary>
-            A list of prices
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.SubscriptionIdIn">
-            <summary>
-            Comma separated subscription IDs to get the subscriptions by
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.MediaFileIdEqual">
-            <summary>
-            Media-file ID to get the subscriptions by
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.ExternalIdIn">
-            <summary>
-            Comma separated subscription external IDs to get the subscriptions by
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaAssetPrice.AssetId">
-            <summary>
-            Asset identifier  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaAssetPrice.AssetType">
-            <summary>
-            Asset type  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaAssetPrice.FilePrices">
-            <summary>
-            Files and their prices
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaCoupon">
-            <summary>
-            Coupon details container
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.CouponsGroup">
-            <summary>
-            Coupons group details 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.Status">
-            <summary>
-            Coupon status 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.TotalUses">
-            <summary>
-            Total available coupon uses
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.LeftUses">
-            <summary>
-            Left coupon uses
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaItemPriceListResponse">
-            <summary>
-            ItemPrice list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaItemPriceListResponse.ItemPrice">
-            <summary>
-            A list of item prices
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaPpv">
-            <summary>
-            PPV details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Id">
-            <summary>
-            PPV identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Name">
-            <summary>
-            the name for the ppv
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Price">
-            <summary>
-            The price of the ppv
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.FileTypes">
-            <summary>
-            A list of file types identifiers that are supported in this ppv
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.DiscountModule">
-            <summary>
-            The internal discount module for the ppv
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.CouponsGroup">
-            <summary>
-            Coupons group for the ppv
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Descriptions">
-            <summary>
-            A list of the descriptions of the ppv on different languages (language code and translation)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.ProductCode">
-            <summary>
-            Product code for the ppv
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.IsSubscriptionOnly">
-            <summary>
-            Indicates whether or not this ppv can be purchased standalone or only as part of a subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.FirstDeviceLimitation">
-            <summary>
-            Indicates whether or not this ppv can be consumed only on the first device
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPpv.UsageModule">
-            <summary>
-            PPV usage module
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails">
-            <summary>
-            PPV item price details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PPVModuleId">
-            <summary>
-            The associated PPV module identifier  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.IsSubscriptionOnly">
-            <summary>
-            Denotes whether this object is available only as part of a subscription or can be sold separately
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.Price">
-            <summary>
-            The calculated price of the item after discounts (as part of a purchased subscription by the user or by using a coupon) 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.FullPrice">
-            <summary>
-            The full price of the item (with no discounts)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PurchaseStatus">
-            <summary>
-            Subscription purchase status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.SubscriptionId">
-            <summary>
-            The identifier of the relevant subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.CollectionId">
-            <summary>
-            The identifier of the relevant collection
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PrePaidId">
-            <summary>
-            The identifier of the relevant pre paid
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PPVDescriptions">
-            <summary>
-            A list of the descriptions of the PPV module on different languages (language code and translation)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PurchaseUserId">
-            <summary>
-            If the item already purchased - the identifier of the user (in the household) who purchased this item 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.PurchasedMediaFileId">
-            <summary>
-            If the item already purchased - the identifier of the purchased file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.RelatedMediaFileIds">
-            <summary>
-            Related media files identifiers (different types)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.StartDate">
-            <summary>
-            If the item already purchased - since when the user can start watching the item
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.EndDate">
-            <summary>
-            If the item already purchased - until when the user can watch the item
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.DiscountEndDate">
-            <summary>
-            Discount end date
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.FirstDeviceName">
-            <summary>
-            If the item already purchased and played - the name of the device on which it was first played 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.IsInCancelationPeriod">
-            <summary>
-            If waiver period is enabled - donates whether the user is still in the cancelation window
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails.ProductCode">
-            <summary>
-            The PPV product code
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaCouponsGroup">
-            <summary>
-            Coupons group details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.Id">
-            <summary>
-            Coupon group identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.Name">
-            <summary>
-            Coupon group name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.Descriptions">
-            <summary>
-            A list of the descriptions of the coupon group on different languages (language code and translation)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.StartDate">
-            <summary>
-            The first date the coupons in this coupons group are valid
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.EndDate">
-            <summary>
-            The last date the coupons in this coupons group are valid
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.MaxUsesNumber">
-            <summary>
-            Maximum number of uses for each coupon in the group
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.MaxUsesNumberOnRenewableSub">
-            <summary>
-            Maximum number of uses for each coupon in the group on a renewable subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.CouponGroupType">
-            <summary>
-            Type of the coupon group
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.MaxHouseholdUses">
-            <summary>
-            Maximum number of uses per household for each coupon in the group
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.DiscountCode">
-            <summary>
-            Discount code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.DiscountId">
-            <summary>
-            Discount ID
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaCouponsGroupListResponse">
-            <summary>
-            Coupons group list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroupListResponse.couponsGroups">
-            <summary>
-            A list of coupons groups
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaDiscountModule">
-            <summary>
-            Discount module
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountModule.Percent">
-            <summary>
-            The discount percentage
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountModule.StartDate">
-            <summary>
-            The first date the discount is available
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaDiscountModule.EndDate">
-            <summary>
-            The last date the discount is available
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaItemPrice">
-            <summary>
-            PPV price details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaItemPrice.FileId">
-            <summary>
-            Media file identifier  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaItemPrice.PPVPriceDetails">
-            <summary>
-            PPV price details
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaPreviewModule">
-            <summary>
-            Preview module
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPreviewModule.Id">
-            <summary>
-            Preview module identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPreviewModule.Name">
-            <summary>
-            Preview module name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPreviewModule.LifeCycle">
-            <summary>
-            Preview module life cycle - for how long the preview module is active
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPreviewModule.NonRenewablePeriod">
-            <summary>
-            The time you can't buy the item to which the preview module is assigned to again
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaPriceDetails">
-            <summary>
-            Price details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.Id">
-            <summary>
-            The price code identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.name">
-            <summary>
-            The price code name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.Price">
-            <summary>
-            The price 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.MultiCurrencyPrice">
-            <summary>
-            Multi currency prices for all countries and currencies
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.Descriptions">
-            <summary>
-            A list of the descriptions for this price on different languages (language code and translation)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetailsListResponse.Prices">
-            <summary>
-            A list of price details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductId">
-            <summary>
-            Product identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductType">
-            <summary>
-            Product Type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.Price">
-            <summary>
-            Product price 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.PurchaseStatus">
-            <summary>
-            Product purchase status  
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaPricePlan">
-            <summary>
-            Price plan
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.IsRenewable">
-            <summary>
-            Denotes whether or not this object can be renewed
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.RenewalsNumber">
-            <summary>
-            Defines the number of times the module will be renewed (for the life_cycle period)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.PriceId">
-            <summary>
-            Unique identifier associated with this object's price 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.DiscountId">
-            <summary>
-            The discount module identifier of the price plan
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.PriceDetailsId">
-            <summary>
-            The ID of the price details associated with this price plan
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPricePlanListResponse.PricePlans">
-            <summary>
-            A list of price plans
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionListResponse">
-            <summary>
-            Subscriptions list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionListResponse.Subscriptions">
-            <summary>
-            A list of subscriptions
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionPrice">
-            <summary>
-            Subscription price details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.Price">
-            <summary>
-            Product price 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.PurchaseStatus">
-            <summary>
-            Product purchase status  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.EndDate">
-            <summary>
-            If the item related to unified billing cycle purchased - until when the this price is relevant
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionsFilter.Ids">
-            <summary>
-            Subscription identifiers or file identifier (only 1) to get the subscriptions by
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionsFilter.By">
-            <summary>
-            The type of the identifiers to get the subscriptions by
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaProductsPriceListResponse">
-            <summary>
-            Prices list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductsPriceListResponse.ProductsPrices">
-            <summary>
-            A list of prices
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaUsageModule">
-            <summary>
-            Pricing usage module
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.Id">
-            <summary>
-            Usage module identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.Name">
-            <summary>
-            Usage module name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.MaxViewsNumber">
-            <summary>
-            The maximum number of times an item in this usage module can be viewed
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.ViewLifeCycle">
-            <summary>
-            The amount time an item is available for viewing since a user started watching the item
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.FullLifeCycle">
-            <summary>
-            The amount time an item is available for viewing
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.CouponId">
-            <summary>
-            Identifies a specific coupon linked to this object
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.WaiverPeriod">
-            <summary>
-            Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.IsWaiverEnabled">
-            <summary>
-            Indicates whether or not the end user has the right to waive his rights to cancel a purchase
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.IsOfflinePlayback">
-            <summary>
-            Indicates that usage is targeted for offline playback
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaPrice">
-            <summary>
-            Price 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPrice.Amount">
-             <summary>
-            Price
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPrice.Currency">
-             <summary>
-            Currency
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPrice.CurrencySign">
-             <summary>
-            Currency Sign
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPrice.CountryId">
-             <summary>
-            Country ID
-             </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaSubscription">
-            <summary>
-            Subscription details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Id">
-            <summary>
-            Subscription identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Channels">
-            <summary>
-            A list of channels associated with this subscription 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.StartDate">
-            <summary>
-            The first date the subscription is available for purchasing 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.EndDate">
-            <summary>
-            The last date the subscription is available for purchasing
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.FileTypes">
-            <summary>
-            A list of file types identifiers that are supported in this subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsRenewable">
-            <summary>
-            Denotes whether or not this subscription can be renewed
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.RenewalsNumber">
-            <summary>
-            Defines the number of times this subscription will be renewed
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsInfiniteRenewal">
-            <summary>
-            Indicates whether the subscription will renew forever
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Price">
-            <summary>
-            The price of the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.DiscountModule">
-            <summary>
-            The internal discount module for the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.CouponsGroup">
-            <summary>
-            Coupons group for the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Name">
-            <summary>
-            Name of the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Names">
-            <summary>
-            A list of the name of the subscription on different languages (language code and translation)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Description">
-            <summary>
-            description of the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Descriptions">
-            <summary>
-            A list of the descriptions of the subscriptions on different languages (language code and translation)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.MediaId">
-            <summary>
-            Identifier of the media associated with the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ProrityInOrder">
-            <summary>
-            Subscription order (when returned in methods that retrieve subscriptions)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ProductCode">
-            <summary>
-            Product code for the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PricePlans">
-            <summary>
-            Subscription price plans
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PricePlanIds">
-            <summary>
-            Comma separated subscription price plan IDs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PreviewModule">
-            <summary>
-            Subscription preview module
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.HouseholdLimitationsId">
-            <summary>
-            The household limitation module identifier associated with this subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.GracePeriodMinutes">
-            <summary>
-            The subscription grace period in minutes
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PremiumServices">
-            <summary>
-            List of premium services included in the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.MaxViewsNumber">
-            <summary>
-            The maximum number of times an item in this usage module can be viewed
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ViewLifeCycle">
-            <summary>
-            The amount time an item is available for viewing since a user started watching the item
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.WaiverPeriod">
-            <summary>
-            Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsWaiverEnabled">
-            <summary>
-            Indicates whether or not the end user has the right to waive his rights to cancel a purchase
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.UserTypes">
-            <summary>
-            List of permitted user types for the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.CouponGroups">
-            <summary>
-            List of Coupons group
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ProductCodes">
-            <summary>
-            List of Subscription product codes
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.DependencyType">
-             <summary>
-            Dependency Type
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ExternalId">
-            <summary>
-            External ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsCancellationBlocked">
-            <summary>
-            Is cancellation blocked for the subscription
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaOTTUserDynamicData">

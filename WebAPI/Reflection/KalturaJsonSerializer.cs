@@ -16364,6 +16364,34 @@ namespace WebAPI.Models.Pricing
             return ret;
         }
     }
+    public partial class KalturaPpvListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Ppvs != null)
+            {
+                propertyValue = "[" + String.Join(", ", Ppvs.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Ppvs != null)
+            {
+                propertyValue = Ppvs.Count > 0 ? "<item>" + String.Join("</item><item>", Ppvs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaPpvPrice
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
