@@ -16,7 +16,7 @@ namespace ApiObjects
 
     public class InheritanceData : BaseCeleryData
     {
-        public const string TASK = "distributed_tasks.process_asset_inharitance";
+        public const string TASK = "distributed_tasks.process_asset_inheritance";
 
         public string Data;
         public InheritanceType Type;
