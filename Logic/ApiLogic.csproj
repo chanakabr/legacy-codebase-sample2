@@ -488,6 +488,7 @@
     <Compile Include="Notification\UserMessageFlow.cs" />
     <Compile Include="Notification\UserSettings.cs" />
     <Compile Include="Notification\Utils.cs" />
+    <Compile Include="Pricing\AssetFilePPV.cs" />
     <Compile Include="Pricing\BaseCampaign.cs" />
     <Compile Include="Pricing\BaseCollection.cs" />
     <Compile Include="Pricing\BaseCollectionDecorator.cs" />
@@ -511,8 +512,10 @@
     <Compile Include="Pricing\CouponsGroupResponse.cs" />
     <Compile Include="Pricing\CouponGroupGenerationResponse.cs" />
     <Compile Include="Pricing\DiscountDetails.cs" />
+    <Compile Include="Pricing\AssetFilePPVResponse.cs" />
     <Compile Include="Pricing\PriceDetails.cs" />
     <Compile Include="Pricing\DependencySet.cs" />
+    <Compile Include="Pricing\PriceManager.cs" />
     <Compile Include="Pricing\SubscriptionSetsResponse.cs" />
     <Compile Include="Pricing\Coupon.cs" />
     <Compile Include="Pricing\CouponData.cs" />
