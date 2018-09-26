@@ -86,7 +86,7 @@ namespace CachingProvider.LayeredCache
         public const string DLM_LAYERED_CACHE_CONFIG_NAME = "GetDlm";
         public const string GROUP_FEATURES_LAYERED_CACHE_CONFIG_NAME = "GetGroupFeatureStatus";
         public const string GET_DOMAIN_BUNDLES_LAYERED_CACHE_CONFIG_NAME = "GetDomainBundles";
-
+        public const string GET_ALL_PPVS = "GetAllPpvs";
         #endregion
 
         #region Constant Invalidation Keys

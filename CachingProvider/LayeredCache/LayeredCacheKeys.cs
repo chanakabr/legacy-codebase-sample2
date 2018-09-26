@@ -469,6 +469,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("GroupFeatures_{0}", groupId);
         }
 
+        public static string GetAllPpvsKey(int groupId)
+        {
+            return string.Format("all_ppvs_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -821,6 +826,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupFeatureInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_GroupFeatures_{0}", groupId);
+        }
+
+        public static string GetAllPpvsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_all_ppv_groupId_{0}", groupId);
         }
 
         #endregion
