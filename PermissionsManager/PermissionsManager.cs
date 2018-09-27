@@ -15,6 +15,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using ApiObjects;
 using CachingProvider.LayeredCache;
+using QueueWrapper;
+using System.Threading;
 
 namespace PermissionsManager
 {
@@ -969,7 +971,7 @@ namespace PermissionsManager
             return result;
         }
 
-        public static bool LoadFolder(string folderName)
+        public static bool LoadFolder(string folderName, bool shouldDelete)
         {
             bool result = false;
 
@@ -1095,6 +1097,13 @@ namespace PermissionsManager
 
                 #endregion
 
+                string deleteOrMark = "MARK-DELETE";
+
+                if (shouldDelete)
+                {
+                    deleteOrMark = "DELETE";
+                }
+
                 #region Permissions
 
                 // run on all permissions we found in DB
@@ -1117,9 +1126,13 @@ namespace PermissionsManager
                     }
                     else
                     {
-                        // if permission exists in DB but not in file - it should be deleted
-                        ApiDAL.DeletePermission((int)permission.Id);
-                        log.InfoFormat("!! DELETE !! Permissions - id {0} name {1}", permission.Id, permission.Name);
+                        if (shouldDelete)
+                        {
+                            // if permission exists in DB but not in file - it should be deleted
+                            ApiDAL.DeletePermission((int)permission.Id);
+                        }
+
+                        log.InfoFormat("!! {2} !! Permissions - id {0} name {1}", permission.Id, permission.Name, deleteOrMark);
 
                     }
                 }
@@ -1255,10 +1268,18 @@ namespace PermissionsManager
                                     if (rowToDelete != null)
                                     {
                                         int permissionRoleId = Convert.ToInt32(rowToDelete["id"]);
-                                        deleteResult = ApiDAL.DeletePermissionRole(permissionRoleId);
 
-                                        log.InfoFormat("!! UPDATE !! Permission Role - permission role id = {0}, role name = {1} permission name = {2}",
-                                            permissionRoleId, dbRole.Name, permissionName);
+                                        if (shouldDelete)
+                                        {
+                                            deleteResult = ApiDAL.DeletePermissionRole(permissionRoleId);
+                                        }
+                                        else
+                                        {
+                                            deleteResult = true;
+                                        }
+
+                                        log.InfoFormat("!! {3} !! Permission Role - permission role id = {0}, role name = {1} permission name = {2}",
+                                            permissionRoleId, dbRole.Name, permissionName, deleteOrMark);
                                     }
                                 }
 
@@ -1271,10 +1292,13 @@ namespace PermissionsManager
                     }
                     else
                     {
-                        // if role exists in DB but not in file - it should be deleted
-                        ApiDAL.DeleteRole(0, (int)dbRole.Id);
+                        if (shouldDelete)
+                        {
+                            // if role exists in DB but not in file - it should be deleted
+                            ApiDAL.DeleteRole(0, (int)dbRole.Id);
+                        }
 
-                        log.InfoFormat("!! DELETE !! Roles - id {0} name {1}", dbRole.Id, dbRole.Name);
+                        log.InfoFormat("!! {2} !! Roles - id {0} name {1}", dbRole.Id, dbRole.Name, deleteOrMark);
                     }
                 }
 
@@ -1460,10 +1484,18 @@ namespace PermissionsManager
                                         if (rowToDelete != null)
                                         {
                                             int permissionPermissionItemId = Convert.ToInt32(rowToDelete["id"]);
-                                            deleteResult = ApiDAL.DeletePermissionPermissionItem(permissionPermissionItemId);
 
-                                            log.InfoFormat("!! DELETE !! Permission Permission Item - id = {0}, permission item name = {1} permission name = {2}",
-                                                permissionPermissionItemId, filePermissionItem.Name, permissionName);
+                                            if (shouldDelete)
+                                            {
+                                                deleteResult = ApiDAL.DeletePermissionPermissionItem(permissionPermissionItemId);
+                                            }
+                                            else
+                                            {
+                                                deleteResult = true;
+                                            }
+
+                                            log.InfoFormat("!! {3} !! Permission Permission Item - id = {0}, permission item name = {1} permission name = {2}",
+                                                permissionPermissionItemId, filePermissionItem.Name, permissionName, deleteOrMark);
                                         }
                                     }
 
@@ -1477,10 +1509,13 @@ namespace PermissionsManager
                         }
                         else
                         {
-                            // if permission item exists in DB but not in file - it should be deleted
-                            bool deleteResult = ApiDAL.DeletePermissionItem((int)dbPermissionItem.Id);
+                            if (shouldDelete)
+                            {
+                                // if permission item exists in DB but not in file - it should be deleted
+                                bool deleteResult = ApiDAL.DeletePermissionItem((int)dbPermissionItem.Id);
+                            }
 
-                            log.InfoFormat("!! DELETE !! Permission Items - id {0} name {1}", dbPermissionItem.Id, dbPermissionItem.Name);
+                            log.InfoFormat("!! {2} !! Permission Items - id {0} name {1}", dbPermissionItem.Id, dbPermissionItem.Name, deleteOrMark);
                         }
                     }
                 }
@@ -1738,5 +1773,52 @@ namespace PermissionsManager
         }
 
         #endregion
+        
+        public static void TestRabbit()
+        {
+            InitializeLogging();
+            ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
+
+            RabbitQueue queue = new RabbitQueue(QueueWrapper.Enums.ConfigType.DefaultConfig);
+            queue.Enqueue("0", "test");
+
+            Thread.Sleep(120000);
+
+            Task<int>[] tasks = new Task<int>[6200];
+
+            for (int i = 0; i < 6200; i++)
+            {
+                tasks[i] = new Task<int>(
+                    (obj) =>
+                    {
+                        queue.Enqueue(obj.ToString() + "a", "test");
+                        queue.Enqueue(obj.ToString() + "b", "test");
+                        return 0;
+                    }, i);
+
+                tasks[i].Start();
+            }
+
+            Thread.Sleep(120000);
+
+
+            Task<int>[] tasks2 = new Task<int>[6200];
+
+            for (int i = 0; i < 6200; i++)
+            {
+                tasks2[i] = new Task<int>(
+                    (obj) =>
+                    {
+                        queue.Enqueue(obj.ToString() + "c", "test");
+                        queue.Enqueue(obj.ToString() + "d", "test");
+                        return 0;
+                    }, i);
+
+                tasks2[i].Start();
+            }
+
+            Task.WaitAll(tasks);
+            Task.WaitAll(tasks2);
+        }
     }
 }
