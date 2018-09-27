@@ -326,8 +326,8 @@ namespace Core.Pricing
             {
                 AssetFileId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "MEDIA_FILE_ID"),
                 PpvModuleId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "PPV_MODULE_ID"),
-                StartDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "START_DATE"),
-                EndDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE")
+                StartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dataRow, "START_DATE"),
+                EndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dataRow, "END_DATE")
             };
 
             return assetFilePPV;
