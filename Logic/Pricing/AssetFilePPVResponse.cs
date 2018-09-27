@@ -5,7 +5,7 @@ namespace Core.Pricing
 {
     public class AssetFilePPVResponse
     {
-        public AssetFilePPV AssetFilePPV { get; set; }
+        public AssetFilePpv AssetFilePPV { get; set; }
 
         public ApiObjects.Response.Status Status { get; set; }
         public AssetFilePPVResponse()
@@ -16,7 +16,7 @@ namespace Core.Pricing
 
     public class AssetFilePPVListResponse
     {
-        public List<AssetFilePPV> AssetFilePpvs { get; set; }
+        public List<AssetFilePpv> AssetFilePpvs { get; set; }
 
         public ApiObjects.Response.Status Status { get; set; }
         public AssetFilePPVListResponse()

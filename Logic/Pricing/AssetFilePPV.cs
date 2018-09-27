@@ -2,7 +2,7 @@
 
 namespace Core.Pricing
 {
-    public class AssetFilePPV
+    public class AssetFilePpv
     {
         public long AssetFileId { get; set; }
 

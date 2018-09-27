@@ -11,15 +11,15 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace APILogic.Pricing
+namespace Core.Pricing
 {
     public class PriceManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static GenericResponse<AssetFilePPV> AddAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
+        public static GenericResponse<AssetFilePpv> AddAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
         {
-            GenericResponse<AssetFilePPV> response = new GenericResponse<AssetFilePPV>();
+            GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
                 // Validate mediaFileId && ppvModuleId
@@ -50,9 +50,9 @@ namespace APILogic.Pricing
             return response;
         }
 
-        public static GenericResponse<AssetFilePPV> UpdateAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
+        public static GenericResponse<AssetFilePpv> UpdateAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
         {
-            GenericResponse<AssetFilePPV> response = new GenericResponse<AssetFilePPV>();
+            GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
                 // Validate mediaFileId && ppvModuleId
@@ -117,14 +117,14 @@ namespace APILogic.Pricing
             return status;
         }
 
-        public static GenericListResponse<AssetFilePPV> GetAssetFilePPVList(int groupId, long assetId, long assetFileId)
+        public static GenericListResponse<AssetFilePpv> GetAssetFilePPVList(int groupId, long assetId, long assetFileId)
         {
-            GenericListResponse<AssetFilePPV> response = new GenericListResponse<AssetFilePPV>();
+            GenericListResponse<AssetFilePpv> response = new GenericListResponse<AssetFilePpv>();
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             try
             {
-                List<AssetFilePPV> assetFilePPVList = new List<AssetFilePPV>();
+                List<AssetFilePpv> assetFilePPVList = new List<AssetFilePpv>();
                 List<AssetFile> assetFiles = null;
                 List<int> fileIds = new List<int>();
                 if (assetId > 0)
@@ -136,7 +136,6 @@ namespace APILogic.Pricing
                         response.SetStatus(assetResponse.Status);
                         return response;
                     }
-
 
                     assetFiles = FileManager.GetAssetFilesByAssetId(groupId, assetId);
                     // Get Asset Files
@@ -181,16 +180,16 @@ namespace APILogic.Pricing
             return response;
         }
 
-        private static List<AssetFilePPV> GetAssetFilePPVByFileIds(int groupId, List<int> fileIds)
+        private static List<AssetFilePpv> GetAssetFilePPVByFileIds(int groupId, List<int> fileIds)
         {
-            List<AssetFilePPV> assetFilePPVList = new List<AssetFilePPV>();
+            List<AssetFilePpv> assetFilePPVList = new List<AssetFilePpv>();
             DataTable dt = PricingDAL.Get_PPVModuleForMediaFiles(groupId, fileIds);
             if (dt != null && dt.Rows.Count > 0)
             {
-                AssetFilePPV assetFilePPV = null;
+                AssetFilePpv assetFilePPV = null;
                 foreach (DataRow dr in dt.Rows)
                 {
-                    assetFilePPV = new AssetFilePPV()
+                    assetFilePPV = new AssetFilePpv()
                     {
                         AssetFileId = ODBCWrapper.Utils.GetLongSafeVal(dr, "mfid"),
                         PpvModuleId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ppmid"),
@@ -312,9 +311,9 @@ namespace APILogic.Pricing
             return new Tuple<List<PPVModule>, bool>(allPpvs, allPpvs != null);
         }
 
-        private static AssetFilePPV CreateAssetFilePPV(DataRow dataRow)
+        private static AssetFilePpv CreateAssetFilePPV(DataRow dataRow)
         {
-            AssetFilePPV assetFilePPV = new AssetFilePPV()
+            AssetFilePpv assetFilePPV = new AssetFilePpv()
             {
                 AssetFileId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "MEDIA_FILE_ID"),
                 PpvModuleId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "PPV_MODULE_ID"),
