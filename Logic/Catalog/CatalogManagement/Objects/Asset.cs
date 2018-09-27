@@ -137,8 +137,8 @@ namespace Core.Catalog.CatalogManagement
         private List<Metas> ConvertMediaObjMetasToAssetMetas(List<Metas> metas)
         {
             List<Metas> result = new List<Catalog.Metas>();
-            foreach (Metas meta in metas)
-            {
+            foreach (Metas meta in metas.Where(x => !string.IsNullOrEmpty(x.m_sValue)))
+            {                
                 Metas metaToAdd = new Catalog.Metas() { m_oTagMeta = new TagMeta(meta.m_oTagMeta.m_sName, meta.m_oTagMeta.m_sType), m_sValue = meta.m_sValue, Value = meta.Value };
                 string currentMetaTypeLowered = meta.m_oTagMeta.m_sType.ToLower();
                 if (currentMetaTypeLowered == typeof(bool).ToString().ToLower())

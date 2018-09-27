@@ -1252,7 +1252,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<AssetStruct> AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId)
+        public static GenericResponse<AssetStruct> AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId, bool isProgramStruct = false)
         {
             GenericResponse<AssetStruct> result = new GenericResponse<AssetStruct>();
             try
@@ -1276,12 +1276,15 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                // validate basic metas         
-                Status validateBasicMetasResult = assetStructToadd.ValidateBasicMetaIds(catalogGroupCache);
-                if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
+                // validate basic metas     
+                if (!isProgramStruct)
                 {
-                    result.SetStatus(validateBasicMetasResult);
-                    return result;
+                    Status validateBasicMetasResult = assetStructToadd.ValidateBasicMetaIds(catalogGroupCache);
+                    if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
+                    {
+                        result.SetStatus(validateBasicMetasResult);
+                        return result;
+                    }
                 }
 
                 // validate meta ids exist
