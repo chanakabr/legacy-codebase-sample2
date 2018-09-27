@@ -314,6 +314,9 @@ namespace ODBCWrapper
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.CommandText = procedureNameWithDbVersionPrefix;
 
+            if (m_nTimeout != 0)
+                command.CommandTimeout = m_nTimeout;
+
             foreach (string item in m_Parameters.Keys)
             {
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
@@ -362,6 +365,9 @@ namespace ODBCWrapper
             SqlCommand command = new SqlCommand();
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.CommandText = procedureNameWithDbVersionPrefix;
+
+            if (m_nTimeout != 0)
+                command.CommandTimeout = m_nTimeout;
 
             foreach (string item in m_Parameters.Keys)
             {
@@ -417,6 +423,9 @@ namespace ODBCWrapper
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.CommandText = procedureNameWithDbVersionPrefix;
 
+            if (m_nTimeout != 0)
+                command.CommandTimeout = m_nTimeout;
+
             foreach (string item in m_Parameters.Keys)
             {
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
@@ -468,6 +477,9 @@ namespace ODBCWrapper
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.CommandText = procedureNameWithDbVersionPrefix;
 
+            if (m_nTimeout != 0)
+                command.CommandTimeout = m_nTimeout;
+
             foreach (string item in m_Parameters.Keys)
             {
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
@@ -512,6 +524,9 @@ namespace ODBCWrapper
 
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.CommandText = procedureNameWithDbVersionPrefix;
+
+            if (m_nTimeout != 0)
+                command.CommandTimeout = m_nTimeout;
 
             foreach (string item in m_Parameters.Keys)
             {
@@ -591,6 +606,9 @@ namespace ODBCWrapper
             SqlCommand command = new SqlCommand();
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.CommandText = procedureNameWithDbVersionPrefix;
+
+            if (m_nTimeout != 0)
+                command.CommandTimeout = m_nTimeout;
 
             foreach (string item in m_Parameters.Keys)
             {
