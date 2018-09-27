@@ -30,6 +30,15 @@ namespace Core.Pricing
                     return response;
                 }
 
+                // validate ppvModuleId && mediaFileId not already exist
+                bool isExist = IsAssetFilePpvExist(groupId, mediaFileId, ppvModuleId);
+                if (isExist)
+                {
+                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", mediaFileId, ppvModuleId, groupId);                    
+                    response.SetStatus(eResponseStatus.Error, "AssetFilePpv already exist");
+                    return response;
+                }
+
                 DataTable dt = PricingDAL.AddAssetFilePPV(groupId, mediaFileId, ppvModuleId, startDate, endDate);
 
                 if (dt == null || dt.Rows.Count == 0)
@@ -340,19 +349,49 @@ namespace Core.Pricing
             {
                 log.ErrorFormat("Error. Unknown mediaFileId: {0} for groupId: {1}", mediaFileId, groupId);
                 return new Status((int)eResponseStatus.MediaFileDoesNotExist, "Media file does not exist");
-            }
+            }            
 
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
         private static bool IsPPVModuleExist(int groupId, long ppvModuleId)
         {
-            throw new NotImplementedException();
+            // check ppvModuleId  exist
+            DataTable dt = PricingDAL.Get_PPVModuleData(groupId, (int)ppvModuleId);
+            if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static bool IsMediaFileIdExist(int groupId, long mediaFileId)
         {
-            throw new NotImplementedException();
+            // check mediaFileId  exist
+            List<AssetFile> assetFiles = FileManager.GetAssetFilesById(groupId, mediaFileId);
+
+            // Get Asset Files
+            if (assetFiles == null || assetFiles.Count == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
+
+        private static bool IsAssetFilePpvExist(int groupId, long mediaFileId, long ppvModuleId)
+        {
+            // check ppvModuleId  exist
+            DataRow dr = PricingDAL.Get_PPVModuleForMediaFile((int) mediaFileId, ppvModuleId, groupId);
+            if (dr == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        
     }
 }
