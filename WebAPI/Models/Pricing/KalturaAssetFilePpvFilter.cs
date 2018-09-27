@@ -51,6 +51,11 @@ namespace WebAPI.Models.Pricing
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "AssetFileIdEqual", "AssetIdEqual");
             }
+
+            if (AssetFileIdEqual.HasValue && AssetIdEqual.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetFilePpvFilter.AssetFileIdEqual", "KalturaAssetFilePpvFilter.AssetIdEqual");
+            }
         }        
     }
 }

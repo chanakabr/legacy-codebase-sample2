@@ -64,7 +64,7 @@ namespace WebAPI.Clients
             subscriptions = AutoMapper.Mapper.Map<List<KalturaSubscription>>(response.Subscriptions);
 
             return subscriptions;
-        }       
+        }
 
         internal List<int> GetSubscriptionIDsContainingMediaFile(int groupId, int mediaFileID)
         {
@@ -130,7 +130,7 @@ namespace WebAPI.Clients
             coupon = AutoMapper.Mapper.Map<KalturaCoupon>(response.Coupon);
 
             return coupon;
-        }
+        }        
 
         internal KalturaPpv GetPPVModuleData(int groupId, long ppvCode)
         {
@@ -165,7 +165,7 @@ namespace WebAPI.Clients
             result = AutoMapper.Mapper.Map<KalturaPpv>(response.PPVModule);
 
             return result;
-        }
+        }      
 
         internal KalturaCoupon ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode, long householdId)
         {
@@ -1160,5 +1160,56 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaAssetFilePpv AddAssetFilePpv(int groupId, KalturaAssetFilePpv kAssetFilePpv)
+        {
+            // fire request                 
+            Func<GenericResponse<AssetFilePpv>> addAssetFilePpvFunc = () => Core.Pricing.PriceManager.AddAssetFilePPV(groupId, kAssetFilePpv.AssetFileId,
+                kAssetFilePpv.PpvModuleId, SerializationUtils.ConvertToNullableDatetime(kAssetFilePpv.StartDate), SerializationUtils.ConvertToNullableDatetime(kAssetFilePpv.EndDate));
+            return ClientUtils.GetResponseFromWS<KalturaAssetFilePpv, AssetFilePpv>(addAssetFilePpvFunc);
+
+        }
+
+        internal bool DeleteAssetFilePpv(int groupId, long assetFileId, long ppvModuleId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.PriceManager.DeleteAssetFilePPV(groupId, assetFileId, ppvModuleId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaAssetFilePpv UpdateAssetFilePpv(int groupId, KalturaAssetFilePpv kAssetFilePpv)
+        {
+            // fire request                 
+            Func<GenericResponse<AssetFilePpv>> updateAssetFilePpvFunc = () => Core.Pricing.PriceManager.UpdateAssetFilePPV(groupId, kAssetFilePpv.AssetFileId,
+                kAssetFilePpv.PpvModuleId, SerializationUtils.ConvertToNullableDatetime(kAssetFilePpv.StartDate), SerializationUtils.ConvertToNullableDatetime(kAssetFilePpv.EndDate));
+            return ClientUtils.GetResponseFromWS<KalturaAssetFilePpv, AssetFilePpv>(updateAssetFilePpvFunc);
+        }
+
     }
 }

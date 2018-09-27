@@ -5997,9 +5997,21 @@ namespace WebAPI.Reflection
                 case "assetfileppv":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("assetFilePpv", "add", false);
+                            return AssetFilePpvController.Add((KalturaAssetFilePpv) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("assetFilePpv", "delete", false);
+                            return AssetFilePpvController.Delete((long) methodParams[0], (long) methodParams[1]);
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("assetFilePpv", "list", false);
                             return AssetFilePpvController.List((KalturaAssetFilePpvFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("assetFilePpv", "update", false);
+                            return AssetFilePpvController.Update((long) methodParams[0], (long) methodParams[1], (KalturaAssetFilePpv) methodParams[2]);
                             
                     }
                     break;
@@ -10401,11 +10413,46 @@ namespace WebAPI.Reflection
                 case "assetfileppv":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("assetFilePpv", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetFilePpv),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("assetFileId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("ppvModuleId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetFilePpvFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("assetFileId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("ppvModuleId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("assetFilePpv", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetFilePpv),
                             });
                             return ret;
                             

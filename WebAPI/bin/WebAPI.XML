@@ -41,6 +41,27 @@
             <param name="filter">Filter parameters for filtering out the result</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.AssetFilePpvController.Add(WebAPI.Models.Pricing.KalturaAssetFilePpv)">
+            <summary>
+            Add asset file ppv
+            </summary>    
+            <param name="assetFilePpv">asset file ppv</param>        
+        </member>
+        <member name="M:WebAPI.Controllers.AssetFilePpvController.Delete(System.Int64,System.Int64)">
+            <summary>
+            Delete asset file ppv
+            </summary>
+            <param name="assetFileId">Asset file id</param>        
+            <param name="ppvModuleId">Ppv module id</param>        
+        </member>
+        <member name="M:WebAPI.Controllers.AssetFilePpvController.Update(System.Int64,System.Int64,WebAPI.Models.Pricing.KalturaAssetFilePpv)">
+            <summary>
+            Update assetFilePpv
+            </summary>    
+            <param name="assetFileId">Asset file id</param>        
+            <param name="ppvModuleId">Ppv module id</param>        
+            <param name="assetFilePpv">assetFilePpv</param>        
+        </member>
         <member name="M:WebAPI.Controllers.SegmentationTypeController.Add(WebAPI.Models.Segmentation.KalturaSegmentationType)">
             <summary>
             ...
