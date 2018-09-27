@@ -2556,7 +2556,7 @@ namespace Core.Catalog.CatalogManagement
                     case AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME:
                     case AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
                     case AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME:
-                        topicToAdd.Type = MetaType.Bool;
+                        topicToAdd.Type = MetaType.DateTime;
                         topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
                         break;
                     default:
