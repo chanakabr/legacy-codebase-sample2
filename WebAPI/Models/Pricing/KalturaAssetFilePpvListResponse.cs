@@ -7,7 +7,7 @@ using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.Catalog
+namespace WebAPI.Models.Pricing
 {
     // TODO SHIR - delete when not need talk with Tan Tan!!!
     /// <summary>

@@ -9,7 +9,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.Catalog
+namespace WebAPI.Models.Pricing
 {
     public enum KalturaAssetFilePpvOrderBy
     {

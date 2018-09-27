@@ -18,7 +18,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
-using WebAPI.Models.Catalog;
+using WebAPI.Models.Pricing;
 
 namespace WebAPI.Clients
 {

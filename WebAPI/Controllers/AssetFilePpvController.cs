@@ -14,8 +14,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.Catalog;
-using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers

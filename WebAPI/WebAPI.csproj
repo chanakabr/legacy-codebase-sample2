@@ -263,9 +263,9 @@
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetFilePpv.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetFilePpvFilter.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetFilePpvListResponse.cs" />
+    <Compile Include="Models\Pricing\KalturaAssetFilePpv.cs" />
+    <Compile Include="Models\Pricing\KalturaAssetFilePpvFilter.cs" />
+    <Compile Include="Models\Pricing\KalturaAssetFilePpvListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecording.cs" />
     <Compile Include="Models\Pricing\KalturaPpvListResponse.cs" />
     <Compile Include="Models\Segmentation\KalturaBaseSegmentCondition.cs" />
