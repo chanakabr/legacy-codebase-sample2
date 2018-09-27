@@ -4663,7 +4663,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet InsertMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId,
                                                 int? geoBlockRuleId, bool? isActive, DateTime startDate, DateTime endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId,
-                                                long userId)
+                                                long userId, int InheritancePolicy)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4684,13 +4684,14 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@CatalogStartDate", catalogStartDate);
             sp.AddParameter("@FinalEndDate", finalEndDate);
             sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@InheritancePolicy", InheritancePolicy);
 
             return sp.ExecuteDataSet();
         }
 
         public static DataSet UpdateMediaAsset(int groupId, long id, long defaultLanguageId, System.Xml.XmlDocument metasToAdd, System.Xml.XmlDocument tagsToAdd, System.Xml.XmlDocument metasToUpdate,
-                                                System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime startDate,
-                                                DateTime endDate, DateTime catalogStartDate, DateTime? finalEndDate, long userId)
+                                                System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime? startDate,
+                                                DateTime? endDate, DateTime? catalogStartDate, DateTime? finalEndDate, long userId, int inheritancePolicy)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4715,6 +4716,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@CatalogStartDate", catalogStartDate);
             sp.AddParameter("@FinalEndDate", finalEndDate);
             sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@InheritancePolicy", inheritancePolicy);
 
             return sp.ExecuteDataSet();
         }

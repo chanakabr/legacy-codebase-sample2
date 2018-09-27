@@ -222,6 +222,12 @@ namespace ElasticSearch.Common
                 type = eESFieldType.INTEGER,
                 index = eMappingIndex.not_analyzed
             });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "inheritance_policy",
+                type = eESFieldType.INTEGER,
+                index = eMappingIndex.not_analyzed
+            });
 
             ElasticSearch.Common.FieldsMappingPropertyV2 nameProperty = new FieldsMappingPropertyV2()
             {
