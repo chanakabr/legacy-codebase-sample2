@@ -225,6 +225,7 @@
     </Compile>
     <Compile Include="Clients\ClientUtils.cs" />
     <Compile Include="Clients\DMSClient.cs" />
+    <Compile Include="Controllers\AssetFilePpvController.cs" />
     <Compile Include="Controllers\SegmentationTypeController.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
@@ -262,6 +263,9 @@
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetFilePpv.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetFilePpvFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetFilePpvListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecording.cs" />
     <Compile Include="Models\Pricing\KalturaPpvListResponse.cs" />
     <Compile Include="Models\Segmentation\KalturaBaseSegmentCondition.cs" />

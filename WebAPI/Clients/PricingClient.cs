@@ -18,6 +18,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using WebAPI.Models.Catalog;
 
 namespace WebAPI.Clients
 {
@@ -63,7 +64,7 @@ namespace WebAPI.Clients
             subscriptions = AutoMapper.Mapper.Map<List<KalturaSubscription>>(response.Subscriptions);
 
             return subscriptions;
-        }        
+        }       
 
         internal List<int> GetSubscriptionIDsContainingMediaFile(int groupId, int mediaFileID)
         {
@@ -1139,6 +1140,22 @@ namespace WebAPI.Clients
                 ClientUtils.GetResponseListFromWS<KalturaPpv, PPVModule>(getPPVModulesDataFunc);
 
             result.Ppvs = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaAssetFilePpvListResponse GetAssetFilePPVList(int groupId, long? assetIdEqual, long? assetFileIdEqual)
+        {
+            KalturaAssetFilePpvListResponse result = new KalturaAssetFilePpvListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<AssetFilePpv>> getAssetFilePPVListFunc = () =>
+               Core.Pricing.PriceManager.GetAssetFilePPVList(groupId, assetIdEqual.Value, assetFileIdEqual.Value);
+
+            KalturaGenericListResponse<KalturaAssetFilePpv> response =
+                ClientUtils.GetResponseListFromWS<KalturaAssetFilePpv, AssetFilePpv>(getAssetFilePPVListFunc);
+
+            result.AssetFilesPpvs = response.Objects;
             result.TotalCount = response.TotalCount;
 
             return result;

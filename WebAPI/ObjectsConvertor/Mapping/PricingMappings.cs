@@ -347,6 +347,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.countryId != 0 ? (long?)src.countryId : null))
                .ForMember(dest => dest.Percentage, opt => opt.MapFrom(src => src.Percentage))
                ;
+
+            #region AssetFilePpv
+            cfg.CreateMap<AssetFilePpv, KalturaAssetFilePpv>()
+               .ForMember(dest => dest.AssetFileId, opt => opt.MapFrom(src => src.AssetFileId))
+               .ForMember(dest => dest.PpvModuleId, opt => opt.MapFrom(src => src.PpvModuleId))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
+               ;
+
+            cfg.CreateMap<KalturaAssetFilePpv, AssetFilePpv>()
+               .ForMember(dest => dest.AssetFileId, opt => opt.MapFrom(src => src.AssetFileId))
+               .ForMember(dest => dest.PpvModuleId, opt => opt.MapFrom(src => src.PpvModuleId))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToNullableDatetime(src.StartDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToNullableDatetime(src.EndDate)))
+               ;
+            #endregion
         }
 
         private static KalturaSubscriptionSetType ConvertSetType(SubscriptionSetType subscriptionSetType)

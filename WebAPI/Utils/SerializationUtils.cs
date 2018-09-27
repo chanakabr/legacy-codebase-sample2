@@ -74,5 +74,16 @@ namespace WebAPI.Utils
         {
             return ConvertToUnixTimestamp(DateTime.UtcNow);
         }
+
+        public static DateTime? ConvertToNullableDatetime(long? date)
+        {
+            DateTime? response = null;
+            if (date.HasValue)
+            {
+                response = SerializationUtils.ConvertFromUnixTimestamp(date.Value);
+            }
+
+            return response;
+        }
     }
 }

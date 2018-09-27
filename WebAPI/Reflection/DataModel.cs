@@ -342,6 +342,38 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetFilePpv":
+                    switch(property.Name)
+                    {
+                        case "AssetFileId":
+                            return "assetFileId";
+                        case "EndDate":
+                            return "endDate";
+                        case "PpvModuleId":
+                            return "ppvModuleId";
+                        case "StartDate":
+                            return "startDate";
+                    }
+                    break;
+                    
+                case "KalturaAssetFilePpvFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetFileIdEqual":
+                            return "assetFileIdEqual";
+                        case "AssetIdEqual":
+                            return "assetIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaAssetFilePpvListResponse":
+                    switch(property.Name)
+                    {
+                        case "AssetFilesPpvs":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaAssetFilter":
                     switch(property.Name)
                     {
@@ -5962,6 +5994,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "assetfileppv":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("assetFilePpv", "list", false);
+                            return AssetFilePpvController.List((KalturaAssetFilePpvFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
                 case "assethistory":
                     switch(action)
                     {
@@ -10350,6 +10392,20 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "assetfileppv":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaAssetFilePpvFilter),
                             });
                             return ret;
                             

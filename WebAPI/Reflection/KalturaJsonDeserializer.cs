@@ -117,6 +117,15 @@ namespace WebAPI.Reflection
                 case "KalturaAssetFileContext":
                     return new KalturaAssetFileContext(parameters);
                     
+                case "KalturaAssetFilePpv":
+                    return new KalturaAssetFilePpv(parameters);
+                    
+                case "KalturaAssetFilePpvFilter":
+                    return new KalturaAssetFilePpvFilter(parameters);
+                    
+                case "KalturaAssetFilePpvListResponse":
+                    return new KalturaAssetFilePpvListResponse(parameters);
+                    
                 case "KalturaAssetFilter":
                     return new KalturaAssetFilter(parameters);
                     
@@ -7907,6 +7916,94 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaAssetFilePpv
+    {
+        public KalturaAssetFilePpv(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("assetFileId") && parameters["assetFileId"] != null)
+                {
+                    AssetFileId = (Int64) Convert.ChangeType(parameters["assetFileId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ppvModuleId") && parameters["ppvModuleId"] != null)
+                {
+                    PpvModuleId = (Int64) Convert.ChangeType(parameters["ppvModuleId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
+                {
+                    StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
+                {
+                    EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaAssetFilePpvFilter
+    {
+        private static RuntimeSchemePropertyAttribute AssetIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+        };
+        private static RuntimeSchemePropertyAttribute AssetFileIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+        };
+        public KalturaAssetFilePpvFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("assetIdEqual") && parameters["assetIdEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssetIdEqualSchemaProperty.Validate("assetIdEqual", parameters["assetIdEqual"]);
+                    }
+                    AssetIdEqual = (Int64) Convert.ChangeType(parameters["assetIdEqual"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("assetFileIdEqual") && parameters["assetFileIdEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssetFileIdEqualSchemaProperty.Validate("assetFileIdEqual", parameters["assetFileIdEqual"]);
+                    }
+                    AssetFileIdEqual = (Int64) Convert.ChangeType(parameters["assetFileIdEqual"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaAssetFilePpvListResponse
+    {
+        public KalturaAssetFilePpvListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        AssetFilesPpvs = buildList<KalturaAssetFilePpv>(typeof(KalturaAssetFilePpv), (JArray) parameters["objects"]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaAssetFilter
     {
         public KalturaAssetFilter(Dictionary<string, object> parameters = null) : base(parameters)
@@ -8560,13 +8657,13 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute MetaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructFilter")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         public KalturaAssetStructFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -9367,13 +9464,13 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelExternalFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute UtcOffsetEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelExternalFilter")
         {
@@ -9419,13 +9516,13 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaChannelFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -9520,23 +9617,23 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelsFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute MediaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelsFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaChannelsFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -9732,23 +9829,23 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute ImageTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute ImageObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
@@ -10879,13 +10976,13 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute DrmProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
+            MinInteger = -1,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = -1,
         };
         private static RuntimeSchemePropertyAttribute VideoCodecsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -11441,26 +11538,27 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute HeightSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRatio")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute WidthSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRatio")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute PrecisionPrecentageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRatio")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -11468,7 +11566,6 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 100,
-            MinInteger = 0,
         };
         public KalturaRatio(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -11556,13 +11653,13 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRelatedExternalFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaRelatedExternalFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -11597,13 +11694,13 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRelatedFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaRelatedFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -11796,13 +11893,13 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute TagTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTag")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaTag(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -11844,13 +11941,13 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute TypeEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTagFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaTagFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -14685,13 +14782,13 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollection")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaCollection(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -14976,53 +15073,53 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberOnRenewableSubSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute MaxHouseholdUsesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute DiscountCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute DiscountIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaCouponsGroup(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -15994,13 +16091,13 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlan")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaPricePlan(Dictionary<string, object> parameters = null) : base(parameters)
         {

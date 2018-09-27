@@ -7510,6 +7510,106 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaAssetFilePpv
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("assetFileId", "\"assetFileId\": " + AssetFileId);
+            if(EndDate.HasValue)
+            {
+                ret.Add("endDate", "\"endDate\": " + EndDate);
+            }
+            ret.Add("ppvModuleId", "\"ppvModuleId\": " + PpvModuleId);
+            if(StartDate.HasValue)
+            {
+                ret.Add("startDate", "\"startDate\": " + StartDate);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("assetFileId", "<assetFileId>" + AssetFileId + "</assetFileId>");
+            if(EndDate.HasValue)
+            {
+                ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
+            }
+            ret.Add("ppvModuleId", "<ppvModuleId>" + PpvModuleId + "</ppvModuleId>");
+            if(StartDate.HasValue)
+            {
+                ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaAssetFilePpvFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(AssetFileIdEqual.HasValue)
+            {
+                ret.Add("assetFileIdEqual", "\"assetFileIdEqual\": " + AssetFileIdEqual);
+            }
+            if(AssetIdEqual.HasValue)
+            {
+                ret.Add("assetIdEqual", "\"assetIdEqual\": " + AssetIdEqual);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(AssetFileIdEqual.HasValue)
+            {
+                ret.Add("assetFileIdEqual", "<assetFileIdEqual>" + AssetFileIdEqual + "</assetFileIdEqual>");
+            }
+            if(AssetIdEqual.HasValue)
+            {
+                ret.Add("assetIdEqual", "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaAssetFilePpvListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(AssetFilesPpvs != null)
+            {
+                propertyValue = "[" + String.Join(", ", AssetFilesPpvs.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(AssetFilesPpvs != null)
+            {
+                propertyValue = AssetFilesPpvs.Count > 0 ? "<item>" + String.Join("</item><item>", AssetFilesPpvs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaAssetFilter
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
