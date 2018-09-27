@@ -14,12 +14,13 @@ namespace PermissionsDeployment
         private const string DELETE_FILE_NAME = "delete";
         private const string INITIALIZE_FOLDER = "initializefolder";
         private const string LOAD_FOLDER = "loadfolder";
+        private const string SHOULD_DELETE = "shoulddelete";
         private const string HELP = "help";
 
         static void Main(string[] args)
         {
             bool result = false;
-
+            
             Dictionary<string, string> arguments = ResolveArguments(args);
 
             string fileName = string.Empty;
@@ -49,6 +50,7 @@ namespace PermissionsDeployment
                 Console.WriteLine("delete: File path to delete permissions data from in XML format. Shortcut: d");
                 Console.WriteLine("initializefolder: Folder path to save all permissions data into in JSON format. Shortcut: n");
                 Console.WriteLine("loadfolder: Folder path to load all permissions data from in JSON format. Shortcut: l");
+                Console.WriteLine("shouldDelete: When loading folder, define if tool should delete data from Database. No value needed. No shortcut");
             }
             if (arguments.ContainsKey(IMPORT_FILE_NAME))
             {
@@ -73,7 +75,14 @@ namespace PermissionsDeployment
             else if (arguments.ContainsKey(LOAD_FOLDER))
             {
                 string folderName = arguments[LOAD_FOLDER];
-                result = PermissionsManager.PermissionsManager.LoadFolder(folderName);
+                bool shouldDelete = false;
+
+                if (arguments.ContainsKey(SHOULD_DELETE))
+                {
+                    shouldDelete = true;
+                }
+
+                result = PermissionsManager.PermissionsManager.LoadFolder(folderName, shouldDelete);
             }
 
             if (result)
