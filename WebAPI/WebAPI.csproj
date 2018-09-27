@@ -264,6 +264,7 @@
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpv.cs" />
+    <Compile Include="Models\Pricing\KalturaPpvFilter.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpvFilter.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpvListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecording.cs" />

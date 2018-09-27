@@ -130,7 +130,7 @@ namespace WebAPI.Clients
             coupon = AutoMapper.Mapper.Map<KalturaCoupon>(response.Coupon);
 
             return coupon;
-        }        
+        }
 
         internal KalturaPpv GetPPVModuleData(int groupId, long ppvCode)
         {
@@ -165,7 +165,7 @@ namespace WebAPI.Clients
             result = AutoMapper.Mapper.Map<KalturaPpv>(response.PPVModule);
 
             return result;
-        }      
+        }
 
         internal KalturaCoupon ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode, long householdId)
         {
@@ -1142,6 +1142,19 @@ namespace WebAPI.Clients
             result.Ppvs = response.Objects;
             result.TotalCount = response.TotalCount;
 
+            return result;
+        }
+
+        internal KalturaPpvListResponse GetPPVModulesData(int groupId, List<long> list)
+        {
+            KalturaPpvListResponse result = GetPPVModulesData(groupId);
+            if (result != null && result.Ppvs != null && result.Ppvs.Count > 0)
+            {
+                List<string> ppvIds = list.ConvertAll<string>(i => i.ToString());
+                result.Ppvs = result.Ppvs.Where(x => ppvIds.Contains(x.Id)).ToList();
+                result.TotalCount = result.Ppvs.Count;
+
+            }
             return result;
         }
 

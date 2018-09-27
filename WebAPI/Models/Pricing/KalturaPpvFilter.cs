@@ -1,0 +1,70 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Web;
+using System.Xml.Serialization;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.Pricing
+{
+    public enum KalturaPpvOrderBy
+    {
+        NONE
+    }
+
+    /// <summary>
+    /// Filtering Asset Struct Metas
+    /// </summary>
+    [Serializable]
+    public partial class KalturaPpvFilter : KalturaFilter<KalturaPpvOrderBy>
+    {
+        /// <summary>
+        /// Comma separated identifiers
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn", IsNullable = true)]
+        public string IdIn { get; set; }
+
+        public override KalturaPpvOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaPpvOrderBy.NONE;
+        }
+
+        internal void Validate()
+        {
+            if (string.IsNullOrEmpty(IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
+            }
+        }
+
+        public List<long> GetIdIn()
+        {
+            HashSet<long> list = new HashSet<long>();
+            if (!string.IsNullOrEmpty(IdIn))
+            {
+                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (long.TryParse(stringValue, out value) && !list.Contains(value))
+                    {
+                        list.Add(value);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPpvFilter.idIn");
+                    }
+                }
+            }
+
+            return new List<long>(list);
+        }
+
+    }
+}

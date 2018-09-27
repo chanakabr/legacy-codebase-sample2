@@ -3894,6 +3894,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPpvFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaPPVItemPriceDetails":
                     switch(property.Name)
                     {
@@ -8126,7 +8134,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("ppv", "list", false);
-                            return PpvController.List();
+                            return PpvController.List((KalturaPpvFilter) methodParams[0]);
                             
                     }
                     break;
@@ -14804,6 +14812,13 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPpvFilter),
+                            });
                             return ret;
                             
                     }
