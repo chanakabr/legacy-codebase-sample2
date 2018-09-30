@@ -245,7 +245,7 @@ namespace ElasticSearchHandler
                         }
                         else
                         {
-                            log.ErrorFormat("Duplicate topic found for group {0} name {1}", groupId, topic.SystemName);
+                            log.WarnFormat("Duplicate topic found for group {0} name {1}", groupId, topic.SystemName);
                         }
                     }
                 }
@@ -313,13 +313,18 @@ namespace ElasticSearchHandler
                                 eESFieldType metaType;
                                 serializer.GetMetaType(meta.Key, out metaType, out nullValue);
 
+                                if (isEpg)
+                                {
+                                    metaType = eESFieldType.STRING;
+                                }
+
                                 if (!metas.ContainsKey(meta.Value))
                                 {
                                     metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
                                 }
                                 else
                                 {
-                                    log.ErrorFormat("Duplicate media meta found for group {0} name {1}", groupId, meta.Value);
+                                    log.WarnFormat("Duplicate media meta found for group {0} name {1}", groupId, meta.Value);
                                 }
                             }
                         }
@@ -333,13 +338,18 @@ namespace ElasticSearchHandler
                             eESFieldType metaType;
                             serializer.GetMetaType(epgMeta, out metaType, out nullValue);
 
+                            if (isEpg)
+                            {
+                                metaType = eESFieldType.STRING;
+                            }
+
                             if (!metas.ContainsKey(epgMeta))
                             {
                                 metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
                             }
                             else
                             {
-                                log.ErrorFormat("Duplicate epg meta found for group {0} name {1}", groupId, epgMeta);
+                                log.WarnFormat("Duplicate epg meta found for group {0} name {1}", groupId, epgMeta);
                             }
                         }
                     }

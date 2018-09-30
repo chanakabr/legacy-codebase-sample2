@@ -122,6 +122,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfessionalServicesHandler
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "..\Core\ConfigurationManager\ConfigurationManager.csproj", "{27CC9E99-D886-4403-899B-1E0769FDB649}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetInheritanceHandler", "AssetInheritanceHandler\AssetInheritanceHandler.csproj", "{9BCF734B-320B-49A4-A4A5-678273845623}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -798,6 +800,22 @@ Global
 		{27CC9E99-D886-4403-899B-1E0769FDB649}.Release|Any CPU.Build.0 = Release|Any CPU
 		{27CC9E99-D886-4403-899B-1E0769FDB649}.Release|x86.ActiveCfg = Release|Any CPU
 		{27CC9E99-D886-4403-899B-1E0769FDB649}.Release|x86.Build.0 = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Basic|x86.ActiveCfg = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Basic|x86.Build.0 = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Debug|x86.Build.0 = Debug|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Local|Any CPU.Build.0 = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Local|x86.ActiveCfg = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Local|x86.Build.0 = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Release|x86.ActiveCfg = Release|Any CPU
+		{9BCF734B-320B-49A4-A4A5-678273845623}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
