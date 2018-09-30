@@ -27,7 +27,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }
+        }       
 
         public static DataTable Get_PPVModuleListForMediaFilesWithExpired(int nGroupID, List<int> mediaFileList)
         {
@@ -81,7 +81,7 @@ namespace DAL
 
             DataSet ds = spSubscriptionData.ExecuteDataSet();
             return ds;
-        }
+        }      
 
         public static DataTable Get_PreviewModuleData(int nGroupID, long nPreviewModuleID)
         {
@@ -95,7 +95,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
 
-        }
+        }       
 
         public static string Get_ItemName(string sTableName, long lItemCode)
         {
@@ -1721,6 +1721,56 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
             return sp.Execute();
+        }
+
+        public static DataTable AddAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertPpvModulesMediaFiles");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@mediaFileId", mediaFileId);
+            sp.AddParameter("@ppvModuleId", ppvModuleId);
+            sp.AddParameter("@startDate", startDate);
+            sp.AddParameter("@endDate", endDate);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static DataTable UpdateAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdatePpvModulesMediaFiles");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@mediaFileId", mediaFileId);
+            sp.AddParameter("@ppvModuleId", ppvModuleId);
+            sp.AddParameter("@startDate", startDate);
+            sp.AddParameter("@endDate", endDate);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
+        }
+
+        public static int DeleteAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("DeletePpvModulesMediaFiles");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@mediaFileId", mediaFileId);
+                sp.AddParameter("@ppvModuleId", ppvModuleId);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 0;
         }
     }
 }
