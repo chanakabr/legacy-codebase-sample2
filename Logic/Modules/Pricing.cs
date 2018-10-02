@@ -1,16 +1,13 @@
 ﻿using ApiObjects;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using KLogMonitor;
-using Core.Pricing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using ApiObjects.Pricing;
 using System.Reflection;
-using CachingProvider.LayeredCache;
+using System.Web;
 
 namespace Core.Pricing
 {
@@ -1659,6 +1656,36 @@ namespace Core.Pricing
             if (t != null)
             {
                 return t.GetDiscountsByCurrency(discountIds, currencyCode);
+            }
+
+            return response;
+        }
+
+        public static GenericListResponse<PPVModule> GetPPVModuleList(int groupId)
+        {
+            GenericListResponse<PPVModule> response = new GenericListResponse<PPVModule>();
+
+            BasePPVModule t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                try
+                {
+                    PPVModule[] ppvModules = (new PPVModuleCacheWrapper(t)).GetPPVModuleList(string.Empty, string.Empty, string.Empty);
+                    if (ppvModules != null && ppvModules.Length > 0)
+                    {
+                        response.Objects.AddRange(ppvModules.ToList());
+                    }
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                catch (Exception)
+                {
+                    response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+            }
+            else
+            {
+                response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
 
             return response;

@@ -40,6 +40,9 @@ namespace Core.Catalog.CatalogManagement
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public MediaAssetType MediaAssetType { get; set; }
 
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        public AssetInheritancePolicy? InheritancePolicy { get; set; }
+
         public MediaAsset()
             :base()
         {
@@ -57,7 +60,7 @@ namespace Core.Catalog.CatalogManagement
 
         public MediaAsset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages,
                         DateTime? createDate, DateTime? updateDate, DateTime? startDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Image> images, string coGuid, bool isActive,
-                        DateTime? catalogStartDate, DateTime? finalEndDate, MediaType mediaType, string entryId, int? deviceRuleId, int? geoBlockRuleId, List<AssetFile> files, string userTypes)
+                        DateTime? catalogStartDate, DateTime? finalEndDate, MediaType mediaType, string entryId, int? deviceRuleId, int? geoBlockRuleId, List<AssetFile> files, string userTypes, AssetInheritancePolicy assetInheritancePolicy)
             : base(id, assetType, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, startDate, updateDate, endDate, metas, tags, images, coGuid)
         {
             this.CatalogStartDate = catalogStartDate;
@@ -80,6 +83,7 @@ namespace Core.Catalog.CatalogManagement
             this.UserTypes = userTypes;
             this.IsActive = isActive;
             this.MediaAssetType = MediaAssetType.Media;
+            this.InheritancePolicy = assetInheritancePolicy;
         }
 
         public MediaAsset(MediaAsset mediaAssetToCopy)
@@ -95,6 +99,7 @@ namespace Core.Catalog.CatalogManagement
             this.UserTypes = mediaAssetToCopy.UserTypes;
             this.IsActive = mediaAssetToCopy.IsActive;
             this.MediaAssetType = mediaAssetToCopy.MediaAssetType;
+            this.InheritancePolicy = mediaAssetToCopy.InheritancePolicy;
         }
 
         public MediaAsset(int groupId, Core.Catalog.Response.MediaObj mediaObj)

@@ -73,6 +73,7 @@ namespace Core.Catalog
         private static readonly string END_DATE = "end_date";
         private static readonly string LASTMODIFIED = "lastmodified";
         private static readonly string UPDATE_DATE = "update_date";
+        private static readonly string INHERITANCE_POLICY = "inheritance_policy";
 
         private static readonly string LINEAR_MEDIA_TYPES_KEY = "LinearMediaTypes";
         private static readonly string PERMITTED_WATCH_RULES_KEY = "PermittedWatchRules";
@@ -7785,6 +7786,29 @@ namespace Core.Catalog
                             searchKeys.Clear();
                             searchKeys.Add(ENTRY_ID);
                         }
+                    }
+                    else if (searchKeyLowered == INHERITANCE_POLICY)
+                    {
+                        if (!definitions.isAllowedToViewInactiveAssets)
+                        {
+                            throw new KalturaException("Unauthorized use of field inheritance_policy", (int)eResponseStatus.BadSearchRequest);
+                        }
+
+                        if (leaf.operand != ComparisonOperator.Equals)
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for inheritance_policy", (int)eResponseStatus.BadSearchRequest);
+                        }
+
+                        string loweredValue = leaf.value.ToString().ToLower();
+                        AssetInheritancePolicy inheritancePolicy = AssetInheritancePolicy.Enable;
+
+                        if (!Enum.TryParse(loweredValue, true, out inheritancePolicy))
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for inheritance_policy", (int)eResponseStatus.BadSearchRequest);
+                        }
+
+                        leaf.valueType = typeof(int);
+                        leaf.value = (int)inheritancePolicy;
                     }
                     else
                     {

@@ -248,36 +248,7 @@ namespace Core.Catalog.CatalogManagement
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1
             };
-        }
-
-        private static List<AssetFile> GetAssetFilesById(int groupId, long id)
-        {
-            List<AssetFile> files = new List<AssetFile>();
-            GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
-
-            DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
-            result = CreateAssetFileResponseFromDataSet(groupId, ds);
-
-            if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
-            {
-                return files;
-            }
-
-            files.Add(result.Object);
-            return files;
-        }
-
-        private static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId)
-        {
-            List<AssetFile> files = new List<AssetFile>();
-            DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long>() { assetId });
-            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
-            {
-                files = CreateAssetFileListResponseFromDataTable(groupId, ds.Tables[0]);
-            }
-
-            return files;
-        }
+        }       
 
         private static Status ValidateMediaFileExternalIdUniqueness(int groupId, AssetFile assetFile)
         {
@@ -409,6 +380,34 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        internal static List<AssetFile> GetAssetFilesById(int groupId, long id)
+        {
+            List<AssetFile> files = new List<AssetFile>();
+            GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
+
+            DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
+            result = CreateAssetFileResponseFromDataSet(groupId, ds);
+
+            if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
+            {
+                return files;
+            }
+
+            files.Add(result.Object);
+            return files;
+        }
+
+        internal static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId)
+        {
+            List<AssetFile> files = new List<AssetFile>();
+            DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long>() { assetId });
+            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                files = CreateAssetFileListResponseFromDataTable(groupId, ds.Tables[0]);
+            }
+
+            return files;
+        }
         #endregion
 
         #region Public Methods

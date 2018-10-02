@@ -36,6 +36,8 @@ namespace ConfigurationManager
         public StringConfigurationValue message_interests;
         public StringConfigurationValue unified_renew_subscription;
         public StringConfigurationValue ps_events;
+        public StringConfigurationValue asset_inheritance;
+
 
         public CeleryRoutingDistributedTasksConfiguration(string key, ConfigurationValue parent) : base(key, parent)
         {
@@ -177,6 +179,11 @@ namespace ConfigurationManager
             ps_events = new ConfigurationManager.StringConfigurationValue("ps_events", this)
             {
                 DefaultValue = "ProfessionalServicesHandler",
+                ShouldAllowEmpty = true
+            };
+            asset_inheritance = new ConfigurationManager.StringConfigurationValue("asset_inheritance", this)
+            {
+                DefaultValue = "AssetInheritanceHandler",
                 ShouldAllowEmpty = true
             };
         }

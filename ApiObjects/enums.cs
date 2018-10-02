@@ -1103,4 +1103,10 @@ namespace ApiObjects
         direct
     }
 
+    public enum AssetInheritancePolicy
+    {
+        Enable = 0,
+        Disable = 1
+    }
+
 }

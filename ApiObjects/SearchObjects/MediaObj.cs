@@ -73,6 +73,10 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public string epgIdentifier;
 
+        /// <summary>
+        /// Inheritance Policy
+        /// </summary>
+        public int? inheritancePolicy;
         #endregion
 
         #region Ctor
@@ -152,7 +156,9 @@ namespace ApiObjects.SearchObjects
                 CoGuid = this.CoGuid,
                 EntryId = this.EntryId,
                 allowedCountries = this.allowedCountries,
-                blockedCountries = this.blockedCountries
+                blockedCountries = this.blockedCountries,
+                inheritancePolicy = this.inheritancePolicy
+                
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);

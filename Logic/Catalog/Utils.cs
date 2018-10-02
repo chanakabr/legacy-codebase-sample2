@@ -859,6 +859,8 @@ namespace Core.Catalog
                                 media.epgIdentifier = epgIdentifier;
                             }
 
+                            media.inheritancePolicy = ODBCWrapper.Utils.GetNullableInt(row, "INHERITANCE_POLICY");
+
                             #endregion
 
                             #region - get all metas by groupId
