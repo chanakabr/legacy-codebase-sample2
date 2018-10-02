@@ -2091,13 +2091,12 @@ namespace Core.Users
                     {
                         foreach (Device device in container.DeviceInstances)
                         {
-                            retDevice = container.DeviceInstances.FirstOrDefault(x => x.m_deviceUDID.Equals(udid));
-                            if (retDevice != null)
+                            if (device.m_deviceUDID.Equals(udid))
                             {
+                                retDevice = device;
                                 cont = container;
+                                break;
                             }
-
-                            return retDevice;
                         }
                     }
                 }
