@@ -412,7 +412,7 @@ namespace Core.Catalog
                 if (assetUserRulesResponse.HasObjects())
                 {
                     StringBuilder notQuery = new StringBuilder();
-                    notQuery.Append("(and ");
+                    notQuery.Append("(or ");
                     foreach (var rule in assetUserRulesResponse.Objects)
                     {
                         definitions.assetUserRuleIds.Add(rule.Id);
