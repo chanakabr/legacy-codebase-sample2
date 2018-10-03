@@ -68,6 +68,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
+        [Throws(eResponseStatus.MetaIdsDuplication)]        
         static public KalturaAssetStruct Add(KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
@@ -112,6 +113,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanNotChangePredefinedAssetStructSystemName)]
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
         [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
+        [Throws(eResponseStatus.MetaIdsDuplication)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
         {
