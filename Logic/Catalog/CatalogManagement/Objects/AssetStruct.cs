@@ -47,8 +47,8 @@ namespace Core.Catalog.CatalogManagement
             this.PluralName = string.Empty;
         }
 
-        public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, string associationTag, 
-                           long parentId, long createDate, long updateDate, HashSet<string> features, long connectingMetaId, long connectedParentMetaId, string pluralName)
+        public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, long parentId,
+            long createDate, long updateDate, HashSet<string> features, long connectingMetaId, long connectedParentMetaId, string pluralName)
         {
             this.Id = id;
             this.Name = name;
@@ -124,7 +124,7 @@ namespace Core.Catalog.CatalogManagement
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
-            sb.AppendFormat("Name: {0},", Name); 
+            sb.AppendFormat("Name: {0},", Name);
             sb.AppendFormat("NamesInOtherLanguages: {0}, ", NamesInOtherLanguages != null && NamesInOtherLanguages.Count > 0 ?
                                                             string.Join(",", NamesInOtherLanguages.Select(x => string.Format("languageCode: {0}, value: {1}", x.LanguageCode, x.Value)).ToList()) : string.Empty);
             sb.AppendFormat("SystemName: {0}, ", SystemName);
