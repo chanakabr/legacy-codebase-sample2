@@ -330,17 +330,19 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    if (doesGroupUsesTemplates)
-                    {
-                        assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                        response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
-                    }
-                    else
                     {
                         KalturaAssetListResponse assetListResponse = null;
                         if (isAllowedToViewInactiveAssets)
                         {
-                            assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
+                            if (doesGroupUsesTemplates)
+                            {
+                                assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
+                                response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
+                            }
+                            else
+                            {
+                                assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
+                            }
                         }
                         else
                         {
@@ -351,7 +353,8 @@ namespace WebAPI.Clients
                         {
                             return assetListResponse.Objects[0];
                         }
-                        else
+                        // check if we tried getting asset via AssetManager.GetAsset or via searchAssets \ GetMediaByIds
+                        else if (response == null)
                         {
                             throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                         }
