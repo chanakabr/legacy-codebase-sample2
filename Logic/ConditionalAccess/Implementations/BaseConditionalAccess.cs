@@ -7241,8 +7241,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-                string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
+                string[] arrGroupIDs = new string[] { m_nGroupID.ToString() };
 
                 int nTopNum = nStartIndex + nNumberOfItems;
                 DataView dvBillHistory = ConditionalAccessDAL.GetUserBillingHistory(arrGroupIDs, sUserGUID, nTopNum, dStartDate, dEndDate, (int)orderBy);
@@ -7261,13 +7260,20 @@ namespace Core.ConditionalAccess
                     nTopNum = nCount;
                 }
 
-                theResp.m_nTransactionsCount = nCount;
-                theResp.m_Transactions = new BillingTransactionContainer[nCount];
+                int totalNewCount = nCount - nStartIndex;
 
-                for (int i = nStartIndex; i < nTopNum; i++)
+                if (totalNewCount > 0)
                 {
-                    theResp.m_Transactions[i] = GetBillingTransactionContainerFromDataRow(dvBillHistory[i].Row, false) as BillingTransactionContainer;
-                } // for
+                    theResp.m_nTransactionsCount = totalNewCount;
+                    theResp.m_Transactions = new BillingTransactionContainer[totalNewCount];
+
+                    int index = 0;
+
+                    for (int i = nStartIndex; i < nTopNum; i++)
+                    {
+                        theResp.m_Transactions[index++] = GetBillingTransactionContainerFromDataRow(dvBillHistory[i].Row, false) as BillingTransactionContainer;
+                    } // for
+                }
 
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.transactions = theResp;
