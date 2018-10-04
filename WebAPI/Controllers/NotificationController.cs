@@ -55,8 +55,8 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes:       
         /// </remarks>
-        /// <param name="identifier">In case type is "announcement", identifier should be the announcement ID. In case type is "system", identifier should be "login" (the login topic)</param>        
-        /// <param name="type">"announcement" - TV-Series topic, "system" - login topic</param>     
+        /// <param name="identifier">In case type is 'announcement', identifier should be the announcement ID. In case type is 'system', identifier should be 'login" (the login topic)</param>        
+        /// <param name="type">'announcement' - TV-Series topic, 'system' - login topic</param>     
         [Action("register")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
