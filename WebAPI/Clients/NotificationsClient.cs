@@ -654,12 +654,12 @@ namespace WebAPI.Clients
             }
 
             // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, KSUtils.ExtractKSPayload().UDID, null,
-                                            0, 0, new List<int>() { assetId }, new List<KalturaCatalogWith>());
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null, 0, 0, 
+                                                                                    new List<int>() { assetId }, KalturaAssetOrderBy.START_DATE_DESC);
             
             FollowDataTvSeries followData = new FollowDataTvSeries();
             followData.AssetId = assetId;
-            followData.Title = !string.IsNullOrEmpty(mediaInfoResponse.Objects[0].Name) ? mediaInfoResponse.Objects[0].Name.ToString() : string.Empty;
+            followData.Title = !string.IsNullOrEmpty(mediaInfoResponse.Objects[0].Name.GetDefaultLanugageValue()) ? mediaInfoResponse.Objects[0].Name.GetDefaultLanugageValue() : string.Empty;
 
             try
             {
@@ -697,11 +697,11 @@ namespace WebAPI.Clients
             }
 
             // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, KSUtils.ExtractKSPayload().UDID, null,
-                                                                                    0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
-            
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null, 0, 0,
+                                                                                    new List<int>() { followData.AssetId }, KalturaAssetOrderBy.START_DATE_DESC);
+                        
             followData.Status = 1;
-            followData.Title = mediaInfoResponse.Objects[0].Name.ToString();
+            followData.Title = mediaInfoResponse.Objects[0].Name.GetDefaultLanugageValue();
             followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);
             followDataNotification.Type = mediaInfoResponse.Objects[0].getType();
 
