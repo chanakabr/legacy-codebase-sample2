@@ -75,8 +75,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="configuration">Partner Configuration
         /// possible configuration type: 
-        /// "configuration": { "value": 0, "partner_configuration_type": { "type": "OSSAdapter", "objectType": "KalturaPartnerConfigurationHolder" },
-        /// "objectType": "KalturaBillingPartnerConfig"}
+        /// 'configuration': { 'value': 0, 'partner_configuration_type': { 'type': 'OSSAdapter', 'objectType': 'KalturaPartnerConfigurationHolder' },
+        /// 'objectType': 'KalturaBillingPartnerConfig'}
         /// </param>        
         [Action("update")]
         [ApiAuthorize]
