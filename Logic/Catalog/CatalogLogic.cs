@@ -2414,67 +2414,184 @@ namespace Core.Catalog
         #region Build search Object for search Related
 
         /*Build the right MediaSearchRequest for a Search Related Media */
-        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest,
-            ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid, OrderObj orderObj)
+        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes,
+                                                            string sSiteGuid, OrderObj orderObj, bool doesGroupUsesTemplates, CatalogManagement.CatalogGroupCache catalogGroupCache)
         {
             try
             {
                 oFilter = filterRequest;
                 MediaSearchRequest oMediasRequest = new MediaSearchRequest();
-
-                int nLanguage = 0;
-                if (filterRequest != null)
+                oMediasRequest.m_nMediaTypes = new List<int>();
+                if ((nMediaTypes == null || nMediaTypes.Count == 0) && (nMediaTypes != null && nMediaTypes.Count > 0))
                 {
-                    nLanguage = filterRequest.m_nLanguage;
+                    oMediasRequest.m_nMediaTypes.AddRange(nMediaTypes);
                 }
 
-                GroupManager groupManager = new GroupManager();
-
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(nGroupID);
-
-                List<int> lSubGroupTree = groupManager.GetSubGroup(nParentGroupID);
-                DataSet ds = CatalogDAL.Build_MediaRelated(nGroupID, nMediaID, nLanguage, lSubGroupTree);
-
-                if (ds == null)
-                    return null;
+                int languageId = 0;
+                if (filterRequest != null)
+                {
+                    languageId = filterRequest.m_nLanguage;
+                    oFilter.m_sDeviceId = filterRequest.m_sDeviceId;
+                }
 
                 oMediasRequest.m_nGroupID = nGroupID;
                 oMediasRequest.m_sSiteGuid = sSiteGuid;
                 oMediasRequest.m_oOrderObj = orderObj;
 
-                if (ds.Tables.Count == 4)
+                if (doesGroupUsesTemplates)
                 {
-                    if (ds.Tables[1] != null && ds.Tables[1].Rows.Count > 0) // basic details
+                    return BuildSearchRelatedRequestForOpcAccount(ref oMediasRequest, nGroupID, nMediaID, bIsMainLang, languageId, catalogGroupCache);
+                }
+                else
+                {
+                    GroupManager groupManager = new GroupManager();
+
+                    CatalogCache catalogCache = CatalogCache.Instance();
+                    int nParentGroupID = catalogCache.GetParentGroup(nGroupID);
+
+                    List<int> lSubGroupTree = groupManager.GetSubGroup(nParentGroupID);
+                    DataSet ds = CatalogDAL.Build_MediaRelated(nGroupID, nMediaID, languageId, lSubGroupTree);
+
+                    if (ds == null)
+                        return null;
+
+                    if (ds.Tables.Count == 4)
                     {
-                        oMediasRequest.m_sName = Utils.GetStrSafeVal(ds.Tables[1].Rows[0], "NAME");
-                        oMediasRequest.m_nMediaTypes = new List<int>();
-                        if (nMediaTypes == null || nMediaTypes.Count == 0)
+                        if (ds.Tables[1] != null && ds.Tables[1].Rows.Count > 0) // basic details
                         {
-                            if (ds.Tables[1].Rows[0]["MEDIA_TYPE_ID"] != DBNull.Value && !string.IsNullOrEmpty(ds.Tables[1].Rows[0]["MEDIA_TYPE_ID"].ToString()))
-                                oMediasRequest.m_nMediaTypes.Add(Utils.GetIntSafeVal(ds.Tables[1].Rows[0], "MEDIA_TYPE_ID"));
+                            oMediasRequest.m_sName = Utils.GetStrSafeVal(ds.Tables[1].Rows[0], "NAME");                            
+                            if (oMediasRequest.m_nMediaTypes.Count == 0)
+                            {
+                                if (ds.Tables[1].Rows[0]["MEDIA_TYPE_ID"] != DBNull.Value && !string.IsNullOrEmpty(ds.Tables[1].Rows[0]["MEDIA_TYPE_ID"].ToString()))
+                                    oMediasRequest.m_nMediaTypes.Add(Utils.GetIntSafeVal(ds.Tables[1].Rows[0], "MEDIA_TYPE_ID"));
+                            }
                         }
                         else
                         {
-                            oMediasRequest.m_nMediaTypes = nMediaTypes;
+                            return null;
                         }
-                        oFilter.m_sDeviceId = filterRequest.m_sDeviceId;
-                    }
-                    else
-                    {
-                        return null;
-                    }
 
-                    if (ds.Tables[2] != null) //TAGS
-                    {
-                        oMediasRequest.m_lTags = BuildTagsForSearch(bIsMainLang, ds.Tables[2]);
-                    }
-                    if (ds.Tables[3] != null) //META
-                    {
-                        oMediasRequest.m_lMetas = BuildMetasForSearch(ds.Tables[3]);
+                        if (ds.Tables[2] != null) //TAGS
+                        {
+                            oMediasRequest.m_lTags = BuildTagsForSearch(bIsMainLang, ds.Tables[2]);
+                        }
+                        if (ds.Tables[3] != null) //META
+                        {
+                            oMediasRequest.m_lMetas = BuildMetasForSearch(ds.Tables[3]);
+                        }
                     }
                 }
+
                 return oMediasRequest;
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+                return null;
+            }
+        }
+
+        public static MediaSearchRequest BuildSearchRelatedRequestForOpcAccount(ref MediaSearchRequest mediaSearchRequest, int groupId, long mediaId, bool isMainLanguage, int languageId,
+                                                                                CatalogManagement.CatalogGroupCache catalogGroupCache)
+        {
+            try
+            {
+                HashSet<string> metasToIgnore = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                metasToIgnore.Add(CatalogManagement.AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME);
+                metasToIgnore.Add(CatalogManagement.AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME);
+                GenericResponse<CatalogManagement.Asset> assetResponse = CatalogManagement.AssetManager.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
+                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK || assetResponse.Object == null)
+                {
+                    return null;
+                }
+
+                CatalogManagement.MediaAsset mediaAsset = assetResponse.Object as CatalogManagement.MediaAsset;
+                if (mediaAsset == null)
+                {
+                    return null;
+                }
+
+                mediaSearchRequest.m_sName = mediaAsset.Name;
+                mediaSearchRequest.m_lMetas = new List<KeyValue>();
+                // metas that are related and shouldn't be ignored
+                if (mediaAsset.Metas != null && mediaAsset.Metas.Count > 0 && mediaAsset.Metas.Any(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName)
+                    && catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName) && catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].SearchRelated))
+                {
+                    mediaSearchRequest.m_lMetas.AddRange(mediaAsset.Metas.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) && catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName)
+                                                        && catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].SearchRelated).Select(x => new KeyValue(x.m_oTagMeta.m_sName, x.m_sValue)).ToList());
+                }
+
+                mediaSearchRequest.m_lTags = new List<KeyValue>();
+                // tags that are related
+                if (mediaAsset.Tags != null && mediaAsset.Tags.Count > 0 && mediaAsset.Tags.Any(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                                                && catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].SearchRelated))
+                {
+                    List<Tags> mediaRelatedAssetTags = mediaAsset.Tags.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) && catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                                                                    && catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].SearchRelated).ToList();
+                    if (mediaRelatedAssetTags != null && mediaRelatedAssetTags.Count > 0)
+                    {
+                        foreach (Tags relatedTag in mediaRelatedAssetTags)
+                        {
+                            string key = relatedTag.m_oTagMeta.m_sName;
+                            foreach (string tagValue in relatedTag.m_lValues)
+                            {
+                                mediaSearchRequest.m_lTags.Add(new KeyValue(relatedTag.m_oTagMeta.m_sName, tagValue));
+                            }
+                        }
+                    }
+                }
+
+                if (!isMainLanguage && languageId > 0)
+                {
+                    string languageCode = catalogGroupCache.LanguageMapById[languageId].Code;
+                    if (mediaAsset.NamesWithLanguages.Any(x => x.LanguageCode == languageCode))
+                    {
+                        mediaSearchRequest.m_sName = mediaAsset.NamesWithLanguages.Where(x => x.LanguageCode == languageCode).First().Value;
+                    }
+
+                    foreach (KeyValue metas in mediaSearchRequest.m_lMetas)
+                    {
+                        if (mediaAsset.Metas.Any(x => x.m_oTagMeta.m_sName == metas.m_sKey && x.Value != null && x.Value.Any(y => y.LanguageCode == languageCode)))
+                        {
+                            metas.m_sValue = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sName == metas.m_sKey).First().Value.Where(y => y.LanguageCode == languageCode).First().Value;
+                        }
+                    }
+
+                    List<KeyValue> translatedTags = new List<KeyValue>();
+                    foreach (string tagName in mediaSearchRequest.m_lTags.Select(x => x.m_sKey).Distinct())
+                    {
+                        if (mediaAsset.Tags.Any(x => x.m_oTagMeta.m_sName == tagName && x.Values != null && x.Values.Any(y => y.Any(z => z.LanguageCode == languageCode))))
+                        {
+                            List<Tags> mediaAssetTranslatedTags = mediaAsset.Tags.Where(x => x.m_oTagMeta.m_sName == tagName && x.Values != null && x.Values.Any(y => y.Any(z => z.LanguageCode == languageCode))).ToList();
+                            foreach (Tags tagsTranslation in mediaAssetTranslatedTags)
+                            {
+                                if (tagsTranslation.Values != null && tagsTranslation.Values.Count > 0)
+                                {
+                                    foreach (LanguageContainer[] langContainerArray in tagsTranslation.Values)
+                                    {
+                                        if (langContainerArray != null && langContainerArray.Any(x => x.LanguageCode == languageCode))
+                                        {
+                                            translatedTags.AddRange(langContainerArray.Where(x => x.LanguageCode == languageCode).Select(y => new KeyValue(tagName, y.Value)).ToList());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (translatedTags.Count > 0)
+                    {
+                        mediaSearchRequest.m_lTags.Clear();
+                        mediaSearchRequest.m_lTags.AddRange(translatedTags);
+                    }
+                }
+
+                if (mediaSearchRequest.m_nMediaTypes.Count == 0)
+                {
+                    mediaSearchRequest.m_nMediaTypes.Add(mediaAsset.MediaType.m_nTypeID);
+                }
+
+                return mediaSearchRequest;
             }
             catch (Exception ex)
             {
@@ -6881,20 +6998,23 @@ namespace Core.Catalog
             searchResults = new List<UnifiedSearchResult>();
 
             ApiObjects.Response.Status status = null;
-
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID);
             Group group = null;
+            int parentGroupID = request.m_nGroupID;
 
-            // Get group and channel objects from cache/DB
-            GroupManager groupManager = new GroupsCacheManager.GroupManager();
-            CatalogCache catalogCache = CatalogCache.Instance();
+            if (!doesGroupUsesTemplates)
+            {
+                // Get group and channel objects from cache/DB
 
-            int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-
-            group = groupManager.GetGroup(parentGroupID);
+                GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                CatalogCache catalogCache = CatalogCache.Instance();
+                parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                group = groupManager.GetGroup(parentGroupID);
+            }                         
 
             // Build search object
             UnifiedSearchDefinitions unifiedSearchDefinitions = null;
-            status = BuildRelatedObject(request, group, out unifiedSearchDefinitions, parentGroupID);
+            status = BuildRelatedObject(request, group, out unifiedSearchDefinitions, parentGroupID, doesGroupUsesTemplates);
 
             if (status.Code != (int)eResponseStatus.OK)
             {
@@ -6935,7 +7055,7 @@ namespace Core.Catalog
             return status;
         }
 
-        private static ApiObjects.Response.Status BuildRelatedObject(MediaRelatedRequest request, Group group, out UnifiedSearchDefinitions definitions, int groupId)
+        private static ApiObjects.Response.Status BuildRelatedObject(MediaRelatedRequest request, Group group, out UnifiedSearchDefinitions definitions, int groupId, bool doesGroupUsesTemplates)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             definitions = new UnifiedSearchDefinitions();
@@ -6943,11 +7063,17 @@ namespace Core.Catalog
             definitions.shouldSearchMedia = true; // related media search MEDIA ONLY
 
             Filter filter = new Filter();
+            CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildRelatedObject", groupId);
+                return status;
+            }
 
-            bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
+            bool bIsMainLang = doesGroupUsesTemplates ? catalogGroupCache.DefaultLanguage.ID == request.m_oFilter.m_nLanguage : Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
 
-            MediaSearchRequest mediaSearchRequest =
-                BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
+            MediaSearchRequest mediaSearchRequest = BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid,
+                                                                        request.OrderObj, doesGroupUsesTemplates, catalogGroupCache);
 
             if (mediaSearchRequest == null)
             {
@@ -6970,7 +7096,7 @@ namespace Core.Catalog
             #region Basic
 
             definitions.groupId = request.m_nGroupID;
-            definitions.indexGroupId = group.m_nParentGroupID;
+            definitions.indexGroupId = doesGroupUsesTemplates ? groupId : group.m_nParentGroupID;
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
@@ -7003,7 +7129,7 @@ namespace Core.Catalog
                 }
                 else if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && !string.IsNullOrEmpty(order.m_sOrderValue))
                 {
-                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    if (doesGroupUsesTemplates)
                     {
                         if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
                         {
@@ -7063,7 +7189,7 @@ namespace Core.Catalog
 
 
 
-            if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
+            if (!doesGroupUsesTemplates && group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
                 definitions.permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
             }
@@ -7123,7 +7249,7 @@ namespace Core.Catalog
 
                         bool dummyBoolean;
                         Type type;                        
-                        if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                        if (doesGroupUsesTemplates)
                         {
                             CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, key, out dummyBoolean, out type);
                         }
@@ -7216,7 +7342,7 @@ namespace Core.Catalog
 
             #region Geo Availability
 
-            if (group.isGeoAvailabilityWindowingEnabled)
+            if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
             {
                 definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
             }
@@ -8210,7 +8336,7 @@ namespace Core.Catalog
 
             if (definitions.entitlementSearchDefinitions != null)
             {
-                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, request.order, group.m_nParentGroupID, group);
+                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, request.order, doesGroupUsesTemplates? groupId : group.m_nParentGroupID, group);
             }
 
             if (definitions.shouldGetUserPreferences)
