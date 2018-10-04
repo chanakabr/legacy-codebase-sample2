@@ -567,6 +567,7 @@ namespace Core.Catalog
 
             if (entitlementSearchDefinitions.shouldGetFreeAssets)
             {
+                entitlementSearchDefinitions.fileTypes = new List<int>();
                 if (doesGroupUsesTemplates)
                 {
                     GenericListResponse<CatalogManagement.MediaFileType> mediaFileTypesResponse = CatalogManagement.FileManager.GetMediaFileTypes(parentGroupID);
@@ -579,8 +580,7 @@ namespace Core.Catalog
                 else if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
                 {
                     // Convert the file type that we received in request (taken from groups_media_type)
-                    // into the file type that the media file knows (based on the table media_files)
-                    entitlementSearchDefinitions.fileTypes = new List<int>();
+                    // into the file type that the media file knows (based on the table media_files)                    
 
                     if (fileTypes != null)
                     {
