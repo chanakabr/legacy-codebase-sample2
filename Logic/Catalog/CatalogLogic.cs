@@ -7065,9 +7065,7 @@ namespace Core.Catalog
 
             // BEO-1338: Related media types is from the Media Search Request object - it knows the best!          
             definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
-
-
-
+            
 
             if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
@@ -8284,6 +8282,7 @@ namespace Core.Catalog
             }
 
             #endregion
+
             return definitions;
         }
 
