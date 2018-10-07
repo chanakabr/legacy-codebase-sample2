@@ -2382,7 +2382,7 @@ namespace Core.Catalog
             return finalList;
         }
 
-        public List<int> GetEntitledEpgLinearChannels(Group group, UnifiedSearchDefinitions definitions)
+        public List<int> GetEntitledEpgLinearChannels(Group group, UnifiedSearchDefinitions definitions, int groupId)
         {
             List<int> result = new List<int>();
             ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(definitions);
@@ -2394,7 +2394,7 @@ namespace Core.Catalog
                 definitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
             {
                 // If we need to search by entitlements, we have A LOT of work to do now
-                BoolQuery boolQuery = BuildMultipleSearchQuery(definitions.entitlementSearchDefinitions.subscriptionSearchObjects, group.m_nParentGroupID);
+                BoolQuery boolQuery = BuildMultipleSearchQuery(definitions.entitlementSearchDefinitions.subscriptionSearchObjects, groupId);
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
@@ -2404,7 +2404,7 @@ namespace Core.Catalog
             {
                 int httpStatus = 0;
 
-                string indexes = ESUnifiedQueryBuilder.GetIndexes(definitions, group.m_nParentGroupID);
+                string indexes = ESUnifiedQueryBuilder.GetIndexes(definitions, groupId);
                 string types = ESUnifiedQueryBuilder.GetTypes(definitions);
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
