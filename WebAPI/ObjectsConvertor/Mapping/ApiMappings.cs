@@ -707,6 +707,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
                 ;
 
+            // monetization condition
+            cfg.CreateMap<KalturaMonetizationCondition, MonetizationCondition>()
+                .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
+                .ForMember(dest => dest.MinimumPrice, opt => opt.MapFrom(src => src.MinimumPrice))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
+                ;
+
+            cfg.CreateMap<MonetizationCondition, KalturaMonetizationCondition>()
+                .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
+                .ForMember(dest => dest.MinimumPrice, opt => opt.MapFrom(src => src.MinimumPrice))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
+                ;
+
             // base segment value
             cfg.CreateMap<KalturaBaseSegmentValue, SegmentBaseValue>()
                 .Include<KalturaSegmentValues, SegmentValues>()
