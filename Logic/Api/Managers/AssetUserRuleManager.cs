@@ -47,10 +47,23 @@ namespace Core.Api.Managers
         internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, bool shouldGetGroupRulesFirst = false)
         {
             GenericListResponse<AssetUserRule> response = new GenericListResponse<AssetUserRule>();
+            bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            GroupsCacheManager.Group group = null;
+            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            if (doesGroupUsesTemplates)
+            {
+                if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetUserRuleList", groupId);
+                    return response;
+                }
+            }
+            else
+            {
+                group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+            }
 
-            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
-
-            if (userId.HasValue && userId.Value > 0 && !group.isAssetUserRuleEnabled)
+            if (userId.HasValue && userId.Value > 0 && (doesGroupUsesTemplates ? !catalogGroupCache.IsAssetUserRuleEnabled : !group.isAssetUserRuleEnabled))
             {
                 response.SetStatus(eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
                 return response;
@@ -286,10 +299,23 @@ namespace Core.Api.Managers
         internal static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            GroupsCacheManager.Group group = null;
+            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            if (doesGroupUsesTemplates)
+            {
+                if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAssetUserRuleToUser", groupId);
+                    return response;
+                }
+            }
+            else
+            {
+                group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+            }            
 
-            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
-
-            if (!group.isAssetUserRuleEnabled)
+            if (doesGroupUsesTemplates ? !catalogGroupCache.IsAssetUserRuleEnabled : !group.isAssetUserRuleEnabled)
             {
                 response = new Status((int)eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
                 return response;
@@ -346,10 +372,23 @@ namespace Core.Api.Managers
         internal static Status DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            GroupsCacheManager.Group group = null;
+            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            if (doesGroupUsesTemplates)
+            {
+                if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteAssetUserRuleFromUser", groupId);
+                    return response;
+                }
+            }
+            else
+            {
+                group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+            }
 
-            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
-
-            if (!group.isAssetUserRuleEnabled)
+            if (doesGroupUsesTemplates ? !catalogGroupCache.IsAssetUserRuleEnabled : !group.isAssetUserRuleEnabled)
             {
                 response = new Status((int)eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
                 return response;

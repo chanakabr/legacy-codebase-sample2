@@ -376,7 +376,7 @@ namespace Core.Catalog
 
                 #region Geo Availability
 
-                if (!request.isInternalSearch && group.isGeoAvailabilityWindowingEnabled)
+                if (!request.isInternalSearch && (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled))
                 {
                     definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
                 }
@@ -594,7 +594,7 @@ namespace Core.Catalog
 
             // TODO: Maybe this will be the method that gets the FREE epg channel IDs
             var entitledChannelIds =
-                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, linearChannelMediaTypes);
+                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, linearChannelMediaTypes, doesGroupUsesTemplates);
 
             epgChannelIds.AddRange(entitledChannelIds);
 

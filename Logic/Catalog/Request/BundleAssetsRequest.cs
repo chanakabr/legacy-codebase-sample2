@@ -56,17 +56,37 @@ namespace Core.Catalog.Request
 
                 CheckSignature(request);
 
-                // Get group from cache
-                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-                Group groupInCache = groupManager.GetGroup(nParentGroupID);
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID);
+                int parentGroupId = request.m_nGroupID;
+                Group groupInCache = null;
+                GroupsCacheManager.GroupManager groupManager = null;
+                if (!doesGroupUsesTemplates)
+                {
+                    // Get group from cache
+                    groupManager = new GroupsCacheManager.GroupManager();
+                    CatalogCache catalogCache = CatalogCache.Instance();
+                    parentGroupId = catalogCache.GetParentGroup(request.m_nGroupID);
+                    groupInCache = groupManager.GetGroup(parentGroupId);
+                }
 
                 if (groupInCache != null)
                 {
                     // Get channel IDs of current bundle
-                    List<int> channelIds = CatalogLogic.GetBundleChannelIds(groupInCache.m_nParentGroupID, request.m_nBundleID, request.m_eBundleType);
-                    List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
+                    List<int> channelIds = CatalogLogic.GetBundleChannelIds(parentGroupId, request.m_nBundleID, request.m_eBundleType);
+                    List<GroupsCacheManager.Channel> allChannels = new List<GroupsCacheManager.Channel>();
+                    if (doesGroupUsesTemplates)
+                    {
+                        GenericListResponse<GroupsCacheManager.Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(parentGroupId, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id,
+                                                                                                                                        ApiObjects.SearchObjects.OrderDir.ASC, false);
+                        if (channelRes.HasObjects())
+                        {
+                            allChannels.AddRange(channelRes.Objects);
+                        }
+                    }
+                    else
+                    {
+                        allChannels.AddRange(groupManager.GetChannels(channelIds, parentGroupId));
+                    }                     
 
                     if (channelIds != null && channelIds.Count > 0)
                     {
@@ -95,8 +115,7 @@ namespace Core.Catalog.Request
                                 deviceRuleIds = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
                             }
 
-                            List<BaseSearchObject> searchObjectsList = 
-                                BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, deviceRuleIds, request.m_oOrderObj, nParentGroupID);
+                            List<BaseSearchObject> searchObjectsList =  BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, deviceRuleIds, request.m_oOrderObj, parentGroupId, doesGroupUsesTemplates);
 
                             if (searchObjectsList != null && searchObjectsList.Count > 0)
                             {
@@ -152,7 +171,7 @@ namespace Core.Catalog.Request
         }
 
         public static List<BaseSearchObject> BuildBaseSearchObjects(BaseRequest request, Group groupInCache, 
-            List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, int[] deviceRuleIds, OrderObj order, int groupId)
+            List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, int[] deviceRuleIds, OrderObj order, int groupId, bool doesGroupUsesTemplates)
         {
             List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
 
@@ -181,7 +200,7 @@ namespace Core.Catalog.Request
                          {
                              int channelIndex = (int)obj;
 
-                             if (groupInCache != null)
+                             if (doesGroupUsesTemplates || groupInCache != null)
                              {
                                  GroupsCacheManager.Channel currentChannel = allChannels[channelIndex];
 
@@ -197,7 +216,7 @@ namespace Core.Catalog.Request
                                      typeIntersection.Count() > 0)
                                  {
 
-                                     UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache, groupId);
+                                     UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache, groupId, doesGroupUsesTemplates);
 
                                      // If specific types were requested
                                      if (mediaTypes.Length > 0 && !mediaTypes.Contains("0"))
