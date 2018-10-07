@@ -17,11 +17,7 @@ namespace ApiObjects.Segmentation
 
         [JsonProperty()]
         public string Name;
-
-        // Name in other languages other then default (when language="*")        
-        [JsonProperty()]
-        public List<LanguageContainer> NamesWithLanguages { get; set; }
-
+        
         [JsonProperty()]
         public string Value;
 

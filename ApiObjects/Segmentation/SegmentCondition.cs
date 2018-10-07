@@ -19,10 +19,19 @@ namespace ApiObjects.Segmentation
     public class ContentScoreCondition : SegmentCondition
     {
         [JsonProperty()]
-        public int Score { get; set; }
+        public int MinScore { get; set; }
+
+        [JsonProperty()]
+        public int MaxScore { get; set; }
 
         [JsonProperty()]
         public int Days { get; set; }
+
+        [JsonProperty()]
+        public string Field { get; set; }
+
+        [JsonProperty()]
+        public string Value { get; set; }
 
         [JsonProperty()]
         public List<ContentActionCondition> Actions { get; set; }
@@ -37,13 +46,19 @@ namespace ApiObjects.Segmentation
         public int Length { get; set; }
 
         [JsonProperty()]
+        public ContentConditionLengthType LengthType { get; set; }
+
+        [JsonProperty()]
         public int Multiplier { get; set; }
     }
 
     public class MonetizationScoredCondition : SegmentCondition
     {
         [JsonProperty()]
-        public int Score { get; set; }
+        public int MinScore { get; set; }
+
+        [JsonProperty()]
+        public int MaxScore { get; set; }
 
         [JsonProperty()]
         public List<MonetizationCondition> Actions { get; set; }

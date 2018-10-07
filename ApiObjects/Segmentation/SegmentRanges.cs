@@ -93,9 +93,6 @@ namespace ApiObjects.Segmentation
         public string Name;
 
         [JsonProperty()]
-        public List<LanguageContainer> NamesWithLanguages;
-
-        [JsonProperty()]
         public double GreaterThanOrEquals;
 
         [JsonProperty()]

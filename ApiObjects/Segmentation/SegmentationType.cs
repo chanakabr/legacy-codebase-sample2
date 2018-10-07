@@ -17,11 +17,7 @@ namespace ApiObjects.Segmentation
 
         [JsonProperty()]
         public string Name;
-
-        // Name in other languages other then default (when language="*")        
-        [JsonProperty()]
-        public List<LanguageContainer> NamesWithLanguages { get; set; }
-
+        
         [JsonProperty()]
         public string Description;
 
@@ -60,12 +56,15 @@ namespace ApiObjects.Segmentation
 
             string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(this.GroupId);
 
-            bool addSegmentIdsResult = this.Value.AddSegmentsIds();
-
-            if (!addSegmentIdsResult)
+            if (this.Value != null)
             {
-                log.ErrorFormat("error setting segment Ids");
-                return false;
+                bool addSegmentIdsResult = this.Value.AddSegmentsIds();
+
+                if (!addSegmentIdsResult)
+                {
+                    log.ErrorFormat("error setting segment Ids");
+                    return false;
+                }
             }
 
             GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
@@ -291,5 +290,11 @@ namespace ApiObjects.Segmentation
         count,
         sum,
         avg
+    }
+
+    public enum ContentConditionLengthType
+    {
+        minutes,
+        percentage
     }
 }
