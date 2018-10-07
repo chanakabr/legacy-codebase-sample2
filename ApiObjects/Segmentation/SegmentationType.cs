@@ -20,11 +20,7 @@ namespace ApiObjects.Segmentation
         
         [JsonProperty()]
         public string Description;
-
-        // Description in other languages other then default (when language="*")        
-        [JsonProperty()]
-        public List<LanguageContainer> DescriptionWithLanguages { get; set; }
-
+        
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)] 
         public List<SegmentCondition> Conditions;
 
