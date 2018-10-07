@@ -302,7 +302,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         } 
 
-        public List<int> GetEntitledEpgLinearChannels(Group group, UnifiedSearchDefinitions definitions)
+        public List<int> GetEntitledEpgLinearChannels(Group group, UnifiedSearchDefinitions definitions, int groupId)
         {
             throw new NotImplementedException();
         }

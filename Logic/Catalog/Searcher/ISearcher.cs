@@ -81,6 +81,6 @@ namespace Core.Catalog
             string mediaTypes, ApiObjects.SearchObjects.OrderObj order, int pageIndex, int pageSize, ref int totalItems);
 
         [OperationContract]
-        List<int> GetEntitledEpgLinearChannels(GroupsCacheManager.Group group, UnifiedSearchDefinitions definitions);
+        List<int> GetEntitledEpgLinearChannels(GroupsCacheManager.Group group, UnifiedSearchDefinitions definitions, int groupId);
     }
 }
