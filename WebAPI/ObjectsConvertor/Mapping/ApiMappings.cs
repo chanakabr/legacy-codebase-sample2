@@ -699,12 +699,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
                 .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 ;
 
             cfg.CreateMap<MonetizationScoredCondition, KalturaScoredMonetizationCondition>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
                 .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 ;
 
             // monetization condition
