@@ -61,6 +61,9 @@ namespace ApiObjects.Segmentation
         public int MaxScore { get; set; }
 
         [JsonProperty()]
+        public int Days { get; set; }
+
+        [JsonProperty()]
         public List<MonetizationCondition> Actions { get; set; }
     }
 
