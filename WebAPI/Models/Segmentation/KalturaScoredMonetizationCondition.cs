@@ -18,11 +18,20 @@ namespace WebAPI.Models.Segmentation
         /// <summary>
         /// The minimum score to be met
         /// </summary>
-        [DataMember(Name = "score")]
-        [JsonProperty(PropertyName = "score")]
-        [XmlElement(ElementName = "score")]
+        [DataMember(Name = "minScore")]
+        [JsonProperty(PropertyName = "minScore")]
+        [XmlElement(ElementName = "minScore")]
         [SchemeProperty()]
-        public int Score { get; set; }
+        public int MinScore { get; set; }
+
+        /// <summary>
+        /// The maximum score to be met
+        /// </summary>
+        [DataMember(Name = "maxScore")]
+        [JsonProperty(PropertyName = "maxScore")]
+        [XmlElement(ElementName = "maxScore")]
+        [SchemeProperty()]
+        public int MaxScore { get; set; }
 
         /// <summary>
         /// How many days back should the actions be considered

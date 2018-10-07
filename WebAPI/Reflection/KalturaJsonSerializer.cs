@@ -19647,6 +19647,7 @@ namespace WebAPI.Models.Segmentation
             string propertyValue;
             ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaContentAction), Action) + "\"");
             ret.Add("length", "\"length\": " + Length);
+            ret.Add("lengthType", "\"lengthType\": " + "\"" + Enum.GetName(typeof(KalturaContentActionConditionLengthType), LengthType) + "\"");
             ret.Add("multiplier", "\"multiplier\": " + Multiplier);
             return ret;
         }
@@ -19658,6 +19659,7 @@ namespace WebAPI.Models.Segmentation
             string propertyValue;
             ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaContentAction), Action) + "" + "</action>");
             ret.Add("length", "<length>" + Length + "</length>");
+            ret.Add("lengthType", "<lengthType>" + "" + Enum.GetName(typeof(KalturaContentActionConditionLengthType), LengthType) + "" + "</lengthType>");
             ret.Add("multiplier", "<multiplier>" + Multiplier + "</multiplier>");
             return ret;
         }
@@ -19675,7 +19677,16 @@ namespace WebAPI.Models.Segmentation
                 ret.Add("actions", "\"actions\": " + propertyValue);
             }
             ret.Add("days", "\"days\": " + Days);
-            ret.Add("score", "\"score\": " + Score);
+            if(Field != null)
+            {
+                ret.Add("field", "\"field\": " + "\"" + EscapeJson(Field) + "\"");
+            }
+            ret.Add("maxScore", "\"maxScore\": " + MaxScore);
+            ret.Add("minScore", "\"minScore\": " + MinScore);
+            if(Value != null)
+            {
+                ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
+            }
             return ret;
         }
         
@@ -19690,7 +19701,16 @@ namespace WebAPI.Models.Segmentation
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
             ret.Add("days", "<days>" + Days + "</days>");
-            ret.Add("score", "<score>" + Score + "</score>");
+            if(Field != null)
+            {
+                ret.Add("field", "<field>" + EscapeXml(Field) + "</field>");
+            }
+            ret.Add("maxScore", "<maxScore>" + MaxScore + "</maxScore>");
+            ret.Add("minScore", "<minScore>" + MinScore + "</minScore>");
+            if(Value != null)
+            {
+                ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
+            }
             return ret;
         }
     }
@@ -19779,7 +19799,8 @@ namespace WebAPI.Models.Segmentation
                 ret.Add("actions", "\"actions\": " + propertyValue);
             }
             ret.Add("days", "\"days\": " + Days);
-            ret.Add("score", "\"score\": " + Score);
+            ret.Add("maxScore", "\"maxScore\": " + MaxScore);
+            ret.Add("minScore", "\"minScore\": " + MinScore);
             return ret;
         }
         
@@ -19794,7 +19815,8 @@ namespace WebAPI.Models.Segmentation
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
             ret.Add("days", "<days>" + Days + "</days>");
-            ret.Add("score", "<score>" + Score + "</score>");
+            ret.Add("maxScore", "<maxScore>" + MaxScore + "</maxScore>");
+            ret.Add("minScore", "<minScore>" + MinScore + "</minScore>");
             return ret;
         }
     }
@@ -19836,16 +19858,14 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("conditions", "\"conditions\": " + propertyValue);
             }
-            propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
-            if(propertyValue != null)
+            if(Description != null)
             {
-                ret.Add("description", propertyValue);
+                ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
             }
             ret.Add("id", "\"id\": " + Id);
-            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
-            if(propertyValue != null)
+            if(Name != null)
             {
-                ret.Add("name", propertyValue);
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
             if(Value != null)
             {
@@ -19865,9 +19885,15 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
             }
-            ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
+            if(Description != null)
+            {
+                ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
+            }
             ret.Add("id", "<id>" + Id + "</id>");
-            ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
             if(Value != null)
             {
                 propertyValue = Value.ToXml(currentVersion, omitObsolete);
@@ -19935,10 +19961,9 @@ namespace WebAPI.Models.Segmentation
             ret.Add("id", "\"id\": " + Id);
             ret.Add("lt", "\"lt\": " + LessThan);
             ret.Add("lte", "\"lte\": " + LessThanOrEquals);
-            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
-            if(propertyValue != null)
+            if(Name != null)
             {
-                ret.Add("name", propertyValue);
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
             if(SystematicName != null)
             {
@@ -19958,7 +19983,10 @@ namespace WebAPI.Models.Segmentation
             ret.Add("id", "<id>" + Id + "</id>");
             ret.Add("lt", "<lt>" + LessThan + "</lt>");
             ret.Add("lte", "<lte>" + LessThanOrEquals + "</lte>");
-            ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
             if(SystematicName != null)
             {
                 ret.Add("systematicName", "<systematicName>" + EscapeXml(SystematicName) + "</systematicName>");
@@ -20030,10 +20058,9 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("id", "\"id\": " + Id);
-            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
-            if(propertyValue != null)
+            if(Name != null)
             {
-                ret.Add("name", propertyValue);
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
             if(SystematicName != null)
             {
@@ -20053,7 +20080,10 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("id", "<id>" + Id + "</id>");
-            ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
             if(SystematicName != null)
             {
                 ret.Add("systematicName", "<systematicName>" + EscapeXml(SystematicName) + "</systematicName>");

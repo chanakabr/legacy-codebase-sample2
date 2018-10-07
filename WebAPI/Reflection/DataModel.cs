@@ -1355,6 +1355,8 @@ namespace WebAPI.Reflection
                             return "action";
                         case "Length":
                             return "length";
+                        case "LengthType":
+                            return "lengthType";
                         case "Multiplier":
                             return "multiplier";
                     }
@@ -1367,8 +1369,14 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Days":
                             return "days";
-                        case "Score":
-                            return "score";
+                        case "Field":
+                            return "field";
+                        case "MaxScore":
+                            return "maxScore";
+                        case "MinScore":
+                            return "minScore";
+                        case "Value":
+                            return "value";
                     }
                     break;
                     
@@ -4609,8 +4617,10 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Days":
                             return "days";
-                        case "Score":
-                            return "score";
+                        case "MaxScore":
+                            return "maxScore";
+                        case "MinScore":
+                            return "minScore";
                     }
                     break;
                     

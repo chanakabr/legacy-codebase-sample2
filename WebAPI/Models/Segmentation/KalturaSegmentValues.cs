@@ -41,7 +41,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
         [SchemeProperty()]
-        public KalturaMultilingualString Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// The value of the segment

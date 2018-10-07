@@ -10764,9 +10764,14 @@
             Defines a condition which is essentially a combination of several monetization-based actions, each has their own score multiplier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Segmentation.KalturaScoredMonetizationCondition.Score">
+        <member name="P:WebAPI.Models.Segmentation.KalturaScoredMonetizationCondition.MinScore">
             <summary>
             The minimum score to be met
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaScoredMonetizationCondition.MaxScore">
+            <summary>
+            The maximum score to be met
             </summary>
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaScoredMonetizationCondition.Days">
@@ -10834,14 +10839,29 @@
             Defines a condition which is essentially a combination of several content-based actions, each has their own score multiplier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Score">
+        <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.MinScore">
             <summary>
             The minimum score to be met
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.MaxScore">
+            <summary>
+            The maximum score to be met
             </summary>
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Days">
             <summary>
             How many days back should the actions be considered
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Field">
+            <summary>
+            If condition should be applied on specific field (and not the one of the segment value)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Value">
+            <summary>
+            If condition should be applied on specific field (and not the one of the segment value) -
             </summary>
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Actions">
@@ -10861,7 +10881,12 @@
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaContentActionCondition.Length">
             <summary>
-            Optional - if action required specific length to be considered
+            Optional - if action required specific length to be considered (in percentage or minutes)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaContentActionCondition.LengthType">
+            <summary>
+            Optional - if action required specific length to be considered (in percentage or minutes)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaContentActionCondition.Multiplier">

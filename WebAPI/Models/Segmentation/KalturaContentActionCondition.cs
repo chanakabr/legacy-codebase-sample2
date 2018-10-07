@@ -25,13 +25,22 @@ namespace WebAPI.Models.Segmentation
         public KalturaContentAction Action { get; set; }
 
         /// <summary>
-        /// Optional - if action required specific length to be considered
+        /// Optional - if action required specific length to be considered (in percentage or minutes)
         /// </summary>
         [DataMember(Name = "length")]
         [JsonProperty(PropertyName = "length")]
         [XmlElement(ElementName = "length")]
         [SchemeProperty()]
         public int Length { get; set; }
+
+        /// <summary>
+        /// Optional - if action required specific length to be considered (in percentage or minutes)
+        /// </summary>
+        [DataMember(Name = "lengthType")]
+        [JsonProperty(PropertyName = "lengthType")]
+        [XmlElement(ElementName = "lengthType")]
+        [SchemeProperty()]
+        public KalturaContentActionConditionLengthType LengthType { get; set; }
 
         /// <summary>
         /// Score multiplier - how much is a single action worth when considering the action
