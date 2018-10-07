@@ -148,8 +148,7 @@ namespace Core.Catalog.CatalogManagement
                 string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                 if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName))
                 {
-                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
-                    string associationTag = ODBCWrapper.Utils.GetSafeStr(dr, "ASSOCIATION_TAG");
+                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");                    
                     long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TYPE_ID");
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
                     DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
@@ -176,7 +175,7 @@ namespace Core.Catalog.CatalogManagement
                     long connectingMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTING_META_ID");
                     long connectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID");
                     string pluralName = ODBCWrapper.Utils.GetSafeStr(dr, "PLURAL_NAME");
-                    result = new AssetStruct(id, name, namesInOtherLanguages, systemName, isPredefined, associationTag, parentId,
+                    result = new AssetStruct(id, name, namesInOtherLanguages, systemName, isPredefined, parentId,
                                                 createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
                                                 updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0,
                                                 features, connectingMetaId, connectedParentMetaId, pluralName);
@@ -302,7 +301,10 @@ namespace Core.Catalog.CatalogManagement
 
                             AssetStructMeta assetStructMeta = CreateAssetStructMeta(dr, assetStructId, metaId);
 
-                            idToAssetStructMap[assetStructId].AssetStructMetas.Add(metaId, assetStructMeta);
+                            if (!idToAssetStructMap[assetStructId].AssetStructMetas.ContainsKey(metaId))
+                            {
+                                idToAssetStructMap[assetStructId].AssetStructMetas.Add(metaId, assetStructMeta);
+                            }
                         }
                     }
 
@@ -683,8 +685,6 @@ namespace Core.Catalog.CatalogManagement
 
         private static AssetStructMeta CreateAssetStructMeta(DataRow dr, long assetStructId, long metaId)
         {
-            int? ingestPolicyId = ODBCWrapper.Utils.GetNullableInt(dr, "INGEST_INHERITANCE_POLICY");
-
             AssetStructMeta assetStructMeta = new AssetStructMeta()
             {
                 AssetStructId = assetStructId,
@@ -1307,6 +1307,14 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                // validate meta ids duplications
+                var duplicateMetaExist = assetStructToadd.MetaIds.GroupBy(x => x).Any(g => g.Count() > 1);
+                if (duplicateMetaExist)
+                {
+                    result.SetStatus(eResponseStatus.MetaIdsDuplication, "Meta ids are duplicated");
+                    return result;
+                }
+
                 List<KeyValuePair<long, int>> metaIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0)
                 {
@@ -1400,6 +1408,14 @@ namespace Core.Catalog.CatalogManagement
                     {
                         result.SetStatus(eResponseStatus.MetaIdsDoesNotExist,
                                          string.Format("{0} for the following Meta Ids: {1}", eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
+                        return result;
+                    }
+
+                    // validate meta ids duplications
+                    var duplicateMetaExist = assetStructToUpdate.MetaIds.GroupBy(x => x).Any(g => g.Count() > 1);
+                    if (duplicateMetaExist)
+                    {
+                        result.SetStatus(eResponseStatus.MetaIdsDuplication, "Meta ids are duplicated");
                         return result;
                     }
                 }

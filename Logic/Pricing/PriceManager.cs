@@ -2,7 +2,6 @@
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
-using Core.Pricing;
 using DAL;
 using KLogMonitor;
 using System;
@@ -34,7 +33,7 @@ namespace Core.Pricing
                 bool isExist = IsAssetFilePpvExist(groupId, mediaFileId, ppvModuleId);
                 if (isExist)
                 {
-                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", mediaFileId, ppvModuleId, groupId);                    
+                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", mediaFileId, ppvModuleId, groupId);
                     response.SetStatus(eResponseStatus.Error, "AssetFilePpv already exist");
                     return response;
                 }
@@ -47,7 +46,14 @@ namespace Core.Pricing
                     return response;
                 }
 
-                response.Object = CreateAssetFilePPV(dt.Rows[0]);
+                response.Object = new AssetFilePpv()
+                {
+                    AssetFileId = mediaFileId,
+                    PpvModuleId = ppvModuleId,
+                    StartDate = startDate,
+                    EndDate = endDate
+                };
+
                 response.Status.Code = (int)eResponseStatus.OK;
                 response.Status.Message = eResponseStatus.OK.ToString();
             }
@@ -349,7 +355,7 @@ namespace Core.Pricing
             {
                 log.ErrorFormat("Error. Unknown mediaFileId: {0} for groupId: {1}", mediaFileId, groupId);
                 return new Status((int)eResponseStatus.MediaFileDoesNotExist, "Media file does not exist");
-            }            
+            }
 
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
@@ -383,7 +389,7 @@ namespace Core.Pricing
         private static bool IsAssetFilePpvExist(int groupId, long mediaFileId, long ppvModuleId)
         {
             // check ppvModuleId  exist
-            DataRow dr = PricingDAL.Get_PPVModuleForMediaFile((int) mediaFileId, ppvModuleId, groupId);
+            DataRow dr = PricingDAL.Get_PPVModuleForMediaFile((int)mediaFileId, ppvModuleId, groupId);
             if (dr == null)
             {
                 return false;
@@ -391,7 +397,5 @@ namespace Core.Pricing
 
             return true;
         }
-
-        
     }
 }

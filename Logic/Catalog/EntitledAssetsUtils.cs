@@ -22,7 +22,7 @@ namespace Core.Catalog
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, int[] fileTypeIds,
-            OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null)
+            OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null, CatalogManagement.CatalogGroupCache catalogGroupCache = null)
         {
             List<BaseSearchObject> result = new List<BaseSearchObject>();
 
@@ -31,11 +31,29 @@ namespace Core.Catalog
                 fileTypeIds = new int[0];
             }
 
-            // Get group from cache
-            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-            CatalogCache catalogCache = CatalogCache.Instance();
-            int parentGroupId = catalogCache.GetParentGroup(groupId);
-            Group group = groupManager.GetGroup(parentGroupId);
+            int parentGroupId = groupId;
+            GroupsCacheManager.GroupManager groupManager = null;
+            Group group = null;
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            if (doesGroupUsesTemplates)
+            {
+                if (catalogGroupCache == null)
+                {
+                    if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetUserSubscriptionSearchObjects", groupId);
+                        return result;
+                    }
+                }
+            }
+            else
+            {
+                // Get group from cache
+                groupManager = new GroupsCacheManager.GroupManager();
+                CatalogCache catalogCache = CatalogCache.Instance();
+                parentGroupId = catalogCache.GetParentGroup(groupId);
+                group = groupManager.GetGroup(parentGroupId);
+            }
 
             List<int> subscriptionIds = new List<int>();
             List<int> collectionIds = new List<int>();
@@ -53,15 +71,26 @@ namespace Core.Catalog
                 throw new KalturaException(userBundles.status.Message, userBundles.status.Code);
             }
 
-            var channelIds = userBundles.channels;
-
-            // Get channels from cache
-            List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds.ToList(), group.m_nParentGroupID);
+            List<int> channelIds = userBundles.channels;
+            List<GroupsCacheManager.Channel> allChannels = new List<Channel>();
+            if (doesGroupUsesTemplates)
+            {
+                GenericListResponse<Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(groupId, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id, OrderDir.ASC, false);
+                if (channelRes.HasObjects())
+                {
+                    allChannels.AddRange(channelRes.Objects);
+                }
+            }
+            else
+            {
+                // Get channels from cache
+                allChannels.AddRange(groupManager.GetChannels(channelIds.ToList(), group.m_nParentGroupID));
+            }
 
             if (allChannels != null && allChannels.Count > 0)
             {
                 // Build search object for each channel
-                var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order, groupId);
+                var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order, groupId, doesGroupUsesTemplates);
                 result.AddRange(searchObjects);
             }
 
@@ -120,9 +149,7 @@ namespace Core.Catalog
             return result;
         }
 
-        internal static List<int> GetUserEntitledEpgChannelIds(int parentGroupID, string siteGuid,
-            UnifiedSearchDefinitions originalDefinitions,
-            List<int> linearChannelMediaTypes)
+        internal static List<int> GetUserEntitledEpgChannelIds(int parentGroupID, string siteGuid, UnifiedSearchDefinitions originalDefinitions, List<int> linearChannelMediaTypes, bool doesGroupUsesTemplates)
         {
             //IRA: check if can skip ES
 
@@ -132,8 +159,13 @@ namespace Core.Catalog
 
             if (searcher != null)
             {
-                GroupManager manager = new GroupManager();
-                Group group = manager.GetGroup(parentGroupID);
+                Group group = null;
+                if (!doesGroupUsesTemplates)
+                {
+                    GroupManager manager = new GroupManager();
+                    group = manager.GetGroup(parentGroupID);
+                }
+
                 UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
                 bool shouldSearchNotEntitled = originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled;
 
@@ -157,7 +189,7 @@ namespace Core.Catalog
                 // Also indicate that we are interested in this field
                 definitions.extraReturnFields.Add("epg_identifier");
 
-                result = searcher.GetEntitledEpgLinearChannels(group, definitions);
+                result = searcher.GetEntitledEpgLinearChannels(group, definitions, parentGroupID);
 
                 originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled = shouldSearchNotEntitled;
             }

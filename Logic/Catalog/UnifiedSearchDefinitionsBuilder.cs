@@ -376,7 +376,7 @@ namespace Core.Catalog
 
                 #region Geo Availability
 
-                if (!request.isInternalSearch && group.isGeoAvailabilityWindowingEnabled)
+                if (!request.isInternalSearch && (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled))
                 {
                     definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
                 }
@@ -412,7 +412,7 @@ namespace Core.Catalog
                 if (assetUserRulesResponse.HasObjects())
                 {
                     StringBuilder notQuery = new StringBuilder();
-                    notQuery.Append("(and ");
+                    notQuery.Append("(or ");
                     foreach (var rule in assetUserRulesResponse.Objects)
                     {
                         definitions.assetUserRuleIds.Add(rule.Id);
@@ -567,6 +567,7 @@ namespace Core.Catalog
 
             if (entitlementSearchDefinitions.shouldGetFreeAssets)
             {
+                entitlementSearchDefinitions.fileTypes = new List<int>();
                 if (doesGroupUsesTemplates)
                 {
                     GenericListResponse<CatalogManagement.MediaFileType> mediaFileTypesResponse = CatalogManagement.FileManager.GetMediaFileTypes(parentGroupID);
@@ -579,8 +580,7 @@ namespace Core.Catalog
                 else if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
                 {
                     // Convert the file type that we received in request (taken from groups_media_type)
-                    // into the file type that the media file knows (based on the table media_files)
-                    entitlementSearchDefinitions.fileTypes = new List<int>();
+                    // into the file type that the media file knows (based on the table media_files)                    
 
                     if (fileTypes != null)
                     {
@@ -594,7 +594,7 @@ namespace Core.Catalog
 
             // TODO: Maybe this will be the method that gets the FREE epg channel IDs
             var entitledChannelIds =
-                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, linearChannelMediaTypes);
+                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, linearChannelMediaTypes, doesGroupUsesTemplates);
 
             epgChannelIds.AddRange(entitledChannelIds);
 
