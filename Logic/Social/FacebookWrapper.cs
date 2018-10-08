@@ -631,8 +631,13 @@ namespace Core.Social
 
             MediaResponse oMediaResponse = mediaProtocolRequest.GetMediasByIDs(mediaProtocolRequest);
 
-
             if (oMediaResponse == null || oMediaResponse.m_lObj == null || oMediaResponse.m_lObj.Count == 0)
+            {
+                return sRes;
+            }
+
+            // BEO-5389 - validate that returned object is valid
+            if (string.IsNullOrEmpty(oMediaResponse.m_lObj[0].AssetId))
             {
                 return sRes;
             }

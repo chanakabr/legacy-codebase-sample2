@@ -13,7 +13,6 @@ using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
 using Core.Notification.Adapters;
-using QueueWrapper.Queues.QueueObjects;
 using APILogic.AmazonSnsAdapter;
 using APILogic.DmsService;
 

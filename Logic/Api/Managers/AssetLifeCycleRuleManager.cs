@@ -8,7 +8,6 @@ using Core.Catalog.Response;
 using DAL;
 using GroupsCacheManager;
 using KLogMonitor;
-using QueueWrapper;
 using ScheduledTasks;
 using System;
 using System.Collections.Concurrent;
