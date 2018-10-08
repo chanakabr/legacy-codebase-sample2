@@ -18,6 +18,8 @@ namespace APILogic.ConditionalAccess.Modules
 
         public List<EntitlementRenewalBase> Entitlements { get; set; }
 
+        public long UserId { get; set; }
+
         public UnifiedPaymentRenewal()
         {
 
@@ -53,6 +55,8 @@ namespace APILogic.ConditionalAccess.Modules
         public long PurchaseId { get; set; }
 
         public long SubscriptionId { get; set; }
+
+        public long UserId { get; set; }
 
         public EntitlementRenewal()
         {

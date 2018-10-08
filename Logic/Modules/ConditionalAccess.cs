@@ -3218,7 +3218,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static EntitlementRenewalResponse GetEntitlementNextRenewal(int groupId, long householdId, int purchaseId)
+        public static EntitlementRenewalResponse GetEntitlementNextRenewal(int groupId, long householdId, int purchaseId, long userId)
         {
             EntitlementRenewalResponse response = new EntitlementRenewalResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -3226,7 +3226,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.GetEntitlementNextRenewal(householdId, purchaseId);
+                response = t.GetEntitlementNextRenewal(householdId, purchaseId, userId);
             }
 
             return response;
@@ -3284,7 +3284,7 @@ namespace Core.ConditionalAccess
             return response;
         }
         
-        public static UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(int groupId, long householdId, int unifiedPaymentId)
+        public static UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(int groupId, long householdId, int unifiedPaymentId, long userId)
         {
             UnifiedPaymentRenewalResponse response = new UnifiedPaymentRenewalResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -3292,7 +3292,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.GetUnifiedPaymentNextRenewal(householdId, unifiedPaymentId);
+                response = t.GetUnifiedPaymentNextRenewal(householdId, unifiedPaymentId, userId);
             }
 
             return response;
