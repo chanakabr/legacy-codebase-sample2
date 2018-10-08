@@ -276,7 +276,7 @@ public partial class adm_tvp_menu_items_new : System.Web.UI.Page
         DBRecordWebEditor theRecord = new DBRecordWebEditor("tvp_menu_items_texts", "adm_table_pager", sBack, "", "ID", t, sBack, "");
         theRecord.SetConnectionKey("tvp_connection_" + nGroupID.ToString() + "_" + Session["platform"].ToString());
 
-        DataRecordShortTextField dr_text = new DataRecordShortTextField("ltr", true, 60, 128);
+        DataRecordShortTextField dr_text = new DataRecordShortTextField("ltr", true, 60, 254);
         dr_text.Initialize("Title", "adm_table_header_nbg", "FormInput", "TITLE", true);
         theRecord.AddRecord(dr_text);
 
