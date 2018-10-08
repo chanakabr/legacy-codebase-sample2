@@ -158,6 +158,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaApplyDiscountModuleAction":
+                    switch(property.Name)
+                    {
+                        case "DiscountModuleId":
+                            return "discountModuleId";
+                    }
+                    break;
+                    
                 case "KalturaAppToken":
                     switch(property.Name)
                     {
@@ -505,18 +513,6 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Conditions":
                             return "conditions";
-                    }
-                    break;
-                    
-                case "KalturaAssetRuleBase":
-                    switch(property.Name)
-                    {
-                        case "Description":
-                            return "description";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
                     }
                     break;
                     
@@ -905,6 +901,34 @@ namespace WebAPI.Reflection
                             return "idEqual";
                         case "TypeIn":
                             return "typeIn";
+                    }
+                    break;
+                    
+                case "KalturaBusinessModuleCondition":
+                    switch(property.Name)
+                    {
+                        case "BusinessModuleId":
+                            return "businessModuleType";
+                        case "BusinessModuleType":
+                            return "businessModuleType";
+                    }
+                    break;
+                    
+                case "KalturaBusinessModuleRule":
+                    switch(property.Name)
+                    {
+                        case "Actions":
+                            return "actions";
+                        case "Conditions":
+                            return "conditions";
+                    }
+                    break;
+                    
+                case "KalturaBusinessModuleRuleListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -1417,8 +1441,6 @@ namespace WebAPI.Reflection
                     {
                         case "Countries":
                             return "countries";
-                        case "Not":
-                            return "not";
                     }
                     break;
                     
@@ -1527,6 +1549,16 @@ namespace WebAPI.Reflection
                     {
                         case "Data":
                             return "data";
+                    }
+                    break;
+                    
+                case "KalturaDateCondition":
+                    switch(property.Name)
+                    {
+                        case "EndDate":
+                            return "endDate";
+                        case "StartDate":
+                            return "startDate";
                     }
                     break;
                     
@@ -3238,6 +3270,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaNotCondition":
+                    switch(property.Name)
+                    {
+                        case "Not":
+                            return "not";
+                    }
+                    break;
+                    
                 case "KalturaNotification":
                     switch(property.Name)
                     {
@@ -4578,6 +4618,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaRule":
+                    switch(property.Name)
+                    {
+                        case "Description":
+                            return "description";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
                 case "KalturaRuleAction":
                     switch(property.Name)
                     {
@@ -4757,6 +4809,14 @@ namespace WebAPI.Reflection
                             return "ranges";
                         case "Source":
                             return "source";
+                    }
+                    break;
+                    
+                case "KalturaSegmentsCondition":
+                    switch(property.Name)
+                    {
+                        case "SegmentsIds":
+                            return "segmentsIds";
                     }
                     break;
                     
@@ -6210,6 +6270,28 @@ namespace WebAPI.Reflection
                         case "servelog":
                             RolesManager.ValidateActionPermitted("bulk", "serveLog", false);
                             return BulkController.ServeLog((long) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "businessmodulerule":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "add", false);
+                            return BusinessModuleRuleController.Add((KalturaBusinessModuleRule) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "delete", false);
+                            return BusinessModuleRuleController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "list", false);
+                            return BusinessModuleRuleController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "update", false);
+                            return BusinessModuleRuleController.Update((long) methodParams[0], (KalturaBusinessModuleRule) methodParams[1]);
                             
                     }
                     break;
@@ -10847,6 +10929,42 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "businessmodulerule":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("businessModuleRule", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBusinessModuleRule),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("businessModuleRule", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBusinessModuleRule),
                             });
                             return ret;
                             

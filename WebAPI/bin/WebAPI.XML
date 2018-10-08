@@ -62,6 +62,32 @@
             <param name="ppvModuleId">Ppv module id</param>        
             <param name="assetFilePpv">assetFilePpv</param>        
         </member>
+        <member name="M:WebAPI.Controllers.BusinessModuleRuleController.List">
+            <summary>
+             Get the list of business module rules for the partner
+            </summary>
+            <param name="filter">filter by condition name</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.BusinessModuleRuleController.Add(WebAPI.Models.API.KalturaBusinessModuleRule)">
+            <summary>
+            Add business module rule
+            </summary>
+            <param name="businessModuleRule">Business module rule</param>
+        </member>
+        <member name="M:WebAPI.Controllers.BusinessModuleRuleController.Update(System.Int64,WebAPI.Models.API.KalturaBusinessModuleRule)">
+            <summary>
+            Update business module rule
+            </summary>
+            <param name="businessModuleRule">Business module rule</param>
+            <param name="id">Business module rule ID to update</param>
+        </member>
+        <member name="M:WebAPI.Controllers.BusinessModuleRuleController.Delete(System.Int64)">
+            <summary>
+            Delete business module rule
+            </summary>
+            <param name="id">Business module rule ID</param>
+        </member>
         <member name="M:WebAPI.Controllers.SegmentationTypeController.Add(WebAPI.Models.Segmentation.KalturaSegmentationType)">
             <summary>
             ...
@@ -4703,6 +4729,52 @@
             <param name="userId">User identifier</param>
             <returns></returns>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaRule">
+            <summary>
+            Rule base
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaRule.Id">
+            <summary>
+            ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaRule.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaRule.Description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaBusinessModuleRule">
+            <summary>
+            Business module rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleRule.Conditions">
+            <summary>
+            List of conditions for the rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleRule.Actions">
+            <summary>
+            List of actions for the rule
+            </summary>
+        </member>
+        <member name="M:WebAPI.Models.API.KalturaBusinessModuleRule.FillEmpty(WebAPI.Models.API.KalturaBusinessModuleRule)">
+            <summary>
+            Fill current AssetRule data members with given assetRule only if they are empty\null
+            </summary>
+            <param name="oldRule">given assetRule to fill with</param>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleRuleListResponse.Objects">
+            <summary>
+            Asset rules
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaDrmProfile">
             <summary>
             DRM Adapter
@@ -4761,21 +4833,6 @@
         <member name="T:WebAPI.Models.API.KalturaAssetRuleBase">
             <summary>
             Asset rule base
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaAssetRuleBase.Id">
-            <summary>
-            ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaAssetRuleBase.Name">
-            <summary>
-            Name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaAssetRuleBase.Description">
-            <summary>
-            Description
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMediaConcurrencyRuleListResponse.Objects">
@@ -4859,14 +4916,19 @@
             Description
             </summary>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaNotCondition">
+            <summary>
+            Not condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaNotCondition.Not">
+            <summary>
+            Indicates whether to apply not on the other properties in the condition
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaCountryCondition">
             <summary>
             Country condition
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaCountryCondition.Not">
-            <summary>
-            Indicates whether to apply not on the other properties in the condition
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaCountryCondition.Countries">
@@ -4912,6 +4974,46 @@
         <member name="P:WebAPI.Models.API.KalturaIpRangeCondition.ToIP">
             <summary>
             TO IP address range
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaBusinessModuleCondition">
+            <summary>
+            Business module condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleCondition.BusinessModuleType">
+            <summary>
+            Business module type  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleCondition.BusinessModuleId">
+            <summary>
+            Business module ID  
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaSegmentsCondition">
+            <summary>
+            Segments condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSegmentsCondition.SegmentsIds">
+            <summary>
+            Comma separated segments IDs list 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaDateCondition">
+            <summary>
+            Segments condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaDateCondition.StartDate">
+            <summary>
+            Start date 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaDateCondition.EndDate">
+            <summary>
+            End date 
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaAssetUserRuleFilter">
@@ -9883,6 +9985,11 @@
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaStartDateOffsetRuleAction">
             <summary>
             Start date offset action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaApplyDiscountModuleAction.DiscountModuleId">
+            <summary>
+            Discount module ID
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement">

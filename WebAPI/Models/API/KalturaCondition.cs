@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -15,7 +16,11 @@ namespace WebAPI.Models.API
         ASSET,
         COUNTRY,
         CONCURRENCY,
-        IP_RANGE
+        IP_RANGE,
+        BUSINESS_MODULE,
+        SEGMENTS,
+        DATE
+
     }
     
     /// <summary>
@@ -42,9 +47,9 @@ namespace WebAPI.Models.API
     }
 
     /// <summary>
-    /// Country condition
+    /// Not condition
     /// </summary>
-    public partial class KalturaCountryCondition : KalturaCondition
+    public abstract partial class KalturaNotCondition : KalturaCondition
     {
         /// <summary>
         /// Indicates whether to apply not on the other properties in the condition
@@ -58,7 +63,13 @@ namespace WebAPI.Models.API
             set { not = value.HasValue ? value.Value : false; }
         }
         private bool not;
+    }
 
+    /// <summary>
+    /// Country condition
+    /// </summary>
+    public partial class KalturaCountryCondition : KalturaNotCondition
+    {
         /// <summary>
         /// Comma separated countries IDs list
         /// </summary>
@@ -175,6 +186,105 @@ namespace WebAPI.Models.API
         {
             base.Init();
             this.Type = KalturaRuleConditionType.IP_RANGE;
+        }
+    }
+
+    /// <summary>
+    /// Business module condition
+    /// </summary>
+    public partial class KalturaBusinessModuleCondition : KalturaCondition
+    {
+        /// <summary>
+        /// Business module type  
+        /// </summary>
+        [DataMember(Name = "businessModuleType")]
+        [JsonProperty("businessModuleType")]
+        [XmlElement(ElementName = "businessModuleType")]
+        public KalturaTransactionType BusinessModuleType { get; set; }
+
+        /// <summary>
+        /// Business module ID  
+        /// </summary>
+        [DataMember(Name = "businessModuleType")]
+        [JsonProperty("businessModuleType")]
+        [XmlElement(ElementName = "businessModuleType")]
+        public long BusinessModuleId { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.BUSINESS_MODULE;
+        }
+    }
+
+    /// <summary>
+    /// Segments condition
+    /// </summary>
+    public partial class KalturaSegmentsCondition : KalturaNotCondition
+    {
+        /// <summary>
+        /// Comma separated segments IDs list 
+        /// </summary>
+        [DataMember(Name = "segmentsIds")]
+        [JsonProperty("segmentsIds")]
+        [XmlElement(ElementName = "segmentsIds")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string SegmentsIds { get; set; }
+        
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.SEGMENTS;
+        }
+
+        public List<int> getSegmentsIds()
+        {
+            List<int> segments = new List<int>();
+
+            if (!string.IsNullOrEmpty(SegmentsIds))
+            {
+                string[] splitted = SegmentsIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                int segmentId = 0;
+
+                foreach (var segment in splitted)
+                {
+                    if (int.TryParse(segment, out segmentId) && segmentId > 0)
+                    {
+                        segments.Add(segmentId);
+                    }
+                }
+            }
+
+            return segments;
+        }
+    }
+
+    /// <summary>
+    /// Segments condition
+    /// </summary>
+    public partial class KalturaDateCondition : KalturaNotCondition
+    {
+        /// <summary>
+        /// Start date 
+        /// </summary>
+        [DataMember(Name = "startDate")]
+        [JsonProperty("startDate")]
+        [XmlElement(ElementName = "startDate")]
+        public long StartDate { get; set; }
+
+        /// <summary>
+        /// End date 
+        /// </summary>
+        [DataMember(Name = "endDate")]
+        [JsonProperty("endDate")]
+        [XmlElement(ElementName = "endDate")]
+        public long EndDate { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.DATE;
         }
     }
 }

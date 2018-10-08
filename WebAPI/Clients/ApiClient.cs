@@ -4185,5 +4185,29 @@ namespace WebAPI.Clients
             return success;
         }
 
+        internal KalturaBusinessModuleRuleListResponse GetBusinessModuleRules(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaBusinessModuleRule AddBusinessModuleRule(int groupId, KalturaBusinessModuleRule businessModuleRule)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaBusinessModuleRule UpdateBusinessModuleRule(int groupId, long id, KalturaBusinessModuleRule businessModuleRule)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool DeleteBusinessModuleRule(int groupId, long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaBusinessModuleRule GetBusinessModuleRule(int groupId, long id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

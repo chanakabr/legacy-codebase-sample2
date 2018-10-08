@@ -17,7 +17,8 @@ namespace WebAPI.Models.ConditionalAccess
         END_DATE_OFFSET,
         USER_BLOCK,
         ALLOW_PLAYBACK,
-        BLOCK_PLAYBACK
+        BLOCK_PLAYBACK,
+        APPLY_DISCOUNT_MODULE
     }
     
     public abstract partial class KalturaRuleAction : KalturaOTTObject
@@ -126,5 +127,21 @@ namespace WebAPI.Models.ConditionalAccess
         {
             this.Type = KalturaRuleActionType.BLOCK_PLAYBACK;
         }
+    }
+
+    public partial class KalturaApplyDiscountModuleAction : KalturaRuleAction
+    {
+        public KalturaApplyDiscountModuleAction()
+        {
+            this.Type = KalturaRuleActionType.ALLOW_PLAYBACK;
+        }
+
+        /// <summary>
+        /// Discount module ID
+        /// </summary>
+        [DataMember(Name = "discountModuleId")]
+        [JsonProperty("discountModuleId")]
+        [XmlElement(ElementName = "discountModuleId")]
+        public long DiscountModuleId { get; set; }
     }
 }
