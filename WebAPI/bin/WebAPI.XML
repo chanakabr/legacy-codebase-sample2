@@ -9620,6 +9620,11 @@
             Subscription ID
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.UserId">
+            <summary>
+            User ID
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Price">
             <summary>
             Price that is going to be paid on the renewal
@@ -9638,6 +9643,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Entitlements">
             <summary>
             List of entitlements in this unified payment renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.UserId">
+            <summary>
+            User ID
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.Price">

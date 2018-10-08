@@ -1955,6 +1955,8 @@ namespace WebAPI.Reflection
                             return "purchaseId";
                         case "SubscriptionId":
                             return "subscriptionId";
+                        case "UserId":
+                            return "userId";
                     }
                     break;
                     
@@ -5501,6 +5503,8 @@ namespace WebAPI.Reflection
                             return "price";
                         case "UnifiedPaymentId":
                             return "unifiedPaymentId";
+                        case "UserId":
+                            return "userId";
                     }
                     break;
                     

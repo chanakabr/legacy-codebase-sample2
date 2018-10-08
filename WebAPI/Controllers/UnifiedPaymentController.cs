@@ -26,10 +26,11 @@ namespace WebAPI.Controllers
         {
             int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long userId = long.Parse(KS.GetFromRequest().UserId);
 
             try
             {
-                return ClientsManager.ConditionalAccessClient().GetUnifiedPaymentNextRenewal(groupId, householdId, id);
+                return ClientsManager.ConditionalAccessClient().GetUnifiedPaymentNextRenewal(groupId, householdId, id, userId);
             }
             catch (ClientException ex)
             {

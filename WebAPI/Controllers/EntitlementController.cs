@@ -575,11 +575,12 @@ namespace WebAPI.Controllers
         {
             int groupId = KS.GetFromRequest().GroupId;
             long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            long userId = long.Parse(KS.GetFromRequest().UserId);
 
             try
             {
                
-                return ClientsManager.ConditionalAccessClient().GetEntitlementNextRenewal(groupId, domainID, id);
+                return ClientsManager.ConditionalAccessClient().GetEntitlementNextRenewal(groupId, domainID, id, userId);
             }
             catch (ClientException ex)
             {

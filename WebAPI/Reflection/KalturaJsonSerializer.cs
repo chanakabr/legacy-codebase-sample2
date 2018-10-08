@@ -1335,6 +1335,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             ret.Add("purchaseId", "\"purchaseId\": " + PurchaseId);
             ret.Add("subscriptionId", "\"subscriptionId\": " + SubscriptionId);
+            ret.Add("userId", "\"userId\": " + UserId);
             return ret;
         }
         
@@ -1351,6 +1352,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             ret.Add("purchaseId", "<purchaseId>" + PurchaseId + "</purchaseId>");
             ret.Add("subscriptionId", "<subscriptionId>" + SubscriptionId + "</subscriptionId>");
+            ret.Add("userId", "<userId>" + UserId + "</userId>");
             return ret;
         }
     }
@@ -3003,6 +3005,7 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("price", "\"price\": " + propertyValue);
             }
             ret.Add("unifiedPaymentId", "\"unifiedPaymentId\": " + UnifiedPaymentId);
+            ret.Add("userId", "\"userId\": " + UserId);
             return ret;
         }
         
@@ -3023,6 +3026,7 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("price", "<price>" + propertyValue + "</price>");
             }
             ret.Add("unifiedPaymentId", "<unifiedPaymentId>" + UnifiedPaymentId + "</unifiedPaymentId>");
+            ret.Add("userId", "<userId>" + UserId + "</userId>");
             return ret;
         }
     }
