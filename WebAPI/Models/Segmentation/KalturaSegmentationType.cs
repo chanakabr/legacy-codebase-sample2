@@ -22,7 +22,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty()]
+        [SchemeProperty(ReadOnly = true)]
         public long Id { get; set; }
 
         /// <summary>

@@ -21,7 +21,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "minScore")]
         [XmlElement(ElementName = "minScore")]
         [SchemeProperty()]
-        public int MinScore { get; set; }
+        public int? MinScore { get; set; }
 
         /// <summary>
         /// The maximum score to be met
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "maxScore")]
         [XmlElement(ElementName = "maxScore")]
         [SchemeProperty()]
-        public int MaxScore { get; set; }
+        public int? MaxScore { get; set; }
 
         /// <summary>
         /// How many days back should the actions be considered
@@ -39,7 +39,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "days")]
         [XmlElement(ElementName = "days")]
         [SchemeProperty()]
-        public int Days { get; set; }
+        public int? Days { get; set; }
 
         /// <summary>
         /// If condition should be applied on specific field (and not the one of the segment value)

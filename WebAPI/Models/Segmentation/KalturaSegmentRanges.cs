@@ -50,7 +50,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "gte")]
         [XmlElement(ElementName = "gte")]
         [SchemeProperty()]
-        public double GreaterThanOrEquals { get; set; }
+        public double? GreaterThanOrEquals { get; set; }
 
         /// <summary>
         /// Greater than >
@@ -59,7 +59,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "gt")]
         [XmlElement(ElementName = "gt")]
         [SchemeProperty()]
-        public double GreaterThan { get; set; }
+        public double? GreaterThan { get; set; }
 
         /// <summary>
         /// Less than or equals
@@ -68,7 +68,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "lte")]
         [XmlElement(ElementName = "lte")]
         [SchemeProperty()]
-        public double LessThanOrEquals { get; set; }
+        public double? LessThanOrEquals { get; set; }
 
         /// <summary>
         /// Less than 
@@ -77,7 +77,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "lt")]
         [XmlElement(ElementName = "lt")]
         [SchemeProperty()]
-        public double LessThan { get; set; }
+        public double? LessThan { get; set; }
 
         /// <summary>
         /// Equals 
@@ -86,7 +86,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "equals")]
         [XmlElement(ElementName = "equals")]
         [SchemeProperty()]
-        public double Equals { get; set; }
+        public double? Equals { get; set; }
     }
 
     /// <summary>

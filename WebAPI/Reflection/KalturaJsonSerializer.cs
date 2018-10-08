@@ -19646,7 +19646,10 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaContentAction), Action) + "\"");
-            ret.Add("length", "\"length\": " + Length);
+            if(Length.HasValue)
+            {
+                ret.Add("length", "\"length\": " + Length);
+            }
             ret.Add("lengthType", "\"lengthType\": " + "\"" + Enum.GetName(typeof(KalturaContentActionConditionLengthType), LengthType) + "\"");
             ret.Add("multiplier", "\"multiplier\": " + Multiplier);
             return ret;
@@ -19658,7 +19661,10 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaContentAction), Action) + "" + "</action>");
-            ret.Add("length", "<length>" + Length + "</length>");
+            if(Length.HasValue)
+            {
+                ret.Add("length", "<length>" + Length + "</length>");
+            }
             ret.Add("lengthType", "<lengthType>" + "" + Enum.GetName(typeof(KalturaContentActionConditionLengthType), LengthType) + "" + "</lengthType>");
             ret.Add("multiplier", "<multiplier>" + Multiplier + "</multiplier>");
             return ret;
@@ -19676,13 +19682,22 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = "[" + String.Join(", ", Actions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("actions", "\"actions\": " + propertyValue);
             }
-            ret.Add("days", "\"days\": " + Days);
+            if(Days.HasValue)
+            {
+                ret.Add("days", "\"days\": " + Days);
+            }
             if(Field != null)
             {
                 ret.Add("field", "\"field\": " + "\"" + EscapeJson(Field) + "\"");
             }
-            ret.Add("maxScore", "\"maxScore\": " + MaxScore);
-            ret.Add("minScore", "\"minScore\": " + MinScore);
+            if(MaxScore.HasValue)
+            {
+                ret.Add("maxScore", "\"maxScore\": " + MaxScore);
+            }
+            if(MinScore.HasValue)
+            {
+                ret.Add("minScore", "\"minScore\": " + MinScore);
+            }
             if(Value != null)
             {
                 ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
@@ -19700,13 +19715,22 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
-            ret.Add("days", "<days>" + Days + "</days>");
+            if(Days.HasValue)
+            {
+                ret.Add("days", "<days>" + Days + "</days>");
+            }
             if(Field != null)
             {
                 ret.Add("field", "<field>" + EscapeXml(Field) + "</field>");
             }
-            ret.Add("maxScore", "<maxScore>" + MaxScore + "</maxScore>");
-            ret.Add("minScore", "<minScore>" + MinScore + "</minScore>");
+            if(MaxScore.HasValue)
+            {
+                ret.Add("maxScore", "<maxScore>" + MaxScore + "</maxScore>");
+            }
+            if(MinScore.HasValue)
+            {
+                ret.Add("minScore", "<minScore>" + MinScore + "</minScore>");
+            }
             if(Value != null)
             {
                 ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
@@ -19747,7 +19771,10 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("minimumPrice", "\"minimumPrice\": " + MinimumPrice);
+            if(MinimumPrice.HasValue)
+            {
+                ret.Add("minimumPrice", "\"minimumPrice\": " + MinimumPrice);
+            }
             ret.Add("multiplier", "\"multiplier\": " + Multiplier);
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaMonetizationType), Type) + "\"");
             return ret;
@@ -19758,7 +19785,10 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("minimumPrice", "<minimumPrice>" + MinimumPrice + "</minimumPrice>");
+            if(MinimumPrice.HasValue)
+            {
+                ret.Add("minimumPrice", "<minimumPrice>" + MinimumPrice + "</minimumPrice>");
+            }
             ret.Add("multiplier", "<multiplier>" + Multiplier + "</multiplier>");
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaMonetizationType), Type) + "" + "</type>");
             return ret;
@@ -19798,9 +19828,18 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = "[" + String.Join(", ", Actions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("actions", "\"actions\": " + propertyValue);
             }
-            ret.Add("days", "\"days\": " + Days);
-            ret.Add("maxScore", "\"maxScore\": " + MaxScore);
-            ret.Add("minScore", "\"minScore\": " + MinScore);
+            if(Days.HasValue)
+            {
+                ret.Add("days", "\"days\": " + Days);
+            }
+            if(MaxScore.HasValue)
+            {
+                ret.Add("maxScore", "\"maxScore\": " + MaxScore);
+            }
+            if(MinScore.HasValue)
+            {
+                ret.Add("minScore", "\"minScore\": " + MinScore);
+            }
             return ret;
         }
         
@@ -19814,9 +19853,18 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("actions", "<actions>" + propertyValue + "</actions>");
             }
-            ret.Add("days", "<days>" + Days + "</days>");
-            ret.Add("maxScore", "<maxScore>" + MaxScore + "</maxScore>");
-            ret.Add("minScore", "<minScore>" + MinScore + "</minScore>");
+            if(Days.HasValue)
+            {
+                ret.Add("days", "<days>" + Days + "</days>");
+            }
+            if(MaxScore.HasValue)
+            {
+                ret.Add("maxScore", "<maxScore>" + MaxScore + "</maxScore>");
+            }
+            if(MinScore.HasValue)
+            {
+                ret.Add("minScore", "<minScore>" + MinScore + "</minScore>");
+            }
             return ret;
         }
     }
@@ -19955,12 +20003,27 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("equals", "\"equals\": " + Equals);
-            ret.Add("gt", "\"gt\": " + GreaterThan);
-            ret.Add("gte", "\"gte\": " + GreaterThanOrEquals);
+            if(Equals.HasValue)
+            {
+                ret.Add("equals", "\"equals\": " + Equals);
+            }
+            if(GreaterThan.HasValue)
+            {
+                ret.Add("gt", "\"gt\": " + GreaterThan);
+            }
+            if(GreaterThanOrEquals.HasValue)
+            {
+                ret.Add("gte", "\"gte\": " + GreaterThanOrEquals);
+            }
             ret.Add("id", "\"id\": " + Id);
-            ret.Add("lt", "\"lt\": " + LessThan);
-            ret.Add("lte", "\"lte\": " + LessThanOrEquals);
+            if(LessThan.HasValue)
+            {
+                ret.Add("lt", "\"lt\": " + LessThan);
+            }
+            if(LessThanOrEquals.HasValue)
+            {
+                ret.Add("lte", "\"lte\": " + LessThanOrEquals);
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -19977,12 +20040,27 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("equals", "<equals>" + Equals + "</equals>");
-            ret.Add("gt", "<gt>" + GreaterThan + "</gt>");
-            ret.Add("gte", "<gte>" + GreaterThanOrEquals + "</gte>");
+            if(Equals.HasValue)
+            {
+                ret.Add("equals", "<equals>" + Equals + "</equals>");
+            }
+            if(GreaterThan.HasValue)
+            {
+                ret.Add("gt", "<gt>" + GreaterThan + "</gt>");
+            }
+            if(GreaterThanOrEquals.HasValue)
+            {
+                ret.Add("gte", "<gte>" + GreaterThanOrEquals + "</gte>");
+            }
             ret.Add("id", "<id>" + Id + "</id>");
-            ret.Add("lt", "<lt>" + LessThan + "</lt>");
-            ret.Add("lte", "<lte>" + LessThanOrEquals + "</lte>");
+            if(LessThan.HasValue)
+            {
+                ret.Add("lt", "<lt>" + LessThan + "</lt>");
+            }
+            if(LessThanOrEquals.HasValue)
+            {
+                ret.Add("lte", "<lte>" + LessThanOrEquals + "</lte>");
+            }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
