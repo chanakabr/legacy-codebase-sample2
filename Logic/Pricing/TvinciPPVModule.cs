@@ -101,8 +101,8 @@ namespace Core.Pricing
                     }
 
                     PPVModule t = new PPVModule();
-                    if (!bShrink)
-                        t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(nPPVModuleID, m_nGroupID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
+                    if (!bShrink) 
+                        t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
                     else
                         t.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
                     if (t.m_oPriceCode != null)
