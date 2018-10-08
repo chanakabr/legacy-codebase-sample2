@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
@@ -136,25 +137,63 @@ namespace WebAPI.Controllers
         {
             if (parameter.GetType() == typeof(string))
             {
-                Match match = Regex.Match((string)parameter, @"^{(\d):result(:.+)?}$", RegexOptions.IgnoreCase);
-                if (match.Success)
+                string text = parameter as string;
+                Match matchKsql = Regex.Match(text, @"('\${).*(}')", RegexOptions.IgnoreCase);
+                if (matchKsql.Success)
                 {
-                    int index = int.Parse(match.Groups[1].Value) - 1;
-                    if (index < 0)
-                        throw new RequestParserException(RequestParserException.INDEX_NOT_ZERO_BASED);
-
-                    if (index >= responses.Length)
-                        throw new RequestParserException(RequestParserException.INVALID_INDEX);
-
-                    if (match.Groups[2].Success)
+                    StringBuilder sb = new StringBuilder(text);
+                    Regex splitedRegex = new Regex(@"\s", RegexOptions.IgnoreCase);
+                    var matches = splitedRegex.Matches(text);
+                    if (matches.Count == 0)
                     {
-                        List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
-                        tokens.RemoveAt(0);
-                        parameter = translateToken(responses[index], tokens);
+                        var length = matchKsql.Value.Length - 2;
+                        var newParam = matchKsql.Value.Substring(1, length);
+                        var translatedValue = translateMultirequestTokens(newParam.Substring(1, length - 1), responses);
+                        sb.Replace(newParam, translatedValue.ToString());
+                        parameter = sb.ToString();
                     }
                     else
                     {
-                        parameter = responses[index];
+                        int index = 0;
+                        string subKsqlFromRequest;
+                        object translatedSubKsql;
+
+                        foreach (Match spaceMatch in matches)
+                        {
+                            subKsqlFromRequest = text.Substring(index, spaceMatch.Index - index);
+                            translatedSubKsql = translateMultirequestTokens(subKsqlFromRequest, responses);
+                            sb.Replace(subKsqlFromRequest, translatedSubKsql.ToString());
+                            index = spaceMatch.Index + spaceMatch.Length;
+                        }
+
+                        subKsqlFromRequest = text.Substring(index, text.Length - index);
+                        translatedSubKsql = translateMultirequestTokens(subKsqlFromRequest, responses);
+                        sb.Replace(subKsqlFromRequest, translatedSubKsql.ToString());
+                        parameter = sb.ToString();
+                    }
+                }
+                else
+                {
+                    Match match = Regex.Match((string)parameter, @" ^{(\d):result(:.+)?}$", RegexOptions.IgnoreCase);
+                    if (match.Success)
+                    {
+                        int index = int.Parse(match.Groups[1].Value) - 1;
+                        if (index < 0)
+                            throw new RequestParserException(RequestParserException.INDEX_NOT_ZERO_BASED);
+
+                        if (index >= responses.Length)
+                            throw new RequestParserException(RequestParserException.INVALID_INDEX);
+
+                        if (match.Groups[2].Success)
+                        {
+                            List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
+                            tokens.RemoveAt(0);
+                            parameter = translateToken(responses[index], tokens);
+                        }
+                        else
+                        {
+                            parameter = responses[index];
+                        }
                     }
                 }
             }
@@ -192,7 +231,7 @@ namespace WebAPI.Controllers
 
             return parameter;
         }
-
+        
         /// <summary>
         /// Run a multi request call 
         /// </summary>
