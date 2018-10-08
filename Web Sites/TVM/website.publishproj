@@ -19,9 +19,11 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <ProjectGuid>{c3bd48f7-809d-41ad-95cd-2823f865ee52}</ProjectGuid>
     <SourceWebPhysicalPath>$(MSBuildThisFileDirectory)</SourceWebPhysicalPath>
     <SourceWebVirtualPath>/TVM</SourceWebVirtualPath>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <SourceWebProject>C:\source\tvmapps\Web Sites\TVM</SourceWebProject>
-    <SourceWebMetabasePath>/IISExpress/7.5/LM/W3SVC/15/ROOT</SourceWebMetabasePath>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <SourceWebProject>
+    </SourceWebProject>
+    <SourceWebMetabasePath>
+    </SourceWebMetabasePath>
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -42,25 +44,29 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     </AssemblyAttributes>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\ApiObjects\ApiObjects.csproj">
+      <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
       <Project>{4E22204A-9560-4E78-8805-EFED0D0EEC9D}</Project>
       <Name>AkamaiTokenGenerator</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\ApiObjects\ApiObjects.csproj">
-      <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
-      <Name>ApiObjects</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\CachingManager\CachingManager.csproj">
       <Project>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</Project>
       <Name>CachingManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\tvmcore\CachingProvider\CachingProvider.csproj">
+      <Project>{4191D9E7-8502-4B00-A488-771240E2CF40}</Project>
+      <Name>CachingProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}</Project>
       <Name>CouchbaseManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TVMCore\CouchbaseWrapper\CouchbaseWrapper.csproj">
-      <Project>{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}</Project>
-      <Name>CouchbaseWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\DalCB\DalCB.csproj">
       <Project>{CC97D8E8-CFCB-4A33-A8AE-34EBDB0812C3}</Project>
@@ -74,9 +80,17 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       <Project>{D458E586-6306-4111-8080-E3FCDBF82995}</Project>
       <Name>EpgBL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\tvmcore\EventManager\EventManager.csproj">
+      <Project>{1168121B-FB3F-48D8-89B9-7E0BE7E9C901}</Project>
+      <Name>EventManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\FTPUploadQueue\UploadQueue.csproj">
       <Project>{8E6BE280-9DCC-42D2-84C2-1A56812AE704}</Project>
       <Name>UploadQueue</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}</Project>
+      <Name>GroupsCacheManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\ImageManager\ImageManager.csproj">
       <Project>{145E19BB-EA2E-430A-8CA6-707877D53D02}</Project>
@@ -85,10 +99,6 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <ProjectReference Include="..\..\..\TvmCore\LLNWMediaVault\LLNWMediaVault.csproj">
       <Project>{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}</Project>
       <Name>LLNWMediaVault</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\Logger\Logger.csproj">
-      <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
-      <Name>Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\Notifiers\Notifiers.csproj">
       <Project>{31A03896-6FD2-4591-AB2E-A4278C24F8DB}</Project>
@@ -105,6 +115,10 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <ProjectReference Include="..\..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4EB719ED-06B1-4C05-A7CA-269D802105EA}</Project>
       <Name>ScheduledTasks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tvmcore\TvinciCache\TvinciCache.csproj">
+      <Project>{D57B2371-DA31-4035-8B00-6A6D0256EC00}</Project>
+      <Name>TvinciCache</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\TvinciImporter\TvinciImporter.csproj">
       <Project>{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}</Project>
