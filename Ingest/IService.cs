@@ -23,7 +23,7 @@ namespace Ingest
         IngestResponse IngestAdiData(IngestRequest request);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "InjestTvinciData", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        [WebInvoke(Method = "POST", UriTemplate = "IngestTvinciData", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         IngestResponse IngestTvinciData(IngestRequest request);
 
         [OperationContract]
