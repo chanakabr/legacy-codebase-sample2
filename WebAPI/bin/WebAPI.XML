@@ -90,18 +90,18 @@
         </member>
         <member name="M:WebAPI.Controllers.SegmentationTypeController.Add(WebAPI.Models.Segmentation.KalturaSegmentationType)">
             <summary>
-            ...
+            Adds a new segmentation type to the system
             </summary>
-            <param name="segmentationType">.</param>
-            <returns>.</returns>
+            <param name="segmentationType">The segmentation type to be added</param>
+            <returns>The segmentation type that was added</returns>
         </member>
-        <member name="M:WebAPI.Controllers.SegmentationTypeController.Update(System.Int32,WebAPI.Models.Segmentation.KalturaSegmentationType)">
+        <member name="M:WebAPI.Controllers.SegmentationTypeController.Update(System.Int64,WebAPI.Models.Segmentation.KalturaSegmentationType)">
             <summary>
-            ...
+            Updates an existing segmentation type 
             </summary>
-            <param name="segmentationTypeId">.</param>
-            <param name="segmentationType">.</param>
-            <returns></returns>
+            <param name="segmentationTypeId">The ID of the object that will be updated</param>
+            <param name="segmentationType">The segmentation type to be updated</param>
+            <returns>The segmentation type that was updated</returns>
         </member>
         <member name="M:WebAPI.Controllers.SegmentationTypeController.Delete(System.Int64)">
             <summary>
@@ -112,10 +112,10 @@
         </member>
         <member name="M:WebAPI.Controllers.SegmentationTypeController.List(WebAPI.Models.Segmentation.KalturaSegmentationTypeFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
-            ...
+            Lists all segmentation types in group
             </summary>
-            <param name="filter">.</param>
-            <param name="pager">.</param>
+            <param name="filter">Segmentation type filter - basically empty</param>
+            <param name="pager">Simple pager</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.AnnouncementController.Add(WebAPI.Models.Notifications.KalturaAnnouncement)">
@@ -9722,6 +9722,11 @@
             Subscription ID
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.UserId">
+            <summary>
+            User ID
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Price">
             <summary>
             Price that is going to be paid on the renewal
@@ -9740,6 +9745,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Entitlements">
             <summary>
             List of entitlements in this unified payment renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.UserId">
+            <summary>
+            User ID
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.Price">

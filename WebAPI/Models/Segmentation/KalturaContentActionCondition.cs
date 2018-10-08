@@ -31,7 +31,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "length")]
         [XmlElement(ElementName = "length")]
         [SchemeProperty()]
-        public int Length { get; set; }
+        public int? Length { get; set; }
 
         /// <summary>
         /// Optional - if action required specific length to be considered (in percentage or minutes)

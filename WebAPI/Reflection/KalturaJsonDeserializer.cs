@@ -3174,6 +3174,10 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     SubscriptionId = (Int64) Convert.ChangeType(parameters["subscriptionId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("userId") && parameters["userId"] != null)
+                {
+                    UserId = (Int64) Convert.ChangeType(parameters["userId"], typeof(Int64));
+                }
             }
         }
     }
@@ -4704,6 +4708,10 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Entitlements = buildList<KalturaEntitlementRenewalBase>(typeof(KalturaEntitlementRenewalBase), (JArray) parameters["entitlements"]);
                     }
+                }
+                if (parameters.ContainsKey("userId") && parameters["userId"] != null)
+                {
+                    UserId = (Int64) Convert.ChangeType(parameters["userId"], typeof(Int64));
                 }
             }
         }
@@ -18969,7 +18977,7 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
-            ReadOnly = false,
+            ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,

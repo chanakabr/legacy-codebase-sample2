@@ -1987,6 +1987,8 @@ namespace WebAPI.Reflection
                             return "purchaseId";
                         case "SubscriptionId":
                             return "subscriptionId";
+                        case "UserId":
+                            return "userId";
                     }
                     break;
                     
@@ -5561,6 +5563,8 @@ namespace WebAPI.Reflection
                             return "price";
                         case "UnifiedPaymentId":
                             return "unifiedPaymentId";
+                        case "UserId":
+                            return "userId";
                     }
                     break;
                     
@@ -8521,7 +8525,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("segmentationType", "update", false);
-                            return SegmentationTypeController.Update((int) methodParams[0], (KalturaSegmentationType) methodParams[1]);
+                            return SegmentationTypeController.Update((long) methodParams[0], (KalturaSegmentationType) methodParams[1]);
                             
                     }
                     break;
@@ -15472,7 +15476,7 @@ namespace WebAPI.Reflection
                         case "update":
                             ret.Add("segmentationTypeId", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(int),
+                                Type = typeof(long),
                             });
                             ret.Add("segmentationType", new MethodParam(){
                                 NewName = newParamName,

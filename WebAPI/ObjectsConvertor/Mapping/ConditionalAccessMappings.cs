@@ -505,6 +505,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<APILogic.ConditionalAccess.Modules.EntitlementRenewal, KalturaEntitlementRenewal>()
              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
              .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
+             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
              .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
              .ForMember(dest => dest.Date, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.Date)));
 
@@ -517,6 +518,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.UnifiedPaymentId, opt => opt.MapFrom(src => src.UnifiedPaymentId))
              .ForMember(dest => dest.Entitlements, opt => opt.MapFrom(src => src.Entitlements))
              .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
              .ForMember(dest => dest.Date, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.Date)));
         }
 
