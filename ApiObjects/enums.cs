@@ -1074,15 +1074,19 @@ namespace ApiObjects
         EndDateOffset,
         UserBlock,
         AllowPlayback,
-        BlockPlayback
+        BlockPlayback,
+        ApplyDiscountModuleRule
     }
 
-    public enum AssetRuleConditionType
+    public enum RuleConditionType
     {
         Asset,
         Country,
         Concurrency,
-        IP_RANGE
+        IP_RANGE,
+        BusinessModule,
+        Segments,
+        Date
     }
 
     public enum RuleActionTaskType

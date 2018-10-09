@@ -146,8 +146,8 @@ namespace Core.Api.Managers
                 List<int> modifiedAssetIds = new List<int>();
 
                 // separate the country conditions and the ksql, 
-                List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == AssetRuleConditionType.Country).Select(c => (CountryCondition)c).ToList();
-                List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == AssetRuleConditionType.Asset).Select(c => (AssetCondition)c).ToList();
+                List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Country).Select(c => (CountryCondition)c).ToList();
+                List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => (AssetCondition)c).ToList();
 
                 string ksqlFilter = null;
 
@@ -331,7 +331,7 @@ namespace Core.Api.Managers
         {
             Dictionary<int, List<AssetRule>> rules = new Dictionary<int, List<AssetRule>>();
 
-            GenericListResponse<AssetRule> ruleResponse = GetAssetRules(AssetRuleConditionType.Country);
+            GenericListResponse<AssetRule> ruleResponse = GetAssetRules(RuleConditionType.Country);
             if (ruleResponse.Status.Code == (int)eResponseStatus.OK && ruleResponse.Objects != null)
             {
                 if (groupId != 0)
@@ -402,7 +402,7 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
+        internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
         {
             GenericListResponse<AssetRule> response = new GenericListResponse<AssetRule>();
 
@@ -642,7 +642,7 @@ namespace Core.Api.Managers
                 {
                     if (funcParams.ContainsKey("assetRuleConditionType") && funcParams.ContainsKey("groupId"))
                     {
-                        AssetRuleConditionType? assetRuleConditionType = funcParams["assetRuleConditionType"] as AssetRuleConditionType?;
+                        RuleConditionType? assetRuleConditionType = funcParams["assetRuleConditionType"] as RuleConditionType?;
                         int? groupId = funcParams["groupId"] as int?;
                         
                         if (assetRuleConditionType.HasValue && groupId.HasValue)

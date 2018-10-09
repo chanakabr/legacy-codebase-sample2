@@ -8680,7 +8680,7 @@ namespace Core.ConditionalAccess
             List<long> assetMediaRuleIds = new List<long>();
 
             GenericListResponse<AssetRule> assetRulesMediaResponse =
-                AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(mediaId, eAssetTypes.MEDIA));
+                AssetRuleManager.GetAssetRules(RuleConditionType.Concurrency, groupId, new SlimAsset(mediaId, eAssetTypes.MEDIA));
 
             if (assetRulesMediaResponse != null && assetRulesMediaResponse.HasObjects())
             {
@@ -8706,7 +8706,7 @@ namespace Core.ConditionalAccess
             if (programId > 0)
             {
                 GenericListResponse<AssetRule> assetRulesEpgResponse =
-                    AssetRuleManager.GetAssetRules(AssetRuleConditionType.Concurrency, groupId, new SlimAsset(programId, eAssetTypes.EPG));
+                    AssetRuleManager.GetAssetRules(RuleConditionType.Concurrency, groupId, new SlimAsset(programId, eAssetTypes.EPG));
                 if (assetRulesEpgResponse != null && assetRulesEpgResponse.HasObjects())
                 {
                     assetEpgRuleIds.AddRange(assetRulesEpgResponse.Objects.Select(x => x.Id));

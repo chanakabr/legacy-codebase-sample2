@@ -2582,7 +2582,7 @@ namespace Core.Api
             }
             
             // check if assetRule exist
-            GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.GetAssetRules(AssetRuleConditionType.IP_RANGE, groupId);
+            GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.GetAssetRules(RuleConditionType.IP_RANGE, groupId);
             if (assetRulesResponse == null || !assetRulesResponse.HasObjects())
                 return assetRules;
 
@@ -10823,7 +10823,7 @@ namespace Core.Api
             return AssetRuleManager.DeleteAssetRule(groupId, assetRuleId);
         }
 
-        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
+        internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
         {
             return AssetRuleManager.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
         }

@@ -100,4 +100,17 @@ namespace ApiObjects.Rules
             this.Type = RuleActionType.BlockPlayback;
         }
     }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class ApplyDiscountModuleRuleAction : RuleAction
+    {
+        [JsonProperty("DiscountModuleId")]
+        public long DiscountModuleId { get; set; }
+
+        public ApplyDiscountModuleRuleAction()
+        {
+            this.Type = RuleActionType.ApplyDiscountModuleRule;
+        }
+    }
 }

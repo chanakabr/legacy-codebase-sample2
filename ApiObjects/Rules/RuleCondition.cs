@@ -9,13 +9,27 @@ namespace ApiObjects.Rules
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class AssetRuleCondition
+    public abstract class RuleCondition
     {
         [JsonProperty("Type")]
-        public AssetRuleConditionType Type { get; protected set; }
+        public RuleConditionType Type { get; protected set; }
 
         [JsonProperty("Description")]
         public string Description { get; set; }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public abstract class NotRuleCondition : RuleCondition
+    {
+        [JsonProperty("Not")]
+        public bool Not { get; set; }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public abstract class AssetRuleCondition : RuleCondition
+    {
     }
 
     [Serializable]
@@ -27,7 +41,7 @@ namespace ApiObjects.Rules
 
         public AssetCondition()
         {
-            Type = AssetRuleConditionType.Asset;
+            Type = RuleConditionType.Asset;
         }
     }
 
@@ -43,7 +57,7 @@ namespace ApiObjects.Rules
 
         public CountryCondition()
         {
-            this.Type = AssetRuleConditionType.Country;
+            this.Type = RuleConditionType.Country;
         }
     }
 
@@ -59,7 +73,7 @@ namespace ApiObjects.Rules
 
         public ConcurrencyCondition()
         {
-            this.Type = AssetRuleConditionType.Concurrency;
+            this.Type = RuleConditionType.Concurrency;
         }
     }
 
@@ -81,7 +95,52 @@ namespace ApiObjects.Rules
 
         public IpRangeCondition()
         {
-            this.Type = AssetRuleConditionType.IP_RANGE;
+            this.Type = RuleConditionType.IP_RANGE;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class BusinessModuleCondition : RuleCondition
+    {
+        [JsonProperty("BusinessModuleId")]
+        public long BusinessModuleId { get; set; }
+
+        [JsonProperty("BusinessModuleType")]
+        public eTransactionType BusinessModuleType { get; set; }
+
+        public BusinessModuleCondition()
+        {
+            this.Type = RuleConditionType.BusinessModule;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class DateCondition : NotRuleCondition
+    {
+        [JsonProperty("StartDate")]
+        public long StartDate { get; set; }
+
+        [JsonProperty("EndDate")]
+        public long EndDate { get; set; }
+
+        public DateCondition()
+        {
+            this.Type = RuleConditionType.Date;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class SegmentsCondition : NotRuleCondition
+    {
+        [JsonProperty("SegmentIds")]
+        public List<long> SegmentIds { get; set; }
+
+        public SegmentsCondition()
+        {
+            this.Type = RuleConditionType.Segments;
         }
     }
 }
