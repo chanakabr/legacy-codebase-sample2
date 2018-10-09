@@ -13,7 +13,6 @@ using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
-using QueueWrapper;
 using ScheduledTasks;
 using System;
 using System.Collections.Concurrent;

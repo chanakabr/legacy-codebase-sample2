@@ -8,10 +8,8 @@ using System.Text;
 using ApiObjects;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
-using EpgBL;
 using KLogMonitor;
 using Tvinci.Core.DAL;
-using Core.Catalog.Cache;
 using GroupsCacheManager;
 
 namespace Core.Catalog.Request

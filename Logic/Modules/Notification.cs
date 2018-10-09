@@ -26,7 +26,6 @@ namespace Core.Notification
 
         protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";        
 
-
         /// <summary>
         /// Add notification request to the db, using NotificationManager object.
         /// </summary>

@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using NPVR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Text;
 using Core.Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
+using NPVR;
 
 namespace Core.Catalog.Request
 {

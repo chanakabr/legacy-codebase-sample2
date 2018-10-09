@@ -93,18 +93,18 @@ namespace ApiObjects.Segmentation
         public string Name;
 
         [JsonProperty()]
-        public double GreaterThanOrEquals;
+        public double? GreaterThanOrEquals;
 
         [JsonProperty()]
-        public double GreaterThan;
+        public double? GreaterThan;
 
         [JsonProperty()]
-        public double LessThanOrEquals;
+        public double? LessThanOrEquals;
 
         [JsonProperty()]
-        public double LessThan;
+        public double? LessThan;
 
         [JsonProperty()]
-        public double Equals;
+        public double? Equals;
     }
 }
