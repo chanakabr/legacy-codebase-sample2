@@ -824,6 +824,57 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ;
 
             #endregion
+
+
+            #region BusinessModuleRule
+            
+            cfg.CreateMap<BusinessModuleRule, KalturaBusinessModuleRule>()
+              .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => src.Actions))
+              .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertConditions(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            cfg.CreateMap<KalturaBusinessModuleRule, BusinessModuleRule>()
+              .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => src.Actions))
+              .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertConditions(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            cfg.CreateMap<KalturaBusinessModuleCondition, BusinessModuleCondition>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
+                .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
+
+            cfg.CreateMap<BusinessModuleCondition, KalturaBusinessModuleCondition>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
+                .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
+
+            cfg.CreateMap<KalturaSegmentsCondition, SegmentsCondition>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not))
+                .ForMember(dest => dest.SegmentIds, opt => opt.MapFrom(src => src.getSegmentsIds()));
+
+            cfg.CreateMap<SegmentsCondition, KalturaSegmentsCondition>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not))
+                .ForMember(dest => dest.SegmentsIds, opt => opt.MapFrom(src => src.SegmentIds != null ? string.Join(",", src.SegmentIds.ToArray()) : null));
+
+            cfg.CreateMap<KalturaDateCondition, DateCondition>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate));
+
+            cfg.CreateMap<DateCondition, KalturaDateCondition>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate));
+
+            #endregion
         }
 
         private static ContentConditionLengthType ConvertLengthType(KalturaContentActionConditionLengthType lengthType)
@@ -1174,14 +1225,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     switch (condition.Type)
                     {
-                        case AssetRuleConditionType.Asset:
+                        case RuleConditionType.Asset:
                             {
                                 item = ConvertAssetCondion(condition as AssetCondition);
                             }
 
                             break;
 
-                        case AssetRuleConditionType.Country:
+                        case RuleConditionType.Country:
                             {
                                 CountryCondition countryCondition = condition as CountryCondition;
                                 item = new KalturaCountryCondition()
@@ -1195,7 +1246,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                                 }
                             }
                             break;
-                        case AssetRuleConditionType.Concurrency:
+                        case RuleConditionType.Concurrency:
                             {
                                 ConcurrencyCondition concurrencyCondition = condition as ConcurrencyCondition;
                                 item = new KalturaConcurrencyCondition()
@@ -1207,7 +1258,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                                 };
                             }
                             break;
-                        case AssetRuleConditionType.IP_RANGE:
+                        case RuleConditionType.IP_RANGE:
                             {
                                 IpRangeCondition kCondition = condition as IpRangeCondition;
                                 item = new KalturaIpRangeCondition()
@@ -2634,18 +2685,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        internal static AssetRuleConditionType ConvertRuleConditionType(KalturaRuleConditionType conditionType)
+        internal static RuleConditionType ConvertRuleConditionType(KalturaRuleConditionType conditionType)
         {
             switch (conditionType)
             {
                 case KalturaRuleConditionType.ASSET:
-                    return AssetRuleConditionType.Asset;
+                    return RuleConditionType.Asset;
                 case KalturaRuleConditionType.CONCURRENCY:
-                    return AssetRuleConditionType.Concurrency;
+                    return RuleConditionType.Concurrency;
                 case KalturaRuleConditionType.COUNTRY:
-                    return AssetRuleConditionType.Country;
+                    return RuleConditionType.Country;
                 case KalturaRuleConditionType.IP_RANGE:
-                    return AssetRuleConditionType.IP_RANGE;
+                    return RuleConditionType.IP_RANGE;
                 default:
                     throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", conditionType.ToString()));
             }
@@ -2663,5 +2714,77 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown restrictionPolicy value : {0}", restrictionPolicy.ToString()));
             }
         }
+
+        #region Rule Conditions
+
+        private static List<RuleCondition> ConvertRuleConditions(List<KalturaCondition> conditions)
+        {
+            List<RuleCondition> result = null;
+
+            if (conditions != null && conditions.Count > 0)
+            {
+                result = new List<RuleCondition>();
+
+                RuleCondition item;
+                foreach (var condition in conditions)
+                {
+                    if (condition is KalturaBusinessModuleCondition)
+                    {
+                        item = AutoMapper.Mapper.Map<BusinessModuleCondition>(condition as KalturaBusinessModuleCondition);
+                    }
+                    else if (condition is KalturaSegmentsCondition)
+                    {
+                        item = AutoMapper.Mapper.Map<SegmentsCondition>(condition as KalturaSegmentsCondition);
+                    }
+                    else if (condition is KalturaDateCondition)
+                    {
+                        item = AutoMapper.Mapper.Map<DateCondition>(condition as KalturaDateCondition);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<KalturaCondition> ConvertConditions(List<RuleCondition> conditions)
+        {
+            List<KalturaCondition> result = null;
+
+            if (conditions != null && conditions.Count > 0)
+            {
+                result = new List<KalturaCondition>();
+
+                KalturaCondition item = null;
+                foreach (var condition in conditions)
+                {
+                    switch (condition.Type)
+                    {
+                        case RuleConditionType.BusinessModule:
+                            item = AutoMapper.Mapper.Map<KalturaBusinessModuleCondition>(condition as BusinessModuleCondition);
+                            break;
+                        case RuleConditionType.Segments:
+                            item = AutoMapper.Mapper.Map<KalturaSegmentsCondition>(condition as SegmentsCondition);
+                            break;
+                        case RuleConditionType.Date:
+                            item = AutoMapper.Mapper.Map<KalturaDateCondition>(condition as DateCondition);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }

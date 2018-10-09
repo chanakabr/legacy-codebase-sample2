@@ -6287,7 +6287,8 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             RolesManager.ValidateActionPermitted("businessModuleRule", "delete", false);
-                            return BusinessModuleRuleController.Delete((long) methodParams[0]);
+                            BusinessModuleRuleController.Delete((long) methodParams[0]);
+                            return null;
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("businessModuleRule", "list", false);

@@ -28,21 +28,14 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaBusinessModuleRuleListResponse List()//KalturaAssetRuleFilter filter = null)
+        static public KalturaBusinessModuleRuleListResponse List()
         {
             KalturaBusinessModuleRuleListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            //if (filter == null)
-            //{
-            //    filter = new KalturaAssetRuleFilter();
-            //}
-
             try
             {
-                //filter.Validate();
-
                 response = ClientsManager.ApiClient().GetBusinessModuleRules(groupId);//, filter);
             }
             catch (ClientException ex)
@@ -85,7 +78,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Business module rule ID to update</param>
         [Action("update")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AssetRuleNotExists)] // TODO:
+        [Throws(eResponseStatus.RuleNotExists)] 
         static public KalturaBusinessModuleRule Update(long id, KalturaBusinessModuleRule businessModuleRule)
         {
             KalturaBusinessModuleRule response = null;
@@ -115,8 +108,8 @@ namespace WebAPI.Controllers
         /// <param name="id">Business module rule ID</param>
         [Action("delete")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AssetRuleNotExists)] // TODO
-        static public bool Delete(long id)
+        [Throws(eResponseStatus.RuleNotExists)]
+        static public void Delete(long id)
         {
             bool response = false;
 
@@ -124,14 +117,12 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().DeleteBusinessModuleRule(groupId, id);
+                ClientsManager.ApiClient().DeleteBusinessModuleRule(groupId, id);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
-
-            return response;
         }
     }
 }

@@ -3719,7 +3719,7 @@ namespace WebAPI.Clients
 
         internal KalturaAssetRuleListResponse GetAssetRules(int groupId, KalturaAssetRuleFilter filter)
         {
-            AssetRuleConditionType assetRuleConditionType = ApiMappings.ConvertRuleConditionType(filter.ConditionsContainType);
+            RuleConditionType assetRuleConditionType = ApiMappings.ConvertRuleConditionType(filter.ConditionsContainType);
 
             SlimAsset slimAsset = null;
 
@@ -4197,12 +4197,21 @@ namespace WebAPI.Clients
 
         internal KalturaBusinessModuleRule UpdateBusinessModuleRule(int groupId, long id, KalturaBusinessModuleRule businessModuleRule)
         {
-            throw new NotImplementedException();
+            businessModuleRule.Id = id;
+
+            Func<BusinessModuleRule, GenericResponse<BusinessModuleRule>> updateBusinessModuleRuleFunc = (BusinessModuleRule businessModuleRuleToUpdate) =>
+                Core.Api.Module.UpdateBusinessModuleRule(groupId, businessModuleRuleToUpdate);
+
+            KalturaBusinessModuleRule result =
+                ClientUtils.GetResponseFromWS<KalturaBusinessModuleRule, BusinessModuleRule>(businessModuleRule, updateBusinessModuleRuleFunc);
+
+            return result;
         }
 
-        internal bool DeleteBusinessModuleRule(int groupId, long id)
+        internal void DeleteBusinessModuleRule(int groupId, long id)
         {
-            throw new NotImplementedException();
+            Func<Status> deleteBusinessModuleRuleFunc = () => Core.Api.Module.DeleteBusinessModuleRule(groupId, id);
+            ClientUtils.GetResponseStatusFromWS(deleteBusinessModuleRuleFunc);
         }
 
         internal KalturaBusinessModuleRule GetBusinessModuleRule(int groupId, long id)
