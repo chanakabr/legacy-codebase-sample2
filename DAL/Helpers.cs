@@ -92,13 +92,18 @@ namespace DAL
                     var propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
                     var propAttribute = prop.GetCustomAttribute<DBFieldMappingAttribute>(true);
                     var fieldName = propAttribute != null ? propAttribute.DbFieldName : prop.Name;
-                    var safeValue = row[fieldName] == null ? null : Convert.ChangeType(row[fieldName], propType);
+
+                    object safeValue = null;
+                    if (row.Table.Columns.Contains(fieldName))
+                    {
+                        safeValue = row[fieldName] == null ? null : Convert.ChangeType(row[fieldName], propType);
+                    }
 
                     prop.SetValue(obj, safeValue, null);
                 }
                 catch (Exception e)
                 {
-                    _Logger.WarnFormat("Failed to convert DB field to object for object type: [{0}] prop:[{1}], ex:{2}", obj.GetType().Name, prop.Name, e);
+                    _Logger.ErrorFormat("Failed to convert DB field to object for object type: [{0}] prop:[{1}], ex:{2}", obj.GetType().Name, prop.Name, e);
                 }
             }
             return obj;
