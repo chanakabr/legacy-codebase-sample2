@@ -269,6 +269,7 @@ namespace ApiObjects.Response
         WrongParentAssociation = 4076,
         MetaDoesNotBelongToParentAssetStruct = 4077,
         MetaIdsDuplication = 4078,
+        AssetFilePPVNotExist = 4079,
 
         #endregion
 

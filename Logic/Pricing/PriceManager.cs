@@ -15,6 +15,8 @@ namespace Core.Pricing
     public class PriceManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string ASSET_FILE_PPV_NOT_EXIST = "Asset file ppv doesn't exist";
+
 
         public static GenericResponse<AssetFilePpv> AddAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
         {
@@ -78,6 +80,15 @@ namespace Core.Pricing
                     return response;
                 }
 
+                // validate ppvModuleId && mediaFileId not already exist
+                bool isExist = IsAssetFilePpvExist(groupId, mediaFileId, ppvModuleId);
+                if (!isExist)
+                {
+                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", mediaFileId, ppvModuleId, groupId);
+                    response.SetStatus(eResponseStatus.AssetFilePPVNotExist, ASSET_FILE_PPV_NOT_EXIST);
+                    return response;
+                }
+
                 DataTable dt = PricingDAL.UpdateAssetFilePPV(groupId, mediaFileId, ppvModuleId, startDate, endDate);
 
                 if (dt == null || dt.Rows.Count == 0)
@@ -117,7 +128,7 @@ namespace Core.Pricing
                 }
                 else if (res == -1)
                 {
-                    //return new Status((int)eResponseStatus.CouponGroupNotExist, COUPON_GROUP_NOT_EXIST);
+                    return new Status((int)eResponseStatus.AssetFilePPVNotExist, ASSET_FILE_PPV_NOT_EXIST);
                 }
                 else
                 {
