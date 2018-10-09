@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using TVinciShared;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -44,7 +45,8 @@ namespace WebAPI.Controllers
             if (parameter == null)
                 throw new RequestParserException();
 
-            if (parameter.GetType().IsArray)
+            Type parameterType = parameter.GetType();
+            if (parameterType.IsArray)
             {
                 int index;
                 if (!int.TryParse(token, out index))
@@ -54,47 +56,93 @@ namespace WebAPI.Controllers
 
                 result = ((object[])parameter)[index];
             }
-            else if (typeof(IList).IsAssignableFrom(parameter.GetType()))
+            else if (typeof(IList).IsAssignableFrom(parameterType))
             {
+                Match matchCondition = Regex.Match(token, @"^\[\w+(\=|\<|>|\!=).+\]$", RegexOptions.IgnoreCase);
                 List<object> parametersList = new List<object>(parameter as IEnumerable<object>);
-                if (token.Equals("*") && parametersList.All(x => x.GetType().IsSubclassOf(typeof(KalturaOTTObject))))
+                Type itemsType = parametersList.Count > 0 ? parametersList[0].GetType() : null;
+
+                if (typeof(KalturaOTTObject).IsAssignableFrom(itemsType) && (token.Equals("*") || matchCondition.Success))
                 {
-                    string propertyName = tokens.ElementAt(0);
+                    string propertyValueName = tokens.ElementAt(0);
                     tokens.RemoveAt(0);
 
-                    List<object> valueList = new List<object>();
-                    foreach (var item in parametersList)
+                    // TODO SHIR - CHECK IF ALLWAYS ALL ITEMS ARE IN THE SAME TYPE
+                    PropertyInfo propertyInfoValue = GetPropertyInfo(itemsType, propertyValueName);
+                    PropertyInfo propertyInfoCondition = null;
+                    string operatorValue = string.Empty;
+                    object conditionValue = null;
+
+                    if (matchCondition.Success)
                     {
-                        PropertyInfo propertyInfo = item.GetType().GetProperties().FirstOrDefault(property => propertyName.Equals(DataModel.getApiName(property), StringComparison.CurrentCultureIgnoreCase));
-                        if (propertyInfo == null)
+                        operatorValue = matchCondition.Groups[1].Value;
+                        int index = matchCondition.Groups[1].Index;
+                        string conditionPropertyName = token.Substring(1, index - 1);
+                        propertyInfoCondition = GetPropertyInfo(itemsType, conditionPropertyName);
+                        string conditionValueToConvert = token.Substring(index + 1, token.Length - index - 2);
+
+                        Type conditionType = Nullable.GetUnderlyingType(propertyInfoCondition.PropertyType);
+                        if (conditionType == null)
                         {
+                            conditionType = propertyInfoCondition.PropertyType;
+                        }
+                        
+                        if ((operatorValue.Equals("<") || operatorValue.Equals(">")) && !CanUseGreaterOrLessThanOperator(conditionType))
+                        {
+                            // TODO SHIR - SET INVALID operator for conditionValue
                             throw new RequestParserException();
                         }
 
-                        var value = propertyInfo.GetValue(item);
-                        if (value != null)
+                        conditionValue = TryConvertTo(conditionType, conditionValueToConvert);
+
+                        if (conditionValue == null)
                         {
-                            valueList.Add(value);
+                            // TODO SHIR - SET INVALID conditionValue -> NOT THE RIGHT TYPE
+                            throw new RequestParserException();
                         }
                     }
                     
+                    List<object> valueList = new List<object>();
+                    foreach (var item in parametersList)
+                    {
+                        var value = propertyInfoValue.GetValue(item);
+
+                        object checkValue = null;
+                        if (matchCondition.Success)
+                        {
+                            checkValue = propertyInfoCondition.GetValue(item);
+                        }
+
+                        if (value != null)
+                        {
+                            if (!matchCondition.Success || CheckCondition(operatorValue, checkValue, conditionValue))
+                            {
+                                valueList.Add(value);
+                            }
+                        }
+                    }
+
                     result = string.Join(",", valueList);
                 }
-                else
+                else if (parametersList.Count > 0)
                 {
                     int index;
                     if (!int.TryParse(token, out index))
                     {
                         throw new RequestParserException();
                     }
-
+                    
                     result = parametersList[index];
                 }
+                else
+                {
+                    // no items in the list
+                    result = string.Empty;
+                }
             }
-            else if (parameter.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+            else if (parameterType.IsSubclassOf(typeof(KalturaOTTObject)))
             {
-                Type type = parameter.GetType();
-                var properties = type.GetProperties();
+                var properties = parameterType.GetProperties();
                 result = null;
                 bool found = false;
                 foreach (PropertyInfo property in properties)
@@ -110,7 +158,7 @@ namespace WebAPI.Controllers
                 if (!found)
                     throw new RequestParserException();
             }
-            else if (parameter.GetType() == typeof(Dictionary<string, object>))
+            else if (parameterType == typeof(Dictionary<string, object>))
             {
                 Dictionary<string, object> dict = (Dictionary<string, object>)parameter;
                 if (!dict.ContainsKey(token))
@@ -131,6 +179,82 @@ namespace WebAPI.Controllers
             }
 
             return result;
+        }
+
+        private static PropertyInfo GetPropertyInfo(Type type, string propertyName)
+        {
+            PropertyInfo propertyInfo = type.GetProperties().FirstOrDefault
+                (property => propertyName.Equals(DataModel.getApiName(property), StringComparison.CurrentCultureIgnoreCase));
+
+            if (propertyInfo == null)
+            {
+                // TODO SHIR - SET GOOD ERROR -> "{propertyName} IS NOT PART OF {type.Name}" + StatusCode.InvalidPropery
+                throw new RequestParserException();
+            }
+
+            return propertyInfo;
+        }
+
+        private static bool CanUseGreaterOrLessThanOperator(Type type)
+        {
+            if (type == null)
+                return false;
+
+            TypeCode typeCode = Type.GetTypeCode(type);
+
+            switch (typeCode)
+            {
+                case TypeCode.SByte:
+                case TypeCode.Byte:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                case TypeCode.Single:
+                case TypeCode.Double:
+                case TypeCode.Decimal:
+                case TypeCode.DateTime:
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool CheckCondition(string operatorValue, dynamic obj1, dynamic obj2)
+        {
+            if (obj1 == null)
+            {
+                return false;
+            }
+
+            switch (operatorValue)
+            {
+                case "=": return obj1.Equals(obj2);
+                case "!=": return !obj1.Equals(obj2);
+                case ">": return obj1 > obj2;
+                case "<": return obj1 < obj2;
+                // TODO SHIR - SET GOOD ERROR -> "{operatorValue} IS invalid operator Value" + StatusCode.InvalidPropery
+                default: throw new RequestParserException(); 
+            }
+        }
+
+        private static object TryConvertTo(Type type, string value)
+        {
+            if (!string.IsNullOrEmpty(value) && type != null)
+            {
+                try
+                {
+                    return Convert.ChangeType(value, type);
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+
+            return null;
         }
 
         static private object translateMultirequestTokens(object parameter, object[] responses)
@@ -174,7 +298,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    Match match = Regex.Match((string)parameter, @" ^{(\d):result(:.+)?}$", RegexOptions.IgnoreCase);
+                    Match match = Regex.Match((string)parameter, @"^{(\d):result(:.+)?}$", RegexOptions.IgnoreCase);
                     if (match.Success)
                     {
                         int index = int.Parse(match.Groups[1].Value) - 1;
