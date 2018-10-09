@@ -11273,5 +11273,15 @@ namespace Core.Api
         {
             return APILogic.Api.Managers.PersonalListManager.DeletePersonalListItemForUser(groupId, personalListItemId, userId);
         }
+
+        internal static Status DeleteBusinessModuleRule(int groupId, long businessModuleRuleId)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.DeleteBusinessModuleRule(groupId, businessModuleRuleId);
+        }
+
+        internal static GenericResponse<BusinessModuleRule> UpdateBusinessModuleRule(int groupId, BusinessModuleRule businessModuleRule)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.UpdateBusinessModuleRule(groupId, businessModuleRule);
+        }
     }
 }

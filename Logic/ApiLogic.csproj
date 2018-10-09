@@ -139,6 +139,7 @@
     <Compile Include="Api\Managers\AssetUserRuleManager.cs" />
     <Compile Include="Api\Managers\AssetRuleManager.cs" />
     <Compile Include="Api\Managers\AssetLifeCycleRuleManager.cs" />
+    <Compile Include="Api\Managers\BusinessModuleRuleManager.cs" />
     <Compile Include="Api\Managers\EpgManager.cs" />
     <Compile Include="Api\Managers\PersonalListManager.cs" />
     <Compile Include="Api\Managers\RolesPermissionsManager.cs" />
