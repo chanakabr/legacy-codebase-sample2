@@ -102,6 +102,7 @@ namespace WebAPI.Controllers
         /// <param name="ppvModuleId">Ppv module id</param>        
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetFilePPVNotExist)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public bool Delete(long assetFileId, long ppvModuleId)
         {
@@ -140,6 +141,7 @@ namespace WebAPI.Controllers
         /// <param name="assetFilePpv">assetFilePpv</param>        
         [Action("update")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetFilePPVNotExist)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public KalturaAssetFilePpv Update(long assetFileId, long ppvModuleId, KalturaAssetFilePpv assetFilePpv)
         {
