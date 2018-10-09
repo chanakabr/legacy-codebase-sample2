@@ -71,27 +71,29 @@ namespace Core.Catalog
                 throw new KalturaException(userBundles.status.Message, userBundles.status.Code);
             }
 
-            List<int> channelIds = userBundles.channels;
             List<GroupsCacheManager.Channel> allChannels = new List<Channel>();
-            if (doesGroupUsesTemplates)
+            if (userBundles.channels != null && userBundles.channels.Count > 0)
             {
-                GenericListResponse<Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(groupId, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id, OrderDir.ASC, false);
-                if (channelRes.HasObjects())
+                if (doesGroupUsesTemplates)
                 {
-                    allChannels.AddRange(channelRes.Objects);
+                    GenericListResponse<Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(groupId, true, string.Empty, userBundles.channels, 0, userBundles.channels.Count, ChannelOrderBy.Id, OrderDir.ASC, false);
+                    if (channelRes.HasObjects())
+                    {
+                        allChannels.AddRange(channelRes.Objects);
+                    }
                 }
-            }
-            else
-            {
-                // Get channels from cache
-                allChannels.AddRange(groupManager.GetChannels(channelIds.ToList(), group.m_nParentGroupID));
-            }
+                else
+                {
+                    // Get channels from cache
+                    allChannels.AddRange(groupManager.GetChannels(userBundles.channels, group.m_nParentGroupID));
+                }
 
-            if (allChannels != null && allChannels.Count > 0)
-            {
-                // Build search object for each channel
-                var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order, groupId, doesGroupUsesTemplates);
-                result.AddRange(searchObjects);
+                if (allChannels != null && allChannels.Count > 0)
+                {
+                    // Build search object for each channel
+                    var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order, groupId, doesGroupUsesTemplates);
+                    result.AddRange(searchObjects);
+                }
             }
 
             return result;
