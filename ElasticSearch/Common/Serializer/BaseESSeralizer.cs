@@ -991,19 +991,19 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string SerializeEpgObject(EpgCB oEpg, string suffix = null)
+        public virtual string SerializeEpgObject(EpgCB oEpg, string suffix = null, bool doesGroupUsesTemplates = false)
         {
             StringBuilder sRecord = new StringBuilder();
             sRecord.Append("{ ");
 
-            SerializeEPGBody(oEpg, sRecord, suffix, true);
+            SerializeEPGBody(oEpg, sRecord, suffix, true, doesGroupUsesTemplates);
 
             sRecord.Append(" }");
 
             return sRecord.ToString();
         }
 
-        protected virtual void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord, string suffix = null, bool withRouting = true)
+        protected virtual void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord, string suffix = null, bool withRouting = true, bool doesGroupUsesTemplates = false)
         {
             string name = oEpg.Name;
             string description = oEpg.Description;
@@ -1011,13 +1011,10 @@ namespace ElasticSearch.Common
             sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\"," +
                 " \"{13}\": \"{6}\", \"{14}\": \"{7}\", \"cache_date\": \"{8}\", \"create_date\": \"{9}\", \"update_date\": \"{10}\"," +
                 "\"search_end_date\": \"{11}\", \"crid\": \"{12}\", \"epg_identifier\" : \"{15}\",",
-                oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
-                Common.Utils.ReplaceDocumentReservedCharacters(name, shouldLowerCase), Common.Utils.ReplaceDocumentReservedCharacters(description, shouldLowerCase),
-                /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), 
-                oEpg.CreateDate.ToString("yyyyMMddHHmmss"),
-                oEpg.UpdateDate.ToString("yyyyMMddHHmmss"),
-                oEpg.SearchEndDate.ToString("yyyyMMddHHmmss"),
-                oEpg.Crid,
+                oEpg.EpgID, doesGroupUsesTemplates ? oEpg.ParentGroupID : oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"),
+                oEpg.EndDate.ToString("yyyyMMddHHmmss"), Common.Utils.ReplaceDocumentReservedCharacters(name, shouldLowerCase),
+                Common.Utils.ReplaceDocumentReservedCharacters(description, shouldLowerCase), /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), 
+                oEpg.CreateDate.ToString("yyyyMMddHHmmss"), oEpg.UpdateDate.ToString("yyyyMMddHHmmss"), oEpg.SearchEndDate.ToString("yyyyMMddHHmmss"), oEpg.Crid,
                 // {13}
                 AddSuffix("name", suffix),
                 // {14}
@@ -1112,14 +1109,14 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId, string suffix = null)
+        public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId, string suffix = null, bool doesGroupUsesTemplates = false)
         {
             StringBuilder builder = new StringBuilder();
 
             builder.Append("{ ");
             builder.AppendFormat("\"recording_id\": {0},", recordingId);
 
-            SerializeEPGBody(oEpg, builder, suffix, false);
+            SerializeEPGBody(oEpg, builder, suffix, false, doesGroupUsesTemplates);
 
             builder.Append(" }");
 
