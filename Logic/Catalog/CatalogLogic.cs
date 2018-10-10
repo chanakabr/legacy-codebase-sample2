@@ -6573,7 +6573,7 @@ namespace Core.Catalog
             }
 
             // Build search object
-            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group, parentGroupID, catalogGroupCache);
+            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group, parentGroupID, catalogGroupCache, false);
 
             UnifiedSearchResponse searchResult;
 
@@ -7988,7 +7988,7 @@ namespace Core.Catalog
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group, int groupId,
-                                                                                CatalogManagement.CatalogGroupCache catalogGroupCache = null)
+                                                                                CatalogManagement.CatalogGroupCache catalogGroupCache = null, bool isSearchEntitlementInternal = true)
         {           
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
             bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
@@ -8343,7 +8343,7 @@ namespace Core.Catalog
 
             definitions.filterPhrase = root;
 
-            if (definitions.entitlementSearchDefinitions != null)
+            if (!isSearchEntitlementInternal && definitions.entitlementSearchDefinitions != null)
             {
                 UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, request.order, doesGroupUsesTemplates? groupId : group.m_nParentGroupID, group);
             }
