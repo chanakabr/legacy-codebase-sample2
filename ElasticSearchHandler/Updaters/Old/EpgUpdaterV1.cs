@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using KlogMonitorHelper;
+using Core.Catalog.CatalogManagement;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -122,17 +123,35 @@ namespace ElasticSearchHandler.Updaters
 
             try
             {
-                // get all languages per group
-                Group group = GroupsCache.Instance().GetGroup(this.groupId);
-
-                if (group == null)
+                CatalogGroupCache catalogGroupCache = null;
+                Group group = null;
+                List<ApiObjects.LanguageObj> languages = null;
+                GroupManager groupManager = new GroupManager();
+                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                if (doesGroupUsesTemplates)
                 {
-                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
-                    return false;
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
+                        return false;
+                    }
+
+                    languages = catalogGroupCache.LanguageMapById.Values.ToList();
+                }
+                else
+                {
+                    groupManager.RemoveGroup(groupId);
+                    group = groupManager.GetGroup(groupId);
+
+                    if (group == null)
+                    {
+                        log.ErrorFormat("Couldn't load group in cache when building index for group {0}", groupId);
+                        return result;
+                    }
+
+                    languages = group.GetLangauges();
                 }
 
-                // dictionary contains all language ids and its  code (string)
-                List<LanguageObj> languages = group.GetLangauges();
                 List<string> languageCodes = new List<string>();
 
                 if (languages != null)
@@ -204,7 +223,7 @@ namespace ElasticSearchHandler.Updaters
                                 // Create bulk request object for each program
                                 foreach (EpgCB epg in epgObjects)
                                 {
-                                    string serializedEpg = SerializeEPG(epg);
+                                    string serializedEpg = SerializeEPG(epg, doesGroupUsesTemplates);
                                     bulkRequests.Add(new ESBulkRequestObj<ulong>()
                                     {
                                         docID = GetDocumentId(epg),
@@ -265,9 +284,9 @@ namespace ElasticSearchHandler.Updaters
             return (ulong)epgId;
         }
 
-        protected virtual string SerializeEPG(EpgCB epg)
+        protected virtual string SerializeEPG(EpgCB epg, bool doesGroupUsesTemplates)
         {
-            return esSerializer.SerializeEpgObject(epg);
+            return esSerializer.SerializeEpgObject(epg, doesGroupUsesTemplates);
         }
 
         protected bool DeleteEpg(List<int> epgIDs)

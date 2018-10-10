@@ -252,7 +252,7 @@ namespace ElasticSearchHandler.Updaters
                                         epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
                                     }
 
-                                    string serializedEpg = SerializeEPG(epg, suffix);
+                                    string serializedEpg = SerializeEPG(epg, suffix, doesGroupUsesTemplates);
                                     string ttl = string.Format("{0}m", Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes));
 
                                     bulkRequests.Add(new ESBulkRequestObj<ulong>()
@@ -345,9 +345,9 @@ namespace ElasticSearchHandler.Updaters
             return (ulong)epgId;
         }
 
-        protected virtual string SerializeEPG(EpgCB epg, string suffix = null)
+        protected virtual string SerializeEPG(EpgCB epg, string suffix = null, bool doesGroupUsesTemplates = false)
         {
-            return esSerializer.SerializeEpgObject(epg, suffix);
+            return esSerializer.SerializeEpgObject(epg, suffix, doesGroupUsesTemplates);
         }
 
         protected bool DeleteEpg(List<int> epgIDs)

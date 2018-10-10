@@ -315,9 +315,9 @@ namespace ElasticSearchHandler.IndexBuilders
             }
         }
 
-        protected virtual string SerializeEPGObject(EpgCB epg, string suffix = null)
+        protected virtual string SerializeEPGObject(EpgCB epg, string suffix = null, bool doesGroupUsesTemplates = false)
         {
-            return serializer.SerializeEpgObject(epg, suffix);
+            return serializer.SerializeEpgObject(epg, suffix, doesGroupUsesTemplates);
         }
 
         protected virtual string GetNewIndexName()
@@ -473,7 +473,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
 
                         // Serialize EPG object to string
-                        string serializedEpg = SerializeEPGObject(epg, suffix);
+                        string serializedEpg = SerializeEPGObject(epg, suffix, doesGroupUsesTemplates);
                         string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
 
                         string ttl = string.Format("{0}m", Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes));

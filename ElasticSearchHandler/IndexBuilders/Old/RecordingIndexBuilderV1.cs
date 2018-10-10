@@ -117,11 +117,11 @@ namespace ElasticSearchHandler.IndexBuilders
             return ElasticsearchTasksCommon.Utils.GetRecordingGroupAliasStr(this.groupId);
         }
 
-        protected override string SerializeEPGObject(ApiObjects.EpgCB epg)
+        protected override string SerializeEPGObject(ApiObjects.EpgCB epg, bool doesGroupUsesTemplates)
         {
             long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID]);
 
-            return serializer.SerializeRecordingObject(epg, recordingId);
+            return serializer.SerializeRecordingObject(epg, recordingId, null, doesGroupUsesTemplates);
         }
 
         protected override ulong GetDocumentId(ulong epgId)

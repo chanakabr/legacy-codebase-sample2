@@ -132,11 +132,11 @@ namespace ElasticSearchHandler.Updaters
         /// </summary>
         /// <param name="epg"></param>
         /// <returns></returns>
-        protected override string SerializeEPG(ApiObjects.EpgCB epg)
+        protected override string SerializeEPG(ApiObjects.EpgCB epg, bool doesGroupUsesTemplates)
         {
             long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID]);
             
-            return esSerializer.SerializeRecordingObject(epg, recordingId);
+            return esSerializer.SerializeRecordingObject(epg, recordingId, null, doesGroupUsesTemplates);
         }
 
         #endregion

@@ -332,9 +332,9 @@ namespace ElasticSearchHandler.IndexBuilders
             }
         }
 
-        protected virtual string SerializeEPGObject(EpgCB epg)
+        protected virtual string SerializeEPGObject(EpgCB epg, bool doesGroupUsesTemplates)
         {
-            return serializer.SerializeEpgObject(epg);
+            return serializer.SerializeEpgObject(epg, null, doesGroupUsesTemplates);
         }
 
         protected virtual string GetNewIndexName()
@@ -448,7 +448,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     if (epg != null)
                     {
                         // Serialize EPG object to string
-                        string serializedEpg = SerializeEPGObject(epg);
+                        string serializedEpg = SerializeEPGObject(epg, doesGroupUsesTemplates);
                         string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
 
                         bulkList.Add(new ESBulkRequestObj<int>()
