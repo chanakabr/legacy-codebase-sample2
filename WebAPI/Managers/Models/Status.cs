@@ -181,6 +181,7 @@ namespace WebAPI.Managers.Models
         InvalidObjectType = 500076,
         MultirequestInvalidConditionValue = 500077,
         MultirequestInvalidOperatorForConditionType = 500078,
-        InvalidObjectProperty = 500079
+        InvalidObjectProperty = 500079,
+        RequestAborted = 500080
     }
 }

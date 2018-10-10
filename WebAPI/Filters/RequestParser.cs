@@ -31,6 +31,7 @@ using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using TVinciShared;
 
 namespace WebAPI.Filters
 {
@@ -795,25 +796,36 @@ namespace WebAPI.Filters
             Dictionary<string, object> currentRequestParams;
             
             int requestIndex = 0;
-            foreach (string index in requestParams.Keys)
+            foreach (var param in requestParams)
             {
-                if (!int.TryParse(index, out requestIndex))
+                if (!int.TryParse(param.Key, out requestIndex))
                     continue;
 
-                var requestItem = requestParams[index];
-                if (requestItem.GetType() == typeof(JObject) || requestItem.GetType().IsSubclassOf(typeof(JObject)))
+                if (param.Value.GetType() == typeof(JObject) || param.Value.GetType().IsSubclassOf(typeof(JObject)))
                 {
-                    currentRequestParams = ((JObject)requestItem).ToObject<Dictionary<string, object>>();
+                    currentRequestParams = ((JObject)param.Value).ToObject<Dictionary<string, object>>();
                 }
                 else
                 {
-                    currentRequestParams = (Dictionary<string, object>)requestItem;
+                    currentRequestParams = (Dictionary<string, object>)param.Value;
                 }
 
-                KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction(); ;
-                currentRequest.Service = currentRequestParams["service"].ToString();
-                currentRequest.Action = currentRequestParams["action"].ToString();
-                currentRequest.Parameters = currentRequestParams;
+                bool abortAllOnError = false;
+                if (currentRequestParams.ContainsKey("abortAllOnError"))
+                {
+                    BoolUtils.TryConvert(currentRequestParams["abortAllOnError"], out abortAllOnError);
+                }
+
+                KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction()
+                {
+                    Service = currentRequestParams["service"].ToString(),
+                    Action = currentRequestParams["action"].ToString(),
+                    Parameters = currentRequestParams,
+                    AbortAllOnError = abortAllOnError
+                    //TODO SHIR - SKIP AND ABORT
+                    //currentRequest.SkipOption
+                };
+               
                 requests.Add(currentRequest);
                 requestIndex++;
             }

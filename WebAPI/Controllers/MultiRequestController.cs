@@ -299,7 +299,6 @@ namespace WebAPI.Controllers
                         List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
                         tokens.RemoveAt(0);
                         translatedValue = translateToken(responses[index], tokens);
-
                     }
                     else
                     {
@@ -347,7 +346,7 @@ namespace WebAPI.Controllers
 
             return parameter;
         }
-        
+
         /// <summary>
         /// Run a multi request call 
         /// </summary>
@@ -363,43 +362,65 @@ namespace WebAPI.Controllers
         {
             Assembly asm = Assembly.GetExecutingAssembly();
             object[] responses = new object[request.Count()];
+            bool needToAbortRequest = false;
+            int abortingRequestIndex = 0;
             for (int i = 0; i < request.Count(); i++)
             {
                 object response;
-                Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
-                if (controller == null)
+                bool isErrorOccurred = false;
+
+                if (needToAbortRequest)
                 {
-                    response = new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
+                    response = new BadRequestException(BadRequestException.REQUEST_ABORTED, abortingRequestIndex+1);
+                    isErrorOccurred = true;
                 }
                 else
                 {
-                    try
+                    Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
+                    if (controller == null)
                     {
-                        Dictionary<string, object> parameters = request[i].Parameters;
-                        if (i > 0)
+                        response = new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
+                        isErrorOccurred = true;
+                    }
+                    else
+                    {
+                        try
                         {
-                            parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses);
+                            Dictionary<string, object> parameters = request[i].Parameters;
+                            if (i > 0)
+                            {
+                                parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses);
+                            }
+                            RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
+                            Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
+                            List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
+                            response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                         }
-                        RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
-                        Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
-                        List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
-                        response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
-                    }
-                    catch (ApiException e)
-                    {
-                        response = e;
-                    }
-                    catch (Exception e)
-                    {
-                        response = e.InnerException;
+                        catch (ApiException e)
+                        {
+                            response = e;
+                            isErrorOccurred = true;
+                        }
+                        catch (Exception e)
+                        {
+                            response = e.InnerException;
+                            isErrorOccurred = true;
+                        }
                     }
                 }
 
                 if (response is ApiException)
                 {
                     response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
+                    isErrorOccurred = true;
                 }
                 responses[i] = response;
+
+                if (!needToAbortRequest && request[i].AbortAllOnError && (isErrorOccurred || response is Exception))
+                {
+                    needToAbortRequest = true;
+                    abortingRequestIndex = i;
+                }
             }
 
             return responses;

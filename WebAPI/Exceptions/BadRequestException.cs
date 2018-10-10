@@ -30,6 +30,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ACTION_NOT_SPECIFIED = new ApiExceptionType(StatusCode.ActionNotSpecified, StatusCode.Error, "Action not specified");
         public static ApiExceptionType INVALID_ACTION_PARAMETER = new ApiExceptionType(StatusCode.InvalidActionParameter, StatusCode.InvalidActionParameters, "Invalid action parameter [@parameter@]", "parameter");
         public static ApiExceptionType INVALID_ACTION_PARAMETERS = new ApiExceptionType(StatusCode.InvalidActionParameters, "Invalid action parameters");
+        public static ApiExceptionType REQUEST_ABORTED = new ApiExceptionType(StatusCode.RequestAborted, "This request aborted because there was an error in request number [@index@]", "index");
 
         public static ApiExceptionType INVALID_ARGUMENT = new ApiExceptionType(StatusCode.InvalidArgument, StatusCode.BadRequest, "Argument [@argument@] is invalid", "argument");
         public static ApiExceptionType ARGUMENT_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.ArgumentMustBeNumeric, StatusCode.BadRequest, "Argument [@argument@] must be numeric", "argument");
