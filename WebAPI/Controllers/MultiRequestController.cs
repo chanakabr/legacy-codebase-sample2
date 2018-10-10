@@ -58,59 +58,83 @@ namespace WebAPI.Controllers
             }
             else if (typeof(IList).IsAssignableFrom(parameterType))
             {
-                Match matchCondition = Regex.Match(token, @"^\[\w+(\=|\<|>|\!=).+\]$", RegexOptions.IgnoreCase);
+                Match matchCondition = Regex.Match(token, @"^\[[\w\d]+(=|<|>|!=)[^\]]+\]$", RegexOptions.IgnoreCase);
                 List<object> parametersList = new List<object>(parameter as IEnumerable<object>);
-                Type itemsType = parametersList.Count > 0 ? parametersList[0].GetType() : null;
-
-                if (typeof(KalturaOTTObject).IsAssignableFrom(itemsType) && (token.Equals("*") || matchCondition.Success))
+                
+                if (parametersList.FirstOrDefault() is KalturaOTTObject && (token.Equals("*") || matchCondition.Success))
                 {
                     string propertyValueName = tokens.ElementAt(0);
                     tokens.RemoveAt(0);
-
-                    // TODO SHIR - CHECK IF ALLWAYS ALL ITEMS ARE IN THE SAME TYPE
-                    PropertyInfo propertyInfoValue = GetPropertyInfo(itemsType, propertyValueName);
-                    PropertyInfo propertyInfoCondition = null;
+                    
                     string operatorValue = string.Empty;
-                    object conditionValue = null;
-
+                    string conditionPropertyName = string.Empty;
+                    string conditionValueToConvert = string.Empty;
                     if (matchCondition.Success)
                     {
                         operatorValue = matchCondition.Groups[1].Value;
                         int index = matchCondition.Groups[1].Index;
-                        string conditionPropertyName = token.Substring(1, index - 1);
-                        propertyInfoCondition = GetPropertyInfo(itemsType, conditionPropertyName);
-                        string conditionValueToConvert = token.Substring(index + 1, token.Length - index - 2);
-
-                        Type conditionType = Nullable.GetUnderlyingType(propertyInfoCondition.PropertyType);
-                        if (conditionType == null)
-                        {
-                            conditionType = propertyInfoCondition.PropertyType;
-                        }
-                        
-                        if ((operatorValue.Equals("<") || operatorValue.Equals(">")) && !CanUseGreaterOrLessThanOperator(conditionType))
-                        {
-                            throw new RequestParserException(RequestParserException.INVALID_OPERATOR, operatorValue, conditionType.Name);
-                        }
-
-                        conditionValue = TryConvertTo(conditionType, conditionValueToConvert);
-
-                        if (conditionValue == null)
-                        {
-                            throw new RequestParserException(RequestParserException.INVALID_CONDITION_VALUE, conditionValueToConvert, conditionType.Name);
-                        }
+                        conditionPropertyName = token.Substring(1, index - 1);
+                        conditionValueToConvert = token.Substring(index + 1, token.Length - index - 2);
                     }
                     
                     List<object> valueList = new List<object>();
+                    // item1 = value, item2 = condition
+                    Dictionary<Type, Tuple<PropertyInfo, PropertyInfo>> typesToPropertyInfosMap = new Dictionary<Type, Tuple<PropertyInfo, PropertyInfo>>();
+                    Dictionary<Type, object> typesToConditionValueMap = new Dictionary<Type, object>();
+
                     foreach (var item in parametersList)
                     {
-                        var value = propertyInfoValue.GetValue(item);
-
-                        object checkValue = null;
-                        if (matchCondition.Success)
+                        Type itemType = item.GetType();
+                        if (!typesToPropertyInfosMap.ContainsKey(itemType))
                         {
-                            checkValue = propertyInfoCondition.GetValue(item);
+                            PropertyInfo propertyInfoValue = GetPropertyInfo(itemType, propertyValueName);
+                            PropertyInfo propertyInfoCoindition = null;
+                            if (matchCondition.Success)
+                            {
+                                propertyInfoCoindition = GetPropertyInfo(itemType, conditionPropertyName);
+                                if (propertyInfoCoindition != null)
+                                {
+                                    Type conditionType = Nullable.GetUnderlyingType(propertyInfoCoindition.PropertyType);
+                                    if (conditionType == null)
+                                    {
+                                        conditionType = propertyInfoCoindition.PropertyType;
+                                    }
+
+                                    if ((operatorValue.Equals("<") || operatorValue.Equals(">")) && !CanUseGreaterOrLessThanOperator(conditionType))
+                                    {
+                                        throw new RequestParserException(RequestParserException.INVALID_OPERATOR, operatorValue, conditionType.Name);
+                                    }
+
+                                    object conditionConvertedValue = TryConvertTo(conditionType, conditionValueToConvert);
+
+                                    if (conditionConvertedValue == null)
+                                    {
+                                        throw new RequestParserException(RequestParserException.INVALID_CONDITION_VALUE, conditionValueToConvert, conditionType.Name);
+                                    }
+
+                                    typesToConditionValueMap.Add(itemType, conditionConvertedValue);
+                                }
+                            }
+
+                            typesToPropertyInfosMap.Add(itemType, new Tuple<PropertyInfo, PropertyInfo>(propertyInfoValue, propertyInfoCoindition));
                         }
 
+                        if (typesToPropertyInfosMap[itemType].Item1 == null)
+                        {
+                            // TODO SHIR - ASK TAN TAN IF THE PROPERTY IS NOT IN CURRENT ITEM (EPG AND MEDIA HAVE DIFFERENT PROPS SO- THROW AN EXCEPTION OR continue?
+                            //continue
+                        }
+                        
+                        object checkValue = null;
+                        object conditionValue = null;
+                        if (matchCondition.Success && typesToPropertyInfosMap[itemType].Item2 != null)
+                        {
+                            // TODO SHIR - ASK TAN TAN IF THE PROPERTY IS NOT IN CURRENT ITEM (EPG AND MEDIA HAVE DIFFERENT PROPS SO- THROW AN EXCEPTION OR CONTINUE?
+                            checkValue = typesToPropertyInfosMap[itemType].Item2.GetValue(item);
+                            conditionValue = typesToConditionValueMap[itemType];
+                        }
+
+                        var value = typesToPropertyInfosMap[itemType].Item1.GetValue(item);
                         if (value != null)
                         {
                             if (!matchCondition.Success || CheckCondition(operatorValue, checkValue, conditionValue))
@@ -258,64 +282,36 @@ namespace WebAPI.Controllers
             if (parameter.GetType() == typeof(string))
             {
                 string text = parameter as string;
-                Match matchKsql = Regex.Match(text, @"('\${).*(}')", RegexOptions.IgnoreCase);
-                if (matchKsql.Success)
+                Match match = Regex.Match(text, @"{(\d):result(:[^}]+)?}", RegexOptions.IgnoreCase);
+
+                while (match.Success)
                 {
-                    StringBuilder sb = new StringBuilder(text);
-                    Regex splitedRegex = new Regex(@"\s", RegexOptions.IgnoreCase);
-                    var matches = splitedRegex.Matches(text);
-                    if (matches.Count == 0)
+                    int index = int.Parse(match.Groups[1].Value) - 1;
+                    if (index < 0)
+                        throw new RequestParserException(RequestParserException.INDEX_NOT_ZERO_BASED);
+
+                    if (index >= responses.Length)
+                        throw new RequestParserException(RequestParserException.INVALID_INDEX);
+
+                    object translatedValue;
+                    if (match.Groups[2].Success)
                     {
-                        var length = matchKsql.Value.Length - 2;
-                        var newParam = matchKsql.Value.Substring(1, length);
-                        var translatedValue = translateMultirequestTokens(newParam.Substring(1, length - 1), responses);
-                        sb.Replace(newParam, translatedValue.ToString());
-                        parameter = sb.ToString();
+                        List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
+                        tokens.RemoveAt(0);
+                        translatedValue = translateToken(responses[index], tokens);
+
                     }
                     else
                     {
-                        int index = 0;
-                        string subKsqlFromRequest;
-                        object translatedSubKsql;
-
-                        foreach (Match spaceMatch in matches)
-                        {
-                            subKsqlFromRequest = text.Substring(index, spaceMatch.Index - index);
-                            translatedSubKsql = translateMultirequestTokens(subKsqlFromRequest, responses);
-                            sb.Replace(subKsqlFromRequest, translatedSubKsql.ToString());
-                            index = spaceMatch.Index + spaceMatch.Length;
-                        }
-
-                        subKsqlFromRequest = text.Substring(index, text.Length - index);
-                        translatedSubKsql = translateMultirequestTokens(subKsqlFromRequest, responses);
-                        sb.Replace(subKsqlFromRequest, translatedSubKsql.ToString());
-                        parameter = sb.ToString();
+                        translatedValue = responses[index];
+                        //parameter = responses[index];
                     }
-                }
-                else
-                {
-                    Match match = Regex.Match((string)parameter, @"^{(\d):result(:.+)?}$", RegexOptions.IgnoreCase);
-                    if (match.Success)
-                    {
-                        int index = int.Parse(match.Groups[1].Value) - 1;
-                        if (index < 0)
-                            throw new RequestParserException(RequestParserException.INDEX_NOT_ZERO_BASED);
 
-                        if (index >= responses.Length)
-                            throw new RequestParserException(RequestParserException.INVALID_INDEX);
-
-                        if (match.Groups[2].Success)
-                        {
-                            List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
-                            tokens.RemoveAt(0);
-                            parameter = translateToken(responses[index], tokens);
-                        }
-                        else
-                        {
-                            parameter = responses[index];
-                        }
-                    }
+                    text = text.Replace(match.Value, translatedValue.ToString());
+                    match = match.NextMatch();
                 }
+
+                parameter = text;
             }
             else if (parameter.GetType().IsArray)
             {
