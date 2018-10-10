@@ -44,6 +44,9 @@ namespace WebAPI.Filters
         public static ApiExceptionType INDEX_NOT_ZERO_BASED = new ApiExceptionType(StatusCode.MultirequestIndexNotZeroBased, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, response index is not zero based");
         public static ApiExceptionType INVALID_INDEX = new ApiExceptionType(StatusCode.MultirequestInvalidIndex, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid response index");
         public static ApiExceptionType GENERIC_METHOD = new ApiExceptionType(StatusCode.MultirequestGenericMethod, StatusCode.InvalidService, "Invalid multirequest service, invalid service: [@service@], action: [@action@]", "service", "action");
+        public static ApiExceptionType INVALID_OPERATOR = new ApiExceptionType(StatusCode.MultirequestInvalidOperatorForConditionType, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid operator [@operator@] for condition type [@conditionType@]", "operator", "conditionType");
+        public static ApiExceptionType INVALID_CONDITION_VALUE = new ApiExceptionType(StatusCode.MultirequestInvalidConditionValue, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid condition value [@conditionValue@] for condition type [@conditionType@]", "conditionValue", "conditionType");
+        public static ApiExceptionType INVALID_OBJECT_PROPERTY = new ApiExceptionType(StatusCode.InvalidObjectProperty, "[@propertyName@] is not part of [@objectType@]", "propertyName", "objectType");
 
         public RequestParserException()
             : this(INVALID_MULTIREQUEST_TOKEN)

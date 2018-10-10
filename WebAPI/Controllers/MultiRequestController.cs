@@ -89,16 +89,14 @@ namespace WebAPI.Controllers
                         
                         if ((operatorValue.Equals("<") || operatorValue.Equals(">")) && !CanUseGreaterOrLessThanOperator(conditionType))
                         {
-                            // TODO SHIR - SET INVALID operator for conditionValue
-                            throw new RequestParserException();
+                            throw new RequestParserException(RequestParserException.INVALID_OPERATOR, operatorValue, conditionType.Name);
                         }
 
                         conditionValue = TryConvertTo(conditionType, conditionValueToConvert);
 
                         if (conditionValue == null)
                         {
-                            // TODO SHIR - SET INVALID conditionValue -> NOT THE RIGHT TYPE
-                            throw new RequestParserException();
+                            throw new RequestParserException(RequestParserException.INVALID_CONDITION_VALUE, conditionValueToConvert, conditionType.Name);
                         }
                     }
                     
@@ -188,8 +186,7 @@ namespace WebAPI.Controllers
 
             if (propertyInfo == null)
             {
-                // TODO SHIR - SET GOOD ERROR -> "{propertyName} IS NOT PART OF {type.Name}" + StatusCode.InvalidPropery
-                throw new RequestParserException();
+                throw new RequestParserException(RequestParserException.INVALID_OBJECT_PROPERTY, propertyName, type.Name);
             }
 
             return propertyInfo;
@@ -235,8 +232,7 @@ namespace WebAPI.Controllers
                 case "!=": return !obj1.Equals(obj2);
                 case ">": return obj1 > obj2;
                 case "<": return obj1 < obj2;
-                // TODO SHIR - SET GOOD ERROR -> "{operatorValue} IS invalid operator Value" + StatusCode.InvalidPropery
-                default: throw new RequestParserException(); 
+                default: throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "operator", "= , != , > , < ");
             }
         }
 
