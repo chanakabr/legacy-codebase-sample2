@@ -107,8 +107,7 @@ namespace QueueWrapper
                     if (configurationData != null)
                     {
                         configurationData.RoutingKey = routingKey;
-
-                        RabbitConnection.Instance.ResetFailCounter();
+                        
                         success = RabbitConnection.Instance.Publish(configurationData, dataToIndex);
                     }
                 }
