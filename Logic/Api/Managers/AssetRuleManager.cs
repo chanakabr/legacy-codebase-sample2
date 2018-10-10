@@ -13,7 +13,6 @@ using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
-using QueueWrapper;
 using ScheduledTasks;
 using System;
 using System.Collections.Concurrent;
@@ -52,8 +51,23 @@ namespace Core.Api.Managers
                 foreach (KeyValuePair<int, List<AssetRule>> pair in allRules)
                 {
                     groupId = pair.Key;
-                    Group group = new GroupManager().GetGroup(groupId);
-                    if (group.isGeoAvailabilityWindowingEnabled)
+                    bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                    GroupsCacheManager.Group group = null;
+                    Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+                    if (doesGroupUsesTemplates)
+                    {
+                        if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
+                            return result.Count;
+                        }
+                    }
+                    else
+                    {
+                        group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                    }
+                                        
+                    if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
                     {
                         List<AssetRule> rules = pair.Value;
                         Task<List<int>>[] tasks = new Task<List<int>>[rules.Count];

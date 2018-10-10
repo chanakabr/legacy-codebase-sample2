@@ -1835,7 +1835,8 @@ namespace Core.ConditionalAccess
         }
 
         
-        public static EntitlementRenewalResponse GetEntitlementNextRenewal(BaseConditionalAccess cas, int groupId, long householdId, long purchaseId)
+        public static EntitlementRenewalResponse GetEntitlementNextRenewal(BaseConditionalAccess cas, int groupId, long householdId, long purchaseId, 
+            long userId )
         {
             EntitlementRenewalResponse response = new EntitlementRenewalResponse()
             {
@@ -1869,8 +1870,7 @@ namespace Core.ConditionalAccess
             string previousPurchaseCurrencyCode = string.Empty;
             string previousPurchaseCountryCode = string.Empty;
             string previousPurchaseCountryName = string.Empty;
-
-
+            
             string customData = null;
             #region Dummy
             try
@@ -1902,7 +1902,8 @@ namespace Core.ConditionalAccess
                                 PurchaseId = purchaseId,
                                 Date = endDate,
                                 GroupId = groupId,
-                                Id = purchaseId
+                                Id = purchaseId,
+                                UserId = userId
                             },
                             Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
                         };
@@ -2015,14 +2016,15 @@ namespace Core.ConditionalAccess
                     countryId = country != null ? country.Id : 0
                 },
                 GroupId = groupId,
-                Id = purchaseId
+                Id = purchaseId,
+                UserId = userId
             };
 
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             return response;
         }
 
-        public static UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(BaseConditionalAccess cas, int groupId, long householdId, long unifiedPaymentId)
+        public static UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(BaseConditionalAccess cas, int groupId, long householdId, long unifiedPaymentId, long userId)
         {
             UnifiedPaymentRenewalResponse response = new UnifiedPaymentRenewalResponse()
             {
@@ -2175,7 +2177,8 @@ namespace Core.ConditionalAccess
                     countryId = country != null ? country.Id : 0
                 },
                 GroupId = groupId,
-                Id = unifiedPaymentId
+                Id = unifiedPaymentId,
+                UserId = userId
             };
 
             EntitlementRenewalBase entitlementRenewal = null;
@@ -2216,7 +2219,9 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            var renewalResponse = GetEntitlementNextRenewal(baseConditionalAccess, groupId, householdId, purchaseId);
+            long userId = long.Parse(siteGuid);
+
+            var renewalResponse = GetEntitlementNextRenewal(baseConditionalAccess, groupId, householdId, purchaseId, userId);
 
             if (renewalResponse == null || renewalResponse.Status == null || renewalResponse.Status.Code != (int)eResponseStatus.OK || renewalResponse.EntitlementRenewal == null)
             {
@@ -2296,7 +2301,9 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            var unifiedPaymentResponse = GetUnifiedPaymentNextRenewal(baseConditionalAccess, groupId, householdId, processId);
+            long userId = long.Parse(siteGuid);
+
+            var unifiedPaymentResponse = GetUnifiedPaymentNextRenewal(baseConditionalAccess, groupId, householdId, processId, userId);
 
             if (unifiedPaymentResponse == null || unifiedPaymentResponse.Status == null || unifiedPaymentResponse.Status.Code != (int)eResponseStatus.OK || 
                 unifiedPaymentResponse.UnifiedPaymentRenewal == null)

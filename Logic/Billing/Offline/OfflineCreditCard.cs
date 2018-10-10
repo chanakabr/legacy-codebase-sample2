@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using QueueWrapper;
 using ApiObjects.MediaIndexingObjects;
 using ApiObjects.Billing;
 
@@ -33,17 +32,17 @@ namespace Core.Billing
         /// Charges user in an offline way: Not charging him at the moment, 
         /// instead publish a notification to the queue and later on it will be picked and a charge will occur
         /// </summary>
-        /// <param name="p_sSiteGUID"></param>
-        /// <param name="p_dChargePrice"></param>
-        /// <param name="p_sCurrencyCode"></param>
-        /// <param name="p_sUserIP"></param>
-        /// <param name="p_sCustomData"></param>
-        /// <param name="p_nPaymentNumber"></param>
-        /// <param name="p_nNumberOfPayments"></param>
-        /// <param name="p_sExtraParameters"></param>
+        /// <param name="siteGUID"></param>
+        /// <param name="chargePrice"></param>
+        /// <param name="currencyCode"></param>
+        /// <param name="userIP"></param>
+        /// <param name="customData"></param>
+        /// <param name="paymentNumber"></param>
+        /// <param name="numberOfPayments"></param>
+        /// <param name="extraParameters"></param>
         /// <returns></returns>
-        public override BillingResponse ChargeUser(string p_sSiteGUID, double p_dChargePrice, 
-            string p_sCurrencyCode, string p_sUserIP, string p_sCustomData, int p_nPaymentNumber, int p_nNumberOfPayments, string p_sExtraParameters)
+        public override BillingResponse ChargeUser(string siteGUID, double chargePrice, 
+            string currencyCode, string userIP, string customData, int paymentNumber, int numberOfPayments, string extraParameters)
         {
             BillingResponse oResponse = new BillingResponse();
             
@@ -52,7 +51,7 @@ namespace Core.Billing
             oResponse.m_sStatusDescription = "Unkown";
 
             // Check if user exists and respond accordingly
-            if (!Utils.IsUserExist(p_sSiteGUID, this.m_nGroupID))
+            if (!Utils.IsUserExist(siteGUID, this.m_nGroupID))
             {
                 oResponse.m_oStatus = BillingResponseStatus.UnKnownUser;
                 oResponse.m_sRecieptCode = string.Empty;
@@ -62,7 +61,7 @@ namespace Core.Billing
             {
                 long lSiteGuid;
 
-                if (long.TryParse(p_sSiteGUID, out lSiteGuid))
+                if (long.TryParse(siteGUID, out lSiteGuid))
                 {
                     long lOfflineTransactionID = 0;
 
@@ -70,7 +69,7 @@ namespace Core.Billing
                     {
                         // Insert new offline transaction record
                         lOfflineTransactionID = 
-                            DAL.BillingDAL.Insert_NewOfflineTransaction(lSiteGuid, p_dChargePrice, p_sCurrencyCode, this.m_nGroupID, p_sCustomData, null);
+                            DAL.BillingDAL.Insert_NewOfflineTransaction(lSiteGuid, chargePrice, currencyCode, this.m_nGroupID, customData, null);
                     }
                     catch (Exception)
                     {
@@ -83,7 +82,7 @@ namespace Core.Billing
                     if (lOfflineTransactionID != 0)
                     {
                         long lBillingTransactionID = 
-                            InsertBillingTransaction(p_sSiteGUID, p_sCustomData, p_nPaymentNumber, ref p_nNumberOfPayments, lOfflineTransactionID);
+                            InsertBillingTransaction(siteGUID, customData, paymentNumber, ref numberOfPayments, lOfflineTransactionID);
 
                         // If insert was succesful
                         if (lBillingTransactionID != 0)

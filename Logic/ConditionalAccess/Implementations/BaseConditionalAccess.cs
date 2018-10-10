@@ -16634,14 +16634,14 @@ namespace Core.ConditionalAccess
             return response;
         }
         
-        internal EntitlementRenewalResponse GetEntitlementNextRenewal(long householdId, int purchaseId)
+        internal EntitlementRenewalResponse GetEntitlementNextRenewal(long householdId, int purchaseId, long userId)
         {
-            return RenewManager.GetEntitlementNextRenewal(this, this.m_nGroupID, householdId, purchaseId);
+            return RenewManager.GetEntitlementNextRenewal(this, this.m_nGroupID, householdId, purchaseId, userId);
         }
 
-        internal UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(long householdId, int unifiedPaymentId)
+        internal UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(long householdId, int unifiedPaymentId, long userId)
         {
-            return RenewManager.GetUnifiedPaymentNextRenewal(this, this.m_nGroupID, householdId, unifiedPaymentId);
+            return RenewManager.GetUnifiedPaymentNextRenewal(this, this.m_nGroupID, householdId, unifiedPaymentId, userId);
         }
         
         internal bool RenewalReminder(string siteGuid, long purchaseId, long endDate)

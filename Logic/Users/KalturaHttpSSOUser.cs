@@ -55,7 +55,9 @@ namespace Core.Users
         public override UserResponseObject PreSignIn(ref int siteGuid, ref string userName, ref string password, ref int maxFailCount, ref int lockMin, ref int groupId, ref string sessionId, ref string ip, ref string deviceId, ref bool preventDoubleLogin, ref List<KeyValuePair> keyValueList)
         {
             if (!_ImplementedMethods.Contains(eSSOMethods.PerSignIn))
+            {
                 return base.PreSignIn(ref siteGuid, ref userName, ref password, ref maxFailCount, ref lockMin, ref groupId, ref sessionId, ref ip, ref deviceId, ref preventDoubleLogin, ref keyValueList);
+            }
 
             try
             {
@@ -108,7 +110,10 @@ namespace Core.Users
         public override void PostSignIn(ref UserResponseObject authenticatedUser, ref List<KeyValuePair> keyValueList)
         {
             if (!_ImplementedMethods.Contains(eSSOMethods.PostSignIn))
+            {
                 base.PostSignIn(ref authenticatedUser, ref keyValueList);
+                return;
+            }
 
 
             try
@@ -151,7 +156,9 @@ namespace Core.Users
         public override UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP)
         {
             if (!_ImplementedMethods.Contains(eSSOMethods.PreGetUserData))
+            {
                 return base.PreGetUserData(sSiteGUID, ref keyValueList, userIP);
+            }
 
             try
             {
@@ -189,14 +196,16 @@ namespace Core.Users
         public override void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP)
         {
             if (!_ImplementedMethods.Contains(eSSOMethods.PostGetUserData))
+            {
                 base.PostGetUserData(ref userResponse, sSiteGUID, ref keyValueList, userIP);
+                return;
+            }
 
             try
             {
                 var userData = ConvertUserToSSOUser(userResponse.m_user);
                 var customParams = keyValueList.ToDictionary(k => k.key, v => v.value);
 
-                //TODO: signature from object
                 var customParamsStr = string.Concat(customParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterId, userData.Id, userData.Username, userData.Email, customParamsStr);
 
@@ -214,8 +223,9 @@ namespace Core.Users
                     userResponse.m_RespStatus = (ResponseStatus)(int)response.SSOResponseStatus.ResponseStatus;
                 }
 
-                // map the response to the user data;
-                userResponse.m_user = null; //TODO: ask Ira\TanTan why automapper is not used here ? should this code be elsewhere ?  
+                // if all okay return converted user
+                userResponse.m_RespStatus = (ResponseStatus)(int)response.SSOResponseStatus.ResponseStatus;
+                userResponse.m_user = ConvertSSOUserToUser(response.User);
             }
             catch (Exception e)
             {

@@ -19,10 +19,19 @@ namespace ApiObjects.Segmentation
     public class ContentScoreCondition : SegmentCondition
     {
         [JsonProperty()]
-        public int Score { get; set; }
+        public int? MinScore { get; set; }
 
         [JsonProperty()]
-        public int Days { get; set; }
+        public int? MaxScore { get; set; }
+
+        [JsonProperty()]
+        public int? Days { get; set; }
+
+        [JsonProperty()]
+        public string Field { get; set; }
+
+        [JsonProperty()]
+        public string Value { get; set; }
 
         [JsonProperty()]
         public List<ContentActionCondition> Actions { get; set; }
@@ -34,7 +43,10 @@ namespace ApiObjects.Segmentation
         public ContentAction Action { get; set; }
 
         [JsonProperty()]
-        public int Length { get; set; }
+        public int? Length { get; set; }
+
+        [JsonProperty()]
+        public ContentConditionLengthType LengthType { get; set; }
 
         [JsonProperty()]
         public int Multiplier { get; set; }
@@ -43,7 +55,13 @@ namespace ApiObjects.Segmentation
     public class MonetizationScoredCondition : SegmentCondition
     {
         [JsonProperty()]
-        public int Score { get; set; }
+        public int? MinScore { get; set; }
+
+        [JsonProperty()]
+        public int? MaxScore { get; set; }
+
+        [JsonProperty()]
+        public int? Days { get; set; }
 
         [JsonProperty()]
         public List<MonetizationCondition> Actions { get; set; }
@@ -55,7 +73,7 @@ namespace ApiObjects.Segmentation
         public MonetizationType Type;
 
         [JsonProperty()]
-        public int MinimumPrice;
+        public int? MinimumPrice;
 
         [JsonProperty()]
         public int Multiplier;

@@ -7191,9 +7191,7 @@ namespace Core.Catalog
 
             // BEO-1338: Related media types is from the Media Search Request object - it knows the best!          
             definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
-
-
-
+            
 
             if (!doesGroupUsesTemplates && group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
@@ -8020,7 +8018,16 @@ namespace Core.Catalog
                                                                                 CatalogManagement.CatalogGroupCache catalogGroupCache = null)
         {           
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-            bool doesGroupUsesTemplates = catalogGroupCache != null || CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+
+            if (doesGroupUsesTemplates && catalogGroupCache == null)
+            {
+                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildInternalChannelSearchObject", groupId);
+                    return definitions;
+                }
+           }
 
             #region Basic
 
@@ -8395,7 +8402,7 @@ namespace Core.Catalog
 
             #region Geo Availability
 
-            if ((doesGroupUsesTemplates && catalogGroupCache.IsGeoAvailabilityWindowingEnabled) || (!doesGroupUsesTemplates && group.isGeoAvailabilityWindowingEnabled))
+            if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
             {
                 definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
             }
@@ -8410,27 +8417,15 @@ namespace Core.Catalog
             }
 
             #endregion
+
             return definitions;
         }
 
-        public static UnifiedSearchDefinitions BuildInternalChannelSearchObjectWithBaseRequest(GroupsCacheManager.Channel channel, BaseRequest request, Group group, int groupId)
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObjectWithBaseRequest(GroupsCacheManager.Channel channel, BaseRequest request, Group group, int groupId, bool doesGroupUsesTemplates)
         {
-            InternalChannelRequest channelRequest = new InternalChannelRequest(
-                channel.m_nChannelID.ToString(),
-                string.Empty,
-                group.m_nParentGroupID,
-                request.m_nPageSize,
-                request.m_nPageIndex,
-                request.m_sUserIP,
-                request.m_sSignature,
-                request.m_sSignString,
-                request.m_oFilter,
-                string.Empty,
-                new OrderObj()
-                {
-
-                }
-                );
+            InternalChannelRequest channelRequest = new InternalChannelRequest(channel.m_nChannelID.ToString(), string.Empty, doesGroupUsesTemplates ? groupId : group.m_nParentGroupID, request.m_nPageSize,
+                                                                                request.m_nPageIndex, request.m_sUserIP, request.m_sSignature, request.m_sSignString, request.m_oFilter, string.Empty,
+                                                                                new OrderObj() { });
 
             return BuildInternalChannelSearchObject(channel, channelRequest, group, groupId);
         }
