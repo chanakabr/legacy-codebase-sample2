@@ -286,7 +286,7 @@ namespace ElasticSearchHandler.Updaters
 
         protected virtual string SerializeEPG(EpgCB epg, bool doesGroupUsesTemplates)
         {
-            return esSerializer.SerializeEpgObject(epg, doesGroupUsesTemplates);
+            return esSerializer.SerializeEpgObject(epg, null, doesGroupUsesTemplates);
         }
 
         protected bool DeleteEpg(List<int> epgIDs)
