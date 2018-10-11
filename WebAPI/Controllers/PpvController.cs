@@ -54,17 +54,18 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
 
-                if (filter != null)
-                {
-                    filter.Validate();
+                if (filter == null)
+                    filter = new KalturaPpvFilter();
 
+                if( filter.GetIdIn().Count > 0)
+                { 
                     // call client                
-                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.GetIdIn());
+                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.GetIdIn(), filter.OrderBy);
                 }
                 else
                 {
                     // call client                
-                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId);
+                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.OrderBy);
                 }
             }
             catch (ClientException ex)

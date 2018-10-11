@@ -35,15 +35,7 @@ namespace WebAPI.Models.Pricing
         {
             return KalturaPpvOrderBy.NAME_ASC;
         }
-
-        internal void Validate()
-        {
-            if (string.IsNullOrEmpty(IdIn))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
-            }
-        }
-
+      
         public List<long> GetIdIn()
         {
             HashSet<long> list = new HashSet<long>();
