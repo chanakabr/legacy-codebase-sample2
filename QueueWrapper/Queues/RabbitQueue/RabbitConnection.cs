@@ -68,7 +68,8 @@ namespace QueueWrapper
                         else
                         {
                             int appSettingsFailCountLimit;
-                            bool isParseSucceeded = int.TryParse(System.Configuration.ConfigurationManager.AppSettings["queue_fail_limit"], out appSettingsFailCountLimit);
+                            bool isParseSucceeded = int.TryParse(System.Configuration.ConfigurationManager.AppSettings["queue_fail_limit"], 
+                                out appSettingsFailCountLimit);
 
                             if (isParseSucceeded)
                             {
@@ -192,14 +193,35 @@ namespace QueueWrapper
                     }
                     catch (OperationInterruptedException ex)
                     {
-                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}", message, ex, retryCount);
+                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}", 
+                            message, ex, retryCount);
+
+                        ClearConnection(configuration.Host);
+                        retryCount++;
+                    }
+                    catch(RabbitMQ.Client.Exceptions.BrokerUnreachableException ex)
+                    {
+                        log.ErrorFormat("BrokerUnreachableException - Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", 
+                            message, ex, retryCount);
+
+                        ClearConnection(configuration.Host);
+                        retryCount++;
+
+                        Thread.Sleep(1000);
+                    }
+                    catch (RabbitMQClientException ex)
+                    {
+                        log.ErrorFormat("RabbitMQClientException - " +
+                            "Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", 
+                            message, ex, retryCount);
 
                         ClearConnection(configuration.Host);
                         retryCount++;
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", message, ex, retryCount);
+                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", message, 
+                            ex, retryCount);
 
                         ClearConnection(configuration.Host);
                         retryCount++;
