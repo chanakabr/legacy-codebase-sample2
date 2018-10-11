@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetBusinessModuleRules(groupId);//, filter);
+                response = ClientsManager.ApiClient().GetBusinessModuleRules(groupId);
             }
             catch (ClientException ex)
             {

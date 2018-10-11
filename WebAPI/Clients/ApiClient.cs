@@ -4187,12 +4187,29 @@ namespace WebAPI.Clients
 
         internal KalturaBusinessModuleRuleListResponse GetBusinessModuleRules(int groupId)
         {
-            throw new NotImplementedException();
+            KalturaBusinessModuleRuleListResponse result = new KalturaBusinessModuleRuleListResponse();
+
+            Func<GenericListResponse<BusinessModuleRule>> getBusinessModuleRulesFunc = () =>
+               Core.Api.Module.GetBusinessModuleRules(groupId);
+
+            KalturaGenericListResponse<KalturaBusinessModuleRule> response =
+                ClientUtils.GetResponseListFromWS<KalturaBusinessModuleRule, BusinessModuleRule>(getBusinessModuleRulesFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
         }
 
         internal KalturaBusinessModuleRule AddBusinessModuleRule(int groupId, KalturaBusinessModuleRule businessModuleRule)
         {
-            throw new NotImplementedException();
+            Func<BusinessModuleRule, GenericResponse<BusinessModuleRule>> addBusinessModuleRuleFunc = (BusinessModuleRule businessModuleRuleToAdd) =>
+               Core.Api.Module.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
+
+            KalturaBusinessModuleRule result =
+                ClientUtils.GetResponseFromWS<KalturaBusinessModuleRule, BusinessModuleRule>(businessModuleRule, addBusinessModuleRuleFunc);
+
+            return result;
         }
 
         internal KalturaBusinessModuleRule UpdateBusinessModuleRule(int groupId, long id, KalturaBusinessModuleRule businessModuleRule)
@@ -4216,7 +4233,12 @@ namespace WebAPI.Clients
 
         internal KalturaBusinessModuleRule GetBusinessModuleRule(int groupId, long id)
         {
-            throw new NotImplementedException();
+            Func<GenericResponse<BusinessModuleRule>> GetBusinessModuleRuleFunc = () =>
+                Core.Api.Module.GetBusinessModuleRule(groupId, id);
+
+            KalturaBusinessModuleRule result =
+                ClientUtils.GetResponseFromWS<KalturaBusinessModuleRule, BusinessModuleRule>(GetBusinessModuleRuleFunc);
+            return result;
         }
     }
 }
