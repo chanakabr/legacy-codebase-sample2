@@ -235,11 +235,16 @@ namespace QueueWrapper
                 catch (OperationInterruptedException ex)
                 {
                     ClearConnection(host);
-                    log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). ex = {0}", ex);
+                    log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). OperationInterruptedException ex = {0}", ex);
+                }
+                catch (RabbitMQClientException ex)
+                {
+                    ClearConnection(host);
+                    log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). ex type = {1}, ex = {0}", ex, ex.GetType());
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). ex = {0}", ex);
+                    log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). ex type = {1}, ex = {0}", ex, ex.GetType());
                 }
             }
 
