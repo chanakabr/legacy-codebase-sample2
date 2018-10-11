@@ -181,9 +181,9 @@ namespace ApiObjects.Segmentation
 
         public override CoreObject CoreClone()
         {
-            return null;
+            return this.MemberwiseClone() as CoreObject;
         }
-
+        
         public static string GetSegmentationTypeDocumentKey(int groupId, long id)
         {
             return string.Format("segment_type_{0}_{1}", groupId, id);
