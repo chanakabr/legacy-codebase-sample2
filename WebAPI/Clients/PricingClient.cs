@@ -19,6 +19,7 @@ using WebAPI.Models.Pricing;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 using WebAPI.Models.Pricing;
+using ApiObjects;
 
 namespace WebAPI.Clients
 {
@@ -1129,7 +1130,7 @@ namespace WebAPI.Clients
             return discounts;
         }
 
-        internal KalturaPpvListResponse GetPPVModulesData(int groupId)
+        internal KalturaPpvListResponse GetPPVModulesData(int groupId, KalturaPpvOrderBy orderBy = KalturaPpvOrderBy.NAME_ASC)
         {
             KalturaPpvListResponse result = new KalturaPpvListResponse();
 
@@ -1142,12 +1143,25 @@ namespace WebAPI.Clients
             result.Ppvs = response.Objects;
             result.TotalCount = response.TotalCount;
 
+            // order results
+            switch (orderBy)
+            {
+                case KalturaPpvOrderBy.NAME_ASC:
+                    result.Ppvs = result.Ppvs.OrderBy(r => r.Name).ToList();
+                    break;
+                case KalturaPpvOrderBy.NAME_DESC:
+                    result.Ppvs = result.Ppvs.OrderByDescending(r => r.Name).ToList();
+                    break;
+                default:
+                    break;
+            }
+
             return result;
         }
 
-        internal KalturaPpvListResponse GetPPVModulesData(int groupId, List<long> list)
+        internal KalturaPpvListResponse GetPPVModulesData(int groupId, List<long> list, KalturaPpvOrderBy orderBy = KalturaPpvOrderBy.NAME_ASC)
         {
-            KalturaPpvListResponse result = GetPPVModulesData(groupId);
+            KalturaPpvListResponse result = GetPPVModulesData(groupId, orderBy);
             if (result != null && result.Ppvs != null && result.Ppvs.Count > 0)
             {
                 List<string> ppvIds = list.ConvertAll<string>(i => i.ToString());
