@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Segmentation
 {
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     public class SegmentationType : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -21,10 +22,10 @@ namespace ApiObjects.Segmentation
         [JsonProperty()]
         public string Description;
         
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)] 
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)] 
         public List<SegmentCondition> Conditions;
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)]
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
         public SegmentBaseValue Value;
 
         [JsonProperty()]
