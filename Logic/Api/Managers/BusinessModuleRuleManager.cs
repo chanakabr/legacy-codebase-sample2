@@ -48,7 +48,7 @@ namespace APILogic.Api.Managers
                     log.ErrorFormat("Error while deleting BusinessModuleRule from CB. groupId: {0}, businessModuleRuleId:{1}", groupId, businessModuleRuleId);
                 }
 
-                //SetInvalidationKeys(groupId, businessModuleRuleId);
+                SetInvalidationKeys(groupId, businessModuleRuleId);
                 response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -78,7 +78,7 @@ namespace APILogic.Api.Managers
                 }
                 else
                 {
-                    //SetInvalidationKeys(groupId, businessModuleRule.Id);
+                    SetInvalidationKeys(groupId, businessModuleRule.Id);
                     response.Object = businessModuleRule;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -132,7 +132,7 @@ namespace APILogic.Api.Managers
                         return response;
                     }
 
-                    //SetInvalidationKeys(groupId);
+                    SetInvalidationKeys(groupId);
                     response.Object = businessModuleRuleToAdd;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -269,6 +269,17 @@ namespace APILogic.Api.Managers
             }
 
             return new Tuple<List<BusinessModuleRule>, bool>(businessModuleRules, businessModuleRules != null);
+        }
+
+        private static void SetInvalidationKeys(int groupId, long? ruleId = null)
+        {
+            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllBusinessModuleRulesInvalidationKey());
+            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllBusinessModuleRulesGroupInvalidationKey(groupId));
+
+            if (ruleId.HasValue)
+            {
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(ruleId.Value));
+            }
         }
     }
 }
