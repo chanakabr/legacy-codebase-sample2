@@ -24,7 +24,6 @@ namespace QueueWrapper
 
         private int failCountLimit = 3;
         private IConnection m_Connection;
-        private IModel m_Model;
         private ReaderWriterLockSlim m_lock;
         private int m_FailCounter;
         private int m_FailCounterLimit;
@@ -124,7 +123,9 @@ namespace QueueWrapper
             {
                 try
                 {
-                    if (this.m_Model != null)
+                    var m_Model = m_Connection.CreateModel();
+
+                    if (m_Model != null)
                     {
                         ulong a = ulong.Parse(sAckId);
 
@@ -167,15 +168,10 @@ namespace QueueWrapper
                 {
                     try
                     {
+                        IModel m_Model = null;
                         try
                         {
-                            if (this.m_Model != null)
-                            {
-                                this.m_Model.Dispose();
-                                this.m_Model = null;
-                            }
-
-                            this.m_Model = m_Connection.CreateModel();
+                            m_Model = m_Connection.CreateModel();
                         }
                         // If failed, retry until we reach limit - with a new connection
                         catch (OperationInterruptedException ex)
@@ -195,7 +191,7 @@ namespace QueueWrapper
                             return Publish(configuration, message);
                         }
 
-                        if (this.m_Model != null)
+                        if (m_Model != null)
                         {
                             var body = Encoding.UTF8.GetBytes(message.ToString());
                             IBasicProperties properties = m_Model.CreateBasicProperties();
@@ -227,19 +223,23 @@ namespace QueueWrapper
                             isPublishSucceeded = true;
                             ResetFailCounter();
 
-                            m_Model.Dispose();
+                            if (m_Model != null)
+                            {
+                                m_Model.Dispose();
+                            }
+
                             m_Model = null;
                         }
                     }
                     catch (OperationInterruptedException ex)
                     {
-                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}", ex.Message, ex, this.m_FailCounter);
+                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}", message, ex, this.m_FailCounter);
                         ClearConnection();
                         return Publish(configuration, message);
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", ex.Message, ex, this.m_FailCounter);
+                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", message, ex, this.m_FailCounter);
                         IncreaseFailCounter();
                         ClearConnection();
                         return Publish(configuration, message);
@@ -326,23 +326,6 @@ namespace QueueWrapper
                     finally
                     {
                         m_Connection = null;
-                        m_Model = null;
-                    }
-
-                    try
-                    {
-                        if (this.m_Model != null)
-                        {
-                            this.m_Model.Dispose();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error("Failed closing instance of Rabbit Connection (model).", ex);
-                    }
-                    finally
-                    {
-                        m_Model = null;
                     }
 
                     mutex.ReleaseMutex();
@@ -366,7 +349,9 @@ namespace QueueWrapper
             {
                 try
                 {
-                    if (this.m_Model != null)
+                    var m_Model = m_Connection.CreateModel();
+
+                    if (m_Model != null)
                     {
 
                         using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
@@ -397,9 +382,11 @@ namespace QueueWrapper
         {
             try
             {
-                if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null && this.m_Model != null)
+                if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null)
                 {
-                    var res = this.m_Model.QueueDeclarePassive(configData.QueueName);
+                    IModel m_Model = this.m_Connection.CreateModel();
+                    var res = m_Model.QueueDeclarePassive(configData.QueueName);
+                    m_Model.Dispose();
                     return res != null;
                 }
 
@@ -422,7 +409,7 @@ namespace QueueWrapper
 
             try
             {
-                if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null && this.m_Model != null)
+                if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null)
                 {
                     Dictionary<string, object> args = null;
                     if (expirationMiliSec > 0)
@@ -431,8 +418,12 @@ namespace QueueWrapper
                         args.Add("x-expires", expirationMiliSec);
                     }
 
-                    QueueDeclareOk res = this.m_Model.QueueDeclare(configData.QueueName, true, false, false,args);
-                    this.m_Model.QueueBind(configData.QueueName, "scheduled_tasks", configData.RoutingKey);
+                    IModel m_Model = this.m_Connection.CreateModel();
+
+                    QueueDeclareOk res = m_Model.QueueDeclare(configData.QueueName, true, false, false, args);
+                    m_Model.QueueBind(configData.QueueName, "scheduled_tasks", configData.RoutingKey);
+
+                    m_Model.Dispose();
 
                     return res != null && res.QueueName == configData.QueueName;
                 }
@@ -460,10 +451,11 @@ namespace QueueWrapper
 
             try
             {
-                if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null && this.m_Model != null)
+                if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null)
                 {
-                    this.m_Model.QueueDelete(configData.QueueName);
-
+                    IModel m_Model = this.m_Connection.CreateModel();
+                    m_Model.QueueDelete(configData.QueueName);
+                    m_Model.Dispose();
                     return true;
                 }
 
@@ -504,7 +496,7 @@ namespace QueueWrapper
                             {
                                 HostName = configuration.Host,
                                 Password = configuration.Password,
-                                UserName = configuration.Username, 
+                                UserName = configuration.Username,
                             };
 
                             int port;
@@ -516,11 +508,6 @@ namespace QueueWrapper
 
                             this.m_Connection = factory.CreateConnection();
 
-                            if (action.Equals(QueueAction.Subscribe) || action.Equals(QueueAction.Ack))
-                            {
-                                this.m_Model = this.m_Connection.CreateModel();
-                            }
-
                             bIsGetInstanceSucceeded = true;
                         }
                     }
@@ -528,7 +515,6 @@ namespace QueueWrapper
                     {
                         log.Error("Failed creating instance of Rabbit Connection.", ex);
                         m_Connection = null;
-                        m_Model = null;
                         IncreaseFailCounter();
                     }
                     finally
@@ -560,11 +546,6 @@ namespace QueueWrapper
             {
                 this.m_Connection.Close();
                 this.m_Connection = null;
-            }
-            if (this.m_Model != null && this.m_Model.IsOpen)
-            {
-                this.m_Model.Close();
-                this.m_Model = null;
             }
         }
 
