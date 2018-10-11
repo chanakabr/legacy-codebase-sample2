@@ -181,7 +181,7 @@ namespace ApiObjects.Segmentation
 
         public override CoreObject CoreClone()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public static string GetSegmentationTypeDocumentKey(int groupId, long id)
