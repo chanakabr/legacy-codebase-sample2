@@ -374,6 +374,12 @@ namespace WebAPI.Controllers
                     response = new BadRequestException(BadRequestException.REQUEST_ABORTED, abortingRequestIndex+1);
                     isErrorOccurred = true;
                 }
+                else if (i > 0 && 
+                         ((request[i].SkipOnError == SkipOptions.Previous && (responses[i-1] is KalturaAPIExceptionWrapper || responses[i - 1] is Exception)) || 
+                          (request[i].SkipOnError == SkipOptions.Any && responses.All(x => x == null || x is KalturaAPIExceptionWrapper || x is Exception))))
+                {
+                    response = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
+                }
                 else
                 {
                     Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);

@@ -816,16 +816,21 @@ namespace WebAPI.Filters
                     BoolUtils.TryConvert(currentRequestParams["abortAllOnError"], out abortAllOnError);
                 }
 
+                SkipOptions skipOption = SkipOptions.No;
+                if (currentRequestParams.ContainsKey("skipOnError"))
+                {
+                    Enum.TryParse<SkipOptions>(currentRequestParams["skipOnError"].ToString(), out skipOption);
+                }
+                
                 KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction()
                 {
                     Service = currentRequestParams["service"].ToString(),
                     Action = currentRequestParams["action"].ToString(),
                     Parameters = currentRequestParams,
-                    AbortAllOnError = abortAllOnError
-                    //TODO SHIR - SKIP AND ABORT
-                    //currentRequest.SkipOption
+                    AbortAllOnError = abortAllOnError,
+                    SkipOnError = skipOption
                 };
-               
+                
                 requests.Add(currentRequest);
                 requestIndex++;
             }
