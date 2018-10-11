@@ -11283,5 +11283,22 @@ namespace Core.Api
         {
             return APILogic.Api.Managers.BusinessModuleRuleManager.UpdateBusinessModuleRule(groupId, businessModuleRule);
         }
+
+        internal static GenericResponse<BusinessModuleRule> GetBusinessModuleRule(int groupId, long businessModuleRuleId)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRule(groupId, businessModuleRuleId);
+        }
+
+        internal static GenericResponse<BusinessModuleRule> AddBusinessModuleRule(int groupId, BusinessModuleRule businessModuleRuleToAdd)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
+        }
+
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId);
+        }
+
+
     }
 }

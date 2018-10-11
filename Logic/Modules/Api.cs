@@ -2209,5 +2209,20 @@ namespace Core.Api
         {
             return Core.Api.api.DeleteBusinessModuleRule(groupId, id);
         }
+
+        public static GenericResponse<BusinessModuleRule> GetBusinessModuleRule(int groupId, long businessModuleRuleId)
+        {
+            return Core.Api.api.GetBusinessModuleRule(groupId, businessModuleRuleId);
+        }
+
+        public static GenericResponse<BusinessModuleRule> AddBusinessModuleRule(int groupId, BusinessModuleRule businessModuleRuleToAdd)
+        {
+            return Core.Api.api.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
+        }
+
+        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId)
+        {
+            return Core.Api.api.GetBusinessModuleRules(groupId);
+        }
     }
 }
