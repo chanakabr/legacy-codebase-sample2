@@ -772,7 +772,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
-        }
+        }        
+
         public static SubscriptionSetType? ConvertSubscriptionSetType(KalturaSubscriptionSetType? type)
         {
             SubscriptionSetType? result = null;
@@ -835,6 +836,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return stringValueArray;
-        }
+        }       
     }
 }

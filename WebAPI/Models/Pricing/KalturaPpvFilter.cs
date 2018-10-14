@@ -13,7 +13,8 @@ namespace WebAPI.Models.Pricing
 {
     public enum KalturaPpvOrderBy
     {
-        NONE
+        NAME_ASC,
+        NAME_DESC
     }
 
     /// <summary>
@@ -32,7 +33,7 @@ namespace WebAPI.Models.Pricing
 
         public override KalturaPpvOrderBy GetDefaultOrderByValue()
         {
-            return KalturaPpvOrderBy.NONE;
+            return KalturaPpvOrderBy.NAME_ASC;
         }
 
         internal void Validate()
@@ -65,6 +66,5 @@ namespace WebAPI.Models.Pricing
 
             return new List<long>(list);
         }
-
     }
 }
