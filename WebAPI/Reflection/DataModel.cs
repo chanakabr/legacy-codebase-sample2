@@ -1355,6 +1355,8 @@ namespace WebAPI.Reflection
                             return "action";
                         case "Length":
                             return "length";
+                        case "LengthType":
+                            return "lengthType";
                         case "Multiplier":
                             return "multiplier";
                     }
@@ -1367,8 +1369,14 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Days":
                             return "days";
-                        case "Score":
-                            return "score";
+                        case "Field":
+                            return "field";
+                        case "MaxScore":
+                            return "maxScore";
+                        case "MinScore":
+                            return "minScore";
+                        case "Value":
+                            return "value";
                     }
                     break;
                     
@@ -1947,6 +1955,8 @@ namespace WebAPI.Reflection
                             return "purchaseId";
                         case "SubscriptionId":
                             return "subscriptionId";
+                        case "UserId":
+                            return "userId";
                     }
                     break;
                     
@@ -4609,8 +4619,10 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Days":
                             return "days";
-                        case "Score":
-                            return "score";
+                        case "MaxScore":
+                            return "maxScore";
+                        case "MinScore":
+                            return "minScore";
                     }
                     break;
                     
@@ -5491,6 +5503,8 @@ namespace WebAPI.Reflection
                             return "price";
                         case "UnifiedPaymentId":
                             return "unifiedPaymentId";
+                        case "UserId":
+                            return "userId";
                     }
                     break;
                     
@@ -8429,7 +8443,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("segmentationType", "update", false);
-                            return SegmentationTypeController.Update((int) methodParams[0], (KalturaSegmentationType) methodParams[1]);
+                            return SegmentationTypeController.Update((long) methodParams[0], (KalturaSegmentationType) methodParams[1]);
                             
                     }
                     break;
@@ -15344,7 +15358,7 @@ namespace WebAPI.Reflection
                         case "update":
                             ret.Add("segmentationTypeId", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(int),
+                                Type = typeof(long),
                             });
                             ret.Add("segmentationType", new MethodParam(){
                                 NewName = newParamName,

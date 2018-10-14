@@ -2419,7 +2419,7 @@ namespace WebAPI.Clients
             return prices;
         }
 
-        internal KalturaEntitlementRenewal GetEntitlementNextRenewal(int groupId, long householdId, int purchaseId)
+        internal KalturaEntitlementRenewal GetEntitlementNextRenewal(int groupId, long householdId, int purchaseId, long userId)
         {
             APILogic.ConditionalAccess.Response.EntitlementRenewalResponse response = null;
 
@@ -2427,7 +2427,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetEntitlementNextRenewal(groupId, householdId, purchaseId);
+                    response = Core.ConditionalAccess.Module.GetEntitlementNextRenewal(groupId, householdId, purchaseId, userId);
                 }
             }
             catch (Exception ex)
@@ -2449,7 +2449,7 @@ namespace WebAPI.Clients
             return Mapper.Map<KalturaEntitlementRenewal>(response.EntitlementRenewal);
         }
 
-        internal KalturaUnifiedPaymentRenewal GetUnifiedPaymentNextRenewal(int groupId, long householdId, int unifiedPaymentId)
+        internal KalturaUnifiedPaymentRenewal GetUnifiedPaymentNextRenewal(int groupId, long householdId, int unifiedPaymentId, long userId)
         {
             APILogic.ConditionalAccess.Response.UnifiedPaymentRenewalResponse response = null;
 
@@ -2457,7 +2457,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetUnifiedPaymentNextRenewal(groupId, householdId, unifiedPaymentId);
+                    response = Core.ConditionalAccess.Module.GetUnifiedPaymentNextRenewal(groupId, householdId, unifiedPaymentId, userId);
                 }
             }
             catch (Exception ex)

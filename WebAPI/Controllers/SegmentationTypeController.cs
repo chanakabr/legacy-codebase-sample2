@@ -24,10 +24,10 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// ...
+        /// Adds a new segmentation type to the system
         /// </summary>
-        /// <param name="segmentationType">.</param>
-        /// <returns>.</returns>
+        /// <param name="segmentationType">The segmentation type to be added</param>
+        /// <returns>The segmentation type that was added</returns>
         [Action("add")]
         [ApiAuthorize]
         static public KalturaSegmentationType Add(KalturaSegmentationType segmentationType)
@@ -47,18 +47,19 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// ...
+        /// Updates an existing segmentation type 
         /// </summary>
-        /// <param name="segmentationTypeId">.</param>
-        /// <param name="segmentationType">.</param>
-        /// <returns></returns>
+        /// <param name="segmentationTypeId">The ID of the object that will be updated</param>
+        /// <param name="segmentationType">The segmentation type to be updated</param>
+        /// <returns>The segmentation type that was updated</returns>
         [Action("update")]
         [ApiAuthorize]
-        static public KalturaSegmentationType Update(int segmentationTypeId, KalturaSegmentationType segmentationType)
+        static public KalturaSegmentationType Update(long segmentationTypeId, KalturaSegmentationType segmentationType)
         {
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                segmentationType.Id = segmentationTypeId;
                 return ClientsManager.ApiClient().UpdateSegmentationType(groupId, segmentationType);
             }
             catch (ClientException ex)
@@ -97,10 +98,10 @@ namespace WebAPI.Controllers
         }
         
         /// <summary>
-        /// ...
+        /// Lists all segmentation types in group
         /// </summary>
-        /// <param name="filter">.</param>
-        /// <param name="pager">.</param>
+        /// <param name="filter">Segmentation type filter - basically empty</param>
+        /// <param name="pager">Simple pager</param>
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]

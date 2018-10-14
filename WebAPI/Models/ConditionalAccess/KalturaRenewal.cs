@@ -45,6 +45,14 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("subscriptionId")]
         [XmlElement(ElementName = "subscriptionId")]
         public long SubscriptionId { get; set; }
+
+        /// <summary>
+        /// User ID
+        /// </summary>
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
+        public long UserId { get; set; }
     }
 
     public partial class KalturaUnifiedPaymentRenewal : KalturaOTTObject
@@ -81,6 +89,14 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlArray(ElementName = "entitlements", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaEntitlementRenewalBase> Entitlements { get; set; }
+
+        /// <summary>
+        /// User ID
+        /// </summary>
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
+        public long UserId { get; set; }
     }
 
     public partial class KalturaEntitlementRenewalBase : KalturaOTTObject

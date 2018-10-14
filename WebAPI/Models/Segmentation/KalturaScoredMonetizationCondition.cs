@@ -18,11 +18,20 @@ namespace WebAPI.Models.Segmentation
         /// <summary>
         /// The minimum score to be met
         /// </summary>
-        [DataMember(Name = "score")]
-        [JsonProperty(PropertyName = "score")]
-        [XmlElement(ElementName = "score")]
+        [DataMember(Name = "minScore")]
+        [JsonProperty(PropertyName = "minScore")]
+        [XmlElement(ElementName = "minScore")]
         [SchemeProperty()]
-        public int Score { get; set; }
+        public int? MinScore { get; set; }
+
+        /// <summary>
+        /// The maximum score to be met
+        /// </summary>
+        [DataMember(Name = "maxScore")]
+        [JsonProperty(PropertyName = "maxScore")]
+        [XmlElement(ElementName = "maxScore")]
+        [SchemeProperty()]
+        public int? MaxScore { get; set; }
 
         /// <summary>
         /// How many days back should the actions be considered
@@ -31,7 +40,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "days")]
         [XmlElement(ElementName = "days")]
         [SchemeProperty()]
-        public int Days { get; set; }
+        public int? Days { get; set; }
 
         /// <summary>
         /// List of the actions that consist the condition
@@ -65,7 +74,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "minimumPrice")]
         [XmlElement(ElementName = "minimumPrice")]
         [SchemeProperty()]
-        public int MinimumPrice { get; set; }
+        public int? MinimumPrice { get; set; }
 
         /// <summary>
         /// Score multiplier

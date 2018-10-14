@@ -22,7 +22,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty()]
+        [SchemeProperty(ReadOnly = true)]
         public long Id { get; set; }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
         [SchemeProperty()]
-        public KalturaMultilingualString Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Description of segmentation type
@@ -41,7 +41,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "description")]
         [XmlElement(ElementName = "description")]
         [SchemeProperty()]
-        public KalturaMultilingualString Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// Segmentation conditions - can be empty
@@ -86,5 +86,11 @@ namespace WebAPI.Models.Segmentation
         count,
         sum,
         avg
+    }
+
+    public enum KalturaContentActionConditionLengthType
+    {
+        minutes,
+        percentage
     }
 }

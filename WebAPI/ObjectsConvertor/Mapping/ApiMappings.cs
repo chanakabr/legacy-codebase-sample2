@@ -582,18 +582,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // Segmentation type
             cfg.CreateMap<KalturaSegmentationType, SegmentationType>()
                 .ForMember(d => d.Conditions, opt => opt.MapFrom(s => s.Conditions))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
-                .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
-                .ForMember(dest => dest.DescriptionWithLanguages, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetNoneDefaultLanugageContainer().ToArray() : null))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 ;
 
             cfg.CreateMap<SegmentationType, KalturaSegmentationType>()
                 .ForMember(d => d.Conditions, opt => opt.MapFrom(s => s.Conditions))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionWithLanguages, src.Description)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 ;
@@ -667,38 +665,61 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // content score condition
             cfg.CreateMap<KalturaContentScoreCondition, ContentScoreCondition>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
-                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
-                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
+                .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
+                .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
+                .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 ;
 
             cfg.CreateMap<ContentScoreCondition, KalturaContentScoreCondition>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
-                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
-                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
+                .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
+                .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
+                .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 ;
 
             // content action condition
             cfg.CreateMap<KalturaContentActionCondition, ContentActionCondition>()
                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertContentAction(src.Action)))
                 .ForMember(dest => dest.Length, opt => opt.MapFrom(src => src.Length))
+                .ForMember(dest => dest.LengthType, opt => opt.MapFrom(src => ConvertLengthType(src.LengthType)))
                 .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
                 ;
 
             cfg.CreateMap<ContentActionCondition, KalturaContentActionCondition>()
                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertContentAction(src.Action)))
                 .ForMember(dest => dest.Length, opt => opt.MapFrom(src => src.Length))
+                .ForMember(dest => dest.LengthType, opt => opt.MapFrom(src => ConvertLengthType(src.LengthType)))
                 .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
                 ;
 
             // scored monetization condition
             cfg.CreateMap<KalturaScoredMonetizationCondition, MonetizationScoredCondition>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
-                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
+                .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
+                .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 ;
 
             cfg.CreateMap<MonetizationScoredCondition, KalturaScoredMonetizationCondition>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
-                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.Score))
+                .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
+                .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
+                ;
+
+            // monetization condition
+            cfg.CreateMap<KalturaMonetizationCondition, MonetizationCondition>()
+                .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
+                .ForMember(dest => dest.MinimumPrice, opt => opt.MapFrom(src => src.MinimumPrice))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
+                ;
+
+            cfg.CreateMap<MonetizationCondition, KalturaMonetizationCondition>()
+                .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
+                .ForMember(dest => dest.MinimumPrice, opt => opt.MapFrom(src => src.MinimumPrice))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
                 ;
 
             // base segment value
@@ -718,8 +739,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaSegmentValue, SegmentValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SystematicName, opt => opt.MapFrom(src => src.SystematicName))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
-                .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 ;
@@ -727,7 +747,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<SegmentValue, KalturaSegmentValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SystematicName, opt => opt.MapFrom(src => src.SystematicName))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 ;
@@ -772,8 +792,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.GreaterThanOrEquals, opt => opt.MapFrom(src => src.GreaterThanOrEquals))
                 .ForMember(dest => dest.LessThan, opt => opt.MapFrom(src => src.LessThan))
                 .ForMember(dest => dest.LessThanOrEquals, opt => opt.MapFrom(src => src.LessThanOrEquals))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
-                .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 ;
 
             cfg.CreateMap<SegmentRange, KalturaSegmentRange>()
@@ -784,7 +803,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.GreaterThanOrEquals, opt => opt.MapFrom(src => src.GreaterThanOrEquals))
                 .ForMember(dest => dest.LessThan, opt => opt.MapFrom(src => src.LessThan))
                 .ForMember(dest => dest.LessThanOrEquals, opt => opt.MapFrom(src => src.LessThanOrEquals))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 ;
 
             #endregion
@@ -806,7 +825,55 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
         }
-        
+
+        private static ContentConditionLengthType ConvertLengthType(KalturaContentActionConditionLengthType lengthType)
+        {
+            ContentConditionLengthType result;
+
+            switch (lengthType)
+            {
+                case KalturaContentActionConditionLengthType.minutes:
+                    {
+                        result = ContentConditionLengthType.minutes;
+                        break;
+                    }
+                case KalturaContentActionConditionLengthType.percentage:
+                    {
+                        result = ContentConditionLengthType.percentage;
+                        break;
+                    }
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown ContentConditionLengthType");
+                    break;
+            }
+
+            return result;
+        }
+
+        private static KalturaContentActionConditionLengthType ConvertLengthType(ContentConditionLengthType lengthType)
+        {
+            KalturaContentActionConditionLengthType result;
+
+            switch (lengthType)
+            {
+                case ContentConditionLengthType.minutes:
+                    {
+                        result = KalturaContentActionConditionLengthType.minutes;
+                        break;
+                    }
+                case ContentConditionLengthType.percentage:
+                    {
+                        result = KalturaContentActionConditionLengthType.percentage;
+                        break;
+                    }
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown ContentConditionLengthType");
+                    break;
+            }
+
+            return result;
+        }
+
         private static ContentAction ConvertContentAction(KalturaContentAction action)
         {
             ContentAction result;
