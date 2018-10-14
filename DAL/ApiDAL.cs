@@ -5240,7 +5240,7 @@ namespace DAL
 
         public static DataTable AddBusinessModuleRule(int groupId, string name, string description)
         {
-            DataTable ds = null;
+            DataTable dt = null;
 
             try
             {
@@ -5249,14 +5249,14 @@ namespace DAL
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@description", description);
 
-                ds = sp.Execute();
+                dt = sp.Execute();
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while AddBusinessModuleRule in DB, groupId: {0}, name: {1}, description: {2} , ex:{3} ", groupId, name, description, ex);
             }
 
-            return ds;
+            return dt;
         }
 
         public static DataTable GetBusinessModuleRulesDB()

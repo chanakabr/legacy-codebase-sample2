@@ -852,6 +852,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_all_business_module_rules");
         }
+
+        public static string GetBusinessModuleRuleInvalidationKey(long ruleId)
+        {
+            return string.Format("invalidationKey_business_module_rule_{0}", ruleId);
+        }
         #endregion
 
         #region Domains
