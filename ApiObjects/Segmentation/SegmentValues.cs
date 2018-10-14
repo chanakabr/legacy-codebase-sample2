@@ -61,18 +61,14 @@ namespace ApiObjects.Segmentation
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
 
             SegmentValues sourceCasted = source as SegmentValues;
-
-            if (sourceCasted == null)
-            {
-                return false;
-            }
-
             Dictionary<string, SegmentValue> sourceValues = new Dictionary<string, SegmentValue>();
-            Dictionary<string, SegmentValue> destinationValues = new Dictionary<string, SegmentValue>();
 
-            foreach (var sourceValue in sourceCasted.Values)
+            if (sourceCasted != null)
             {
-                sourceValues[sourceValue.SystematicName] = sourceValue;
+                foreach (var sourceValue in sourceCasted.Values)
+                {
+                    sourceValues[sourceValue.SystematicName] = sourceValue;
+                }
             }
 
             foreach (var destinationValue in this.Values)
