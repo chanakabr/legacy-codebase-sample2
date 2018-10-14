@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Segmentation
 {
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     public class SegmentationType : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -21,10 +22,10 @@ namespace ApiObjects.Segmentation
         [JsonProperty()]
         public string Description;
         
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)] 
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)] 
         public List<SegmentCondition> Conditions;
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)]
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
         public SegmentBaseValue Value;
 
         [JsonProperty()]
@@ -181,9 +182,9 @@ namespace ApiObjects.Segmentation
 
         public override CoreObject CoreClone()
         {
-            throw new NotImplementedException();
+            return this.MemberwiseClone() as CoreObject;
         }
-
+        
         public static string GetSegmentationTypeDocumentKey(int groupId, long id)
         {
             return string.Format("segment_type_{0}_{1}", groupId, id);

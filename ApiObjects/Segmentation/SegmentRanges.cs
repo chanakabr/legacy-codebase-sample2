@@ -45,19 +45,16 @@ namespace ApiObjects.Segmentation
 
             SegmentRanges sourceCasted = source as SegmentRanges;
 
-            if (sourceCasted == null)
-            {
-                return false;
-            }
-
             Dictionary<string, SegmentRange> sourceValues = new Dictionary<string, SegmentRange>();
-            Dictionary<string, SegmentRange> destinationValues = new Dictionary<string, SegmentRange>();
 
-            foreach (var sourceValue in sourceCasted.Ranges)
+            if (sourceCasted != null)
             {
-                sourceValues[sourceValue.SystematicName] = sourceValue;
+                foreach (var sourceValue in sourceCasted.Ranges)
+                {
+                    sourceValues[sourceValue.SystematicName] = sourceValue;
+                }
             }
-
+            
             foreach (var destinationValue in this.Ranges)
             {
                 if (sourceValues.ContainsKey(destinationValue.SystematicName))
@@ -79,6 +76,7 @@ namespace ApiObjects.Segmentation
 
             return result;
         }
+        
     }
 
     public class SegmentRange
