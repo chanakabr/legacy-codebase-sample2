@@ -30,5 +30,17 @@ namespace TVinciShared
 
             return bool.TryParse(value, out convertedValue);
         }
+
+        public static bool TryConvert(object value, out bool convertedValue)
+        {
+            convertedValue = false;
+
+            if (value == null)
+            {
+                return false;
+            }
+
+            return TryConvert(value.ToString(), out convertedValue);
+        }
     }
 }
