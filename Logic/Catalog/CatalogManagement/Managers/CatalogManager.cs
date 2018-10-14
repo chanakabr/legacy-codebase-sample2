@@ -1070,7 +1070,7 @@ namespace Core.Catalog.CatalogManagement
             string connectingMetaValue = GetConnectingMetaValue(parentConectingTopic, asset.Object);
             if (!string.IsNullOrEmpty(connectingMetaValue))
             {
-                string filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", assetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
+                string filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", childAssetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
                 HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
                 if (childAssetsIds == null || childAssetsIds.Count == 0)
                 {
