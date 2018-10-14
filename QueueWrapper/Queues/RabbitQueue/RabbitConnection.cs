@@ -149,9 +149,11 @@ namespace QueueWrapper
 
                 if (connection != null && instanecExists)
                 {
+                    IModel model = null;
+
                     try
                     {
-                        IModel model = this.GetModel(configuration.Host, connection);
+                        model = this.GetModel(configuration.Host, connection);
 
                         if (model == null)
                         {
@@ -193,15 +195,15 @@ namespace QueueWrapper
                     }
                     catch (OperationInterruptedException ex)
                     {
-                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}", 
+                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}",
                             message, ex, retryCount);
 
                         ClearConnection(configuration.Host);
                         retryCount++;
                     }
-                    catch(RabbitMQ.Client.Exceptions.BrokerUnreachableException ex)
+                    catch (RabbitMQ.Client.Exceptions.BrokerUnreachableException ex)
                     {
-                        log.ErrorFormat("BrokerUnreachableException - Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", 
+                        log.ErrorFormat("BrokerUnreachableException - Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}",
                             message, ex, retryCount);
 
                         ClearConnection(configuration.Host);
@@ -212,7 +214,7 @@ namespace QueueWrapper
                     catch (RabbitMQClientException ex)
                     {
                         log.ErrorFormat("RabbitMQClientException - " +
-                            "Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", 
+                            "Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}",
                             message, ex, retryCount);
 
                         ClearConnection(configuration.Host);
@@ -220,11 +222,19 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", message, 
+                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", message,
                             ex, retryCount);
 
                         ClearConnection(configuration.Host);
                         retryCount++;
+                    }
+                    finally
+                    {
+                        if (model != null && model.IsOpen)
+                        {
+                            model.Close();
+                            model.Dispose();
+                        }
                     }
                 }
                 else
