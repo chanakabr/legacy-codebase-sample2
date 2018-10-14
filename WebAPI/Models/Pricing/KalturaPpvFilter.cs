@@ -13,7 +13,8 @@ namespace WebAPI.Models.Pricing
 {
     public enum KalturaPpvOrderBy
     {
-        NONE
+        NAME_ASC,
+        NAME_DESC
     }
 
     /// <summary>
@@ -32,17 +33,9 @@ namespace WebAPI.Models.Pricing
 
         public override KalturaPpvOrderBy GetDefaultOrderByValue()
         {
-            return KalturaPpvOrderBy.NONE;
+            return KalturaPpvOrderBy.NAME_ASC;
         }
-
-        internal void Validate()
-        {
-            if (string.IsNullOrEmpty(IdIn))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
-            }
-        }
-
+      
         public List<long> GetIdIn()
         {
             HashSet<long> list = new HashSet<long>();
@@ -65,6 +58,5 @@ namespace WebAPI.Models.Pricing
 
             return new List<long>(list);
         }
-
     }
 }

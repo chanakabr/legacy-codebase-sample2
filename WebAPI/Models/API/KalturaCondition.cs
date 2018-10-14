@@ -20,12 +20,12 @@ namespace WebAPI.Models.API
         BUSINESS_MODULE,
         SEGMENTS,
         DATE
-
     }
     
     /// <summary>
     /// Condition
     /// </summary>
+    [Serializable]
     public abstract partial class KalturaCondition : KalturaOTTObject
     {
         /// <summary>
@@ -110,6 +110,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset Condition
     /// </summary>
+    [Serializable]
     public partial class KalturaAssetCondition : KalturaCondition
     {
         /// <summary>
@@ -130,6 +131,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset Condition
     /// </summary>
+    [Serializable]
     public partial class KalturaConcurrencyCondition : KalturaAssetCondition
     {
         /// <summary>
@@ -164,6 +166,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// IP range condition
     /// </summary>
+    [Serializable]
     public partial class KalturaIpRangeCondition : KalturaCondition
     {
         /// <summary>

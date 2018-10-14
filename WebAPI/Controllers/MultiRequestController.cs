@@ -10,11 +10,13 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using TVinciShared;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -43,7 +45,8 @@ namespace WebAPI.Controllers
             if (parameter == null)
                 throw new RequestParserException();
 
-            if (parameter.GetType().IsArray)
+            Type parameterType = parameter.GetType();
+            if (parameterType.IsArray)
             {
                 int index;
                 if (!int.TryParse(token, out index))
@@ -53,47 +56,118 @@ namespace WebAPI.Controllers
 
                 result = ((object[])parameter)[index];
             }
-            else if (typeof(IList).IsAssignableFrom(parameter.GetType()))
+            else if (typeof(IList).IsAssignableFrom(parameterType))
             {
+                Match matchCondition = Regex.Match(token, @"^\[[\w\d]+(=|<|>|!=)[^\]]+\]$", RegexOptions.IgnoreCase);
                 List<object> parametersList = new List<object>(parameter as IEnumerable<object>);
-                if (token.Equals("*") && parametersList.All(x => x.GetType().IsSubclassOf(typeof(KalturaOTTObject))))
+                
+                if (parametersList.FirstOrDefault() is KalturaOTTObject && (token.Equals("*") || matchCondition.Success))
                 {
-                    string propertyName = tokens.ElementAt(0);
+                    string propertyValueName = tokens.ElementAt(0);
                     tokens.RemoveAt(0);
-
-                    List<object> valueList = new List<object>();
-                    foreach (var item in parametersList)
+                    
+                    string operatorValue = string.Empty;
+                    string conditionPropertyName = string.Empty;
+                    string conditionValueToConvert = string.Empty;
+                    if (matchCondition.Success)
                     {
-                        PropertyInfo propertyInfo = item.GetType().GetProperties().FirstOrDefault(property => propertyName.Equals(DataModel.getApiName(property), StringComparison.CurrentCultureIgnoreCase));
-                        if (propertyInfo == null)
-                        {
-                            throw new RequestParserException();
-                        }
-
-                        var value = propertyInfo.GetValue(item);
-                        if (value != null)
-                        {
-                            valueList.Add(value);
-                        }
+                        operatorValue = matchCondition.Groups[1].Value;
+                        int index = matchCondition.Groups[1].Index;
+                        conditionPropertyName = token.Substring(1, index - 1);
+                        conditionValueToConvert = token.Substring(index + 1, token.Length - index - 2);
                     }
                     
+                    List<object> valueList = new List<object>();
+                    // item1 = value, item2 = condition
+                    Dictionary<Type, Tuple<PropertyInfo, PropertyInfo>> typesToPropertyInfosMap = new Dictionary<Type, Tuple<PropertyInfo, PropertyInfo>>();
+                    Dictionary<Type, object> typesToConditionValueMap = new Dictionary<Type, object>();
+
+                    foreach (var item in parametersList)
+                    {
+                        Type itemType = item.GetType();
+                        if (!typesToPropertyInfosMap.ContainsKey(itemType))
+                        {
+                            PropertyInfo propertyInfoValue = GetPropertyInfo(itemType, propertyValueName);
+                            PropertyInfo propertyInfoCoindition = null;
+                            if (matchCondition.Success)
+                            {
+                                propertyInfoCoindition = GetPropertyInfo(itemType, conditionPropertyName);
+                                if (propertyInfoCoindition != null)
+                                {
+                                    Type conditionType = Nullable.GetUnderlyingType(propertyInfoCoindition.PropertyType);
+                                    if (conditionType == null)
+                                    {
+                                        conditionType = propertyInfoCoindition.PropertyType;
+                                    }
+
+                                    if ((operatorValue.Equals("<") || operatorValue.Equals(">")) && !CanUseGreaterOrLessThanOperator(conditionType))
+                                    {
+                                        throw new RequestParserException(RequestParserException.INVALID_OPERATOR, operatorValue, conditionType.Name);
+                                    }
+
+                                    object conditionConvertedValue = TryConvertTo(conditionType, conditionValueToConvert);
+
+                                    if (conditionConvertedValue == null)
+                                    {
+                                        throw new RequestParserException(RequestParserException.INVALID_CONDITION_VALUE, conditionValueToConvert, conditionType.Name);
+                                    }
+
+                                    typesToConditionValueMap.Add(itemType, conditionConvertedValue);
+                                }
+                            }
+
+                            typesToPropertyInfosMap.Add(itemType, new Tuple<PropertyInfo, PropertyInfo>(propertyInfoValue, propertyInfoCoindition));
+                        }
+
+                        if (typesToPropertyInfosMap[itemType].Item1 == null)
+                        {
+                            continue;
+                        }
+                        
+                        object checkValue = null;
+                        object conditionValue = null;
+                        if (matchCondition.Success)
+                        {
+                            if (typesToPropertyInfosMap[itemType].Item2 == null)
+                            {
+                                continue;
+                            }
+                            
+                            checkValue = typesToPropertyInfosMap[itemType].Item2.GetValue(item);
+                            conditionValue = typesToConditionValueMap[itemType];
+                        }
+
+                        var value = typesToPropertyInfosMap[itemType].Item1.GetValue(item);
+                        if (value != null)
+                        {
+                            if (!matchCondition.Success || CheckCondition(operatorValue, checkValue, conditionValue))
+                            {
+                                valueList.Add(value);
+                            }
+                        }
+                    }
+
                     result = string.Join(",", valueList);
                 }
-                else
+                else if (parametersList.Count > 0)
                 {
                     int index;
                     if (!int.TryParse(token, out index))
                     {
                         throw new RequestParserException();
                     }
-
+                    
                     result = parametersList[index];
                 }
+                else
+                {
+                    // no items in the list
+                    result = string.Empty;
+                }
             }
-            else if (parameter.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+            else if (parameterType.IsSubclassOf(typeof(KalturaOTTObject)))
             {
-                Type type = parameter.GetType();
-                var properties = type.GetProperties();
+                var properties = parameterType.GetProperties();
                 result = null;
                 bool found = false;
                 foreach (PropertyInfo property in properties)
@@ -109,7 +183,7 @@ namespace WebAPI.Controllers
                 if (!found)
                     throw new RequestParserException();
             }
-            else if (parameter.GetType() == typeof(Dictionary<string, object>))
+            else if (parameterType == typeof(Dictionary<string, object>))
             {
                 Dictionary<string, object> dict = (Dictionary<string, object>)parameter;
                 if (!dict.ContainsKey(token))
@@ -132,12 +206,83 @@ namespace WebAPI.Controllers
             return result;
         }
 
+        private static PropertyInfo GetPropertyInfo(Type type, string propertyName)
+        {
+            PropertyInfo propertyInfo = type.GetProperties().FirstOrDefault
+                (property => propertyName.Equals(DataModel.getApiName(property), StringComparison.CurrentCultureIgnoreCase));
+            
+            return propertyInfo;
+        }
+
+        private static bool CanUseGreaterOrLessThanOperator(Type type)
+        {
+            if (type == null)
+                return false;
+
+            TypeCode typeCode = Type.GetTypeCode(type);
+
+            switch (typeCode)
+            {
+                case TypeCode.SByte:
+                case TypeCode.Byte:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                case TypeCode.Single:
+                case TypeCode.Double:
+                case TypeCode.Decimal:
+                case TypeCode.DateTime:
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool CheckCondition(string operatorValue, dynamic obj1, dynamic obj2)
+        {
+            if (obj1 == null)
+            {
+                return false;
+            }
+
+            switch (operatorValue)
+            {
+                case "=": return obj1.Equals(obj2);
+                case "!=": return !obj1.Equals(obj2);
+                case ">": return obj1 > obj2;
+                case "<": return obj1 < obj2;
+                default: throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "operator", "= , != , > , < ");
+            }
+        }
+
+        private static object TryConvertTo(Type type, string value)
+        {
+            if (!string.IsNullOrEmpty(value) && type != null)
+            {
+                try
+                {
+                    return Convert.ChangeType(value, type);
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
         static private object translateMultirequestTokens(object parameter, object[] responses)
         {
             if (parameter.GetType() == typeof(string))
             {
-                Match match = Regex.Match((string)parameter, @"^{(\d):result(:.+)?}$", RegexOptions.IgnoreCase);
-                if (match.Success)
+                string text = parameter as string;
+                Match match = Regex.Match(text, @"{(\d):result(:[^}]+)?}", RegexOptions.IgnoreCase);
+
+                while (match.Success)
                 {
                     int index = int.Parse(match.Groups[1].Value) - 1;
                     if (index < 0)
@@ -146,17 +291,24 @@ namespace WebAPI.Controllers
                     if (index >= responses.Length)
                         throw new RequestParserException(RequestParserException.INVALID_INDEX);
 
+                    object translatedValue;
                     if (match.Groups[2].Success)
                     {
                         List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
                         tokens.RemoveAt(0);
-                        parameter = translateToken(responses[index], tokens);
+                        translatedValue = translateToken(responses[index], tokens);
                     }
                     else
                     {
-                        parameter = responses[index];
+                        translatedValue = responses[index];
+                        //parameter = responses[index];
                     }
+
+                    text = text.Replace(match.Value, translatedValue.ToString());
+                    match = match.NextMatch();
                 }
+
+                parameter = text;
             }
             else if (parameter.GetType().IsArray)
             {
@@ -208,13 +360,40 @@ namespace WebAPI.Controllers
         {
             Assembly asm = Assembly.GetExecutingAssembly();
             object[] responses = new object[request.Count()];
+            bool needToAbortRequest = false;
+            int abortingRequestIndex = 0;
+            bool isPreviousErrorOccurred = false;
+            bool isAnyErrorOccurred = false;
+
             for (int i = 0; i < request.Count(); i++)
             {
                 object response;
+                
+                if (needToAbortRequest)
+                {
+                    var requestAbortException = new BadRequestException(BadRequestException.REQUEST_ABORTED, abortingRequestIndex + 1);
+                    responses[i] = WrappingHandler.prepareExceptionResponse(requestAbortException.Code, requestAbortException.Message, requestAbortException.Args);
+                    isAnyErrorOccurred = true;
+                    continue;
+                }
+
+                if ((isPreviousErrorOccurred && request[i].SkipOnError == SkipOptions.Previous) || 
+                    (isAnyErrorOccurred && request[i].SkipOnError == SkipOptions.Any))
+                {
+                    var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
+                    responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
+                    isAnyErrorOccurred = true;
+                    continue;
+                }
+
+                isPreviousErrorOccurred = false;
+                
                 Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
                 if (controller == null)
                 {
                     response = new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
+                    isPreviousErrorOccurred = true;
+                    isAnyErrorOccurred = true;
                 }
                 else
                 {
@@ -233,18 +412,29 @@ namespace WebAPI.Controllers
                     catch (ApiException e)
                     {
                         response = e;
+                        isPreviousErrorOccurred = true;
+                        isAnyErrorOccurred = true;
                     }
                     catch (Exception e)
                     {
                         response = e.InnerException;
+                        isPreviousErrorOccurred = true;
+                        isAnyErrorOccurred = true;
                     }
                 }
-
+                
                 if (response is ApiException)
                 {
                     response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
                 }
+
                 responses[i] = response;
+
+                if (!needToAbortRequest && request[i].AbortAllOnError && isPreviousErrorOccurred)
+                {
+                    needToAbortRequest = true;
+                    abortingRequestIndex = i;
+                }
             }
 
             return responses;

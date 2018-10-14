@@ -49,7 +49,7 @@ namespace WebAPI.Models.Pricing
         {
             if (!AssetFileIdEqual.HasValue && !AssetIdEqual.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "AssetFileIdEqual", "AssetIdEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "AssetFileIdEqual, AssetIdEqual");
             }
 
             if (AssetFileIdEqual.HasValue && AssetIdEqual.HasValue)

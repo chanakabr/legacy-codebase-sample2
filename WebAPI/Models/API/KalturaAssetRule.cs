@@ -16,6 +16,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset rule
     /// </summary>
+    [Serializable]
     public partial class KalturaAssetRule : KalturaAssetRuleBase
     {
         /// <summary>
@@ -137,8 +138,7 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "actions");
             }
         }
-
-
+        
         private void ValidateIpRange(string fromIP, string toIP)
         {
             string ipRegex = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";

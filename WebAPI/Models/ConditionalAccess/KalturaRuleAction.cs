@@ -21,6 +21,7 @@ namespace WebAPI.Models.ConditionalAccess
         APPLY_DISCOUNT_MODULE
     }
     
+    [Serializable]
     public abstract partial class KalturaRuleAction : KalturaOTTObject
     {
         /// <summary>
@@ -41,14 +42,17 @@ namespace WebAPI.Models.ConditionalAccess
         public string Description { get; set; }
     }
 
+    [Serializable]
     public abstract partial class KalturaAssetRuleAction : KalturaRuleAction
     {
     }
 
+    [Serializable]
     public abstract partial class KalturaAssetUserRuleAction : KalturaRuleAction
     {
     }
-    
+
+    [Serializable]
     public partial class KalturaAssetUserRuleBlockAction : KalturaAssetUserRuleAction
     {
         protected override void Init()
@@ -58,6 +62,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
+    [Serializable]
     public partial class KalturaAccessControlBlockAction : KalturaAssetRuleAction
     {
         protected override void Init()
@@ -70,6 +75,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Time offset action
     /// </summary>
+    [Serializable]
     public abstract partial class KalturaTimeOffsetRuleAction : KalturaAssetRuleAction
     {
         /// <summary>
@@ -92,6 +98,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// End date offset action
     /// </summary>
+    [Serializable]
     public partial class KalturaEndDateOffsetRuleAction : KalturaTimeOffsetRuleAction
     {
         protected override void Init()
@@ -104,6 +111,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Start date offset action
     /// </summary>
+    [Serializable]
     public partial class KalturaStartDateOffsetRuleAction : KalturaTimeOffsetRuleAction
     {
         protected override void Init()
@@ -113,6 +121,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
+    [Serializable]
     public partial class KalturaAllowPlaybackAction : KalturaAssetRuleAction
     {
         public KalturaAllowPlaybackAction()
@@ -121,6 +130,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
+    [Serializable]
     public partial class KalturaBlockPlaybackAction : KalturaAssetRuleAction
     {
         public KalturaBlockPlaybackAction()
