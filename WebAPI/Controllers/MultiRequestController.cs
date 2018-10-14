@@ -121,15 +121,18 @@ namespace WebAPI.Controllers
 
                         if (typesToPropertyInfosMap[itemType].Item1 == null)
                         {
-                            // TODO SHIR - ASK TAN TAN IF THE PROPERTY IS NOT IN CURRENT ITEM (EPG AND MEDIA HAVE DIFFERENT PROPS SO- THROW AN EXCEPTION OR continue?
-                            //continue
+                            continue;
                         }
                         
                         object checkValue = null;
                         object conditionValue = null;
-                        if (matchCondition.Success && typesToPropertyInfosMap[itemType].Item2 != null)
+                        if (matchCondition.Success)
                         {
-                            // TODO SHIR - ASK TAN TAN IF THE PROPERTY IS NOT IN CURRENT ITEM (EPG AND MEDIA HAVE DIFFERENT PROPS SO- THROW AN EXCEPTION OR CONTINUE?
+                            if (typesToPropertyInfosMap[itemType].Item2 == null)
+                            {
+                                continue;
+                            }
+                            
                             checkValue = typesToPropertyInfosMap[itemType].Item2.GetValue(item);
                             conditionValue = typesToConditionValueMap[itemType];
                         }
@@ -207,12 +210,7 @@ namespace WebAPI.Controllers
         {
             PropertyInfo propertyInfo = type.GetProperties().FirstOrDefault
                 (property => propertyName.Equals(DataModel.getApiName(property), StringComparison.CurrentCultureIgnoreCase));
-
-            if (propertyInfo == null)
-            {
-                throw new RequestParserException(RequestParserException.INVALID_OBJECT_PROPERTY, propertyName, type.Name);
-            }
-
+            
             return propertyInfo;
         }
 
@@ -364,65 +362,75 @@ namespace WebAPI.Controllers
             object[] responses = new object[request.Count()];
             bool needToAbortRequest = false;
             int abortingRequestIndex = 0;
+            bool isPreviousErrorOccurred = false;
+            bool isAnyErrorOccurred = false;
+
             for (int i = 0; i < request.Count(); i++)
             {
                 object response;
-                bool isErrorOccurred = false;
-
+                
                 if (needToAbortRequest)
                 {
-                    response = new BadRequestException(BadRequestException.REQUEST_ABORTED, abortingRequestIndex+1);
-                    isErrorOccurred = true;
+                    var requestAbortException = new BadRequestException(BadRequestException.REQUEST_ABORTED, abortingRequestIndex + 1);
+                    responses[i] = WrappingHandler.prepareExceptionResponse(requestAbortException.Code, requestAbortException.Message, requestAbortException.Args);
+                    isAnyErrorOccurred = true;
+                    continue;
                 }
-                else if (i > 0 && 
-                         ((request[i].SkipOnError == SkipOptions.Previous && (responses[i-1] is KalturaAPIExceptionWrapper || responses[i - 1] is Exception)) || 
-                          (request[i].SkipOnError == SkipOptions.Any && responses.All(x => x == null || x is KalturaAPIExceptionWrapper || x is Exception))))
+
+                if ((isPreviousErrorOccurred && request[i].SkipOnError == SkipOptions.Previous) || 
+                    (isAnyErrorOccurred && request[i].SkipOnError == SkipOptions.Any))
                 {
-                    response = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
+                    var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
+                    responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
+                    isAnyErrorOccurred = true;
+                    continue;
+                }
+
+                isPreviousErrorOccurred = false;
+                
+                Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
+                if (controller == null)
+                {
+                    response = new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
+                    isPreviousErrorOccurred = true;
+                    isAnyErrorOccurred = true;
                 }
                 else
                 {
-                    Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
-                    if (controller == null)
+                    try
                     {
-                        response = new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
-                        isErrorOccurred = true;
+                        Dictionary<string, object> parameters = request[i].Parameters;
+                        if (i > 0)
+                        {
+                            parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses);
+                        }
+                        RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
+                        Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
+                        List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
+                        response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                     }
-                    else
+                    catch (ApiException e)
                     {
-                        try
-                        {
-                            Dictionary<string, object> parameters = request[i].Parameters;
-                            if (i > 0)
-                            {
-                                parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses);
-                            }
-                            RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
-                            Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
-                            List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
-                            response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
-                        }
-                        catch (ApiException e)
-                        {
-                            response = e;
-                            isErrorOccurred = true;
-                        }
-                        catch (Exception e)
-                        {
-                            response = e.InnerException;
-                            isErrorOccurred = true;
-                        }
+                        response = e;
+                        isPreviousErrorOccurred = true;
+                        isAnyErrorOccurred = true;
+                    }
+                    catch (Exception e)
+                    {
+                        response = e.InnerException;
+                        isPreviousErrorOccurred = true;
+                        isAnyErrorOccurred = true;
                     }
                 }
-
+                
                 if (response is ApiException)
                 {
                     response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
-                    isErrorOccurred = true;
                 }
+
                 responses[i] = response;
 
-                if (!needToAbortRequest && request[i].AbortAllOnError && (isErrorOccurred || response is Exception))
+                if (!needToAbortRequest && request[i].AbortAllOnError && isPreviousErrorOccurred)
                 {
                     needToAbortRequest = true;
                     abortingRequestIndex = i;
