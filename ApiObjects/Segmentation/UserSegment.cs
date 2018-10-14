@@ -22,7 +22,7 @@ namespace ApiObjects.Segmentation
         public long SegmentationTypeId { get; set; }
 
         [JsonProperty()]
-        public long SegmentId { get; set; }
+        public long? SegmentId { get; set; }
         
         public string SegmentSystemName { get; set; }
 
@@ -41,7 +41,7 @@ namespace ApiObjects.Segmentation
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-            long newId = couchbaseManager.GetSequenceValue(GetUserSegmentatsSequenceDocument());
+            long newId = couchbaseManager.GetSequenceValue(GetUserSegmentsSequenceDocument());
 
             if (newId == 0)
             {
@@ -68,9 +68,45 @@ namespace ApiObjects.Segmentation
                 userSegments.Segments = new List<UserSegment>();
             }
 
-            HashSet<long> alreadyContainedSegments = new HashSet<long>(userSegments.Segments.Select(o => o.SegmentId));
+            int totalCount;
+            var segmentationTypes = SegmentationType.List(this.GroupId, 0, 1000, out totalCount);
+            
+            SegmentationType segmentationType = segmentationTypes.FirstOrDefault(t => t.Id == this.SegmentationTypeId);
 
-            if (!alreadyContainedSegments.Contains(this.SegmentId))
+            if (segmentationType == null)
+            {
+                this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Given segmentation type does not exist for group");
+                return false;
+            }
+            
+            bool validSegmentId = true;
+
+            if (this.SegmentId.HasValue)
+            {
+                if (segmentationType.Value == null)
+                {
+                    validSegmentId = false;
+                }
+                else
+                {
+                    validSegmentId = segmentationType.Value.HasSegmentId(SegmentId.Value);
+                }
+            }
+            else
+            {
+                validSegmentId = segmentationType.Value != null;
+            }
+
+            if (!validSegmentId)
+            {
+
+            }
+
+            HashSet<string> alreadyContainedSegments = new HashSet<string>(userSegments.Segments.Select(o => GetCombinedString(o.SegmentationTypeId, o.SegmentId)));
+
+            string addedSegment = GetCombinedString(this.SegmentationTypeId, this.SegmentId);
+
+            if (!alreadyContainedSegments.Contains(addedSegment))
             {
                 userSegments.Segments.Add(this);
             }
@@ -90,12 +126,24 @@ namespace ApiObjects.Segmentation
             return result;
         }
 
+        private static string GetCombinedString(long segmentationTypeId, long? segmentId)
+        {
+            if (segmentId.HasValue)
+            {
+                return string.Format("t_{0}_s_{1}", segmentationTypeId, segmentId);
+            }
+            else
+            {
+                return string.Format("t_{0}", segmentationTypeId);
+            }
+        }
+
         private static string GetUserSegmentsDocument(string userId)
         {
             return string.Format("user_segments_{0}", userId);
         }
 
-        private string GetUserSegmentatsSequenceDocument()
+        private string GetUserSegmentsSequenceDocument()
         {
             return "user_segment_sequence";
         }
@@ -122,15 +170,17 @@ namespace ApiObjects.Segmentation
                 return false;
             }
 
-            HashSet<long> alreadyContainedSegments = new HashSet<long>(userSegments.Segments.Select(o => o.SegmentId));
+            HashSet<string> alreadyContainedSegments = new HashSet<string>(userSegments.Segments.Select(o => GetCombinedString(o.SegmentationTypeId, o.SegmentId)));
 
-            if (!alreadyContainedSegments.Contains(this.SegmentId))
+            string deletedSegment = GetCombinedString(this.SegmentationTypeId, this.SegmentId);
+
+            if (!alreadyContainedSegments.Contains(deletedSegment))
             {
                 this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "User does not have given segment");
                 return false;
             }
 
-            userSegments.Segments.RemoveAll(userSegment => userSegment.SegmentId == SegmentId);
+            userSegments.Segments.RemoveAll(userSegment => userSegment.SegmentId == SegmentId && userSegment.SegmentationTypeId == SegmentationTypeId);
 
             bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
 

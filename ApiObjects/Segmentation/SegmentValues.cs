@@ -92,5 +92,10 @@ namespace ApiObjects.Segmentation
 
             return result;
         }
+
+        internal override bool HasSegmentId(long segmentId)
+        {
+            return this.Values != null && this.Values.Exists(value => value.Id == segmentId);
+        }
     }
 }
