@@ -2220,9 +2220,9 @@ namespace Core.Api
             return Core.Api.api.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
         }
 
-        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId)
+        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, OrConditionScope filter)
         {
-            return Core.Api.api.GetBusinessModuleRules(groupId);
+            return Core.Api.api.GetBusinessModuleRules(groupId, filter);
         }
     }
 }

@@ -156,6 +156,7 @@
     <Compile Include="Response\IntResponse.cs" />
     <Compile Include="Response\StringResponse.cs" />
     <Compile Include="Rules\BusinessModuleRule.cs" />
+    <Compile Include="Rules\ConditionScope.cs" />
     <Compile Include="Rules\RuleCondition.cs" />
     <Compile Include="Rules\DeviceConcurrencyPriority.cs" />
     <Compile Include="Rules\Rule.cs" />

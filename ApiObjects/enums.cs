@@ -1086,7 +1086,8 @@ namespace ApiObjects
         IP_RANGE,
         BusinessModule,
         Segments,
-        Date
+        Date,
+        Or
     }
 
     public enum RuleActionTaskType

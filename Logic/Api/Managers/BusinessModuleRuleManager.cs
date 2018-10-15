@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects;
+using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using DAL;
@@ -145,7 +146,7 @@ namespace APILogic.Api.Managers
             return response;
         }
 
-        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId)
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, OrConditionScope filter, int pageIndex = 0, int pageSize = 0)
         {
             GenericListResponse<BusinessModuleRule> response = new GenericListResponse<BusinessModuleRule>();
 
@@ -169,7 +170,29 @@ namespace APILogic.Api.Managers
                     return response;
                 }
 
-                response.Objects = allBusinessModuleRules;
+                List<BusinessModuleRule> filteredRules = new List<BusinessModuleRule>();
+                foreach (var rule in allBusinessModuleRules)
+                {
+                    bool conditionsEvaluation = true;
+                    if (rule.Conditions != null && rule.Conditions.Count > 0)
+                    {
+                        foreach (var condition in rule.Conditions)
+                        {
+                            if (!condition.Evaluate(filter))
+                            {
+                                conditionsEvaluation = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (conditionsEvaluation)
+                    {
+                        filteredRules.Add(rule);
+                    }
+                }
+
+                response.Objects = filteredRules;
 
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

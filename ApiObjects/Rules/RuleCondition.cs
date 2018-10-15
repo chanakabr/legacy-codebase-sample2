@@ -16,6 +16,8 @@ namespace ApiObjects.Rules
 
         [JsonProperty("Description")]
         public string Description { get; set; }
+
+        public abstract bool Evaluate<T>(T scope) where T: ISegmentsConditionScope, IBusinessModuleConditionScope, IDateConditionScope;
     }
 
     [Serializable]
@@ -34,6 +36,31 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class OrCondition : RuleCondition
+    {
+        [JsonProperty("Conditions")]
+        public List<RuleCondition> Conditions { get; set; }
+
+        public OrCondition()
+        {
+            Type = RuleConditionType.Or;
+        }
+
+        public override bool Evaluate<OrConditionScope>(OrConditionScope scope)
+        {
+            foreach (RuleCondition condition in Conditions)
+            {
+                if (condition.Evaluate(scope))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AssetCondition : AssetRuleCondition
     {
         [JsonProperty("Ksql")]
@@ -42,6 +69,11 @@ namespace ApiObjects.Rules
         public AssetCondition()
         {
             Type = RuleConditionType.Asset;
+        }
+
+        public override bool Evaluate<T>(T scope)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -58,6 +90,11 @@ namespace ApiObjects.Rules
         public CountryCondition()
         {
             this.Type = RuleConditionType.Country;
+        }
+
+        public override bool Evaluate<T>(T scope)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -113,6 +150,12 @@ namespace ApiObjects.Rules
         {
             this.Type = RuleConditionType.BusinessModule;
         }
+
+        public override bool Evaluate<IBusinessModuleConditionScope>(IBusinessModuleConditionScope scope)
+        {
+            return !scope.BusinessModuleType.HasValue || (BusinessModuleType == scope.BusinessModuleType.Value && (BusinessModuleId == scope.BusinessModuleId || scope.BusinessModuleId == 0));
+
+        }
     }
 
     [Serializable]
@@ -120,14 +163,31 @@ namespace ApiObjects.Rules
     public class DateCondition : NotRuleCondition
     {
         [JsonProperty("StartDate")]
-        public long StartDate { get; set; }
+        public long? StartDate { get; set; }
 
         [JsonProperty("EndDate")]
-        public long EndDate { get; set; }
+        public long? EndDate { get; set; }
 
         public DateCondition()
         {
             this.Type = RuleConditionType.Date;
+        }
+
+        public override bool Evaluate<IDateConditionScope>(IDateConditionScope scope)
+        {
+            if (!scope.FilterByDate)
+            {
+                return true;
+            }
+
+            long now = ODBCWrapper.Utils.UnixTimeStampNow();
+            bool res = (!StartDate.HasValue || StartDate.Value < now) && (!EndDate.HasValue || now < EndDate.Value);
+            if (Not)
+            {
+                res = !res;
+            }
+
+            return res;
         }
     }
 
@@ -141,6 +201,18 @@ namespace ApiObjects.Rules
         public SegmentsCondition()
         {
             this.Type = RuleConditionType.Segments;
+        }
+
+        public override bool Evaluate<ISegmentsConditionScope>(ISegmentsConditionScope scope)
+        {
+            if (scope is ISegmentsConditionScope)
+            {
+                foreach (var segmentId in scope.SegmentIds)
+                {
+                    /// TODO: 
+                }
+            }
+            return false;
         }
     }
 }

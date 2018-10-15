@@ -11294,9 +11294,9 @@ namespace Core.Api
             return APILogic.Api.Managers.BusinessModuleRuleManager.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
         }
 
-        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId)
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, OrConditionScope filter)
         {
-            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId);
+            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
         }
 
 
