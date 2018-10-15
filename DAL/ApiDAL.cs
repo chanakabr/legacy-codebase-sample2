@@ -5174,7 +5174,7 @@ namespace DAL
 
         public static bool SaveBusinessModuleRuleCB(int groupId, BusinessModuleRule businessModuleRule)
         {
-            if (businessModuleRule != null && businessModuleRule.Id > 0 && businessModuleRule.Conditions != null && businessModuleRule.Conditions.Count > 0)
+            if (businessModuleRule != null && businessModuleRule.Id > 0)
             {
                 string key = GetBusinessModuleRuleKey(businessModuleRule.Id);
                 return UtilsDal.SaveObjectInCB<BusinessModuleRule>(eCouchbaseBucket.OTT_APPS, key, businessModuleRule);
