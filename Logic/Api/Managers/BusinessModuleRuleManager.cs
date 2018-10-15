@@ -79,7 +79,7 @@ namespace APILogic.Api.Managers
                 }
                 else
                 {
-                    SetInvalidationKeys(groupId, businessModuleRule.Id);
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(businessModuleRule.Id));
                     response.Object = businessModuleRule;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -146,52 +146,26 @@ namespace APILogic.Api.Managers
             return response;
         }
 
-        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, OrConditionScope filter, int pageIndex = 0, int pageSize = 0)
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter, int pageIndex = 0, int pageSize = 0)
         {
             GenericListResponse<BusinessModuleRule> response = new GenericListResponse<BusinessModuleRule>();
 
             try
             {
-                List<BusinessModuleRule> allBusinessModuleRules = new List<BusinessModuleRule>();
-                string allBusinessModuleRulesKey = LayeredCacheKeys.GetAllBusinessModuleRulesKey(groupId);
-
-                if (!LayeredCache.Instance.Get<List<BusinessModuleRule>>(allBusinessModuleRulesKey,
-                                                                ref allBusinessModuleRules,
-                                                                GetAllBusinessModuleRules,
-                                                                new Dictionary<string, object>()
-                                                                {
-                                                                    { "groupId", groupId }
-                                                                },
-                                                                groupId,
-                                                                LayeredCacheConfigNames.GET_ALL_BUSINESS_MODULE_RULES,
-                                                                new List<string>() { LayeredCacheKeys.GetAllBusinessModuleRulesGroupInvalidationKey(groupId) }))
-                {
-                    log.ErrorFormat("GetBusinessModuleRules - GetBusinessModuleRules - Failed get data from cache. groupId: {0}", groupId);
-                    return response;
-                }
+                List<BusinessModuleRule> allBusinessModuleRules = GetAllBusinessModuleRules(groupId);
 
                 List<BusinessModuleRule> filteredRules = new List<BusinessModuleRule>();
-                foreach (var rule in allBusinessModuleRules)
+
+                if (allBusinessModuleRules != null && allBusinessModuleRules.Count > 0)
                 {
-                    bool conditionsEvaluation = true;
-                    if (rule.Conditions != null && rule.Conditions.Count > 0)
+                    foreach (var rule in allBusinessModuleRules)
                     {
-                        foreach (var condition in rule.Conditions)
+                        if (rule.Evaluate(filter))
                         {
-                            if (!condition.Evaluate(filter))
-                            {
-                                conditionsEvaluation = false;
-                                break;
-                            }
+                            filteredRules.Add(rule);
                         }
                     }
-
-                    if (conditionsEvaluation)
-                    {
-                        filteredRules.Add(rule);
-                    }
                 }
-
                 response.Objects = filteredRules;
 
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -205,98 +179,133 @@ namespace APILogic.Api.Managers
             return response;
         }
 
-        private static Tuple<List<BusinessModuleRule>, bool> GetAllBusinessModuleRules(Dictionary<string, object> funcParams)
+        private static List<BusinessModuleRule> GetAllBusinessModuleRules(int groupId)
         {
-            List<BusinessModuleRule> allBusinessModuleRules = new List<BusinessModuleRule>();
+            List<BusinessModuleRule> allBusinessModuleRules = null;
+
+            string allBusinessModuleRuleIdsKey = LayeredCacheKeys.GetAllBusinessModuleRuleIdsKey(groupId);
+            List<long> ruleIds = null;
+            if (!LayeredCache.Instance.Get<List<long>>(allBusinessModuleRuleIdsKey,
+                                                                        ref ruleIds,
+                                                                        GetAllBusinessModuleRulesDB,
+                                                                        null,
+                                                                        groupId,
+                                                                        LayeredCacheConfigNames.GET_ALL_BUSINESS_MODULE_RULE_IDS,
+                                                                        new List<string>() { LayeredCacheKeys.GetAllBusinessModuleRulesGroupInvalidationKey(groupId) }))
+            {
+                allBusinessModuleRules = null;
+                log.ErrorFormat("GetAllBusinessModuleRules - GetAllBusinessModuleRulesDB - Failed get data from cache. groupId: {0}", groupId);
+            }
+
+            if (ruleIds.Count > 0)
+            {
+                Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+                Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+
+                foreach (long ruleId in ruleIds)
+                {
+                    string businessModuleRuleKey = LayeredCacheKeys.GetBusinessModuleRuleKey(ruleId);
+                    keysToOriginalValueMap.Add(businessModuleRuleKey, ruleId.ToString());
+                    invalidationKeysMap.Add(businessModuleRuleKey, new List<string>() { LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(ruleId) });
+                }
+
+                Dictionary<string, BusinessModuleRule> fullBusinessModuleRules = null;
+
+                if (LayeredCache.Instance.GetValues<BusinessModuleRule>(keysToOriginalValueMap,
+                                                                   ref fullBusinessModuleRules,
+                                                                   GetBusinessModuleRulesCB,
+                                                                   new Dictionary<string, object>() { { "ruleIds", keysToOriginalValueMap.Values.ToList() } },
+                                                                   groupId,
+                                                                   LayeredCacheConfigNames.GET_BUSINESS_MODULE_RULE,
+                                                                   invalidationKeysMap))
+                {
+                    if (fullBusinessModuleRules != null && fullBusinessModuleRules.Count > 0)
+                    {
+                        allBusinessModuleRules = fullBusinessModuleRules.Values.ToList();
+                    }
+                }
+            }
+
+            return allBusinessModuleRules;
+        }
+
+        private static Tuple<Dictionary<string, BusinessModuleRule>, bool> GetBusinessModuleRulesCB(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, BusinessModuleRule> result = new Dictionary<string, BusinessModuleRule>();
 
             try
             {
-                if (funcParams != null && funcParams.Count == 1)
+                if (funcParams != null && funcParams.ContainsKey("ruleIds"))
                 {
-                    if (funcParams.ContainsKey("groupId"))
+                    List<string> ruleIds = funcParams["ruleIds"] != null ? funcParams["ruleIds"] as List<string> : null;
+
+                    if (ruleIds != null && ruleIds.Count > 0)
                     {
-                        int? groupId = funcParams["groupId"] as int?;
-
-                        if (groupId.HasValue)
+                        foreach (string sRuleId in ruleIds)
                         {
-                            List<BusinessModuleRule> allBusinessModuleRulesDB = new List<BusinessModuleRule>();
-                            string allBusinessModuleRulesFromDBKey = LayeredCacheKeys.GetAllBusinessModuleRulesFromDBKey();
+                            long ruleId = long.Parse(sRuleId);
 
-                            if (!LayeredCache.Instance.Get<List<BusinessModuleRule>>(allBusinessModuleRulesFromDBKey,
-                                                                            ref allBusinessModuleRulesDB,
-                                                                            GetAllBusinessModuleRulesDB,
-                                                                            null,
-                                                                            groupId.Value,
-                                                                            LayeredCacheConfigNames.GET_ALL_BUSINESS_MODULE_RULES_FROM_DB,
-                                                                            new List<string>() { LayeredCacheKeys.GetAllBusinessModuleRulesInvalidationKey() }))
+                            BusinessModuleRule businessModuleRule = ApiDAL.GetBusinessModuleRuleCB(ruleId);
+                            if (businessModuleRule != null)
                             {
-                                allBusinessModuleRules = null;
-                                log.ErrorFormat("GetAllBusinessModuleRules - GetAllBusinessModuleRulesDB - Failed get data from cache. groupId: {0}", groupId);
+                                string businessModuleRuleKey = LayeredCacheKeys.GetBusinessModuleRuleKey(businessModuleRule.Id);
+                                result.Add(businessModuleRuleKey, businessModuleRule);
                             }
-                            if (allBusinessModuleRulesDB.Count > 0)
+                        }
+
+                        res = result.Count == ruleIds.Count();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetBusinessModuleRulesCB failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, BusinessModuleRule>, bool>(result, res);
+        }
+        
+
+        private static Tuple<List<long>, bool> GetAllBusinessModuleRulesDB(Dictionary<string, object> funcParams)
+        {
+            List<long> businessModuleRuleIds = new List<long>();
+
+            if (funcParams != null && funcParams.Count == 1)
+            {
+                if (funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+
+                    if (groupId.HasValue)
+                    {
+                        try
+                        {
+                            DataTable dtBusinessModuleRules = ApiDAL.GetBusinessModuleRulesDB(groupId.Value);
+
+                            if (dtBusinessModuleRules != null && dtBusinessModuleRules.Rows != null && dtBusinessModuleRules.Rows.Count > 0)
                             {
-                                List<long> ruleIds = allBusinessModuleRulesDB.Select(x => x.Id).ToList();
-
-                                var businessModuleRulesCB = ApiDAL.GetBusinessModuleRulesCB(ruleIds);
-
-                                if (businessModuleRulesCB != null && businessModuleRulesCB.Count > 0)
+                                log.Debug("GetAllBusinessModuleRulesDB - success");
+                                foreach (DataRow businessModuleRuleRow in dtBusinessModuleRules.Rows)
                                 {
-                                    allBusinessModuleRules = businessModuleRulesCB;
+                                    long id = ODBCWrapper.Utils.GetLongSafeVal(businessModuleRuleRow, "ID");
+                                    businessModuleRuleIds.Add(id);
                                 }
                             }
-
-                            log.Debug("GetAllBusinessModuleRules - success");
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(string.Format("GetAllBusinessModuleRulesDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                allBusinessModuleRules = null;
-                log.Error(string.Format("GetAllBusinessModuleRules failed params : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
 
-            return new Tuple<List<BusinessModuleRule>, bool>(allBusinessModuleRules, allBusinessModuleRules != null);
-        }
-
-        private static Tuple<List<BusinessModuleRule>, bool> GetAllBusinessModuleRulesDB(Dictionary<string, object> funcParams)
-        {
-            List<BusinessModuleRule> businessModuleRules = null;
-
-            try
-            {
-                DataTable dtBusinessModuleRules = ApiDAL.GetBusinessModuleRulesDB();
-                businessModuleRules = new List<BusinessModuleRule>();
-
-                if (dtBusinessModuleRules != null && dtBusinessModuleRules.Rows != null && dtBusinessModuleRules.Rows.Count > 0)
-                {
-                    foreach (DataRow businessModuleRuleRow in dtBusinessModuleRules.Rows)
-                    {
-                        long id = ODBCWrapper.Utils.GetLongSafeVal(businessModuleRuleRow, "ID");
-                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(businessModuleRuleRow, "GROUP_ID");
-
-                        BusinessModuleRule businessModuleRule = new BusinessModuleRule()
-                        {
-                            Id = id,
-                            GroupId = groupId
-                        };
-
-                        businessModuleRules.Add(businessModuleRule);
-                    }
-                }
-                log.Debug("businessModuleRules - success");
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetAllBusinessModuleRulesDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            return new Tuple<List<BusinessModuleRule>, bool>(businessModuleRules, businessModuleRules != null);
+            return new Tuple<List<long>, bool>(businessModuleRuleIds, true);
         }
 
         private static void SetInvalidationKeys(int groupId, long? ruleId = null)
         {
-            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllBusinessModuleRulesInvalidationKey());
             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAllBusinessModuleRulesGroupInvalidationKey(groupId));
 
             if (ruleId.HasValue)

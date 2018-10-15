@@ -23,7 +23,7 @@ namespace ApiObjects.Rules
         bool FilterByDate { get; set; }
     }
 
-    public class OrConditionScope : IBusinessModuleConditionScope, ISegmentsConditionScope, IDateConditionScope
+    public class ConditionScope : IBusinessModuleConditionScope, ISegmentsConditionScope, IDateConditionScope
     {
         public long BusinessModuleId { get; set; }
 

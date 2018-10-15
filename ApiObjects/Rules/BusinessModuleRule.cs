@@ -21,6 +21,21 @@ namespace ApiObjects.Rules
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<ApplyDiscountModuleRuleAction> Actions { get; set; }
 
+        public bool Evaluate(ConditionScope scope)
+        {
+            if (Conditions != null && Conditions.Count > 0)
+            {
+                foreach (var condition in Conditions)
+                {
+                    if (!condition.Evaluate(scope))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
 
     }
 }
+

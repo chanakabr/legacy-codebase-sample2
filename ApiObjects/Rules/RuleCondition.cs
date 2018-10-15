@@ -205,14 +205,14 @@ namespace ApiObjects.Rules
 
         public override bool Evaluate<ISegmentsConditionScope>(ISegmentsConditionScope scope)
         {
-            if (scope is ISegmentsConditionScope)
+            if (scope.SegmentIds != null)
             {
-                foreach (var segmentId in scope.SegmentIds)
-                {
-                    /// TODO: 
-                }
+                var intersected = SegmentIds.Intersect(scope.SegmentIds);
+                return intersected.Count() == SegmentIds.Count;
             }
             return false;
+
+            // TODO: support the NOT
         }
     }
 }
