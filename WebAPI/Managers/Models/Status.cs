@@ -179,5 +179,9 @@ namespace WebAPI.Managers.Models
         MultiValueWasNotSentForMetaDataTypeString = 500074,
         TagTranslationNotAllowed = 500075,
         InvalidObjectType = 500076,
+        MultirequestInvalidConditionValue = 500077,
+        MultirequestInvalidOperatorForConditionType = 500078,
+        RequestAborted = 500079,
+        RequestSkipped = 500080
     }
 }

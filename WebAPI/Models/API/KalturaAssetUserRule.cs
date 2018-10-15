@@ -15,6 +15,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset user rule
     /// </summary>
+    [Serializable]
     public partial class KalturaAssetUserRule : KalturaAssetRuleBase
     {
         /// <summary>

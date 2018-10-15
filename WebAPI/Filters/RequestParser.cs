@@ -31,6 +31,7 @@ using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using TVinciShared;
 
 namespace WebAPI.Filters
 {
@@ -44,6 +45,8 @@ namespace WebAPI.Filters
         public static ApiExceptionType INDEX_NOT_ZERO_BASED = new ApiExceptionType(StatusCode.MultirequestIndexNotZeroBased, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, response index is not zero based");
         public static ApiExceptionType INVALID_INDEX = new ApiExceptionType(StatusCode.MultirequestInvalidIndex, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid response index");
         public static ApiExceptionType GENERIC_METHOD = new ApiExceptionType(StatusCode.MultirequestGenericMethod, StatusCode.InvalidService, "Invalid multirequest service, invalid service: [@service@], action: [@action@]", "service", "action");
+        public static ApiExceptionType INVALID_OPERATOR = new ApiExceptionType(StatusCode.MultirequestInvalidOperatorForConditionType, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid operator [@operator@] for condition type [@conditionType@]", "operator", "conditionType");
+        public static ApiExceptionType INVALID_CONDITION_VALUE = new ApiExceptionType(StatusCode.MultirequestInvalidConditionValue, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid condition value [@conditionValue@] for condition type [@conditionType@]", "conditionValue", "conditionType");
 
         public RequestParserException()
             : this(INVALID_MULTIREQUEST_TOKEN)
@@ -792,25 +795,41 @@ namespace WebAPI.Filters
             Dictionary<string, object> currentRequestParams;
             
             int requestIndex = 0;
-            foreach (string index in requestParams.Keys)
+            foreach (var param in requestParams)
             {
-                if (!int.TryParse(index, out requestIndex))
+                if (!int.TryParse(param.Key, out requestIndex))
                     continue;
 
-                var requestItem = requestParams[index];
-                if (requestItem.GetType() == typeof(JObject) || requestItem.GetType().IsSubclassOf(typeof(JObject)))
+                if (param.Value.GetType() == typeof(JObject) || param.Value.GetType().IsSubclassOf(typeof(JObject)))
                 {
-                    currentRequestParams = ((JObject)requestItem).ToObject<Dictionary<string, object>>();
+                    currentRequestParams = ((JObject)param.Value).ToObject<Dictionary<string, object>>();
                 }
                 else
                 {
-                    currentRequestParams = (Dictionary<string, object>)requestItem;
+                    currentRequestParams = (Dictionary<string, object>)param.Value;
                 }
 
-                KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction(); ;
-                currentRequest.Service = currentRequestParams["service"].ToString();
-                currentRequest.Action = currentRequestParams["action"].ToString();
-                currentRequest.Parameters = currentRequestParams;
+                bool abortAllOnError = false;
+                if (currentRequestParams.ContainsKey("abortAllOnError"))
+                {
+                    BoolUtils.TryConvert(currentRequestParams["abortAllOnError"], out abortAllOnError);
+                }
+
+                SkipOptions skipOption = SkipOptions.No;
+                if (currentRequestParams.ContainsKey("skipOnError"))
+                {
+                    Enum.TryParse<SkipOptions>(currentRequestParams["skipOnError"].ToString(), out skipOption);
+                }
+                
+                KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction()
+                {
+                    Service = currentRequestParams["service"].ToString(),
+                    Action = currentRequestParams["action"].ToString(),
+                    Parameters = currentRequestParams,
+                    AbortAllOnError = abortAllOnError,
+                    SkipOnError = skipOption
+                };
+                
                 requests.Add(currentRequest);
                 requestIndex++;
             }

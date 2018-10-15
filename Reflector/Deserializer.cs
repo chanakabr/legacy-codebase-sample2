@@ -104,6 +104,18 @@ namespace Reflector
                         file.WriteLine("                        " + property.Name + " = buildNativeList<" + genericParamName + ">(typeof(" + genericParamName + "), (JArray) parameters[\"" + apiName + "\"]);");
                     }
                     file.WriteLine("                    }");
+
+                    file.WriteLine("                    else if (parameters[\"" + apiName + "\"] is IList)");
+                    file.WriteLine("                    {");
+                    if (typeof(IKalturaOTTObject).IsAssignableFrom(genericParam))
+                    {
+                        file.WriteLine("                        " + property.Name + " = buildList(typeof(" + genericParamName + "), parameters[\"" + apiName + "\"] as object[]);");
+                    }
+                    else
+                    {
+                        file.WriteLine("                        " + property.Name + " = buildNativeList(typeof(" + genericParamName + "), parameters[\"" + apiName + "\"] as object[]);");
+                    }
+                    file.WriteLine("                    }");
                 }
                 else if (typeof(IDictionary).IsAssignableFrom(propertyType)) // map
                 {

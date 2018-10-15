@@ -1586,6 +1586,10 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Sources = buildList<KalturaAdsSource>(typeof(KalturaAdsSource), (JArray) parameters["sources"]);
                     }
+                    else if (parameters["sources"] is IList)
+                    {
+                        Sources = buildList(typeof(KalturaAdsSource), parameters["sources"] as object[]);
+                    }
                 }
             }
         }
@@ -2149,6 +2153,10 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         transactions = buildList<KalturaBillingTransaction>(typeof(KalturaBillingTransaction), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        transactions = buildList(typeof(KalturaBillingTransaction), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -2266,6 +2274,10 @@ namespace WebAPI.Models.ConditionalAccess
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaCDVRAdapterProfile>(typeof(KalturaCDVRAdapterProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCDVRAdapterProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -3104,6 +3116,10 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Entitlements = buildList<KalturaEntitlement>(typeof(KalturaEntitlement), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Entitlements = buildList(typeof(KalturaEntitlement), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -3263,6 +3279,10 @@ namespace WebAPI.Models.ConditionalAccess
                     if (parameters["objects"] is JArray)
                     {
                         PremiumServices = buildList<KalturaHouseholdPremiumService>(typeof(KalturaHouseholdPremiumService), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        PremiumServices = buildList(typeof(KalturaHouseholdPremiumService), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -3457,6 +3477,10 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Sources = buildList<KalturaPlaybackSource>(typeof(KalturaPlaybackSource), (JArray) parameters["sources"]);
                     }
+                    else if (parameters["sources"] is IList)
+                    {
+                        Sources = buildList(typeof(KalturaPlaybackSource), parameters["sources"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
@@ -3464,12 +3488,20 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Actions = buildList<KalturaRuleAction>(typeof(KalturaRuleAction), (JArray) parameters["actions"]);
                     }
+                    else if (parameters["actions"] is IList)
+                    {
+                        Actions = buildList(typeof(KalturaRuleAction), parameters["actions"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("messages") && parameters["messages"] != null)
                 {
                     if (parameters["messages"] is JArray)
                     {
                         Messages = buildList<KalturaAccessControlMessage>(typeof(KalturaAccessControlMessage), (JArray) parameters["messages"]);
+                    }
+                    else if (parameters["messages"] is IList)
+                    {
+                        Messages = buildList(typeof(KalturaAccessControlMessage), parameters["messages"] as object[]);
                     }
                 }
             }
@@ -3539,6 +3571,10 @@ namespace WebAPI.Models.ConditionalAccess
                     if (parameters["drm"] is JArray)
                     {
                         Drm = buildList<KalturaDrmPlaybackPluginData>(typeof(KalturaDrmPlaybackPluginData), (JArray) parameters["drm"]);
+                    }
+                    else if (parameters["drm"] is IList)
+                    {
+                        Drm = buildList(typeof(KalturaDrmPlaybackPluginData), parameters["drm"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("adsPolicy") && parameters["adsPolicy"] != null)
@@ -3665,12 +3701,20 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         SubscriptionsIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["subscriptionsIds"]);
                     }
+                    else if (parameters["subscriptionsIds"] is IList)
+                    {
+                        SubscriptionsIds = buildList(typeof(KalturaIntegerValue), parameters["subscriptionsIds"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("subscriptions_ids") && parameters["subscriptions_ids"] != null && isOldVersion)
                 {
                     if (parameters["subscriptions_ids"] is JArray)
                     {
                         SubscriptionsIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["subscriptions_ids"]);
+                    }
+                    else if (parameters["subscriptions_ids"] is IList)
+                    {
+                        SubscriptionsIds = buildList(typeof(KalturaIntegerValue), parameters["subscriptions_ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("filesIds") && parameters["filesIds"] != null)
@@ -3679,12 +3723,20 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         FilesIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["filesIds"]);
                     }
+                    else if (parameters["filesIds"] is IList)
+                    {
+                        FilesIds = buildList(typeof(KalturaIntegerValue), parameters["filesIds"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("files_ids") && parameters["files_ids"] != null && isOldVersion)
                 {
                     if (parameters["files_ids"] is JArray)
                     {
                         FilesIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["files_ids"]);
+                    }
+                    else if (parameters["files_ids"] is IList)
+                    {
+                        FilesIds = buildList(typeof(KalturaIntegerValue), parameters["files_ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("shouldGetOnlyLowest") && parameters["shouldGetOnlyLowest"] != null)
@@ -4044,6 +4096,10 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Objects = buildList<KalturaRecordingContext>(typeof(KalturaRecordingContext), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaRecordingContext), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -4126,6 +4182,10 @@ namespace WebAPI.Models.ConditionalAccess
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaRecording>(typeof(KalturaRecording), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaRecording), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -4261,6 +4321,10 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         ExcludedSeasons = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["excludedSeasons"]);
                     }
+                    else if (parameters["excludedSeasons"] is IList)
+                    {
+                        ExcludedSeasons = buildList(typeof(KalturaIntegerValue), parameters["excludedSeasons"] as object[]);
+                    }
                 }
             }
         }
@@ -4282,6 +4346,10 @@ namespace WebAPI.Models.ConditionalAccess
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaSeriesRecording>(typeof(KalturaSeriesRecording), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaSeriesRecording), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -4671,6 +4739,10 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Entitlements = buildList<KalturaEntitlementRenewalBase>(typeof(KalturaEntitlementRenewalBase), (JArray) parameters["entitlements"]);
                     }
+                    else if (parameters["entitlements"] is IList)
+                    {
+                        Entitlements = buildList(typeof(KalturaEntitlementRenewalBase), parameters["entitlements"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
@@ -4835,6 +4907,10 @@ namespace WebAPI.Models.Social
                     if (parameters["comments"] is JArray)
                     {
                         Comments = buildList<KalturaSocialNetworkComment>(typeof(KalturaSocialNetworkComment), (JArray) parameters["comments"]);
+                    }
+                    else if (parameters["comments"] is IList)
+                    {
+                        Comments = buildList(typeof(KalturaSocialNetworkComment), parameters["comments"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("link") && parameters["link"] != null)
@@ -5051,6 +5127,10 @@ namespace WebAPI.Models.Social
                     {
                         Objects = buildList<KalturaSocialAction>(typeof(KalturaSocialAction), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaSocialAction), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -5129,6 +5209,10 @@ namespace WebAPI.Models.Social
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaSocialComment>(typeof(KalturaSocialComment), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaSocialComment), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -5223,6 +5307,10 @@ namespace WebAPI.Models.Social
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaSocialFriendActivity>(typeof(KalturaSocialFriendActivity), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaSocialFriendActivity), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -5393,6 +5481,10 @@ namespace WebAPI.Models.Social
                     {
                         PermissionItems = buildList<KalturaActionPermissionItem>(typeof(KalturaActionPermissionItem), (JArray) parameters["actionPermissionItems"]);
                     }
+                    else if (parameters["actionPermissionItems"] is IList)
+                    {
+                        PermissionItems = buildList(typeof(KalturaActionPermissionItem), parameters["actionPermissionItems"] as object[]);
+                    }
                 }
             }
         }
@@ -5425,6 +5517,10 @@ namespace WebAPI.Models.Social
                     if (parameters["failStatus"] is JArray)
                     {
                         NetworkStatus = buildList<KalturaNetworkActionStatus>(typeof(KalturaNetworkActionStatus), (JArray) parameters["failStatus"]);
+                    }
+                    else if (parameters["failStatus"] is IList)
+                    {
+                        NetworkStatus = buildList(typeof(KalturaNetworkActionStatus), parameters["failStatus"] as object[]);
                     }
                 }
             }
@@ -5738,6 +5834,10 @@ namespace WebAPI.Models.General
                     {
                         RelatedProfiles = buildList<KalturaDetachedResponseProfile>(typeof(KalturaDetachedResponseProfile), (JArray) parameters["relatedProfiles"]);
                     }
+                    else if (parameters["relatedProfiles"] is IList)
+                    {
+                        RelatedProfiles = buildList(typeof(KalturaDetachedResponseProfile), parameters["relatedProfiles"] as object[]);
+                    }
                 }
             }
         }
@@ -5827,6 +5927,10 @@ namespace WebAPI.Models.General
                     {
                         Values = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Values = buildList(typeof(KalturaIntegerValue), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -5886,6 +5990,10 @@ namespace WebAPI.Models.General
                     {
                         Values = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["values"]);
                     }
+                    else if (parameters["values"] is IList)
+                    {
+                        Values = buildList(typeof(KalturaTranslationToken), parameters["values"] as object[]);
+                    }
                 }
             }
         }
@@ -5921,6 +6029,10 @@ namespace WebAPI.Models.General
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaMultilingualStringValue>(typeof(KalturaMultilingualStringValue), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaMultilingualStringValue), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -5999,6 +6111,10 @@ namespace WebAPI.Models.General
                     {
                         Objects = buildList<KalturaReport>(typeof(KalturaReport), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaReport), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -6067,6 +6183,10 @@ namespace WebAPI.Models.General
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaStringValue), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -6333,6 +6453,10 @@ namespace WebAPI.Models.Notification
                     {
                         Announcements = buildList<KalturaAnnouncement>(typeof(KalturaAnnouncement), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Announcements = buildList(typeof(KalturaAnnouncement), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -6386,6 +6510,10 @@ namespace WebAPI.Models.Notification
                     if (parameters["extraParameters"] is JArray)
                     {
                         ExtraParameters = buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["extraParameters"]);
+                    }
+                    else if (parameters["extraParameters"] is IList)
+                    {
+                        ExtraParameters = buildList(typeof(KalturaKeyValue), parameters["extraParameters"] as object[]);
                     }
                 }
             }
@@ -6555,6 +6683,10 @@ namespace WebAPI.Models.Notification
                     {
                         EngagementAdapters = buildList<KalturaEngagementAdapter>(typeof(KalturaEngagementAdapter), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        EngagementAdapters = buildList(typeof(KalturaEngagementAdapter), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -6587,6 +6719,10 @@ namespace WebAPI.Models.Notification
                     if (parameters["objects"] is JArray)
                     {
                         Engagements = buildList<KalturaEngagement>(typeof(KalturaEngagement), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Engagements = buildList(typeof(KalturaEngagement), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -6806,6 +6942,10 @@ namespace WebAPI.Models.Notification
                     {
                         FollowDataList = buildList<KalturaFollowTvSeries>(typeof(KalturaFollowTvSeries), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        FollowDataList = buildList(typeof(KalturaFollowTvSeries), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -6917,6 +7057,10 @@ namespace WebAPI.Models.Notification
                     {
                         InboxMessages = buildList<KalturaInboxMessage>(typeof(KalturaInboxMessage), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        InboxMessages = buildList(typeof(KalturaInboxMessage), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -6932,6 +7076,10 @@ namespace WebAPI.Models.Notification
                     if (parameters["objects"] is JArray)
                     {
                         InboxMessages = buildList<KalturaInboxMessage>(typeof(KalturaInboxMessage), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        InboxMessages = buildList(typeof(KalturaInboxMessage), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -6962,6 +7110,10 @@ namespace WebAPI.Models.Notification
                     {
                         FollowDataList = buildList<KalturaFollowDataTvSeries>(typeof(KalturaFollowDataTvSeries), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        FollowDataList = buildList(typeof(KalturaFollowDataTvSeries), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -6977,6 +7129,10 @@ namespace WebAPI.Models.Notification
                     if (parameters["objects"] is JArray)
                     {
                         Announcements = buildList<KalturaAnnouncement>(typeof(KalturaAnnouncement), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Announcements = buildList(typeof(KalturaAnnouncement), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -7275,6 +7431,10 @@ namespace WebAPI.Models.Notification
                     {
                         PersonalFollowFeed = buildList<KalturaPersonalFeed>(typeof(KalturaPersonalFeed), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        PersonalFollowFeed = buildList(typeof(KalturaPersonalFeed), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -7296,6 +7456,10 @@ namespace WebAPI.Models.Notification
                     if (parameters["objects"] is JArray)
                     {
                         PersonalFollowFeed = buildList<KalturaPersonalFollowFeed>(typeof(KalturaPersonalFollowFeed), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        PersonalFollowFeed = buildList(typeof(KalturaPersonalFollowFeed), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -7386,6 +7550,10 @@ namespace WebAPI.Models.Notification
                     if (parameters["objects"] is JArray)
                     {
                         Reminders = buildList<KalturaReminder>(typeof(KalturaReminder), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Reminders = buildList(typeof(KalturaReminder), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -7491,6 +7659,10 @@ namespace WebAPI.Models.Notification
                     {
                         Topics = buildList<KalturaTopic>(typeof(KalturaTopic), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Topics = buildList(typeof(KalturaTopic), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -7506,6 +7678,10 @@ namespace WebAPI.Models.Notification
                     if (parameters["objects"] is JArray)
                     {
                         Topics = buildList<KalturaTopic>(typeof(KalturaTopic), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Topics = buildList(typeof(KalturaTopic), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -7625,6 +7801,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
                     }
+                    else if (parameters["images"] is IList)
+                    {
+                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("mediaFiles") && parameters["mediaFiles"] != null)
                 {
@@ -7635,6 +7815,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["mediaFiles"] is JArray)
                     {
                         MediaFiles = buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["mediaFiles"]);
+                    }
+                    else if (parameters["mediaFiles"] is IList)
+                    {
+                        MediaFiles = buildList(typeof(KalturaMediaFile), parameters["mediaFiles"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("stats") && parameters["stats"] != null)
@@ -7763,6 +7947,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Bookmarks = buildList<KalturaAssetBookmark>(typeof(KalturaAssetBookmark), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Bookmarks = buildList(typeof(KalturaAssetBookmark), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -7853,6 +8041,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Objects = buildList<KalturaAssetComment>(typeof(KalturaAssetComment), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaAssetComment), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -7877,6 +8069,10 @@ namespace WebAPI.Models.Catalog
                     {
                         SubCounts = buildList<KalturaAssetsCount>(typeof(KalturaAssetsCount), (JArray) parameters["subs"]);
                     }
+                    else if (parameters["subs"] is IList)
+                    {
+                        SubCounts = buildList(typeof(KalturaAssetsCount), parameters["subs"] as object[]);
+                    }
                 }
             }
         }
@@ -7896,6 +8092,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaAssetsCount>(typeof(KalturaAssetsCount), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaAssetsCount), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -8080,12 +8280,20 @@ namespace WebAPI.Models.Catalog
                     {
                         filterTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["filterTypes"]);
                     }
+                    else if (parameters["filterTypes"] is IList)
+                    {
+                        filterTypes = buildList(typeof(KalturaIntegerValue), parameters["filterTypes"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("filter_types") && parameters["filter_types"] != null && isOldVersion)
                 {
                     if (parameters["filter_types"] is JArray)
                     {
                         filterTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["filter_types"]);
+                    }
+                    else if (parameters["filter_types"] is IList)
+                    {
+                        filterTypes = buildList(typeof(KalturaIntegerValue), parameters["filter_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("typeIn") && parameters["typeIn"] != null)
@@ -8118,6 +8326,10 @@ namespace WebAPI.Models.Catalog
                     {
                         with = buildList<KalturaCatalogWithHolder>(typeof(KalturaCatalogWithHolder), (JArray) parameters["with"]);
                     }
+                    else if (parameters["with"] is IList)
+                    {
+                        with = buildList(typeof(KalturaCatalogWithHolder), parameters["with"] as object[]);
+                    }
                 }
             }
         }
@@ -8133,6 +8345,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaAssetHistory>(typeof(KalturaAssetHistory), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaAssetHistory), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -8207,6 +8423,10 @@ namespace WebAPI.Models.Catalog
                     {
                         IDs = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["ids"]);
                     }
+                    else if (parameters["ids"] is IList)
+                    {
+                        IDs = buildList(typeof(KalturaStringValue), parameters["ids"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("referenceType") && parameters["referenceType"] != null)
                 {
@@ -8244,6 +8464,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Objects = buildList<KalturaAssetInfo>(typeof(KalturaAssetInfo), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaAssetInfo), parameters["objects"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("requestId") && parameters["requestId"] != null)
                 {
@@ -8267,6 +8491,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaAsset>(typeof(KalturaAsset), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaAsset), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -8297,6 +8525,10 @@ namespace WebAPI.Models.Catalog
                     {
                         AssetsBookmarks = buildList<KalturaAssetBookmarks>(typeof(KalturaAssetBookmarks), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        AssetsBookmarks = buildList(typeof(KalturaAssetBookmarks), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -8317,6 +8549,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Objects = buildList<KalturaAssetCount>(typeof(KalturaAssetCount), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaAssetCount), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -8335,12 +8571,20 @@ namespace WebAPI.Models.Catalog
                     {
                         Assets = buildList<KalturaSlimAsset>(typeof(KalturaSlimAsset), (JArray) parameters["assets"]);
                     }
+                    else if (parameters["assets"] is IList)
+                    {
+                        Assets = buildList(typeof(KalturaSlimAsset), parameters["assets"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("Assets") && parameters["Assets"] != null && isOldVersion)
                 {
                     if (parameters["Assets"] is JArray)
                     {
                         Assets = buildList<KalturaSlimAsset>(typeof(KalturaSlimAsset), (JArray) parameters["Assets"]);
+                    }
+                    else if (parameters["Assets"] is IList)
+                    {
+                        Assets = buildList(typeof(KalturaSlimAsset), parameters["Assets"] as object[]);
                     }
                 }
             }
@@ -8418,6 +8662,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["objects"] is JArray)
                     {
                         AssetsStatistics = buildList<KalturaAssetStatistics>(typeof(KalturaAssetStatistics), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        AssetsStatistics = buildList(typeof(KalturaAssetStatistics), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -8629,6 +8877,10 @@ namespace WebAPI.Models.Catalog
                     {
                         AssetStructs = buildList<KalturaAssetStruct>(typeof(KalturaAssetStruct), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        AssetStructs = buildList(typeof(KalturaAssetStruct), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -8813,6 +9065,10 @@ namespace WebAPI.Models.Catalog
                     {
                         AssetStructMetas = buildList<KalturaAssetStructMeta>(typeof(KalturaAssetStructMeta), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        AssetStructMetas = buildList(typeof(KalturaAssetStructMeta), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -8860,6 +9116,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
                     }
+                    else if (parameters["images"] is IList)
+                    {
+                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("mediaFiles") && parameters["mediaFiles"] != null)
                 {
@@ -8867,12 +9127,20 @@ namespace WebAPI.Models.Catalog
                     {
                         MediaFiles = buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["mediaFiles"]);
                     }
+                    else if (parameters["mediaFiles"] is IList)
+                    {
+                        MediaFiles = buildList(typeof(KalturaMediaFile), parameters["mediaFiles"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("media_files") && parameters["media_files"] != null && isOldVersion)
                 {
                     if (parameters["media_files"] is JArray)
                     {
                         MediaFiles = buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["media_files"]);
+                    }
+                    else if (parameters["media_files"] is IList)
+                    {
+                        MediaFiles = buildList(typeof(KalturaMediaFile), parameters["media_files"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("stats") && parameters["stats"] != null)
@@ -8932,6 +9200,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["groupBy"] is JArray)
                     {
                         GroupBy = buildList<KalturaAssetGroupBy>(typeof(KalturaAssetGroupBy), (JArray) parameters["groupBy"]);
+                    }
+                    else if (parameters["groupBy"] is IList)
+                    {
+                        GroupBy = buildList(typeof(KalturaAssetGroupBy), parameters["groupBy"] as object[]);
                     }
                 }
             }
@@ -9058,6 +9330,10 @@ namespace WebAPI.Models.Catalog
                     {
                         AssetIn = buildList<KalturaSlimAsset>(typeof(KalturaSlimAsset), (JArray) parameters["assetIn"]);
                     }
+                    else if (parameters["assetIn"] is IList)
+                    {
+                        AssetIn = buildList(typeof(KalturaSlimAsset), parameters["assetIn"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("assetIdIn") && parameters["assetIdIn"] != null)
                 {
@@ -9081,6 +9357,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["objects"] is JArray)
                     {
                         AssetsBookmarks = buildList<KalturaBookmark>(typeof(KalturaBookmark), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        AssetsBookmarks = buildList(typeof(KalturaBookmark), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -9304,12 +9584,20 @@ namespace WebAPI.Models.Catalog
                     {
                         Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
                     }
+                    else if (parameters["images"] is IList)
+                    {
+                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("assetTypes") && parameters["assetTypes"] != null)
                 {
                     if (parameters["assetTypes"] is JArray)
                     {
                         AssetTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["assetTypes"]);
+                    }
+                    else if (parameters["assetTypes"] is IList)
+                    {
+                        AssetTypes = buildList(typeof(KalturaIntegerValue), parameters["assetTypes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("asset_types") && parameters["asset_types"] != null && isOldVersion)
@@ -9318,12 +9606,20 @@ namespace WebAPI.Models.Catalog
                     {
                         AssetTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["asset_types"]);
                     }
+                    else if (parameters["asset_types"] is IList)
+                    {
+                        AssetTypes = buildList(typeof(KalturaIntegerValue), parameters["asset_types"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("media_types") && parameters["media_types"] != null)
                 {
                     if (parameters["media_types"] is JArray)
                     {
                         MediaTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["media_types"]);
+                    }
+                    else if (parameters["media_types"] is IList)
+                    {
+                        MediaTypes = buildList(typeof(KalturaIntegerValue), parameters["media_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("filterExpression") && parameters["filterExpression"] != null)
@@ -9488,6 +9784,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Channels = buildList<KalturaChannel>(typeof(KalturaChannel), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Channels = buildList(typeof(KalturaChannel), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -9613,6 +9913,10 @@ namespace WebAPI.Models.Catalog
                     {
                         AssetTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["assetTypes"]);
                     }
+                    else if (parameters["assetTypes"] is IList)
+                    {
+                        AssetTypes = buildList(typeof(KalturaIntegerValue), parameters["assetTypes"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("groupBy") && parameters["groupBy"] != null)
                 {
@@ -9659,6 +9963,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Assets = buildList<KalturaAssetInfo>(typeof(KalturaAssetInfo), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Assets = buildList(typeof(KalturaAssetInfo), parameters["objects"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("channelId") && parameters["channelId"] != null)
                 {
@@ -9685,12 +9993,20 @@ namespace WebAPI.Models.Catalog
                     {
                         Channels = buildList<KalturaEPGChannelAssets>(typeof(KalturaEPGChannelAssets), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Channels = buildList(typeof(KalturaEPGChannelAssets), parameters["objects"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("assets") && parameters["assets"] != null && isOldVersion)
                 {
                     if (parameters["assets"] is JArray)
                     {
                         Channels = buildList<KalturaEPGChannelAssets>(typeof(KalturaEPGChannelAssets), (JArray) parameters["assets"]);
+                    }
+                    else if (parameters["assets"] is IList)
+                    {
+                        Channels = buildList(typeof(KalturaEPGChannelAssets), parameters["assets"] as object[]);
                     }
                 }
             }
@@ -9709,6 +10025,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["ids"] is JArray)
                     {
                         IDs = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["ids"]);
+                    }
+                    else if (parameters["ids"] is IList)
+                    {
+                        IDs = buildList(typeof(KalturaIntegerValue), parameters["ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("startTime") && parameters["startTime"] != null)
@@ -9936,6 +10256,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Images = buildList<KalturaImage>(typeof(KalturaImage), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Images = buildList(typeof(KalturaImage), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -10122,6 +10446,10 @@ namespace WebAPI.Models.Catalog
                     {
                         ImageTypes = buildList<KalturaImageType>(typeof(KalturaImageType), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        ImageTypes = buildList(typeof(KalturaImageType), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -10159,6 +10487,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Ids = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["ids"]);
                     }
+                    else if (parameters["ids"] is IList)
+                    {
+                        Ids = buildList(typeof(KalturaStringValue), parameters["ids"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
@@ -10182,6 +10514,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["objects"] is JArray)
                     {
                         LastPositions = buildList<KalturaLastPosition>(typeof(KalturaLastPosition), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        LastPositions = buildList(typeof(KalturaLastPosition), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -10828,6 +11164,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Files = buildList<KalturaMediaFile>(typeof(KalturaMediaFile), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Files = buildList(typeof(KalturaMediaFile), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -11034,6 +11374,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Types = buildList<KalturaMediaFileType>(typeof(KalturaMediaFileType), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Types = buildList(typeof(KalturaMediaFileType), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -11137,12 +11481,20 @@ namespace WebAPI.Models.Catalog
                     {
                         ChildCategories = buildList<KalturaOTTCategory>(typeof(KalturaOTTCategory), (JArray) parameters["childCategories"]);
                     }
+                    else if (parameters["childCategories"] is IList)
+                    {
+                        ChildCategories = buildList(typeof(KalturaOTTCategory), parameters["childCategories"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("child_categories") && parameters["child_categories"] != null && isOldVersion)
                 {
                     if (parameters["child_categories"] is JArray)
                     {
                         ChildCategories = buildList<KalturaOTTCategory>(typeof(KalturaOTTCategory), (JArray) parameters["child_categories"]);
+                    }
+                    else if (parameters["child_categories"] is IList)
+                    {
+                        ChildCategories = buildList(typeof(KalturaOTTCategory), parameters["child_categories"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("channels") && parameters["channels"] != null)
@@ -11151,12 +11503,20 @@ namespace WebAPI.Models.Catalog
                     {
                         Channels = buildList<KalturaChannel>(typeof(KalturaChannel), (JArray) parameters["channels"]);
                     }
+                    else if (parameters["channels"] is IList)
+                    {
+                        Channels = buildList(typeof(KalturaChannel), parameters["channels"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("images") && parameters["images"] != null)
                 {
                     if (parameters["images"] is JArray)
                     {
                         Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
+                    }
+                    else if (parameters["images"] is IList)
+                    {
+                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
                     }
                 }
             }
@@ -11182,12 +11542,20 @@ namespace WebAPI.Models.Catalog
                     {
                         Bookmarks = buildList<KalturaAssetBookmark>(typeof(KalturaAssetBookmark), (JArray) parameters["bookmarks"]);
                     }
+                    else if (parameters["bookmarks"] is IList)
+                    {
+                        Bookmarks = buildList(typeof(KalturaAssetBookmark), parameters["bookmarks"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("files") && parameters["files"] != null)
                 {
                     if (parameters["files"] is JArray)
                     {
                         Files = buildList<KalturaItemPrice>(typeof(KalturaItemPrice), (JArray) parameters["files"]);
+                    }
+                    else if (parameters["files"] is IList)
+                    {
+                        Files = buildList(typeof(KalturaItemPrice), parameters["files"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("following") && parameters["following"] != null)
@@ -11208,6 +11576,10 @@ namespace WebAPI.Models.Catalog
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaPersonalAsset>(typeof(KalturaPersonalAsset), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaPersonalAsset), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -11235,12 +11607,20 @@ namespace WebAPI.Models.Catalog
                     {
                         FileIds = buildNativeList<long>(typeof(long), (JArray) parameters["fileIds"]);
                     }
+                    else if (parameters["fileIds"] is IList)
+                    {
+                        FileIds = buildNativeList(typeof(long), parameters["fileIds"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("file_ids") && parameters["file_ids"] != null && isOldVersion)
                 {
                     if (parameters["file_ids"] is JArray)
                     {
                         FileIds = buildNativeList<long>(typeof(long), (JArray) parameters["file_ids"]);
+                    }
+                    else if (parameters["file_ids"] is IList)
+                    {
+                        FileIds = buildNativeList(typeof(long), parameters["file_ids"] as object[]);
                     }
                 }
             }
@@ -11551,6 +11931,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Ratios = buildList<KalturaRatio>(typeof(KalturaRatio), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Ratios = buildList(typeof(KalturaRatio), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -11799,6 +12183,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Objects = buildList<KalturaBaseAssetInfo>(typeof(KalturaBaseAssetInfo), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaBaseAssetInfo), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -11913,6 +12301,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Tags = buildList<KalturaTag>(typeof(KalturaTag), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Tags = buildList(typeof(KalturaTag), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -12001,6 +12393,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Objects = buildList<KalturaWatchHistoryAsset>(typeof(KalturaWatchHistoryAsset), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaWatchHistoryAsset), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -12034,12 +12430,20 @@ namespace WebAPI.Models.API
                     {
                         Conditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
                     }
+                    else if (parameters["conditions"] is IList)
+                    {
+                        Conditions = buildList(typeof(KalturaCondition), parameters["conditions"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
                     if (parameters["actions"] is JArray)
                     {
                         Actions = buildList<KalturaAssetRuleAction>(typeof(KalturaAssetRuleAction), (JArray) parameters["actions"]);
+                    }
+                    else if (parameters["actions"] is IList)
+                    {
+                        Actions = buildList(typeof(KalturaAssetRuleAction), parameters["actions"] as object[]);
                     }
                 }
             }
@@ -12117,6 +12521,10 @@ namespace WebAPI.Models.API
                     {
                         Objects = buildList<KalturaAssetRule>(typeof(KalturaAssetRule), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaAssetRule), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -12133,12 +12541,20 @@ namespace WebAPI.Models.API
                     {
                         Conditions = buildList<KalturaAssetCondition>(typeof(KalturaAssetCondition), (JArray) parameters["conditions"]);
                     }
+                    else if (parameters["conditions"] is IList)
+                    {
+                        Conditions = buildList(typeof(KalturaAssetCondition), parameters["conditions"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
                     if (parameters["actions"] is JArray)
                     {
                         Actions = buildList<KalturaAssetUserRuleAction>(typeof(KalturaAssetUserRuleAction), (JArray) parameters["actions"]);
+                    }
+                    else if (parameters["actions"] is IList)
+                    {
+                        Actions = buildList(typeof(KalturaAssetUserRuleAction), parameters["actions"] as object[]);
                     }
                 }
             }
@@ -12168,6 +12584,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaAssetUserRule>(typeof(KalturaAssetUserRule), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaAssetUserRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -12256,6 +12676,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         Adapters = buildList<KalturaCDNAdapterProfile>(typeof(KalturaCDNAdapterProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Adapters = buildList(typeof(KalturaCDNAdapterProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -12363,12 +12787,20 @@ namespace WebAPI.Models.API
                     {
                         AssetTypes = buildNativeList<int>(typeof(int), (JArray) parameters["assetTypes"]);
                     }
+                    else if (parameters["assetTypes"] is IList)
+                    {
+                        AssetTypes = buildNativeList(typeof(int), parameters["assetTypes"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("asset_types") && parameters["asset_types"] != null && isOldVersion)
                 {
                     if (parameters["asset_types"] is JArray)
                     {
                         AssetTypes = buildNativeList<int>(typeof(int), (JArray) parameters["asset_types"]);
+                    }
+                    else if (parameters["asset_types"] is IList)
+                    {
+                        AssetTypes = buildNativeList(typeof(int), parameters["asset_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("order") && parameters["order"] != null)
@@ -12493,6 +12925,10 @@ namespace WebAPI.Models.API
                     {
                         Objects = buildList<KalturaCountry>(typeof(KalturaCountry), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCountry), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -12547,6 +12983,10 @@ namespace WebAPI.Models.API
                     {
                         Objects = buildList<KalturaCurrency>(typeof(KalturaCurrency), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCurrency), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -12563,6 +13003,10 @@ namespace WebAPI.Models.API
                     {
                         Objects = buildList<KalturaDeviceBrand>(typeof(KalturaDeviceBrand), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaDeviceBrand), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -12578,6 +13022,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaDeviceFamily>(typeof(KalturaDeviceFamily), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaDeviceFamily), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -12660,6 +13108,10 @@ namespace WebAPI.Models.API
                     {
                         Adapters = buildList<KalturaDrmProfile>(typeof(KalturaDrmProfile), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Adapters = buildList(typeof(KalturaDrmProfile), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -12675,6 +13127,10 @@ namespace WebAPI.Models.API
                     if (parameters["ids"] is JArray)
                     {
                         ids = buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["ids"]);
+                    }
+                    else if (parameters["ids"] is IList)
+                    {
+                        ids = buildList(typeof(KalturaLongValue), parameters["ids"] as object[]);
                     }
                 }
             }
@@ -12752,12 +13208,20 @@ namespace WebAPI.Models.API
                     {
                         VodTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["vodTypes"]);
                     }
+                    else if (parameters["vodTypes"] is IList)
+                    {
+                        VodTypes = buildList(typeof(KalturaIntegerValue), parameters["vodTypes"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("vod_types") && parameters["vod_types"] != null && isOldVersion)
                 {
                     if (parameters["vod_types"] is JArray)
                     {
                         VodTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["vod_types"]);
+                    }
+                    else if (parameters["vod_types"] is IList)
+                    {
+                        VodTypes = buildList(typeof(KalturaIntegerValue), parameters["vod_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
@@ -12795,6 +13259,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaExportTask>(typeof(KalturaExportTask), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaExportTask), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -12867,6 +13335,10 @@ namespace WebAPI.Models.API
                     {
                         Enrichments = buildList<KalturaChannelEnrichmentHolder>(typeof(KalturaChannelEnrichmentHolder), (JArray) parameters["enrichments"]);
                     }
+                    else if (parameters["enrichments"] is IList)
+                    {
+                        Enrichments = buildList(typeof(KalturaChannelEnrichmentHolder), parameters["enrichments"] as object[]);
+                    }
                 }
             }
         }
@@ -12882,6 +13354,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaExternalChannelProfile>(typeof(KalturaExternalChannelProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaExternalChannelProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -12956,6 +13432,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         GenericRules = buildList<KalturaGenericRule>(typeof(KalturaGenericRule), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        GenericRules = buildList(typeof(KalturaGenericRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13032,6 +13512,10 @@ namespace WebAPI.Models.API
                     {
                         Objects = buildList<KalturaLanguage>(typeof(KalturaLanguage), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaLanguage), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -13072,6 +13556,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaMediaConcurrencyRule>(typeof(KalturaMediaConcurrencyRule), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaMediaConcurrencyRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13347,6 +13835,10 @@ namespace WebAPI.Models.API
                     {
                         Metas = buildList<KalturaMeta>(typeof(KalturaMeta), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Metas = buildList(typeof(KalturaMeta), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -13468,6 +13960,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         OSSAdapterProfiles = buildList<KalturaOSSAdapterProfile>(typeof(KalturaOSSAdapterProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        OSSAdapterProfiles = buildList(typeof(KalturaOSSAdapterProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13610,12 +14106,20 @@ namespace WebAPI.Models.API
                     {
                         mediaTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["mediaTagValues"]);
                     }
+                    else if (parameters["mediaTagValues"] is IList)
+                    {
+                        mediaTagValues = buildList(typeof(KalturaStringValue), parameters["mediaTagValues"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("media_tag_values") && parameters["media_tag_values"] != null && isOldVersion)
                 {
                     if (parameters["media_tag_values"] is JArray)
                     {
                         mediaTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["media_tag_values"]);
+                    }
+                    else if (parameters["media_tag_values"] is IList)
+                    {
+                        mediaTagValues = buildList(typeof(KalturaStringValue), parameters["media_tag_values"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("epgTagValues") && parameters["epgTagValues"] != null)
@@ -13624,12 +14128,20 @@ namespace WebAPI.Models.API
                     {
                         epgTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["epgTagValues"]);
                     }
+                    else if (parameters["epgTagValues"] is IList)
+                    {
+                        epgTagValues = buildList(typeof(KalturaStringValue), parameters["epgTagValues"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("epg_tag_values") && parameters["epg_tag_values"] != null && isOldVersion)
                 {
                     if (parameters["epg_tag_values"] is JArray)
                     {
                         epgTagValues = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["epg_tag_values"]);
+                    }
+                    else if (parameters["epg_tag_values"] is IList)
+                    {
+                        epgTagValues = buildList(typeof(KalturaStringValue), parameters["epg_tag_values"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
@@ -13703,6 +14215,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         ParentalRule = buildList<KalturaParentalRule>(typeof(KalturaParentalRule), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        ParentalRule = buildList(typeof(KalturaParentalRule), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13804,6 +14320,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         Permissions = buildList<KalturaPermission>(typeof(KalturaPermission), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Permissions = buildList(typeof(KalturaPermission), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -13990,6 +14510,10 @@ namespace WebAPI.Models.API
                     {
                         RecommendationProfiles = buildList<KalturaRecommendationProfile>(typeof(KalturaRecommendationProfile), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        RecommendationProfiles = buildList(typeof(KalturaRecommendationProfile), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -14021,6 +14545,10 @@ namespace WebAPI.Models.API
                     if (parameters["linearChannels"] is JArray)
                     {
                         RegionalChannels = buildList<KalturaRegionalChannel>(typeof(KalturaRegionalChannel), (JArray) parameters["linearChannels"]);
+                    }
+                    else if (parameters["linearChannels"] is IList)
+                    {
+                        RegionalChannels = buildList(typeof(KalturaRegionalChannel), parameters["linearChannels"] as object[]);
                     }
                 }
             }
@@ -14068,6 +14596,10 @@ namespace WebAPI.Models.API
                     {
                         Regions = buildList<KalturaRegion>(typeof(KalturaRegion), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Regions = buildList(typeof(KalturaRegion), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -14100,6 +14632,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         RegistrySettings = buildList<KalturaRegistrySettings>(typeof(KalturaRegistrySettings), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        RegistrySettings = buildList(typeof(KalturaRegistrySettings), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -14282,6 +14818,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaSearchHistory>(typeof(KalturaSearchHistory), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaSearchHistory), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -14582,6 +15122,10 @@ namespace WebAPI.Models.API
                     {
                         Rules = buildList<KalturaUserAssetRule>(typeof(KalturaUserAssetRule), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Rules = buildList(typeof(KalturaUserAssetRule), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -14621,6 +15165,10 @@ namespace WebAPI.Models.API
                     {
                         Permissions = buildList<KalturaPermission>(typeof(KalturaPermission), (JArray) parameters["permissions"]);
                     }
+                    else if (parameters["permissions"] is IList)
+                    {
+                        Permissions = buildList(typeof(KalturaPermission), parameters["permissions"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("permissionNames") && parameters["permissionNames"] != null)
                 {
@@ -14645,6 +15193,10 @@ namespace WebAPI.Models.API
                     {
                         Ids = buildList<KalturaLongValue>(typeof(KalturaLongValue), (JArray) parameters["ids"]);
                     }
+                    else if (parameters["ids"] is IList)
+                    {
+                        Ids = buildList(typeof(KalturaLongValue), parameters["ids"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
@@ -14668,6 +15220,10 @@ namespace WebAPI.Models.API
                     if (parameters["objects"] is JArray)
                     {
                         UserRoles = buildList<KalturaUserRole>(typeof(KalturaUserRole), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        UserRoles = buildList(typeof(KalturaUserRole), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -14761,6 +15317,10 @@ namespace WebAPI.Models.Pricing
                     {
                         AssetFilesPpvs = buildList<KalturaAssetFilePpv>(typeof(KalturaAssetFilePpv), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        AssetFilesPpvs = buildList(typeof(KalturaAssetFilePpv), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -14784,6 +15344,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["file_prices"] is JArray)
                     {
                         FilePrices = buildList<KalturaItemPrice>(typeof(KalturaItemPrice), (JArray) parameters["file_prices"]);
+                    }
+                    else if (parameters["file_prices"] is IList)
+                    {
+                        FilePrices = buildList(typeof(KalturaItemPrice), parameters["file_prices"] as object[]);
                     }
                 }
             }
@@ -14816,6 +15380,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["channels"] is JArray)
                     {
                         Channels = buildList<KalturaBaseChannel>(typeof(KalturaBaseChannel), (JArray) parameters["channels"]);
+                    }
+                    else if (parameters["channels"] is IList)
+                    {
+                        Channels = buildList(typeof(KalturaBaseChannel), parameters["channels"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
@@ -14887,6 +15455,10 @@ namespace WebAPI.Models.Pricing
                     {
                         CouponGroups = buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["couponsGroups"]);
                     }
+                    else if (parameters["couponsGroups"] is IList)
+                    {
+                        CouponGroups = buildList(typeof(KalturaCouponsGroup), parameters["couponsGroups"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
@@ -14897,6 +15469,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["productCodes"] is JArray)
                     {
                         ProductCodes = buildList<KalturaProductCode>(typeof(KalturaProductCode), (JArray) parameters["productCodes"]);
+                    }
+                    else if (parameters["productCodes"] is IList)
+                    {
+                        ProductCodes = buildList(typeof(KalturaProductCode), parameters["productCodes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("priceDetailsId") && parameters["priceDetailsId"] != null)
@@ -14953,6 +15529,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["objects"] is JArray)
                     {
                         Collections = buildList<KalturaCollection>(typeof(KalturaCollection), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Collections = buildList(typeof(KalturaCollection), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -15156,6 +15736,10 @@ namespace WebAPI.Models.Pricing
                     {
                         Descriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
                     }
+                    else if (parameters["descriptions"] is IList)
+                    {
+                        Descriptions = buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
@@ -15248,6 +15832,10 @@ namespace WebAPI.Models.Pricing
                     {
                         couponsGroups = buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        couponsGroups = buildList(typeof(KalturaCouponsGroup), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -15328,6 +15916,10 @@ namespace WebAPI.Models.Pricing
                     {
                         MultiCurrencyDiscount = buildList<KalturaDiscount>(typeof(KalturaDiscount), (JArray) parameters["multiCurrencyDiscount"]);
                     }
+                    else if (parameters["multiCurrencyDiscount"] is IList)
+                    {
+                        MultiCurrencyDiscount = buildList(typeof(KalturaDiscount), parameters["multiCurrencyDiscount"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
@@ -15380,6 +15972,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["objects"] is JArray)
                     {
                         Discounts = buildList<KalturaDiscountDetails>(typeof(KalturaDiscountDetails), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Discounts = buildList(typeof(KalturaDiscountDetails), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -15438,12 +16034,20 @@ namespace WebAPI.Models.Pricing
                     {
                         PPVPriceDetails = buildList<KalturaPPVItemPriceDetails>(typeof(KalturaPPVItemPriceDetails), (JArray) parameters["ppvPriceDetails"]);
                     }
+                    else if (parameters["ppvPriceDetails"] is IList)
+                    {
+                        PPVPriceDetails = buildList(typeof(KalturaPPVItemPriceDetails), parameters["ppvPriceDetails"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("ppv_price_details") && parameters["ppv_price_details"] != null && isOldVersion)
                 {
                     if (parameters["ppv_price_details"] is JArray)
                     {
                         PPVPriceDetails = buildList<KalturaPPVItemPriceDetails>(typeof(KalturaPPVItemPriceDetails), (JArray) parameters["ppv_price_details"]);
+                    }
+                    else if (parameters["ppv_price_details"] is IList)
+                    {
+                        PPVPriceDetails = buildList(typeof(KalturaPPVItemPriceDetails), parameters["ppv_price_details"] as object[]);
                     }
                 }
             }
@@ -15460,6 +16064,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["objects"] is JArray)
                     {
                         ItemPrice = buildList<KalturaItemPrice>(typeof(KalturaItemPrice), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        ItemPrice = buildList(typeof(KalturaItemPrice), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -15496,6 +16104,10 @@ namespace WebAPI.Models.Pricing
                     {
                         FileTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["fileTypes"]);
                     }
+                    else if (parameters["fileTypes"] is IList)
+                    {
+                        FileTypes = buildList(typeof(KalturaIntegerValue), parameters["fileTypes"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("discountModule") && parameters["discountModule"] != null)
                 {
@@ -15524,6 +16136,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["descriptions"] is JArray)
                     {
                         Descriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
+                    }
+                    else if (parameters["descriptions"] is IList)
+                    {
+                        Descriptions = buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("productCode") && parameters["productCode"] != null)
@@ -15660,12 +16276,20 @@ namespace WebAPI.Models.Pricing
                     {
                         PPVDescriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["ppvDescriptions"]);
                     }
+                    else if (parameters["ppvDescriptions"] is IList)
+                    {
+                        PPVDescriptions = buildList(typeof(KalturaTranslationToken), parameters["ppvDescriptions"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("ppv_descriptions") && parameters["ppv_descriptions"] != null && isOldVersion)
                 {
                     if (parameters["ppv_descriptions"] is JArray)
                     {
                         PPVDescriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["ppv_descriptions"]);
+                    }
+                    else if (parameters["ppv_descriptions"] is IList)
+                    {
+                        PPVDescriptions = buildList(typeof(KalturaTranslationToken), parameters["ppv_descriptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("purchaseUserId") && parameters["purchaseUserId"] != null)
@@ -15690,12 +16314,20 @@ namespace WebAPI.Models.Pricing
                     {
                         RelatedMediaFileIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["relatedMediaFileIds"]);
                     }
+                    else if (parameters["relatedMediaFileIds"] is IList)
+                    {
+                        RelatedMediaFileIds = buildList(typeof(KalturaIntegerValue), parameters["relatedMediaFileIds"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("related_media_file_ids") && parameters["related_media_file_ids"] != null && isOldVersion)
                 {
                     if (parameters["related_media_file_ids"] is JArray)
                     {
                         RelatedMediaFileIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["related_media_file_ids"]);
+                    }
+                    else if (parameters["related_media_file_ids"] is IList)
+                    {
+                        RelatedMediaFileIds = buildList(typeof(KalturaIntegerValue), parameters["related_media_file_ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
@@ -15761,6 +16393,10 @@ namespace WebAPI.Models.Pricing
                     {
                         Ppvs = buildList<KalturaPpv>(typeof(KalturaPpv), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Ppvs = buildList(typeof(KalturaPpv), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -15812,6 +16448,10 @@ namespace WebAPI.Models.Pricing
                     {
                         PPVDescriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["ppvDescriptions"]);
                     }
+                    else if (parameters["ppvDescriptions"] is IList)
+                    {
+                        PPVDescriptions = buildList(typeof(KalturaTranslationToken), parameters["ppvDescriptions"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("purchaseUserId") && parameters["purchaseUserId"] != null)
                 {
@@ -15826,6 +16466,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["relatedMediaFileIds"] is JArray)
                     {
                         RelatedMediaFileIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["relatedMediaFileIds"]);
+                    }
+                    else if (parameters["relatedMediaFileIds"] is IList)
+                    {
+                        RelatedMediaFileIds = buildList(typeof(KalturaIntegerValue), parameters["relatedMediaFileIds"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
@@ -16019,12 +16663,20 @@ namespace WebAPI.Models.Pricing
                     {
                         MultiCurrencyPrice = buildList<KalturaPrice>(typeof(KalturaPrice), (JArray) parameters["multiCurrencyPrice"]);
                     }
+                    else if (parameters["multiCurrencyPrice"] is IList)
+                    {
+                        MultiCurrencyPrice = buildList(typeof(KalturaPrice), parameters["multiCurrencyPrice"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("descriptions") && parameters["descriptions"] != null)
                 {
                     if (parameters["descriptions"] is JArray)
                     {
                         Descriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
+                    }
+                    else if (parameters["descriptions"] is IList)
+                    {
+                        Descriptions = buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
                     }
                 }
             }
@@ -16070,6 +16722,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["objects"] is JArray)
                     {
                         Prices = buildList<KalturaPriceDetails>(typeof(KalturaPriceDetails), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Prices = buildList(typeof(KalturaPriceDetails), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16245,6 +16901,10 @@ namespace WebAPI.Models.Pricing
                     {
                         PricePlans = buildList<KalturaPricePlan>(typeof(KalturaPricePlan), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        PricePlans = buildList(typeof(KalturaPricePlan), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -16320,6 +16980,10 @@ namespace WebAPI.Models.Pricing
                     {
                         ProductsPrices = buildList<KalturaProductPrice>(typeof(KalturaProductPrice), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        ProductsPrices = buildList(typeof(KalturaProductPrice), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -16335,6 +16999,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["objects"] is JArray)
                     {
                         ProductsPrices = buildList<KalturaProductPrice>(typeof(KalturaProductPrice), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        ProductsPrices = buildList(typeof(KalturaProductPrice), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16396,6 +17064,10 @@ namespace WebAPI.Models.Pricing
                     {
                         Channels = buildList<KalturaBaseChannel>(typeof(KalturaBaseChannel), (JArray) parameters["channels"]);
                     }
+                    else if (parameters["channels"] is IList)
+                    {
+                        Channels = buildList(typeof(KalturaBaseChannel), parameters["channels"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
@@ -16419,12 +17091,20 @@ namespace WebAPI.Models.Pricing
                     {
                         FileTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["fileTypes"]);
                     }
+                    else if (parameters["fileTypes"] is IList)
+                    {
+                        FileTypes = buildList(typeof(KalturaIntegerValue), parameters["fileTypes"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("file_types") && parameters["file_types"] != null && isOldVersion)
                 {
                     if (parameters["file_types"] is JArray)
                     {
                         FileTypes = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["file_types"]);
+                    }
+                    else if (parameters["file_types"] is IList)
+                    {
+                        FileTypes = buildList(typeof(KalturaIntegerValue), parameters["file_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
@@ -16523,6 +17203,10 @@ namespace WebAPI.Models.Pricing
                     {
                         Names = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["names"]);
                     }
+                    else if (parameters["names"] is IList)
+                    {
+                        Names = buildList(typeof(KalturaTranslationToken), parameters["names"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("multilingualDescription") && parameters["multilingualDescription"] != null)
                 {
@@ -16540,6 +17224,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["descriptions"] is JArray)
                     {
                         Descriptions = buildList<KalturaTranslationToken>(typeof(KalturaTranslationToken), (JArray) parameters["descriptions"]);
+                    }
+                    else if (parameters["descriptions"] is IList)
+                    {
+                        Descriptions = buildList(typeof(KalturaTranslationToken), parameters["descriptions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("mediaId") && parameters["mediaId"] != null)
@@ -16572,12 +17260,20 @@ namespace WebAPI.Models.Pricing
                     {
                         PricePlans = buildList<KalturaPricePlan>(typeof(KalturaPricePlan), (JArray) parameters["pricePlans"]);
                     }
+                    else if (parameters["pricePlans"] is IList)
+                    {
+                        PricePlans = buildList(typeof(KalturaPricePlan), parameters["pricePlans"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("price_plans") && parameters["price_plans"] != null && isOldVersion)
                 {
                     if (parameters["price_plans"] is JArray)
                     {
                         PricePlans = buildList<KalturaPricePlan>(typeof(KalturaPricePlan), (JArray) parameters["price_plans"]);
+                    }
+                    else if (parameters["price_plans"] is IList)
+                    {
+                        PricePlans = buildList(typeof(KalturaPricePlan), parameters["price_plans"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("pricePlanIds") && parameters["pricePlanIds"] != null)
@@ -16628,12 +17324,20 @@ namespace WebAPI.Models.Pricing
                     {
                         PremiumServices = buildList<KalturaPremiumService>(typeof(KalturaPremiumService), (JArray) parameters["premiumServices"]);
                     }
+                    else if (parameters["premiumServices"] is IList)
+                    {
+                        PremiumServices = buildList(typeof(KalturaPremiumService), parameters["premiumServices"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("premium_services") && parameters["premium_services"] != null && isOldVersion)
                 {
                     if (parameters["premium_services"] is JArray)
                     {
                         PremiumServices = buildList<KalturaPremiumService>(typeof(KalturaPremiumService), (JArray) parameters["premium_services"]);
+                    }
+                    else if (parameters["premium_services"] is IList)
+                    {
+                        PremiumServices = buildList(typeof(KalturaPremiumService), parameters["premium_services"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("maxViewsNumber") && parameters["maxViewsNumber"] != null)
@@ -16674,12 +17378,20 @@ namespace WebAPI.Models.Pricing
                     {
                         UserTypes = buildList<KalturaOTTUserType>(typeof(KalturaOTTUserType), (JArray) parameters["userTypes"]);
                     }
+                    else if (parameters["userTypes"] is IList)
+                    {
+                        UserTypes = buildList(typeof(KalturaOTTUserType), parameters["userTypes"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("user_types") && parameters["user_types"] != null && isOldVersion)
                 {
                     if (parameters["user_types"] is JArray)
                     {
                         UserTypes = buildList<KalturaOTTUserType>(typeof(KalturaOTTUserType), (JArray) parameters["user_types"]);
+                    }
+                    else if (parameters["user_types"] is IList)
+                    {
+                        UserTypes = buildList(typeof(KalturaOTTUserType), parameters["user_types"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("couponsGroups") && parameters["couponsGroups"] != null)
@@ -16688,12 +17400,20 @@ namespace WebAPI.Models.Pricing
                     {
                         CouponGroups = buildList<KalturaCouponsGroup>(typeof(KalturaCouponsGroup), (JArray) parameters["couponsGroups"]);
                     }
+                    else if (parameters["couponsGroups"] is IList)
+                    {
+                        CouponGroups = buildList(typeof(KalturaCouponsGroup), parameters["couponsGroups"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("productCodes") && parameters["productCodes"] != null)
                 {
                     if (parameters["productCodes"] is JArray)
                     {
                         ProductCodes = buildList<KalturaProductCode>(typeof(KalturaProductCode), (JArray) parameters["productCodes"]);
+                    }
+                    else if (parameters["productCodes"] is IList)
+                    {
+                        ProductCodes = buildList(typeof(KalturaProductCode), parameters["productCodes"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("dependencyType") && parameters["dependencyType"] != null)
@@ -16801,6 +17521,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["objects"] is JArray)
                     {
                         Subscriptions = buildList<KalturaSubscription>(typeof(KalturaSubscription), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Subscriptions = buildList(typeof(KalturaSubscription), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -16926,6 +17650,10 @@ namespace WebAPI.Models.Pricing
                     {
                         SubscriptionSets = buildList<KalturaSubscriptionSet>(typeof(KalturaSubscriptionSet), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        SubscriptionSets = buildList(typeof(KalturaSubscriptionSet), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -16941,6 +17669,10 @@ namespace WebAPI.Models.Pricing
                     if (parameters["ids"] is JArray)
                     {
                         Ids = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["ids"]);
+                    }
+                    else if (parameters["ids"] is IList)
+                    {
+                        Ids = buildList(typeof(KalturaIntegerValue), parameters["ids"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
@@ -17369,6 +18101,10 @@ namespace WebAPI.Models.Users
                     {
                         MediaIds = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["media_ids"]);
                     }
+                    else if (parameters["media_ids"] is IList)
+                    {
+                        MediaIds = buildList(typeof(KalturaIntegerValue), parameters["media_ids"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("mediaIdIn") && parameters["mediaIdIn"] != null)
                 {
@@ -17392,6 +18128,10 @@ namespace WebAPI.Models.Users
                     if (parameters["objects"] is JArray)
                     {
                         Favorites = buildList<KalturaFavorite>(typeof(KalturaFavorite), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Favorites = buildList(typeof(KalturaFavorite), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -17957,6 +18697,10 @@ namespace WebAPI.Models.Users
                     {
                         Users = buildList<KalturaOTTUser>(typeof(KalturaOTTUser), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Users = buildList(typeof(KalturaOTTUser), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -18107,6 +18851,10 @@ namespace WebAPI.Models.Users
                     {
                         SSOAdapters = buildList<KalturaSSOAdapterProfile>(typeof(KalturaSSOAdapterProfile), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        SSOAdapters = buildList(typeof(KalturaSSOAdapterProfile), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -18124,6 +18872,10 @@ namespace WebAPI.Models.Users
                     if (parameters["list"] is JArray)
                     {
                         List = buildList<KalturaUserAssetsListItem>(typeof(KalturaUserAssetsListItem), (JArray) parameters["list"]);
+                    }
+                    else if (parameters["list"] is IList)
+                    {
+                        List = buildList(typeof(KalturaUserAssetsListItem), parameters["list"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("listType") && parameters["listType"] != null)
@@ -18278,6 +19030,10 @@ namespace WebAPI.Models.Users
                     if (parameters["objects"] is JArray)
                     {
                         UserInterests = buildList<KalturaUserInterest>(typeof(KalturaUserInterest), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        UserInterests = buildList(typeof(KalturaUserInterest), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -18570,6 +19326,10 @@ namespace WebAPI.Models.Segmentation
                     {
                         Actions = buildList<KalturaContentActionCondition>(typeof(KalturaContentActionCondition), (JArray) parameters["actions"]);
                     }
+                    else if (parameters["actions"] is IList)
+                    {
+                        Actions = buildList(typeof(KalturaContentActionCondition), parameters["actions"] as object[]);
+                    }
                 }
             }
         }
@@ -18787,6 +19547,10 @@ namespace WebAPI.Models.Segmentation
                     {
                         Actions = buildList<KalturaMonetizationCondition>(typeof(KalturaMonetizationCondition), (JArray) parameters["actions"]);
                     }
+                    else if (parameters["actions"] is IList)
+                    {
+                        Actions = buildList(typeof(KalturaMonetizationCondition), parameters["actions"] as object[]);
+                    }
                 }
             }
         }
@@ -18906,6 +19670,10 @@ namespace WebAPI.Models.Segmentation
                     {
                         Conditions = buildList<KalturaBaseSegmentCondition>(typeof(KalturaBaseSegmentCondition), (JArray) parameters["conditions"]);
                     }
+                    else if (parameters["conditions"] is IList)
+                    {
+                        Conditions = buildList(typeof(KalturaBaseSegmentCondition), parameters["conditions"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
@@ -18957,6 +19725,10 @@ namespace WebAPI.Models.Segmentation
                     if (parameters["objects"] is JArray)
                     {
                         SegmentationTypes = buildList<KalturaSegmentationType>(typeof(KalturaSegmentationType), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        SegmentationTypes = buildList(typeof(KalturaSegmentationType), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -19160,6 +19932,10 @@ namespace WebAPI.Models.Segmentation
                     {
                         Ranges = buildList<KalturaSegmentRange>(typeof(KalturaSegmentRange), (JArray) parameters["ranges"]);
                     }
+                    else if (parameters["ranges"] is IList)
+                    {
+                        Ranges = buildList(typeof(KalturaSegmentRange), parameters["ranges"] as object[]);
+                    }
                 }
             }
         }
@@ -19316,6 +20092,10 @@ namespace WebAPI.Models.Segmentation
                     if (parameters["values"] is JArray)
                     {
                         Values = buildList<KalturaSegmentValue>(typeof(KalturaSegmentValue), (JArray) parameters["values"]);
+                    }
+                    else if (parameters["values"] is IList)
+                    {
+                        Values = buildList(typeof(KalturaSegmentValue), parameters["values"] as object[]);
                     }
                 }
             }
@@ -19511,6 +20291,10 @@ namespace WebAPI.Models.Segmentation
                     {
                         Segments = buildList<KalturaUserSegment>(typeof(KalturaUserSegment), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Segments = buildList(typeof(KalturaUserSegment), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -19620,6 +20404,10 @@ namespace WebAPI.Models.Partner
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaPartnerConfiguration>(typeof(KalturaPartnerConfiguration), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaPartnerConfiguration), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -19732,6 +20520,10 @@ namespace WebAPI.Models.Upload
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaBulk>(typeof(KalturaBulk), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaBulk), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -19937,6 +20729,10 @@ namespace WebAPI.Models.DMS
                     {
                         Tags = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["tags"]);
                     }
+                    else if (parameters["tags"] is IList)
+                    {
+                        Tags = buildList(typeof(KalturaStringValue), parameters["tags"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("numberOfDevices") && parameters["numberOfDevices"] != null)
                 {
@@ -19955,6 +20751,10 @@ namespace WebAPI.Models.DMS
                     if (parameters["configurationIdentifiers"] is JArray)
                     {
                         ConfigurationIdentifiers = buildList<KalturaConfigurationIdentifier>(typeof(KalturaConfigurationIdentifier), (JArray) parameters["configurationIdentifiers"]);
+                    }
+                    else if (parameters["configurationIdentifiers"] is IList)
+                    {
+                        ConfigurationIdentifiers = buildList(typeof(KalturaConfigurationIdentifier), parameters["configurationIdentifiers"] as object[]);
                     }
                 }
             }
@@ -20021,6 +20821,10 @@ namespace WebAPI.Models.DMS
                     {
                         Objects = buildList<KalturaConfigurationGroupDevice>(typeof(KalturaConfigurationGroupDevice), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaConfigurationGroupDevice), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -20036,6 +20840,10 @@ namespace WebAPI.Models.DMS
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaConfigurationGroup>(typeof(KalturaConfigurationGroup), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaConfigurationGroup), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -20101,6 +20909,10 @@ namespace WebAPI.Models.DMS
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaConfigurationGroupTag>(typeof(KalturaConfigurationGroupTag), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaConfigurationGroupTag), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -20220,6 +21032,10 @@ namespace WebAPI.Models.DMS
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaConfigurations>(typeof(KalturaConfigurations), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaConfigurations), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -20386,6 +21202,10 @@ namespace WebAPI.Models.Domains
                     {
                         Devices = buildList<KalturaDevice>(typeof(KalturaDevice), (JArray) parameters["devices"]);
                     }
+                    else if (parameters["devices"] is IList)
+                    {
+                        Devices = buildList(typeof(KalturaDevice), parameters["devices"] as object[]);
+                    }
                 }
             }
         }
@@ -20527,6 +21347,10 @@ namespace WebAPI.Models.Domains
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaHomeNetwork>(typeof(KalturaHomeNetwork), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHomeNetwork), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -20759,12 +21583,20 @@ namespace WebAPI.Models.Domains
                     {
                         Users = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["users"]);
                     }
+                    else if (parameters["users"] is IList)
+                    {
+                        Users = buildList(typeof(KalturaBaseOTTUser), parameters["users"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("masterUsers") && parameters["masterUsers"] != null)
                 {
                     if (parameters["masterUsers"] is JArray)
                     {
                         MasterUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["masterUsers"]);
+                    }
+                    else if (parameters["masterUsers"] is IList)
+                    {
+                        MasterUsers = buildList(typeof(KalturaBaseOTTUser), parameters["masterUsers"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("master_users") && parameters["master_users"] != null && isOldVersion)
@@ -20773,12 +21605,20 @@ namespace WebAPI.Models.Domains
                     {
                         MasterUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["master_users"]);
                     }
+                    else if (parameters["master_users"] is IList)
+                    {
+                        MasterUsers = buildList(typeof(KalturaBaseOTTUser), parameters["master_users"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("defaultUsers") && parameters["defaultUsers"] != null)
                 {
                     if (parameters["defaultUsers"] is JArray)
                     {
                         DefaultUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["defaultUsers"]);
+                    }
+                    else if (parameters["defaultUsers"] is IList)
+                    {
+                        DefaultUsers = buildList(typeof(KalturaBaseOTTUser), parameters["defaultUsers"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("default_users") && parameters["default_users"] != null && isOldVersion)
@@ -20787,6 +21627,10 @@ namespace WebAPI.Models.Domains
                     {
                         DefaultUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["default_users"]);
                     }
+                    else if (parameters["default_users"] is IList)
+                    {
+                        DefaultUsers = buildList(typeof(KalturaBaseOTTUser), parameters["default_users"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("pendingUsers") && parameters["pendingUsers"] != null)
                 {
@@ -20794,12 +21638,20 @@ namespace WebAPI.Models.Domains
                     {
                         PendingUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["pendingUsers"]);
                     }
+                    else if (parameters["pendingUsers"] is IList)
+                    {
+                        PendingUsers = buildList(typeof(KalturaBaseOTTUser), parameters["pendingUsers"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("pending_users") && parameters["pending_users"] != null && isOldVersion)
                 {
                     if (parameters["pending_users"] is JArray)
                     {
                         PendingUsers = buildList<KalturaBaseOTTUser>(typeof(KalturaBaseOTTUser), (JArray) parameters["pending_users"]);
+                    }
+                    else if (parameters["pending_users"] is IList)
+                    {
+                        PendingUsers = buildList(typeof(KalturaBaseOTTUser), parameters["pending_users"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("regionId") && parameters["regionId"] != null)
@@ -20888,12 +21740,20 @@ namespace WebAPI.Models.Domains
                     {
                         DeviceFamilies = buildList<KalturaDeviceFamily>(typeof(KalturaDeviceFamily), (JArray) parameters["deviceFamilies"]);
                     }
+                    else if (parameters["deviceFamilies"] is IList)
+                    {
+                        DeviceFamilies = buildList(typeof(KalturaDeviceFamily), parameters["deviceFamilies"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("device_families") && parameters["device_families"] != null && isOldVersion)
                 {
                     if (parameters["device_families"] is JArray)
                     {
                         DeviceFamilies = buildList<KalturaDeviceFamily>(typeof(KalturaDeviceFamily), (JArray) parameters["device_families"]);
+                    }
+                    else if (parameters["device_families"] is IList)
+                    {
+                        DeviceFamilies = buildList(typeof(KalturaDeviceFamily), parameters["device_families"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("roleId") && parameters["roleId"] != null)
@@ -21125,6 +21985,10 @@ namespace WebAPI.Models.Domains
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaHouseholdDevice>(typeof(KalturaHouseholdDevice), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHouseholdDevice), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -21391,6 +22255,10 @@ namespace WebAPI.Models.Domains
                     {
                         DeviceFamiliesLimitations = buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["deviceFamiliesLimitations"]);
                     }
+                    else if (parameters["deviceFamiliesLimitations"] is IList)
+                    {
+                        DeviceFamiliesLimitations = buildList(typeof(KalturaHouseholdDeviceFamilyLimitations), parameters["deviceFamiliesLimitations"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("device_families_limitations") && parameters["device_families_limitations"] != null && isOldVersion)
                 {
@@ -21401,6 +22269,10 @@ namespace WebAPI.Models.Domains
                     if (parameters["device_families_limitations"] is JArray)
                     {
                         DeviceFamiliesLimitations = buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["device_families_limitations"]);
+                    }
+                    else if (parameters["device_families_limitations"] is IList)
+                    {
+                        DeviceFamiliesLimitations = buildList(typeof(KalturaHouseholdDeviceFamilyLimitations), parameters["device_families_limitations"] as object[]);
                     }
                 }
             }
@@ -21546,6 +22418,10 @@ namespace WebAPI.Models.Domains
                     {
                         Objects = buildList<KalturaHouseholdUser>(typeof(KalturaHouseholdUser), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHouseholdUser), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -21618,6 +22494,10 @@ namespace WebAPI.Models.Billing
                     if (parameters["objects"] is JArray)
                     {
                         Objects = buildList<KalturaHouseholdPaymentGateway>(typeof(KalturaHouseholdPaymentGateway), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHouseholdPaymentGateway), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -21721,6 +22601,10 @@ namespace WebAPI.Models.Billing
                     {
                         Objects = buildList<KalturaHouseholdPaymentMethod>(typeof(KalturaHouseholdPaymentMethod), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHouseholdPaymentMethod), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -21800,12 +22684,20 @@ namespace WebAPI.Models.Billing
                     {
                         PaymentMethods = buildList<KalturaPaymentMethod>(typeof(KalturaPaymentMethod), (JArray) parameters["paymentMethods"]);
                     }
+                    else if (parameters["paymentMethods"] is IList)
+                    {
+                        PaymentMethods = buildList(typeof(KalturaPaymentMethod), parameters["paymentMethods"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("payment_methods") && parameters["payment_methods"] != null && isOldVersion)
                 {
                     if (parameters["payment_methods"] is JArray)
                     {
                         PaymentMethods = buildList<KalturaPaymentMethod>(typeof(KalturaPaymentMethod), (JArray) parameters["payment_methods"]);
+                    }
+                    else if (parameters["payment_methods"] is IList)
+                    {
+                        PaymentMethods = buildList(typeof(KalturaPaymentMethod), parameters["payment_methods"] as object[]);
                     }
                 }
             }
@@ -21825,12 +22717,20 @@ namespace WebAPI.Models.Billing
                     {
                         Configuration = buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["paymentGatewayConfiguration"]);
                     }
+                    else if (parameters["paymentGatewayConfiguration"] is IList)
+                    {
+                        Configuration = buildList(typeof(KalturaKeyValue), parameters["paymentGatewayConfiguration"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("payment_gatewaye_configuration") && parameters["payment_gatewaye_configuration"] != null && isOldVersion)
                 {
                     if (parameters["payment_gatewaye_configuration"] is JArray)
                     {
                         Configuration = buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["payment_gatewaye_configuration"]);
+                    }
+                    else if (parameters["payment_gatewaye_configuration"] is IList)
+                    {
+                        Configuration = buildList(typeof(KalturaKeyValue), parameters["payment_gatewaye_configuration"] as object[]);
                     }
                 }
             }
@@ -21965,6 +22865,10 @@ namespace WebAPI.Models.Billing
                     {
                         PaymentGatewayProfiles = buildList<KalturaPaymentGatewayProfile>(typeof(KalturaPaymentGatewayProfile), (JArray) parameters["objects"]);
                     }
+                    else if (parameters["objects"] is IList)
+                    {
+                        PaymentGatewayProfiles = buildList(typeof(KalturaPaymentGatewayProfile), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -21999,12 +22903,20 @@ namespace WebAPI.Models.Billing
                     {
                         HouseholdPaymentMethods = buildList<KalturaHouseholdPaymentMethod>(typeof(KalturaHouseholdPaymentMethod), (JArray) parameters["householdPaymentMethods"]);
                     }
+                    else if (parameters["householdPaymentMethods"] is IList)
+                    {
+                        HouseholdPaymentMethods = buildList(typeof(KalturaHouseholdPaymentMethod), parameters["householdPaymentMethods"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("household_payment_methods") && parameters["household_payment_methods"] != null && isOldVersion)
                 {
                     if (parameters["household_payment_methods"] is JArray)
                     {
                         HouseholdPaymentMethods = buildList<KalturaHouseholdPaymentMethod>(typeof(KalturaHouseholdPaymentMethod), (JArray) parameters["household_payment_methods"]);
+                    }
+                    else if (parameters["household_payment_methods"] is IList)
+                    {
+                        HouseholdPaymentMethods = buildList(typeof(KalturaHouseholdPaymentMethod), parameters["household_payment_methods"] as object[]);
                     }
                 }
             }
@@ -22078,6 +22990,10 @@ namespace WebAPI.Models.Billing
                     if (parameters["objects"] is JArray)
                     {
                         PaymentMethodProfiles = buildList<KalturaPaymentMethodProfile>(typeof(KalturaPaymentMethodProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        PaymentMethodProfiles = buildList(typeof(KalturaPaymentMethodProfile), parameters["objects"] as object[]);
                     }
                 }
             }
@@ -22204,6 +23120,10 @@ namespace WebAPI.Models.Api
                     if (parameters["objects"] is JArray)
                     {
                         PersonalListList = buildList<KalturaPersonalList>(typeof(KalturaPersonalList), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        PersonalListList = buildList(typeof(KalturaPersonalList), parameters["objects"] as object[]);
                     }
                 }
             }

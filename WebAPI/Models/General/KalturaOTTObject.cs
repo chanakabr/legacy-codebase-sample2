@@ -165,6 +165,20 @@ namespace WebAPI.Models.General
             return list;
         }
 
+        public static dynamic buildNativeList(Type itemType, object[] array)
+        {
+            Type listType = typeof(List<>).MakeGenericType(itemType);
+            dynamic list = Activator.CreateInstance(listType);
+            
+            foreach (object item in array)
+            {
+                var obj = Deserializer.deserialize(itemType, item as Dictionary<string, object>);
+                list.Add((dynamic)obj);
+            }
+
+            return list;
+        }
+
         public SerializableDictionary<string, T> buildDictionary<T>(Type itemType, Dictionary<string, object> dictionary) where T : KalturaOTTObject
         {
             SerializableDictionary<string, T> res = new SerializableDictionary<string, T>();

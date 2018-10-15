@@ -14095,6 +14095,16 @@
             Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
             </summary>
         </member>
+        <member name="P:WebAPI.Models.MultiRequest.KalturaMultiRequestAction.AbortAllOnError">
+            <summary>
+            Abort all following requests if current request has an error
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.MultiRequest.KalturaMultiRequestAction.SkipOnError">
+            <summary>
+            skip current request according to skip option
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.AssetIdEqual">
             <summary>
             Asset ID to filter by
