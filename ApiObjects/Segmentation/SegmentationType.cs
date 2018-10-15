@@ -99,8 +99,7 @@ namespace ApiObjects.Segmentation
 
             return result;
         }
-
-
+        
         protected override bool DoUpdate()
         {
             bool result = false;
@@ -243,20 +242,7 @@ namespace ApiObjects.Segmentation
             return result;
         }
     }
-
-    public class SegmentationTypesResponse
-    {
-        public List<SegmentationType> SegmentationTypes { get; set; }
-        public ApiObjects.Response.Status Status { get; set; }
-        public int TotalCount { get; set; }
-    }
-
-    public class SegmentationTypeResponse
-    {
-        public SegmentationType SegmentationType { get; set; }
-        public ApiObjects.Response.Status Status { get; set; }
-    }
-
+    
     public class GroupSegmentationTypes
     {
         [JsonProperty(PropertyName ="segmentationTypes")]
@@ -274,7 +260,6 @@ namespace ApiObjects.Segmentation
         social_action
     }
     
-
     public enum MonetizationType
     {
         ppv,

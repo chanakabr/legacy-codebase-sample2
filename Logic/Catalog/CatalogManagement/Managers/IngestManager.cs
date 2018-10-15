@@ -34,7 +34,6 @@ namespace Core.Catalog.CatalogManagement
         private const string UPDATE_INDEX_FAILED = "Update index failed";
         private const string MEDIA_ID_NOT_EXIST = "Media Id not exist";
         private const string CANNOT_BE_EMPTY = "{0} cannot be empty";
-        // TODO SHIR - ADD MORE CONSTS ERRORS 
 
         private const long USER_ID = 999;
         private const string DELETE_ACTION = "delete";
