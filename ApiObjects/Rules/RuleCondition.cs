@@ -205,6 +205,11 @@ namespace ApiObjects.Rules
 
         public override bool Evaluate<ISegmentsConditionScope>(ISegmentsConditionScope scope)
         {
+            if (!scope.FilterBySegments)
+            {
+                return true;
+            }
+
             if (scope.SegmentIds != null)
             {
                 var intersected = SegmentIds.Intersect(scope.SegmentIds);

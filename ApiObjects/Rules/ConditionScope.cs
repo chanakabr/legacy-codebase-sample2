@@ -9,6 +9,8 @@ namespace ApiObjects.Rules
     public interface ISegmentsConditionScope 
     {
         List<long> SegmentIds { get; set; }
+
+        bool FilterBySegments { get; set; }
     }
 
     public interface IBusinessModuleConditionScope 
@@ -31,6 +33,8 @@ namespace ApiObjects.Rules
 
         public bool FilterByDate { get; set; }
 
+        public bool FilterBySegments { get; set; }
+       
         public List<long> SegmentIds { get; set; }
 
     }

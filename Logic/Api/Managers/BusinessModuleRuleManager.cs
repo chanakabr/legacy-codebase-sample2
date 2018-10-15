@@ -188,7 +188,7 @@ namespace APILogic.Api.Managers
             if (!LayeredCache.Instance.Get<List<long>>(allBusinessModuleRuleIdsKey,
                                                                         ref ruleIds,
                                                                         GetAllBusinessModuleRulesDB,
-                                                                        null,
+                                                                        new Dictionary<string, object>() { { "groupId", groupId } },
                                                                         groupId,
                                                                         LayeredCacheConfigNames.GET_ALL_BUSINESS_MODULE_RULE_IDS,
                                                                         new List<string>() { LayeredCacheKeys.GetAllBusinessModuleRulesGroupInvalidationKey(groupId) }))
