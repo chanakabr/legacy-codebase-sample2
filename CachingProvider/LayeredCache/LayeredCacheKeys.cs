@@ -474,14 +474,14 @@ namespace CachingProvider.LayeredCache
             return string.Format("all_ppvs_groupId_{0}", groupId);
         }
 
-        public static string GetAllBusinessModuleRulesKey(int groupId)
+        public static string GetAllBusinessModuleRuleIdsKey(int groupId)
         {
-            return string.Format("all_business_module_rules_groupId_{0}", groupId);
+            return string.Format("all_business_module_rules_ids_groupId_{0}", groupId);
         }
 
-        public static string GetAllBusinessModuleRulesFromDBKey()
+        public static string GetBusinessModuleRuleKey(long id)
         {
-            return string.Format("all_business_module_rules_from_db");
+            return string.Format("business_module_rule_id_{0}", id);
         }
 
         #endregion
@@ -848,15 +848,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_all_business_module_rules_groupId_{0}", groupId);
         }
 
-        public static string GetAllBusinessModuleRulesInvalidationKey()
-        {
-            return string.Format("invalidationKey_all_business_module_rules");
-        }
-
         public static string GetBusinessModuleRuleInvalidationKey(long ruleId)
         {
             return string.Format("invalidationKey_business_module_rule_{0}", ruleId);
         }
+
         #endregion
 
         #region Domains

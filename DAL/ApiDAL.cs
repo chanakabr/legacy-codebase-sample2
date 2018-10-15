@@ -5259,10 +5259,11 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable GetBusinessModuleRulesDB()
+        public static DataTable GetBusinessModuleRulesDB(int groupId)
         {
             StoredProcedure sp = new StoredProcedure("GetBusinessModuleRules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
             DataTable dt = sp.Execute();
 
             return dt;
