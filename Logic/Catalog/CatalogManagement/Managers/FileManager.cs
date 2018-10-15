@@ -601,10 +601,12 @@ namespace Core.Catalog.CatalogManagement
 
                     assetFileToAdd.CdnAdapaterProfileId = GroupDefaultCdnAdapter.Adapter.ID;
                 }
-                
+
+                DateTime startDate = assetFileToAdd.StartDate ?? DateTime.UtcNow;
+                    
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
                                                         assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
-                                                        assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, assetFileToAdd.OutputProtecationLevel, assetFileToAdd.StartDate,
+                                                        assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, assetFileToAdd.OutputProtecationLevel, startDate,
                                                         assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive);
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
