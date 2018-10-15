@@ -3933,256 +3933,79 @@ namespace WebAPI.Clients
 
         internal KalturaSegmentationType AddSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
         {
-            KalturaSegmentationType newSegmentationType = null;
-            SegmentationTypeResponse response = null;
-            try
-            {
-                SegmentationType segmentationType = AutoMapper.Mapper.Map<SegmentationType>(kalturaSegmentationType);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.AddSegmentationType(groupId, segmentationType);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
+            Func<SegmentationType, GenericResponse<SegmentationType>> addSegmentationTypeFunc = (SegmentationType segmentTypeToAdd) =>
+                Core.Api.Module.AddSegmentationType(groupId, segmentTypeToAdd);
 
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            if (response.SegmentationType != null)
-            {
-                newSegmentationType = AutoMapper.Mapper.Map<KalturaSegmentationType>(response.SegmentationType);
-            }
-
-            return newSegmentationType;
-        }
-
-        internal KalturaSegmentationType UpdateSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
-        {
-            SegmentationTypeResponse response = null;
-            KalturaSegmentationType updatedSegmentationType = null;
-
-            try
-            {
-                SegmentationType segmentationType = AutoMapper.Mapper.Map<SegmentationType>(kalturaSegmentationType);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.UpdateSegmentationType(groupId, segmentationType);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-            if (response == null || response.Status == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            if (response.SegmentationType != null)
-            {
-                updatedSegmentationType = AutoMapper.Mapper.Map<KalturaSegmentationType>(response.SegmentationType);
-            }
-
-            return updatedSegmentationType;
-        }
-
-        internal bool DeleteSegmentationType(int groupId, long id)
-        {
-            bool success = false;
-
-            Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.DeleteSegmentationType(groupId, id);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Code, response.Message);
-            }
-            else
-            {
-                success = true;
-            }
-
-            return success;
-        }
-
-        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, int pageIndex, int pageSize)
-        {
-            KalturaSegmentationTypeListResponse result = null;
-            SegmentationTypesResponse response = null;
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.ListSegmentationTypes(groupId, pageIndex, pageSize);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            result = new KalturaSegmentationTypeListResponse()
-            {
-                SegmentationTypes = AutoMapper.Mapper.Map<List<KalturaSegmentationType>>(response.SegmentationTypes),
-                TotalCount = response.TotalCount
-            };
+            KalturaSegmentationType result =
+                ClientUtils.GetResponseFromWS<KalturaSegmentationType, SegmentationType>(kalturaSegmentationType, addSegmentationTypeFunc);
 
             return result;
         }
 
+        internal KalturaSegmentationType UpdateSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
+        {
+            Func<SegmentationType, GenericResponse<SegmentationType>> updateSegmentationTypeFunc = (SegmentationType segmentTypeToUpdate) =>
+                Core.Api.Module.UpdateSegmentationType(groupId, segmentTypeToUpdate);
 
+            KalturaSegmentationType result =
+                ClientUtils.GetResponseFromWS<KalturaSegmentationType, SegmentationType>(kalturaSegmentationType, updateSegmentationTypeFunc);
+
+            return result;
+        }
+
+        internal bool DeleteSegmentationType(int groupId, long id)
+        {
+            Func<Status> deleteSegmentationTypeFunc = () => Core.Api.Module.DeleteSegmentationType(groupId, id);
+            return ClientUtils.GetResponseStatusFromWS(deleteSegmentationTypeFunc);
+        }
+
+        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, int pageIndex, int pageSize)
+        {
+            KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
+
+            Func<GenericListResponse<SegmentationType>> getListSegmentationTypesFunc = () =>
+               Core.Api.Module.ListSegmentationTypes(groupId, pageIndex, pageSize);
+
+            KalturaGenericListResponse<KalturaSegmentationType> response =
+                ClientUtils.GetResponseListFromWS<KalturaSegmentationType, SegmentationType>(getListSegmentationTypesFunc);
+
+            result.SegmentationTypes = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+        
         internal KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
         {
-            KalturaUserSegmentListResponse result = null;
-            UserSegmentsResponse response = null;
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.GetUserSegments(groupId, userId, pageIndex, pageSize);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
+            KalturaUserSegmentListResponse result = new KalturaUserSegmentListResponse();
+            
+            Func<GenericListResponse<UserSegment>> getUserSegmentsFunc = () =>
+               Core.Api.Module.GetUserSegments(groupId, userId, pageIndex, pageSize);
 
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
+            KalturaGenericListResponse<KalturaUserSegment> response =
+                ClientUtils.GetResponseListFromWS<KalturaUserSegment, UserSegment>(getUserSegmentsFunc);
 
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            result = new KalturaUserSegmentListResponse()
-            {
-                Segments = AutoMapper.Mapper.Map<List<KalturaUserSegment>>(response.Segments),
-                TotalCount = response.TotalCount
-            };
+            result.Segments = response.Objects;
+            result.TotalCount = response.TotalCount;
 
             return result;
         }
 
         internal KalturaUserSegment AddUserSegment(int groupId, KalturaUserSegment kalturaUserSegment)
         {
-            KalturaUserSegment newUserSegment = null;
-            UserSegmentResponse response = null;
-            try
-            {
-                UserSegment userSegment = AutoMapper.Mapper.Map<UserSegment>(kalturaUserSegment);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.AddUserSegment(groupId, userSegment);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
+            Func<UserSegment, GenericResponse<UserSegment>> addUserSegmentFunc = (UserSegment userSegmentToAdd) =>
+                Core.Api.Module.AddUserSegment(groupId, userSegmentToAdd);
 
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
+            KalturaUserSegment result =
+                ClientUtils.GetResponseFromWS<KalturaUserSegment, UserSegment>(kalturaUserSegment, addUserSegmentFunc);
 
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            if (response.UserSegment != null)
-            {
-                newUserSegment = AutoMapper.Mapper.Map<KalturaUserSegment>(response.UserSegment);
-            }
-
-            return newUserSegment;
+            return result;
         }
-
-
+        
         internal bool DeleteUserSegment(int groupId, string userId, long segmentId)
         {
-            bool success = false;
-
-            Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.DeleteUserSegment(groupId, userId, segmentId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Code, response.Message);
-            }
-            else
-            {
-                success = true;
-            }
-
-            return success;
+            Func<Status> deleteUserSegmentFunc = () => Core.Api.Module.DeleteUserSegment(groupId, userId, segmentId);
+            return ClientUtils.GetResponseStatusFromWS(deleteUserSegmentFunc);
         }
 
         internal KalturaBusinessModuleRuleListResponse GetBusinessModuleRules(int groupId, KalturaBusinessModuleRuleFilter filter)

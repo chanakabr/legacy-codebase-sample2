@@ -66,48 +66,12 @@ namespace WebAPI.Models.ConditionalAccess
 
         internal List<int> getFileIdIn()
         {
-            if (string.IsNullOrEmpty(FileIdIn))
-                return null;
-
-            List<int> values = new List<int>();
-            string[] stringValues = FileIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string stringValue in stringValues)
-            {
-                int value;
-                if (int.TryParse(stringValue, out value))
-                {
-                    values.Add(value);
-                }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaProductPriceFilter.fileIdIn");
-                }
-            }
-
-            return values;
+            return this.GetItemsIn<List<int>, int>(FileIdIn, "KalturaProductPriceFilter.fileIdIn");
         }
 
         internal List<int> getSubscriptionIdIn()
         {
-            if (string.IsNullOrEmpty(SubscriptionIdIn))
-                return null;
-
-            List<int> values = new List<int>();
-            string[] stringValues = SubscriptionIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string stringValue in stringValues)
-            {
-                int value;
-                if (int.TryParse(stringValue, out value))
-                {
-                    values.Add(value);
-                }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaProductPriceFilter.subscriptionIdIn");
-                }
-            }
-
-            return values;
+            return this.GetItemsIn<List<int>, int>(SubscriptionIdIn, "KalturaProductPriceFilter.subscriptionIdIn");
         }
 
         internal string[] getCollectionIdIn()
