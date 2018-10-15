@@ -2145,17 +2145,26 @@ namespace Core.Api
 
             try
             {
-                userSegment.GroupId = groupId;
-                insertResult = userSegment.Insert();
+                var userDataResponse = Core.Users.Module.GetUserData(groupId, userSegment.UserId, string.Empty);
 
-                if (!insertResult)
+                if (userDataResponse == null || userDataResponse.m_user == null || userDataResponse.m_RespStatus != ResponseStatus.OK)
                 {
-                    response.Status = new Status((int)eResponseStatus.Error, "Failed inserting user segment.");
+                    response.Status = new Status((int)eResponseStatus.InvalidUser, "Invalid user");
                 }
                 else
                 {
-                    response.Status = new Status();
-                    response.UserSegment = userSegment;
+                    userSegment.GroupId = groupId;
+                    insertResult = userSegment.Insert();
+
+                    if (!insertResult)
+                    {
+                        response.Status = new Status((int)eResponseStatus.Error, "Failed inserting user segment.");
+                    }
+                    else
+                    {
+                        response.Status = new Status();
+                        response.UserSegment = userSegment;
+                    }
                 }
             }
             catch (Exception ex)

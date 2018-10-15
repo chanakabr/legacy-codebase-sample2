@@ -30,6 +30,9 @@ namespace ApiObjects.Segmentation
 
         public Status ActionStatus { get; set; }
         
+        [JsonProperty()]
+        public DateTime CreateDate { get; set; }
+
         public override CoreObject CoreClone()
         {
             throw new NotImplementedException();
@@ -42,7 +45,7 @@ namespace ApiObjects.Segmentation
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
             string userSegmentsKey = GetUserSegmentsDocument(this.UserId);
-
+            
             UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
 
             if (userSegments == null)
@@ -111,6 +114,7 @@ namespace ApiObjects.Segmentation
             }
 
             this.Id = newId;
+            this.CreateDate = DateTime.UtcNow;
 
             bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
 
