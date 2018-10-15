@@ -41,16 +41,6 @@ namespace ApiObjects.Segmentation
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-            long newId = couchbaseManager.GetSequenceValue(GetUserSegmentsSequenceDocument());
-
-            if (newId == 0)
-            {
-                log.ErrorFormat("Error setting user segment id");
-                return false;
-            }
-
-            this.Id = newId;
-
             string userSegmentsKey = GetUserSegmentsDocument(this.UserId);
 
             UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
@@ -99,7 +89,8 @@ namespace ApiObjects.Segmentation
 
             if (!validSegmentId)
             {
-
+                this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Given segment id does not exist for this segmentation type");
+                return false;
             }
 
             HashSet<string> alreadyContainedSegments = new HashSet<string>(userSegments.Segments.Select(o => GetCombinedString(o.SegmentationTypeId, o.SegmentId)));
@@ -110,6 +101,16 @@ namespace ApiObjects.Segmentation
             {
                 userSegments.Segments.Add(this);
             }
+
+            long newId = couchbaseManager.GetSequenceValue(GetUserSegmentsSequenceDocument());
+
+            if (newId == 0)
+            {
+                log.ErrorFormat("Error setting user segment id");
+                return false;
+            }
+
+            this.Id = newId;
 
             bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
 
