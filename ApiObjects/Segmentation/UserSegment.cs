@@ -156,17 +156,22 @@ namespace ApiObjects.Segmentation
             totalCount = 0;
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
             string userSegmentsKey = GetUserSegmentsDocument(userId);
-
             UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
 
             if (userSegments != null && userSegments.Segments != null)
             {
                 totalCount = userSegments.Segments.Count;
-
-                // get only segments on current page
-                result = userSegments.Segments.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                
+                if (pageSize == 0 && pageIndex == 0)
+                {
+                    result = userSegments.Segments;
+                }
+                else
+                {
+                    // get only segments on current page
+                    result = userSegments.Segments.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                }
             }
 
             return result;
@@ -185,19 +190,5 @@ namespace ApiObjects.Segmentation
         {
             Segments = new List<UserSegment>();
         }
-    }
-    
-    public class UserSegmentsResponse
-    {
-        public List<UserSegment> Segments { get; set; }
-        public ApiObjects.Response.Status Status { get; set; }
-        public int TotalCount { get; set; }
-    }
-
-    public class UserSegmentResponse
-    {
-        public UserSegment UserSegment { get; set; }
-
-        public Status Status { get; set; }
     }
 }

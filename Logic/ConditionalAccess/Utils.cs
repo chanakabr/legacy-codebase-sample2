@@ -1191,7 +1191,7 @@ namespace Core.ConditionalAccess
 
             if (sCouponCode.Length > 0)
             {
-                CouponDataResponse theCouponData = Core.Pricing.Module.GetCouponStatus(nGroupID, sCouponCode, domainId);
+                CouponDataResponse theCouponData = Pricing.Module.GetCouponStatus(nGroupID, sCouponCode, domainId);
 
                 if (oCouponsGroup == null ||
                     theCouponData == null ||
@@ -1234,19 +1234,20 @@ namespace Core.ConditionalAccess
                     DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
                     p = GetPriceAfterDiscount(p, dCouponDiscount, 0);
                 }
-            } // end if coupon code is not empty
+            }
+
             return p;
         }
 
-        private static Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, PPVModule ppvModule,
-            string sSiteGUID, string sCouponCode, Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd, long domainId)
+        private static Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID, 
+                                                          string subCode, out DateTime? dtDiscountEnd, long domainId)
         {
             Price pModule = ObjectCopier.Clone(ppvModule.m_oPriceCode.m_oPrise);
-            DiscountModule discModule = ObjectCopier.Clone((DiscountModule)(ppvModule.m_oDiscountModule));
-            CouponsGroup couponGroups = ObjectCopier.Clone((CouponsGroup)(ppvModule.m_oCouponsGroup));
+            DiscountModule discModule = ObjectCopier.Clone(ppvModule.m_oDiscountModule);
+            CouponsGroup couponGroups = ObjectCopier.Clone(ppvModule.m_oCouponsGroup);
 
-            return CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID,
-                sCouponCode, nGroupID, subCode, out dtDiscountEnd, domainId);
+            return CalculateMediaFileFinalPriceNoSubs
+                (nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID, sCouponCode, nGroupID, subCode, out dtDiscountEnd, domainId);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
@@ -1354,8 +1355,14 @@ namespace Core.ConditionalAccess
 
                         return price;
                     }
-                    
-                    price = GetLowestPrice(groupId, price, externalDiscount, domainId, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode, ref couponCode,
+
+                    Price discountPrice = null;
+                    if (externalDiscount != null)
+                    {
+                        discountPrice = GetPriceAfterDiscount(price, externalDiscount, 1);
+                    }
+
+                    price = GetLowestPrice(groupId, price, domainId, discountPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode, ref couponCode,
                                            subscription.m_oCouponsGroup, subscription.CouponsGroups, null);
                     
                     if (price != null && price.m_dPrice != 0)
@@ -1441,16 +1448,11 @@ namespace Core.ConditionalAccess
         /// <param name="businessModuleId"></param>
         /// <param name="countryCode"></param>
         /// <returns></returns>
-        private static Price GetLowestPrice(int groupId, Price currentPrice, DiscountModule externalDiscount, int domainId, eTransactionType transactionType, 
+        private static Price GetLowestPrice(int groupId, Price currentPrice, int domainId, Price discountPrice, eTransactionType transactionType, 
                                             string currencyCode, long businessModuleId, string countryCode, ref string couponCode, CouponsGroup couponsGroup,
                                             List<SubscriptionCouponGroup> subscriptionCouponGroups, List<string> allUserIdsInDomain)
         {
-            Price lowestPrice = currentPrice;
-
-            if (externalDiscount != null)
-            {
-                lowestPrice = GetPriceAfterDiscount(currentPrice, externalDiscount, 1);
-            }
+            Price lowestPrice = discountPrice ?? currentPrice;
             
             if (allUserIdsInDomain == null || allUserIdsInDomain.Count == 0)
             {
@@ -1464,9 +1466,9 @@ namespace Core.ConditionalAccess
                 foreach (var userId in allUserIdsInDomain)
                 {
                     var userSegments = Api.Module.GetUserSegments(groupId, userId, 0, 500);
-                    if (userSegments != null && userSegments.Segments != null && userSegments.Segments.Count > 0)
+                    if (userSegments != null && userSegments.HasObjects())
                     {
-                        segmentIds.AddRange(userSegments.Segments.Select(x => x.SegmentId));
+                        segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
                     }
                 }
             }
@@ -1827,7 +1829,13 @@ namespace Core.ConditionalAccess
                 return price;
             }
 
-            price = GetLowestPrice(groupId, price, externalDiscount, domainID, eTransactionType.Collection, currencyCode, long.Parse(sColCode), countryCode,
+            Price discountPrice = null;
+            if (externalDiscount != null)
+            {
+                discountPrice = GetPriceAfterDiscount(price, externalDiscount, 1);
+            }
+
+            price = GetLowestPrice(groupId, price, domainID, discountPrice, eTransactionType.Collection, currencyCode, long.Parse(sColCode), countryCode,
                                    ref couponCode, collection.m_oCouponsGroup, collection.CouponsGroups, lUsersIds.ConvertAll(x => x.ToString()));
             
             return price;
@@ -2477,9 +2485,10 @@ namespace Core.ConditionalAccess
                     }
 
                     // the media file was not purchased in any way. calculate its price as a single media file and its price reason
-                    price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, out dtDiscountEndDate, domainID);
+                    Price discountPrice = 
+                        GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, out dtDiscountEndDate, domainID);
                     
-                    price = GetLowestPrice(groupID, price, null, domainID, eTransactionType.PPV, currencyCode, ppvID, 
+                    price = GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID, 
                                            countryCode, ref couponCode, null, null, allUserIDsInDomain.ConvertAll(x => x.ToString()));
                         
                     if (IsFreeMediaFile(theReason, price))

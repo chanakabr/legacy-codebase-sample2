@@ -1987,60 +1987,55 @@ namespace Core.Api
             return CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(key);
         }
 
-        public static SegmentationTypeResponse AddSegmentationType(int groupId, SegmentationType segmentationType)
+        public static GenericResponse<SegmentationType> AddSegmentationType(int groupId, SegmentationType segmentationType)
         {
-            SegmentationTypeResponse response = new SegmentationTypeResponse();
-
-            bool insertResult = false;
+            GenericResponse<SegmentationType> response = new GenericResponse<SegmentationType>();
 
             try
             {
                 segmentationType.GroupId = groupId;
-                insertResult = segmentationType.Insert();
 
-                if (!insertResult)
+                if (!segmentationType.Insert())
                 {
-                    response.Status = new Status((int)eResponseStatus.Error, "Failed inserting segmentation type.");
+                    response.SetStatus(eResponseStatus.Error, "Failed inserting segmentation type.");
                 }
                 else
                 {
-                    response.Status = new Status();
-                    response.SegmentationType = segmentationType;
+                    response.Object = segmentationType;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed inserting segmentation type. ex = {0}", ex);
-                response.Status = new Status((int)eResponseStatus.Error, "Error while inserting segmentation type.");
+                response.SetStatus(eResponseStatus.Error, "Error while inserting segmentation type.");
             }
 
             return response;
         }
 
-        public static SegmentationTypeResponse UpdateSegmentationType(int groupId, SegmentationType segmentationType)
+        public static GenericResponse<SegmentationType> UpdateSegmentationType(int groupId, SegmentationType segmentationType)
         {
-            SegmentationTypeResponse response = new SegmentationTypeResponse();
+            GenericResponse<SegmentationType> response = new GenericResponse<SegmentationType>();
 
-            bool updateResult = false;
             try
             {
                 segmentationType.GroupId = groupId;
-                updateResult = segmentationType.Update();
 
-                if (!updateResult)
-               {
-                    response.Status = segmentationType.ActionStatus;
+                if (!segmentationType.Update())
+                {
+                    response.SetStatus(segmentationType.ActionStatus);
                 }
                 else
                 {
-                    response.Status = new Status();
-                    response.SegmentationType = segmentationType;
+                    response.Object = segmentationType;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed updating segmentation type. ex = {0}", ex);
-                response.Status = new Status((int)eResponseStatus.Error, "Error while updating segmentation type.");
+                response.SetStatus(eResponseStatus.Error, "Error while updating segmentation type.");
             }
 
             return response;
@@ -2078,23 +2073,21 @@ namespace Core.Api
             return result;
         }
 
-        public static SegmentationTypesResponse ListSegmentationTypes(int groupId, int pageIndex, int pageSize)
+        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, int pageIndex, int pageSize)
         {
-            SegmentationTypesResponse result = new SegmentationTypesResponse();
+            GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
 
             try
             {
                 int totalCount;
-                List<SegmentationType> segementationTypes = SegmentationType.List(groupId, pageIndex, pageSize, out totalCount);
-
-                result.Status = new Status();
-                result.SegmentationTypes = segementationTypes;
-                result.TotalCount = totalCount;
+                result.Objects = SegmentationType.List(groupId, pageIndex, pageSize, out totalCount);
+                result.TotalItems = totalCount;
+                result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed getting segmentation types of group id = {0}. ex = {1}", groupId, ex);
-                result.Status = new Status((int)eResponseStatus.Error, "Failed getting segmentation types");
+                result.SetStatus(eResponseStatus.Error, "Failed getting segmentation types");
             }
 
             return result;
@@ -2115,53 +2108,49 @@ namespace Core.Api
             return api.DeletePersonalListItemForUser(groupId, personalListItemId, userId);
         }
 
-        public static UserSegmentsResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
+        public static GenericListResponse<UserSegment> GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
         {
-            UserSegmentsResponse result = new UserSegmentsResponse();
+            GenericListResponse<UserSegment> result = new GenericListResponse<UserSegment>();
 
             try
             {
                 int totalCount;
-                List<UserSegment> userSegments = UserSegment.List(groupId, userId, pageIndex, pageSize, out totalCount);
-
-                result.Status = new Status();
-                result.Segments = userSegments;
-                result.TotalCount = totalCount;
+                result.Objects = UserSegment.List(groupId, userId, pageIndex, pageSize, out totalCount);
+                result.TotalItems = totalCount;
+                result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed getting user segments of user id {0} in group id = {1}. ex = {2}", userId, groupId, ex);
-                result.Status = new Status((int)eResponseStatus.Error, "Failed getting user segments");
+                result.SetStatus(eResponseStatus.Error, "Failed getting user segments");
             }
 
             return result;
         }
 
-        public static UserSegmentResponse AddUserSegment(int groupId, UserSegment userSegment)
+        public static GenericResponse<UserSegment> AddUserSegment(int groupId, UserSegment userSegment)
         {
-            UserSegmentResponse response = new UserSegmentResponse();
-
-            bool insertResult = false;
+            GenericResponse<UserSegment> response = new GenericResponse<UserSegment>();
 
             try
             {
                 userSegment.GroupId = groupId;
-                insertResult = userSegment.Insert();
+                bool insertResult = userSegment.Insert();
 
                 if (!insertResult)
                 {
-                    response.Status = new Status((int)eResponseStatus.Error, "Failed inserting user segment.");
+                    response.SetStatus(eResponseStatus.Error, "Failed inserting user segment.");
                 }
                 else
                 {
-                    response.Status = new Status();
-                    response.UserSegment = userSegment;
+                    response.Object = userSegment;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed inserting user segment. ex = {0}", ex);
-                response.Status = new Status((int)eResponseStatus.Error, "Error while inserting user segment.");
+                response.SetStatus(eResponseStatus.Error, "Error while inserting user segment.");
             }
 
             return response;
