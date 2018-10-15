@@ -4149,7 +4149,7 @@ namespace WebAPI.Clients
         }
 
 
-        internal bool DeleteUserSegment(int groupId, string userId, long segmentId)
+        internal bool DeleteUserSegment(int groupId, string userId, long segmentationTypeId, long? segmentId)
         {
             bool success = false;
 
@@ -4159,7 +4159,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.DeleteUserSegment(groupId, userId, segmentId);
+                    response = Core.Api.Module.DeleteUserSegment(groupId, userId, segmentationTypeId, segmentId);
                 }
             }
             catch (Exception ex)
