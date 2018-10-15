@@ -19,7 +19,8 @@ namespace WebAPI.Models.API
         IP_RANGE,
         BUSINESS_MODULE,
         SEGMENTS,
-        DATE
+        DATE,
+        OR
     }
     
     /// <summary>
@@ -63,6 +64,23 @@ namespace WebAPI.Models.API
             set { not = value.HasValue ? value.Value : false; }
         }
         private bool not;
+    }
+
+    public partial class KalturaOrCondition : KalturaCondition
+    {
+        /// <summary>
+        /// List of conditions with or between them  
+        /// </summary>
+        [DataMember(Name = "conditions")]
+        [JsonProperty("conditions")]
+        [XmlElement(ElementName = "conditions")]
+        public List<KalturaCondition> Conditions { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.OR;
+        }
     }
 
     /// <summary>

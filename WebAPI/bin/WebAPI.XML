@@ -4926,6 +4926,11 @@
             Indicates whether to apply not on the other properties in the condition
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaOrCondition.Conditions">
+            <summary>
+            List of conditions with or between them  
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaCountryCondition">
             <summary>
             Country condition

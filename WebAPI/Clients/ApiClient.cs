@@ -4190,7 +4190,7 @@ namespace WebAPI.Clients
             KalturaBusinessModuleRuleListResponse result = new KalturaBusinessModuleRuleListResponse();
 
             Func<GenericListResponse<BusinessModuleRule>> getBusinessModuleRulesFunc = () =>
-               Core.Api.Module.GetBusinessModuleRules(groupId);
+               Core.Api.Module.GetBusinessModuleRules(groupId, null);
 
             KalturaGenericListResponse<KalturaBusinessModuleRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaBusinessModuleRule, BusinessModuleRule>(getBusinessModuleRulesFunc);

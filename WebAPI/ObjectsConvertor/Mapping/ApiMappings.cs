@@ -874,6 +874,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate));
 
+
+            cfg.CreateMap<OrCondition, KalturaOrCondition>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertConditions(src.Conditions)));
+
+            cfg.CreateMap<KalturaOrCondition, OrCondition>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertRuleConditions(src.Conditions)));
+
             #endregion
         }
 
@@ -2740,6 +2749,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     {
                         item = AutoMapper.Mapper.Map<DateCondition>(condition as KalturaDateCondition);
                     }
+                    else if (condition is OrCondition)
+                    {
+                        item = AutoMapper.Mapper.Map<OrCondition>(condition as KalturaOrCondition);
+                    }
                     else
                     {
                         continue;
@@ -2773,6 +2786,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             break;
                         case RuleConditionType.Date:
                             item = AutoMapper.Mapper.Map<KalturaDateCondition>(condition as DateCondition);
+                            break;
+                        case RuleConditionType.Or:
+                            item = AutoMapper.Mapper.Map<KalturaOrCondition>(condition as OrCondition);
                             break;
                         default:
                             break;
