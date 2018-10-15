@@ -12072,6 +12072,48 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaBusinessModuleRuleFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(BusinessModuleIdApplied.HasValue)
+            {
+                ret.Add("businessModuleIdApplied", "\"businessModuleIdApplied\": " + BusinessModuleIdApplied);
+            }
+            if(BusinessModuleTypeApplied.HasValue)
+            {
+                ret.Add("businessModuleTypeEqual", "\"businessModuleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeApplied) + "\"");
+            }
+            if(SegmentIdsApplied != null)
+            {
+                ret.Add("segmentIdsApplied", "\"segmentIdsApplied\": " + "\"" + EscapeJson(SegmentIdsApplied) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(BusinessModuleIdApplied.HasValue)
+            {
+                ret.Add("businessModuleIdApplied", "<businessModuleIdApplied>" + BusinessModuleIdApplied + "</businessModuleIdApplied>");
+            }
+            if(BusinessModuleTypeApplied.HasValue)
+            {
+                ret.Add("businessModuleTypeEqual", "<businessModuleTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeApplied) + "" + "</businessModuleTypeEqual>");
+            }
+            if(SegmentIdsApplied != null)
+            {
+                ret.Add("segmentIdsApplied", "<segmentIdsApplied>" + EscapeXml(SegmentIdsApplied) + "</segmentIdsApplied>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaBusinessModuleRuleListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -13730,6 +13772,34 @@ namespace WebAPI.Models.API
             if(Not.HasValue)
             {
                 ret.Add("not", "<not>" + Not.ToString().ToLower() + "</not>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaOrCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Conditions != null)
+            {
+                propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("conditions", "\"conditions\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Conditions != null)
+            {
+                propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
             }
             return ret;
         }

@@ -813,6 +813,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
         #endregion
 
         // TransactionType to eTransactionType
+        public static eTransactionType? ConvertTransactionType(KalturaTransactionType? clientTransactionType)
+        {
+            eTransactionType? result = null;
+            if (clientTransactionType.HasValue)
+            {
+                switch (clientTransactionType)
+                {
+                    case KalturaTransactionType.ppv:
+                        result = eTransactionType.PPV;
+                        break;
+                    case KalturaTransactionType.subscription:
+                        result = eTransactionType.Subscription;
+                        break;
+                    case KalturaTransactionType.collection:
+                        result = eTransactionType.Collection;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
+                }
+            }
+            return result;
+        }
+
         public static eTransactionType ConvertTransactionType(KalturaTransactionType clientTransactionType)
         {
             eTransactionType result;

@@ -1,0 +1,60 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Web;
+using System.Xml.Serialization;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.API
+{
+    public enum KalturaBusinessModuleOrderBy
+    {
+        NONE
+    }
+
+    /// <summary>
+    /// Business module rule filter
+    /// </summary>
+    public partial class KalturaBusinessModuleRuleFilter : KalturaFilter<KalturaBusinessModuleOrderBy>
+    {
+        /// <summary>
+        /// Business module type the rules applied on
+        /// </summary>
+        [DataMember(Name = "businessModuleTypeEqual")]
+        [JsonProperty("businessModuleTypeEqual")]
+        [XmlElement(ElementName = "businessModuleTypeEqual", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaTransactionType? BusinessModuleTypeApplied { get; set; }
+
+        /// <summary>
+        /// Business module ID the rules applied on
+        /// </summary>
+        [DataMember(Name = "businessModuleIdApplied")]
+        [JsonProperty("businessModuleIdApplied")]
+        [XmlElement(ElementName = "businessModuleIdApplied", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public long? BusinessModuleIdApplied { get; set; }
+
+        /// <summary>
+        /// Comma separated segment IDs the rules applied on
+        /// </summary>
+        [DataMember(Name = "segmentIdsApplied")]
+        [JsonProperty("segmentIdsApplied")]
+        [XmlElement(ElementName = "segmentIdsApplied", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string SegmentIdsApplied { get; set; }
+        
+        
+
+        public override KalturaBusinessModuleOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaBusinessModuleOrderBy.NONE;
+        }
+    }
+}

@@ -260,6 +260,7 @@
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\UserSegmentController.cs" />
+    <Compile Include="Models\API\KalturaBusinessModuleRuleFilter.cs" />
     <Compile Include="Models\API\KalturaRule.cs" />
     <Compile Include="Models\API\KalturaBusinessModuleRule.cs" />
     <Compile Include="Models\API\KalturaDRMProfile.cs" />

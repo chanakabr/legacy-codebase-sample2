@@ -924,6 +924,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBusinessModuleRuleFilter":
+                    switch(property.Name)
+                    {
+                        case "BusinessModuleIdApplied":
+                            return "businessModuleIdApplied";
+                        case "BusinessModuleTypeApplied":
+                            return "businessModuleTypeEqual";
+                        case "SegmentIdsApplied":
+                            return "segmentIdsApplied";
+                    }
+                    break;
+                    
                 case "KalturaBusinessModuleRuleListResponse":
                     switch(property.Name)
                     {
@@ -3347,6 +3359,14 @@ namespace WebAPI.Reflection
                     {
                         case "QuotaInMinutes":
                             return "quotaInMinutes";
+                    }
+                    break;
+                    
+                case "KalturaOrCondition":
+                    switch(property.Name)
+                    {
+                        case "Conditions":
+                            return "conditions";
                     }
                     break;
                     
@@ -6292,7 +6312,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("businessModuleRule", "list", false);
-                            return BusinessModuleRuleController.List();
+                            return BusinessModuleRuleController.List((KalturaBusinessModuleRuleFilter) methodParams[0]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("businessModuleRule", "update", false);
@@ -10959,6 +10979,11 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBusinessModuleRuleFilter),
+                            });
                             return ret;
                             
                         case "update":

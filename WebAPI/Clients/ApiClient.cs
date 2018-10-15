@@ -4185,12 +4185,12 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal KalturaBusinessModuleRuleListResponse GetBusinessModuleRules(int groupId)
+        internal KalturaBusinessModuleRuleListResponse GetBusinessModuleRules(int groupId, KalturaBusinessModuleRuleFilter filter)
         {
             KalturaBusinessModuleRuleListResponse result = new KalturaBusinessModuleRuleListResponse();
 
             Func<GenericListResponse<BusinessModuleRule>> getBusinessModuleRulesFunc = () =>
-               Core.Api.Module.GetBusinessModuleRules(groupId, null);
+               Core.Api.Module.GetBusinessModuleRules(groupId, AutoMapper.Mapper.Map<ConditionScope>(filter));
 
             KalturaGenericListResponse<KalturaBusinessModuleRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaBusinessModuleRule, BusinessModuleRule>(getBusinessModuleRulesFunc);

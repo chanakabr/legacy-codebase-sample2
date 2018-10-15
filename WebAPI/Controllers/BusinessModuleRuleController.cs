@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaBusinessModuleRuleListResponse List()
+        static public KalturaBusinessModuleRuleListResponse List(KalturaBusinessModuleRuleFilter filter)
         {
             KalturaBusinessModuleRuleListResponse response = null;
 
@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetBusinessModuleRules(groupId);
+                response = ClientsManager.ApiClient().GetBusinessModuleRules(groupId, filter);
             }
             catch (ClientException ex)
             {

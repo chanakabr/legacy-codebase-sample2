@@ -62,7 +62,7 @@
             <param name="ppvModuleId">Ppv module id</param>        
             <param name="assetFilePpv">assetFilePpv</param>        
         </member>
-        <member name="M:WebAPI.Controllers.BusinessModuleRuleController.List">
+        <member name="M:WebAPI.Controllers.BusinessModuleRuleController.List(WebAPI.Models.API.KalturaBusinessModuleRuleFilter)">
             <summary>
              Get the list of business module rules for the partner
             </summary>
@@ -4728,6 +4728,26 @@
             <param name="value">Value of dynamicData </param>
             <param name="userId">User identifier</param>
             <returns></returns>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaBusinessModuleRuleFilter">
+            <summary>
+            Business module rule filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleRuleFilter.BusinessModuleTypeApplied">
+            <summary>
+            Business module type the rules applied on
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleRuleFilter.BusinessModuleIdApplied">
+            <summary>
+            Business module ID the rules applied on
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleRuleFilter.SegmentIdsApplied">
+            <summary>
+            Comma separated segment IDs the rules applied on
+            </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaRule">
             <summary>

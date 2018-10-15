@@ -883,6 +883,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertRuleConditions(src.Conditions)));
 
+            cfg.CreateMap<KalturaBusinessModuleRuleFilter, ConditionScope>()
+                .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdApplied.HasValue ? src.BusinessModuleIdApplied.Value : 0))
+                .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertTransactionType(src.BusinessModuleTypeApplied.Value)))
+                .ForMember(dest => dest.SegmentIds, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.SegmentIdsApplied, "filter.segmentIdsApplied")));
+
             #endregion
         }
 
