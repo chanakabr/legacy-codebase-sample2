@@ -26,9 +26,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Business module type the rules applied on
         /// </summary>
-        [DataMember(Name = "businessModuleTypeEqual")]
-        [JsonProperty("businessModuleTypeEqual")]
-        [XmlElement(ElementName = "businessModuleTypeEqual", IsNullable = true)]
+        [DataMember(Name = "businessModuleTypeApplied")]
+        [JsonProperty("businessModuleTypeApplied")]
+        [XmlElement(ElementName = "businessModuleTypeApplied", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaTransactionType? BusinessModuleTypeApplied { get; set; }
 

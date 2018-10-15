@@ -908,7 +908,7 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "BusinessModuleId":
-                            return "businessModuleType";
+                            return "businessModuleId";
                         case "BusinessModuleType":
                             return "businessModuleType";
                     }
@@ -930,7 +930,7 @@ namespace WebAPI.Reflection
                         case "BusinessModuleIdApplied":
                             return "businessModuleIdApplied";
                         case "BusinessModuleTypeApplied":
-                            return "businessModuleTypeEqual";
+                            return "businessModuleTypeApplied";
                         case "SegmentIdsApplied":
                             return "segmentIdsApplied";
                     }
@@ -10981,6 +10981,8 @@ namespace WebAPI.Reflection
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaBusinessModuleRuleFilter),
                             });

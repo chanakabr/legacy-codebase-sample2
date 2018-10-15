@@ -837,19 +837,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaBusinessModuleRule, BusinessModuleRule>()
               .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => src.Actions))
-              .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertConditions(src.Conditions)))
+              .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertRuleConditions(src.Conditions)))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             cfg.CreateMap<KalturaBusinessModuleCondition, BusinessModuleCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
-                .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
+                .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId.HasValue ? src.BusinessModuleId.Value : 0))
+                .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConditionalAccessMappings.ConvertTransactionType(src.BusinessModuleType)));
 
             cfg.CreateMap<BusinessModuleCondition, KalturaBusinessModuleCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
+                .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId == 0 ? null : (long?)src.BusinessModuleId))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
 
             cfg.CreateMap<KalturaSegmentsCondition, SegmentsCondition>()
@@ -877,16 +877,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<OrCondition, KalturaOrCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertConditions(src.Conditions)));
+                .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertConditions(src.Conditions)));
 
             cfg.CreateMap<KalturaOrCondition, OrCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertRuleConditions(src.Conditions)));
+                .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertRuleConditions(src.Conditions)));
+
+            cfg.CreateMap<KalturaApplyDiscountModuleAction, ApplyDiscountModuleRuleAction>()
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId));
+
+            cfg.CreateMap<ApplyDiscountModuleRuleAction, KalturaApplyDiscountModuleAction>()
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId));
 
             cfg.CreateMap<KalturaBusinessModuleRuleFilter, ConditionScope>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdApplied.HasValue ? src.BusinessModuleIdApplied.Value : 0))
-                .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertTransactionType(src.BusinessModuleTypeApplied.Value)))
-                .ForMember(dest => dest.SegmentIds, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.SegmentIdsApplied, "filter.segmentIdsApplied")));
+                .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConditionalAccessMappings.ConvertTransactionType(src.BusinessModuleTypeApplied)))
+                .ForMember(dest => dest.SegmentIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? src.GetItemsIn<List<long>, long>(src.SegmentIdsApplied, "filter.segmentIdsApplied") : null))
+                .ForMember(dest => dest.FilterBySegments, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? true : false));
 
             #endregion
         }

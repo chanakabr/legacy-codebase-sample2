@@ -41,9 +41,12 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
 
-            if (this.Conditions == null || this.Conditions.Count == 0)
+            if (this.Conditions != null || this.Conditions.Count > 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
+                foreach (var condition in this.Conditions)
+                {
+                    condition.Validate();
+                }
             }
 
             ValidateActions();

@@ -28,11 +28,16 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaBusinessModuleRuleListResponse List(KalturaBusinessModuleRuleFilter filter)
+        static public KalturaBusinessModuleRuleListResponse List(KalturaBusinessModuleRuleFilter filter = null)
         {
             KalturaBusinessModuleRuleListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+
+            if (filter == null)
+            {
+                filter = new KalturaBusinessModuleRuleFilter();
+            }
 
             try
             {

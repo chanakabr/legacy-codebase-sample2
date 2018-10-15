@@ -143,7 +143,7 @@ namespace WebAPI.Models.ConditionalAccess
     {
         public KalturaApplyDiscountModuleAction()
         {
-            this.Type = KalturaRuleActionType.ALLOW_PLAYBACK;
+            this.Type = KalturaRuleActionType.APPLY_DISCOUNT_MODULE;
         }
 
         /// <summary>

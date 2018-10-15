@@ -12019,8 +12019,14 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("businessModuleType", "\"businessModuleType\": " + BusinessModuleId);
-            ret.Add("businessModuleType", "\"businessModuleType\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleType) + "\"");
+            if(BusinessModuleId.HasValue)
+            {
+                ret.Add("businessModuleId", "\"businessModuleId\": " + BusinessModuleId);
+            }
+            if(BusinessModuleType.HasValue)
+            {
+                ret.Add("businessModuleType", "\"businessModuleType\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleType) + "\"");
+            }
             return ret;
         }
         
@@ -12029,8 +12035,14 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("businessModuleType", "<businessModuleType>" + BusinessModuleId + "</businessModuleType>");
-            ret.Add("businessModuleType", "<businessModuleType>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleType) + "" + "</businessModuleType>");
+            if(BusinessModuleId.HasValue)
+            {
+                ret.Add("businessModuleId", "<businessModuleId>" + BusinessModuleId + "</businessModuleId>");
+            }
+            if(BusinessModuleType.HasValue)
+            {
+                ret.Add("businessModuleType", "<businessModuleType>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleType) + "" + "</businessModuleType>");
+            }
             return ret;
         }
     }
@@ -12085,7 +12097,7 @@ namespace WebAPI.Models.API
             }
             if(BusinessModuleTypeApplied.HasValue)
             {
-                ret.Add("businessModuleTypeEqual", "\"businessModuleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeApplied) + "\"");
+                ret.Add("businessModuleTypeApplied", "\"businessModuleTypeApplied\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeApplied) + "\"");
             }
             if(SegmentIdsApplied != null)
             {
@@ -12105,7 +12117,7 @@ namespace WebAPI.Models.API
             }
             if(BusinessModuleTypeApplied.HasValue)
             {
-                ret.Add("businessModuleTypeEqual", "<businessModuleTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeApplied) + "" + "</businessModuleTypeEqual>");
+                ret.Add("businessModuleTypeApplied", "<businessModuleTypeApplied>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeApplied) + "" + "</businessModuleTypeApplied>");
             }
             if(SegmentIdsApplied != null)
             {

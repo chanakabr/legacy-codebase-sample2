@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -45,6 +46,8 @@ namespace WebAPI.Models.API
         [JsonProperty("description")]
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
+
+        internal abstract void Validate();
     }
 
     /// <summary>
@@ -80,6 +83,19 @@ namespace WebAPI.Models.API
         {
             base.Init();
             this.Type = KalturaRuleConditionType.OR;
+        }
+
+        internal override void Validate()
+        {
+            if (this.Conditions == null || this.Conditions.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "condition.conditions");
+            }
+
+            foreach (var condition in this.Conditions)
+            {
+                condition.Validate();
+            }
         }
     }
 
@@ -123,6 +139,11 @@ namespace WebAPI.Models.API
 
             return countries;
         }
+
+        internal override void Validate()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>
@@ -143,6 +164,11 @@ namespace WebAPI.Models.API
         {
             base.Init();
             this.Type = KalturaRuleConditionType.ASSET;
+        }
+
+        internal override void Validate()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -208,6 +234,11 @@ namespace WebAPI.Models.API
             base.Init();
             this.Type = KalturaRuleConditionType.IP_RANGE;
         }
+
+        internal override void Validate()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>
@@ -220,21 +251,29 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "businessModuleType")]
         [JsonProperty("businessModuleType")]
-        [XmlElement(ElementName = "businessModuleType")]
-        public KalturaTransactionType BusinessModuleType { get; set; }
+        [XmlElement(ElementName = "businessModuleType", IsNullable = true)]
+        public KalturaTransactionType? BusinessModuleType { get; set; }
 
         /// <summary>
         /// Business module ID  
         /// </summary>
-        [DataMember(Name = "businessModuleType")]
-        [JsonProperty("businessModuleType")]
-        [XmlElement(ElementName = "businessModuleType")]
-        public long BusinessModuleId { get; set; }
+        [DataMember(Name = "businessModuleId")]
+        [JsonProperty("businessModuleId")]
+        [XmlElement(ElementName = "businessModuleId", IsNullable = true)]
+        public long? BusinessModuleId { get; set; }
 
         protected override void Init()
         {
             base.Init();
             this.Type = KalturaRuleConditionType.BUSINESS_MODULE;
+        }
+
+        internal override void Validate()
+        {
+            if ((!this.BusinessModuleId.HasValue || this.BusinessModuleId == 0) && !this.BusinessModuleType.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "condition.businessModuleType");
+            }
         }
     }
 
@@ -279,10 +318,18 @@ namespace WebAPI.Models.API
 
             return segments;
         }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.SegmentsIds))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "condition.segmentsIds");
+            }
+        }
     }
 
     /// <summary>
-    /// Segments condition
+    /// Date condition
     /// </summary>
     public partial class KalturaDateCondition : KalturaNotCondition
     {
@@ -306,6 +353,14 @@ namespace WebAPI.Models.API
         {
             base.Init();
             this.Type = KalturaRuleConditionType.DATE;
+        }
+
+        internal override void Validate()
+        {
+            if (this.StartDate == 0 && this.EndDate == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "condition.startDate", "condition.endDate");
+            }
         }
     }
 }
