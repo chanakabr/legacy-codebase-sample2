@@ -2167,7 +2167,7 @@ namespace Core.Api
             return response;
         }
 
-        public static Status DeleteUserSegment(int groupId, string userId, long segmentId)
+        public static Status DeleteUserSegment(int groupId, string userId, long segmentationTypeId, long? segmentId)
         {
             Status result = null;
             bool deleteResult = false;
@@ -2177,6 +2177,7 @@ namespace Core.Api
                 {
                     GroupId = groupId,
                     UserId = userId,
+                    SegmentationTypeId = segmentationTypeId,
                     SegmentId = segmentId
                 };
 
