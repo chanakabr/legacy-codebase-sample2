@@ -343,7 +343,7 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = "ES",
                 Description = "Used in TVM, for transition between Lucene and ElasticSearch. " +
-                "Today we use ES exculisvely. Only valid value is 'ES', otherwise Lucene is used"
+                "Today we use ES exclusively. Only valid value is 'ES', otherwise Lucene is used"
             };
             CatalogSignatureKey = new StringConfigurationValue("CatalogSignatureKey")
             {
