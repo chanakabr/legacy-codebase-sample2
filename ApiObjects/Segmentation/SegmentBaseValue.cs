@@ -22,5 +22,10 @@ namespace ApiObjects.Segmentation
         {
             return true;
         }
+
+        internal virtual bool HasSegmentId(long segmentId)
+        {
+            return false;
+        }
     }
 }

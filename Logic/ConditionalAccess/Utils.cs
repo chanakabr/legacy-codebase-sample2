@@ -1468,7 +1468,7 @@ namespace Core.ConditionalAccess
                     var userSegments = Api.Module.GetUserSegments(groupId, userId, 0, 500);
                     if (userSegments != null && userSegments.HasObjects())
                     {
-                        segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
+                        segmentIds.AddRange(userSegments.Objects.Where(x => x.SegmentId.HasValue).Select(x => x.SegmentId.Value));
                     }
                 }
             }
@@ -1479,7 +1479,8 @@ namespace Core.ConditionalAccess
                 BusinessModuleId = businessModuleId,
                 BusinessModuleType = transactionType,
                 SegmentIds = segmentIds,
-                FilterByDate = true
+                FilterByDate = true,
+                FilterBySegments = true
             };
 
             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);

@@ -99,7 +99,7 @@ namespace ApiObjects.Segmentation
 
             return result;
         }
-        
+
         protected override bool DoUpdate()
         {
             bool result = false;

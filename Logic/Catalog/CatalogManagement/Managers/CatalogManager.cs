@@ -799,7 +799,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (update)
                 {
-                    CatalogLogic.UpdateIndex(new List<long>() { childAsset.Id }, groupId, eAction.Update);
+                    AssetManager.UpdateAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, childAsset, userId, false, false);                    
                 }
             }
         }

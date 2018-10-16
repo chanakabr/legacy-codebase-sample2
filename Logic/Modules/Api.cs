@@ -2134,17 +2134,25 @@ namespace Core.Api
 
             try
             {
-                userSegment.GroupId = groupId;
-                bool insertResult = userSegment.Insert();
+                var userDataResponse = Core.Users.Module.GetUserData(groupId, userSegment.UserId, string.Empty);
 
-                if (!insertResult)
+                if (userDataResponse == null || userDataResponse.m_user == null || userDataResponse.m_RespStatus != ResponseStatus.OK)
                 {
-                    response.SetStatus(eResponseStatus.Error, "Failed inserting user segment.");
+                    response.SetStatus((int)eResponseStatus.InvalidUser, "Invalid user");
                 }
                 else
                 {
-                    response.Object = userSegment;
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    userSegment.GroupId = groupId;
+
+                    if (!userSegment.Insert())
+                    {
+                        response.SetStatus(eResponseStatus.Error, "Failed inserting user segment.");
+                    }
+                    else
+                    {
+                        response.Object = userSegment;
+                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
             }
             catch (Exception ex)
@@ -2156,7 +2164,7 @@ namespace Core.Api
             return response;
         }
 
-        public static Status DeleteUserSegment(int groupId, string userId, long segmentId)
+        public static Status DeleteUserSegment(int groupId, string userId, long segmentationTypeId, long? segmentId)
         {
             Status result = null;
             bool deleteResult = false;
@@ -2166,6 +2174,7 @@ namespace Core.Api
                 {
                     GroupId = groupId,
                     UserId = userId,
+                    SegmentationTypeId = segmentationTypeId,
                     SegmentId = segmentId
                 };
 

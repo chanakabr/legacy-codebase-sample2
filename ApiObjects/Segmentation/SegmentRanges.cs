@@ -76,7 +76,11 @@ namespace ApiObjects.Segmentation
 
             return result;
         }
-        
+
+        internal override bool HasSegmentId(long segmentId)
+        {
+            return this.Ranges != null && this.Ranges.Exists(range => range.Id == segmentId);
+        }
     }
 
     public class SegmentRange
