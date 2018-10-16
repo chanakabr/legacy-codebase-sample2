@@ -224,20 +224,20 @@ namespace ElasticSearchHandler
                 try
                 {
                     HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                    HashSet<long> epgAssetStructMetaIds = new HashSet<long>();
-                    if (catalogGroupCache.AssetStructsMapById.Values.Any(x => x.IsProgramAssetStruct))
+                    tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key).ToList();
+                    foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)).Select(x => x.Value))
                     {
-                        epgAssetStructMetaIds = new HashSet<long>(catalogGroupCache.AssetStructsMapById.Values.Where(x => x.IsProgramAssetStruct).First().MetaIds);
-                    }
-                                                    
-                    tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)
-                                                                            && (!isEpg || epgAssetStructMetaIds.Contains(x.Value.Id))).Select(x => x.Key).ToList();
-                    foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)
-                                && (!isEpg || epgAssetStructMetaIds.Contains(x.Value.Id))).Select(x => x.Value))
-                    {
-                        string nullValue;
+                        string nullValue = string.Empty;
                         eESFieldType metaType;
-                        serializer.GetMetaType(topic.Type, out metaType, out nullValue);
+
+                        if (isEpg)
+                        {
+                            metaType = eESFieldType.STRING;
+                        }
+                        else
+                        {
+                            serializer.GetMetaType(topic.Type, out metaType, out nullValue);
+                        }
 
                         if (!metas.ContainsKey(topic.SystemName))
                         {
@@ -245,7 +245,7 @@ namespace ElasticSearchHandler
                         }
                         else
                         {
-                            log.WarnFormat("Duplicate topic found for group {0} name {1}", groupId, topic.SystemName);
+                            log.ErrorFormat("Duplicate topic found for group {0} name {1}", groupId, topic.SystemName);
                         }
                     }
                 }
@@ -309,13 +309,16 @@ namespace ElasticSearchHandler
                         {
                             foreach (KeyValuePair<string, string> meta in metaMap)
                             {
-                                string nullValue;
+                                string nullValue = string.Empty;
                                 eESFieldType metaType;
-                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
 
                                 if (isEpg)
                                 {
                                     metaType = eESFieldType.STRING;
+                                }
+                                else
+                                {
+                                    serializer.GetMetaType(meta.Key, out metaType, out nullValue);
                                 }
 
                                 if (!metas.ContainsKey(meta.Value))
@@ -334,17 +337,20 @@ namespace ElasticSearchHandler
                     {
                         foreach (string epgMeta in group.m_oEpgGroupSettings.m_lMetasName)
                         {
-                            string nullValue;
+                            string nullValue = string.Empty;
                             eESFieldType metaType;
-                            serializer.GetMetaType(epgMeta, out metaType, out nullValue);
 
                             if (isEpg)
                             {
                                 metaType = eESFieldType.STRING;
                             }
+                            else
+                            {
+                                serializer.GetMetaType(epgMeta, out metaType, out nullValue);
+                            }
 
                             if (!metas.ContainsKey(epgMeta))
-                            {
+                            {                                
                                 metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
                             }
                             else
