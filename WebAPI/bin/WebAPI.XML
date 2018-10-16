@@ -1096,13 +1096,13 @@
         </member>
         <member name="M:WebAPI.Controllers.UserSegment.List(WebAPI.Models.Segmentation.KalturaUserSegmentFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
-            Retrieve all the segments that apply for this user
+            Retrieve all the segments that apply for given user
             </summary>
             <remarks>Possible status codes: 
             User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
             <param name="filter">Filter</param>
             <param name="pager">Pager</param>
-            <returns>...</returns>
+            <returns>All the segments that apply for user in filter</returns>
         </member>
         <member name="M:WebAPI.Controllers.UserSegment.Add(WebAPI.Models.Segmentation.KalturaUserSegment)">
             <summary>

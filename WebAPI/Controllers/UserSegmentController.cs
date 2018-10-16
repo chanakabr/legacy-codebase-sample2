@@ -21,13 +21,13 @@ namespace WebAPI.Controllers
     public class UserSegment : IKalturaController
     {
         /// <summary>
-        /// Retrieve all the segments that apply for this user
+        /// Retrieve all the segments that apply for given user
         /// </summary>
         /// <remarks>Possible status codes: 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
         /// <param name="filter">Filter</param>
         /// <param name="pager">Pager</param>
-        /// <returns>...</returns>
+        /// <returns>All the segments that apply for user in filter</returns>
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -35,6 +35,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.DomainNotExists)]
+
         static public KalturaUserSegmentListResponse List(KalturaUserSegmentFilter filter, KalturaFilterPager pager = null)
         {
             KalturaUserSegmentListResponse response = null;
@@ -44,7 +45,7 @@ namespace WebAPI.Controllers
             if (pager == null)
                 pager = new KalturaFilterPager();
 
-            string userId = KS.GetFromRequest().UserId;
+            string userId = string.Empty;
 
             if (!string.IsNullOrEmpty(filter.UserIdEqual))
             {
