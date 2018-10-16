@@ -854,12 +854,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaSegmentsCondition, SegmentsCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not))
                 .ForMember(dest => dest.SegmentIds, opt => opt.MapFrom(src => src.getSegmentsIds()));
 
             cfg.CreateMap<SegmentsCondition, KalturaSegmentsCondition>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not))
                 .ForMember(dest => dest.SegmentsIds, opt => opt.MapFrom(src => src.SegmentIds != null ? string.Join(",", src.SegmentIds.ToArray()) : null));
 
             cfg.CreateMap<KalturaDateCondition, DateCondition>()

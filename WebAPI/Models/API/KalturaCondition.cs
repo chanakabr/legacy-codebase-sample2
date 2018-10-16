@@ -280,7 +280,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Segments condition
     /// </summary>
-    public partial class KalturaSegmentsCondition : KalturaNotCondition
+    public partial class KalturaSegmentsCondition : KalturaCondition
     {
         /// <summary>
         /// Comma separated segments IDs list 
