@@ -193,7 +193,7 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class SegmentsCondition : NotRuleCondition
+    public class SegmentsCondition : RuleCondition
     {
         [JsonProperty("SegmentIds")]
         public List<long> SegmentIds { get; set; }
