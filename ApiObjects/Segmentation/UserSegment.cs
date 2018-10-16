@@ -105,7 +105,7 @@ namespace ApiObjects.Segmentation
                 userSegments.Segments.Add(this);
             }
 
-            long newId = couchbaseManager.GetSequenceValue(GetUserSegmentsSequenceDocument());
+            long newId = (long)couchbaseManager.Increment(GetUserSegmentsSequenceDocument(), 1);
 
             if (newId == 0)
             {
