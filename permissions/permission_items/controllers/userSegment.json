@@ -22,9 +22,7 @@
     },
 	{
       "permissions": [
-        "Operator",
-		"User",
-		"Master"
+        "Operator"
       ],
       "excluded_permissions": [],
       "name": "UserSegment_List",
