@@ -20456,7 +20456,7 @@ namespace WebAPI.Models.Segmentation
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 1,
+            RequiresPermission = 0,
             MaxLength = -1,
             MinLength = 1,
         };
