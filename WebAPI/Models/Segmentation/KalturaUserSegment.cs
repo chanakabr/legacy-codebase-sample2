@@ -75,7 +75,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "userIdEqual", IsRequired = true)]
         [JsonProperty(PropertyName = "userIdEqual")]
         [XmlElement(ElementName = "userIdEqual")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.READ, MinLength = 1)]
+        [SchemeProperty(MinLength = 1)]
         public string UserIdEqual { get; set; }
 
         public override KalturaUserSegmentOrder GetDefaultOrderByValue()

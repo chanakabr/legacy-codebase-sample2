@@ -51,6 +51,10 @@ namespace WebAPI.Controllers
             {
                 userId = filter.UserIdEqual;
             }
+            else
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "filter..userIdEqual");
+            }
 
             try
             {
