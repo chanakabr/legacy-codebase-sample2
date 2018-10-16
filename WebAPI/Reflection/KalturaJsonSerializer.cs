@@ -20558,7 +20558,10 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("segmentationTypeId", "\"segmentationTypeId\": " + SegmentationTypeId);
-            ret.Add("segmentId", "\"segmentId\": " + SegmentId);
+            if(SegmentId.HasValue)
+            {
+                ret.Add("segmentId", "\"segmentId\": " + SegmentId);
+            }
             if(UserId != null)
             {
                 ret.Add("userId", "\"userId\": " + "\"" + EscapeJson(UserId) + "\"");
@@ -20572,7 +20575,10 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("segmentationTypeId", "<segmentationTypeId>" + SegmentationTypeId + "</segmentationTypeId>");
-            ret.Add("segmentId", "<segmentId>" + SegmentId + "</segmentId>");
+            if(SegmentId.HasValue)
+            {
+                ret.Add("segmentId", "<segmentId>" + SegmentId + "</segmentId>");
+            }
             if(UserId != null)
             {
                 ret.Add("userId", "<userId>" + EscapeXml(UserId) + "</userId>");

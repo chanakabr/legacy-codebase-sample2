@@ -1226,6 +1226,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.DateTime.ToString();
                     metaToAdd.m_sValue = SerializationUtils.ConvertFromUnixTimestamp(metaValue.value).ToString();
                 }
+                else if (metaType == typeof(KalturaIntegerValue))
+                {
+                    throw new ClientException((int)StatusCode.Error, "Only KalturaDoubleValue type allowed for numbers type");
+                }
 
                 metas.Add(metaToAdd);
             }

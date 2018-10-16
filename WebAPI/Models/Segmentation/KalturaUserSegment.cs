@@ -24,7 +24,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "segmentId")]
         [XmlElement(ElementName = "segmentId")]
         [SchemeProperty()]
-        public long SegmentId { get; set; }
+        public long? SegmentId { get; set; }
 
         /// <summary>
         /// Segmentation type Id
