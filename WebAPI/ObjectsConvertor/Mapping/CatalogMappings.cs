@@ -1228,7 +1228,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else if (metaType == typeof(KalturaIntegerValue))
                 {
-                    // throw exception // insert meta should not have integer values only long 
                     throw new ClientException((int)StatusCode.Error, "Only KalturaDoubleValue type allowed for numbers type");
                 }
 
