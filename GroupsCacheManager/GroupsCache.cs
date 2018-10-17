@@ -372,7 +372,7 @@ namespace GroupsCacheManager
             }
         }
 
-        internal Channel GetChannel(int channelId, Group group)
+        internal Channel GetChannel(int channelId, Group group, bool isAlsoInActive = false)
         {
             Channel resultChannel = null;
 
@@ -382,7 +382,7 @@ namespace GroupsCacheManager
 
                 if (!this.channelsCache.GetJsonAsT<Channel>(cacheKey, out resultChannel))
                 {
-                    Channel temporaryCahnnel = ChannelRepository.GetChannel(channelId, group);
+                    Channel temporaryCahnnel = ChannelRepository.GetChannel(channelId, group, isAlsoInActive);
 
                     bool wasInserted = false;
 

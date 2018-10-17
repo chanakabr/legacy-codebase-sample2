@@ -309,7 +309,7 @@ namespace GroupsCacheManager
         }
 
 
-        public List<Channel> GetChannels(List<int> channelIds, int groupId)
+        public List<Channel> GetChannels(List<int> channelIds, int groupId, bool isAlsoInActive = false)
         {
             List<Channel> channelsResults = new List<Channel>();
 
@@ -319,7 +319,7 @@ namespace GroupsCacheManager
 
                 foreach (int id in channelIds)
                 {
-                    Channel currentChannel = cache.GetChannel(id, group);
+                    Channel currentChannel = cache.GetChannel(id, group, isAlsoInActive);
                     channelsResults.Add(currentChannel);
                 }
             }

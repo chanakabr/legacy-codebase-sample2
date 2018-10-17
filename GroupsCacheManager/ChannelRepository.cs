@@ -275,14 +275,14 @@ namespace GroupsCacheManager
         /// <param name="nChannelId"></param>
         /// <param name="group"></param>
         /// <returns></returns>
-        public static Channel GetChannel(int nChannelId, Group group)
+        public static Channel GetChannel(int nChannelId, Group group, bool isAlsoInActive = false)
         {
             System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace();
 
             log.DebugFormat("GetChannel Started for nChannelId={0}, from ST={1}", nChannelId, st.ToString());
 
             Channel channel = null;
-            DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(new List<int>() { nChannelId });
+            DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(new List<int>() { nChannelId }, isAlsoInActive);
 
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
             {
@@ -299,7 +299,7 @@ namespace GroupsCacheManager
                 {
                     DataRow rowData = channelData.Rows[0];
 
-                    channel = CreateChannelByDataRow(group, mediaTypesTable, rowData);
+                    channel = CreateChannelByDataRow(group, mediaTypesTable, rowData, isAlsoInActive);
                 }
             }
 
@@ -344,7 +344,7 @@ namespace GroupsCacheManager
             #endregion
         }
 
-        private static Channel CreateChannelByDataRow(Group group, DataTable mediaTypesTable, DataRow rowData)
+        private static Channel CreateChannelByDataRow(Group group, DataTable mediaTypesTable, DataRow rowData, bool isForMigration = false)
         {
             log.Debug("new channel");
 
@@ -365,7 +365,7 @@ namespace GroupsCacheManager
 
             // If the channel belongs to the correct group and the channel is in correct status
             if ((group.m_nSubGroup.Contains(channelGroupId) || group.m_nParentGroupID == channelGroupId) &&
-                (isActive == 1) && (status == 1))
+                (isActive == 1 || isForMigration) && (status == 1))
             {
                 channel.m_nIsActive = isActive;
                 channel.m_nStatus = status;

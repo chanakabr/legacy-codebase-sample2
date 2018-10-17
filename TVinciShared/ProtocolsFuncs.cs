@@ -981,11 +981,15 @@ namespace TVinciShared
             return sRet;
         }
 
-        static public string GetFinalEndDateField(bool bUseFinalEndDate)
+        static public string GetFinalEndDateField(bool bUseFinalEndDate, bool managementData = false)
         {
             if (bUseFinalEndDate)
                 return "FINAL_END_DATE";
-            return "END_DATE";
+            // in order to get all medias regardless of the end_date on the migration process
+            else if (managementData)
+                return string.Empty;
+            else
+                return "END_DATE";
 
         }
 
