@@ -1808,10 +1808,13 @@ namespace Core.Catalog.CatalogManagement
                         Tags tag = asset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
                         Tags parentTag = parentAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
 
-                        if (tag != null && !tag.Equals(parentTag))
+                        if (tag != null)
                         {
-                            asset.InheritancePolicy = AssetInheritancePolicy.Disable;
-                            return;
+                            if (!tag.Equals(parentTag))
+                            {
+                                asset.InheritancePolicy = AssetInheritancePolicy.Disable;
+                                return;
+                            }
                         }
                         else
                         {
@@ -1823,10 +1826,13 @@ namespace Core.Catalog.CatalogManagement
                         Metas meta = asset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
                         Metas parentMeta = parentAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
 
-                        if (meta != null && !meta.Equals(parentMeta))
+                        if (meta != null)
                         {
-                            asset.InheritancePolicy = AssetInheritancePolicy.Disable;
-                            return;
+                            if (!meta.Equals(parentMeta))
+                            {
+                                asset.InheritancePolicy = AssetInheritancePolicy.Disable;
+                                return;
+                            }
                         }
                         else
                         {
