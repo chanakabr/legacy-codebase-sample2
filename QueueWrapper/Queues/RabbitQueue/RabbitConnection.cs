@@ -24,10 +24,8 @@ namespace QueueWrapper
         private const int DEFAULT_FAIL_COUNTER_LIMIT = 3;
 
         #region Data Members
-
-        private IConnectionFactory connectionFactory;
+        
         private ConcurrentDictionary<string, IConnection> connectionDictionary;
-        private ConcurrentDictionary<IConnection, IModel> modelDictionary = new ConcurrentDictionary<IConnection, IModel>();
         private ReaderWriterLockSlim m_lock;
         private int failCounterLimit = DEFAULT_FAIL_COUNTER_LIMIT;
 
@@ -38,7 +36,6 @@ namespace QueueWrapper
         private RabbitConnection()
         {
             connectionDictionary = new ConcurrentDictionary<string, IConnection>();
-            modelDictionary = new ConcurrentDictionary<IConnection, IModel>();
         }
 
         public static RabbitConnection Instance
@@ -71,7 +68,8 @@ namespace QueueWrapper
                         else
                         {
                             int appSettingsFailCountLimit;
-                            bool isParseSucceeded = int.TryParse(System.Configuration.ConfigurationManager.AppSettings["queue_fail_limit"], out appSettingsFailCountLimit);
+                            bool isParseSucceeded = int.TryParse(System.Configuration.ConfigurationManager.AppSettings["queue_fail_limit"], 
+                                out appSettingsFailCountLimit);
 
                             if (isParseSucceeded)
                             {
@@ -105,7 +103,7 @@ namespace QueueWrapper
             {
                 try
                 {
-                    var model = this.GetModel(connection);
+                    var model = this.GetModel(configuration.Host, connection);
 
                     if (model != null)
                     {
@@ -151,9 +149,11 @@ namespace QueueWrapper
 
                 if (connection != null && instanecExists)
                 {
+                    IModel model = null;
+
                     try
                     {
-                        IModel model = GetModel(connection);
+                        model = this.GetModel(configuration.Host, connection);
 
                         if (model == null)
                         {
@@ -195,17 +195,46 @@ namespace QueueWrapper
                     }
                     catch (OperationInterruptedException ex)
                     {
-                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}", message, ex, retryCount);
+                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}, fail counter = {2}",
+                            message, ex, retryCount);
+
+                        ClearConnection(configuration.Host);
+                        retryCount++;
+                    }
+                    catch (RabbitMQ.Client.Exceptions.BrokerUnreachableException ex)
+                    {
+                        log.ErrorFormat("BrokerUnreachableException - Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}",
+                            message, ex, retryCount);
+
+                        ClearConnection(configuration.Host);
+                        retryCount++;
+
+                        Thread.Sleep(1000);
+                    }
+                    catch (RabbitMQClientException ex)
+                    {
+                        log.ErrorFormat("RabbitMQClientException - " +
+                            "Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}",
+                            message, ex, retryCount);
 
                         ClearConnection(configuration.Host);
                         retryCount++;
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", message, ex, retryCount);
+                        log.ErrorFormat("Failed publishing message to rabbit on publish. Message = {0}, EX = {1}, fail counter = {2}", message,
+                            ex, retryCount);
 
                         ClearConnection(configuration.Host);
                         retryCount++;
+                    }
+                    finally
+                    {
+                        if (model != null && model.IsOpen)
+                        {
+                            model.Close();
+                            model.Dispose();
+                        }
                     }
                 }
                 else
@@ -225,46 +254,30 @@ namespace QueueWrapper
             return isPublishSucceeded;
         }
 
-        private IModel GetModel(IConnection connection)
+        private IModel GetModel(string host, IConnection connection)
         {
             IModel model = null;
 
-            try
+            if (connection != null)
             {
-                if (!modelDictionary.ContainsKey(connection))
+                try
                 {
                     model = connection.CreateModel();
-                    modelDictionary[connection] = model;
                 }
-                else
+                catch (OperationInterruptedException ex)
                 {
-                    model = modelDictionary[connection];
-
-                    if (model == null || !model.IsOpen)
-                    {
-                        // recreate model if needed
-                        if (model != null)
-                        {
-                            model.Dispose();
-                            model = null;
-                        }
-
-                        model = connection.CreateModel();
-                        modelDictionary[connection] = model;
-                    }
+                    ClearConnection(host);
+                    log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). OperationInterruptedException ex = {0}", ex);
                 }
-            }
-            catch (OperationInterruptedException ex)
-            {
-                IModel removedModel;
-                modelDictionary.TryRemove(connection, out removedModel);
-                log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). ex = {0}", ex);
-            }
-            catch (Exception ex)
-            {
-                IModel removedModel;
-                modelDictionary.TryRemove(connection, out removedModel);
-                log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). ex = {0}", ex);
+                catch (RabbitMQClientException ex)
+                {
+                    ClearConnection(host);
+                    log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). ex type = {1}, ex = {0}", ex, ex.GetType());
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Failed publishing message to rabbit on CreateModel(). ex type = {1}, ex = {0}", ex, ex.GetType());
+                }
             }
 
             return model;
@@ -288,18 +301,12 @@ namespace QueueWrapper
 
                         if (connection != null)
                         {
-                            if (modelDictionary.ContainsKey(connection))
-                            {
-
-                            }
-
                             if (connection.IsOpen)
                             {
                                 connection.Close();
                             }
 
                             connection.Dispose();
-
                         }
                     }
                     catch (Exception ex)
@@ -368,7 +375,7 @@ namespace QueueWrapper
             {
                 try
                 {
-                    var model = this.GetModel(connection);
+                    var model = this.GetModel(configuration.Host, connection);
 
                     if (model != null)
                     {
@@ -397,7 +404,7 @@ namespace QueueWrapper
             return sMessage;
         }
 
-        public bool IsQueueExist(RabbitConfigurationData configData)
+        public bool IsQueueExist(RabbitConfigurationData configuration)
         {
             IModel model = null;
 
@@ -405,10 +412,10 @@ namespace QueueWrapper
             {
                 IConnection connection;
                 int retryCount = 0;
-                if (this.GetInstance(configData, QueueAction.Ack, ref retryCount, out connection) && connection != null)
+                if (this.GetInstance(configuration, QueueAction.Ack, ref retryCount, out connection) && connection != null)
                 {
-                    model = this.GetModel(connection);
-                    var res = model.QueueDeclarePassive(configData.QueueName);
+                    model = this.GetModel(configuration.Host, connection);
+                    var res = model.QueueDeclarePassive(configuration.QueueName);
 
                     return res != null;
                 }
@@ -418,9 +425,9 @@ namespace QueueWrapper
             catch { return false; }
         }
 
-        public bool AddQueue(RabbitConfigurationData configData, long expirationMiliSec = 0)
+        public bool AddQueue(RabbitConfigurationData configuration, long expirationMiliSec = 0)
         {
-            if (IsQueueExist(configData))
+            if (IsQueueExist(configuration))
             {
                 log.Error("AddQueue: Error, queue already exists!");
                 return false;
@@ -432,7 +439,7 @@ namespace QueueWrapper
             {
                 IConnection connection;
                 int retryCount = 0;
-                if (this.GetInstance(configData, QueueAction.Ack, ref retryCount, out connection) && connection != null)
+                if (this.GetInstance(configuration, QueueAction.Ack, ref retryCount, out connection) && connection != null)
                 {
                     Dictionary<string, object> args = null;
                     if (expirationMiliSec > 0)
@@ -441,12 +448,12 @@ namespace QueueWrapper
                         args.Add("x-expires", expirationMiliSec);
                     }
 
-                    model = this.GetModel(connection);
+                    model = this.GetModel(configuration.Host, connection);
 
-                    QueueDeclareOk res = model.QueueDeclare(configData.QueueName, true, false, false,args);
-                    model.QueueBind(configData.QueueName, "scheduled_tasks", configData.RoutingKey);
+                    QueueDeclareOk res = model.QueueDeclare(configuration.QueueName, true, false, false,args);
+                    model.QueueBind(configuration.QueueName, "scheduled_tasks", configuration.RoutingKey);
                     
-                    return res != null && res.QueueName == configData.QueueName;
+                    return res != null && res.QueueName == configuration.QueueName;
                 }
 
                 return false;
@@ -458,9 +465,9 @@ namespace QueueWrapper
             }
         }
 
-        public bool DeleteQueue(RabbitConfigurationData configData)
+        public bool DeleteQueue(RabbitConfigurationData configuration)
         {
-            if (!IsQueueExist(configData))
+            if (!IsQueueExist(configuration))
             {
                 log.Error("DeleteQueue: Error, queue doesn't exist!");
                 return false;
@@ -471,10 +478,10 @@ namespace QueueWrapper
             {
                 IConnection connection;
                 int retryCount = 0;
-                if (this.GetInstance(configData, QueueAction.Ack, ref retryCount, out connection) && connection != null)
+                if (this.GetInstance(configuration, QueueAction.Ack, ref retryCount, out connection) && connection != null)
                 {
-                    model = this.GetModel(connection);
-                    model.QueueDelete(configData.QueueName);
+                    model = this.GetModel(configuration.Host, connection);
+                    model.QueueDelete(configuration.QueueName);
                     return true;
                 }
 
@@ -531,7 +538,6 @@ namespace QueueWrapper
                             connection = factory.CreateConnection();
 
                             connectionDictionary[configuration.Host] = connection;
-                            modelDictionary[connection] = connection.CreateModel();
                             getInstanceSucceeded = true;
                         }
                     }

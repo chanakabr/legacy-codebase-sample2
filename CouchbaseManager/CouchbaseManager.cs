@@ -1586,46 +1586,7 @@ namespace CouchbaseManager
 
             return result;
         }
-
-        public long GetSequenceValue(string documentKey)
-        {
-            long result = 0;
-            bool setResult = false;
-            ulong versionMaximumId;
-
-            try
-            {
-                long maximumId = GetWithVersion<long>(documentKey, out versionMaximumId);
-                long newId = maximumId + 1;
-
-                for (int retryCount = 0; (retryCount < 3) && !setResult; retryCount++)
-                {
-                    setResult = SetWithVersion<long>(documentKey, newId, versionMaximumId, out versionMaximumId);
-
-                    if (!setResult)
-                    {
-                        maximumId = GetWithVersion<long>(documentKey, out versionMaximumId);
-                        newId = maximumId + 1;
-                    }
-                }
-
-                result = newId;
-
-                if (!setResult)
-                {
-                    log.ErrorFormat("Error getting sequence value for key {0}", documentKey);
-                    result = 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error getting sequence value for key {0}, error = {1}", documentKey, ex);
-                result = 0;
-            }
-
-            return result;
-        }
-
+        
         #region View Methods
         
         /// <summary>
@@ -1875,8 +1836,7 @@ namespace CouchbaseManager
 
             return result;
         }
-
-
+        
         #endregion
 
 

@@ -474,6 +474,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("all_ppvs_groupId_{0}", groupId);
         }
 
+        public static string GetAllBusinessModuleRuleIdsKey(int groupId)
+        {
+            return string.Format("all_business_module_rules_ids_groupId_{0}", groupId);
+        }
+
+        public static string GetBusinessModuleRuleKey(long id)
+        {
+            return string.Format("business_module_rule_id_{0}", id);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -831,6 +841,16 @@ namespace CachingProvider.LayeredCache
         public static string GetAllPpvsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_all_ppv_groupId_{0}", groupId);
+        }
+
+        public static string GetAllBusinessModuleRulesGroupInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_all_business_module_rules_groupId_{0}", groupId);
+        }
+
+        public static string GetBusinessModuleRuleInvalidationKey(long ruleId)
+        {
+            return string.Format("invalidationKey_business_module_rule_{0}", ruleId);
         }
 
         #endregion

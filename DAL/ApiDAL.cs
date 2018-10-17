@@ -128,7 +128,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
+        
         public static DataTable Get_LuceneUrl(int nGroupID)
         {
             ODBCWrapper.StoredProcedure spLuceneUr = new ODBCWrapper.StoredProcedure("Get_LuceneUrl");
@@ -5154,6 +5154,119 @@ namespace DAL
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
+        }
+
+        #endregion
+
+        #region Business Module Rules
+
+        private static string GetBusinessModuleRuleKey(long businessModuleRuleId)
+        {
+            return string.Format("business_module_rule:{0}", businessModuleRuleId);
+        }
+
+        public static BusinessModuleRule GetBusinessModuleRuleCB(long businessModuleRuleId)
+        {
+            string key = GetBusinessModuleRuleKey(businessModuleRuleId);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            return UtilsDal.GetObjectFromCB<BusinessModuleRule>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SaveBusinessModuleRuleCB(int groupId, BusinessModuleRule businessModuleRule)
+        {
+            if (businessModuleRule != null && businessModuleRule.Id > 0)
+            {
+                string key = GetBusinessModuleRuleKey(businessModuleRule.Id);
+                return UtilsDal.SaveObjectInCB<BusinessModuleRule>(eCouchbaseBucket.OTT_APPS, key, businessModuleRule);
+            }
+
+            return false;
+        }
+
+        public static bool DeleteBusinessModuleRuleCB(int groupId, long businessModuleRuleId)
+        {
+            string key = GetBusinessModuleRuleKey(businessModuleRuleId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static List<BusinessModuleRule> GetBusinessModuleRulesCB(IEnumerable<long> businessModuleRuleIds)
+        {
+            List<string> businessModuleRuleKeys = new List<string>();
+            foreach (var businessModuleRuleId in businessModuleRuleIds)
+            {
+                businessModuleRuleKeys.Add(GetBusinessModuleRuleKey(businessModuleRuleId));
+            }
+
+            return UtilsDal.GetObjectListFromCB<BusinessModuleRule>(eCouchbaseBucket.OTT_APPS, businessModuleRuleKeys);
+        }
+
+        public static bool UpdateBusinessModuleRule(int groupId, long businessModuleRuleId, string name, string description)
+        {
+            bool result = false;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("UpdateBusinessModuleRule");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", businessModuleRuleId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@description", description);
+
+                result = sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateBusinessModuleRule in DB, groupId: {0}, businessModuleRuleId: {1}, ex:{2} ", groupId, businessModuleRuleId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool DeleteBusinessModuleRule(int groupId, long id)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("DeleteBusinessModuleRule");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", id);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteBusinessModuleRule in DB, groupId: {0}, id: {1} , ex:{1} ", groupId, id, ex);
+            }
+
+            return false;
+        }
+
+        public static DataTable AddBusinessModuleRule(int groupId, string name, string description)
+        {
+            DataTable dt = null;
+
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("InsertBusinessModuleRule");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@description", description);
+
+                dt = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddBusinessModuleRule in DB, groupId: {0}, name: {1}, description: {2} , ex:{3} ", groupId, name, description, ex);
+            }
+
+            return dt;
+        }
+
+        public static DataTable GetBusinessModuleRulesDB(int groupId)
+        {
+            StoredProcedure sp = new StoredProcedure("GetBusinessModuleRules");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            DataTable dt = sp.Execute();
+
+            return dt;
         }
 
         #endregion

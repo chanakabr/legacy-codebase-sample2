@@ -87,6 +87,8 @@ namespace CachingProvider.LayeredCache
         public const string GROUP_FEATURES_LAYERED_CACHE_CONFIG_NAME = "GetGroupFeatureStatus";
         public const string GET_DOMAIN_BUNDLES_LAYERED_CACHE_CONFIG_NAME = "GetDomainBundles";
         public const string GET_ALL_PPVS = "GetAllPpvs";
+        public const string GET_BUSINESS_MODULE_RULE = "GetBusinessModuleRule";
+        public const string GET_ALL_BUSINESS_MODULE_RULE_IDS = "GetAllBusinessModuleRuleIds";
         #endregion
 
         #region Constant Invalidation Keys

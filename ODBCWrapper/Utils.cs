@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using CachingProvider;
 using ConfigurationManager;
+using System.Globalization;
 
 namespace ODBCWrapper
 {
@@ -1253,6 +1254,12 @@ namespace ODBCWrapper
         {
             DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             return origin.AddMilliseconds(timestamp);
+        }
+
+        public static long UnixTimeStampNow()
+        {
+            TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            return Convert.ToInt64(ts.TotalSeconds, CultureInfo.CurrentCulture);
         }
     }
 }
