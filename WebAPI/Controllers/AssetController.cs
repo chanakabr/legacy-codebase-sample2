@@ -1101,7 +1101,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Add a new asset
+        /// Add a new asset.
+        /// For metas of type bool-> use kalturaBoolValue, type number-> KalturaDoubleValue, type date -> KalturaLongValue, type string -> KalturaStringValue
         /// </summary>
         /// <param name="asset">Asset object</param>
         /// <returns></returns>
@@ -1203,7 +1204,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// update an existing asset
+        /// update an existing asset.
+        /// For metas of type bool-> use kalturaBoolValue, type number-> KalturaDoubleValue, type date -> KalturaLongValue, type string -> KalturaStringValue
         /// </summary>
         /// <param name="id">Asset Identifier</param>
         /// <param name="assetReferenceType">Type of asset</param>
