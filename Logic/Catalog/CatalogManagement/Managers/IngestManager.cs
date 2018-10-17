@@ -709,7 +709,7 @@ namespace Core.Catalog.CatalogManagement
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
+                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode, catalogGroupCache.TopicsMapBySystemName);
                     if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(metasValidationStatus.Message);
@@ -758,7 +758,7 @@ namespace Core.Catalog.CatalogManagement
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
+                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode, catalogGroupCache.TopicsMapBySystemName);
                     if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(metasValidationStatus.Message);
