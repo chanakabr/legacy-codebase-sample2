@@ -639,7 +639,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId)
+        public static GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId, bool isForMigration = false)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
 
@@ -657,87 +657,90 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                //isAllowedToViewInactiveAssets = true becuase only operator can update channel
-                Channel currentChannel = GetChannelById(groupId, channelId, true);
-                if (currentChannel == null || currentChannel.m_nChannelTypeID != channelToUpdate.m_nChannelTypeID)
-                {
-                    response.SetStatus(eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
-                    return response;
-                }
-
-                if (!string.IsNullOrEmpty(channelToUpdate.SystemName) && currentChannel.SystemName != channelToUpdate.SystemName
-                    && !CatalogDAL.ValidateChannelSystemName(groupId, channelToUpdate.SystemName))
-                {
-                    response.SetStatus(eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
-                    return response;
-                }
-
-                // Validate filter query by parsing it for KSQL channel only
-                if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && !string.IsNullOrEmpty(channelToUpdate.filterQuery))
-                {
-                    ApiObjects.SearchObjects.BooleanPhraseNode temporaryNode = null;
-                    var parseStatus = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(channelToUpdate.filterQuery, ref temporaryNode);
-
-                    if (parseStatus == null)
-                    {
-                        response.SetStatus(eResponseStatus.SyntaxError, "Failed parsing filter query");
-                        return response;
-                    }
-                    else if (parseStatus.Code != (int)eResponseStatus.OK)
-                    {
-                        response.SetStatus(parseStatus);
-                        return response;
-                    }
-
-                    channelToUpdate.filterTree = temporaryNode;
-                }
-
-                // Validate asset types
-                if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && channelToUpdate.m_nMediaType != null && channelToUpdate.m_nMediaType.Count > 0)
-                {
-                    Status validateAssetTypesResult = ValidateChannelMediaTypes(groupId, channelToUpdate);
-                    if (!validateAssetTypesResult.IsOkStatusCode())
-                    {
-                        response.Status.Set(validateAssetTypesResult.Code, validateAssetTypesResult.Message);
-                        return response;
-                    }
-                }
-
                 List<KeyValuePair<long, int>> mediaIdsToOrderNum = null;
-                // validate medias exist for manual channel only
-                if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual && channelToUpdate.m_lManualMedias != null)
+                if (!isForMigration)
                 {
-                    mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
-                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
-                    foreach (GroupsCacheManager.ManualMedia manualMedia in channelToUpdate.m_lManualMedias)
+                    //isAllowedToViewInactiveAssets = true because only operator can update channel
+                    Channel currentChannel = GetChannelById(groupId, channelId, true);
+                    if (currentChannel == null || currentChannel.m_nChannelTypeID != channelToUpdate.m_nChannelTypeID)
                     {
-                        long mediaId;
-                        if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
-                        {
-                            assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
-                            mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
-                        }
+                        response.SetStatus(eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
+                        return response;
                     }
 
-                    if (assets.Count > 0)
+                    if (!string.IsNullOrEmpty(channelToUpdate.SystemName) && currentChannel.SystemName != channelToUpdate.SystemName
+                        && !CatalogDAL.ValidateChannelSystemName(groupId, channelToUpdate.SystemName))
                     {
-                        // isAllowedToViewInactiveAssets = true becuase only operator can update channel
-                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
-                        if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToUpdate.m_lManualMedias.Count)
+                        response.SetStatus(eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
+                        return response;
+                    }
+
+                    // Validate filter query by parsing it for KSQL channel only
+                    if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && !string.IsNullOrEmpty(channelToUpdate.filterQuery))
+                    {
+                        ApiObjects.SearchObjects.BooleanPhraseNode temporaryNode = null;
+                        var parseStatus = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(channelToUpdate.filterQuery, ref temporaryNode);
+
+                        if (parseStatus == null)
                         {
-                            List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
-                            response.SetStatus(eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
-                                                eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
+                            response.SetStatus(eResponseStatus.SyntaxError, "Failed parsing filter query");
+                            return response;
+                        }
+                        else if (parseStatus.Code != (int)eResponseStatus.OK)
+                        {
+                            response.SetStatus(parseStatus);
+                            return response;
+                        }
+
+                        channelToUpdate.filterTree = temporaryNode;
+                    }
+
+                    // Validate asset types
+                    if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && channelToUpdate.m_nMediaType != null && channelToUpdate.m_nMediaType.Count > 0)
+                    {
+                        Status validateAssetTypesResult = ValidateChannelMediaTypes(groupId, channelToUpdate);
+                        if (!validateAssetTypesResult.IsOkStatusCode())
+                        {
+                            response.Status.Set(validateAssetTypesResult.Code, validateAssetTypesResult.Message);
                             return response;
                         }
                     }
-                }
+                    
+                    // validate medias exist for manual channel only
+                    if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual && channelToUpdate.m_lManualMedias != null)
+                    {
+                        mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
+                        List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+                        foreach (GroupsCacheManager.ManualMedia manualMedia in channelToUpdate.m_lManualMedias)
+                        {
+                            long mediaId;
+                            if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
+                            {
+                                assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
+                                mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
+                            }
+                        }
 
-                if (channelToUpdate.m_OrderObject != null && channelToUpdate.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToUpdate.m_OrderObject.m_sOrderValue)
-                    && !CatalogManager.CheckMetaExsits(groupId, channelToUpdate.m_OrderObject.m_sOrderValue))
-                {
-                    response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
-                    return response;
+                        if (assets.Count > 0)
+                        {
+                            // isAllowedToViewInactiveAssets = true becuase only operator can update channel
+                            List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
+                            if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToUpdate.m_lManualMedias.Count)
+                            {
+                                List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
+                                response.SetStatus(eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
+                                                    eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
+                                return response;
+                            }
+                        }
+                    }
+
+                    if (channelToUpdate.m_OrderObject != null && channelToUpdate.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToUpdate.m_OrderObject.m_sOrderValue)
+                        && !CatalogManager.CheckMetaExsits(groupId, channelToUpdate.m_OrderObject.m_sOrderValue))
+                    {
+                        response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
+                        return response;
+                    }
                 }
 
                 List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
@@ -772,6 +775,7 @@ namespace Core.Catalog.CatalogManagement
                     isSlidingWindow = channelToUpdate.m_OrderObject.m_bIsSlidingWindowField ? 1 : 0;
                     slidingWindowPeriod = channelToUpdate.m_OrderObject.lu_min_period_id;
                 }
+
                 DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
                                                         orderByDir, orderByValue, isSlidingWindow, slidingWindowPeriod, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
                                                         mediaIdsToOrderNum, userId);
@@ -791,21 +795,19 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Object != null && response.Object.m_nChannelID > 0)
                 {
-                    bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object);
-                    if (!updateResult)
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    if (!isForMigration)
                     {
-                        log.ErrorFormat("Failed update channel index with id: {0} after UpdateChannel", channelId);
-                    }
-                    else
-                    {
-                        // invalidate channel
-                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                        bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object);
+                        if (!updateResult)
+                        {
+                            log.ErrorFormat("Failed update channel index with id: {0} after UpdateChannel", channelId);
+                        }
+                        else if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
                         {
                             log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after UpdateChannel",
                                                 channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
-                        }
-
-                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }                                                    
                     }
                 }
                 else

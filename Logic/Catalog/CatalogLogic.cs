@@ -397,7 +397,7 @@ namespace Core.Catalog
                 if (group.isGeoAvailabilityWindowingEnabled && !managementData)
                     sEndDate = "GEO";
                 else
-                    sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
+                    sEndDate = ProtocolsFuncs.GetFinalEndDateField(true, managementData);
 
                 if (filter != null)
                 {
