@@ -182,7 +182,8 @@ namespace Core.Catalog.CatalogManagement
             }
 
             List<Image> groupDefaultImages = ImageManager.GetGroupDefaultImages(groupId);
-            images.AddRange(groupDefaultImages);
+            HashSet<long> assetImageTypes = new HashSet<long>(images.Select(x => x.ImageTypeId).ToList());
+            images.AddRange(groupDefaultImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
 
             // new tags or update dates
             if (ds.Tables.Count >= 6 && ds.Tables[5] != null && ds.Tables[5].Rows != null && ds.Tables[5].Rows.Count > 0)
