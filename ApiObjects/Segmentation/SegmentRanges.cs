@@ -24,7 +24,7 @@ namespace ApiObjects.Segmentation
 
             foreach (var segment in this.Ranges)
             {
-                segment.Id = couchbaseManager.GetSequenceValue(SegmentationType.GetSegmentSequenceDocument());
+                segment.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocument(), 1);
 
                 if (segment.Id == 0)
                 {
@@ -45,19 +45,16 @@ namespace ApiObjects.Segmentation
 
             SegmentRanges sourceCasted = source as SegmentRanges;
 
-            if (sourceCasted == null)
-            {
-                return false;
-            }
-
             Dictionary<string, SegmentRange> sourceValues = new Dictionary<string, SegmentRange>();
-            Dictionary<string, SegmentRange> destinationValues = new Dictionary<string, SegmentRange>();
 
-            foreach (var sourceValue in sourceCasted.Ranges)
+            if (sourceCasted != null)
             {
-                sourceValues[sourceValue.SystematicName] = sourceValue;
+                foreach (var sourceValue in sourceCasted.Ranges)
+                {
+                    sourceValues[sourceValue.SystematicName] = sourceValue;
+                }
             }
-
+            
             foreach (var destinationValue in this.Ranges)
             {
                 if (sourceValues.ContainsKey(destinationValue.SystematicName))
@@ -66,7 +63,7 @@ namespace ApiObjects.Segmentation
                 }
                 else
                 {
-                    destinationValue.Id = couchbaseManager.GetSequenceValue(SegmentationType.GetSegmentSequenceDocument());
+                    destinationValue.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocument(), 1);
                 }
 
                 if (destinationValue.Id == 0)
@@ -78,6 +75,11 @@ namespace ApiObjects.Segmentation
             result = true;
 
             return result;
+        }
+
+        internal override bool HasSegmentId(long segmentId)
+        {
+            return this.Ranges != null && this.Ranges.Exists(range => range.Id == segmentId);
         }
     }
 

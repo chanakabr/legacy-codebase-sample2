@@ -528,7 +528,7 @@ namespace Core.ConditionalAccess
 
                             if (thePrePaidModule != null)
                             {
-                                Price p = Utils.GetPrePaidFinalPrice(m_nGroupID, sPrePaidModuleCode, sSiteGUID, ref theReason, ref thePrePaidModule, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sCouponCode);
+                                Price p = Utils.GetPrePaidFinalPrice(m_nGroupID, sPrePaidModuleCode, ref theReason, ref thePrePaidModule, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
                                 if (theReason == PriceReason.ForPurchase && p.m_dPrice > 0 || bDummy == true)
                                 {
                                     if (bDummy || (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency))
@@ -5359,7 +5359,7 @@ namespace Core.ConditionalAccess
                     {
                         PriceReason theReason = PriceReason.UnKnown;
                         PrePaidModule thePrePaid = null;
-                        Price p = Utils.GetPrePaidFinalPrice(m_nGroupID, sPrePaidCode, sSiteGUID, ref theReason, ref thePrePaid, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "pricing_connection", sCouponCode);
+                        Price p = Utils.GetPrePaidFinalPrice(m_nGroupID, sPrePaidCode, ref theReason, ref thePrePaid, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
                         if (theReason == PriceReason.ForPurchase)
                         {
                             if (p != null && p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency)
@@ -6431,7 +6431,7 @@ namespace Core.ConditionalAccess
                         string sPrePaidCode = sPrePaids[i];
                         PriceReason theReason = PriceReason.UnKnown;
                         PrePaidModule prePaidMod = null;
-                        Price p = Utils.GetPrePaidFinalPrice(m_nGroupID, sPrePaidCode, sUserGUID, ref theReason, ref prePaidMod, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sCouponCode);
+                        Price p = Utils.GetPrePaidFinalPrice(m_nGroupID, sPrePaidCode, ref theReason, ref prePaidMod, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode);
                         PrePaidPricesContainer cont = new PrePaidPricesContainer();
                         cont.Initialize(sPrePaidCode, p, theReason);
                         ret[i] = cont;
@@ -6717,8 +6717,8 @@ namespace Core.ConditionalAccess
                                                                        ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, 
                                                                        ref sFirstDeviceNameFound, countryCode, languageCode, udid, ip, null, allUsersInDomain, nMediaFileTypeID, 
                                                                        ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, 
-                                                                       ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, domainEntitlements, 
-                                                                       mediaID, userSuspendStatus, false, false, blockEntitlement);
+                                                                       ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, currencyCode, 
+                                                                       domainEntitlements, mediaID, userSuspendStatus, false, false, blockEntitlement);
 
                                 sProductCode = mediaFilesProductCode[nMediaFileID];
 
@@ -6868,27 +6868,27 @@ namespace Core.ConditionalAccess
             return ret;
         }
         
-        /*
-         * 1. This method is a helper function for GetItemsPrices.
-         * 2. It is used to optimize DB access. In case the data is not needed in the function Utils.GetMediaFileFinalPrice it will not attempt
-         * 3. to access the DB.
-         */
-        private void GetAllUsersInDomainAndMediaFileTypes(MediaFilePPVContainer[] oModules, string sSiteGuid,
-            out Dictionary<int, int> mediaFileTypesMapping, out List<int> allUsersInDomain)
-        {
-            long lSiteGuid = 0;
-            if (!string.IsNullOrEmpty(sSiteGuid) && Int64.TryParse(sSiteGuid, out lSiteGuid) && lSiteGuid > 0 && IsExistPPVModule(oModules))
-            {
-                mediaFileTypesMapping = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
-                int domainID = 0;
-                allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sSiteGuid, m_nGroupID, ref domainID);
-            }
-            else
-            {
-                mediaFileTypesMapping = new Dictionary<int, int>(0);
-                allUsersInDomain = new List<int>(0);
-            }
-        }
+        ///*
+        // * 1. This method is a helper function for GetItemsPrices.
+        // * 2. It is used to optimize DB access. In case the data is not needed in the function Utils.GetMediaFileFinalPrice it will not attempt
+        // * 3. to access the DB.
+        // */
+        //private void GetAllUsersInDomainAndMediaFileTypes(MediaFilePPVContainer[] oModules, string sSiteGuid,
+        //    out Dictionary<int, int> mediaFileTypesMapping, out List<int> allUsersInDomain)
+        //{
+        //    long lSiteGuid = 0;
+        //    if (!string.IsNullOrEmpty(sSiteGuid) && Int64.TryParse(sSiteGuid, out lSiteGuid) && lSiteGuid > 0 && IsExistPPVModule(oModules))
+        //    {
+        //        mediaFileTypesMapping = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
+        //        int domainID = 0;
+        //        allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sSiteGuid, m_nGroupID, ref domainID);
+        //    }
+        //    else
+        //    {
+        //        mediaFileTypesMapping = new Dictionary<int, int>(0);
+        //        allUsersInDomain = new List<int>(0);
+        //    }
+        //}
 
         private bool IsExistPPVModule(MediaFilePPVContainer[] oModules)
         {

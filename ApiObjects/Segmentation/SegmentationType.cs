@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Segmentation
 {
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     public class SegmentationType : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -21,10 +22,10 @@ namespace ApiObjects.Segmentation
         [JsonProperty()]
         public string Description;
         
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)] 
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)] 
         public List<SegmentCondition> Conditions;
 
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)]
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
         public SegmentBaseValue Value;
 
         [JsonProperty()]
@@ -40,7 +41,7 @@ namespace ApiObjects.Segmentation
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-            long newId = couchbaseManager.GetSequenceValue(GetSegmentationTypeSequenceDocument());
+            long newId = (long)couchbaseManager.Increment(GetSegmentationTypeSequenceDocument(), 1);
 
             if (newId == 0)
             {
@@ -98,7 +99,6 @@ namespace ApiObjects.Segmentation
 
             return result;
         }
-
 
         protected override bool DoUpdate()
         {
@@ -181,9 +181,9 @@ namespace ApiObjects.Segmentation
 
         public override CoreObject CoreClone()
         {
-            throw new NotImplementedException();
+            return this.MemberwiseClone() as CoreObject;
         }
-
+        
         public static string GetSegmentationTypeDocumentKey(int groupId, long id)
         {
             return string.Format("segment_type_{0}_{1}", groupId, id);
@@ -242,20 +242,7 @@ namespace ApiObjects.Segmentation
             return result;
         }
     }
-
-    public class SegmentationTypesResponse
-    {
-        public List<SegmentationType> SegmentationTypes { get; set; }
-        public ApiObjects.Response.Status Status { get; set; }
-        public int TotalCount { get; set; }
-    }
-
-    public class SegmentationTypeResponse
-    {
-        public SegmentationType SegmentationType { get; set; }
-        public ApiObjects.Response.Status Status { get; set; }
-    }
-
+    
     public class GroupSegmentationTypes
     {
         [JsonProperty(PropertyName ="segmentationTypes")]
@@ -273,7 +260,6 @@ namespace ApiObjects.Segmentation
         social_action
     }
     
-
     public enum MonetizationType
     {
         ppv,

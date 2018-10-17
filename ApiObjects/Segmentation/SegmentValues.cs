@@ -41,7 +41,7 @@ namespace ApiObjects.Segmentation
 
             foreach (var segment in this.Values)
             {
-                segment.Id = couchbaseManager.GetSequenceValue(SegmentationType.GetSegmentSequenceDocument());
+                segment.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocument(), 1);
 
                 if (segment.Id == 0)
                 {
@@ -61,18 +61,14 @@ namespace ApiObjects.Segmentation
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
 
             SegmentValues sourceCasted = source as SegmentValues;
-
-            if (sourceCasted == null)
-            {
-                return false;
-            }
-
             Dictionary<string, SegmentValue> sourceValues = new Dictionary<string, SegmentValue>();
-            Dictionary<string, SegmentValue> destinationValues = new Dictionary<string, SegmentValue>();
 
-            foreach (var sourceValue in sourceCasted.Values)
+            if (sourceCasted != null)
             {
-                sourceValues[sourceValue.SystematicName] = sourceValue;
+                foreach (var sourceValue in sourceCasted.Values)
+                {
+                    sourceValues[sourceValue.SystematicName] = sourceValue;
+                }
             }
 
             foreach (var destinationValue in this.Values)
@@ -83,7 +79,7 @@ namespace ApiObjects.Segmentation
                 }
                 else
                 {
-                    destinationValue.Id = couchbaseManager.GetSequenceValue(SegmentationType.GetSegmentSequenceDocument());
+                    destinationValue.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocument(), 1);
                 }
 
                 if (destinationValue.Id == 0)
@@ -95,6 +91,11 @@ namespace ApiObjects.Segmentation
             result = true;
 
             return result;
+        }
+
+        internal override bool HasSegmentId(long segmentId)
+        {
+            return this.Values != null && this.Values.Exists(value => value.Id == segmentId);
         }
     }
 }

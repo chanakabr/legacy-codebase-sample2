@@ -203,7 +203,7 @@ namespace Core.Users
                     return DomainResponseStatus.OK;
                 }
 
-                var groupAssetRules = Api.Module.GetAssetRules(AssetRuleConditionType.Concurrency, groupId);
+                var groupAssetRules = Api.Module.GetAssetRules(RuleConditionType.Concurrency, groupId);
 
                 if (groupAssetRules == null || !groupAssetRules.HasObjects())
                     return DomainResponseStatus.OK;

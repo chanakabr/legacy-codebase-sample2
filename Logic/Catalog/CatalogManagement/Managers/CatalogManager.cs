@@ -187,7 +187,7 @@ namespace Core.Catalog.CatalogManagement
                 string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                 if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName))
                 {
-                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");                    
+                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
                     long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TYPE_ID");
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
                     DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
@@ -838,7 +838,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (update)
                 {
-                    CatalogLogic.UpdateIndex(new List<long>() { childAsset.Id }, groupId, eAction.Update);
+                    AssetManager.UpdateAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, childAsset, userId, false, false);                    
                 }
             }
         }
@@ -1072,7 +1072,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling HandleParentUpdate", groupId);
                 return true;
-            }            
+            }
 
             GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, assetId, eAssetTypes.MEDIA, true);
 
@@ -1088,6 +1088,7 @@ namespace Core.Catalog.CatalogManagement
                 log.ErrorFormat("failed to get Asset {0}. Not MediaAsset for groupId: {1} when calling HandleParentUpdate", assetId, groupId);
                 return true;
             }
+
             AssetStruct assetStruct = catalogGroupCache.AssetStructsMapById[mediaAsset.MediaType.m_nTypeID];
             if (assetStruct == null)
             {
@@ -1095,13 +1096,20 @@ namespace Core.Catalog.CatalogManagement
                 return true;
             }
 
-            Topic parentConectingTopic = catalogGroupCache.TopicsMapById[assetStruct.ConnectedParentMetaId.Value];
-            Topic childConectingTopic = catalogGroupCache.TopicsMapById[assetStruct.ConnectingMetaId.Value];
+            AssetStruct childAssetStruct = GetChildAssetStruct(catalogGroupCache, assetStruct.Id);
+            if (childAssetStruct == null)
+            {
+                log.ErrorFormat("failed to get childAssetStruct. ParentId: {0} for groupId: {1} when calling HandleParentUpdate", mediaAsset.MediaType.m_nTypeID, groupId);
+                return true;
+            }
+
+            Topic parentConectingTopic = catalogGroupCache.TopicsMapById[childAssetStruct.ConnectedParentMetaId.Value];
+            Topic childConectingTopic = catalogGroupCache.TopicsMapById[childAssetStruct.ConnectingMetaId.Value];
 
             string connectingMetaValue = GetConnectingMetaValue(parentConectingTopic, asset.Object);
             if (!string.IsNullOrEmpty(connectingMetaValue))
             {
-                string filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", assetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
+                string filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", childAssetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
                 HashSet<long> childAssetsIds = GetAssetsIdsWithPaging(groupId, filter);
                 if (childAssetsIds == null || childAssetsIds.Count == 0)
                 {
@@ -1138,6 +1146,20 @@ namespace Core.Catalog.CatalogManagement
 
 
             return true;
+        }
+
+        private static AssetStruct GetChildAssetStruct(CatalogGroupCache catalogGroupCache, long parentAssetStructId)
+        {
+            AssetStruct assetStruct = null;
+
+            List<AssetStruct> connectedAssetStructs = catalogGroupCache.AssetStructsMapById.Select(x => x.Value).Where(x => x.ParentId.HasValue && x.ParentId.Value == parentAssetStructId).ToList();
+            // Get connected AssetStructs (children)
+            if (connectedAssetStructs != null && connectedAssetStructs.Count > 0)
+            {
+                assetStruct = connectedAssetStructs[0];
+            }
+
+            return assetStruct;
         }
 
         internal static void RemoveInheritedValue(int groupId, CatalogGroupCache catalogGroupCache, MediaAsset asset, List<long> metaIds, List<long> tagIds)

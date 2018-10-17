@@ -2582,7 +2582,7 @@ namespace Core.Api
             }
             
             // check if assetRule exist
-            GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.GetAssetRules(AssetRuleConditionType.IP_RANGE, groupId);
+            GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.GetAssetRules(RuleConditionType.IP_RANGE, groupId);
             if (assetRulesResponse == null || !assetRulesResponse.HasObjects())
                 return assetRules;
 
@@ -10839,7 +10839,7 @@ namespace Core.Api
             return AssetRuleManager.DeleteAssetRule(groupId, assetRuleId);
         }
 
-        internal static GenericListResponse<AssetRule> GetAssetRules(AssetRuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
+        internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
         {
             return AssetRuleManager.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
         }
@@ -11289,5 +11289,32 @@ namespace Core.Api
         {
             return APILogic.Api.Managers.PersonalListManager.DeletePersonalListItemForUser(groupId, personalListItemId, userId);
         }
+
+        internal static Status DeleteBusinessModuleRule(int groupId, long businessModuleRuleId)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.DeleteBusinessModuleRule(groupId, businessModuleRuleId);
+        }
+
+        internal static GenericResponse<BusinessModuleRule> UpdateBusinessModuleRule(int groupId, BusinessModuleRule businessModuleRule)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.UpdateBusinessModuleRule(groupId, businessModuleRule);
+        }
+
+        internal static GenericResponse<BusinessModuleRule> GetBusinessModuleRule(int groupId, long businessModuleRuleId)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRule(groupId, businessModuleRuleId);
+        }
+
+        internal static GenericResponse<BusinessModuleRule> AddBusinessModuleRule(int groupId, BusinessModuleRule businessModuleRuleToAdd)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
+        }
+
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter)
+        {
+            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
+        }
+
+
     }
 }

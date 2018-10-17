@@ -229,21 +229,21 @@ namespace Core.Catalog.CatalogManagement
                 AdditionalData = ODBCWrapper.Utils.GetSafeStr(dr, "ADDITIONAL_DATA"),
                 AltExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_CO_GUID"),
                 AltStreamingCode = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_STREAMING_CODE"),
-                AlternativeCdnAdapaterProfileId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALT_STREAMING_SUPLIER_ID"),
+                AlternativeCdnAdapaterProfileId = ODBCWrapper.Utils.GetNullableLong(dr, "ALT_STREAMING_SUPLIER_ID"),
                 AssetId = ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"),
                 BillingType = ODBCWrapper.Utils.GetLongSafeVal(dr, "BILLING_TYPE_ID"),
-                Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "DURATION"),
-                EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE"),
+                Duration = ODBCWrapper.Utils.GetNullableLong(dr, "DURATION"),
+                EndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "END_DATE"),
                 ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "CO_GUID"),
                 ExternalStoreId = ODBCWrapper.Utils.GetSafeStr(dr, "PRODUCT_CODE"),
-                FileSize = ODBCWrapper.Utils.GetLongSafeVal(dr, "FILE_SIZE"),
+                FileSize = ODBCWrapper.Utils.GetNullableLong(dr, "FILE_SIZE"),
                 Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
                 IsDefaultLanguage = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_DEFAULT_LANGUAGE"),
                 Language = ODBCWrapper.Utils.GetSafeStr(dr, "LANGUAGE"),
-                OrderNum = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER_NUM"),
+                OrderNum = ODBCWrapper.Utils.GetNullableInt(dr, "ORDER_NUM"),
                 OutputProtecationLevel = ODBCWrapper.Utils.GetIntSafeVal(dr, "OUTPUT_PROTECTION_LEVEL"),
-                StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
-                CdnAdapaterProfileId = ODBCWrapper.Utils.GetLongSafeVal(dr, "STREAMING_SUPLIER_ID"),
+                StartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "START_DATE"),
+                CdnAdapaterProfileId = ODBCWrapper.Utils.GetNullableLong(dr, "STREAMING_SUPLIER_ID"),
                 TypeId = typeId,
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1
@@ -602,11 +602,10 @@ namespace Core.Catalog.CatalogManagement
                     assetFileToAdd.CdnAdapaterProfileId = GroupDefaultCdnAdapter.Adapter.ID;
                 }
 
-                DateTime startDate = assetFileToAdd.StartDate.HasValue ? assetFileToAdd.StartDate.Value : DateTime.UtcNow;
-                DateTime endDate = assetFileToAdd.EndDate.HasValue ? assetFileToAdd.EndDate.Value : startDate;
-
+                DateTime startDate = assetFileToAdd.StartDate ?? DateTime.UtcNow;
+                    
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
-                                                        assetFileToAdd.BillingType, assetFileToAdd.Duration, endDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
+                                                        assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
                                                         assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, assetFileToAdd.OutputProtecationLevel, startDate,
                                                         assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive);
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
@@ -761,15 +760,12 @@ namespace Core.Catalog.CatalogManagement
 
                     assetFileToUpdate.CdnAdapaterProfileId = GroupDefaultCdnAdapter.Adapter.ID;
                 }
-
-                DateTime startDate = assetFileToUpdate.StartDate.HasValue ? assetFileToUpdate.StartDate.Value : DateTime.UtcNow;
-                DateTime endDate = assetFileToUpdate.EndDate.HasValue ? assetFileToUpdate.EndDate.Value : startDate;
-
+                
                 var ds = CatalogDAL.UpdateMediaFile(groupId, assetFileToUpdate.Id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, 
                                                     assetFileToUpdate.AlternativeCdnAdapaterProfileId, assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, 
-                                                    assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId, assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, 
+                                                    assetFileToUpdate.Duration, assetFileToUpdate.EndDate, assetFileToUpdate.ExternalId, assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, 
                                                     assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum, 
-                                                    assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId, 
+                                                    assetFileToUpdate.OutputProtecationLevel, assetFileToUpdate.StartDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId, 
                                                     assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive);
 
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);

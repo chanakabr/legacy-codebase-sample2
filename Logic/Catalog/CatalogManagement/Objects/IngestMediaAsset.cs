@@ -225,29 +225,47 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
-        internal Status ValidateMetaTags(string mainLanguageName, Dictionary<string, LanguageObj> languageMapByCode)
+        internal Status ValidateMetaTags(string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode, Dictionary<string, Topic> topicsMapBySystemName)
         {
-            // TODO SHIR - THIS IS FALSE, FIX VALIDATION FOR ValidateMetaTags
-            //if (Metas != null && Metas.MetaTags != null && Metas.MetaTags.Count > 0)
-            //{
-            //    foreach (var metaTag in Metas.MetaTags)
-            //    {
-            //        if (metaTag.Containers != null && metaTag.Containers.Count > 0)
-            //        {
-            //            foreach (var item in metaTag.Containers)
-            //            {
-            //                if (item.Values != null && item.Values.Count > 0)
-            //                {
-            //                    var otherTagLangCount = item.Values.Count(x => !mainLanguageName.Equals(x.LangCode));
-            //                    if (otherTagLangCount > 0)
-            //                    {
-            //                        return new Status((int)eResponseStatus.Error, "Tag translations are not allowed using ingest controller, please use tag controller");   
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
+            if (Metas != null && Metas.MetaTags != null && Metas.MetaTags.Count > 0)
+            {
+                foreach (var metaTag in Metas.MetaTags)
+                {
+                    if (metaTag.Containers != null && 
+                        metaTag.Containers.Count > 0 && 
+                        topicsMapBySystemName.ContainsKey(metaTag.Name) && 
+                        topicsMapBySystemName[metaTag.Name].Type == MetaType.Tag)
+                    {
+                        var values = new List<IngestLanguageValue>();
+                        foreach (var container in metaTag.Containers)
+                        {
+                            foreach (var value in container.Values)
+                            {
+                                values.Add(new IngestLanguageValue() { LangCode = value.LangCode, Text = value.Text });
+                            }
+                        }
+                        
+                        IngestMultilingual mergeMultilingual = new IngestMultilingual()
+                        {
+                            MlHandling = metaTag.MlHandling,
+                            Name = metaTag.Name,
+                            Values = values
+                        };
+
+                        Status status = mergeMultilingual.Validate("media.structure.metas.meta", defaultLanguageCode, languageMapByCode);
+                        if (status != null && status.Code != (int)eResponseStatus.OK)
+                        {
+                            return status;
+                        }
+
+                        //var otherTagLangCount = item.Values.Count(x => !mainLanguageName.Equals(x.LangCode));
+                        //if (otherTagLangCount > 0)
+                        //{
+                        //    return new Status((int)eResponseStatus.Error, "Tag translations are not allowed using ingest controller, please use tag controller");
+                        //}
+                    }
+                }
+            }
 
             return new Status((int)eResponseStatus.OK);
         }

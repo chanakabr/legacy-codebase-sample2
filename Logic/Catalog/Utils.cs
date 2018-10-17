@@ -1584,6 +1584,7 @@ namespace Core.Catalog
                         m_nPageIndex = pageIndex,
                         m_nPageSize = pageSize,
                         filterQuery = filter,
+                        isAllowedToViewInactiveAssets = true,
                         shouldIgnoreDeviceRuleID = true,
                         order = new OrderObj()
                         {
