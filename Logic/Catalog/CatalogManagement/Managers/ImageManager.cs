@@ -687,7 +687,8 @@ namespace Core.Catalog.CatalogManagement
             if (isDefault.HasValue && isDefault.Value)
             {
                 List<Image> groupDefualtImages = GetGroupDefaultImages(groupId);
-                response.Objects.AddRange(groupDefualtImages);
+                HashSet<long> assetImageTypes = new HashSet<long>(response.Objects.Select(x => x.ImageTypeId).ToList());
+                response.Objects.AddRange(groupDefualtImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
             }
 
             return response;
