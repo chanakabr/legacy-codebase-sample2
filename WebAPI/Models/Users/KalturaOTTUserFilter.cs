@@ -66,18 +66,7 @@ namespace WebAPI.Models.Users
 
         internal List<string> GetIdIn()
         {
-            List<string> list = null;
-            if (!string.IsNullOrEmpty(IdIn))
-            {
-                list = new List<string>();
-                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    list.Add(stringValue);
-                }
-            }
-
-            return list;
+            return this.GetItemsIn<List<string>, string>(IdIn, "KalturaOTTUserFilter.idIn");
         }
         
         public override KalturaOTTUserOrderBy GetDefaultOrderByValue()

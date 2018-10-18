@@ -50,8 +50,9 @@ namespace WebAPI.Models.General
             
             if (!string.IsNullOrEmpty(itemsIn))
             {
-                string[] stringValues = itemsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] stringValues = itemsIn.Split(new char[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
                 Type t = typeof(T);
+
                 foreach (string stringValue in stringValues)
                 {
                     T value;
@@ -62,7 +63,7 @@ namespace WebAPI.Models.General
                     }
                     catch (Exception)
                     {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, propertyName);
+                        throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, propertyName, t.Name);
                     }
 
                     if (value != null && !value.Equals(default(T)))
