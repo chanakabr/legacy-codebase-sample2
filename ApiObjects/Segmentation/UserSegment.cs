@@ -59,7 +59,7 @@ namespace ApiObjects.Segmentation
             }
 
             int totalCount;
-            long segmentationTypeId = 0;
+            long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(this.SegmentId);
 
             var segmentationTypes = SegmentationType.List(this.GroupId, new List<long>() { segmentationTypeId }, 0, 1000, out totalCount);
 
@@ -67,7 +67,7 @@ namespace ApiObjects.Segmentation
 
             if (segmentationType == null)
             {
-                this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Given segmentation type does not exist for group");
+                this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Segmentation type not found");
                 return false;
             }
             

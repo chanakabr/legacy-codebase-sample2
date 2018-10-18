@@ -55,7 +55,7 @@ namespace ApiObjects.Segmentation
 
             if (this.Value != null)
             {
-                bool addSegmentIdsResult = this.Value.AddSegmentsIds();
+                bool addSegmentIdsResult = this.Value.AddSegmentsIds(this.Id);
 
                 if (!addSegmentIdsResult)
                 {
@@ -117,7 +117,7 @@ namespace ApiObjects.Segmentation
                 return false;
             }
 
-            bool updateSegmentIdsResult = this.Value.UpdateSegmentIds(source.Value);
+            bool updateSegmentIdsResult = this.Value.UpdateSegmentIds(source.Value, this.Id);
 
             if (!updateSegmentIdsResult)
             {

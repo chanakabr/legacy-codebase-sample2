@@ -13,12 +13,28 @@ namespace ApiObjects.Segmentation
 {
     public class SegmentBaseValue
     {
-        public virtual bool AddSegmentsIds()
+        internal const string SegmentToSegmentationTypeDocumentKeyFormat = "segment_{0}_segmentation_type";
+
+        public static bool SetSegmentationTypeIdToSegmentId(long segmentId, long segmentationTypeId)
+        {
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+
+            return couchbaseManager.Set(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId), segmentationTypeId);
+        }
+
+        public static long GetSegmentationTypeOfSegmentId(long segmentId)
+        {
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+
+            return couchbaseManager.Get<long>(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId));
+        }
+
+        public virtual bool AddSegmentsIds(long segmentationTypeId)
         {
             return true;
         }
 
-        public virtual bool UpdateSegmentIds(SegmentBaseValue source)
+        public virtual bool UpdateSegmentIds(SegmentBaseValue source, long segmentationTypeId)
         {
             return true;
         }

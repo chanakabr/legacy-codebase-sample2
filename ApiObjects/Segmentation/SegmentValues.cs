@@ -33,7 +33,7 @@ namespace ApiObjects.Segmentation
         [JsonProperty()]
         public List<SegmentValue> Values;
 
-        public override bool AddSegmentsIds()
+        public override bool AddSegmentsIds(long segmentationTypeId)
         {
             bool result = false;
 
@@ -47,6 +47,8 @@ namespace ApiObjects.Segmentation
                 {
                     return false;
                 }
+
+                SetSegmentationTypeIdToSegmentId(segment.Id, segmentationTypeId);
             }
 
             result = true;
@@ -54,7 +56,7 @@ namespace ApiObjects.Segmentation
             return result;
         }
 
-        public override bool UpdateSegmentIds(SegmentBaseValue source)
+        public override bool UpdateSegmentIds(SegmentBaseValue source, long segmentationTypeId)
         {
             bool result = false;
 
@@ -86,6 +88,8 @@ namespace ApiObjects.Segmentation
                 {
                     return false;
                 }
+
+                SetSegmentationTypeIdToSegmentId(destinationValue.Id, segmentationTypeId);
             }
 
             result = true;
