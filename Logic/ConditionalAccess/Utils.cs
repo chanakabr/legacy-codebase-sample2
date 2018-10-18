@@ -1468,7 +1468,7 @@ namespace Core.ConditionalAccess
                     var userSegments = Api.Module.GetUserSegments(groupId, userId, 0, 500);
                     if (userSegments != null && userSegments.HasObjects())
                     {
-                        segmentIds.AddRange(userSegments.Objects.Where(x => x.SegmentId.HasValue).Select(x => x.SegmentId.Value));
+                        segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
                     }
                 }
             }

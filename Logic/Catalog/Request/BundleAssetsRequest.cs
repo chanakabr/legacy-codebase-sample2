@@ -215,7 +215,6 @@ namespace Core.Catalog.Request
                                      // or if at least one of the media types of the channel exists in the request
                                      typeIntersection.Count() > 0)
                                  {
-
                                      UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache, groupId, doesGroupUsesTemplates);
 
                                      // If specific types were requested
