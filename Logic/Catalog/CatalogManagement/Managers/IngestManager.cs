@@ -280,6 +280,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
+                            // TODO SHIR - UPDATE TAG TRANSLATIONS
                         //    ApiObjects.SearchObjects.TagValue tagValueToUpdate = new ApiObjects.SearchObjects.TagValue()
                         //    {
                         //        tagId = tagValues.Objects[0].tagId,
@@ -316,7 +317,7 @@ namespace Core.Catalog.CatalogManagement
                         //        ingestResponse.AddError(errorMsg);
                         //        log.Debug(errorMsg);
                         //    }
-                        //}
+                        }
                     }
                 }
             }
