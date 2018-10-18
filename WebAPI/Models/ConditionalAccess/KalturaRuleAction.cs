@@ -141,11 +141,6 @@ namespace WebAPI.Models.ConditionalAccess
 
     public partial class KalturaApplyDiscountModuleAction : KalturaRuleAction
     {
-        public KalturaApplyDiscountModuleAction()
-        {
-            this.Type = KalturaRuleActionType.APPLY_DISCOUNT_MODULE;
-        }
-
         /// <summary>
         /// Discount module ID
         /// </summary>
@@ -153,5 +148,11 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("discountModuleId")]
         [XmlElement(ElementName = "discountModuleId")]
         public long DiscountModuleId { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleActionType.APPLY_DISCOUNT_MODULE;
+        }
     }
 }
