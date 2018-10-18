@@ -258,19 +258,20 @@ namespace Core.Catalog.CatalogManagement
                     foreach (var tag in topic.Value)
                     {
                         //topic.Key == drama
-                        var tagValues = CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, 0, 0, 0);
+                        var tagValues = 
+                            CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, catalogGroupCache.DefaultLanguage.ID, 0, 1);
 
-                        if (tagValues == null || tagValues.Status == null || tagValues.Status.Code != (int)eResponseStatus.OK)
+                        ApiObjects.SearchObjects.TagValue tagValueToUpsert = new ApiObjects.SearchObjects.TagValue()
                         {
-                            ApiObjects.SearchObjects.TagValue tagValueToAdd = new ApiObjects.SearchObjects.TagValue()
-                            {
-                                topicId = (int)catalogTopic.Id, // genre
-                                value = tag.Key, // tag_eng_drama
-                                languageId = catalogGroupCache.DefaultLanguage.ID, // eng
-                            };
-                            tagValueToAdd.TagsInOtherLanguages.AddRange(tag.Value.Select(x => x.Value)); // drama in all other lang
+                            topicId = (int)catalogTopic.Id, // genre
+                            value = tag.Key, // tag_eng_drama
+                            languageId = catalogGroupCache.DefaultLanguage.ID, // eng
+                        };
+                        tagValueToUpsert.TagsInOtherLanguages.AddRange(tag.Value.Select(x => x.Value)); // drama in all other lang
 
-                            var addTagResponse = CatalogManager.AddTag(groupId, tagValueToAdd, USER_ID);
+                        if (tagValues == null || !tagValues.HasObjects())
+                        {
+                            var addTagResponse = CatalogManager.AddTag(groupId, tagValueToUpsert, USER_ID);
                             if (addTagResponse != null && !addTagResponse.HasObject())
                             {
                                 string errorMsg = string.Format("HandleTagsTranslations - AddTag faild. topicId: {0}, addTagStatus: {1}.", catalogTopic.Id, addTagResponse.ToStringStatus());
@@ -280,43 +281,15 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            // TODO SHIR - UPDATE TAG TRANSLATIONS
-                        //    ApiObjects.SearchObjects.TagValue tagValueToUpdate = new ApiObjects.SearchObjects.TagValue()
-                        //    {
-                        //        tagId = tagValues.Objects[0].tagId,
-                        //        topicId = (int)catalogTopic.Id,
-                        //        value = tag.Key, 
-                        //        languageId = catalogGroupCache.DefaultLanguage.ID
-                        //    };
-
-                        //    if (tagValues.Objects.Count == 0)
-                        //    {
-                        //        tagValueToUpdate.TagsInOtherLanguages.AddRange(tag.Value.Select(x => x.Value));
-                        //    }
-                        //    else
-                        //    {
-                        //        foreach (var otherLanguage in tag.Value)
-                        //        {
-                        //            int otherLanguageIndex = otherLanguageIndex = tagValues.Objects[0].TagsInOtherLanguages.FindIndex(x => x.LanguageCode.Equals(otherLanguage.Key));
-
-                        //            if (otherLanguageIndex == -1)
-                        //            {
-                        //                tagValueToUpdate.TagsInOtherLanguages.Add(otherLanguage.Value);
-                        //            }
-                        //            else
-                        //            {
-                        //                tagValueToUpdate.TagsInOtherLanguages[otherLanguageIndex].Value = otherLanguage.Value.Value;
-                        //            }
-                        //        }
-                        //    }
+                            tagValueToUpsert.tagId = tagValues.Objects[0].tagId;
                             
-                        //    var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValueToUpdate.tagId, tagValueToUpdate, USER_ID);
-                        //    if (updateTagResponse != null && !updateTagResponse.HasObject())
-                        //    {
-                        //        string errorMsg = string.Format("HandleTagsTranslations - UpdateTag faild. tagId: {0}, updateTagStatus: {1}.", tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
-                        //        ingestResponse.AddError(errorMsg);
-                        //        log.Debug(errorMsg);
-                        //    }
+                            var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValueToUpsert.tagId, tagValueToUpsert, USER_ID);
+                            if (updateTagResponse != null && !updateTagResponse.HasObject())
+                            {
+                                string errorMsg = string.Format("HandleTagsTranslations - UpdateTag faild. tagId: {0}, updateTagStatus: {1}.", tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
+                                ingestResponse.AddError(errorMsg);
+                                log.Debug(errorMsg);
+                            }
                         }
                     }
                 }
