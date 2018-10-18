@@ -1191,8 +1191,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 return metas;
             }
 
+            HashSet<string> metaNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (KeyValuePair<string, KalturaValue> meta in metasDictionary)
             {
+                if (metaNames.Contains(meta.Key))
+                {
+                    throw new ClientException((int)StatusCode.Error, string.Format("The request contains meta with the name {0} more than once", meta.Key));
+                }
+
                 Metas metaToAdd = new Metas() { m_oTagMeta = new TagMeta() { m_sName = meta.Key } };
                 Type metaType = meta.Value.GetType();
                 if (metaType == typeof(KalturaBooleanValue))
@@ -1231,6 +1237,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Only KalturaDoubleValue type allowed for numbers type");
                 }
 
+                metaNames.Add(meta.Key);
                 metas.Add(metaToAdd);
             }
 
@@ -1246,10 +1253,33 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 return tags;
             }
 
+            HashSet<string> tagNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> tag in tagsDictionary)
             {
+                if (tagNames.Contains(tag.Key))
+                {
+                    throw new ClientException((int)StatusCode.Error, string.Format("The request contains tag with the name {0} more than once", tag.Key));
+                }
+
                 Tags tagToAdd = new Tags() { m_oTagMeta = new TagMeta(tag.Key, ApiObjects.MetaType.Tag.ToString()) };
-                tagToAdd.m_lValues = tag.Value.Objects != null ? tag.Value.Objects.Select(x => x.value.GetDefaultLanugageValue()).ToList() : new List<string>();
+                HashSet<string> tagUniqueValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                tagToAdd.m_lValues = new List<string>();
+                if (tag.Value.Objects != null)
+                {
+                    foreach (KalturaMultilingualStringValue tagValue in tag.Value.Objects)
+                    {
+                        string defaultLangValue = tagValue.value.GetDefaultLanugageValue();                        
+                        if (tagUniqueValues.Contains(defaultLangValue))
+                        {
+                            throw new ClientException((int)StatusCode.Error, string.Format("The request contains tag with the name {0} and value {1} more than once", tag.Key, defaultLangValue));
+                        }
+
+                        tagUniqueValues.Add(defaultLangValue);
+                        tagToAdd.m_lValues.Add(defaultLangValue);
+                    }
+                }
+                
+                tagNames.Add(tag.Key);
                 tags.Add(tagToAdd);
             }
 
