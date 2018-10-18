@@ -95,7 +95,7 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<MediaFileType> mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
             string groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
             Dictionary<string, ImageType> groupRatioNamesToImageTypes = GetGroupRatioNamesToImageTypes(groupId);
-            Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations = new Dictionary<string, Dictionary<string, Dictionary<string, string>>>();
+            Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations = new Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>>();
 
             for (int i = 0; i < feed.Export.MediaList.Count; i++)
             {
@@ -118,8 +118,9 @@ namespace Core.Catalog.CatalogManagement
                 try
                 {
                     int mediaId = GetMediaIdByCoGuid(groupId, media.CoGuid);
+                    Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagNameToTranslations;
 
-                    if (ValidateMedia(i, media, groupId, catalogGroupCache, mediaId, ref ingestResponse))
+                    if (ValidateMedia(i, media, groupId, catalogGroupCache, mediaId, ref ingestResponse, out tagNameToTranslations))
                     {
                         if (media.Action.Equals(DELETE_ACTION))
                         {
@@ -164,7 +165,7 @@ namespace Core.Catalog.CatalogManagement
                                 GeoBlockRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
                                 DeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
                                 Metas = GetMetasList(media.Structure, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache),
-                                Tags = GetTagsList(media.Structure.Metas, catalogGroupCache.DefaultLanguage.Code, ref tagsTranslations)
+                                Tags = GetTagsList(tagNameToTranslations, catalogGroupCache.DefaultLanguage.Code, ref tagsTranslations)
                             };
 
                             // TODO SHIR - ASK IRA IF SOMEONE SENT IT AND THE MEDIA IS NEW, NEED EXAMPLE
@@ -243,9 +244,10 @@ namespace Core.Catalog.CatalogManagement
             return ingestResponse;
         }
 
-        private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations, int groupId, CatalogGroupCache catalogGroupCache,
-                                                   ref IngestResponse ingestResponse)
+        private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations, int groupId, 
+                                                   CatalogGroupCache catalogGroupCache, ref IngestResponse ingestResponse)
         {
+            // TODO SHIR
             foreach (var topic in tagsTranslations)
             {
                 // tagsTranslation.Key == Genre
@@ -258,15 +260,15 @@ namespace Core.Catalog.CatalogManagement
                         //topic.Key == drama
                         var tagValues = CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, 0, 0, 0);
 
-                        if (tagValues == null || !tagValues.HasObjects())
+                        if (tagValues == null || tagValues.Status == null || tagValues.Status.Code != (int)eResponseStatus.OK)
                         {
                             ApiObjects.SearchObjects.TagValue tagValueToAdd = new ApiObjects.SearchObjects.TagValue()
                             {
-                                topicId = (int)catalogTopic.Id,
-                                value = tag.Key,
-                                languageId = catalogGroupCache.DefaultLanguage.ID,
-                                TagsInOtherLanguages = new List<LanguageContainer>(tag.Value.Select(x => new LanguageContainer(x.Key, x.Value)))
+                                topicId = (int)catalogTopic.Id, // genre
+                                value = tag.Key, // tag_eng_drama
+                                languageId = catalogGroupCache.DefaultLanguage.ID, // eng
                             };
+                            tagValueToAdd.TagsInOtherLanguages.AddRange(tag.Value.Select(x => x.Value)); // drama in all other lang
 
                             var addTagResponse = CatalogManager.AddTag(groupId, tagValueToAdd, USER_ID);
                             if (addTagResponse != null && !addTagResponse.HasObject())
@@ -278,27 +280,43 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            foreach (var otherLanguage in tag.Value)
-                            {
-                                int otherLanguageIndex = tagValues.Objects[0].TagsInOtherLanguages.FindIndex(x => x.LanguageCode.Equals(otherLanguage.Key));
-                                if (otherLanguageIndex == -1)
-                                {
-                                    tagValues.Objects[0].TagsInOtherLanguages.Add(new LanguageContainer(otherLanguage.Key, otherLanguage.Value));
-                                }
-                                else
-                                {
-                                    tagValues.Objects[0].TagsInOtherLanguages[otherLanguageIndex].Value = otherLanguage.Value;
-                                }
-                            }
+                        //    ApiObjects.SearchObjects.TagValue tagValueToUpdate = new ApiObjects.SearchObjects.TagValue()
+                        //    {
+                        //        tagId = tagValues.Objects[0].tagId,
+                        //        topicId = (int)catalogTopic.Id,
+                        //        value = tag.Key, 
+                        //        languageId = catalogGroupCache.DefaultLanguage.ID
+                        //    };
 
-                            var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValues.Objects[0].tagId, tagValues.Objects[0], USER_ID);
-                            if (updateTagResponse != null && !updateTagResponse.HasObject())
-                            {
-                                string errorMsg = string.Format("HandleTagsTranslations - UpdateTag faild. tagId: {0}, updateTagStatus: {1}.", tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
-                                ingestResponse.AddError(errorMsg);
-                                log.Debug(errorMsg);
-                            }
-                        }
+                        //    if (tagValues.Objects.Count == 0)
+                        //    {
+                        //        tagValueToUpdate.TagsInOtherLanguages.AddRange(tag.Value.Select(x => x.Value));
+                        //    }
+                        //    else
+                        //    {
+                        //        foreach (var otherLanguage in tag.Value)
+                        //        {
+                        //            int otherLanguageIndex = otherLanguageIndex = tagValues.Objects[0].TagsInOtherLanguages.FindIndex(x => x.LanguageCode.Equals(otherLanguage.Key));
+
+                        //            if (otherLanguageIndex == -1)
+                        //            {
+                        //                tagValueToUpdate.TagsInOtherLanguages.Add(otherLanguage.Value);
+                        //            }
+                        //            else
+                        //            {
+                        //                tagValueToUpdate.TagsInOtherLanguages[otherLanguageIndex].Value = otherLanguage.Value.Value;
+                        //            }
+                        //        }
+                        //    }
+                            
+                        //    var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValueToUpdate.tagId, tagValueToUpdate, USER_ID);
+                        //    if (updateTagResponse != null && !updateTagResponse.HasObject())
+                        //    {
+                        //        string errorMsg = string.Format("HandleTagsTranslations - UpdateTag faild. tagId: {0}, updateTagStatus: {1}.", tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
+                        //        ingestResponse.AddError(errorMsg);
+                        //        log.Debug(errorMsg);
+                        //    }
+                        //}
                     }
                 }
             }
@@ -523,61 +541,48 @@ namespace Core.Catalog.CatalogManagement
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="metas"></param>
+        /// <param name="tagNameToTranslations">{Genre, {eng, {drama, action}},{heb, {דרמה, אקשן}}}</param>
         /// <param name="mainLanguageCode"></param>
         /// <param name="tagsTranslations">{Genre, {Drama, {[heb, דרמה], [jap, ドラマ]}, }}</param>
         /// <returns></returns>
-        private static List<Tags> GetTagsList(IngestMetas metas, string mainLanguageCode, ref Dictionary<string, Dictionary<string, Dictionary<string, string>>> tagsTranslations)
+        private static List<Tags> GetTagsList(Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagNameToTranslations, 
+                                              string mainLanguageCode, 
+                                              ref Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations)
         {
-            List<Tags> tags = null;
+            List<Tags> tags = new List<Tags>();
 
-            if (metas != null && metas.MetaTags != null && metas.MetaTags.Count > 0)
+            foreach (var tagTranslation in tagNameToTranslations)
             {
-                // add metas-tags
-                foreach (var metaTag in metas.MetaTags)
+                tags.Add(new Tags(new TagMeta(tagTranslation.Key, MetaType.Tag.ToString()),
+                                  tagTranslation.Value.Select(x => x.Key).ToList(),
+                                  tagTranslation.Value.Select(x => x.Value.Select(lang => lang.Value).ToArray())));
+
+                if (!tagsTranslations.ContainsKey(tagTranslation.Key))
                 {
-                    List<string> finalMainValues = new List<string>();
-
-                    if (!tagsTranslations.ContainsKey(metaTag.Name))
+                    tagsTranslations.Add(tagTranslation.Key, tagTranslation.Value);
+                }
+                else 
+                {
+                    foreach (var tagValue in tagTranslation.Value)
                     {
-                        tagsTranslations.Add(metaTag.Name, new Dictionary<string, Dictionary<string, string>>());
-                    }
-
-                    foreach (var container in metaTag.Containers)
-                    {
-                        Dictionary<string, string> translations = new Dictionary<string, string>();
-
-                        foreach (var langValue in container.Values)
+                        if (!tagsTranslations[tagTranslation.Key].ContainsKey(tagValue.Key))
                         {
-                            if (string.IsNullOrEmpty(langValue.Text))
+                            tagsTranslations[tagTranslation.Key].Add(tagValue.Key, tagValue.Value);
+                        }
+                        else
+                        {
+                            foreach (var otherTagValue in tagValue.Value)
                             {
-                                continue;
-                            }
-
-                            if (mainLanguageCode.Equals(langValue.LangCode))
-                            {
-                                if (!tagsTranslations[metaTag.Name].ContainsKey(langValue.Text) && langValue.Text.IndexOf(';') == -1)
+                                if (!tagsTranslations[tagTranslation.Key][tagValue.Key].ContainsKey(otherTagValue.Key))
                                 {
-                                    tagsTranslations[metaTag.Name].Add(langValue.Text, translations);
+                                    tagsTranslations[tagTranslation.Key][tagValue.Key].Add(otherTagValue.Key, otherTagValue.Value);
                                 }
-
-                                finalMainValues.AddRange(langValue.Text.Split(';'));
-                            }
-                            else
-                            {
-                                translations.Add(langValue.LangCode, langValue.Text);
+                                else
+                                {
+                                    tagsTranslations[tagTranslation.Key][tagValue.Key][otherTagValue.Key] = otherTagValue.Value;
+                                }
                             }
                         }
-                    }
-
-                    if (finalMainValues.Count > 0)
-                    {
-                        if (tags == null)
-                        {
-                            tags = new List<Tags>();
-                        }
-
-                        tags.Add(new Tags() { m_oTagMeta = new TagMeta(metaTag.Name, MetaType.Tag.ToString()), m_lValues = finalMainValues });
                     }
                 }
             }
@@ -585,8 +590,9 @@ namespace Core.Catalog.CatalogManagement
             return tags;
         }
 
-        private static bool ValidateMedia(int mediaIndex, IngestMedia media, int groupId, CatalogGroupCache catalogGroupCache, int mediaId, ref IngestResponse ingestResponse)
+        private static bool ValidateMedia(int mediaIndex, IngestMedia media, int groupId, CatalogGroupCache catalogGroupCache, int mediaId, ref IngestResponse ingestResponse, out Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagNameToTranslations)
         {
+            tagNameToTranslations = null;
             if (string.IsNullOrEmpty(media.EntryId))
             {
                 ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.MissingEntryId, MISSING_ENTRY_ID));
@@ -709,7 +715,7 @@ namespace Core.Catalog.CatalogManagement
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode, catalogGroupCache.TopicsMapBySystemName);
+                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode, out tagNameToTranslations);
                     if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(metasValidationStatus.Message);
@@ -758,7 +764,7 @@ namespace Core.Catalog.CatalogManagement
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode, catalogGroupCache.TopicsMapBySystemName);
+                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode, out tagNameToTranslations);
                     if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(metasValidationStatus.Message);

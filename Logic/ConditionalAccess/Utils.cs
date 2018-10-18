@@ -1473,6 +1473,8 @@ namespace Core.ConditionalAccess
                 }
             }
 
+            log.DebugFormat("Utils.GetLowestPrice - segmentIds: {0}", string.Join(", ", segmentIds));
+            
             // calc lowest price
             ConditionScope filter = new ConditionScope()
             {
@@ -1486,6 +1488,7 @@ namespace Core.ConditionalAccess
             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
             if (businessModuleRules != null && businessModuleRules.HasObjects())
             {
+                log.DebugFormat("Utils.GetLowestPrice - businessModuleRules count: {0}", businessModuleRules.Objects.Count);
                 foreach (var businessModuleRule in businessModuleRules.Objects)
                 {
                     if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)

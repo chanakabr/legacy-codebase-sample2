@@ -153,7 +153,8 @@ namespace ApiObjects.Rules
 
         public override bool Evaluate<IBusinessModuleConditionScope>(IBusinessModuleConditionScope scope)
         {
-            return !scope.BusinessModuleType.HasValue || (BusinessModuleType == scope.BusinessModuleType.Value && (BusinessModuleId == scope.BusinessModuleId || scope.BusinessModuleId == 0));
+            return !scope.BusinessModuleType.HasValue || 
+                    (BusinessModuleType == scope.BusinessModuleType.Value && (scope.BusinessModuleId == 0 || BusinessModuleId == 0 || BusinessModuleId == scope.BusinessModuleId));
 
         }
     }
