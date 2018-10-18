@@ -10055,6 +10055,22 @@ namespace Core.Api
             return result;
         }
 
+        public static bool IncrementLayeredCacheGroupConfigVersion(int groupId)
+        {
+            bool result = false;
+
+            try
+            {
+                result = LayeredCache.Instance.IncrementLayeredCacheGroupConfigVersion(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IncrementLayeredCacheGroupConfigVersion for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
         public static bool DoActionRules()
         {
             double alcrScheduledTaskIntervalSec = 0;

@@ -1705,6 +1705,11 @@ namespace Core.Api
                                                                 new List<string>(layeredCacheInvalidationKeySettingsToExclude), shouldOverrideExistingInvalidationKeyExcludeSettings);
         }
 
+        public static bool IncrementLayeredCacheGroupConfigVersion(int groupId)
+        {
+            return Core.Api.api.IncrementLayeredCacheGroupConfigVersion(groupId);
+        }
+
         public static bool DoActionRules()
         {
             bool result = false;

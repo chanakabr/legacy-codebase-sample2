@@ -185,7 +185,8 @@ namespace Core.Catalog.CatalogManagement
             }
 
             List<Image> groupDefaultImages = ImageManager.GetGroupDefaultImages(groupId);
-            images.AddRange(groupDefaultImages);
+            HashSet<long> assetImageTypes = new HashSet<long>(images.Select(x => x.ImageTypeId).ToList());
+            images.AddRange(groupDefaultImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
 
             // new tags or update dates
             if (ds.Tables.Count >= 6 && ds.Tables[5] != null && ds.Tables[5].Rows != null && ds.Tables[5].Rows.Count > 0)
@@ -1056,8 +1057,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static GenericResponse<Asset> AddMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset assetToAdd, bool isLinear, long userId,
-            bool isFromIngest = false)
+        private static GenericResponse<Asset> AddMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset assetToAdd, bool isLinear, long userId, bool isFromIngest = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -1142,7 +1142,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear,
-            long userId, bool isFromIngest = false)
+                                                                long userId, bool isFromIngest = false, bool isForMigration = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -1159,8 +1159,7 @@ namespace Core.Catalog.CatalogManagement
                 HashSet<string> currentAssetMetasAndTags = new HashSet<string>(currentAsset.Metas.Select(x => x.m_oTagMeta.m_sName).ToList(), StringComparer.OrdinalIgnoreCase);
                 currentAssetMetasAndTags.UnionWith(currentAsset.Tags.Select(x => x.m_oTagMeta.m_sName).ToList());
                 Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
-                                                                                ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate,
-                                                                                ref assetFinalEndDate, isFromIngest);
+                                                        ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
                     result.SetStatus(validateAssetTopicsResult);
@@ -1203,8 +1202,7 @@ namespace Core.Catalog.CatalogManagement
                                                         endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId, (int)inheritancePolicy);
 
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK
-                    && result.Object != null && result.Object.Id > 0 && !isLinear)
+                if (!isForMigration && !isFromIngest && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
                     if (assetStruct.ParentId.HasValue)
                     {
@@ -1216,17 +1214,10 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // UpdateIndex
-                    if (isFromIngest)
+                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
+                    if (!indexingResult)
                     {
-                        CatalogLogic.UpdateIndex(new List<long>() { (int)result.Object.Id }, groupId, eAction.Update);
-                    }
-                    else
-                    {
-                        bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
-                        if (!indexingResult)
-                        {
-                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
-                        }
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
                     }
 
                     // update meta inherited
@@ -1808,10 +1799,13 @@ namespace Core.Catalog.CatalogManagement
                         Tags tag = asset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
                         Tags parentTag = parentAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
 
-                        if (tag != null && !tag.Equals(parentTag))
+                        if (tag != null)
                         {
-                            asset.InheritancePolicy = AssetInheritancePolicy.Disable;
-                            return;
+                            if (!tag.Equals(parentTag))
+                            {
+                                asset.InheritancePolicy = AssetInheritancePolicy.Disable;
+                                return;
+                            }
                         }
                         else
                         {
@@ -1823,10 +1817,13 @@ namespace Core.Catalog.CatalogManagement
                         Metas meta = asset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
                         Metas parentMeta = parentAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
 
-                        if (meta != null && !meta.Equals(parentMeta))
+                        if (meta != null)
                         {
-                            asset.InheritancePolicy = AssetInheritancePolicy.Disable;
-                            return;
+                            if (!meta.Equals(parentMeta))
+                            {
+                                asset.InheritancePolicy = AssetInheritancePolicy.Disable;
+                                return;
+                            }
                         }
                         else
                         {
@@ -2173,7 +2170,8 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<Asset> UpdateAsset(int groupId, long id, eAssetTypes assetType, Asset assetToUpdate, long userId, bool isFromIngest = false, bool isCleared = false)
+        public static GenericResponse<Asset> UpdateAsset(int groupId, long id, eAssetTypes assetType, Asset assetToUpdate, long userId, bool isFromIngest = false,
+                                                        bool isCleared = false, bool isForMigration = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -2189,7 +2187,7 @@ namespace Core.Catalog.CatalogManagement
                 // isAllowedToViewInactiveAssets = true because only operator can update asset
                 List<Asset> assets = null;
 
-                if (!isCleared)
+                if (isForMigration || !isCleared)
                 {
                     assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
                     if (assets == null || assets.Count != 1)
@@ -2210,7 +2208,7 @@ namespace Core.Catalog.CatalogManagement
                         MediaAsset mediaAssetToUpdate = assetToUpdate as MediaAsset;
                         MediaAsset currentAsset = null;
 
-                        if (isFromIngest && isCleared)
+                        if (isForMigration || (isFromIngest && isCleared))
                         {
                             currentAsset = new MediaAsset()
                             {
@@ -2233,7 +2231,7 @@ namespace Core.Catalog.CatalogManagement
                         mediaAssetToUpdate.Id = id;
                         if (currentAsset != null && mediaAssetToUpdate != null)
                         {
-                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, isLinear, userId, isFromIngest);
+                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, isLinear, userId, isFromIngest, isForMigration);
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LiveAsset linearMediaAssetToUpdate = assetToUpdate as LiveAsset;
