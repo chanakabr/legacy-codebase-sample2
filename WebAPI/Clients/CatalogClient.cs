@@ -3666,21 +3666,24 @@ namespace WebAPI.Clients
 
             if (response.Objects != null && response.Objects.Count > 0)
             {
-                result.Channels = new List<KalturaChannel>();                
-                // convert channels
-                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
-                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
-                if (dynamicChannels != null)
-                {
-                    result.Channels.AddRange(dynamicChannels);
-                }
-
-                if (manualChannels != null && manualChannels.Count > 0)
-                {
-                    result.Channels.AddRange(manualChannels);
-                }
-
                 result.TotalCount = response.TotalItems;
+                result.Channels = new List<KalturaChannel>();
+                // convert channels
+                foreach (GroupsCacheManager.Channel channel in response.Objects)
+                {
+                    if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL)
+                    {
+                        result.Channels.Add(Mapper.Map<KalturaDynamicChannel>(channel));
+                    }
+                    else if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual)
+                    {
+                        result.Channels.Add(Mapper.Map<KalturaManualChannel>(channel));
+                    }
+                    else
+                    {
+                        result.TotalCount--;
+                    }
+                }                
             }
 
             return result;
