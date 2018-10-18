@@ -20557,11 +20557,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("segmentationTypeId", "\"segmentationTypeId\": " + SegmentationTypeId);
-            if(SegmentId.HasValue)
-            {
-                ret.Add("segmentId", "\"segmentId\": " + SegmentId);
-            }
+            ret.Add("segmentId", "\"segmentId\": " + SegmentId);
             if(UserId != null)
             {
                 ret.Add("userId", "\"userId\": " + "\"" + EscapeJson(UserId) + "\"");
@@ -20574,11 +20570,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("segmentationTypeId", "<segmentationTypeId>" + SegmentationTypeId + "</segmentationTypeId>");
-            if(SegmentId.HasValue)
-            {
-                ret.Add("segmentId", "<segmentId>" + SegmentId + "</segmentId>");
-            }
+            ret.Add("segmentId", "<segmentId>" + SegmentId + "</segmentId>");
             if(UserId != null)
             {
                 ret.Add("userId", "<userId>" + EscapeXml(UserId) + "</userId>");

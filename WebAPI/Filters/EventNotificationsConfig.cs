@@ -24,7 +24,10 @@ namespace WebAPI.Filters
             {
                 string consumerSettingsJson = ApplicationConfiguration.EventConsumersConfiguration.Value;
 
-                consumerSettings = Newtonsoft.Json.JsonConvert.DeserializeObject<ConsumerSettings>(consumerSettingsJson);
+                if (consumerSettingsJson != null)
+                {
+                    consumerSettings = Newtonsoft.Json.JsonConvert.DeserializeObject<ConsumerSettings>(consumerSettingsJson);
+                }
             }
             catch (Exception ex)
             {

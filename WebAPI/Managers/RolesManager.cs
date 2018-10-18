@@ -209,7 +209,7 @@ namespace WebAPI.Managers
 
             // get group's roles schema            
             Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>> permissionItemsDictionary = GetGroupPermissionItemsDictionary(groupId);
-
+             
             // if the permission for the property is not defined in the schema - return false
             if (!permissionItemsDictionary.ContainsKey(objectPropertyKey))
             {

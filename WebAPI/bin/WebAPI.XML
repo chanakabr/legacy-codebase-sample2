@@ -11064,6 +11064,11 @@
             Filter for segmentation types
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaSegmentationTypeFilter.IdIn">
+            <summary>
+            Comma separated segmentation types identifieridentifiers
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaSegmentationTypeOrder">
             <summary>
             Segmentation types order
@@ -11237,11 +11242,6 @@
         <member name="P:WebAPI.Models.Segmentation.KalturaUserSegment.SegmentId">
             <summary>
             Segment Id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Segmentation.KalturaUserSegment.SegmentationTypeId">
-            <summary>
-            Segmentation type Id
             </summary>
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaUserSegment.UserId">

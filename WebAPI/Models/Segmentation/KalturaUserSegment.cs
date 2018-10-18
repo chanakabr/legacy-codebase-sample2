@@ -24,16 +24,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "segmentId")]
         [XmlElement(ElementName = "segmentId")]
         [SchemeProperty()]
-        public long? SegmentId { get; set; }
-
-        /// <summary>
-        /// Segmentation type Id
-        /// </summary>
-        [DataMember(Name = "segmentationTypeId")]
-        [JsonProperty(PropertyName = "segmentationTypeId")]
-        [XmlElement(ElementName = "segmentationTypeId")]
-        [SchemeProperty()]
-        public long SegmentationTypeId { get; set; }
+        public long SegmentId { get; set; }
         
         /// <summary>
         /// User Id of segment

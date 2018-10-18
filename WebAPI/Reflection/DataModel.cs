@@ -5823,8 +5823,6 @@ namespace WebAPI.Reflection
                 case "KalturaUserSegment":
                     switch(property.Name)
                     {
-                        case "SegmentationTypeId":
-                            return "segmentationTypeId";
                         case "SegmentId":
                             return "segmentId";
                         case "UserId":

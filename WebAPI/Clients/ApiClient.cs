@@ -3959,12 +3959,12 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteSegmentationTypeFunc);
         }
 
-        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, int pageIndex, int pageSize)
+        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize)
         {
             KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
 
             Func<GenericListResponse<SegmentationType>> getListSegmentationTypesFunc = () =>
-               Core.Api.Module.ListSegmentationTypes(groupId, pageIndex, pageSize);
+               Core.Api.Module.ListSegmentationTypes(groupId, ids, pageIndex, pageSize);
 
             KalturaGenericListResponse<KalturaSegmentationType> response =
                 ClientUtils.GetResponseListFromWS<KalturaSegmentationType, SegmentationType>(getListSegmentationTypesFunc);

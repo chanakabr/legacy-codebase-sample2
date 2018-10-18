@@ -20398,15 +20398,6 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute SegmentationTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
         {
             ReadOnly = false,
@@ -20429,14 +20420,6 @@ namespace WebAPI.Models.Segmentation
                         SegmentIdSchemaProperty.Validate("segmentId", parameters["segmentId"]);
                     }
                     SegmentId = (Int64) Convert.ChangeType(parameters["segmentId"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("segmentationTypeId") && parameters["segmentationTypeId"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        SegmentationTypeIdSchemaProperty.Validate("segmentationTypeId", parameters["segmentationTypeId"]);
-                    }
-                    SegmentationTypeId = (Int64) Convert.ChangeType(parameters["segmentationTypeId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {

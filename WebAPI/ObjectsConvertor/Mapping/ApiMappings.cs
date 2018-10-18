@@ -813,13 +813,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // User Segment
             cfg.CreateMap<KalturaUserSegment, UserSegment>()
                 .ForMember(d => d.UserId, opt => opt.MapFrom(s => s.UserId))
-                .ForMember(d => d.SegmentationTypeId, opt => opt.MapFrom(s => s.SegmentationTypeId))
                 .ForMember(d => d.SegmentId, opt => opt.MapFrom(s => s.SegmentId))
                 ;
 
             cfg.CreateMap<UserSegment, KalturaUserSegment>()
                 .ForMember(d => d.UserId, opt => opt.MapFrom(s => s.UserId))
-                .ForMember(d => d.SegmentationTypeId, opt => opt.MapFrom(s => s.SegmentationTypeId))
                 .ForMember(d => d.SegmentId, opt => opt.MapFrom(s => s.SegmentId))
                 ;
 

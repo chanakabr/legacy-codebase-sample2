@@ -115,8 +115,11 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+
+                List<long> ids = filter.GetIdIn();
+
                 response = ClientsManager.
-                    ApiClient().ListSegmentationTypes(groupId, pager.getPageIndex(), pager.getPageSize());
+                    ApiClient().ListSegmentationTypes(groupId, ids, pager.getPageIndex(), pager.getPageSize());
             }
 
             catch (ClientException ex)
