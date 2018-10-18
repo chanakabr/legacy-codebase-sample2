@@ -19910,6 +19910,13 @@ namespace WebAPI.Models.Segmentation
     {
         public KalturaSegmentationTypeFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+            }
         }
     }
     public partial class KalturaSegmentationTypeListResponse

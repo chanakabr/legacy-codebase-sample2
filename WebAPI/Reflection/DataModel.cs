@@ -4794,6 +4794,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSegmentationTypeFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaSegmentationTypeListResponse":
                     switch(property.Name)
                     {
@@ -9172,7 +9180,7 @@ namespace WebAPI.Reflection
                             
                         case "delete":
                             RolesManager.ValidateActionPermitted("userSegment", "delete", false);
-                            return UserSegment.Delete((string) methodParams[0], (long) methodParams[1], (Nullable<long>) methodParams[2]);
+                            return UserSegment.Delete((string) methodParams[0], (long) methodParams[1]);
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("userSegment", "list", false);
@@ -16843,14 +16851,9 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(string),
                             });
-                            ret.Add("segmentationTypeId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
                             ret.Add("segmentId", new MethodParam(){
                                 NewName = newParamName,
-                                IsNullable = true,
-                                Type = typeof(Int64),
+                                Type = typeof(long),
                             });
                             return ret;
                             

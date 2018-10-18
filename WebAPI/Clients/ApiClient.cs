@@ -4002,9 +4002,9 @@ namespace WebAPI.Clients
             return result;
         }
         
-        internal bool DeleteUserSegment(int groupId, string userId, long segmentationTypeId, long? segmentId)
+        internal bool DeleteUserSegment(int groupId, string userId, long segmentId)
         {
-            Func<Status> deleteUserSegmentFunc = () => Core.Api.Module.DeleteUserSegment(groupId, userId, segmentationTypeId, segmentId);
+            Func<Status> deleteUserSegmentFunc = () => Core.Api.Module.DeleteUserSegment(groupId, userId, segmentId);
             return ClientUtils.GetResponseStatusFromWS(deleteUserSegmentFunc);
         }
 

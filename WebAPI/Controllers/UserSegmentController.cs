@@ -97,12 +97,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="userId">User id</param>
         /// <param name="segmentId">Segment id</param>
-        /// <param name="segmentationTypeId">Segmentation type id</param>
         /// <returns></returns>
         [Action("delete")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        static public bool Delete(string userId, long segmentationTypeId, long? segmentId)
+        static public bool Delete(string userId, long segmentId)
         {
             bool response = false;
 
@@ -111,7 +110,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
 
                 response = ClientsManager.
-                    ApiClient().DeleteUserSegment(groupId, userId, segmentationTypeId, segmentId);
+                    ApiClient().DeleteUserSegment(groupId, userId, segmentId);
             }
 
             catch (ClientException ex)

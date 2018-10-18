@@ -1114,13 +1114,12 @@
             <param name="userId">User Identifier</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.UserSegment.Delete(System.String,System.Int64,System.Nullable{System.Int64})">
+        <member name="M:WebAPI.Controllers.UserSegment.Delete(System.String,System.Int64)">
             <summary>
             Deletes a segment from a user
             </summary>
             <param name="userId">User id</param>
             <param name="segmentId">Segment id</param>
-            <param name="segmentationTypeId">Segmentation type id</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.CollectionController.List(WebAPI.Models.Pricing.KalturaCollectionFilter)">
