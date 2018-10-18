@@ -17,12 +17,9 @@ namespace ApiObjects.Segmentation
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
         public string UserId { get; set; }
-
+        
         [JsonProperty()]
-        public long SegmentationTypeId { get; set; }
-
-        [JsonProperty()]
-        public long? SegmentId { get; set; }
+        public long SegmentId { get; set; }
         
         public string SegmentSystemName { get; set; }
 
@@ -62,9 +59,11 @@ namespace ApiObjects.Segmentation
             }
 
             int totalCount;
-            var segmentationTypes = SegmentationType.List(this.GroupId, 0, 1000, out totalCount);
-            
-            SegmentationType segmentationType = segmentationTypes.FirstOrDefault(t => t.Id == this.SegmentationTypeId);
+            long segmentationTypeId = 0;
+
+            var segmentationTypes = SegmentationType.List(this.GroupId, new List<long>() { segmentationTypeId }, 0, 1000, out totalCount);
+
+            SegmentationType segmentationType = null;
 
             if (segmentationType == null)
             {
@@ -72,23 +71,7 @@ namespace ApiObjects.Segmentation
                 return false;
             }
             
-            bool validSegmentId = true;
-
-            if (this.SegmentId.HasValue)
-            {
-                if (segmentationType.Value == null)
-                {
-                    validSegmentId = false;
-                }
-                else
-                {
-                    validSegmentId = segmentationType.Value.HasSegmentId(SegmentId.Value);
-                }
-            }
-            else
-            {
-                validSegmentId = segmentationType.Value != null;
-            }
+            bool validSegmentId = validSegmentId = segmentationType.Value.HasSegmentId(SegmentId);
 
             if (!validSegmentId)
             {
@@ -96,11 +79,9 @@ namespace ApiObjects.Segmentation
                 return false;
             }
 
-            HashSet<string> alreadyContainedSegments = new HashSet<string>(userSegments.Segments.Select(o => GetCombinedString(o.SegmentationTypeId, o.SegmentId)));
-
-            string addedSegment = GetCombinedString(this.SegmentationTypeId, this.SegmentId);
-
-            if (!alreadyContainedSegments.Contains(addedSegment))
+            HashSet<long> alreadyContainedSegments = new HashSet<long>(userSegments.Segments.Select(o => o.SegmentId));
+            
+            if (!alreadyContainedSegments.Contains(this.SegmentId))
             {
                 userSegments.Segments.Add(this);
             }
@@ -175,17 +156,15 @@ namespace ApiObjects.Segmentation
                 return false;
             }
 
-            HashSet<string> alreadyContainedSegments = new HashSet<string>(userSegments.Segments.Select(o => GetCombinedString(o.SegmentationTypeId, o.SegmentId)));
-
-            string deletedSegment = GetCombinedString(this.SegmentationTypeId, this.SegmentId);
-
-            if (!alreadyContainedSegments.Contains(deletedSegment))
+            HashSet<long> alreadyContainedSegments = new HashSet<long>(userSegments.Segments.Select(o => o.SegmentId));
+            
+            if (!alreadyContainedSegments.Contains(this.SegmentId))
             {
                 this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "User does not have given segment");
                 return false;
             }
 
-            userSegments.Segments.RemoveAll(userSegment => userSegment.SegmentId == SegmentId && userSegment.SegmentationTypeId == SegmentationTypeId);
+            userSegments.Segments.RemoveAll(userSegment => userSegment.SegmentId == SegmentId);
 
             bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
 

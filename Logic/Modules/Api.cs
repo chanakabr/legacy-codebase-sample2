@@ -2078,14 +2078,14 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, int pageIndex, int pageSize)
+        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize)
         {
             GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
 
             try
             {
                 int totalCount;
-                result.Objects = SegmentationType.List(groupId, pageIndex, pageSize, out totalCount);
+                result.Objects = SegmentationType.List(groupId, ids, pageIndex, pageSize, out totalCount);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -2169,7 +2169,7 @@ namespace Core.Api
             return response;
         }
 
-        public static Status DeleteUserSegment(int groupId, string userId, long segmentationTypeId, long? segmentId)
+        public static Status DeleteUserSegment(int groupId, string userId, long segmentId)
         {
             Status result = null;
             bool deleteResult = false;
@@ -2179,7 +2179,6 @@ namespace Core.Api
                 {
                     GroupId = groupId,
                     UserId = userId,
-                    SegmentationTypeId = segmentationTypeId,
                     SegmentId = segmentId
                 };
 

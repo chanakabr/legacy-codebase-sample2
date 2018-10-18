@@ -204,7 +204,7 @@ namespace ApiObjects.Segmentation
             return string.Format("segmentation_types_{0}", groupId);
         }
 
-        public static List<SegmentationType> List(int groupId, int pageIndex, int pageSize, out int totalCount)
+        public static List<SegmentationType> List(int groupId, List<long> ids, int pageIndex, int pageSize, out int totalCount)
         {
             List<SegmentationType> result = new List<SegmentationType>();
             totalCount = 0;
@@ -222,12 +222,23 @@ namespace ApiObjects.Segmentation
             }
 
             totalCount = groupSegmentationTypes.segmentationTypes.Count;
+            List<string> keys = null;
+
+            if (ids != null && ids.Count > 0)
+            {
+                // ignore segmentation types that are not part of this group's segementation types
+                ids.RemoveAll(id => !groupSegmentationTypes.segmentationTypes.Exists(id2 => id == id2));
+
+                keys = ids.Select(id => GetSegmentationTypeDocumentKey(groupId, id)).ToList();
+            }
+            else
+            {
+                // transform objects to document keys
+                keys = groupSegmentationTypes.segmentationTypes.Select(id => GetSegmentationTypeDocumentKey(groupId, id)).ToList();
+            }
 
             // get only Ids on current page
-            var pagedIds = groupSegmentationTypes.segmentationTypes.Skip(pageIndex * pageSize).Take(pageSize);
-
-            // transform Ids to document keys
-            List<string> keys = pagedIds.Select(id => GetSegmentationTypeDocumentKey(groupId, id)).ToList();
+            var pagedKeys = keys.Skip(pageIndex * pageSize).Take(pageSize);
 
             // get all segmentation types from CB
             var getResult = couchbaseManager.GetValues<SegmentationType>(keys, false, true);
