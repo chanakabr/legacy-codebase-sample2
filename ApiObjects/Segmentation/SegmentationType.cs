@@ -53,6 +53,11 @@ namespace ApiObjects.Segmentation
 
             string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(this.GroupId);
 
+            if (this.Value == null)
+            {
+                this.Value = new SegmentDummyValue();
+            }
+
             if (this.Value != null)
             {
                 bool addSegmentIdsResult = this.Value.AddSegmentsIds(this.Id);
@@ -63,7 +68,6 @@ namespace ApiObjects.Segmentation
                     return false;
                 }
             }
-
             GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
 
             if (groupSegmentationTypes == null)

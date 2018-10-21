@@ -27,9 +27,6 @@ namespace ApiObjects.Segmentation
 
     public class SegmentValues : SegmentBaseValue
     {
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)]
-        public SegmentSource Source;
-        
         [JsonProperty()]
         public List<SegmentValue> Values;
 

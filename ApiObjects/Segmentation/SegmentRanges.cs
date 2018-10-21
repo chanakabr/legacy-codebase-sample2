@@ -9,12 +9,8 @@ namespace ApiObjects.Segmentation
 {
     public class SegmentRanges : SegmentBaseValue
     {
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)]
-        public SegmentSource Source;
-        
         [JsonProperty()]
         public List<SegmentRange> Ranges;
-
 
         public override bool AddSegmentsIds(long segmentationTypeId)
         {
