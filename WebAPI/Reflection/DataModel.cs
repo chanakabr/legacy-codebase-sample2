@@ -1776,6 +1776,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDummyValue":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                    }
+                    break;
+                    
                 case "KalturaDynamicChannel":
                     switch(property.Name)
                     {

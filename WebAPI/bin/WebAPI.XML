@@ -10903,6 +10903,11 @@
             Base class that defines segment value
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaDummyValue.Id">
+            <summary>
+            Id of segment
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaScoredMonetizationCondition">
             <summary>
             Defines a condition which is essentially a combination of several monetization-based actions, each has their own score multiplier

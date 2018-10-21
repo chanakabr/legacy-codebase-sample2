@@ -727,12 +727,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .Include<KalturaSegmentValues, SegmentValues>()
                 .Include<KalturaSegmentAllValues, SegmentAllValues>()
                 .Include<KalturaSegmentRanges, SegmentRanges>()
+                .Include<KalturaDummyValue, SegmentDummyValue>()
                 ;
 
             cfg.CreateMap<SegmentBaseValue, KalturaBaseSegmentValue>()
                 .Include<SegmentValues, KalturaSegmentValues>()
                 .Include<SegmentAllValues, KalturaSegmentAllValues>()
                 .Include<SegmentRanges, KalturaSegmentRanges>()
+                .Include<SegmentDummyValue, KalturaDummyValue>()
+                ;
+
+            // segment dummy value
+            cfg.CreateMap<SegmentDummyValue, KalturaDummyValue>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                ;
+
+            cfg.CreateMap<KalturaDummyValue, SegmentDummyValue>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 ;
 
             // segment value
