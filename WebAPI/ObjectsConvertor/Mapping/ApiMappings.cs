@@ -2759,7 +2759,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     {
                         item = AutoMapper.Mapper.Map<DateCondition>(condition as KalturaDateCondition);
                     }
-                    else if (condition is OrCondition)
+                    else if (condition is KalturaOrCondition)
                     {
                         item = AutoMapper.Mapper.Map<OrCondition>(condition as KalturaOrCondition);
                     }
