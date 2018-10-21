@@ -12,5 +12,8 @@ namespace Core.Catalog
         public int Height { get; set; }
 
         public int RatioId { get; set; }
+
+        // Used for OPC migration only!!!
+        public long Id { get; set; }
     }
 }
