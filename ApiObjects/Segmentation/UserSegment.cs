@@ -65,6 +65,11 @@ namespace ApiObjects.Segmentation
 
             SegmentationType segmentationType = null;
 
+            if (segmentationTypes != null && segmentationTypes.Count > 0)
+            {
+                segmentationType = segmentationTypes.FirstOrDefault();
+            }
+
             if (segmentationType == null)
             {
                 this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Segmentation type not found");
