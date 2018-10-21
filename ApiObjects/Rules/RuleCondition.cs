@@ -38,7 +38,7 @@ namespace ApiObjects.Rules
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class OrCondition : RuleCondition
     {
-        [JsonProperty("Conditions")]
+        [JsonProperty("Conditions", ItemTypeNameHandling = TypeNameHandling.All)]
         public List<RuleCondition> Conditions { get; set; }
 
         public OrCondition()
