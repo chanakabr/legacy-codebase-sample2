@@ -231,7 +231,6 @@ namespace APILogic.Api.Managers
 
         private static Tuple<Dictionary<string, BusinessModuleRule>, bool> GetBusinessModuleRulesCB(Dictionary<string, object> funcParams)
         {
-            bool res = false;
             Dictionary<string, BusinessModuleRule> result = new Dictionary<string, BusinessModuleRule>();
 
             try
@@ -253,8 +252,6 @@ namespace APILogic.Api.Managers
                                 result.Add(businessModuleRuleKey, businessModuleRule);
                             }
                         }
-
-                        res = result.Count == ruleIds.Count();
                     }
                 }
             }
@@ -263,7 +260,7 @@ namespace APILogic.Api.Managers
                 log.Error(string.Format("GetBusinessModuleRulesCB failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<string, BusinessModuleRule>, bool>(result, res);
+            return new Tuple<Dictionary<string, BusinessModuleRule>, bool>(result, true);
         }
         
 
