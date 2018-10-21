@@ -105,12 +105,15 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaSegmentationTypeListResponse List(KalturaSegmentationTypeFilter filter, KalturaFilterPager pager = null)
+        static public KalturaSegmentationTypeListResponse List(KalturaSegmentationTypeFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaSegmentationTypeListResponse response = null;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
+
+            if (filter == null)
+                filter = new KalturaSegmentationTypeFilter();
 
             try
             {
