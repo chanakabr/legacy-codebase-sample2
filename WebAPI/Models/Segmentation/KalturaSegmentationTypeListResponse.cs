@@ -39,8 +39,7 @@ namespace WebAPI.Models.Segmentation
         /// </summary>
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
+        [XmlElement(ElementName = "idIn")]
         public string IdIn { get; set; }
 
         public override KalturaSegmentationTypeOrder GetDefaultOrderByValue()
