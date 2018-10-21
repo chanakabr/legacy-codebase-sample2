@@ -365,6 +365,35 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        private static void UpdateImagesForGroupWithPicSizes(int groupId, ref GenericListResponse<Image> imagesResponse)
+        {
+            try
+            {
+                // get picture sizes
+                List<PicSize> pictureSizes = Cache.CatalogCache.Instance().GetGroupPicSizes(groupId);
+                Dictionary<long, PicSize> ratioIdToPicSize = new Dictionary<long, PicSize>();
+                if (pictureSizes != null && pictureSizes.Count > 0)
+                {
+                    ratioIdToPicSize = pictureSizes.ToDictionary(x => (long)x.RatioId, x => x);
+                }
+
+                foreach (Image image in imagesResponse.Objects)
+                {
+                    ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
+                    if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0 && ratioIdToPicSize.ContainsKey(imageType.RatioId.Value))
+                    {
+                        image.Height = ratioIdToPicSize[imageType.RatioId.Value].Height;
+                        image.Width = ratioIdToPicSize[imageType.RatioId.Value].Width;
+                        image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, image.Width, image.Height, 100);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddPicSizesIfNeeded for groupId: {0}", groupId), ex);
+            }
+        }
+
         #endregion
 
         #region Internal
@@ -672,9 +701,14 @@ namespace Core.Catalog.CatalogManagement
         public static GenericListResponse<Image> GetImagesByIds(int groupId, List<long> imageIds, bool? isDefault = null)
         {
             GenericListResponse<Image> response = new GenericListResponse<Image>();
-
             DataTable dt = CatalogDAL.GetImagesByIds(groupId, imageIds, isDefault);
             response = CreateImageListResponseFromDataTable(groupId, dt);
+            if (response.HasObjects())
+            {
+                // check if group uses pic sizes
+                UpdateImagesForGroupWithPicSizes(groupId, ref response);
+            }
+
             return response;
         }
 
@@ -689,6 +723,12 @@ namespace Core.Catalog.CatalogManagement
                 List<Image> groupDefualtImages = GetGroupDefaultImages(groupId);
                 HashSet<long> assetImageTypes = new HashSet<long>(response.Objects.Select(x => x.ImageTypeId).ToList());
                 response.Objects.AddRange(groupDefualtImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
+            }
+
+            if (response.HasObjects())
+            {
+                // check if group uses pic sizes
+                UpdateImagesForGroupWithPicSizes(groupId, ref response);
             }
 
             return response;
@@ -946,6 +986,13 @@ namespace Core.Catalog.CatalogManagement
         public static List<Picture> ConvertImagesToPictures(List<Image> assetImages, int groupId)
         {
             List<Picture> pictures = new List<Picture>();
+            // get picture sizes
+            List<PicSize> pictureSizes = Cache.CatalogCache.Instance().GetGroupPicSizes(groupId);
+            Dictionary<long, PicSize> ratioIdToPicSize = new Dictionary<long, PicSize>();
+            if (pictureSizes != null && pictureSizes.Count > 0)
+            {
+                ratioIdToPicSize = pictureSizes.ToDictionary(x => (long)x.RatioId, x => x);
+            }
             if (assetImages != null && assetImages.Count > 0)
             {
                 foreach (Image image in assetImages)
@@ -953,7 +1000,8 @@ namespace Core.Catalog.CatalogManagement
                     ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
                     if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
                     {
-                        pictures.Add(new Picture(image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value)));
+                        PicSize picsize = ratioIdToPicSize.ContainsKey(imageType.RatioId.Value) ? ratioIdToPicSize[imageType.RatioId.Value] : null;
+                        pictures.Add(new Picture(groupId, image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value), picsize));
                     }
                 }
             }

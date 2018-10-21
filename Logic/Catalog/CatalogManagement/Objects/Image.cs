@@ -36,5 +36,11 @@ namespace Core.Catalog.CatalogManagement
 
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public bool? IsDefault { get; set; }
+
+        // only used for backward compatibility of pic sizes
+        public int Height { get; set; }
+
+        // only used for backward compatibility of pic sizes
+        public int Width { get; set; }
     }
 }
