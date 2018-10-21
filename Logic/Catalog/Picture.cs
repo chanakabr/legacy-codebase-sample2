@@ -42,14 +42,22 @@ namespace Core.Catalog
             ratio = picRatio;
         }
 
-        public Picture(CatalogManagement.Image image, string imageTypeName, string picRatio)
+        public Picture(int groupId, CatalogManagement.Image image, string imageTypeName, string picRatio, PicSize picSize = null)
         {
-            this.m_sURL = image.Url;
+            this.id = image.ContentId;
             this.ratio = picRatio;
             this.version = image.Version;
-            this.id = image.ContentId;
             this.imageTypeId = image.ImageTypeId;
             this.imageTypeName = imageTypeName;
+            if (picSize != null)
+            {
+                this.m_sSize = string.Format("{0}X{1}", picSize.Width, picSize.Height);
+                this.m_sURL = TVinciShared.ImageUtils.BuildImageUrl(groupId, this.id, this.version, picSize.Width, picSize.Height, 100);
+            }
+            else
+            {                                                
+                this.m_sURL = image.Url;
+            }
         }
     }
 
