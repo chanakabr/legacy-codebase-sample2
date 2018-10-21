@@ -1202,9 +1202,9 @@ namespace Core.Catalog.CatalogManagement
                                                         endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId, (int)inheritancePolicy);
 
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                if (!isForMigration && !isFromIngest && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Object != null && result.Object.Id > 0 && !isLinear)
+                if (!isForMigration && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
-                    if (assetStruct.ParentId.HasValue)
+                    if (assetStruct.ParentId.HasValue && assetStruct.ParentId.Value > 0)
                     {
                         DataSet updateDS = UpdateAssetInheritancePolicy(groupId, userId, catalogGroupCache, assetStruct, inheritancePolicy, result.Object);
                         if (updateDS != null)
@@ -1214,10 +1214,13 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
-                    if (!indexingResult)
+                    if (!isFromIngest)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
+                        bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
+                        }
                     }
 
                     // update meta inherited

@@ -1046,6 +1046,8 @@ namespace Core.Catalog.CatalogManagement
 
                         if (topicsForAssetUpdate.Count > 0)
                         {
+                            AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)newAsset.Id);
+
                             QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
 
                             InheritanceParentUpdate data = new InheritanceParentUpdate()
