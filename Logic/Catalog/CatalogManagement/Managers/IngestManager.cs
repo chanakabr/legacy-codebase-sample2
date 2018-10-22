@@ -1168,7 +1168,8 @@ namespace Core.Catalog.CatalogManagement
                                 StartDate = ExtractDate(mediaFile.FileStartDate, ASSET_FILE_DATE_FORMAT),
                                 EndDate = ExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT),
                                 FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
-                                IsActive = true
+                                IsActive = true,
+                                CatalogEndDate = ExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT)
                                 //AlternativeCdnAdapaterProfileId,
                                 //AdditionalData
                                 //OrderNum
