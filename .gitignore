@@ -1,2 +1,4 @@
 CDNTokenizers/bin/
 CDNTokenizers/obj/
+/.vs
+/packages
