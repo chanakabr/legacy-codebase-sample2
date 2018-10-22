@@ -490,29 +490,23 @@ namespace Core.Catalog.CatalogManagement
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
 
             // in case isFromIngest = true. need to filter out the protected metas and tags. Should not update their values.
-            List<AssetStructMeta> protectedMetasAndTagsNames = new List<AssetStructMeta>();
+            List<AssetStructMeta> protectedAssetStructMeta = new List<AssetStructMeta>();
             if (isFromIngest && assetStruct.AssetStructMetas != null && assetStruct.AssetStructMetas.Count > 0)
             {
-                protectedMetasAndTagsNames = assetStruct.AssetStructMetas.Values.Where(x => x.ProtectFromIngest.HasValue && x.ProtectFromIngest.Value).ToList();
-                if (protectedMetasAndTagsNames != null && protectedMetasAndTagsNames.Count > 0)
+                protectedAssetStructMeta = assetStruct.AssetStructMetas.Values.Where(x => x.ProtectFromIngest.HasValue && x.ProtectFromIngest.Value).ToList();
+                if (protectedAssetStructMeta != null && protectedAssetStructMeta.Count > 0)
                 {
-                    foreach (var protectedMetasAndTagsName in protectedMetasAndTagsNames)
-                    {
-                        if (assetStructMetaIds.Contains(protectedMetasAndTagsName.MetaId))
-                        {
-                            assetStructMetaIds.Remove(protectedMetasAndTagsName.MetaId);
-                        }
+                    List<long> protectedMetasAndTagsById = protectedAssetStructMeta.Select(x => x.MetaId).ToList(); ;
+                    List<string> protectedMetasAndTagsByName = catalogGroupCache.TopicsMapById.Where(x => protectedMetasAndTagsById.Contains(x.Key)).Select(y => y.Value.SystemName).ToList();
 
-                        if (currentAssetMetasAndTags.Contains(catalogGroupCache.TopicsMapById[protectedMetasAndTagsName.MetaId].SystemName))
-                        {
-                            currentAssetMetasAndTags.Remove(catalogGroupCache.TopicsMapById[protectedMetasAndTagsName.MetaId].SystemName);
-                        }
-                    }
+                    asset.Metas.RemoveAll(x => protectedMetasAndTagsByName.Contains(x.m_oTagMeta.m_sName));
+                    asset.Tags.RemoveAll(x => protectedMetasAndTagsByName.Contains(x.m_oTagMeta.m_sName));
                 }
             }
 
             List<Metas> metasToAdd = asset.Metas != null && currentAssetMetasAndTags != null ? asset.Metas.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Metas>();
             List<Tags> tagsToAdd = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
+
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToAdd, tagsToAdd, assetStructMetaIds, ref metasXmlDocToAdd, ref tagsXmlDocToAdd,
                                                                     ref assetCatalogStartDate, ref assetFinalEndDate);
             if (result.Code != (int)eResponseStatus.OK)
