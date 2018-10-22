@@ -531,9 +531,6 @@ namespace WebAPI.Reflection
                 case "KalturaDrmProfileListResponse":
                     return new KalturaDrmProfileListResponse(parameters);
                     
-                case "KalturaDummyValue":
-                    return new KalturaDummyValue(parameters);
-                    
                 case "KalturaDynamicChannel":
                     return new KalturaDynamicChannel(parameters);
                     
@@ -1337,6 +1334,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSessionInfo":
                     return new KalturaSessionInfo(parameters);
+                    
+                case "KalturaSingleSegmentValue":
+                    return new KalturaSingleSegmentValue(parameters);
                     
                 case "KalturaSlimAsset":
                     return new KalturaSlimAsset(parameters);
@@ -19578,34 +19578,6 @@ namespace WebAPI.Models.Segmentation
             }
         }
     }
-    public partial class KalturaDummyValue
-    {
-        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDummyValue")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        public KalturaDummyValue(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("id") && parameters["id"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
-                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
-                }
-            }
-        }
-    }
     public partial class KalturaMonetizationCondition
     {
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
@@ -20348,6 +20320,34 @@ namespace WebAPI.Models.Segmentation
                     {
                         Values = buildList(typeof(KalturaSegmentValue), parameters["values"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaSingleSegmentValue
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSingleSegmentValue")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaSingleSegmentValue(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
             }
         }

@@ -10903,7 +10903,7 @@
             Base class that defines segment value
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Segmentation.KalturaDummyValue.Id">
+        <member name="P:WebAPI.Models.Segmentation.KalturaSingleSegmentValue.Id">
             <summary>
             Id of segment
             </summary>

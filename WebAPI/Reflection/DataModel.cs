@@ -1776,14 +1776,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaDummyValue":
-                    switch(property.Name)
-                    {
-                        case "Id":
-                            return "id";
-                    }
-                    break;
-                    
                 case "KalturaDynamicChannel":
                     switch(property.Name)
                     {
@@ -4935,6 +4927,14 @@ namespace WebAPI.Reflection
                             return "epgChannelIdEqual";
                         case "SeriesIdIn":
                             return "seriesIdIn";
+                    }
+                    break;
+                    
+                case "KalturaSingleSegmentValue":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
                     }
                     break;
                     
