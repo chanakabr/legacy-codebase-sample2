@@ -3239,10 +3239,14 @@ namespace WebAPI.Reflection
                 case "KalturaMonetizationCondition":
                     switch(property.Name)
                     {
-                        case "MinimumPrice":
-                            return "minimumPrice";
-                        case "Multiplier":
-                            return "multiplier";
+                        case "Days":
+                            return "days";
+                        case "MaxValue":
+                            return "maxValue";
+                        case "MinValue":
+                            return "minValue";
+                        case "Operator":
+                            return "operator";
                         case "Type":
                             return "type";
                     }
@@ -4684,20 +4688,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaScoredMonetizationCondition":
-                    switch(property.Name)
-                    {
-                        case "Actions":
-                            return "actions";
-                        case "Days":
-                            return "days";
-                        case "MaxScore":
-                            return "maxScore";
-                        case "MinScore":
-                            return "minScore";
-                    }
-                    break;
-                    
                 case "KalturaSearchAssetFilter":
                     switch(property.Name)
                     {
@@ -4781,8 +4771,12 @@ namespace WebAPI.Reflection
                 case "KalturaSegmentationType":
                     switch(property.Name)
                     {
+                        case "AffectsContentOrdering":
+                            return "affectsContentOrdering";
                         case "Conditions":
                             return "conditions";
+                        case "CreateDate":
+                            return "createDate";
                         case "Description":
                             return "description";
                         case "Id":

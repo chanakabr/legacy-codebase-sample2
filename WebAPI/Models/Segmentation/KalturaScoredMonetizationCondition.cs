@@ -13,25 +13,25 @@ namespace WebAPI.Models.Segmentation
     /// <summary>
     /// Defines a condition which is essentially a combination of several monetization-based actions, each has their own score multiplier
     /// </summary>
-    public partial class KalturaScoredMonetizationCondition : KalturaBaseSegmentCondition
+    public partial class KalturaMonetizationCondition : KalturaBaseSegmentCondition
     {
         /// <summary>
-        /// The minimum score to be met
+        /// The minimum value to be met
         /// </summary>
-        [DataMember(Name = "minScore")]
-        [JsonProperty(PropertyName = "minScore")]
-        [XmlElement(ElementName = "minScore")]
+        [DataMember(Name = "minValue")]
+        [JsonProperty(PropertyName = "minValue")]
+        [XmlElement(ElementName = "minValue")]
         [SchemeProperty()]
-        public int? MinScore { get; set; }
+        public int? MinValue { get; set; }
 
         /// <summary>
-        /// The maximum score to be met
+        /// The maximum value to be met
         /// </summary>
-        [DataMember(Name = "maxScore")]
-        [JsonProperty(PropertyName = "maxScore")]
-        [XmlElement(ElementName = "maxScore")]
+        [DataMember(Name = "maxValue")]
+        [JsonProperty(PropertyName = "maxValue")]
+        [XmlElement(ElementName = "maxValue")]
         [SchemeProperty()]
-        public int? MaxScore { get; set; }
+        public int? MaxValue { get; set; }
 
         /// <summary>
         /// How many days back should the actions be considered
@@ -43,22 +43,6 @@ namespace WebAPI.Models.Segmentation
         public int? Days { get; set; }
 
         /// <summary>
-        /// List of the actions that consist the condition
-        /// </summary>
-        [DataMember(Name = "actions", EmitDefaultValue = true)]
-        [JsonProperty(PropertyName = "actions", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlArray(ElementName = "actions", IsNullable = true)]
-        [XmlArrayItem("item")]
-        [SchemeProperty()]
-        public List<KalturaMonetizationCondition> Actions { get; set; }
-    }
-
-    /// <summary>
-    /// Defines a singular monetization condition
-    /// </summary>
-    public partial class KalturaMonetizationCondition : KalturaOTTObject
-    {
-        /// <summary>
         /// Purchase type
         /// </summary>
         [DataMember(Name = "type")]
@@ -68,21 +52,12 @@ namespace WebAPI.Models.Segmentation
         public KalturaMonetizationType Type { get; set; }
 
         /// <summary>
-        /// Minimum price of purchase
+        /// Mathermtical operator to calculate
         /// </summary>
-        [DataMember(Name = "minimumPrice")]
-        [JsonProperty(PropertyName = "minimumPrice")]
-        [XmlElement(ElementName = "minimumPrice")]
+        [DataMember(Name = "operator")]
+        [JsonProperty(PropertyName = "operator")]
+        [XmlElement(ElementName = "operator")]
         [SchemeProperty()]
-        public int? MinimumPrice { get; set; }
-
-        /// <summary>
-        /// Score multiplier
-        /// </summary>
-        [DataMember(Name = "multiplier")]
-        [JsonProperty(PropertyName = "multiplier")]
-        [XmlElement(ElementName = "multiplier")]
-        [SchemeProperty()]
-        public int Multiplier { get; set; }
+        public KalturaMathemticalOperatorType Operator { get; set; }
     }
 }

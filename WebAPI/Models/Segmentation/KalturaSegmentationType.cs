@@ -61,6 +61,24 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "value")]
         [SchemeProperty()]
         public KalturaBaseSegmentValue Value { get; set; }
+
+        /// <summary>
+        /// Create date of segmentation type
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty(PropertyName = "createDate")]
+        [XmlElement(ElementName = "createDate", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Do the segments of this type affect content ordering of channels and searches
+        /// </summary>
+        [DataMember(Name = "affectsContentOrdering")]
+        [JsonProperty(PropertyName = "affectsContentOrdering")]
+        [XmlElement(ElementName = "affectsContentOrdering")]
+        [SchemeProperty()]
+        public bool AffectsContentOrdering { get; set; }
     }
 
     public enum KalturaContentAction
