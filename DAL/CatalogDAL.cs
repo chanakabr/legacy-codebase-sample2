@@ -4982,7 +4982,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@altCoGuid", altExternalId);
             sp.AddParameter("@fileSize", fileSize ?? 0);
             sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
-            sp.AddParameter("@catalogEndDate", endDate);
+            sp.AddParameter("@catalogEndDate", catalogEndDate);
 
             return sp.ExecuteDataSet();
         }
