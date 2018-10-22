@@ -52,30 +52,22 @@ namespace ApiObjects.Segmentation
         public int Multiplier { get; set; }
     }
 
-    public class MonetizationScoredCondition : SegmentCondition
+    public class MonetizationCondition : SegmentCondition
     {
         [JsonProperty()]
-        public int? MinScore { get; set; }
+        public int? MinValue { get; set; }
 
         [JsonProperty()]
-        public int? MaxScore { get; set; }
+        public int? MaxValue { get; set; }
 
         [JsonProperty()]
         public int? Days { get; set; }
 
         [JsonProperty()]
-        public List<MonetizationCondition> Actions { get; set; }
-    }
-
-    public class MonetizationCondition
-    {
-        [JsonProperty()]
         public MonetizationType Type;
 
         [JsonProperty()]
-        public int? MinimumPrice;
-
-        [JsonProperty()]
-        public int Multiplier;
+        public MathemticalOperatorType Operator;
     }
+    
 }

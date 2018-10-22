@@ -29,6 +29,12 @@ namespace ApiObjects.Segmentation
         public SegmentBaseValue Value;
 
         [JsonProperty()]
+        public long CreateDate;
+
+        [JsonProperty()]
+        public bool AffectsContentOrdering;
+
+        [JsonProperty()]
         public int Status;
 
         public Status ActionStatus;
