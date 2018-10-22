@@ -307,6 +307,7 @@ namespace TVinciShared
 
         static public DataRow GetOrInsertMediaFile(Int32 nPicType, Int32 nMediaID, Int32 nGroupID, Int32 nMediaQualityID, string sLanguage = "")
         {
+            //TODO Anat ask Ira
             DataRow dr = null;
             ODBCWrapper.StoredProcedure spGetOrInsertMediaFile = new ODBCWrapper.StoredProcedure("GetOrInsertMediaFile");
             spGetOrInsertMediaFile.SetConnectionKey("MAIN_CONNECTION_STRING");

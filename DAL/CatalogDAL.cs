@@ -2830,6 +2830,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_ValidateMediaFiles(int[] mediaFiles, int groupId)
         {
+            //TODO Anat ask Ira
             DataTable dt = null;
             try
             {
@@ -4954,7 +4955,8 @@ namespace Tvinci.Core.DAL
 
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
             long billingType, double? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
-            string language, int? orderNum, int outputProtecationLevel, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive)
+            string language, int? orderNum, int outputProtecationLevel, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId, 
+            bool? isActive, DateTime? catalogEndDate)
         {
             StoredProcedure sp = new StoredProcedure("InsertMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4980,6 +4982,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@altCoGuid", altExternalId);
             sp.AddParameter("@fileSize", fileSize ?? 0);
             sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
+            sp.AddParameter("@catalogEndDate", endDate);
 
             return sp.ExecuteDataSet();
         }
@@ -5007,7 +5010,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId, long billingType,
             long? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage, string language, int? orderNum, int outputProtecationLevel, DateTime? startDate,
-            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive)
+            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate)
         {
             StoredProcedure sp = new StoredProcedure("UpdateMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5033,6 +5036,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@altCoGuid", altExternalId);
             sp.AddParameter("@fileSize", fileSize);
             sp.AddParameter("@IsActive", isActive);
+            sp.AddParameter("@catalogEndDate", catalogEndDate);
 
             return sp.ExecuteDataSet();
         }
