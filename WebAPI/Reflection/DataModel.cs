@@ -3021,6 +3021,8 @@ namespace WebAPI.Reflection
                             return "assetId";
                         case "BillingType":
                             return "billingType";
+                        case "CatalogEndDate":
+                            return "catalogEndDate";
                         case "CdnAdapaterProfileId":
                             return "cdnAdapaterProfileId";
                         case "CdnCode":

@@ -10207,6 +10207,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("billingType", "\"billingType\": " + "\"" + EscapeJson(BillingType) + "\"");
             }
+            if(CatalogEndDate.HasValue)
+            {
+                ret.Add("catalogEndDate", "\"catalogEndDate\": " + CatalogEndDate);
+            }
             if(CdnAdapaterProfileId.HasValue)
             {
                 ret.Add("cdnAdapaterProfileId", "\"cdnAdapaterProfileId\": " + CdnAdapaterProfileId);
@@ -10339,6 +10343,10 @@ namespace WebAPI.Models.Catalog
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && BillingType != null)
             {
                 ret.Add("billingType", "<billingType>" + EscapeXml(BillingType) + "</billingType>");
+            }
+            if(CatalogEndDate.HasValue)
+            {
+                ret.Add("catalogEndDate", "<catalogEndDate>" + CatalogEndDate + "</catalogEndDate>");
             }
             if(CdnAdapaterProfileId.HasValue)
             {

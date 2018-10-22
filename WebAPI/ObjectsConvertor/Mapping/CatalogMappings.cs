@@ -881,6 +881,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.GetTypeName()))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
+                 .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CatalogEndDate)))
                  ;
 
             //File 
@@ -904,7 +905,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.CdnAdapaterProfileId, opt => opt.MapFrom(src => src.CdnAdapaterProfileId))
                  .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
-                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status));
+                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)))
+                 ;
 
             #endregion
         }
