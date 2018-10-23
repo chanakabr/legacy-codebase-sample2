@@ -586,6 +586,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                .ForMember(dest => dest.AffectsContentOrdering, opt => opt.MapFrom(src => src.AffectsContentOrdering))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 ;
 
             cfg.CreateMap<SegmentationType, KalturaSegmentationType>()
@@ -594,6 +596,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                .ForMember(dest => dest.AffectsContentOrdering, opt => opt.MapFrom(src => src.AffectsContentOrdering))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 ;
 
             // Segmentation source
@@ -642,13 +646,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaBaseSegmentCondition, SegmentCondition>()
                 .Include<KalturaUserDataCondition, SegmentUserDataCondition>()
                 .Include<KalturaContentScoreCondition, ContentScoreCondition>()
-                .Include<KalturaScoredMonetizationCondition, MonetizationScoredCondition>()
+                .Include<KalturaMonetizationCondition, MonetizationCondition>()
                 ;
 
             cfg.CreateMap<SegmentCondition, KalturaBaseSegmentCondition>()
                 .Include<SegmentUserDataCondition, KalturaUserDataCondition>()
                 .Include<ContentScoreCondition, KalturaContentScoreCondition>()
-                .Include<MonetizationScoredCondition, KalturaScoredMonetizationCondition>()
+                .Include<MonetizationCondition, KalturaMonetizationCondition>()
                 ;
 
             // user data condition
@@ -694,32 +698,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
                 ;
 
-            // scored monetization condition
-            cfg.CreateMap<KalturaScoredMonetizationCondition, MonetizationScoredCondition>()
-                .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
-                .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
-                .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
-                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
-                ;
-
-            cfg.CreateMap<MonetizationScoredCondition, KalturaScoredMonetizationCondition>()
-                .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
-                .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
-                .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
-                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
-                ;
-
-            // monetization condition
+            //  monetization condition
             cfg.CreateMap<KalturaMonetizationCondition, MonetizationCondition>()
-                .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
-                .ForMember(dest => dest.MinimumPrice, opt => opt.MapFrom(src => src.MinimumPrice))
+                .ForMember(dest => dest.MinValue, opt => opt.MapFrom(src => src.MinValue))
+                .ForMember(dest => dest.MaxValue, opt => opt.MapFrom(src => src.MaxValue))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
+                .ForMember(dest => dest.Operator, opt => opt.MapFrom(src => ConvertMathematicalOperator(src.Operator)))
                 ;
 
             cfg.CreateMap<MonetizationCondition, KalturaMonetizationCondition>()
-                .ForMember(dest => dest.Multiplier, opt => opt.MapFrom(src => src.Multiplier))
-                .ForMember(dest => dest.MinimumPrice, opt => opt.MapFrom(src => src.MinimumPrice))
+                .ForMember(dest => dest.MinValue, opt => opt.MapFrom(src => src.MinValue))
+                .ForMember(dest => dest.MaxValue, opt => opt.MapFrom(src => src.MaxValue))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
+                .ForMember(dest => dest.Operator, opt => opt.MapFrom(src => ConvertMathematicalOperator(src.Operator)))
                 ;
 
             // base segment value
@@ -727,22 +720,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .Include<KalturaSegmentValues, SegmentValues>()
                 .Include<KalturaSegmentAllValues, SegmentAllValues>()
                 .Include<KalturaSegmentRanges, SegmentRanges>()
-                .Include<KalturaDummyValue, SegmentDummyValue>()
+                .Include<KalturaSingleSegmentValue, SegmentDummyValue>()
                 ;
 
             cfg.CreateMap<SegmentBaseValue, KalturaBaseSegmentValue>()
                 .Include<SegmentValues, KalturaSegmentValues>()
                 .Include<SegmentAllValues, KalturaSegmentAllValues>()
                 .Include<SegmentRanges, KalturaSegmentRanges>()
-                .Include<SegmentDummyValue, KalturaDummyValue>()
+                .Include<SegmentDummyValue, KalturaSingleSegmentValue>()
                 ;
 
             // segment dummy value
-            cfg.CreateMap<SegmentDummyValue, KalturaDummyValue>()
+            cfg.CreateMap<SegmentDummyValue, KalturaSingleSegmentValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 ;
 
-            cfg.CreateMap<KalturaDummyValue, SegmentDummyValue>()
+            cfg.CreateMap<KalturaSingleSegmentValue, SegmentDummyValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 ;
 

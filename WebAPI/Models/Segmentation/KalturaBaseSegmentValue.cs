@@ -17,7 +17,7 @@ namespace WebAPI.Models.Segmentation
     {
 
     }
-    public partial class KalturaDummyValue : KalturaBaseSegmentValue
+    public partial class KalturaSingleSegmentValue : KalturaBaseSegmentValue
     {
         /// <summary>
         /// Id of segment
