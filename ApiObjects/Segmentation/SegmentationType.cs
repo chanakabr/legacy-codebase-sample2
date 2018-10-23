@@ -128,12 +128,20 @@ namespace ApiObjects.Segmentation
                 return false;
             }
 
-            bool updateSegmentIdsResult = this.Value.UpdateSegmentIds(source.Value, this.Id);
-
-            if (!updateSegmentIdsResult)
+            if (this.Value != null)
             {
-                log.ErrorFormat("error setting segment Ids");
-                return false;
+                bool updateSegmentIdsResult = this.Value.UpdateSegmentIds(source.Value, this.Id);
+
+                if (!updateSegmentIdsResult)
+                {
+                    log.ErrorFormat("error setting segment Ids");
+                    return false;
+                }
+            }
+            // if user sent an empty value - and if source is a dummy value - then we will maintain it
+            else if (source.Value is SegmentDummyValue)
+            {
+                this.Value = source.Value;
             }
 
             string updatedDocumentKey = GetSegmentationTypeDocumentKey(this.GroupId, this.Id);
