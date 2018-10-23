@@ -184,9 +184,13 @@ public partial class adm_media_files_new : System.Web.UI.Page
         dr_start_date.SetDefault(DateTime.Now);
         theRecord.AddRecord(dr_start_date);
 
-        DataRecordDateTimeField dr_end_date = new DataRecordDateTimeField(true);
-        dr_end_date.Initialize("End Date", "adm_table_header_nbg", "FormInput", "END_DATE", false);
-        theRecord.AddRecord(dr_end_date);
+        DataRecordDateTimeField drDdate = new DataRecordDateTimeField(true);
+        drDdate.Initialize("End Date", "adm_table_header_nbg", "FormInput", "END_DATE", false);
+        theRecord.AddRecord(drDdate);
+
+        drDdate = new DataRecordDateTimeField(true);
+        drDdate.Initialize("Catalog End Date", "adm_table_header_nbg", "FormInput", "CATALOG_END_DATE", false);
+        theRecord.AddRecord(drDdate);
 
 
         DataRecordDropDownField dr_media_quality = new DataRecordDropDownField("lu_media_quality", "description", "id", "", null, 60, false);
