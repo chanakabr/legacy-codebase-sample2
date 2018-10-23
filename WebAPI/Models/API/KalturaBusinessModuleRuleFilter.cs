@@ -56,5 +56,13 @@ namespace WebAPI.Models.API
         {
             return KalturaBusinessModuleOrderBy.NONE;
         }
+
+        public void Validate()
+        {
+            if (BusinessModuleIdApplied.HasValue && !BusinessModuleTypeApplied.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "businessModuleTypeApplied", "businessModuleIdApplied");
+            }
+        }
     }
 }
