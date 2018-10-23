@@ -74,7 +74,7 @@ namespace WebAPI.Controllers
                         operatorValue = matchCondition.Groups[1].Value;
                         int index = matchCondition.Groups[1].Index;
                         conditionPropertyName = token.Substring(1, index - 1);
-                        conditionValueToConvert = token.Substring(index + 1, token.Length - index - 2);
+                        conditionValueToConvert = token.Substring(index + matchCondition.Groups[1].Length, token.Length - index - 1 - matchCondition.Groups[1].Length);
                     }
                     
                     List<object> valueList = new List<object>();
@@ -301,9 +301,9 @@ namespace WebAPI.Controllers
                     else
                     {
                         translatedValue = responses[index];
-                        //parameter = responses[index];
                     }
 
+                    log.DebugFormat("at MultiRequestController.translateMultirequestTokens. for parameter: {0} the translated value is: {1}.", match.Value, translatedValue);
                     text = text.Replace(match.Value, translatedValue.ToString());
                     match = match.NextMatch();
                 }
