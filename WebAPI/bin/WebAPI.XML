@@ -8328,6 +8328,11 @@
              The media file status
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.CatalogEndDate">
+            <summary>
+            Catalog end date
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFileListResponse">
             <summary>
             Media-file list

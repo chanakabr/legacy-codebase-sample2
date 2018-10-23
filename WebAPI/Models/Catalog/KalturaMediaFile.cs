@@ -282,6 +282,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "status", IsNullable = true)]
         public bool? Status { get; set; }
 
+        /// <summary>
+        /// Catalog end date
+        /// </summary>
+        [DataMember(Name = "catalogEndDate")]
+        [JsonProperty(PropertyName = "CatalogEndDate")]
+        [XmlElement(ElementName = "CatalogEndDate")]
+        public long? CatalogEndDate { get; set; }
+
     }
 
     /// <summary>

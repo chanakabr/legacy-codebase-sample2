@@ -11175,6 +11175,10 @@ namespace WebAPI.Models.Catalog
                 {
                     Status = (Boolean) Convert.ChangeType(parameters["status"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("catalogEndDate") && parameters["catalogEndDate"] != null)
+                {
+                    CatalogEndDate = (Int64) Convert.ChangeType(parameters["catalogEndDate"], typeof(Int64));
+                }
             }
         }
     }
