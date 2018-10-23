@@ -456,23 +456,18 @@ namespace Core.Catalog.CatalogManagement
 
         private static List<Metas> GetMetasList(IngestStructure structure, string mainLanguageCode, CatalogGroupCache catalogGroupCache)
         {
-            List<Metas> metas = null;
+            List<Metas> metas = new List<Metas>();
 
             // add metas-doubles
             if (structure.Doubles != null && structure.Doubles.Metas != null && structure.Doubles.Metas.Count > 0)
             {
-                metas = new List<Metas>(structure.Doubles.Metas.Select
-                    (doubleMeta => new Metas(new TagMeta(doubleMeta.Name, MetaType.Number.ToString()), doubleMeta.Value)));
+                metas.AddRange(structure.Doubles.Metas.Select(doubleMeta => 
+                    new Metas(new TagMeta(doubleMeta.Name, MetaType.Number.ToString()), doubleMeta.Value)));
             }
 
             // add metas-bools
             if (structure.Booleans != null && structure.Booleans.Metas != null && structure.Booleans.Metas.Count > 0)
             {
-                if (metas == null)
-                {
-                    metas = new List<Metas>();
-                }
-
                 metas.AddRange(structure.Booleans.Metas.Select
                     (boolMeta => new Metas(new TagMeta(boolMeta.Name, MetaType.Bool.ToString()), boolMeta.Value.Equals(TRUE) ? "1" : "0")));
             }
@@ -480,11 +475,6 @@ namespace Core.Catalog.CatalogManagement
             // add metas-dates
             if (structure.Dates != null && structure.Dates.Metas != null && structure.Dates.Metas.Count > 0)
             {
-                if (metas == null)
-                {
-                    metas = new List<Metas>();
-                }
-
                 metas.AddRange(structure.Dates.Metas.Select
                     (dateMeta => new Metas(new TagMeta(dateMeta.Name, MetaType.DateTime.ToString()), dateMeta.Value)));
             }
@@ -494,11 +484,6 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (var stringMeta in structure.Strings.MetaStrings)
                 {
-                    if (metas == null)
-                    {
-                        metas = new List<Metas>();
-                    }
-
                     MetaType metaType = catalogGroupCache.TopicsMapBySystemName.ContainsKey(stringMeta.Name) ?
                         catalogGroupCache.TopicsMapBySystemName[stringMeta.Name].Type : MetaType.MultilingualString;
 
