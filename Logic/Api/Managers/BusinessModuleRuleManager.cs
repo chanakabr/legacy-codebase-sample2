@@ -166,7 +166,7 @@ namespace APILogic.Api.Managers
                         }
                     }
                 }
-                response.Objects = filteredRules;
+                response.Objects = pageSize > 0 ? filteredRules.Skip(pageIndex * pageSize).Take(pageSize).ToList() : filteredRules;
 
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

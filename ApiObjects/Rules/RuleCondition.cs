@@ -217,8 +217,6 @@ namespace ApiObjects.Rules
                 return intersected.Count() == SegmentIds.Count;
             }
             return false;
-
-            // TODO: support the NOT
         }
     }
 }
