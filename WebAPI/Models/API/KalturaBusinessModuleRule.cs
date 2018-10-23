@@ -43,6 +43,12 @@ namespace WebAPI.Models.API
 
             if (this.Conditions != null || this.Conditions.Count > 0)
             {
+
+                if (Conditions.Where(c => c.Type == KalturaRuleConditionType.BUSINESS_MODULE).Count() > 1)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "KalturaBusinessModuleCondition not in KalturaOrCondition");
+                }
+
                 foreach (var condition in this.Conditions)
                 {
                     condition.Validate();
