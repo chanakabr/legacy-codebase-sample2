@@ -246,7 +246,8 @@ namespace Core.Catalog.CatalogManagement
                 CdnAdapaterProfileId = ODBCWrapper.Utils.GetNullableLong(dr, "STREAMING_SUPLIER_ID"),
                 TypeId = typeId,
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
-                IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1
+                IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1,
+                CatalogEndDate= ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CATALOG_END_DATE")
             };
         }       
 
@@ -607,7 +608,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
                                                         assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
                                                         assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, assetFileToAdd.OutputProtecationLevel, startDate,
-                                                        assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive);
+                                                        assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive, assetFileToAdd.CatalogEndDate);
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
@@ -766,7 +767,7 @@ namespace Core.Catalog.CatalogManagement
                                                     assetFileToUpdate.Duration, assetFileToUpdate.EndDate, assetFileToUpdate.ExternalId, assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, 
                                                     assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum, 
                                                     assetFileToUpdate.OutputProtecationLevel, assetFileToUpdate.StartDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId, 
-                                                    assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive);
+                                                    assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive, assetFileToUpdate.CatalogEndDate);
 
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 

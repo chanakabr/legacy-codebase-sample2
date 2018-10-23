@@ -69,6 +69,9 @@ namespace Core.Catalog.CatalogManagement
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
         public bool? IsActive { get; set; }
 
+        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false)]
+        public DateTime? CatalogEndDate { get; set; }
+
         [JsonProperty("type")]
         private string type;
 
