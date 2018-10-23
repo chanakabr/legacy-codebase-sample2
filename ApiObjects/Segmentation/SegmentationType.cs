@@ -44,6 +44,7 @@ namespace ApiObjects.Segmentation
             bool result = false;
 
             this.Status = 1;
+            this.CreateDate = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
