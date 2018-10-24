@@ -4745,7 +4745,8 @@ namespace Core.Catalog
                             fileMedia.m_sLanguage = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "LANGUAGE");
                             fileMedia.m_nIsDefaultLanguage = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "IS_DEFAULT_LANGUAGE");
                             fileMedia.m_sAltCoGUID = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "ALT_CO_GUID");
-
+                            var catalogEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dtFileMedia.Rows[i], "CATALOG_END_DATE");
+                            fileMedia.CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate.Value : new DateTime(2099, 1, 1);
                             if (noFileUrl)
                             {
                                 fileMedia.m_sUrl = GetFictiveFileMediaUrl(fileMedia.m_nMediaID, fileMedia.m_nFileId);

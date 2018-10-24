@@ -3576,7 +3576,7 @@ namespace Core.ConditionalAccess
                 int mediaIsActive = 0, mediaFileIsActive = 0;
                 int mediaStatus = 0, mediaFileStatus = 0;
                 DateTime mediaStartDate, mediaFileStartDate;
-                DateTime? mediaEndDate, mediaFileEndDate, mediaFinalEndDate;
+                DateTime? mediaEndDate, mediaFileEndDate, mediaFinalEndDate, mediaFileCatalogEndDate;
                 DateTime currentDate;
 
                 if (cacheResult && fileDatatables != null)
@@ -3649,6 +3649,8 @@ namespace Core.ConditionalAccess
                                 mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
                                 mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
                                 mediaFileEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "file_end_date");
+                                mediaFileCatalogEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "file_catalog_end_date");
+
 
                                 if (mediaIsActive != 1 || mediaStatus != 1 || mediaFileIsActive != 1 || mediaFileStatus != 1)
                                 {
@@ -3663,7 +3665,11 @@ namespace Core.ConditionalAccess
                                     eMediaFileStatus = MediaFileStatus.NotForPurchase;
                                 }
                                 else if (!isGeoAvailability && ((mediaEndDate.HasValue && mediaEndDate.Value < currentDate) &&
-                                    (!mediaFinalEndDate.HasValue || (mediaFinalEndDate.HasValue && mediaFinalEndDate.Value > currentDate)))) // cun see only if purchased
+                                    (!mediaFinalEndDate.HasValue || (mediaFinalEndDate.HasValue && mediaFinalEndDate.Value > currentDate)))) // can see only if purchased
+                                {
+                                    eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
+                                }
+                                else if (!isGeoAvailability && (mediaFileCatalogEndDate.HasValue && mediaFileCatalogEndDate.Value < currentDate))
                                 {
                                     eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
                                 }
