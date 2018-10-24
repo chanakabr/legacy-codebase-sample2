@@ -19800,15 +19800,6 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute AffectsContentOrderingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaSegmentationType(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -19876,14 +19867,6 @@ namespace WebAPI.Models.Segmentation
                         CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     }
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("affectsContentOrdering") && parameters["affectsContentOrdering"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        AffectsContentOrderingSchemaProperty.Validate("affectsContentOrdering", parameters["affectsContentOrdering"]);
-                    }
-                    AffectsContentOrdering = (Boolean) Convert.ChangeType(parameters["affectsContentOrdering"], typeof(Boolean));
                 }
             }
         }

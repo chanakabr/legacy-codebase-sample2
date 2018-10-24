@@ -70,15 +70,6 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "createDate", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
-
-        /// <summary>
-        /// Do the segments of this type affect content ordering of channels and searches
-        /// </summary>
-        [DataMember(Name = "affectsContentOrdering")]
-        [JsonProperty(PropertyName = "affectsContentOrdering")]
-        [XmlElement(ElementName = "affectsContentOrdering")]
-        [SchemeProperty()]
-        public bool AffectsContentOrdering { get; set; }
     }
 
     public enum KalturaContentAction

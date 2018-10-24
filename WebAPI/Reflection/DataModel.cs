@@ -4771,8 +4771,6 @@ namespace WebAPI.Reflection
                 case "KalturaSegmentationType":
                     switch(property.Name)
                     {
-                        case "AffectsContentOrdering":
-                            return "affectsContentOrdering";
                         case "Conditions":
                             return "conditions";
                         case "CreateDate":

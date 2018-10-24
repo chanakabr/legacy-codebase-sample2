@@ -20143,7 +20143,6 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("affectsContentOrdering", "\"affectsContentOrdering\": " + AffectsContentOrdering.ToString().ToLower());
             if(Conditions != null)
             {
                 propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -20172,7 +20171,6 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("affectsContentOrdering", "<affectsContentOrdering>" + AffectsContentOrdering.ToString().ToLower() + "</affectsContentOrdering>");
             if(Conditions != null)
             {
                 propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
