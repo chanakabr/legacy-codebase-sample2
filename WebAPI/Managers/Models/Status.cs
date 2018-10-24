@@ -182,6 +182,7 @@ namespace WebAPI.Managers.Models
         MultirequestInvalidConditionValue = 500077,
         MultirequestInvalidOperatorForConditionType = 500078,
         RequestAborted = 500079,
-        RequestSkipped = 500080
+        RequestSkipped = 500080,
+        OneOfArgumentsCannotBeEmpty = 500081
     }
 }

@@ -52,7 +52,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ARGUMENTS_VALUES_CONFLICT_EACH_OTHER = new ApiExceptionType(StatusCode.ArgumentsConflictEachOther, StatusCode.BadRequest, "Argument [@argument1@] value conflicts Argument [@argument2@] value", "argument1", "argument2");
         public static ApiExceptionType ARGUMENTS_VALUES_DUPLICATED = new ApiExceptionType(StatusCode.ArgumentsDuplicate, StatusCode.BadRequest, "Argument [@argument@] can not appear twice", "argument");
         public static ApiExceptionType INVALID_AGRUMENT_VALUE = new ApiExceptionType(StatusCode.InvalidArgumentValue, StatusCode.BadRequest, "Argument [@argument@] value must be of type [@value@]", "argument", "value");
-        public static ApiExceptionType BOTH_ARGUMENTS_MUST_HAVE_VALUE = new ApiExceptionType(StatusCode.ArgumentsCannotBeEmpty, StatusCode.BadRequest, "Argument [@argument1@] cannot be empty if [argument2@] not empty", "argument1", "vargument2");
+        public static ApiExceptionType BOTH_ARGUMENTS_MUST_HAVE_VALUE = new ApiExceptionType(StatusCode.OneOfArgumentsCannotBeEmpty, StatusCode.BadRequest, "Argument [@argument1@] cannot be empty if [argument2@] not empty", "argument1", "vargument2");
 
         public static ApiExceptionType MEDIA_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.MediaIdsMustBeNumeric, StatusCode.BadRequest, "Media ids must be numeric");
         public static ApiExceptionType EPG_INTERNAL_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.EpgInternalIdsMustBeNumeric, StatusCode.BadRequest, "EPG internal ids must be numeric");
