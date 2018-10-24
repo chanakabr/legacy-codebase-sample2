@@ -50,7 +50,7 @@ namespace WebAPI.Models.General
             
             if (!string.IsNullOrEmpty(itemsIn))
             {
-                string[] stringValues = itemsIn.Split(new char[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] stringValues = itemsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 Type t = typeof(T);
 
                 foreach (string stringValue in stringValues)
