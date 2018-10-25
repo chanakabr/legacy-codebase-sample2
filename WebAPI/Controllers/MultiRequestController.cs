@@ -245,7 +245,13 @@ namespace WebAPI.Controllers
         {
             if (obj1 == null)
             {
-                return false;
+                if (obj2 == null)
+                {
+                    return false;
+                }
+
+                Type t = obj2.GetType();
+                obj1 = Activator.CreateInstance(t);
             }
 
             switch (operatorValue)
