@@ -80,6 +80,8 @@ namespace TVPApi
             public string Language;
             public bool IsDefaultLang;
             public string CoGuid;
+
+            public string CatalogEndDate { get; internal set; }
         }
 
         public struct Picture
@@ -417,6 +419,7 @@ namespace TVPApi
                     file.Language = rowFile["Language"].ToString();
                     file.IsDefaultLang = Convert.ToBoolean(Convert.ToInt16(rowFile["IsDefaultLang"].ToString()));
                     file.CoGuid = rowFile["CoGuid"].ToString();
+                    file.CatalogEndDate = rowFile["CatalogEndDate"].ToString();
 
                     int preProviderID = Convert.ToInt32(rowFile["PreProviderID"].ToString());
 
