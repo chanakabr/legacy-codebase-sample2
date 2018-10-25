@@ -66,6 +66,8 @@ namespace Core.Catalog
         public List<string> PPVModules;
         [DataMember]
         public long FileSize;
+        [DataMember]
+        public DateTime CatalogEndDate;
 
         public FileMedia()
         {
@@ -80,10 +82,10 @@ namespace Core.Catalog
             m_sAltUrl = string.Empty;
             m_nAltCdnID = 0;
             initializeAdvertisingMembers();
-           
+            CatalogEndDate = new DateTime(2099, 1, 1);
         }
 
-        public FileMedia(Int32 nFileId, double nDuration, string sFormatFile, string sUrl, string sBillingType, int nCdnID, string sCoGUID)
+        public FileMedia(Int32 nFileId, double nDuration, string sFormatFile, string sUrl, string sBillingType, int nCdnID, string sCoGUID, DateTime? catalogEndDate = null)
         {
             m_nFileId = nFileId;
             m_nDuration = nDuration;
@@ -93,12 +95,14 @@ namespace Core.Catalog
             m_nCdnID = nCdnID;
             m_sCoGUID = sCoGUID;
             initializeAdvertisingMembers();
-           
+            CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate.Value : new DateTime(2099, 1, 1);
+
+
         }
 
         public FileMedia(Int32 nFileId, double nDuration, string sFormatFile, string sUrl, string sBillingType, int nCdnID, 
             AdProvider preProv, AdProvider breakProv, AdProvider overlayProv, AdProvider postProv, string breakpoints, string overlaypoints, 
-            bool isPreSkipEnabled, bool isPostSkipEnabled)
+            bool isPreSkipEnabled, bool isPostSkipEnabled, DateTime? catalogEndDate)
         {
             m_nFileId = nFileId;
             m_nDuration = nDuration;
@@ -114,6 +118,7 @@ namespace Core.Catalog
             m_sOverlaypoints = overlaypoints;
             m_bIsPreSkipEnabled = isPreSkipEnabled;
             m_bIsPostSkipEnabled = isPostSkipEnabled;
+            CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate.Value : new DateTime(2099, 1, 1);
 
         }
 
@@ -135,6 +140,7 @@ namespace Core.Catalog
             this.FileSize = assetFile.FileSize.HasValue ? assetFile.FileSize.Value : 0;
             this.Quality = fileType.Quality.ToString();
             this.m_sFileFormat = fileType.Name;
+            this.CatalogEndDate = assetFile.CatalogEndDate.HasValue ? assetFile.CatalogEndDate.Value : new DateTime(2099, 1, 1);
         }
 
         private void initializeAdvertisingMembers()
