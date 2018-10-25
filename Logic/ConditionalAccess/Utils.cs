@@ -1484,7 +1484,7 @@ namespace Core.ConditionalAccess
                 FilterByDate = true,
                 FilterBySegments = true
             };
-
+            
             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
             if (businessModuleRules != null && businessModuleRules.HasObjects())
             {

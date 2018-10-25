@@ -158,6 +158,13 @@ namespace APILogic.Api.Managers
 
                 if (allBusinessModuleRules != null && allBusinessModuleRules.Count > 0)
                 {
+                    log.DebugFormat("GetBusinessModuleRules filter properties - BusinessModuleId: {0}, BusinessModuleType: {1}, FilterByDate: {2}, FilterBySegments: {3}, SegmentIds: {4}",
+                                    filter.BusinessModuleId,
+                                    filter.BusinessModuleType.HasValue ? filter.BusinessModuleType.Value.ToString() : "null",
+                                    filter.FilterByDate,
+                                    filter.FilterBySegments,
+                                    filter.SegmentIds != null ? string.Join(", ", filter.SegmentIds) : "null");
+
                     foreach (var rule in allBusinessModuleRules)
                     {
                         if (rule.Evaluate(filter))
