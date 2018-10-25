@@ -100,6 +100,7 @@ namespace TVPPro.SiteManager.Helper
                                 rowFile.CoGuid = file.m_sCoGUID;
                                 rowFile.Language = file.m_sLanguage;
                                 rowFile.IsDefaultLang = file.m_nIsDefaultLanguage.ToString();
+                                rowFile.CatalogEndDate = file.CatalogEndDate.ToString();
                                 retVal.Files.AddFilesRow(rowFile);
                                 if (file.m_sFileFormat.ToLower() == fileFormat.ToLower())
                                 {
