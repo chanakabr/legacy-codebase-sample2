@@ -199,7 +199,8 @@ namespace Core.Catalog.Cache
                             {
                                 RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
                                 Width = Utils.GetIntSafeVal(row, "WIDTH"),
-                                Height = Utils.GetIntSafeVal(row, "HEIGHT")
+                                Height = Utils.GetIntSafeVal(row, "HEIGHT"),
+                                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID")                             
                             });
                         }
                     }
