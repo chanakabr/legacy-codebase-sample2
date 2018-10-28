@@ -1207,7 +1207,7 @@ namespace Core.Catalog.CatalogManagement
                             string connectingMetaValue = GetConnectingMetaValue(parentConectingTopic, asset);
                             if (!string.IsNullOrEmpty(connectingMetaValue))
                             {
-                                string filter = string.Format("(and asset_type='{0}' {1}='{2}')", connectedAssetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
+                                string filter = string.Format("(and asset_type='{0}' {1}='{2}' inheritance_policy='0')", connectedAssetStruct.Id, childConectingTopic.SystemName, connectingMetaValue);
                                 UnifiedSearchResult[] childAssetIds = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, true);
 
                                 if (childAssetIds == null || childAssetIds.Length == 0)
