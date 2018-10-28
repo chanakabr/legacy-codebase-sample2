@@ -6711,7 +6711,11 @@ namespace Core.ConditionalAccess
                                 DateTime? dtEntitlementEndDate = null;
                                 DateTime? dtDiscountEndDate = null;
                                 bool bCancellationWindow = false;
-                                List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(userId, m_nGroupID, ref domainID);
+                                List<int> allUsersInDomain = new List<int>();
+                                if (domainEntitlements == null)
+                                {
+                                    Utils.GetAllUsersDomainBySiteGUID(userId, m_nGroupID, ref domainID);
+                                }
                                 
                                 Price price = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, userId, couponCode, m_nGroupID,
                                                                        ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, 

@@ -2288,9 +2288,10 @@ namespace Core.ConditionalAccess
                     {
                         bool isRelated = lstFileIDs.Contains(nMediaFileID);
                         HashSet<int> mediaFiles = new HashSet<int>();
-                        if (isRelated)
+                        log.DebugFormat("MediaIdGroupFileTypeMapper size {0}", domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper.Count);
+                        if (isRelated && domainEntitlements.DomainPpvEntitlements.MediaIdToMediaFiles.ContainsKey(mediaID))
                         {
-                            mediaFiles = new HashSet<int>(domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper.Where(dic => dic.Key.StartsWith(mediaID.ToString())).SelectMany(dic => dic.Value));
+                            mediaFiles = domainEntitlements.DomainPpvEntitlements.MediaIdToMediaFiles[mediaID];
                         }
 
                         isEntitled = IsUserEntitled(isRelated, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid,
@@ -3607,6 +3608,7 @@ namespace Core.ConditionalAccess
                         }
                     }
 
+                    Group group = new GroupManager().GetGroup(groupId);
                     foreach (DataTable dt in fileDatatables.Values)
                     {
                         eMediaFileStatus = MediaFileStatus.OK;
@@ -3630,7 +3632,7 @@ namespace Core.ConditionalAccess
                             mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
 
                             bool isGeoAvailability;
-                            if (Core.Api.api.IsMediaBlockedForCountryGeoAvailability(groupId, countryId, mediaId, out isGeoAvailability))
+                            if (Core.Api.api.IsMediaBlockedForCountryGeoAvailability(groupId, countryId, mediaId, out isGeoAvailability, group))
                             {
                                 eMediaFileStatus = MediaFileStatus.NotForPurchase;
                             }
@@ -7568,6 +7570,30 @@ namespace Core.ConditionalAccess
                         }
 
                         domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper = mapping;
+                        domainEntitlements.DomainPpvEntitlements.MediaIdToMediaFiles = new Dictionary<int, HashSet<int>>();
+                        foreach (KeyValuePair<string, List<int>> pair in domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper)
+                        {
+                            string[] keys = pair.Key.Split('_');
+                            int mediaIdInKey = 0;
+                            if (keys != null && keys.Length > 0 && int.TryParse(keys[0], out mediaIdInKey) && mediaIdInKey > 0)
+                            {
+                                if (domainEntitlements.DomainPpvEntitlements.MediaIdToMediaFiles.ContainsKey(mediaIdInKey))
+                                {
+                                    foreach (int mediaFile in pair.Value)
+                                    {
+                                        if (!domainEntitlements.DomainPpvEntitlements.MediaIdToMediaFiles[mediaIdInKey].Contains(mediaFile))
+                                        {
+                                            domainEntitlements.DomainPpvEntitlements.MediaIdToMediaFiles[mediaIdInKey].Add(mediaFile);
+                                        }
+                                    }
+                                    
+                                }
+                                else
+                                {
+                                    domainEntitlements.DomainPpvEntitlements.MediaIdToMediaFiles.Add(mediaIdInKey, new HashSet<int>(pair.Value));
+                                }
+                            }
+                        }
                     }
 
                     // remove expired Bundles
