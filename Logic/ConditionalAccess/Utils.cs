@@ -4575,7 +4575,7 @@ namespace Core.ConditionalAccess
             user = null;
 
             // If no user - go immediately to domain validation
-            if (string.IsNullOrEmpty(siteGuid))
+            if (string.IsNullOrEmpty(siteGuid) || siteGuid == "0")
             {
                 status.Code = (int)eResponseStatus.OK;
             }
