@@ -247,7 +247,7 @@ namespace Core.Catalog.CatalogManagement
                 TypeId = typeId,
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1,
-                CatalogEndDate= ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CATALOG_END_DATE")
+                CatalogEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CATALOG_END_DATE")
             };
         }       
 
