@@ -10960,11 +10960,10 @@ namespace Core.Api
             return new Tuple<DataTable, bool>(mediaCountries, result);
         }
 
-        internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability)
+        internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability, GroupsCacheManager.Group group = null)
         {
             isGeoAvailability = false;
             bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
-            GroupsCacheManager.Group group = null;
             Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
@@ -10974,7 +10973,7 @@ namespace Core.Api
                     return isGeoAvailability;
                 }
             }
-            else
+            else if (group == null)
             {
                 group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
             }

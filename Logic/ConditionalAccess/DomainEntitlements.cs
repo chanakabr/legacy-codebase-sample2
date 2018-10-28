@@ -36,12 +36,16 @@ namespace Core.ConditionalAccess
             public Dictionary<string, EntitlementObject> EntitlementsDictionary { get; set; }
             
             [JsonIgnore]
-            public Dictionary<string, List<int>> MediaIdGroupFileTypeMapper { get; set; }            
+            public Dictionary<string, List<int>> MediaIdGroupFileTypeMapper { get; set; }
+            
+            [JsonIgnore]
+            public Dictionary<int, HashSet<int>> MediaIdToMediaFiles { get; set; }  
 
             public PPVEntitlements()
             {
                 EntitlementsDictionary = new Dictionary<string,EntitlementObject>();
                 MediaIdGroupFileTypeMapper = new Dictionary<string, List<int>>();
+                MediaIdToMediaFiles = new Dictionary<int, HashSet<int>>();
             }
 
         }
