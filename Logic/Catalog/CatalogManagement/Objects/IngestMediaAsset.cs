@@ -443,6 +443,9 @@ namespace Core.Catalog.CatalogManagement
         [XmlAttribute("file_size")]
         public string FileSize { get; set; }
 
+        [XmlAttribute("file_catalog_end_date")]
+        public string FileCatalogEndDate { get; set; }
+
         public IngestMediaFile()
         {
             this.Quality = "HIGH";
