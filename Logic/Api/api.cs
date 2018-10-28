@@ -10960,11 +10960,25 @@ namespace Core.Api
             return new Tuple<DataTable, bool>(mediaCountries, result);
         }
 
-        internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability)
+        internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability, GroupsCacheManager.Group group = null)
         {
             isGeoAvailability = false;
-            GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
-            if (group.isGeoAvailabilityWindowingEnabled)
+            bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            if (doesGroupUsesTemplates)
+            {
+                if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling IsMediaBlockedForCountryGeoAvailability", groupId);
+                    return isGeoAvailability;
+                }
+            }
+            else if (group == null)
+            {
+                group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+            }
+
+            if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
             {
                 isGeoAvailability = true;
 
