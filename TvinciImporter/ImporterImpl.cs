@@ -3501,7 +3501,7 @@ namespace TvinciImporter
                                                  string ppvModuleName, string sCoGuid, string sContractFamily, string sLanguage, 
                                                  int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, 
                                                  string sProductCode, DateTime? fileStartDate, DateTime? fileEndDate, string sAltCoGuid, 
-                                                 string sAltCDN, string sAltCDNID, string sAltCDNCode, long fileSize)
+                                                 string sAltCDN, string sAltCDNID, string sAltCDNCode, long fileSize, DateTime? fileCatalogEndDate)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
             Int32 nOverridePlayerTypeID = GetPlayerTypeID(sPlayerType);
@@ -3578,6 +3578,11 @@ namespace TvinciImporter
                             log.Error(string.Format("Failed inserting free items index update as part of Ingest for fileEndDate: {0}, mediaID: {1}, groupID: {2}", fileEndDate.Value, nMediaID, nGroupID));
                         }
                     }
+                }
+
+                if (fileCatalogEndDate.HasValue)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CATALOG_END_DATE", "=", fileCatalogEndDate.Value);
                 }
 
                 if (bAdsEnabled == true)
@@ -4437,6 +4442,7 @@ namespace TvinciImporter
                 string sOverlayPoints = GetItemParameterVal(ref theItem, "overlay_points");
                 string sFileStartDate = GetItemParameterVal(ref theItem, "file_start_date");
                 string sFileEndDate = GetItemParameterVal(ref theItem, "file_end_date");
+                string sFileCatalogEndDate = GetItemParameterVal(ref theItem, "file_catalog_end_date");
                 string sAdsEnabled = GetItemParameterVal(ref theItem, "ads_enabled");
                 string sContractFamily = GetItemParameterVal(ref theItem, "contract_family");
                 string sLanguage = GetItemParameterVal(ref theItem, "lang");
@@ -4461,9 +4467,11 @@ namespace TvinciImporter
                 // try to parse the files date correctly
                 DateTime? dStartDate = null;
                 DateTime? dEndDate = null;
+                DateTime? dCatalogEndDate = null;
 
                 dStartDate = ExtractDate(sFileStartDate, "dd/MM/yyyy HH:mm:ss");
                 dEndDate = ExtractDate(sFileEndDate, "dd/MM/yyyy HH:mm:ss");
+                dCatalogEndDate = ExtractDate(sFileCatalogEndDate, "dd/MM/yyyy HH:mm:ss");
 
 
                 bool bAdsEnabled = true;
@@ -4496,7 +4504,7 @@ namespace TvinciImporter
                         sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
                         bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
                         sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode, dStartDate, dEndDate,
-                        sAltCoGuid, sAltCDN, sAltCDNID, sAltCDNCode, fileSize);
+                        sAltCoGuid, sAltCDN, sAltCDNID, sAltCDNCode, fileSize, dCatalogEndDate);
                 }
 
 
