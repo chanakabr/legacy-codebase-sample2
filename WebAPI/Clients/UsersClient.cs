@@ -1544,7 +1544,7 @@ namespace WebAPI.Clients
                 using (var km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     var sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-                    response = Core.Users.Module.SetSSOAdapterSharedSecret(ssoAdapterId, sharedSecret, updaterId);
+                    response = Core.Users.Module.SetSSOAdapterSharedSecret(groupId, ssoAdapterId, sharedSecret, updaterId);
                 }
             }
             catch (Exception ex)
