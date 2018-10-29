@@ -8,6 +8,8 @@ using ApiObjects.Response;
 using ApiObjects.SSOAdapter;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
+using CachingProvider.LayeredCache;
 
 namespace APILogic.Users
 {
@@ -27,8 +29,23 @@ namespace APILogic.Users
             var response = new SSOAdaptersResponse();
             try
             {
-                response.SSOAdapters = DAL.UsersDal.GetSSOAdapters(groupId);
-                if (response.SSOAdapters == null || !response.SSOAdapters.Any())
+                IEnumerable<SSOAdapter> ssoAdapters = null;
+                var key = LayeredCacheKeys.GetSSOAdapaterByGroupKey(groupId);
+                var cacheResult = LayeredCache.Instance.Get(
+                    key,
+                    ref ssoAdapters,
+                    GetSSOAdapaterByGroupId,
+                    new Dictionary<string, object>() { { "groupId", groupId } },
+                    groupId,
+                    LayeredCacheConfigNames.GET_SSO_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME,
+                    new List<string>() { LayeredCacheKeys.GetSSOAdapaterInvalidationKey(groupId) });
+
+                response.SSOAdapters = ssoAdapters;
+                if (!cacheResult)
+                {
+                    response.RespStatus = new Status((int)eResponseStatus.Error, "Could not get sso adapters");
+                }
+                else if (response.SSOAdapters == null || !response.SSOAdapters.Any())
                 {
                     response.RespStatus = new Status((int)eResponseStatus.OK, "no sso adapters related to group");
                 }
@@ -43,6 +60,21 @@ namespace APILogic.Users
             }
 
             return response;
+        }
+
+        private static Tuple<IEnumerable<SSOAdapter>, bool> GetSSOAdapaterByGroupId(Dictionary<string, object> arg)
+        {
+            try
+            {
+                var groupId = (int)arg["groupId"];
+                var adapter = DAL.UsersDal.GetSSOAdapters(groupId);
+                return new Tuple<IEnumerable<SSOAdapter>, bool>(adapter, true);
+            }
+            catch (Exception ex)
+            {
+                _Logger.ErrorFormat("Failed to get SSO Adapter from DB group:[{0}], ex: {1}", arg["groupId"], ex);
+                return new Tuple<IEnumerable<SSOAdapter>, bool>(Enumerable.Empty<SSOAdapter>(), false);
+            }
         }
 
         public static SSOAdapterResponse InsertSSOAdapter(SSOAdapter adapterDetails, int updaterId)
@@ -76,13 +108,21 @@ namespace APILogic.Users
 
                 // Only for update we need to check an id is provided
                 if (adapterDetails.Id == 0) { response.RespStatus = new Status((int)eResponseStatus.SSOAdapterIdRequired, SSO_ADAPTER_ID_REQUIRED); }
-                if (response.RespStatus.Code != (int)eResponseStatus.OK) { return response; }
+
+                if (response.RespStatus.Code != (int)eResponseStatus.OK)
+                {
+                    return response;
+                }
                 _Logger.DebugFormat("Validation Response is code:[{0}] msg:[{1}]", response.RespStatus.Code, response.RespStatus.Message);
 
 
 
                 response.SSOAdapter = DAL.UsersDal.UpdateSSOAdapter(adapterDetails, updaterId);
                 if (response.SSOAdapter == null) { response.RespStatus = new Status((int)eResponseStatus.SSOAdapterNotExist, SSO_ADAPTER_NOT_EXIST); }
+
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(adapterDetails.GroupId));
+
+
             }
             catch (Exception ex)
             {
@@ -104,7 +144,18 @@ namespace APILogic.Users
                 }
 
                 var isDeleted = DAL.UsersDal.DeleteSSOAdapter(ssoAdapterId, updaterId);
-                response = isDeleted ? new Status((int)eResponseStatus.OK) : new Status((int)eResponseStatus.SSOAdapterNotExist, SSO_ADAPTER_NOT_EXIST);
+
+                if (isDeleted)
+                {
+                    response = new Status((int)eResponseStatus.OK);
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(groupId));
+                }
+                else
+                {
+                    response = new Status((int)eResponseStatus.SSOAdapterNotExist, SSO_ADAPTER_NOT_EXIST);
+                }
+
+
             }
             catch (Exception ex)
             {
@@ -114,7 +165,7 @@ namespace APILogic.Users
 
         }
 
-        public static SSOAdapterResponse SetSSOAdapterSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
+        public static SSOAdapterResponse SetSSOAdapterSharedSecret(int groupId, int ssoAdapterId, string sharedSecret, int updaterId)
         {
             var response = new SSOAdapterResponse { RespStatus = new Status((int)eResponseStatus.Error, "Could not generate shared secret.") };
             try
@@ -126,7 +177,15 @@ namespace APILogic.Users
                 }
 
                 response.SSOAdapter = DAL.UsersDal.SetSharedSecret(ssoAdapterId, sharedSecret, updaterId);
-                response.RespStatus = response.SSOAdapter != null ? new Status((int)eResponseStatus.OK) : new Status((int)eResponseStatus.SSOAdapterNotExist, SSO_ADAPTER_NOT_EXIST);
+                if (response.SSOAdapter != null)
+                {
+                    response.RespStatus = new Status((int)eResponseStatus.OK);
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(groupId));
+                }
+                else
+                {
+                    response.RespStatus = new Status((int)eResponseStatus.SSOAdapterNotExist, SSO_ADAPTER_NOT_EXIST);
+                }
             }
             catch (Exception ex)
             {

@@ -1965,9 +1965,9 @@ namespace Core.Users
             return SSOAdaptersManager.DeleteSSOAdapter(groupId, ssoAdapterId, updaterId);
         }
 
-        public static SSOAdapterResponse SetSSOAdapterSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
+        public static SSOAdapterResponse SetSSOAdapterSharedSecret(int groupId,int ssoAdapterId, string sharedSecret, int updaterId)
         {
-            return SSOAdaptersManager.SetSSOAdapterSharedSecret(ssoAdapterId, sharedSecret, updaterId);
+            return SSOAdaptersManager.SetSSOAdapterSharedSecret(groupId, ssoAdapterId, sharedSecret, updaterId);
         }
 
         public static List<string> GetUserIdsByRoleIds(int groupId, HashSet<long> roleIds)

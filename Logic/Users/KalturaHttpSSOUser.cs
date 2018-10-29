@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using ApiObjects.SSOAdapter;
 using APILogic.SSOAdapaterService;
+using CachingProvider.LayeredCache;
 using SSOAdapaterUser = APILogic.SSOAdapaterService.User;
 using SSOAdapterUserType = APILogic.SSOAdapaterService.UserType;
 
@@ -19,7 +20,7 @@ namespace Core.Users
     public class KalturaHttpSSOUser : KalturaUsers
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private static Dictionary<int, SSOImplementationsResponse> _SSOImplementationCache = new Dictionary<int, SSOImplementationsResponse>();
         private readonly int _GroupId;
         private readonly SSOAdapter _AdapterConfig;
         private readonly ServiceClient _AdapterClient;
@@ -37,20 +38,11 @@ namespace Core.Users
                 _AdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(_AdapterConfig.AdapterUrl);
             }
 
-            var implementationsResponse = _AdapterClient.GetConfiguration(_AdapterId);
-            if (!ValidateConfigurationIsSet(implementationsResponse.Status))
-            {
-                implementationsResponse = _AdapterClient.GetConfiguration(_AdapterId);
-            }
+            var implementationsResponse = GetSSOImplementations();
 
             _ImplementedMethods = implementationsResponse.ImplementedMethods;
             base.ShouldSendWelcomeMail = implementationsResponse.SendWelcomeEmail;
         }
-
-
-
-        // TODO: where is the base operatorID CTOR ?
-        //public KalturaHttpSSOUser(int groupId, int operatorID) : base(groupId, operatorID) { }
 
         public override UserResponseObject PreSignIn(ref int siteGuid, ref string userName, ref string password, ref int maxFailCount, ref int lockMin, ref int groupId, ref string sessionId, ref string ip, ref string deviceId, ref bool preventDoubleLogin, ref List<KeyValuePair> keyValueList)
         {
@@ -66,20 +58,16 @@ namespace Core.Users
                     UserId = siteGuid,
                     UserName = userName,
                     Password = password,
-                    // TODO: Remove from pre sign in 
                     MaxFailCount = maxFailCount,
-                    // TODO: Remove from pre sign in 
                     LockMin = lockMin,
                     GroupId = groupId,
                     SessionId = sessionId,
                     IPAddress = ip,
                     DeviceId = deviceId,
-                    // TODO: Remove from pre sign in 
                     PreventDoubleLogin = preventDoubleLogin,
                     CustomParams = keyValueList.ToDictionary(k => k.key, v => v.value),
                 };
 
-                // TODO: signature from object
                 var customParamsStr = string.Concat(preSignInModel.CustomParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterId, preSignInModel.UserId, preSignInModel.UserName, preSignInModel.Password, customParamsStr);
                 _Logger.InfoFormat("Calling sso adapter PreSignIn [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
@@ -97,7 +85,6 @@ namespace Core.Users
                 siteGuid = response.UserId;
                 userName = response.Username;
                 password = response.Password;
-                // TODO: ask ira what are the other ref params used for...
                 return new UserResponseObject { m_RespStatus = ResponseStatus.OK };
             }
             catch (Exception e)
@@ -115,7 +102,6 @@ namespace Core.Users
                 return;
             }
 
-
             try
             {
                 var postSignInModel = new PostSignInModel
@@ -124,7 +110,6 @@ namespace Core.Users
                     CustomParams = keyValueList.ToDictionary(k => k.key, v => v.value),
                 };
 
-                // TODO: signature from object
                 var customParamsStr = string.Concat(postSignInModel.CustomParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterId, postSignInModel.AuthenticatedUser.Id, postSignInModel.AuthenticatedUser.Username, postSignInModel.AuthenticatedUser.Email, customParamsStr);
                 var response = _AdapterClient.PostSignIn(_AdapterId, postSignInModel, signature);
@@ -147,8 +132,7 @@ namespace Core.Users
             }
             catch (Exception e)
             {
-                _Logger.ErrorFormat("Unexpected error during PostSignIn for user:[{0}] group:[{1}], ex:{2}", authenticatedUser.m_user != null? authenticatedUser.m_user.m_oBasicData.m_sUserName:"user is null", _GroupId, e);
-                // TODO: should we throw an error here ? or return the normal user data ? 
+                _Logger.ErrorFormat("Unexpected error during PostSignIn for user:[{0}] group:[{1}], ex:{2}", authenticatedUser.m_user != null ? authenticatedUser.m_user.m_oBasicData.m_sUserName : "user is null", _GroupId, e);
             }
 
         }
@@ -235,13 +219,57 @@ namespace Core.Users
                 }
                 else
                 {
-                    _Logger.ErrorFormat("Unexpected error during PostSignIn for group:[{0}], ex:{1}",_GroupId, e);
+                    _Logger.ErrorFormat("Unexpected error during PostSignIn for group:[{0}], ex:{1}", _GroupId, e);
                 }
                 // TODO: should we throw an error here ? or return the normal user data ? 
             }
 
         }
 
+
+        private SSOImplementationsResponse GetSSOImplementations()
+        {
+            SSOImplementationsResponse implementationsResponse = null;
+            var key = LayeredCacheKeys.GetSSOAdapaterImplementationsKey(_AdapterId);
+            var cacheResult = LayeredCache.Instance.Get(
+                key,
+                ref implementationsResponse,
+                GetImplementationsFromAdapater,
+                new Dictionary<string, object>() { { "adapterId", _AdapterId } },
+                _GroupId,
+                LayeredCacheConfigNames.GET_SSO_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME,
+                new List<string>() { LayeredCacheKeys.GetSSOAdapaterImplementationsInvalidationKey(_AdapterId) });
+
+            if (!cacheResult || implementationsResponse == null)
+            {
+                _Logger.ErrorFormat("Error getting GetImplementationsFromAdapater from http sso adapter id:[{0}], groupId:[{1}]. setting default implementation settings as fallback", _AdapterId, _GroupId);
+                throw new Exception("Error getting GetImplementationsFromAdapater from http sso adapter");
+            }
+
+            return implementationsResponse;
+        }
+
+        private Tuple<SSOImplementationsResponse, bool> GetImplementationsFromAdapater(Dictionary<string, object> arg)
+        {
+            try
+            {
+                var adapterId = (int)arg["adapterId"];
+                var implementationsResponse = _AdapterClient.GetConfiguration(adapterId);
+                if (!ValidateConfigurationIsSet(implementationsResponse.Status))
+                {
+                    implementationsResponse = _AdapterClient.GetConfiguration(adapterId);
+                }
+            
+
+                return new Tuple<SSOImplementationsResponse, bool>(implementationsResponse, true);
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error getting GetImplementationsFromAdapater from http sso adapter", e);
+                return new Tuple<SSOImplementationsResponse, bool>(null, false);
+            }
+           
+        }
 
         private static SSOAdapaterUser ConvertUserToSSOUser(User userData)
         {
@@ -255,7 +283,7 @@ namespace Core.Users
             user.LastName = userData.m_oBasicData.m_sLastName;
             user.Email = userData.m_oBasicData.m_sEmail;
             user.City = userData.m_oBasicData.m_sCity;
-            user.CountryId = userData.m_oBasicData.m_Country != null ? userData.m_oBasicData.m_Country.m_nObjecrtID : (int?) null;
+            user.CountryId = userData.m_oBasicData.m_Country != null ? userData.m_oBasicData.m_Country.m_nObjecrtID : (int?)null;
             user.Zip = userData.m_oBasicData.m_sZip;
             user.Phone = userData.m_oBasicData.m_sPhone;
             user.Address = userData.m_oBasicData.m_sAddress;
@@ -305,10 +333,6 @@ namespace Core.Users
             {
                 m_sUserData = dynamicData,
                 UserId = userData.Id,
-                // TODO: ask ira if this is important to set
-                //GroupId = 0,
-                //Id = 0, 
-
             };
             ioUser.m_eSuspendState = (DomainSuspentionStatus)(int)userData.SuspensionState;
         }
