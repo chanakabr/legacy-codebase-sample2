@@ -128,6 +128,9 @@ namespace ApiObjects.Segmentation
                 return false;
             }
 
+            // copy create date from source
+            this.CreateDate = source.CreateDate;
+
             if (this.Value != null)
             {
                 bool updateSegmentIdsResult = this.Value.UpdateSegmentIds(source.Value, this.Id);
@@ -258,6 +261,34 @@ namespace ApiObjects.Segmentation
 
             // get only Ids on current page
             var pagedKeys = keys.Skip(pageIndex * pageSize).Take(pageSize);
+
+            // get all segmentation types from CB
+            var getResult = couchbaseManager.GetValues<SegmentationType>(keys, false, true);
+
+            if (getResult == null)
+            {
+                throw new Exception("Failed getting list of segmentation types from Couchbase");
+            }
+
+            result = getResult.Values.ToList();
+
+            return result;
+        }
+
+        public static List<SegmentationType> GetSegmentationTypesBySegmentIds(int groupId, IEnumerable<long> segmentIds)
+        {
+            List<SegmentationType> result = new List<SegmentationType>();
+            HashSet<long> segmentationTypeIds = new HashSet<long>();
+
+            foreach (var segmentId in segmentIds)
+            {
+                long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
+                segmentationTypeIds.Add(segmentationTypeId);
+            }
+
+            List<string> keys = segmentationTypeIds.Select(id => GetSegmentationTypeDocumentKey(groupId, id)).ToList();
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
             // get all segmentation types from CB
             var getResult = couchbaseManager.GetValues<SegmentationType>(keys, false, true);
