@@ -7,6 +7,7 @@ using ApiObjects.PlayCycle;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
+using ApiObjects.Segmentation;
 using ApiObjects.Statistics;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
@@ -8416,6 +8417,71 @@ namespace Core.Catalog
             if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
             {
                 UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId);
+            }
+
+            #endregion
+
+            #region Segmentation
+
+            if (channel.IsAffectedBySegmentation && !string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+            {
+                var userSegments = UserSegment.ListAll(groupId, request.m_sSiteGuid);
+                HashSet<long> userSegmentIds = new HashSet<long>(userSegments.Select(i => i.SegmentId));
+                List<SegmentationType> segmentationTypes = SegmentationType.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
+
+                definitions.boostScoreValues = new List<KeyValuePair<string, string>>();
+
+                foreach (var segmentationType in segmentationTypes)
+                {
+                    if (segmentationType.Conditions != null)
+                    {
+                        foreach (var condition in segmentationType.Conditions)
+                        {
+                            if (condition is ContentScoreCondition)
+                            {
+                                var castedCondition = (condition as ContentScoreCondition);
+
+                                if (!string.IsNullOrEmpty(castedCondition.Field) && !string.IsNullOrEmpty(castedCondition.Value))
+                                {
+                                    bool isTagOrMeta;
+                                    HashSet<string> fields = GetUnifiedSearchKey(castedCondition.Field.ToLower(), group, out isTagOrMeta, groupId);
+
+                                    if (isTagOrMeta)
+                                    {
+                                        foreach (var field in fields)
+                                        {
+                                            definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, castedCondition.Value));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if ((segmentationType.Value != null) && (segmentationType.Value is SegmentValues) && (segmentationType.Value.Source != null) &&
+                        (segmentationType.Value.Source is ContentSource))
+                    {
+                        var castedValue = segmentationType.Value as SegmentValues;
+                        var castedSource = segmentationType.Value.Source as ContentSource;
+
+                        foreach (var value in castedValue.Values)
+                        {
+                            if (userSegmentIds.Contains(value.Id))
+                            {
+                                bool isTagOrMeta;
+                                HashSet<string> fields = GetUnifiedSearchKey(castedSource.Field.ToLower(), group, out isTagOrMeta, groupId);
+
+                                if (isTagOrMeta)
+                                {
+                                    foreach (var field in fields)
+                                    {
+                                        definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, value.Value));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             #endregion

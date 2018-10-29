@@ -215,6 +215,22 @@ namespace ApiObjects.Segmentation
 
             return result;
         }
+
+        public static List<UserSegment> ListAll(int groupId, string userId)
+        {
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            string userSegmentsKey = GetUserSegmentsDocument(userId);
+            UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
+
+            if (userSegments != null)
+            {
+                return userSegments.Segments;
+            }
+            else;
+            {
+                return new List<UserSegment>();
+            }
+        }
     }
 
     public class UserSegments
