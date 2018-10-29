@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ApiObjects.SearchObjects;
 using ConfigurationManager;
+using Newtonsoft.Json.Linq;
 
 namespace ElasticSearch.Searcher
 {
@@ -253,13 +254,7 @@ namespace ElasticSearch.Searcher
 
             filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", pageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
-
-            // TODO - find if the search is exact or not!
-            bool bExact = false;
-
-            // If not exact, order by score, and vice versa
-            string sSort = GetSort(this.SearchDefinitions.order, !bExact, this.ReturnFields);
-
+            
             // Join return fields with commas
             if (ReturnFields.Count > 0)
             {
@@ -270,7 +265,10 @@ namespace ElasticSearch.Searcher
                 filteredQueryBuilder.Append("], ");
             }
 
-            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
+            bool functionScoreSort = this.SearchDefinitions.boostScoreValues != null && this.SearchDefinitions.boostScoreValues.Count > 0;
+            string sortString = GetSort(this.SearchDefinitions.order, this.ReturnFields, functionScoreSort);
+
+            filteredQueryBuilder.AppendFormat("{0}, ", sortString);
 
             if (this.SearchDefinitions.groupBy != null && this.SearchDefinitions.groupBy.Count > 0)
             {
@@ -425,23 +423,78 @@ namespace ElasticSearch.Searcher
                 filteredQueryBuilder.Append("},");
             }
 
-            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
-
-            if (queryTerm != null && !queryTerm.IsEmpty())
+            if (this.SearchDefinitions.boostScoreValues == null || this.SearchDefinitions.boostScoreValues.Count == 0)
             {
-                string queryPart = queryTerm.ToString();
+                filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
 
-                if (!string.IsNullOrEmpty(queryPart))
+                if (queryTerm != null && !queryTerm.IsEmpty())
                 {
-                    filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
+                    string queryPart = queryTerm.ToString();
+
+                    if (!string.IsNullOrEmpty(queryPart))
+                    {
+                        filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
+                    }
                 }
+
+                filteredQueryBuilder.Append(filterPart.ToString());
+                filteredQueryBuilder.Append(" } } }");
+            }
+            else
+            {
+                StringBuilder esFilteredQueryBuilder = new StringBuilder();
+                esFilteredQueryBuilder.Append("{ \"filtered\": {");
+
+                if (queryTerm != null && !queryTerm.IsEmpty())
+                {
+                    string queryPart = queryTerm.ToString();
+
+                    if (!string.IsNullOrEmpty(queryPart))
+                    {
+                        esFilteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
+                    }
+                }
+
+                esFilteredQueryBuilder.Append(filterPart.ToString());
+                esFilteredQueryBuilder.Append(" } }");
+
+                ESFunctionScore functionScore = BuildFunctionScore(esFilteredQueryBuilder.ToString());
+
+                filteredQueryBuilder.Append(" \"query\" :");
+                filteredQueryBuilder.Append(functionScore.ToString());
+                filteredQueryBuilder.Append("}");
             }
 
-            filteredQueryBuilder.Append(filterPart.ToString());
-            filteredQueryBuilder.Append(" } } }");
             fullQuery = filteredQueryBuilder.ToString();
            
             return fullQuery;
+        }
+
+        private ESFunctionScore BuildFunctionScore(string filteredQuery)
+        {
+            var functions = new List<ESFunctionScoreFunction>();
+
+            foreach (var item in this.SearchDefinitions.boostScoreValues)
+            {
+                var term = new ESTerm(false)
+                {
+                    Key = item.Key,
+                    Value = item.Value
+                };
+
+                functions.Add(new ESFunctionScoreFunction(term)
+                {
+                    weight = 100 
+                });
+            }
+
+            return new ESFunctionScore()
+            {
+                query = filteredQuery,
+                functions = functions,
+                score_mode = eFunctionScoreScoreMode.sum,
+                boost_mode = eFunctionScoreBoostMode.replace
+            };
         }
 
         public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, 
@@ -1567,12 +1620,9 @@ namespace ElasticSearch.Searcher
             filteredQueryBuilder.Append("{");
             filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
-
-            // TODO - find if the search is exact or not!
-            bool bExact = false;
-
+            
             // If not exact, order by score, and vice versa
-            string sort = GetSort(this.SearchDefinitions.order, !bExact, this.ReturnFields);
+            string sort = GetSort(this.SearchDefinitions.order, this.ReturnFields);
 
             // Join return fields with commas
             if (ReturnFields.Count > 0)
@@ -2424,61 +2474,79 @@ namespace ElasticSearch.Searcher
         /// <summary>
         /// Returns the sort string for the query
         /// </summary>
-        /// <param name="order"></param>
-        /// <param name="shouldOrderByScore"></param>
         /// <returns></returns>
-        public static string GetSort(OrderObj order, bool shouldOrderByScore, List<string> returnFields)
+        public static string GetSort(OrderObj order, List<string> returnFields, bool functionScoreSort = false)
         {
             if (returnFields == null)
             {
                 returnFields = new List<string>();
             }
 
-            StringBuilder sortBuilder = new StringBuilder();
-            sortBuilder.Append(" \"sort\": [{");
+            bool hasScoreSort = false;
+            JArray sortArray = new JArray();
 
+            if (functionScoreSort)
+            {
+                JObject scoreSort = new JObject();
+                scoreSort["_score"] = "desc";
+                sortArray.Add(scoreSort);
+                hasScoreSort = true;
+            }
+
+            string primaryOrderField = string.Empty;
+            
             if (order.m_eOrderBy == OrderBy.META)
             {
-                string sAnalyzedMeta = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
-                sortBuilder.AppendFormat("\"{0}\": ", sAnalyzedMeta);
-                returnFields.Add(string.Format("\"{0}\"", sAnalyzedMeta));
+                string analyzedMeta = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
+                primaryOrderField = analyzedMeta;
+                returnFields.Add(string.Format("\"{0}\"", analyzedMeta));
             }
             else if (order.m_eOrderBy == OrderBy.ID)
             {
-                sortBuilder.Append(" \"_uid\": ");
+                primaryOrderField = "_uid";
             }
             else if (order.m_eOrderBy == OrderBy.RELATED || order.m_eOrderBy == OrderBy.NONE)
             {
-                sortBuilder.Append(" \"_score\": ");
+                if (!hasScoreSort)
+                {
+                    primaryOrderField = "_score";
+                    hasScoreSort = true;
+                }
             }
             else
             {
-                sortBuilder.AppendFormat(" \"{0}\": ", Enum.GetName(typeof(OrderBy), order.m_eOrderBy).ToLower());
+                primaryOrderField = Enum.GetName(typeof(OrderBy), order.m_eOrderBy).ToLower();
             }
 
-            if (sortBuilder.Length > 0)
+            if (!string.IsNullOrWhiteSpace(primaryOrderField))
             {
-                sortBuilder.Append(" {");
-                sortBuilder.AppendFormat("\"order\": \"{0}\"", order.m_eOrderDir.ToString().ToLower());
-                sortBuilder.Append("}}");
+                JObject primaryOrder = new JObject();
+                primaryOrder[primaryOrderField] = new JObject();
+                primaryOrder[primaryOrderField]["order"] = JToken.FromObject((order.m_eOrderDir.ToString().ToLower()));
+
+                sortArray.Add(primaryOrder);
             }
 
             //we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
-            if (order.m_eOrderBy != OrderBy.ID &&
-                shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
+            if (order.m_eOrderBy != OrderBy.ID && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE && !hasScoreSort)
             {
-                sortBuilder.Append(", \"_score\"");
+                JObject scoreSort = new JObject();
+                scoreSort["_score"] = "desc";
+                sortArray.Add(scoreSort);
+                hasScoreSort = true;
             }
 
             if (order.m_eOrderBy != OrderBy.ID)
             {
                 // Always add sort by _id to avoid ES weirdness of same sort-value 
-                sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+                JObject idOrder = new JObject();
+                idOrder["_uid"] = new JObject();
+                idOrder["_uid"]["order"] = JToken.FromObject("desc");
+
+                sortArray.Add(idOrder);
             }
 
-            sortBuilder.Append(" ]");
-
-            return sortBuilder.ToString();
+            return string.Format("\"sort\" : {0}", sortArray.ToString());
         }
 
         public static void GetAggregationsOrder(OrderObj orderObj, 

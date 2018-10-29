@@ -272,7 +272,7 @@ namespace ElasticSearch.Searcher
 
             if (this.Sort != null && this.Sort.m_eOrderBy != OrderBy.NONE)
             {
-                string sort = ESUnifiedQueryBuilder.GetSort(this.Sort, true, new List<string>());
+                string sort = ESUnifiedQueryBuilder.GetSort(this.Sort, new List<string>());
 
                 sb.AppendFormat("{0},", sort);
             }

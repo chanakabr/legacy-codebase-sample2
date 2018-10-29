@@ -99,6 +99,9 @@ namespace GroupsCacheManager
         public DateTime? CreateDate { get; set; }
         [DataMember]
         public DateTime? UpdateDate { get; set; }
+        
+        [DataMember]
+        public bool IsAffectedBySegmentation { get; set; }
 
         #endregion
 
