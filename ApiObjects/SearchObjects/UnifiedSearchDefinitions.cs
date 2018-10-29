@@ -398,6 +398,10 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public bool shouldIgnoreEndDate;
 
+        [JsonProperty()]
+        [DataMember]
+        public List<KeyValuePair<string, string>> boostScoreValues;
+
         #endregion
 
         #region Ctor
@@ -448,7 +452,7 @@ namespace ApiObjects.SearchObjects
             countryId = 0;
 
             assetUserRuleIds = new List<long>();
-
+            boostScoreValues = new List<KeyValuePair<string, string>>();
         }
 
         #endregion
