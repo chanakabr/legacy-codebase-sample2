@@ -426,12 +426,18 @@ namespace Core.ConditionalAccess
                 if (response.Status.Code == (int)eResponseStatus.OK)
                 {
                     // HandlePlayUses
-                    if (domainId > 0 && Utils.IsItemPurchased(price) && playbackContextResponse.ConcurrencyData != null)
+                    if (domainId > 0)
                     {
-                        PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
-                        cas.InsertDevicePlayData(playbackContextResponse.ConcurrencyData, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
+                        if (Utils.IsItemPurchased(price))
+                        {
+                            PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
+                        }
 
-                        log.Debug("PlaybackManager.GetPlayManifest - exec PlayUsesManager.HandlePlayUses and cas.InsertDevicePlayData methods");
+                        if (playbackContextResponse.ConcurrencyData != null)
+                        {
+                            cas.InsertDevicePlayData(playbackContextResponse.ConcurrencyData, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
+                            log.Debug("PlaybackManager.GetPlayManifest - exec cas.InsertDevicePlayData method");
+                        }
                     }
                 }
             }
