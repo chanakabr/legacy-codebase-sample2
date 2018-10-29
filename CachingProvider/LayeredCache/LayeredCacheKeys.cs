@@ -53,7 +53,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("mediaConcurrencyRules_dlmId_{0}", dlmId);
         }
-        
+
         public static string GetKeyForIp(string ip)
         {
             return string.Format("ip_{0}", ip);
@@ -133,7 +133,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("userParentalRules_groupId_{0}_userId_{1}", groupId, siteGuid);
         }
-        
+
         public static string GetMediaParentalRulesKey(int groupId, long mediaId)
         {
             return string.Format("mediaParentalRules_groupId_{0}_mediaId_{1}", groupId, mediaId);
@@ -303,7 +303,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("GroupDeviceRules_groupId_{0}", groupId);
         }
-        
+
         public static string GetGroupGeoBlockRulesKey(int groupId)
         {
             return string.Format("GroupGeoBlockRules_groupId_{0}", groupId);
@@ -483,6 +483,15 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("business_module_rule_id_{0}", id);
         }
+        public static string GetSSOAdapaterByGroupKey(int groupId)
+        {
+            return string.Format("sso_adapter_by_group_{0}", groupId);
+        }
+
+        public static string GetSSOAdapaterImplementationsKey(int adapterId)
+        {
+            return string.Format("sso_adapter_implementations_{0}", adapterId);
+        }
 
         #endregion
 
@@ -552,7 +561,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }
-        
+
         public static string GetSeriesRemindersInvalidationKey(int groupId, long seriesReminderId)
         {
             return string.Format("invalidationKeySeriesReminder_groupId_{0}_id_{1}", groupId, seriesReminderId);
@@ -797,7 +806,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyEpg_groupId_{0}_epgId_{1}", groupId, epgId);
         }
-        
+
         public static string GetDeviceConcurrencyPriorityKey(int groupId)
         {
             return string.Format("device_concurrency_Priority_groupId_{0}", groupId);
@@ -851,6 +860,16 @@ namespace CachingProvider.LayeredCache
         public static string GetBusinessModuleRuleInvalidationKey(long ruleId)
         {
             return string.Format("invalidationKey_business_module_rule_{0}", ruleId);
+        }
+
+        public static string GetSSOAdapaterInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_sso_adapater_{0}", groupId);
+        }
+
+        public static string GetSSOAdapaterImplementationsInvalidationKey(int adapaterId)
+        {
+            return string.Format("invalidationKey_sso_adapater_implementations_{0}", adapaterId);
         }
 
         #endregion

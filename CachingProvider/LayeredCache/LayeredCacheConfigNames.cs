@@ -89,6 +89,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_ALL_PPVS = "GetAllPpvs";
         public const string GET_BUSINESS_MODULE_RULE = "GetBusinessModuleRule";
         public const string GET_ALL_BUSINESS_MODULE_RULE_IDS = "GetAllBusinessModuleRuleIds";
+        public const string GET_SSO_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME = "GetSSOAdapaterByGroupId";
         #endregion
 
         #region Constant Invalidation Keys
