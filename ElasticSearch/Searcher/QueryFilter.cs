@@ -1,5 +1,4 @@
 ﻿using ApiObjects.SearchObjects;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +60,7 @@ namespace ElasticSearch.Searcher
     #endregion
 
     #region Term
-    
+
     public class ESTerm : IESTerm
     {
         public string Value
@@ -89,7 +88,7 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
-        
+
         bool m_bIsNumeric;
 
         public ESTerm(bool bIsNumeric)
@@ -106,6 +105,7 @@ namespace ElasticSearch.Searcher
 
         public override string ToString()
         {
+
             if (this.IsEmpty())
                 return string.Empty;
 
@@ -518,8 +518,7 @@ namespace ElasticSearch.Searcher
         EXISTS,
         MATCH,
         MATCH_ALL,
-        PREFIX,
-        FUNCTION_SCORE
+        PREFIX
     }
 
     public enum eRangeComp
