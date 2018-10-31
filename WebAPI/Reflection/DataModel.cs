@@ -4631,6 +4631,8 @@ namespace WebAPI.Reflection
                 case "KalturaRequestConfiguration":
                     switch(property.Name)
                     {
+                        case "AbortAllOnError":
+                            return "abortAllOnError";
                         case "Currency":
                             return "currency";
                         case "KS":
@@ -4641,6 +4643,8 @@ namespace WebAPI.Reflection
                             return "partnerId";
                         case "ResponseProfile":
                             return "responseProfile";
+                        case "SkipOnOrror":
+                            return "skipOnOrror";
                         case "UserID":
                             return "userId";
                     }

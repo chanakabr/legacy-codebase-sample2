@@ -815,10 +815,10 @@ namespace WebAPI.Filters
                     BoolUtils.TryConvert(currentRequestParams["abortAllOnError"], out abortAllOnError);
                 }
 
-                SkipOptions skipOption = SkipOptions.No;
+                KalturaSkipOptions skipOption = KalturaSkipOptions.No;
                 if (currentRequestParams.ContainsKey("skipOnError"))
                 {
-                    Enum.TryParse<SkipOptions>(currentRequestParams["skipOnError"].ToString(), out skipOption);
+                    Enum.TryParse<KalturaSkipOptions>(currentRequestParams["skipOnError"].ToString(), out skipOption);
                 }
                 
                 KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction()

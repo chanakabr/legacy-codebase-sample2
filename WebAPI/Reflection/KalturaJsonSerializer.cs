@@ -4959,6 +4959,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("abortAllOnError", "\"abortAllOnError\": " + AbortAllOnError.ToString().ToLower());
             if(Currency != null)
             {
                 ret.Add("currency", "\"currency\": " + "\"" + EscapeJson(Currency) + "\"");
@@ -4980,6 +4981,7 @@ namespace WebAPI.Models.General
                 propertyValue = ResponseProfile.ToJson(currentVersion, omitObsolete);
                 ret.Add("responseProfile", "\"responseProfile\": " + propertyValue);
             }
+            ret.Add("skipOnOrror", "\"skipOnOrror\": " + "\"" + Enum.GetName(typeof(KalturaSkipOptions), SkipOnOrror) + "\"");
             if(UserID.HasValue)
             {
                 ret.Add("userId", "\"userId\": " + UserID);
@@ -4992,6 +4994,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("abortAllOnError", "<abortAllOnError>" + AbortAllOnError.ToString().ToLower() + "</abortAllOnError>");
             if(Currency != null)
             {
                 ret.Add("currency", "<currency>" + EscapeXml(Currency) + "</currency>");
@@ -5013,6 +5016,7 @@ namespace WebAPI.Models.General
                 propertyValue = ResponseProfile.ToXml(currentVersion, omitObsolete);
                 ret.Add("responseProfile", "<responseProfile>" + propertyValue + "</responseProfile>");
             }
+            ret.Add("skipOnOrror", "<skipOnOrror>" + "" + Enum.GetName(typeof(KalturaSkipOptions), SkipOnOrror) + "" + "</skipOnOrror>");
             if(UserID.HasValue)
             {
                 ret.Add("userId", "<userId>" + UserID + "</userId>");

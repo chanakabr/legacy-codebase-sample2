@@ -383,8 +383,8 @@ namespace WebAPI.Controllers
                     continue;
                 }
 
-                if ((isPreviousErrorOccurred && request[i].SkipOnError == SkipOptions.Previous) || 
-                    (isAnyErrorOccurred && request[i].SkipOnError == SkipOptions.Any))
+                if ((isPreviousErrorOccurred && request[i].SkipOnError == KalturaSkipOptions.Previous) || 
+                    (isAnyErrorOccurred && request[i].SkipOnError == KalturaSkipOptions.Any))
                 {
                     var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
                     responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);

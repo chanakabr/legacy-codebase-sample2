@@ -11719,6 +11719,16 @@
             Kaltura response profile object
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.AbortAllOnError">
+            <summary>
+            Abort all following requests if current request has an error
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.SkipOnOrror">
+            <summary>
+            Skip current request according to skip option
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaSessionType">
             <summary>
             KS type

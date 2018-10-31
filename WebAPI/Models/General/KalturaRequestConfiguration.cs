@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Models.General
 {
@@ -60,6 +61,27 @@ namespace WebAPI.Models.General
         [JsonProperty("responseProfile")]
         [XmlElement(ElementName = "responseProfile")]
         public KalturaBaseResponseProfile ResponseProfile { get; set; }
-        
+
+        /// <summary>
+        /// Abort all following requests if current request has an error
+        /// </summary>
+        [DataMember(Name = "abortAllOnError")]
+        [JsonProperty("abortAllOnError")]
+        [XmlElement(ElementName = "abortAllOnError")]
+        public bool AbortAllOnError { get; set; }
+
+        /// <summary>
+        /// Skip current request according to skip option
+        /// </summary>
+        [DataMember(Name = "skipOnOrror")]
+        [JsonProperty("skipOnOrror")]
+        [XmlElement(ElementName = "skipOnOrror")]
+        public KalturaSkipOptions SkipOnOrror { get; set; }
+
+        public KalturaRequestConfiguration()
+        {
+            AbortAllOnError = false;
+            SkipOnOrror = KalturaSkipOptions.No;
+        }
     }
 }
