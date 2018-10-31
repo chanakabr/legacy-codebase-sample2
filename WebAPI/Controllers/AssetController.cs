@@ -1245,7 +1245,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    asset.Description.Validate("multilingualDescription");
+                    asset.Description.ValidateForUpdate("multilingualDescription");
                 }
             }
 
