@@ -853,7 +853,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-                else if (topicSystemName == DESCRIPTION_META_SYSTEM_NAME && !string.IsNullOrEmpty(asset.Description))
+                else if (topicSystemName == DESCRIPTION_META_SYSTEM_NAME && asset.Description != null)
                 {
                     AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, asset.Description);
                     if (asset.DescriptionsWithLanguages != null && asset.DescriptionsWithLanguages.Count > 0)
