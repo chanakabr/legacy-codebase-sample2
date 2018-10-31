@@ -22,21 +22,10 @@ namespace WebAPI.Models.General
         private string RequestLanguageCode;
         private string GroupDefaultLanguageCode;
 
-        /// <summary>
-        /// All values in different languages
-        /// </summary>
-        [DataMember(Name = "values")]
-        [JsonProperty("values")]
-        [XmlArray(ElementName = "values", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaTranslationToken> Values { get; set; }
-
-        #region Ctor
-
         public KalturaMultilingualString(LanguageContainer[] values) : base(null)
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
-            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();            
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(values);
         }
 
@@ -44,7 +33,7 @@ namespace WebAPI.Models.General
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
-            List<LanguageContainer> tempValuesList = values != null ? new List<LanguageContainer>(values) : new List<LanguageContainer>();
+            List<LanguageContainer> tempValuesList = values != null? new List<LanguageContainer>(values) : new List<LanguageContainer>();
             if (!tempValuesList.Any(x => x.LanguageCode == GroupDefaultLanguageCode))
             {
                 tempValuesList.Add(new LanguageContainer(GroupDefaultLanguageCode, defaultLanguageValue, true));
@@ -76,8 +65,6 @@ namespace WebAPI.Models.General
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(tempValuesList);
         }
 
-        #endregion
-        
         internal List<LanguageContainer> GetLanugageContainer()
         {
             List<LanguageContainer> languageContainer = new List<LanguageContainer>();
@@ -151,6 +138,15 @@ namespace WebAPI.Models.General
             return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1)); ;
         }
         
+        /// <summary>
+        /// All values in different languages
+        /// </summary>
+        [DataMember(Name = "values")]
+        [JsonProperty("values")]
+        [XmlArray(ElementName = "values", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaTranslationToken> Values { get; set; }
+
         public override string ToString()
         {
             if(Values != null && Values.Count > 0)
@@ -183,7 +179,8 @@ namespace WebAPI.Models.General
             return null;
         }
 
-        internal void Validate(string parameterName, bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true, bool shouldValidateRequestLanguage = true)
+        internal void Validate(string parameterName, bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true, bool shouldValidateRequestLanguage = true,
+                                bool shouldValidateLanguageExistsForGroup = true)
         {
             if (Values != null && Values.Count > 0)
             {
@@ -206,20 +203,16 @@ namespace WebAPI.Models.General
                         throw new BadRequestException(ApiException.DUPLICATE_LANGUAGE_SENT, token.Language);
                     }
 
-                    if (shouldValidateValues)
+                    if (shouldValidateValues && string.IsNullOrEmpty(token.Value))
                     {
-
-                        if (string.IsNullOrEmpty(token.Value))
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTranslationToken.value");
-                        }
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTranslationToken.value");
+                    }
 
                         
-                        if (!groupLanguageCodes.Contains(token.Language))
-                        {
-                            throw new BadRequestException(ApiException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, token.Language);
-                        }
-                    }
+                    if (shouldValidateLanguageExistsForGroup && !groupLanguageCodes.Contains(token.Language))
+                    {
+                        throw new BadRequestException(ApiException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, token.Language);
+                    }                    
 
                     languageCodes.Add(token.Language);
                 }
@@ -238,7 +231,30 @@ namespace WebAPI.Models.General
                 }
             }
         }
-        
+
+        internal void ValidateForUpdate(string parameterName)
+        {
+            if (Values != null && Values.Count > 0)
+            {
+                HashSet<string> groupLanguageCodes = Utils.Utils.GetGroupLanguageCodes();
+                if (string.IsNullOrEmpty(GroupDefaultLanguageCode))
+                {
+                    GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+                }
+
+                bool doesDefaultLangHasValue = Values.Any(x => x.Language == GroupDefaultLanguageCode && !string.IsNullOrEmpty(x.Value));
+                if (!doesDefaultLangHasValue && Values.Any(x => x.Language != GroupDefaultLanguageCode && !string.IsNullOrEmpty(x.Value)))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTranslationToken.value, you can't translate an empty value");
+                }
+                else
+                {
+                    Validate(parameterName, true, false, true, true);
+                }
+            }
+        }
+
+
         public string ToCustomJson(Version currentVersion, bool omitObsolete, string propertyName)
         {
             string ret = null;
