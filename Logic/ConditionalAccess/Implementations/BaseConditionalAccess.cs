@@ -10899,15 +10899,15 @@ namespace Core.ConditionalAccess
                     playType = playType.ToString()
                 }
             };
-
-            List<int> mediaConcurrencyRuleIds = new List<int>();
-            List<long> assetMediaRuleIds = new List<long>();
-            List<long> assetEpgRuleIds = new List<long>();
-
+            
             if (Utils.IsAnonymousUser(userId))
             {
                 return response;
             }
+
+            int nUserId = 0;
+            int.TryParse(userId, out nUserId);
+            response.Data.UserId = nUserId;
 
             try
             {
@@ -10918,9 +10918,11 @@ namespace Core.ConditionalAccess
                 eBusinessModule eBM = eBusinessModule.PPV;
 
                 // Get AssetRules
-                assetMediaRuleIds = Utils.GetAssetMediaRuleIds(this.m_nGroupID, mediaId);
-                assetEpgRuleIds = Utils.GetAssetEpgRuleIds(this.m_nGroupID, mediaId, ref programId);
+                response.Data.AssetMediaConcurrencyRuleIds = Utils.GetAssetMediaRuleIds(this.m_nGroupID, mediaId);
+                response.Data.AssetEpgConcurrencyRuleIds = Utils.GetAssetEpgRuleIds(this.m_nGroupID, mediaId, ref programId);
+                response.Data.ProgramId = programId;
 
+                List<int> mediaConcurrencyRuleIds = new List<int>();
                 if (prices != null && prices.Length > 0)
                 {
                     if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
@@ -10974,26 +10976,11 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                int nUserId = 0;
-                int.TryParse(userId, out nUserId);
-
-                DevicePlayData devicePlayData = new DevicePlayData()
-                {
-                    UDID = udid,
-                    AssetId = mediaId,
-                    UserId = nUserId,
-                    ProgramId = programId,
-                    DomainId = domainId,
-                    MediaConcurrencyRuleIds = mediaConcurrencyRuleIds,
-                    AssetMediaConcurrencyRuleIds = assetMediaRuleIds,
-                    AssetEpgConcurrencyRuleIds = assetEpgRuleIds,
-                    playType = playType.ToString()
-                };
-
-                response.Data = devicePlayData;
-
+                response.Data.DomainId = domainId;
+                response.Data.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
+                
                 // validate Concurrency for domain
-                validationResponse = Domains.Module.ValidateLimitationModule(this.m_nGroupID, 0, Users.ValidationType.Concurrency, devicePlayData);
+                validationResponse = Domains.Module.ValidateLimitationModule(this.m_nGroupID, 0, Users.ValidationType.Concurrency, response.Data);
 
                 // get domainID from response
                 if (validationResponse != null)
