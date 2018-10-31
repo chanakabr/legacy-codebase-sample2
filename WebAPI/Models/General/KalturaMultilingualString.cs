@@ -179,7 +179,8 @@ namespace WebAPI.Models.General
             return null;
         }
 
-        internal void Validate(string parameterName, bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true, bool shouldValidateRequestLanguage = true)
+        internal void Validate(string parameterName, bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true, bool shouldValidateRequestLanguage = true,
+                                bool shouldValidateLanguageExistsForGroup = true)
         {
             if (Values != null && Values.Count > 0)
             {
@@ -202,20 +203,16 @@ namespace WebAPI.Models.General
                         throw new BadRequestException(ApiException.DUPLICATE_LANGUAGE_SENT, token.Language);
                     }
 
-                    if (shouldValidateValues)
+                    if (shouldValidateValues && string.IsNullOrEmpty(token.Value))
                     {
-
-                        if (string.IsNullOrEmpty(token.Value))
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTranslationToken.value");
-                        }
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTranslationToken.value");
+                    }
 
                         
-                        if (!groupLanguageCodes.Contains(token.Language))
-                        {
-                            throw new BadRequestException(ApiException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, token.Language);
-                        }
-                    }
+                    if (shouldValidateLanguageExistsForGroup && !groupLanguageCodes.Contains(token.Language))
+                    {
+                        throw new BadRequestException(ApiException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, token.Language);
+                    }                    
 
                     languageCodes.Add(token.Language);
                 }
@@ -231,6 +228,28 @@ namespace WebAPI.Models.General
                     {
                         throw new BadRequestException(ApiException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
                     }
+                }
+            }
+        }
+
+        internal void ValidateForUpdate(string parameterName)
+        {
+            if (Values != null && Values.Count > 0)
+            {
+                HashSet<string> groupLanguageCodes = Utils.Utils.GetGroupLanguageCodes();
+                if (string.IsNullOrEmpty(GroupDefaultLanguageCode))
+                {
+                    GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+                }
+
+                bool doesDefaultLangHasValue = Values.Any(x => x.Language == GroupDefaultLanguageCode && !string.IsNullOrEmpty(x.Value));
+                if (!doesDefaultLangHasValue && Values.Any(x => x.Language != GroupDefaultLanguageCode && !string.IsNullOrEmpty(x.Value)))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTranslationToken.value, you can't translate an empty value");
+                }
+                else
+                {
+                    Validate(parameterName, true, false, true, true);
                 }
             }
         }
