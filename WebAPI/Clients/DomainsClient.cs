@@ -95,17 +95,17 @@ namespace WebAPI.Clients
             {
                 if (with.Where(x => x.type == KalturaHouseholdWith.users_base_info).FirstOrDefault() != null)
                 {
-                    household.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains(u.Id)));
-                    household.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id)));
-                    household.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id)));
-                    household.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id)));
+                    household.Users = users.Where(u => userIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.MasterUsers = users.Where(u => masterUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.DefaultUsers = users.Where(u => defaultUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.PendingUsers = users.Where(u => pendingUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
                 }
                 if (with.Where(x => x.type == KalturaHouseholdWith.users_full_info).FirstOrDefault() != null)
                 {
-                    household.Users = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => userIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
-                    household.MasterUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
-                    household.DefaultUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
-                    household.PendingUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.Users = users.Where(u => userIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.MasterUsers = users.Where(u => masterUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.DefaultUsers =users.Where(u => defaultUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.PendingUsers =users.Where(u => pendingUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
                 }
             }
         }
