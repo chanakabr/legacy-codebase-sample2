@@ -81,6 +81,29 @@ namespace ApiObjects.Segmentation
         {
             return this.Ranges != null && this.Ranges.Exists(range => range.Id == segmentId);
         }
+
+        internal override bool DeleteSegmentIds()
+        {
+            bool result = false;
+
+            if (this.Ranges == null)
+            {
+                result = true;
+            }
+            else
+            {
+                CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+
+                result = true;
+
+                foreach (var range in this.Ranges)
+                {
+                    result &= couchbaseManager.Remove(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, range.Id));
+                }
+            }
+
+            return result;
+        }
     }
 
     public class SegmentRange

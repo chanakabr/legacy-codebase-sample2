@@ -200,6 +200,52 @@ namespace ApiObjects.Segmentation
 
             if (userSegments != null && userSegments.Segments != null)
             {
+                // remove all invalid user segments
+                userSegments.Segments.RemoveAll(userSegment =>
+                {
+                    long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(userSegment.SegmentId);
+
+                    // if we didn't find the type of this segment id - delete it
+                    if (segmentationTypeId == 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        int tempCount;
+                        
+                        // get the segmentation type of this segment id
+                        var segmentationTypes = SegmentationType.List(groupId, new List<long>() { segmentationTypeId }, 0, 1, out tempCount);
+
+                        // if we didn't find the type of this segment id - delete it
+                        if (segmentationTypes == null || segmentationTypes.Count == 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            // if the type doesn't have a value at all - delete it
+                            if (segmentationTypes[0].Value == null)
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                // if the segment id exists for this type - keep it
+                                if (segmentationTypes[0].Value.HasSegmentId(userSegment.SegmentId))
+                                {
+                                    return false;
+                                }
+                                // otherwise delete it
+                                else
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                });
+
                 totalCount = userSegments.Segments.Count;
                 
                 if (pageSize == 0 && pageIndex == 0)
@@ -226,7 +272,7 @@ namespace ApiObjects.Segmentation
             {
                 return userSegments.Segments;
             }
-            else;
+            else
             {
                 return new List<UserSegment>();
             }

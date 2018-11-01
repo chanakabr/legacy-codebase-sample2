@@ -51,7 +51,12 @@ namespace ApiObjects.Segmentation
         internal virtual bool HasSegmentId(long segmentId)
         {
             return false;
-        } 
+        }
+
+        internal virtual bool DeleteSegmentIds()
+        {
+            return true;
+        }
 
         #endregion
     }
@@ -86,6 +91,17 @@ namespace ApiObjects.Segmentation
         internal override bool HasSegmentId(long segmentId)
         {
             return this.Id == segmentId;
+        }
+
+        internal override bool DeleteSegmentIds()
+        {
+            bool result = false;
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+
+            result = couchbaseManager.Remove(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, this.Id));
+
+            return result;
         }
     }
 }

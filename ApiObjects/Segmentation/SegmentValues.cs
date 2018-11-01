@@ -98,5 +98,28 @@ namespace ApiObjects.Segmentation
         {
             return this.Values != null && this.Values.Exists(value => value.Id == segmentId);
         }
+
+        internal override bool DeleteSegmentIds()
+        {
+            bool result = false;
+
+            if (this.Values == null)
+            {
+                result = true;
+            }
+            else
+            {
+                CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+
+                result = true;
+
+                foreach (var value in this.Values)
+                {
+                    result &= couchbaseManager.Remove(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, value.Id));
+                }
+            }
+
+            return result;
+        }
     }
 }

@@ -196,6 +196,16 @@ namespace ApiObjects.Segmentation
                 log.ErrorFormat("Error deleting existing segment type in Couchbase.");
             }
 
+            if (this.Value != null)
+            {
+                setResult = this.Value.DeleteSegmentIds();
+            }
+
+            if (!setResult)
+            {
+                log.ErrorFormat("Error deleting segments from segment type in Couchbase.");
+            }
+
             result = setResult;
 
             return result;
