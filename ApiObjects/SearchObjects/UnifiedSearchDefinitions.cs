@@ -267,7 +267,7 @@ namespace ApiObjects.SearchObjects
         public bool shouldUseSearchEndDate;
 
         /// <summary>
-        /// Lists of specific assets that should be returned in query
+        /// 
         /// </summary>
         [JsonProperty()]
         [DataMember]
@@ -401,6 +401,10 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public List<KeyValuePair<string, string>> boostScoreValues;
+
+        [JsonProperty()]
+        [DataMember]
+        public string preference;
 
         #endregion
 

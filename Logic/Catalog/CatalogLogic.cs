@@ -7365,6 +7365,15 @@ namespace Core.Catalog
 
             #endregion
 
+            #region Preference
+
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid))
+            {
+                definitions.preference = request.m_sSiteGuid;
+            }
+
+            #endregion
+
             return status;
         }
 
@@ -8042,6 +8051,7 @@ namespace Core.Catalog
             definitions.shouldDateSearchesApplyToAllTypes = request.isAllowedToViewInactiveAssets;
             definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
             definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
+
             if (definitions.isAllowedToViewInactiveAssets)
             {
                 definitions.shouldAddIsActiveTerm = false;
@@ -8486,6 +8496,14 @@ namespace Core.Catalog
 
             #endregion
 
+            #region Preference
+
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid))
+            {
+                definitions.preference = request.m_sSiteGuid;
+            }
+
+            #endregion
             return definitions;
         }
 

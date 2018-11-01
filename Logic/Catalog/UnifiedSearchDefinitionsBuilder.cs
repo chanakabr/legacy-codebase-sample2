@@ -392,6 +392,14 @@ namespace Core.Catalog
 
                 #endregion
 
+                #region Preference
+
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid))
+                {
+                    definitions.preference = request.m_sSiteGuid;
+                }
+
+                #endregion
             }
             catch (Exception ex)
             {

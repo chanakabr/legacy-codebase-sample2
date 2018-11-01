@@ -1189,6 +1189,11 @@ namespace Core.Catalog
                 string types = ESUnifiedQueryBuilder.GetTypes(unifiedSearchDefinitions);
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
+                if (!string.IsNullOrEmpty(unifiedSearchDefinitions.preference))
+                {
+                    url = string.Format("{0}?preference={1}", unifiedSearchDefinitions.preference);
+                }
+
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
 
                 log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
