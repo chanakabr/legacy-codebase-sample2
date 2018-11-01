@@ -567,6 +567,17 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("description", "Response profile - this attribute will be automatically unset after every API call");
             writer.WriteEndElement(); // responseProfile
 
+            writer.WriteStartElement("abortAllOnError");
+            writer.WriteAttributeString("type", "bool");
+            writer.WriteAttributeString("description", "Abort all following requests if current request has an error");
+            writer.WriteEndElement(); // abortAllOnError
+
+            writer.WriteStartElement("skipOnOrror");
+            writer.WriteAttributeString("type", "string");
+            writer.WriteAttributeString("enumType", "KalturaSkipOptions");
+            writer.WriteAttributeString("description", "Skip current request according to skip option");
+            writer.WriteEndElement(); // skipOnOrror
+
             writer.WriteEndElement(); // request
 
             writer.WriteEndElement(); // configurations
