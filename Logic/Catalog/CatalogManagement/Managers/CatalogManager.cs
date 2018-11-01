@@ -1442,7 +1442,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    if (assetStructToUpdate.ParentId.HasValue && assetStruct.ParentId.Value > 0)
+                    if (assetStructToUpdate.ParentId.HasValue && assetStructToUpdate.ParentId.Value > 0)
                     {
                         if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructToUpdate.ParentId.Value))
                         {
