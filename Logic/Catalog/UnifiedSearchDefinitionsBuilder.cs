@@ -398,6 +398,10 @@ namespace Core.Catalog
                 {
                     definitions.preference = request.m_sSiteGuid;
                 }
+                else
+                {
+                    definitions.preference = request.m_sUserIP.Replace(".", string.Empty);
+                }
 
                 #endregion
             }
