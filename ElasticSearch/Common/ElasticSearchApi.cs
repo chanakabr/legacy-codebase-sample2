@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using ConfigurationManager;
+using System.Collections.Specialized;
 
 namespace ElasticSearch.Common
 {
@@ -692,36 +693,50 @@ namespace ElasticSearch.Common
 
         #region Search
 
-        public string Search(string sIndex, string sType, ref string sSearchQuery, List<string> routing = null)
+        public string Search(string index, string indexType, ref string searchQuery, List<string> routing = null, string preference = null)
         {
-            string sRes = string.Empty;
+            string result = string.Empty;
 
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sSearchQuery))
-                return sRes;
+            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(indexType) || string.IsNullOrEmpty(searchQuery))
+                return result;
 
-            string sUrl;
+            string url;
+            StringBuilder builder = new StringBuilder();
+            builder.AppendFormat("{0}/{1}/{2}/_search", baseUrl, index, indexType);
+
+            List<string> queryParameters = new List<string>();
+
             if (routing != null && routing.Count > 0)
             {
-                string sRouting = routing.Aggregate((current, next) => current + "," + next);
-                sUrl = string.Format("{0}/{1}/{2}/_search?routing={3}", baseUrl, sIndex, sType, sRouting);
+                string combinedRouting = routing.Aggregate((current, next) => current + "," + next);
+                queryParameters.Add(string.Format("routing={0}", combinedRouting));
             }
-            else
+
+            if (!string.IsNullOrEmpty(preference))
             {
-                sUrl = string.Format("{0}/{1}/{2}/_search", baseUrl, sIndex, sType);
+                queryParameters.Add(string.Format("preference={0}", preference));
             }
-            int nStatus = 0;
 
-            sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sSearchQuery, true);
-
-            log.DebugFormat("ES API request: URL = {0}, body = {1}, result = {2}", sUrl, sSearchQuery, sRes);
-
-            if (nStatus != 200)
+            if (queryParameters.Count > 0)
             {
-                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", sUrl, sSearchQuery, sRes));
-                sRes = string.Empty;
+                string queryString = string.Join("&", queryParameters);
+                builder.AppendFormat("?{0}", queryString);
             }
 
-            return sRes;
+            url = builder.ToString();
+            int httpStatus = 0;
+
+            result = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, searchQuery, true);
+
+            log.DebugFormat("ES API request: URL = {0}, body = {1}, result = {2}", url, searchQuery, result);
+
+            if (httpStatus != 200)
+            {
+                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", url, searchQuery, result));
+                result = string.Empty;
+            }
+
+            return result;
         }
 
         public string MultiSearch(string sIndex, string sType, List<string> lSearchQueries, List<string> lRouting)
