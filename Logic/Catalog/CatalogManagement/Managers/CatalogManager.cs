@@ -1347,7 +1347,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                if (assetStructToadd.ParentId.HasValue && !catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructToadd.ParentId.Value))
+                if (assetStructToadd.ParentId.HasValue && assetStructToadd.ParentId.Value > 0 && !catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructToadd.ParentId.Value))
                 {
                     result.SetStatus(eResponseStatus.AssetStructDoesNotExist, "Parent AssetStruct does not exist");
                     return result;
@@ -1442,7 +1442,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    if (assetStructToUpdate.ParentId.HasValue)
+                    if (assetStructToUpdate.ParentId.HasValue && assetStruct.ParentId.Value > 0)
                     {
                         if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructToUpdate.ParentId.Value))
                         {
