@@ -1191,7 +1191,7 @@ namespace Core.Catalog
 
                 if (!string.IsNullOrEmpty(unifiedSearchDefinitions.preference))
                 {
-                    url = string.Format("{0}?preference={1}", unifiedSearchDefinitions.preference);
+                    url = string.Format("{0}?preference={1}", url, unifiedSearchDefinitions.preference);
                 }
 
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
