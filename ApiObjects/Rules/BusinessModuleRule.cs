@@ -21,6 +21,12 @@ namespace ApiObjects.Rules
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<ApplyDiscountModuleRuleAction> Actions { get; set; }
 
+        [JsonProperty()]
+        public long CreateDate { get; set; }
+
+        [JsonProperty()]
+        public long UpdateDate { get; set; }
+
         public bool Evaluate(ConditionScope scope)
         {
             if (Conditions != null && Conditions.Count > 0)
