@@ -825,7 +825,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-
             #region BusinessModuleRule
             
             cfg.CreateMap<BusinessModuleRule, KalturaBusinessModuleRule>()
