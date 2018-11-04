@@ -921,6 +921,10 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Conditions":
                             return "conditions";
+                        case "CreateDate":
+                            return "createDate";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
@@ -6322,6 +6326,10 @@ namespace WebAPI.Reflection
                             BusinessModuleRuleController.Delete((long) methodParams[0]);
                             return null;
                             
+                        case "get":
+                            RolesManager.ValidateActionPermitted("businessModuleRule", "get", false);
+                            return BusinessModuleRuleController.Get((long) methodParams[0]);
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("businessModuleRule", "list", false);
                             return BusinessModuleRuleController.List((KalturaBusinessModuleRuleFilter) methodParams[0]);
@@ -10984,6 +10992,13 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "get":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
