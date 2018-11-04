@@ -831,6 +831,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => src.Actions))
               .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertConditions(src.Conditions)))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
@@ -838,6 +840,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => src.Actions))
               .ForMember(dest => dest.Conditions, opt => opt.ResolveUsing(src => ConvertRuleConditions(src.Conditions)))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 

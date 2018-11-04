@@ -129,5 +129,30 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
         }
+
+        /// <summary>
+        ///  Get business module rule by ID
+        /// </summary>
+        /// <param name="id">ID to get</param>
+        /// <returns></returns>
+        [Action("get")]
+        [ApiAuthorize]
+        static public KalturaBusinessModuleRule Get(long id)
+        {
+            KalturaBusinessModuleRule response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.ApiClient().GetBusinessModuleRule(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

@@ -88,6 +88,13 @@
             </summary>
             <param name="id">Business module rule ID</param>
         </member>
+        <member name="M:WebAPI.Controllers.BusinessModuleRuleController.Get(System.Int64)">
+            <summary>
+             Get business module rule by ID
+            </summary>
+            <param name="id">ID to get</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.SegmentationTypeController.Add(WebAPI.Models.Segmentation.KalturaSegmentationType)">
             <summary>
             Adds a new segmentation type to the system
@@ -4784,6 +4791,16 @@
         <member name="P:WebAPI.Models.API.KalturaBusinessModuleRule.Actions">
             <summary>
             List of actions for the rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleRule.CreateDate">
+            <summary>
+            Create date of the rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleRule.UpdateDate">
+            <summary>
+            Update date of the rule
             </summary>
         </member>
         <member name="M:WebAPI.Models.API.KalturaBusinessModuleRule.FillEmpty(WebAPI.Models.API.KalturaBusinessModuleRule)">

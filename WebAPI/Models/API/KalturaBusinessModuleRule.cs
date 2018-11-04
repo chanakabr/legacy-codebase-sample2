@@ -34,6 +34,25 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "actions")]
         public List<KalturaApplyDiscountModuleAction> Actions { get; set; }
 
+        /// <summary>
+        /// Create date of the rule
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty(PropertyName = "createDate")]
+        [XmlElement(ElementName = "createDate", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+
+        /// <summary>
+        /// Update date of the rule
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty(PropertyName = "updateDate")]
+        [XmlElement(ElementName = "updateDate", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
         internal void Validate()
         {
             if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
@@ -85,6 +104,8 @@ namespace WebAPI.Models.API
         {
             if (oldRule != null)
             {
+                this.CreateDate = oldRule.CreateDate;
+
                 if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
                 {
                     this.Name = oldRule.Name;

@@ -12075,6 +12075,8 @@ namespace WebAPI.Models.API
                 propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("conditions", "\"conditions\": " + propertyValue);
             }
+            ret.Add("createDate", "\"createDate\": " + CreateDate);
+            ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             return ret;
         }
         
@@ -12093,6 +12095,8 @@ namespace WebAPI.Models.API
                 propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
             }
+            ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             return ret;
         }
     }
