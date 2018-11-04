@@ -5200,7 +5200,7 @@ namespace DAL
             return UtilsDal.GetObjectListFromCB<BusinessModuleRule>(eCouchbaseBucket.OTT_APPS, businessModuleRuleKeys);
         }
 
-        public static bool UpdateBusinessModuleRule(int groupId, long businessModuleRuleId, string name, string description)
+        public static bool UpdateBusinessModuleRule(int groupId, long businessModuleRuleId, string name, string description, DateTime updateDate)
         {
             bool result = false;
             try
@@ -5210,6 +5210,7 @@ namespace DAL
                 sp.AddParameter("@id", businessModuleRuleId);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@description", description);
+                sp.AddParameter("@updateDate", updateDate);
 
                 result = sp.ExecuteReturnValue<int>() > 0;
             }
