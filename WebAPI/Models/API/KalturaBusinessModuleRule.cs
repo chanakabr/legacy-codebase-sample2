@@ -104,6 +104,8 @@ namespace WebAPI.Models.API
         {
             if (oldRule != null)
             {
+                this.CreateDate = oldRule.CreateDate;
+
                 if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
                 {
                     this.Name = oldRule.Name;
