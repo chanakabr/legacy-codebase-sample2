@@ -20,6 +20,9 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "url")]
         public string Url { get; set; }
 
+        [JsonProperty(PropertyName = "catalogEndDate")]
+        public string CatalogEndDate { get; internal set; }
+
 
         public File(Tvinci.Data.Loaders.TvinciPlatform.Catalog.FileMedia file)
         {
@@ -29,6 +32,7 @@ namespace TVPApiModule.Objects.Responses
                 Id = file.m_nFileId;
                 Type = file.m_sFileFormat;
                 Url = file.m_sUrl;
+                CatalogEndDate = file.CatalogEndDate.ToString(); ;
             }
         }
     }
