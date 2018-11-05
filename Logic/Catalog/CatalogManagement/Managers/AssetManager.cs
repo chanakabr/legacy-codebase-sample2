@@ -1,19 +1,17 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
 using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using Tvinci.Core.DAL;
-using ApiObjects.TimeShiftedTv;
-using Newtonsoft.Json.Linq;
 using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
@@ -1229,6 +1227,22 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static void UpdateAssetInheritancePolicy(int groupId, long userId, CatalogGroupCache catalogGroupCache, MediaAsset mediaAsset)
+        {
+            AssetStruct assetStruct = catalogGroupCache.AssetStructsMapById[mediaAsset.MediaType.m_nTypeID];
+            if (assetStruct == null)
+            {
+                log.ErrorFormat("failed to get assetStruct {0} for groupId: {1} when calling UpdateAssetInheritancePolicy", mediaAsset.MediaType.m_nTypeID, groupId);
+                return;
+            }
+
+            if (assetStruct.ParentId.HasValue && assetStruct.ParentId.Value > 0)
+            {
+                AssetInheritancePolicy assetInheritancePolicy = mediaAsset.InheritancePolicy.HasValue ? mediaAsset.InheritancePolicy.Value : AssetInheritancePolicy.Enable;
+                UpdateAssetInheritancePolicy(groupId, userId, catalogGroupCache, assetStruct, assetInheritancePolicy, mediaAsset);
+            }
+        }
+
         private static DataSet UpdateAssetInheritancePolicy(int groupId, long userId, CatalogGroupCache catalogGroupCache, AssetStruct assetStruct, AssetInheritancePolicy inheritancePolicy,
             Asset asset)
         {
@@ -1249,7 +1263,7 @@ namespace Core.Catalog.CatalogManagement
                                 Tags tag = asset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
                                 Tags parentTag = parentAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
 
-                                if (tag != null && !tag.Equals(parentTag))
+                                if (tag == null || (tag != null && !tag.Equals(parentTag)))
                                 {
                                     inheritancePolicy = AssetInheritancePolicy.Disable;
                                     break;
@@ -1260,7 +1274,7 @@ namespace Core.Catalog.CatalogManagement
                                 Metas meta = asset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
                                 Metas parentMeta = parentAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower().Equals(topic.SystemName.ToLower()));
 
-                                if (meta != null && !meta.Equals(parentMeta))
+                                if (meta == null || (meta != null && !meta.Equals(parentMeta)))
                                 {
                                     inheritancePolicy = AssetInheritancePolicy.Disable;
                                     break;
@@ -2380,6 +2394,16 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId))
                 {
                     CatalogManager.RemoveInheritedValue(groupId, catalogGroupCache, mediaAsset, metaIds, tagIds);
+
+                    // invalidate asset
+                    InvalidateAsset(assetType, id);
+                    //Get updateted Asset
+                    var assetRespone = AssetManager.GetAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, true);
+                    if (assetRespone != null && assetRespone.HasObject() && assetRespone.Object is MediaAsset)
+                    {
+                        // if need UpdateAssetInheritancePolicy
+                        UpdateAssetInheritancePolicy(groupId, userId, catalogGroupCache, assetRespone.Object as MediaAsset);
+                    }
 
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     // UpdateIndex
