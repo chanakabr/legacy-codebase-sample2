@@ -398,9 +398,13 @@ namespace Core.Catalog
                 {
                     definitions.preference = request.m_sSiteGuid;
                 }
-                else
+                else if(!string.IsNullOrEmpty(request.m_sUserIP))
                 {
                     definitions.preference = request.m_sUserIP.Replace(".", string.Empty);
+                }
+                else
+                {
+                    definitions.preference = "BeInternal";
                 }
 
                 #endregion
