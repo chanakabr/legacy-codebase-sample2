@@ -8785,6 +8785,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStruct")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
         public KalturaAssetStruct(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -8852,6 +8862,10 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
+                    }
                     ParentId = (Int64) Convert.ChangeType(parameters["parentId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("connectingMetaId") && parameters["connectingMetaId"] != null)
