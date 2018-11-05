@@ -48,7 +48,8 @@
 	{
       "permissions": [
         "Operator",
-        "RULES_MNG"
+        "RULES_MNG",
+        "RULES_VIEW"
       ],
       "excluded_permissions": [],
       "name": "BusinessModuleRule_Get",
