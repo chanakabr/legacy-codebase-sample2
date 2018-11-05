@@ -818,7 +818,7 @@ namespace WebAPI.Filters
                 KalturaSkipOptions skipOption = KalturaSkipOptions.No;
                 if (currentRequestParams.ContainsKey("skipOnError"))
                 {
-                    Enum.TryParse<KalturaSkipOptions>(currentRequestParams["skipOnError"].ToString(), out skipOption);
+                    Enum.TryParse<KalturaSkipOptions>(currentRequestParams["skipOnError"].ToString(), true, out skipOption);
                 }
                 
                 KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction()
