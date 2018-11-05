@@ -636,6 +636,7 @@
     <Content Include="Permissions\objects\kalturasocialconfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Permissions\controllers\businessmodulerule.json" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
