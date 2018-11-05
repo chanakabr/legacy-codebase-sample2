@@ -201,7 +201,7 @@ namespace ApiObjects.Segmentation
             if (userSegments != null && userSegments.Segments != null)
             {
                 // remove all invalid user segments
-                userSegments.Segments.RemoveAll(userSegment =>
+                int removedCount = userSegments.Segments.RemoveAll(userSegment =>
                 {
                     long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(userSegment.SegmentId);
 
@@ -245,6 +245,18 @@ namespace ApiObjects.Segmentation
                         }
                     }
                 });
+
+                try
+                {
+                    if (removedCount > 0)
+                    {
+                        couchbaseManager.Set(userSegmentsKey, userSegments);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error when updating user segments object in Couchbase. user = {0}, ex = {1}", userId, ex);
+                }
 
                 totalCount = userSegments.Segments.Count;
                 
