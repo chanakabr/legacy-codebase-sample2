@@ -4981,7 +4981,7 @@ namespace WebAPI.Models.General
                 propertyValue = ResponseProfile.ToJson(currentVersion, omitObsolete);
                 ret.Add("responseProfile", "\"responseProfile\": " + propertyValue);
             }
-            ret.Add("skipOnOrror", "\"skipOnOrror\": " + "\"" + Enum.GetName(typeof(KalturaSkipOptions), SkipOnOrror) + "\"");
+            ret.Add("skipOnError", "\"skipOnError\": " + "\"" + Enum.GetName(typeof(KalturaSkipOptions), SkipOnError) + "\"");
             if(UserID.HasValue)
             {
                 ret.Add("userId", "\"userId\": " + UserID);
@@ -5016,7 +5016,7 @@ namespace WebAPI.Models.General
                 propertyValue = ResponseProfile.ToXml(currentVersion, omitObsolete);
                 ret.Add("responseProfile", "<responseProfile>" + propertyValue + "</responseProfile>");
             }
-            ret.Add("skipOnOrror", "<skipOnOrror>" + "" + Enum.GetName(typeof(KalturaSkipOptions), SkipOnOrror) + "" + "</skipOnOrror>");
+            ret.Add("skipOnError", "<skipOnError>" + "" + Enum.GetName(typeof(KalturaSkipOptions), SkipOnError) + "" + "</skipOnError>");
             if(UserID.HasValue)
             {
                 ret.Add("userId", "<userId>" + UserID + "</userId>");

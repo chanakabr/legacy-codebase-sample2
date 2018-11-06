@@ -6203,9 +6203,9 @@ namespace WebAPI.Models.General
                 {
                     AbortAllOnError = (Boolean) Convert.ChangeType(parameters["abortAllOnError"], typeof(Boolean));
                 }
-                if (parameters.ContainsKey("skipOnOrror") && parameters["skipOnOrror"] != null)
+                if (parameters.ContainsKey("skipOnError") && parameters["skipOnError"] != null)
                 {
-                    SkipOnOrror = (KalturaSkipOptions) Enum.Parse(typeof(KalturaSkipOptions), parameters["skipOnOrror"].ToString(), true);
+                    SkipOnError = (KalturaSkipOptions) Enum.Parse(typeof(KalturaSkipOptions), parameters["skipOnError"].ToString(), true);
                 }
             }
         }

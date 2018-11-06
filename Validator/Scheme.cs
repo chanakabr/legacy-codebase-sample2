@@ -572,11 +572,11 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("description", "Abort all following requests if current request has an error");
             writer.WriteEndElement(); // abortAllOnError
 
-            writer.WriteStartElement("skipOnOrror");
+            writer.WriteStartElement("skipOnError");
             writer.WriteAttributeString("type", "string");
             writer.WriteAttributeString("enumType", "KalturaSkipOptions");
             writer.WriteAttributeString("description", "Skip current request according to skip option");
-            writer.WriteEndElement(); // skipOnOrror
+            writer.WriteEndElement(); // skipOnError
 
             writer.WriteEndElement(); // request
 

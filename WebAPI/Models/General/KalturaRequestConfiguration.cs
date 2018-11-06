@@ -81,15 +81,15 @@ namespace WebAPI.Models.General
         /// <summary>
         /// Skip current request according to skip option
         /// </summary>
-        [DataMember(Name = "skipOnOrror")]
-        [JsonProperty("skipOnOrror")]
-        [XmlElement(ElementName = "skipOnOrror")]
-        public KalturaSkipOptions SkipOnOrror { get; set; }
+        [DataMember(Name = "skipOnError")]
+        [JsonProperty("skipOnError")]
+        [XmlElement(ElementName = "skipOnError")]
+        public KalturaSkipOptions SkipOnError { get; set; }
 
         public KalturaRequestConfiguration()
         {
             AbortAllOnError = false;
-            SkipOnOrror = KalturaSkipOptions.No;
+            SkipOnError = KalturaSkipOptions.No;
         }
     }
 }

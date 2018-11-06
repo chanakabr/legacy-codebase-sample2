@@ -11746,7 +11746,7 @@
             Abort all following requests if current request has an error
             </summary>
         </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.SkipOnOrror">
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.SkipOnError">
             <summary>
             Skip current request according to skip option
             </summary>

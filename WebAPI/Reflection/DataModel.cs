@@ -4649,8 +4649,8 @@ namespace WebAPI.Reflection
                             return "partnerId";
                         case "ResponseProfile":
                             return "responseProfile";
-                        case "SkipOnOrror":
-                            return "skipOnOrror";
+                        case "SkipOnError":
+                            return "skipOnError";
                         case "UserID":
                             return "userId";
                     }
