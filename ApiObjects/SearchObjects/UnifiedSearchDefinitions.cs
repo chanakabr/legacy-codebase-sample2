@@ -398,6 +398,10 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public bool shouldIgnoreEndDate;
 
+        [JsonProperty()]
+        [DataMember]
+        public string preference;
+
         #endregion
 
         #region Ctor
