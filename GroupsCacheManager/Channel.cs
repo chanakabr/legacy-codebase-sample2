@@ -101,7 +101,7 @@ namespace GroupsCacheManager
         public DateTime? UpdateDate { get; set; }
         
         [DataMember]
-        public bool IsAffectedBySegmentation { get; set; }
+        public bool SupportSegmentBasedOrdering { get; set; }
 
         #endregion
 
