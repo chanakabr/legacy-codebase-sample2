@@ -8073,6 +8073,11 @@
             Specifies when was the Channel last updated. Date and time represented as epoch.
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.SupportSegmentBasedOrdering">
+            <summary>
+            Specifies whether the assets in this channel will be ordered based on their match to the user's segments (see BEO-5524)
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaIAssetable">
             <summary>
             Assetable interface

@@ -188,7 +188,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.m_nIsActive))
                 .ForMember(dest => dest.Order, opt => opt.ResolveUsing(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
-                .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)));
+                .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)))
+                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
+                ;
 
 
             //KSQLChannel to KalturaChannel
@@ -256,7 +258,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
                 .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
+                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering));
 
             //KalturaDynamicChannel to Channel (Catalog)  
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaDynamicChannel, Channel>()
@@ -275,7 +278,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.m_eOrderBy, opt => opt.Ignore())
                .ForMember(dest => dest.m_eOrderDir, opt => opt.Ignore())
                .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
-               .ForMember(dest => dest.UpdateDate, opt => opt.Ignore());
+               .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
+               .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
+               ;
 
             //Channel (Catalog) to KalturaManualChannel
             cfg.CreateMap<Channel, WebAPI.Models.Catalog.KalturaManualChannel>()
@@ -287,7 +292,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
                 .ForMember(dest => dest.MediaIds, opt => opt.MapFrom(src => src.m_lManualMedias != null ? string.Join(",", src.m_lManualMedias.OrderBy(x => x.m_nOrderNum).Select(x => x.m_sMediaId)) : string.Empty))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
+                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
+                ;
 
             //KalturaManualChannel to Channel (Catalog)
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaManualChannel, Channel>()
@@ -306,7 +313,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.m_eOrderBy, opt => opt.Ignore())
                .ForMember(dest => dest.m_eOrderDir, opt => opt.Ignore())
                .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
-               .ForMember(dest => dest.UpdateDate, opt => opt.Ignore());
+               .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
+               .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
+               ;
 
             //CategoryResponse to Category
             cfg.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()

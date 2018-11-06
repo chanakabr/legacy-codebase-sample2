@@ -183,6 +183,15 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
+        /// <summary>
+        /// Specifies whether the assets in this channel will be ordered based on their match to the user's segments (see BEO-5524)
+        /// </summary>
+        [DataMember(Name = "supportSegmentBasedOrdering")]
+        [JsonProperty("supportSegmentBasedOrdering")]
+        [XmlElement(ElementName = "supportSegmentBasedOrdering")]
+        [SchemeProperty()]
+        public bool SupportSegmentBasedOrdering { get; set; }
+
         internal virtual void ValidateForInsert()
         {
             if (string.IsNullOrEmpty(SystemName))

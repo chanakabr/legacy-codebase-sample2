@@ -9583,6 +9583,15 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute SupportSegmentBasedOrderingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaChannel(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -9740,6 +9749,14 @@ namespace WebAPI.Models.Catalog
                         UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     }
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("supportSegmentBasedOrdering") && parameters["supportSegmentBasedOrdering"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SupportSegmentBasedOrderingSchemaProperty.Validate("supportSegmentBasedOrdering", parameters["supportSegmentBasedOrdering"]);
+                    }
+                    SupportSegmentBasedOrdering = (Boolean) Convert.ChangeType(parameters["supportSegmentBasedOrdering"], typeof(Boolean));
                 }
             }
         }

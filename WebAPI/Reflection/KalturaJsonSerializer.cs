@@ -9043,6 +9043,7 @@ namespace WebAPI.Models.Catalog
                 propertyValue = OrderBy.ToJson(currentVersion, omitObsolete);
                 ret.Add("orderBy", "\"orderBy\": " + propertyValue);
             }
+            ret.Add("supportSegmentBasedOrdering", "\"supportSegmentBasedOrdering\": " + SupportSegmentBasedOrdering.ToString().ToLower());
             if(SystemName != null)
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(SystemName) + "\"");
@@ -9124,6 +9125,7 @@ namespace WebAPI.Models.Catalog
                 propertyValue = OrderBy.ToXml(currentVersion, omitObsolete);
                 ret.Add("orderBy", "<orderBy>" + propertyValue + "</orderBy>");
             }
+            ret.Add("supportSegmentBasedOrdering", "<supportSegmentBasedOrdering>" + SupportSegmentBasedOrdering.ToString().ToLower() + "</supportSegmentBasedOrdering>");
             if(SystemName != null)
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(SystemName) + "</systemName>");

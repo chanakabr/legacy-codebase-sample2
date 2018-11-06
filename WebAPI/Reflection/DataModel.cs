@@ -1061,6 +1061,8 @@ namespace WebAPI.Reflection
                             return "order";
                         case "OrderBy":
                             return "orderBy";
+                        case "SupportSegmentBasedOrdering":
+                            return "supportSegmentBasedOrdering";
                         case "SystemName":
                             return "systemName";
                         case "UpdateDate":
