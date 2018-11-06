@@ -392,6 +392,22 @@ namespace Core.Catalog
 
                 #endregion
 
+                #region Preference
+
+                if (!string.IsNullOrEmpty(request.m_sSiteGuid))
+                {
+                    definitions.preference = request.m_sSiteGuid;
+                }
+                else if (!string.IsNullOrEmpty(request.m_sUserIP))
+                {
+                    definitions.preference = request.m_sUserIP.Replace(".", string.Empty);
+                }
+                else
+                {
+                    definitions.preference = "BeInternal";
+                }
+
+                #endregion
             }
             catch (Exception ex)
             {
