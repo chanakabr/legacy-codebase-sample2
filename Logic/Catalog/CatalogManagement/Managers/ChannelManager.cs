@@ -35,9 +35,11 @@ namespace Core.Catalog.CatalogManagement
             EnumerableRowCollection<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable() : new DataTable().AsEnumerable();
             EnumerableRowCollection<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable() : new DataTable().AsEnumerable();
             EnumerableRowCollection<DataRow> channelsMedias = ds.Tables[4] != null && ds.Tables[4].Rows != null ? ds.Tables[4].AsEnumerable() : new DataTable().AsEnumerable();
+
             foreach (DataRow dr in channelsTable.Rows)
             {
                 int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
+
                 if (id > 0)
                 {
                     List<DataRow> channelNameTranslations = (from row in nameTranslations
@@ -238,6 +240,8 @@ namespace Core.Catalog.CatalogManagement
                         break;
                     }
             }
+
+            channel.SupportSegmentBasedOrdering = ODBCWrapper.Utils.ExtractBoolean(dr, "SUPPORT_SEGMENT_BASED_ORDERING");
 
             return channel;
         }
@@ -597,9 +601,14 @@ namespace Core.Catalog.CatalogManagement
                 string groupBy = channelToAdd.searchGroupBy != null && channelToAdd.searchGroupBy.groupBy != null && channelToAdd.searchGroupBy.groupBy.Count == 1 ? channelToAdd.searchGroupBy.groupBy.First() : null;
                 int? isSlidingWindow = channelToAdd.m_OrderObject.m_bIsSlidingWindowField ? 1 : 0;
                 int? slidingWindowPeriod = channelToAdd.m_OrderObject.lu_min_period_id;
-                DataSet ds = CatalogDAL.InsertChannel(groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription, channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
-                                                        (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, isSlidingWindow, slidingWindowPeriod, channelToAdd.m_nChannelTypeID,
-                                                        channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription, mediaIdsToOrderNum, userId);
+
+                DataSet ds = CatalogDAL.InsertChannel(
+                    groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription, 
+                    channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
+                    (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, isSlidingWindow, slidingWindowPeriod, channelToAdd.m_nChannelTypeID,
+                    channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription, 
+                    mediaIdsToOrderNum, userId, channelToAdd.SupportSegmentBasedOrdering);
+
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
                     DataRow dr = ds.Tables[0].Rows[0];
@@ -608,6 +617,7 @@ namespace Core.Catalog.CatalogManagement
                     List<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
                     List<DataRow> mediaIds = ds.Tables[4] != null && ds.Tables[4].Rows != null ? ds.Tables[4].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
+
                     if (id > 0)
                     {
                         response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
@@ -778,7 +788,8 @@ namespace Core.Catalog.CatalogManagement
 
                 DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
                                                         orderByDir, orderByValue, isSlidingWindow, slidingWindowPeriod, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
-                                                        mediaIdsToOrderNum, userId);
+                                                        mediaIdsToOrderNum, userId, channelToUpdate.SupportSegmentBasedOrdering);
+
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
                     DataRow dr = ds.Tables[0].Rows[0];

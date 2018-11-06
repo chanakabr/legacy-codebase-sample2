@@ -8441,7 +8441,7 @@ namespace Core.Catalog
 
             #region Segmentation
 
-            if (channel.IsAffectedBySegmentation && !string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+            if (channel.SupportSegmentBasedOrdering && !string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
             {
                 var userSegments = UserSegment.ListAll(groupId, request.m_sSiteGuid);
                 HashSet<long> userSegmentIds = new HashSet<long>(userSegments.Select(i => i.SegmentId));
