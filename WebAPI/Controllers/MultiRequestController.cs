@@ -157,6 +157,11 @@ namespace WebAPI.Controllers
                         throw new RequestParserException();
                     }
                     
+                    if (parametersList.Count <= index)
+                    {
+                        throw new RequestParserException(RequestParserException.INVALID_INDEX);
+                    }
+
                     result = parametersList[index];
                 }
                 else
