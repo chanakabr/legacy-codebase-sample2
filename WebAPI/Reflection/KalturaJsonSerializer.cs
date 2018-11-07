@@ -20181,6 +20181,7 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = Value.ToJson(currentVersion, omitObsolete);
                 ret.Add("value", "\"value\": " + propertyValue);
             }
+            ret.Add("version", "\"version\": " + Version);
             return ret;
         }
         
@@ -20209,6 +20210,7 @@ namespace WebAPI.Models.Segmentation
                 propertyValue = Value.ToXml(currentVersion, omitObsolete);
                 ret.Add("value", "<value>" + propertyValue + "</value>");
             }
+            ret.Add("version", "<version>" + Version + "</version>");
             return ret;
         }
     }

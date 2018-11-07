@@ -11000,6 +11000,11 @@
             Create date of segmentation type
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaSegmentationType.Version">
+            <summary>
+            Segmentation type version
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaContentScoreCondition">
             <summary>
             Defines a condition which is essentially a combination of several content-based actions, each has their own score multiplier

@@ -4795,6 +4795,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "Value":
                             return "value";
+                        case "Version":
+                            return "version";
                     }
                     break;
                     

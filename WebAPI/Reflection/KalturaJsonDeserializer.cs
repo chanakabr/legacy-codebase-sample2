@@ -19879,6 +19879,15 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute VersionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaSegmentationType(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -19946,6 +19955,14 @@ namespace WebAPI.Models.Segmentation
                         CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
                     }
                     CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("version") && parameters["version"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        VersionSchemaProperty.Validate("version", parameters["version"]);
+                    }
+                    Version = (Int64) Convert.ChangeType(parameters["version"], typeof(Int64));
                 }
             }
         }
