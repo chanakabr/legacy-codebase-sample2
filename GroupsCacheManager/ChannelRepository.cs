@@ -571,6 +571,8 @@ namespace GroupsCacheManager
                 channel = null;
             }
 
+            channel.SupportSegmentBasedOrdering = ODBCWrapper.Utils.ExtractBoolean(rowData, "SUPPORT_SEGMENT_BASED_ORDERING");
+
             return channel;
         }
 
