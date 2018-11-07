@@ -8482,18 +8482,21 @@ namespace Core.Catalog
                         var castedValue = segmentationType.Value as SegmentValues;
                         var castedSource = segmentationType.Value.Source as ContentSource;
 
-                        foreach (var value in castedValue.Values)
+                        if (!string.IsNullOrEmpty(castedSource.Field))
                         {
-                            if (userSegmentIds.Contains(value.Id))
+                            foreach (var value in castedValue.Values)
                             {
-                                bool isTagOrMeta;
-                                HashSet<string> fields = GetUnifiedSearchKey(castedSource.Field.ToLower(), group, out isTagOrMeta, groupId);
-
-                                if (isTagOrMeta)
+                                if (userSegmentIds.Contains(value.Id))
                                 {
-                                    foreach (var field in fields)
+                                    bool isTagOrMeta;
+                                    HashSet<string> fields = GetUnifiedSearchKey(castedSource.Field.ToLower(), group, out isTagOrMeta, groupId);
+
+                                    if (isTagOrMeta)
                                     {
-                                        definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, value.Value));
+                                        foreach (var field in fields)
+                                        {
+                                            definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, value.Value));
+                                        }
                                     }
                                 }
                             }
