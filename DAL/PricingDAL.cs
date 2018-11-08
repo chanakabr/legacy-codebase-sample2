@@ -602,7 +602,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }
+        }       
 
         public static DataRow Get_PPVModuleForMediaFile(int mediaFileID, long ppvModuleCode, int groupID)
         {
@@ -1771,6 +1771,23 @@ namespace DAL
                 HandleException(string.Empty, ex);
             }
             return 0;
+        }
+
+        public static List<string> GetCollectionIds(int groupId)
+        {
+            List<string> res = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CollectionsIds");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                res = dt.AsEnumerable().Select(x => (x.Field<long>("ID")).ToString()).ToList();
+            }
+
+            return res;
         }
     }
 }
