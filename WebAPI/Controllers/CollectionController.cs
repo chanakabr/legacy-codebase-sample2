@@ -32,11 +32,19 @@ namespace WebAPI.Controllers
         ///   </remarks>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaCollectionListResponse List(KalturaCollectionFilter filter)
+        static public KalturaCollectionListResponse List(KalturaCollectionFilter filter = null)
         {
             KalturaCollectionListResponse response = new KalturaCollectionListResponse();
 
-            filter.Validate();
+            if (filter == null)
+            {
+                filter = new KalturaCollectionFilter();
+            }
+            else
+            {
+                filter.Validate();
+            }
+            
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
@@ -57,6 +65,10 @@ namespace WebAPI.Controllers
                     {
                         response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy);
                     }
+                }
+                else
+                {
+                    response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, udid, language, filter.OrderBy);
                 }
 
                 response.TotalCount = response.Collections != null ? response.Collections.Count : 0;
