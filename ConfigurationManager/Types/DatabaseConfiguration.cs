@@ -22,6 +22,8 @@ namespace ConfigurationManager
         public StringConfigurationValue WriteLockParameters;
         public NumericConfigurationValue WriteLockTTL;
         public StringConfigurationValue Prefix;
+        public NumericConfigurationValue DbCommandExecuteTimeoutSec;
+
 
         public DatabaseConfiguration(string key) : base(key)
         {
@@ -108,6 +110,10 @@ namespace ConfigurationManager
             {
                 OriginalKey = "DB_Settings.prefix"
             };
+            DbCommandExecuteTimeoutSec= new NumericConfigurationValue("DbCommandExecuteTimeoutSec", this)
+            {                
+                DefaultValue = 1800
+            };
         }
 
         internal override bool Validate()
@@ -128,6 +134,7 @@ namespace ConfigurationManager
             result &= WriteLockParameters.Validate();
             result &= WriteLockTTL.Validate();
             result &= Prefix.Validate();
+            result &= DbCommandExecuteTimeoutSec.Validate();
 
             return result;
         }
