@@ -7,12 +7,16 @@ using ApiObjects.Response;
 using ApiObjects.SSOAdapter;
 using ODBCWrapper;
 using Tvinci.Core.DAL;
+using ConfigurationManager;
 
 namespace DAL
 {
     public class UsersDal : BaseDal
     {
         #region Private Constants
+
+        // Default command timeout to 30 minutes ( needed for purge)
+        private const int SQL_COMMAND_TIMEOUT_SEC = 1800;
 
         private const string SP_GET_USER_TYPE_DATA = "Get_UserTypeData";
         private const string SP_GET_USER_TYPE_DATA_BY_IDS = "Get_UserTypesDataByIDs";
@@ -2171,8 +2175,15 @@ namespace DAL
 
         public static int Purge()
         {
+            int sqlCommandTimeoutSec = SQL_COMMAND_TIMEOUT_SEC;
+            if (ApplicationConfiguration.DatabaseConfiguration.DbCommandExecuteTimeoutSec.IntValue > 0)
+            {
+                sqlCommandTimeoutSec =  ApplicationConfiguration.DatabaseConfiguration.DbCommandExecuteTimeoutSec.IntValue;
+            }           
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Purge");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.SetTimeout(sqlCommandTimeoutSec);
             return sp.ExecuteReturnValue<int>();
         }
 
