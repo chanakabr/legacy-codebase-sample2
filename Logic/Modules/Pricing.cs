@@ -722,6 +722,19 @@ namespace Core.Pricing
             }
         }
 
+        public static CollectionsResponse GetCollectionsData(int groupId, string country, string language, string udid)
+        {
+            // get group's CollectionIds
+            List<string> collCodes = DAL.PricingDAL.GetCollectionIds(groupId);
+            
+            if(collCodes == null)
+            {
+                return null;
+            }
+
+            return GetCollectionsData(groupId, collCodes.ToArray(), country, language, udid);
+        }
+
         public static PPVModule ValidatePPVModuleForMediaFile(int groupID, Int32 mediaFileID, long ppvModuleCode)
         {
             BasePPVModule t = null;
@@ -895,7 +908,7 @@ namespace Core.Pricing
                 response = new ApiObjects.BusinessModuleResponse(0, new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error"));
             }
             return response;
-        }
+        }        
 
         public static ApiObjects.BusinessModuleResponse DeleteMPP(int groupID, string multiPricePlan)
         {
