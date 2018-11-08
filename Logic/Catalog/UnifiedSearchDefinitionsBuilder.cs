@@ -398,7 +398,7 @@ namespace Core.Catalog
                 {
                     definitions.preference = request.m_sSiteGuid;
                 }
-                else if(!string.IsNullOrEmpty(request.m_sUserIP))
+                else if (!string.IsNullOrEmpty(request.m_sUserIP))
                 {
                     definitions.preference = request.m_sUserIP.Replace(".", string.Empty);
                 }
