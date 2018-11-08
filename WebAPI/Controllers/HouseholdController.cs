@@ -436,7 +436,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, household.Name, household.Description);
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, household.Name, household.Description, household.ExternalId);
             }
             catch (ClientException ex)
             {
