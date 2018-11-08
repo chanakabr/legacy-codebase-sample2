@@ -93,7 +93,7 @@ namespace Core.Users
             return oDomainResponseObject;
         }
 
-        public virtual DomainResponseObject SetDomainInfo(int nDomainID, string sDomainName, int nGroupID, string sDomainDescription)
+        public virtual DomainResponseObject SetDomainInfo(int nDomainID, string sDomainName, int nGroupID, string sDomainDescription, string externalId = null)
         {
             DomainResponseObject res = null;
 
@@ -102,6 +102,22 @@ namespace Core.Users
             {
                 domain.m_sName = sDomainName;
                 domain.m_sDescription = sDomainDescription;
+
+                if (!string.IsNullOrEmpty(externalId))
+                {
+                    //Check if CoGuid already exists
+                    int secondDomainID = DAL.DomainDal.GetDomainIDByCoGuid(externalId, nGroupID);
+
+                    if ((secondDomainID != nDomainID) && (secondDomainID > 0))
+                    {
+                        res = new DomainResponseObject(domain, DomainResponseStatus.DomainAlreadyExists);
+                        return res;
+                    }
+                    else
+                    {
+                        domain.m_sCoGuid = externalId;
+                    }
+                }
 
                 domain.shouldUpdateInfo = true;
 

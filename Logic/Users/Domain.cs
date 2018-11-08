@@ -2950,7 +2950,7 @@ namespace Core.Users
 
             if (shouldUpdateInfo)
             {
-                bool updateInfoResult = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction);
+                bool updateInfoResult = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction, m_sCoGuid);
 
                 if (!updateInfoResult)
                 {
