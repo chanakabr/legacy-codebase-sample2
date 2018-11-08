@@ -2,12 +2,14 @@
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
 using AutoMapper;
+using AutoMapper.Configuration;
 using Core.ConditionalAccess;
 using Core.Pricing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
@@ -16,7 +18,6 @@ using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
-using AutoMapper.Configuration;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -35,9 +36,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
                .ForMember(dest => dest.CouponGroupType, opt => opt.ResolveUsing(src => ConvertCouponGroupType(src.couponGroupType)))
                .ForMember(dest => dest.MaxHouseholdUses, opt => opt.MapFrom(src => src.maxDomainUses))
-               .ForMember(dest => dest.DiscountCode, opt => opt.MapFrom(src => long.Parse(src.m_sDiscountCode)))
-               .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => long.Parse(src.m_sDiscountCode)))
-               ;
+               .ForMember(dest => dest.DiscountCode, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.m_sDiscountCode)))
+               .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.m_sDiscountCode)));
 
             cfg.CreateMap<SubscriptionCouponGroup, KalturaCouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
