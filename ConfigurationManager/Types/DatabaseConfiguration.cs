@@ -111,7 +111,8 @@ namespace ConfigurationManager
                 OriginalKey = "DB_Settings.prefix"
             };
             DbCommandExecuteTimeoutSec= new NumericConfigurationValue("DbCommandExecuteTimeoutSec", this)
-            {                
+            {
+                ShouldAllowEmpty = true,
                 DefaultValue = 1800
             };
         }
