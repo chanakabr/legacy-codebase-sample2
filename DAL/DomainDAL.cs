@@ -899,7 +899,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateDomain(string sName, string sDescription, int nDomainID, int nGroupID, int nDomainRestriciton = 0)
+        public static bool UpdateDomain(string sName, string sDescription, int nDomainID, int nGroupID, int nDomainRestriciton = 0, string coGuid = null)
         {
             bool res = false;
 
@@ -911,6 +911,7 @@ namespace DAL
             spUpdateDomain.AddParameter("@name", sName);
             spUpdateDomain.AddParameter("@description", sDescription);
             spUpdateDomain.AddParameter("@restriction", nDomainRestriciton);
+            spUpdateDomain.AddParameter("@CoGuid", coGuid);
 
             int rowCount = spUpdateDomain.ExecuteReturnValue<int>();
             res = rowCount > 0;
