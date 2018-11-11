@@ -23,18 +23,24 @@ namespace WebAPI.Controllers
     public class CollectionController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-       
+
         /// <summary>
         /// Returns a list of subscriptions requested by Subscription ID or file ID
         /// </summary>
         /// <param name="filter">Filter request</param>
+        /// <param name="pager">Page size and index</param>
         /// <remarks>Possible status codes:      
         ///   </remarks>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaCollectionListResponse List(KalturaCollectionFilter filter = null)
+        static public KalturaCollectionListResponse List(KalturaCollectionFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaCollectionListResponse response = new KalturaCollectionListResponse();
+
+            if (pager == null)
+            {
+                pager = new KalturaFilterPager();
+            }
 
             if (filter == null)
             {
@@ -54,7 +60,7 @@ namespace WebAPI.Controllers
             {
                 if (!string.IsNullOrEmpty(filter.CollectionIdIn))
                 {
-                    response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, filter.getCollectionIdIn(), udid, language, filter.OrderBy);
+                    response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, filter.getCollectionIdIn(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
                 }
                 else if (filter.MediaFileIdEqual.HasValue)
                 {
@@ -63,12 +69,12 @@ namespace WebAPI.Controllers
                     // get collections
                     if (collectionsIds != null && collectionsIds.Count > 0)
                     {
-                        response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy);
+                        response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
                     }
                 }
                 else
                 {
-                    response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, udid, language, filter.OrderBy);
+                    response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
                 }
 
                 response.TotalCount = response.Collections != null ? response.Collections.Count : 0;

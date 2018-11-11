@@ -6497,7 +6497,7 @@ namespace WebAPI.Reflection
                     {
                         case "list":
                             RolesManager.ValidateActionPermitted("collection", "list", false);
-                            return CollectionController.List((KalturaCollectionFilter) methodParams[0]);
+                            return CollectionController.List((KalturaCollectionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -8807,7 +8807,7 @@ namespace WebAPI.Reflection
                                 return SubscriptionController.ListOldStandard((KalturaSubscriptionsFilter) methodParams[0]);
                             }
                             RolesManager.ValidateActionPermitted("subscription", "list", false);
-                            return SubscriptionController.List((KalturaSubscriptionFilter) methodParams[0]);
+                            return SubscriptionController.List((KalturaSubscriptionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "listoldstandard":
                             RolesManager.ValidateActionPermitted("subscription", "listOldStandard", false);
@@ -11298,6 +11298,13 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCollectionFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
@@ -16027,8 +16034,17 @@ namespace WebAPI.Reflection
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSubscriptionFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

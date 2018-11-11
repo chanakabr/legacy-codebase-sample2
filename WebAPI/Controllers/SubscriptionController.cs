@@ -9,13 +9,13 @@ using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
-using WebAPI.Models.API;
-using WebAPI.Models.Pricing;
-using WebAPI.Utils;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
-using WebAPI.Managers.Scheme;
+using WebAPI.Models.Pricing;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -23,21 +23,34 @@ namespace WebAPI.Controllers
     public class SubscriptionController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-       
+
         /// <summary>
         /// Returns a list of subscriptions requested by Subscription ID or file ID
         /// </summary>
         /// <param name="filter">Filter request</param>
+        /// <param name="pager">Page size and index</param>
         /// <remarks>Possible status codes:      
         ///   </remarks>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaSubscriptionListResponse List(KalturaSubscriptionFilter filter)
+        static public KalturaSubscriptionListResponse List(KalturaSubscriptionFilter filter = null, KalturaFilterPager pager = null)
         {
-            filter.Validate();
-
             KalturaSubscriptionListResponse response = new KalturaSubscriptionListResponse();
-            
+
+            if (pager == null)
+            {
+                pager = new KalturaFilterPager();
+            }
+
+            if (filter == null)
+            {
+                filter = new KalturaSubscriptionFilter();
+            }
+            else
+            {
+                filter.Validate();
+            }
+
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -47,27 +60,31 @@ namespace WebAPI.Controllers
                 if (filter.MediaFileIdEqual.HasValue)
                 {
                     // call client
-                    List<int> subscriptionsIds = ClientsManager.PricingClient().GetSubscriptionIDsContainingMediaFile(groupId, (int) filter.MediaFileIdEqual);
+                    List<int> subscriptionsIds = ClientsManager.PricingClient().GetSubscriptionIDsContainingMediaFile(groupId, (int)filter.MediaFileIdEqual);
 
                     // get subscriptions
                     if (subscriptionsIds != null && subscriptionsIds.Count > 0)
                     {
-                        response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy);
+                        response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
                     }
                 }
                 else if (!string.IsNullOrEmpty(filter.SubscriptionIdIn))
                 {
                     // call client
-                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy);
+                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy , pager.getPageIndex(), pager.PageSize);
                 }
                 else if (!string.IsNullOrEmpty(filter.ExternalIdIn))
                 {
                     // call client
                     response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsDataByProductCodes(groupId, filter.getExternalIdIn(), filter.OrderBy);
                 }
+                else
+                {
+                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
+                }
 
                 response.TotalCount = response.Subscriptions != null ? response.Subscriptions.Count : 0;
-                
+
             }
             catch (ClientException ex)
             {
