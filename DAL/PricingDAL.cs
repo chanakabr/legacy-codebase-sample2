@@ -27,7 +27,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }       
+        }
 
         public static DataTable Get_PPVModuleListForMediaFilesWithExpired(int nGroupID, List<int> mediaFileList)
         {
@@ -81,7 +81,7 @@ namespace DAL
 
             DataSet ds = spSubscriptionData.ExecuteDataSet();
             return ds;
-        }      
+        }
 
         public static DataTable Get_PreviewModuleData(int nGroupID, long nPreviewModuleID)
         {
@@ -95,7 +95,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
 
-        }       
+        }
 
         public static string Get_ItemName(string sTableName, long lItemCode)
         {
@@ -376,7 +376,7 @@ namespace DAL
             if (ds != null && ds.Tables != null)
                 return ds.Tables[0];
             return null;
-        }        
+        }
 
         public static DataTable GetUsageModuleCollection(string sAssetCode)
         {
@@ -568,7 +568,7 @@ namespace DAL
             }
 
             return res;
-        }        
+        }
 
         public static DataTable Get_SubscriptionsServices(int groupID, List<long> subscriptionsIDs)
         {
@@ -602,7 +602,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }       
+        }
 
         public static DataRow Get_PPVModuleForMediaFile(int mediaFileID, long ppvModuleCode, int groupID)
         {
@@ -1685,7 +1685,7 @@ namespace DAL
             return 0;
         }
 
-        public static DataTable AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber, 
+        public static DataTable AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber,
             int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_CouponsGroups");
@@ -1778,6 +1778,23 @@ namespace DAL
             List<string> res = null;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CollectionsIds");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                res = dt.AsEnumerable().Select(x => (x.Field<long>("ID")).ToString()).ToList();
+            }
+
+            return res;
+        }
+
+        public static List<string> GetSubscriptions(int groupId)
+        {
+            List<string> res = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsIds");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
             DataTable dt = sp.Execute();
