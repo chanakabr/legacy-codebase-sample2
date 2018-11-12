@@ -19946,7 +19946,10 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("length", "\"length\": " + Length);
             }
-            ret.Add("lengthType", "\"lengthType\": " + "\"" + Enum.GetName(typeof(KalturaContentActionConditionLengthType), LengthType) + "\"");
+            if(LengthType.HasValue)
+            {
+                ret.Add("lengthType", "\"lengthType\": " + "\"" + Enum.GetName(typeof(KalturaContentActionConditionLengthType), LengthType) + "\"");
+            }
             ret.Add("multiplier", "\"multiplier\": " + Multiplier);
             return ret;
         }
@@ -19961,7 +19964,10 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("length", "<length>" + Length + "</length>");
             }
-            ret.Add("lengthType", "<lengthType>" + "" + Enum.GetName(typeof(KalturaContentActionConditionLengthType), LengthType) + "" + "</lengthType>");
+            if(LengthType.HasValue)
+            {
+                ret.Add("lengthType", "<lengthType>" + "" + Enum.GetName(typeof(KalturaContentActionConditionLengthType), LengthType) + "" + "</lengthType>");
+            }
             ret.Add("multiplier", "<multiplier>" + Multiplier + "</multiplier>");
             return ret;
         }
