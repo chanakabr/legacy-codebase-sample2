@@ -46,7 +46,7 @@ namespace ApiObjects.Segmentation
         public int? Length { get; set; }
 
         [JsonProperty()]
-        public ContentConditionLengthType LengthType { get; set; }
+        public ContentConditionLengthType? LengthType { get; set; }
 
         [JsonProperty()]
         public int Multiplier { get; set; }
