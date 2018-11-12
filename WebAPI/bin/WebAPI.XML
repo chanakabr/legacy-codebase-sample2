@@ -11182,6 +11182,11 @@
             Mathermtical operator to calculate
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaMonetizationSource.Days">
+            <summary>
+            Days to consider when checking the users' purchaes
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaContentSource">
             <summary>
             Content based source (meta, tag etc.)

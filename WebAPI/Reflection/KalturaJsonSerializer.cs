@@ -20119,6 +20119,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("days", "\"days\": " + Days);
             ret.Add("operator", "\"operator\": " + "\"" + Enum.GetName(typeof(KalturaMathemticalOperatorType), Operator) + "\"");
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaMonetizationType), Type) + "\"");
             return ret;
@@ -20129,6 +20130,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("days", "<days>" + Days + "</days>");
             ret.Add("operator", "<operator>" + "" + Enum.GetName(typeof(KalturaMathemticalOperatorType), Operator) + "" + "</operator>");
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaMonetizationType), Type) + "" + "</type>");
             return ret;

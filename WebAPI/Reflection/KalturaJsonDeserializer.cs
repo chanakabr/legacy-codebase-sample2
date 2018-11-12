@@ -19770,6 +19770,15 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaMonetizationSource(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -19791,6 +19800,14 @@ namespace WebAPI.Models.Segmentation
                         OperatorSchemaProperty.Validate("operator", parameters["operator"]);
                     }
                     Operator = (KalturaMathemticalOperatorType) Enum.Parse(typeof(KalturaMathemticalOperatorType), parameters["operator"].ToString(), true);
+                }
+                if (parameters.ContainsKey("days") && parameters["days"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DaysSchemaProperty.Validate("days", parameters["days"]);
+                    }
+                    Days = (Int32) Convert.ChangeType(parameters["days"], typeof(Int32));
                 }
             }
         }

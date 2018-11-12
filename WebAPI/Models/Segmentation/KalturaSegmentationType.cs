@@ -70,8 +70,7 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "createDate", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
-
-        // TODO SUNNY - set in all places
+        
         /// <summary>
         /// Segmentation type version
         /// </summary>

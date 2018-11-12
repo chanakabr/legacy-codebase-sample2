@@ -39,6 +39,15 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "operator")]
         [SchemeProperty()]
         public KalturaMathemticalOperatorType Operator { get; set; }
+
+        /// <summary>
+        /// Days to consider when checking the users' purchaes
+        /// </summary>
+        [DataMember(Name = "days")]
+        [JsonProperty(PropertyName = "days")]
+        [XmlElement(ElementName = "days")]
+        [SchemeProperty()]
+        public int Days { get; set; }
     }
 
     /// <summary>

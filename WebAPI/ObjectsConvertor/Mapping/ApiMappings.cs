@@ -587,6 +587,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
                 ;
 
             cfg.CreateMap<SegmentationType, KalturaSegmentationType>()
@@ -596,6 +597,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
                 ;
 
             // Segmentation source
@@ -615,11 +617,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaMonetizationSource, MonetizationSource>()
                 .ForMember(dest => dest.Operator, opt => opt.ResolveUsing(src => ConvertMathematicalOperator(src.Operator)))
                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMonetizationType(src.Type)))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 ;
 
             cfg.CreateMap<MonetizationSource, KalturaMonetizationSource>()
                 .ForMember(dest => dest.Operator, opt => opt.ResolveUsing(src => ConvertMathematicalOperator(src.Operator)))
                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMonetizationType(src.Type)))
+                .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 ;
 
             // Content source
@@ -742,7 +746,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SystematicName, opt => opt.MapFrom(src => src.SystematicName))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 ;
 
@@ -750,7 +753,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SystematicName, opt => opt.MapFrom(src => src.SystematicName))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Threshold))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 ;
 
