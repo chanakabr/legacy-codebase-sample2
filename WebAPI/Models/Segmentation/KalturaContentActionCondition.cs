@@ -40,7 +40,7 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "lengthType")]
         [XmlElement(ElementName = "lengthType")]
         [SchemeProperty()]
-        public KalturaContentActionConditionLengthType LengthType { get; set; }
+        public KalturaContentActionConditionLengthType? LengthType { get; set; }
 
         /// <summary>
         /// Score multiplier - how much is a single action worth when considering the action

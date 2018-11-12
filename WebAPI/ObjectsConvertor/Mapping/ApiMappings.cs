@@ -901,49 +901,55 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
-        private static ContentConditionLengthType ConvertLengthType(KalturaContentActionConditionLengthType lengthType)
+        private static ContentConditionLengthType? ConvertLengthType(KalturaContentActionConditionLengthType? lengthType)
         {
-            ContentConditionLengthType result;
+            ContentConditionLengthType? result = null;
 
-            switch (lengthType)
+            if (lengthType.HasValue)
             {
-                case KalturaContentActionConditionLengthType.minutes:
-                    {
-                        result = ContentConditionLengthType.minutes;
+                switch (lengthType)
+                {
+                    case KalturaContentActionConditionLengthType.minutes:
+                        {
+                            result = ContentConditionLengthType.minutes;
+                            break;
+                        }
+                    case KalturaContentActionConditionLengthType.percentage:
+                        {
+                            result = ContentConditionLengthType.percentage;
+                            break;
+                        }
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown ContentConditionLengthType");
                         break;
-                    }
-                case KalturaContentActionConditionLengthType.percentage:
-                    {
-                        result = ContentConditionLengthType.percentage;
-                        break;
-                    }
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown ContentConditionLengthType");
-                    break;
+                }
             }
 
             return result;
         }
 
-        private static KalturaContentActionConditionLengthType ConvertLengthType(ContentConditionLengthType lengthType)
+        private static KalturaContentActionConditionLengthType? ConvertLengthType(ContentConditionLengthType? lengthType)
         {
-            KalturaContentActionConditionLengthType result;
+            KalturaContentActionConditionLengthType? result = null;
 
-            switch (lengthType)
+            if (lengthType.HasValue)
             {
-                case ContentConditionLengthType.minutes:
-                    {
-                        result = KalturaContentActionConditionLengthType.minutes;
+                switch (lengthType)
+                {
+                    case ContentConditionLengthType.minutes:
+                        {
+                            result = KalturaContentActionConditionLengthType.minutes;
+                            break;
+                        }
+                    case ContentConditionLengthType.percentage:
+                        {
+                            result = KalturaContentActionConditionLengthType.percentage;
+                            break;
+                        }
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown ContentConditionLengthType");
                         break;
-                    }
-                case ContentConditionLengthType.percentage:
-                    {
-                        result = KalturaContentActionConditionLengthType.percentage;
-                        break;
-                    }
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown ContentConditionLengthType");
-                    break;
+                }
             }
 
             return result;
