@@ -12,6 +12,9 @@ namespace ApiObjects.Segmentation
         public MonetizationType Type;
 
         [JsonProperty()] public MathemticalOperatorType Operator;
+
+        [JsonProperty()]
+        public int Days;
     }
 
     public class ContentSource : SegmentSource

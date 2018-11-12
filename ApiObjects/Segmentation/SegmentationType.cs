@@ -39,11 +39,15 @@ namespace ApiObjects.Segmentation
 
         public Status ActionStatus;
 
+        [JsonProperty()]
+        public long Version;
+
         protected override bool DoInsert()
         {
             bool result = false;
 
             this.Status = 1;
+            this.Version = 1;
             this.CreateDate = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
@@ -148,6 +152,9 @@ namespace ApiObjects.Segmentation
             }
 
             string updatedDocumentKey = GetSegmentationTypeDocumentKey(this.GroupId, this.Id);
+
+            // copy and icnrease version of segmentation type
+            this.Version = source.Version + 1;
 
             bool setResult = couchbaseManager.Set<SegmentationType>(updatedDocumentKey, this);
 

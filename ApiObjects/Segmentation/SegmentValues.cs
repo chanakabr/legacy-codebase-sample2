@@ -20,9 +20,6 @@ namespace ApiObjects.Segmentation
         
         [JsonProperty()]
         public string Value;
-
-        [JsonProperty()]
-        public int? Threshold;
     }
 
     public class SegmentValues : SegmentBaseValue
