@@ -3182,6 +3182,14 @@ namespace Core.Api
             }
             else
             {
+                // get domain info
+                Core.Users.DomainResponse response = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+                if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.DomainNotExists)
+                {
+                    log.ErrorFormat("GetUserDomainGroupRules error: {0} {1}", response.Status.Message, domainId);
+                    return groupRules;
+                }
+
                 // Get parental rule from new DAL method
                 var parentalRules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId);
 
