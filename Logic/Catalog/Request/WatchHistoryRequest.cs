@@ -60,6 +60,12 @@ namespace Core.Catalog.Request
                 // check signature
                 CheckSignature(baseRequest);
 
+                int userDomainID = 0;
+                if (!CatalogLogic.IsUserValid(request.m_sSiteGuid, request.m_nGroupID, ref userDomainID) || userDomainID ==  0)
+                {
+                    throw new Exception("Either user is not valid or user has no domain.");
+                }
+
                 // take finished percent threshold 
                 int finishedPercentThreshold = CatalogLogic.GetFinishedPercentThreshold(m_nGroupID, 3600);
                 
