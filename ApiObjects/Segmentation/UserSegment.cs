@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Segmentation
 {
+    [JsonObject()]
     public class UserSegment : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -21,8 +22,6 @@ namespace ApiObjects.Segmentation
         [JsonProperty()]
         public long SegmentId { get; set; }
         
-        public string SegmentSystemName { get; set; }
-
         public string DocumentId { get; set; }
 
         public Status ActionStatus { get; set; }
