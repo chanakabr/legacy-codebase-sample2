@@ -85,34 +85,38 @@ namespace ApiObjects.Segmentation
             }
 
             HashSet<long> alreadyContainedSegments = new HashSet<long>(userSegments.Segments.Select(o => o.SegmentId));
-            
-            if (!alreadyContainedSegments.Contains(this.SegmentId))
+
+            if (alreadyContainedSegments.Contains(this.SegmentId))
+            {
+                result = true;
+            }
+            else
             {
                 userSegments.Segments.Add(this);
+
+                long newId = (long)couchbaseManager.Increment(GetUserSegmentsSequenceDocument(), 1);
+
+                if (newId == 0)
+                {
+                    log.ErrorFormat("Error setting user segment id");
+                    return false;
+                }
+
+                this.Id = newId;
+                this.CreateDate = DateTime.UtcNow;
+
+                bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
+
+                if (!setResult)
+                {
+                    log.ErrorFormat("Error updating user segments.");
+                    return false;
+                }
+
+                this.DocumentId = string.Format("{0}_{1}", this.UserId, this.SegmentId);
+
+                result = setResult;
             }
-
-            long newId = (long)couchbaseManager.Increment(GetUserSegmentsSequenceDocument(), 1);
-
-            if (newId == 0)
-            {
-                log.ErrorFormat("Error setting user segment id");
-                return false;
-            }
-
-            this.Id = newId;
-            this.CreateDate = DateTime.UtcNow;
-
-            bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
-
-            if (!setResult)
-            {
-                log.ErrorFormat("Error updating user segments.");
-                return false;
-            }
-
-            this.DocumentId = string.Format("{0}_{1}", this.UserId, this.SegmentId);
-
-            result = setResult;
 
             return result;
         }
