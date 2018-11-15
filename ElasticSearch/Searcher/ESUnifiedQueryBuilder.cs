@@ -251,7 +251,6 @@ namespace ElasticSearch.Searcher
 
             filteredQueryBuilder.Append("{");
 
-
             filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", pageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
             
@@ -292,7 +291,11 @@ namespace ElasticSearch.Searcher
                             break;
                         }
                         case AggregationOrder.Count_Desc:
-                        break;
+                        {
+                                aggregationsOrder = "_count";
+                                aggregationsOrderDirection = "desc";
+                                break;
+                        }
                         case AggregationOrder.Value_Asc:
                         {
                             aggregationsOrder = "_term";
