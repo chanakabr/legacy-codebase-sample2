@@ -31,7 +31,7 @@ namespace ApiObjects.Segmentation
         public string Field { get; set; }
 
         [JsonProperty()]
-        public string Value { get; set; }
+        public List<string> Values { get; set; }
 
         [JsonProperty()]
         public List<ContentActionCondition> Actions { get; set; }
