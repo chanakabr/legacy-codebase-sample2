@@ -7103,6 +7103,11 @@
             groupBy
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter.GroupByOrder">
+            <summary>
+            order by of grouping
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaPersonalListSearchFilter.PartnerListTypeIn">
             <summary>
             Comma separated list of partner list types to search within. 

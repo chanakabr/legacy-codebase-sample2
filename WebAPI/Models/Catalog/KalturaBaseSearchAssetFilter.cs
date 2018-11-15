@@ -52,6 +52,19 @@ namespace WebAPI.Models.Catalog
             set;
         }
 
+        /// <summary>
+        /// order by of grouping
+        /// </summary>
+        [DataMember(Name = "groupOrderBy")]
+        [JsonProperty("groupOrderBy")]
+        [XmlElement(ElementName = "groupOrderBy", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaGroupByOrder? GroupByOrder
+        {
+            get;
+            set;
+        }
+
 
         internal List<string> getGroupByValue()
         {
@@ -62,5 +75,14 @@ namespace WebAPI.Models.Catalog
 
             return values;
         }
+    }
+
+    public enum KalturaGroupByOrder
+    {
+        defaultOrder,
+        count_asc,
+        count_desc,
+        value_asc,
+        value_desc
     }
 }

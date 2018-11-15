@@ -8628,6 +8628,10 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "[" + String.Join(", ", GroupBy.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("groupBy", "\"groupBy\": " + propertyValue);
             }
+            if(GroupByOrder.HasValue)
+            {
+                ret.Add("groupOrderBy", "\"groupOrderBy\": " + "\"" + Enum.GetName(typeof(KalturaGroupByOrder), GroupByOrder) + "\"");
+            }
             if(Ksql != null)
             {
                 ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
@@ -8644,6 +8648,10 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = GroupBy.Count > 0 ? "<item>" + String.Join("</item><item>", GroupBy.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("groupBy", "<groupBy>" + propertyValue + "</groupBy>");
+            }
+            if(GroupByOrder.HasValue)
+            {
+                ret.Add("groupOrderBy", "<groupOrderBy>" + "" + Enum.GetName(typeof(KalturaGroupByOrder), GroupByOrder) + "" + "</groupOrderBy>");
             }
             if(Ksql != null)
             {

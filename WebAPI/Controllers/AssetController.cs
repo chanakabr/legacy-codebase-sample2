@@ -219,7 +219,7 @@ namespace WebAPI.Controllers
                         bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
                         response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.Ksql,
                             regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy,
-                            regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets);
+                            regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, regularAssetFilter.GroupByOrder);
                     }
                 }
 
@@ -1052,7 +1052,7 @@ namespace WebAPI.Controllers
             {
                 KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                 response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.Ksql,
-                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList);
+                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList, filter.GroupByOrder);
             }
             catch (ClientException ex)
             {

@@ -9271,6 +9271,10 @@ namespace WebAPI.Models.Catalog
                         GroupBy = buildList(typeof(KalturaAssetGroupBy), parameters["groupBy"] as object[]);
                     }
                 }
+                if (parameters.ContainsKey("groupOrderBy") && parameters["groupOrderBy"] != null)
+                {
+                    GroupByOrder = (KalturaGroupByOrder) Enum.Parse(typeof(KalturaGroupByOrder), parameters["groupOrderBy"].ToString(), true);
+                }
             }
         }
     }

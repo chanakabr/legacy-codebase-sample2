@@ -863,7 +863,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false)
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -886,6 +886,42 @@ namespace WebAPI.Clients
                 string strEpgChannelIds = string.Join(",", epgChannelIds.Select(at => at.ToString()).ToArray());
                 key.AppendFormat("_ec={0}", strEpgChannelIds);
                 filter = string.Format("(and {0} epg_channel_id:'{1}')", filter, strEpgChannelIds);
+            }
+
+            AggregationOrder? aggregationOrder = null;
+
+            if (groupByOrder != null)
+            {
+                switch (groupByOrder.Value)
+                {
+                    case KalturaGroupByOrder.defaultOrder:
+                        {
+                            aggregationOrder = AggregationOrder.Default;
+                            break;
+                        }
+                    case KalturaGroupByOrder.count_asc:
+                        {
+                            aggregationOrder = AggregationOrder.Count_Asc;
+                            break;
+                        }
+                    case KalturaGroupByOrder.count_desc:
+                        {
+                            aggregationOrder = AggregationOrder.Count_Desc;
+                            break;
+                        }
+                    case KalturaGroupByOrder.value_asc:
+                        {
+                            aggregationOrder = AggregationOrder.Value_Asc;
+                            break;
+                        }
+                    case KalturaGroupByOrder.value_desc:
+                        {
+                            aggregationOrder = AggregationOrder.Value_Desc;
+                            break;
+                        }
+                    default:
+                        break;
+                }
             }
 
             // build request
@@ -919,7 +955,8 @@ namespace WebAPI.Clients
                 {
                     groupBy = groupBy,
                     distinctGroup = groupBy[0], // mabye will send string.empty - and Backend will fill it if nessecery
-                    topHitsCount = 1
+                    topHitsCount = 1,
+                    groupByOrder = aggregationOrder
                 };
             }
 
@@ -943,7 +980,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy, KalturaGroupByOrder? groupByOrder)
         {
             KalturaAssetCount result = new KalturaAssetCount();
 
@@ -973,6 +1010,42 @@ namespace WebAPI.Clients
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
             }
 
+            AggregationOrder aggregationOrder = AggregationOrder.Value_Asc;
+
+            if (groupByOrder != null)
+            {
+                switch (groupByOrder.Value)
+                {
+                    case KalturaGroupByOrder.defaultOrder:
+                        {
+                            aggregationOrder = AggregationOrder.Default;
+                            break;
+                        }
+                    case KalturaGroupByOrder.count_asc:
+                        {
+                            aggregationOrder = AggregationOrder.Count_Asc;
+                            break;
+                        }
+                    case KalturaGroupByOrder.count_desc:
+                        {
+                            aggregationOrder = AggregationOrder.Count_Desc;
+                            break;
+                        }
+                    case KalturaGroupByOrder.value_asc:
+                        {
+                            aggregationOrder = AggregationOrder.Value_Asc;
+                            break;
+                        }
+                    case KalturaGroupByOrder.value_desc:
+                        {
+                            aggregationOrder = AggregationOrder.Value_Desc;
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
             {
@@ -998,7 +1071,7 @@ namespace WebAPI.Clients
                 searchGroupBy = new SearchAggregationGroupBy()
                 {
                     groupBy = groupBy,
-                    groupByOrder = AggregationOrder.Value_Asc
+                    groupByOrder = aggregationOrder
                 }
             };
 
