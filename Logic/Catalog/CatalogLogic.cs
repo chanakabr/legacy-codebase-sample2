@@ -8470,7 +8470,7 @@ namespace Core.Catalog
                             {
                                 var castedCondition = (condition as ContentScoreCondition);
 
-                                if (!string.IsNullOrEmpty(castedCondition.Field) && !string.IsNullOrEmpty(castedCondition.Value))
+                                if (!string.IsNullOrEmpty(castedCondition.Field) && castedCondition.Values != null && castedCondition.Values.Count > 0)
                                 {
                                     bool isTagOrMeta;
                                     HashSet<string> fields = GetUnifiedSearchKey(castedCondition.Field.ToLower(), group, out isTagOrMeta, groupId);
@@ -8479,7 +8479,10 @@ namespace Core.Catalog
                                     {
                                         foreach (var field in fields)
                                         {
-                                            definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, castedCondition.Value));
+                                            foreach (var value in castedCondition.Values)
+                                            {
+                                                definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, value));
+                                            }
                                         }
                                     }
                                 }

@@ -1300,6 +1300,7 @@ namespace Core.Catalog
                 HashSet<string> allTags = new HashSet<string>();
                 bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
                 CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+
                 if (!doesGroupUsesTemplates)
                 {
                     if (definitions.shouldSearchMedia)
