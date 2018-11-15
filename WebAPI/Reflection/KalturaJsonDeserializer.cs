@@ -19544,7 +19544,7 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
+        private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -19600,13 +19600,20 @@ namespace WebAPI.Models.Segmentation
                     }
                     Field = (String) Convert.ChangeType(parameters["field"], typeof(String));
                 }
-                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                if (parameters.ContainsKey("values") && parameters["values"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ValueSchemaProperty.Validate("value", parameters["value"]);
+                        ValuesSchemaProperty.Validate("values", parameters["values"]);
                     }
-                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                    if (parameters["values"] is JArray)
+                    {
+                        Values = buildList<KalturaStringValue>(typeof(KalturaStringValue), (JArray) parameters["values"]);
+                    }
+                    else if (parameters["values"] is IList)
+                    {
+                        Values = buildList(typeof(KalturaStringValue), parameters["values"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
@@ -20282,15 +20289,6 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ThresholdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaSegmentValue(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -20328,14 +20326,6 @@ namespace WebAPI.Models.Segmentation
                         ValueSchemaProperty.Validate("value", parameters["value"]);
                     }
                     Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
-                }
-                if (parameters.ContainsKey("threshold") && parameters["threshold"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        ThresholdSchemaProperty.Validate("threshold", parameters["threshold"]);
-                    }
-                    Threshold = (Int32) Convert.ChangeType(parameters["threshold"], typeof(Int32));
                 }
             }
         }

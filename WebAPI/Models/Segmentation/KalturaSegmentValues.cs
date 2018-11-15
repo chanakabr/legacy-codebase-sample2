@@ -51,15 +51,6 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "value")]
         [SchemeProperty()]
         public string Value { get; set; }
-
-        /// <summary>
-        /// Threshold - minimum score to be met for this specific value
-        /// </summary>
-        [DataMember(Name = "threshold")]
-        [JsonProperty(PropertyName = "threshold")]
-        [XmlElement(ElementName = "threshold")]
-        [SchemeProperty()]
-        public int Threshold { get; set; }
     }
 
     /// <summary>

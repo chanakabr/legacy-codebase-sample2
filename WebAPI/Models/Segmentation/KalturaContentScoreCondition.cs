@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Segmentation
 {
@@ -51,13 +52,15 @@ namespace WebAPI.Models.Segmentation
         public string Field { get; set; }
 
         /// <summary>
-        /// If condition should be applied on specific field (and not the one of the segment value) -
+        /// If condition should be applied on specific field (and not the one of the segment value) - 
+        /// list of values to be considered together
         /// </summary>
-        [DataMember(Name = "value")]
-        [JsonProperty(PropertyName = "value")]
-        [XmlElement(ElementName = "value")]
+        [DataMember(Name = "values", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "values", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlArray(ElementName = "values")]
+        [XmlArrayItem("item")]
         [SchemeProperty()]
-        public string Value { get; set; }
+        public List<KalturaStringValue> Values { get; set; }
 
         /// <summary>
         /// List of the actions that consist the condition

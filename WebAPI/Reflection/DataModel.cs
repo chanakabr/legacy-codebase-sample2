@@ -1417,8 +1417,8 @@ namespace WebAPI.Reflection
                             return "maxScore";
                         case "MinScore":
                             return "minScore";
-                        case "Value":
-                            return "value";
+                        case "Values":
+                            return "values";
                     }
                     break;
                     
@@ -3263,6 +3263,8 @@ namespace WebAPI.Reflection
                 case "KalturaMonetizationSource":
                     switch(property.Name)
                     {
+                        case "Days":
+                            return "days";
                         case "Operator":
                             return "operator";
                         case "Type":
@@ -4865,8 +4867,6 @@ namespace WebAPI.Reflection
                             return "name";
                         case "SystematicName":
                             return "systematicName";
-                        case "Threshold":
-                            return "threshold";
                         case "Value":
                             return "value";
                     }

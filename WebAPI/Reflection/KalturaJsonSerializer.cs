@@ -20000,9 +20000,10 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("minScore", "\"minScore\": " + MinScore);
             }
-            if(Value != null)
+            if(Values != null)
             {
-                ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
+                propertyValue = "[" + String.Join(", ", Values.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("values", "\"values\": " + propertyValue);
             }
             return ret;
         }
@@ -20033,9 +20034,10 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("minScore", "<minScore>" + MinScore + "</minScore>");
             }
-            if(Value != null)
+            if(Values != null)
             {
-                ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
+                propertyValue = Values.Count > 0 ? "<item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("values", "<values>" + propertyValue + "</values>");
             }
             return ret;
         }
@@ -20424,7 +20426,6 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("systematicName", "\"systematicName\": " + "\"" + EscapeJson(SystematicName) + "\"");
             }
-            ret.Add("threshold", "\"threshold\": " + Threshold);
             if(Value != null)
             {
                 ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
@@ -20446,7 +20447,6 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("systematicName", "<systematicName>" + EscapeXml(SystematicName) + "</systematicName>");
             }
-            ret.Add("threshold", "<threshold>" + Threshold + "</threshold>");
             if(Value != null)
             {
                 ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");

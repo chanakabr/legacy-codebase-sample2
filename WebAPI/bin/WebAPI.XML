@@ -11032,9 +11032,10 @@
             If condition should be applied on specific field (and not the one of the segment value)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Value">
+        <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Values">
             <summary>
-            If condition should be applied on specific field (and not the one of the segment value) -
+            If condition should be applied on specific field (and not the one of the segment value) - 
+            list of values to be considered together
             </summary>
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaContentScoreCondition.Actions">
@@ -11230,11 +11231,6 @@
         <member name="P:WebAPI.Models.Segmentation.KalturaSegmentValue.Value">
             <summary>
             The value of the segment
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Segmentation.KalturaSegmentValue.Threshold">
-            <summary>
-            Threshold - minimum score to be met for this specific value
             </summary>
         </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaSegmentValues">

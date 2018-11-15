@@ -674,7 +674,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
                 .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
                 .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
-                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => x.value).ToList()))
                 ;
 
             cfg.CreateMap<ContentScoreCondition, KalturaContentScoreCondition>()
@@ -682,7 +682,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
                 .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
                 .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
-                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
                 ;
 
             // content action condition
