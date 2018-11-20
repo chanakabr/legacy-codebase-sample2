@@ -171,7 +171,7 @@ namespace ElasticSearchHandler
                                 if (epgDictionary.ContainsKey(assetId))
                                 {
                                     DateTime updateDateDB = epgDictionary[assetId][language.Code].UpdateDate;
-                                    bool isDBActive = epgDictionary[assetId][language.Code].IsActive;
+                                    bool isDBActive = epgDictionary[assetId][language.Code].isActive;
 
                                     // Compare the dates - if the DB was updated after the ES was updated, this means we need to update ES
                                     if ((updateDateDB.Subtract(updateDateES) > minimumTimeSpan) ||
