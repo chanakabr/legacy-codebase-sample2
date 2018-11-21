@@ -11123,8 +11123,14 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("enableCatchUp", "\"enableCatchUp\": " + CatchUpEnabled.ToString().ToLower());
-            ret.Add("enableCdvr", "\"enableCdvr\": " + CdvrEnabled.ToString().ToLower());
+            if(CatchUpEnabled.HasValue)
+            {
+                ret.Add("enableCatchUp", "\"enableCatchUp\": " + CatchUpEnabled.ToString().ToLower());
+            }
+            if(CdvrEnabled.HasValue)
+            {
+                ret.Add("enableCdvr", "\"enableCdvr\": " + CdvrEnabled.ToString().ToLower());
+            }
             if(Crid != null)
             {
                 ret.Add("crid", "\"crid\": " + "\"" + EscapeJson(Crid) + "\"");
@@ -11145,8 +11151,14 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("relatedMediaId", "\"relatedMediaId\": " + RelatedMediaId);
             }
-            ret.Add("enableStartOver", "\"enableStartOver\": " + StartOverEnabled.ToString().ToLower());
-            ret.Add("enableTrickPlay", "\"enableTrickPlay\": " + TrickPlayEnabled.ToString().ToLower());
+            if(StartOverEnabled.HasValue)
+            {
+                ret.Add("enableStartOver", "\"enableStartOver\": " + StartOverEnabled.ToString().ToLower());
+            }
+            if(TrickPlayEnabled.HasValue)
+            {
+                ret.Add("enableTrickPlay", "\"enableTrickPlay\": " + TrickPlayEnabled.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -11155,8 +11167,14 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("enableCatchUp", "<enableCatchUp>" + CatchUpEnabled.ToString().ToLower() + "</enableCatchUp>");
-            ret.Add("enableCdvr", "<enableCdvr>" + CdvrEnabled.ToString().ToLower() + "</enableCdvr>");
+            if(CatchUpEnabled.HasValue)
+            {
+                ret.Add("enableCatchUp", "<enableCatchUp>" + CatchUpEnabled.ToString().ToLower() + "</enableCatchUp>");
+            }
+            if(CdvrEnabled.HasValue)
+            {
+                ret.Add("enableCdvr", "<enableCdvr>" + CdvrEnabled.ToString().ToLower() + "</enableCdvr>");
+            }
             if(Crid != null)
             {
                 ret.Add("crid", "<crid>" + EscapeXml(Crid) + "</crid>");
@@ -11177,8 +11195,14 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("relatedMediaId", "<relatedMediaId>" + RelatedMediaId + "</relatedMediaId>");
             }
-            ret.Add("enableStartOver", "<enableStartOver>" + StartOverEnabled.ToString().ToLower() + "</enableStartOver>");
-            ret.Add("enableTrickPlay", "<enableTrickPlay>" + TrickPlayEnabled.ToString().ToLower() + "</enableTrickPlay>");
+            if(StartOverEnabled.HasValue)
+            {
+                ret.Add("enableStartOver", "<enableStartOver>" + StartOverEnabled.ToString().ToLower() + "</enableStartOver>");
+            }
+            if(TrickPlayEnabled.HasValue)
+            {
+                ret.Add("enableTrickPlay", "<enableTrickPlay>" + TrickPlayEnabled.ToString().ToLower() + "</enableTrickPlay>");
+            }
             return ret;
         }
     }

@@ -8,8 +8,7 @@ using System.Xml.Serialization;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
-{
-    // TODO SHIR - delete when not need talk with Tan Tan!!!
+{    
     /// <summary>
     /// Asset Struct Metas list
     /// </summary>

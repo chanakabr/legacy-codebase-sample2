@@ -57,6 +57,17 @@ namespace WebAPI.Utils
             return (long)diff.TotalSeconds;
         }
 
+        /// <summary>
+        /// convert string to dateTime in format dd/MM/yyyy HH:mm:ss
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public static long ConvertToUnixTimestamp(string date)
+        {
+            string dateFormat = "dd/MM/yyyy HH:mm:ss";
+            DateTime formattedDate = DateTime.ParseExact(date, dateFormat, null);
+            return ConvertToUnixTimestamp(formattedDate);
+        }
 
         public static long? ConvertToUnixTimestamp(DateTime? date)
         {

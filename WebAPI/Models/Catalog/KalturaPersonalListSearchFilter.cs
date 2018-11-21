@@ -24,25 +24,7 @@ namespace WebAPI.Models.Catalog
 
         internal HashSet<int> GetPartnerListTypeIn()
         {
-            if (string.IsNullOrEmpty(PartnerListTypeIn))
-                return null;
-
-            HashSet<int> values = new HashSet<int>();
-            string[] stringValues = PartnerListTypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string stringValue in stringValues)
-            {
-                int value;
-                if (int.TryParse(stringValue, out value))
-                {
-                    values.Add(value);
-                }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPersonalListSearchFilter.PartnerListTypeIn");
-                }
-            }
-
-            return values;
+            return this.GetItemsIn<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn");
         }
     }
 }

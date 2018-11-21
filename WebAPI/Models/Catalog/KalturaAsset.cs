@@ -187,6 +187,73 @@ namespace WebAPI.Models.Catalog
             return Type.HasValue ? (int)Type : 0;
         }
 
+        internal virtual void ValidateForInsert()
+        {
+            if (this.Name == null || this.Name.Values == null || this.Name.Values.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
+            this.Name.Validate("multilingualName");
+
+            if (this.Description != null && this.Description.Values != null && this.Description.Values.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+            }
+
+            if (this.Description != null)
+            {
+                this.Description.Validate("multilingualDescription");
+            }
+
+            if (!this.Type.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
+            }
+
+            if (string.IsNullOrEmpty(this.ExternalId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+            }
+
+            this.ValidateMetas();
+            this.ValidateTags();
+        }
+
+        internal virtual void ValidateForUpdate()
+        {
+            if (this.Name != null)
+            {
+                if ((this.Name.Values == null || this.Name.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+                else
+                {
+                    this.Name.Validate("multilingualName");
+                }
+            }
+
+            if (this.Description != null)
+            {
+                if ((this.Description.Values == null || this.Description.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+                }
+                else
+                {
+                    this.Description.Validate("multilingualDescription");
+                }
+            }
+
+            if (this.ExternalId != null && this.ExternalId == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+            }
+
+            this.ValidateMetas();
+            this.ValidateTags();
+        }
+
         internal void ValidateTags()
         {
             if (Tags != null && Tags.Count > 0)
