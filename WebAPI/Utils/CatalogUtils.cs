@@ -395,7 +395,7 @@ namespace WebAPI.Utils
 
                     case eAssetTypes.MEDIA:
                         {
-                            baseObject = medias.Where(m => m != null && m.AssetId.ToString() == item.AssetId).FirstOrDefault();
+                            baseObject = medias.Where(m => m != null && Convert.ToString(m.AssetId) == item.AssetId).FirstOrDefault();
                             if (baseObject != null)
                                 finalResult.Add(baseObject);
                             break;
