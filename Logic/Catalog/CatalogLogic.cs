@@ -8219,7 +8219,19 @@ namespace Core.Catalog
 
                 #region Group By
 
-                Utils.BuildSearchGroupBy(channel.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
+                if (channel.searchGroupBy != null && channel.searchGroupBy.groupBy != null && channel.searchGroupBy.groupBy.Count > 0)
+                {
+                    Utils.BuildSearchGroupBy(channel.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
+
+                    // channel not contain definition for distinct ==> as default insert first groupBy in the list
+                    if (string.IsNullOrEmpty(definitions.distinctGroup.Key) && string.IsNullOrEmpty(definitions.distinctGroup.Value) &&
+                        string.IsNullOrEmpty(channel.searchGroupBy.distinctGroup))
+                    {
+                        definitions.distinctGroup = definitions.groupBy[0];
+                        definitions.extraReturnFields.Add(definitions.distinctGroup.Value);
+                    }
+                }
+
 
                 #endregion
             }

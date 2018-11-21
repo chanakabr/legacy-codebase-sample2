@@ -1291,7 +1291,8 @@ namespace Core.Catalog
             return true;
         }
 
-        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group group, UnifiedSearchDefinitions definitions, HashSet<string> reservedGroupByFields, int groupId)
+        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy,
+            Group group, UnifiedSearchDefinitions definitions, HashSet<string> reservedGroupByFields, int groupId)
         {
             if (searchGroupBy != null && searchGroupBy.groupBy != null && searchGroupBy.groupBy.Count > 0)
             {
@@ -1412,10 +1413,10 @@ namespace Core.Catalog
                     definitions.distinctGroup = new KeyValuePair<string, string>(searchGroupBy.distinctGroup, distinctGroupByFormatted);
                     definitions.extraReturnFields.Add(distinctGroupByFormatted);
                 }
-                else if (string.IsNullOrEmpty(searchGroupBy.distinctGroup)) // channel not contain definition for distinct ==> as default insert first groupBy in the list
+                else if (string.IsNullOrEmpty(searchGroupBy.distinctGroup))
                 {
-                    definitions.distinctGroup = definitions.groupBy[0];
-                    definitions.extraReturnFields.Add(definitions.distinctGroup.Value);
+                    //definitions.distinctGroup = definitions.groupBy[0];
+                    //definitions.extraReturnFields.Add(definitions.distinctGroup.Value);
                 }
             }
         }
