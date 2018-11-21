@@ -133,7 +133,7 @@ namespace EpgFeeder
                     newEpgItem.EndDate = dProgEndDate;
                     newEpgItem.UpdateDate = DateTime.UtcNow;
                     newEpgItem.CreateDate = DateTime.UtcNow;
-                    newEpgItem.isActive = true;
+                    newEpgItem.IsActive = true;
                     newEpgItem.Status = 1;
 
                     string picName = string.Empty;
@@ -1096,7 +1096,7 @@ namespace EpgFeeder
                         row["END_DATE"] = epg.EndDate;
                         row["PIC_ID"] = epg.PicID;
                         row["STATUS"] = epg.Status;
-                        row["IS_ACTIVE"] = epg.isActive;
+                        row["IS_ACTIVE"] = epg.IsActive;
                         row["GROUP_ID"] = epg.GroupID;
                         row["UPDATER_ID"] = 400;
                         row["UPDATE_DATE"] = epg.UpdateDate;
@@ -1145,7 +1145,7 @@ namespace EpgFeeder
                                 row["END_DATE"] = epg.EndDate;
                                 row["PIC_ID"] = epg.PicID;
                                 row["STATUS"] = epg.Status;
-                                row["IS_ACTIVE"] = epg.isActive;
+                                row["IS_ACTIVE"] = epg.IsActive;
                                 row["GROUP_ID"] = epg.GroupID;
                                 row["UPDATER_ID"] = 400;
                                 row["UPDATE_DATE"] = epg.UpdateDate;

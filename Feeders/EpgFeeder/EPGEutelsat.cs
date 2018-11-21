@@ -277,7 +277,7 @@ namespace EpgFeeder
                     newEpgItem.EndDate = dProgEndDate;
                     newEpgItem.UpdateDate = DateTime.UtcNow;
                     newEpgItem.CreateDate = DateTime.UtcNow;
-                    newEpgItem.isActive = true;
+                    newEpgItem.IsActive = true;
                     newEpgItem.Status = 1;
 
                     newEpgItem.Metas = Utils.GetEpgProgramMetas(FieldEntityMapping);

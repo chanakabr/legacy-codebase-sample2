@@ -151,7 +151,7 @@ public partial class adm_utils : System.Web.UI.Page
             EpgCB epgCB = oEpgBL.GetEpgCB(ulong.Parse(sIndexVal));
             if (epgCB != null)
             {
-                epgCB.isActive = !(epgCB.isActive);
+                epgCB.IsActive = !(epgCB.IsActive);
                 bool res = oEpgBL.UpdateEpg(epgCB, null);
 
                 //Update from ElasticSearch
@@ -159,7 +159,7 @@ public partial class adm_utils : System.Web.UI.Page
                 result = ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nParentGroupID, ApiObjects.eAction.Update);
 
                 sRet = "activation_" + sFieldName.ToString() + "_" + sIndexVal + "~~|~~";
-                if (res && epgCB.isActive)
+                if (res && epgCB.IsActive)
                 {
                     sRet += "<b>" + sOnStr + "</b> / <a href=\"javascript: ChangeOnOffStateRow('" + sTableName + "','" + sFieldName + "','" + sIndexField + "'," + sIndexVal.ToString() + ",0 , '" + sOnStr + "','" + sOffStr + "' , '" + sConnKey + "');\" ";
                     sRet += " class='adm_table_link_div' >";
