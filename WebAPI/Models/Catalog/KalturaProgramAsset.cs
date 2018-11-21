@@ -54,7 +54,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "linearAssetId")]
         [JsonProperty(PropertyName = "linearAssetId")]
-        [XmlElement(ElementName = "linearAssetId")]
+        [XmlElement(ElementName = "linearAssetId", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long? LinearAssetId { get; set; }
 
@@ -102,11 +102,6 @@ namespace WebAPI.Models.Catalog
             if (string.IsNullOrEmpty(Crid))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "crid");
-            }
-
-            if (!LinearAssetId.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "linearAssetId");
             }
         }
     }
