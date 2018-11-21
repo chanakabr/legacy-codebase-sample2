@@ -2,22 +2,21 @@
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Catalog.Cache;
 using Core.Catalog.Request;
-using Core.Catalog.Response;
 using ElasticSearch.Common;
 using ElasticSearch.Common.DeleteResults;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
 using KLogMonitor;
-using Newtonsoft.Json;
+using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Xml;
 using Tvinci.Core.DAL;
 
 namespace Core.Catalog.CatalogManagement
@@ -28,11 +27,14 @@ namespace Core.Catalog.CatalogManagement
         private const string MEDIA = "media";
         private const string CHANNEL = "channel";
         private const string EPG = "epg";
+        public static readonly int DAYS = 7;
         private const string PERCOLATOR = ".percolator";
+
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
         #region Public Methods
 
-        public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int groupId, int mediaId)
+        public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int groupId, long mediaId)
         {
             //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
             //E.g. mediaTranslations[123][2] --> will return media 123 of the hebrew language
@@ -44,9 +46,9 @@ namespace Core.Catalog.CatalogManagement
             try
             {
 
-                if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    return Core.Catalog.CatalogManagement.AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
+                    return AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
                 }
 
                 GroupManager groupManager = new GroupManager();
@@ -69,12 +71,8 @@ namespace Core.Catalog.CatalogManagement
                 storedProcedure.AddParameter("@GroupID", groupId);
                 storedProcedure.AddParameter("@MediaID", mediaId);
 
-                DataSet dataSet = storedProcedure.ExecuteDataSet();
-                //Task<DataSet> dataSetTask = Task<DataSet>.Factory.StartNew(() => storedProcedure.ExecuteDataSet());
-                //dataSetTask.Wait();
-                //DataSet dataSet = dataSetTask.Result;
-
-                Core.Catalog.Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
+                DataSet dataSet = storedProcedure.ExecuteDataSet();                
+                Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
 
                 // get media update dates
                 DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { (int)mediaId });
@@ -87,11 +85,9 @@ namespace Core.Catalog.CatalogManagement
             return mediaTranslations;
         }
 
-        public static bool UpsertMedia(int groupId, int assetId)
+        public static bool UpsertMedia(int groupId, long assetId)
         {
             bool result = false;
-            ElasticSearch.Common.ESSerializerV2 esSerializer = new ElasticSearch.Common.ESSerializerV2();
-            ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
 
             if (assetId <= 0)
             {
@@ -99,10 +95,9 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
             
-            Dictionary<int, LanguageObj> languagesMap = null;            
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
-            if (doesGroupUsesTemplates)
-            {
+            Dictionary<int, LanguageObj> languagesMap = null;
+            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            { 
                 CatalogGroupCache catalogGroupCache;
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -121,18 +116,21 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Could not load group {0} in upsertMedia", groupId);
                     return false;
                 }
+
                 List<LanguageObj> languages = group.GetLangauges();
                 languagesMap = languages.ToDictionary(x => x.ID, x => x);
             }
 
-
             try
             {
+                ESSerializerV2 esSerializer = new ESSerializerV2();
+                ElasticSearchApi esApi = new ElasticSearchApi();
+
                 //Create Media Object
                 Dictionary<int, Dictionary<int, Media>> mediaDictionary = GetGroupMedias(groupId, assetId);
-                if (mediaDictionary != null && mediaDictionary.Count > 0 && mediaDictionary.ContainsKey(assetId))
+                if (mediaDictionary != null && mediaDictionary.Count > 0 && mediaDictionary.ContainsKey((int)assetId))
                 {
-                    foreach (int languageId in mediaDictionary[assetId].Keys)
+                    foreach (int languageId in mediaDictionary[(int)assetId].Keys)
                     {
                         LanguageObj language = languagesMap.ContainsKey(languageId) ? languagesMap[languageId] : null;
                         if (language != null)
@@ -143,7 +141,7 @@ namespace Core.Catalog.CatalogManagement
                                 suffix = language.Code;
                             }
 
-                            Media media = mediaDictionary[assetId][languageId];
+                            Media media = mediaDictionary[(int)assetId][languageId];
                             if (media != null)
                             {
                                 string serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
@@ -482,39 +480,308 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<EpgCB> GetEpgPrograms(int groupId, int epgId, List<string> languages, EpgBL.BaseEpgBL epgBL = null)
+        public static bool UpsertProgram(int groupId, List<int> epgIds)
         {
-            throw new NotImplementedException("GetEpgPrograms should be implemented to new TVM logic");
-            //List<EpgCB> results = new List<EpgCB>();
+            bool result = true;
 
-            //// If no language was received - just get epg program by old method
-            //if (languages == null || languages.Count == 0)
-            //{
-            //    EpgCB program = GetEpgProgram(groupId, epgId);
+            try
+            {
+                ESSerializerV2 esSerializer = new ESSerializerV2();
+                ElasticSearchApi esApi = new ElasticSearchApi();
 
-            //    results.Add(program);
-            //}
-            //else
-            //{
-            //    try
-            //    {
-            //        if (epgBL == null)
-            //        {
-            //            epgBL = EpgBL.Utils.GetInstance(groupId);
-            //        }
+                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                CatalogGroupCache catalogGroupCache = null;
+                Group group = null;
+                if (doesGroupUsesTemplates)
+                {
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateEpg", groupId);
+                        return false;
+                    }
+                }
+                else
+                {
+                    group = GroupsCache.Instance().GetGroup(groupId);
+                    if (group == null)
+                    {
+                        log.ErrorFormat("Couldn't get group {0}", groupId);
+                        return false;
+                    }
+                }
 
-            //        ulong uEpgID = (ulong)epgId;
-            //        results = epgBL.GetEpgCB(uEpgID, languages);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        log.Error("Error (GetEpgProgram) - " + string.Format("epg:{0}, msg:{1}, st:{2}", epgId, ex.Message, ex.StackTrace), ex);
-            //    }
-            //}
+                // dictionary contains all language ids and its  code (string)
+                List<LanguageObj> languages = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapById.Values.ToList() : group.GetLangauges();
+                List<string> languageCodes = new List<string>();
 
-            //return results;
+                if (languages != null)
+                {
+                    languageCodes = languages.Select(p => p.Code.ToLower()).ToList<string>();
+                }
+                else
+                {
+                    // return false; // perhaps?
+                    log.Debug("Warning - " + string.Format("Group {0} has no languages defined.", groupId));
+                }
+
+                List<EpgCB> epgObjects = new List<EpgCB>();
+
+                if (epgIds.Count == 1)
+                {
+                    epgObjects = GetEpgPrograms(groupId, epgIds[0], languageCodes);
+                }
+                else
+                {
+                    Task<List<EpgCB>>[] programsTasks = new Task<List<EpgCB>>[epgIds.Count];
+                    ContextData cd = new ContextData();
+
+                    //open task factory and run GetEpgProgram on different threads
+                    //wait to finish
+                    //bulk insert
+                    for (int i = 0; i < epgIds.Count; i++)
+                    {
+                        programsTasks[i] = Task.Run<List<EpgCB>>(() =>
+                        {
+                            cd.Load();
+                            return GetEpgPrograms(groupId, epgIds[i], languageCodes);
+                        });
+                    }
+
+                    Task.WaitAll(programsTasks);
+
+                    epgObjects = programsTasks.SelectMany(t => t.Result).Where(t => t != null).ToList();
+                }
+
+                // GetLinear Channel Values 
+                GetLinearChannelValues(epgObjects, groupId);
+
+                // TODO - Lior, remove these 5 lines below - used only to currently support linear media id search on elastic search
+                List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
+                Dictionary<string, Core.Catalog.LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
+                if (linearChannelSettings == null)
+                {
+                    linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();
+                }
+
+                if (epgObjects != null)
+                {
+                    if (epgObjects.Count == 0)
+                    {
+                        log.WarnFormat("Attention - when updating EPG, epg list is empty for IDs = {0}",
+                            string.Join(",", epgIds));
+                        result = true;
+                    }
+                    else
+                    {
+                        List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
+                        List<KeyValuePair<string, string>> invalidResults = null;
+
+                        // Temporarily - assume success
+                        bool temporaryResult = true;
+
+                        // Create dictionary by languages
+                        foreach (LanguageObj language in languages)
+                        {
+                            // Filter programs to current language
+                            List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
+                                epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
+
+                            if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
+                            {
+                                string alias = string.Format("{0}_epg", groupId);
+
+                                // Create bulk request object for each program
+                                foreach (EpgCB epg in currentLanguageEpgs)
+                                {
+                                    string suffix = null;
+
+                                    if (!language.IsDefault)
+                                    {
+                                        suffix = language.Code;
+                                    }
+
+                                    // TODO - Lior, remove all this if - used only to currently support linear media id search on elastic search
+                                    if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
+                                    {
+                                        epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
+                                    }
+
+                                    string serializedEpg = esSerializer.SerializeEpgObject(epg, suffix);
+                                    string ttl = string.Format("{0}m", Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes));
+
+                                    bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                                    {
+                                        docID = epg.EpgID,
+                                        index = alias,
+                                        type = GetTanslationType(EPG, language),
+                                        Operation = eOperation.index,
+                                        document = serializedEpg,
+                                        routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
+                                        ttl = ttl
+                                    });
+
+                                    int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+                                    if (bulkRequests.Count > sizeOfBulk)
+                                    {
+                                        // send request to ES API
+                                        invalidResults = esApi.CreateBulkRequest(bulkRequests);
+
+                                        if (invalidResults != null && invalidResults.Count > 0)
+                                        {
+                                            foreach (var invalidResult in invalidResults)
+                                            {
+                                                log.Error("Error - " + string.Format(
+                                                    "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                                    groupId, EPG, invalidResult.Key, invalidResult.Value));
+                                            }
+
+                                            result = false;
+                                            temporaryResult = false;
+                                        }
+                                        else
+                                        {
+                                            temporaryResult &= true;
+                                        }
+
+                                        bulkRequests.Clear();
+                                    }
+                                }
+                            }
+                        }
+
+                        if (bulkRequests.Count > 0)
+                        {
+                            // send request to ES API
+                            invalidResults = esApi.CreateBulkRequest(bulkRequests);
+
+                            if (invalidResults != null && invalidResults.Count > 0)
+                            {
+                                foreach (var invalidResult in invalidResults)
+                                {
+                                    log.Error("Error - " + string.Format(
+                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                        groupId, EPG, invalidResult.Key, invalidResult.Value));
+                                }
+
+                                result = false;
+                                temporaryResult = false;
+                            }
+                            else
+                            {
+                                temporaryResult &= true;
+                            }
+
+                            result = temporaryResult;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error: Update EPGs threw an exception. Exception={0}", ex);
+                throw ex;
+            }
+
+            return result;
         }
 
+        public static bool DeleteProgram(int groupId, List<int> epgIds)
+        {
+            bool result = false;
+            //result &= Core.Catalog.CatalogManagement.IndexManager.DeleteEpg(groupId, id);
+
+            if (epgIds != null & epgIds.Count > 0)
+            {
+                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                CatalogGroupCache catalogGroupCache = null;
+                Group group = null;
+                if (doesGroupUsesTemplates)
+                {
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateEpg", groupId);
+                        return false;
+                    }
+                }
+                else
+                {
+                    group = GroupsCache.Instance().GetGroup(groupId);
+                    if (group == null)
+                    {
+                        log.ErrorFormat("Couldn't get group {0}", groupId);
+                        return false;
+                    }
+                }
+
+                // dictionary contains all language ids and its  code (string)
+                List<LanguageObj> languages = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapById.Values.ToList() : group.GetLangauges();
+
+                string alias = string.Format("{0}_epg", groupId);
+
+                ESTerms terms = new ESTerms(true)
+                {
+                    Key = "epg_id"
+                };
+
+                terms.Value.AddRange(epgIds.Select(id => id.ToString()));
+
+                ESQuery query = new ESQuery(terms);
+                string queryString = query.ToString();
+
+                ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+                foreach (var lang in languages)
+                {
+                    string type = GetTanslationType(EPG, lang);
+                    esApi.DeleteDocsByQuery(alias, type, ref queryString);
+                }
+
+                result = true;
+            }
+
+            return result;
+        }
+
+        public static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, List<int> lSubGroups)
+        {
+            ApiObjects.SearchObjects.MediaSearchObj searchObject = new ApiObjects.SearchObjects.MediaSearchObj();
+            searchObject.m_nGroupId = channel.m_nGroupID;
+            searchObject.m_bExact = true;
+            searchObject.m_eCutWith = channel.m_eCutWith;
+
+            if (channel.m_nMediaType != null)
+            {
+                searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
+            }
+
+            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID, lSubGroups);
+            searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
+
+            searchObject.m_bUseStartDate = false;
+            searchObject.m_bUseFinalEndDate = false;
+
+            CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
+
+            // If it is a manual channel without media, make it an empty request
+            if (channel.m_nChannelTypeID == (int)ChannelType.Manual &&
+                (channel.m_lChannelTags == null || channel.m_lChannelTags.Count == 0))
+            {
+                searchObject.m_eCutWith = CutWith.AND;
+                searchObject.m_eFilterTagsAndMetasCutWith = CutWith.AND;
+                searchObject.m_lFilterTagsAndMetas = new List<SearchValue>()
+                {
+                    new SearchValue("media_id", "0")
+                    {
+                        m_eInnerCutWith = CutWith.AND,
+                        m_lValue = new List<string>()
+                        {
+                            "0"
+                        }
+                    }
+                };
+            }
+
+            return searchObject;
+        }
         #endregion
 
         #region Private Methods
@@ -690,51 +957,9 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return sRules;
-        }
+        }        
 
-        public static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, List<int> lSubGroups)
-        {
-            ApiObjects.SearchObjects.MediaSearchObj searchObject = new ApiObjects.SearchObjects.MediaSearchObj();
-            searchObject.m_nGroupId = channel.m_nGroupID;
-            searchObject.m_bExact = true;
-            searchObject.m_eCutWith = channel.m_eCutWith;
-
-            if (channel.m_nMediaType != null)
-            {
-                searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
-            }
-
-            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID, lSubGroups);
-            searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
-
-            searchObject.m_bUseStartDate = false;
-            searchObject.m_bUseFinalEndDate = false;
-
-            CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
-
-            // If it is a manual channel without media, make it an empty request
-            if (channel.m_nChannelTypeID == (int)ChannelType.Manual &&
-                (channel.m_lChannelTags == null || channel.m_lChannelTags.Count == 0))
-            {
-                searchObject.m_eCutWith = CutWith.AND;
-                searchObject.m_eFilterTagsAndMetasCutWith = CutWith.AND;
-                searchObject.m_lFilterTagsAndMetas = new List<SearchValue>()
-                {
-                    new SearchValue("media_id", "0")
-                    {
-                        m_eInnerCutWith = CutWith.AND,
-                        m_lValue = new List<string>()
-                        {
-                            "0"
-                        }
-                    }
-                };
-            }
-
-            return searchObject;
-        }
-
-        public static void CopySearchValuesToSearchObjects(ref MediaSearchObj searchObject, CutWith cutWith, List<SearchValue> channelSearchValues)
+        private static void CopySearchValuesToSearchObjects(ref MediaSearchObj searchObject, CutWith cutWith, List<SearchValue> channelSearchValues)
         {
             List<SearchValue> m_dAnd = new List<SearchValue>();
             List<SearchValue> m_dOr = new List<SearchValue>();
@@ -782,6 +1007,155 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        private static List<EpgCB> GetEpgPrograms(int groupId, int epgId, List<string> languages, EpgBL.BaseEpgBL epgBL = null)
+        {
+            List<EpgCB> results = new List<EpgCB>();
+
+            // If no language was received - just get epg program by old method
+            if (languages == null || languages.Count == 0)
+            {
+                EpgCB program = GetEpgProgram(groupId, epgId);
+
+                results.Add(program);
+            }
+            else
+            {
+                try
+                {
+                    if (epgBL == null)
+                    {
+                        epgBL = EpgBL.Utils.GetInstance(groupId);
+                    }
+
+                    ulong uEpgID = (ulong)epgId;
+                    results = epgBL.GetEpgCB(uEpgID, languages);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error (GetEpgProgram) - " + string.Format("epg:{0}, msg:{1}, st:{2}", epgId, ex.Message, ex.StackTrace), ex);
+                }
+            }
+
+            return results;
+        }
+
+        private static EpgCB GetEpgProgram(int nGroupID, int nEpgID)
+        {
+            EpgCB res = null;
+
+            DataSet ds = Tvinci.Core.DAL.EpgDal.GetEpgProgramDetails(nGroupID, nEpgID);
+
+            if (ds != null && ds.Tables != null)
+            {
+                if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    //Basic Details
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        EpgCB epg = new EpgCB();
+                        epg.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(row["EPG_CHANNEL_ID"]);
+                        epg.EpgID = ODBCWrapper.Utils.GetUnsignedLongSafeVal(row["ID"]);
+                        epg.GroupID = ODBCWrapper.Utils.GetIntSafeVal(row["GROUP_ID"]);
+                        epg.IsActive = (ODBCWrapper.Utils.GetIntSafeVal(row["IS_ACTIVE"]) == 1) ? true : false;
+                        epg.Description = ODBCWrapper.Utils.GetSafeStr(row["DESCRIPTION"]);
+                        epg.Name = ODBCWrapper.Utils.GetSafeStr(row["NAME"]);
+                        if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["START_DATE"])))
+                        {
+                            epg.StartDate = ODBCWrapper.Utils.GetDateSafeVal(row["START_DATE"]);
+                        }
+                        if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["END_DATE"])))
+                        {
+                            epg.EndDate = ODBCWrapper.Utils.GetDateSafeVal(row["END_DATE"]);
+                        }
+                        epg.Crid = ODBCWrapper.Utils.GetSafeStr(row["crid"]);
+
+                        //Metas
+                        if (ds.Tables.Count >= 3 && ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
+                        {
+                            List<string> tempList;
+
+                            foreach (DataRow meta in ds.Tables[2].Rows)
+                            {
+                                string metaName = ODBCWrapper.Utils.GetSafeStr(meta["name"]);
+                                string metaValue = ODBCWrapper.Utils.GetSafeStr(meta["value"]);
+
+                                if (epg.Metas.TryGetValue(metaName, out tempList))
+                                {
+                                    tempList.Add(metaValue);
+                                }
+                                else
+                                {
+                                    tempList = new List<string>() { metaValue };
+                                    epg.Metas.Add(metaName, tempList);
+                                }
+                            }
+                        }
+
+                        //Tags
+                        if (ds.Tables.Count >= 4 && ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+                        {
+                            List<string> tempList;
+                            foreach (DataRow tag in ds.Tables[3].Rows)
+                            {
+                                string tagName = ODBCWrapper.Utils.GetSafeStr(tag["TagTypeName"]);
+                                string tagValue = ODBCWrapper.Utils.GetSafeStr(tag["TagValueName"]);
+                                if (epg.Tags.TryGetValue(tagName, out tempList))
+                                {
+                                    tempList.Add(tagValue);
+                                }
+                                else
+                                {
+                                    tempList = new List<string>() { tagValue };
+                                    epg.Tags.Add(tagName, tempList);
+                                }
+                            }
+                        }
+
+                        res = epg;
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        private static void GetLinearChannelValues(List<EpgCB> lEpg, int groupID)
+        {
+            try
+            {
+                int days = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
+
+                if (days == 0)
+                {
+                    days = DAYS;
+                }
+
+                List<string> epgChannelIds = lEpg.Distinct().Select(item => item.ChannelID.ToString()).ToList<string>();
+                Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds);
+
+                Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
+                {
+                    if (!linearChannelSettings.ContainsKey(currentElement.ChannelID.ToString()))
+                    {
+                        currentElement.SearchEndDate = currentElement.EndDate.AddDays(days);
+                    }
+                    else if (linearChannelSettings[currentElement.ChannelID.ToString()].EnableCatchUp)
+                    {
+                        currentElement.SearchEndDate =
+                            currentElement.EndDate.AddMinutes(linearChannelSettings[currentElement.ChannelID.ToString()].CatchUpBuffer);
+                    }
+                    else
+                    {
+                        currentElement.SearchEndDate = currentElement.EndDate;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues). Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
+                throw ex;
+            }
+        }
         #endregion
     }
 }

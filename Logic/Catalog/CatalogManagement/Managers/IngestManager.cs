@@ -187,7 +187,7 @@ namespace Core.Catalog.CatalogManagement
                             }
 
                             // UpdateIndex
-                            bool indexingResult = IndexManager.UpsertMedia(groupId, (int)mediaAsset.Id);
+                            bool indexingResult = IndexManager.UpsertMedia(groupId, mediaAsset.Id);
                             if (!indexingResult)
                             {
                                 log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after Ingest", mediaAsset.Id, groupId);
@@ -325,7 +325,7 @@ namespace Core.Catalog.CatalogManagement
         private static bool InsertMediaAsset(MediaAsset mediaAsset, IngestMedia media, int groupId, GenericListResponse<MediaFileType> mediaFileTypes, string groupDefaultRatio,
                                              Dictionary<string, ImageType> groupRatioNamesToImageTypes, ref IngestResponse ingestResponse, int mediaIndex)
         {
-            GenericResponse<Asset> genericResponse = AssetManager.AddAsset(groupId, eAssetTypes.MEDIA, mediaAsset, USER_ID, true);
+            GenericResponse<Asset> genericResponse = AssetManager.AddAsset(groupId, mediaAsset, USER_ID, true);
             if (genericResponse.Status.Code != (int)eResponseStatus.OK)
             {
                 ingestResponse.AssetsStatus[mediaIndex].Status = genericResponse.Status;
@@ -363,7 +363,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
-            GenericResponse<Asset> genericResponse = AssetManager.UpdateAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, mediaAsset, USER_ID, true, isCleared);
+            GenericResponse<Asset> genericResponse = AssetManager.UpdateAsset(groupId, mediaAsset.Id, mediaAsset, USER_ID, true, isCleared);
             if (genericResponse.Status.Code != (int)eResponseStatus.OK)
             {
                 ingestResponse.AssetsStatus[mediaIndex].Status = genericResponse.Status;
@@ -1027,11 +1027,8 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed adding image with imageTypeId {0} for assetId {1}, groupId: {2}", imageToAdd.ImageTypeId, assetId, groupId);
 
-                            addImageResponse.Status.Args = new List<KeyValuePair>()
-                            {
-                                new KeyValuePair("imageToAdd.ImageTypeId", imageToAdd.ImageTypeId.ToString()),
-                                new KeyValuePair("imageToAdd.Url", imageToAdd.Url),
-                            };
+                            addImageResponse.Status.AddArg("imageToAdd.ImageTypeId", imageToAdd.ImageTypeId.ToString());
+                            addImageResponse.Status.AddArg("imageToAdd.Url", imageToAdd.Url);
 
                             ingestResponse.AssetsStatus[index].Warnings.Add(addImageResponse.Status);
                         }
@@ -1054,11 +1051,8 @@ namespace Core.Catalog.CatalogManagement
                             log.ErrorFormat("Failed setContent for image with Id {0}, ImageTypeId {1} for assetId {2} and groupId: {3}",
                                              imageToUpdate.Id, imageToUpdate.ImageTypeId, assetId, groupId);
 
-                            setContentResponse.Args = new List<KeyValuePair>()
-                            {
-                                new KeyValuePair("imageToUpdate.ImageTypeId", imageToUpdate.ImageTypeId.ToString()),
-                                new KeyValuePair("imageToUpdate.Url", imageToUpdate.Url),
-                            };
+                            setContentResponse.AddArg("imageToUpdate.ImageTypeId", imageToUpdate.ImageTypeId.ToString());
+                            setContentResponse.AddArg("imageToUpdate.Url", imageToUpdate.Url);
 
                             ingestResponse.AssetsStatus[index].Warnings.Add(setContentResponse);
                         }

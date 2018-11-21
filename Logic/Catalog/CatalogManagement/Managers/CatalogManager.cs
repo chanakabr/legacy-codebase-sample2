@@ -838,7 +838,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (update)
                 {
-                    AssetManager.UpdateAsset(groupId, childAsset.Id, eAssetTypes.MEDIA, childAsset, userId, false, false);                    
+                    AssetManager.UpdateAsset(groupId, childAsset.Id, childAsset, userId, false, false);                    
                 }
             }
         }

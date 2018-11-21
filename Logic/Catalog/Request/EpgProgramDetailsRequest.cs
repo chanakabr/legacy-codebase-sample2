@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Core.Catalog.Response;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using Core.Catalog.Response;
-using KLogMonitor;
 
 namespace Core.Catalog.Request
 {
@@ -36,17 +35,12 @@ namespace Core.Catalog.Request
         /*Get Program Details By ProgramsIds*/
         public EpgProgramResponse GetProgramsByIDs(EpgProgramDetailsRequest programRequest)
         {
-            EpgProgramResponse pResponse = new EpgProgramResponse();
-
             try
             {
                 CheckRequestValidness();
-
                 CheckSignature(this);
 
-                CatalogLogic.CompleteDetailsForProgramResponse(this, ref pResponse);
-
-                return pResponse;
+                return CatalogLogic.CompleteDetailsForProgramResponse(this);
             }
             catch (Exception ex)
             {
@@ -59,7 +53,6 @@ namespace Core.Catalog.Request
                 throw ex;
             }
         }
-
 
         public override string ToString()
         {

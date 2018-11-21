@@ -33,7 +33,7 @@ namespace ApiObjects.TimeShiftedTv
             this.EpgIdentifier = baseEpg.EpgIdentifier;
             this.ExtraData = baseEpg.ExtraData;
             this.GroupID = baseEpg.GroupID;
-            this.isActive = baseEpg.isActive;
+            this.IsActive = baseEpg.IsActive;
             this.Language = baseEpg.Language;
             this.Metas = new Dictionary<string, List<string>>(baseEpg.Metas);
             this.Name = baseEpg.Name;

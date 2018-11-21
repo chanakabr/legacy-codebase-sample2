@@ -24,6 +24,7 @@ namespace ApiObjects
     [XmlType("EPGChannelProgrammeObject", Namespace = "http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
     public class EPGChannelProgrammeObject
     {
+        public const string DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
         public long EPG_ID;
         public string EPG_CHANNEL_ID;

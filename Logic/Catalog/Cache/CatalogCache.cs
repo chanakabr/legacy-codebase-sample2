@@ -200,7 +200,7 @@ namespace Core.Catalog.Cache
                                 RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
                                 Width = Utils.GetIntSafeVal(row, "WIDTH"),
                                 Height = Utils.GetIntSafeVal(row, "HEIGHT"),
-                                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID")                             
+                                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID")
                             });
                         }
                     }
@@ -245,18 +245,18 @@ namespace Core.Catalog.Cache
             BaseModuleCache bModule = new BaseModuleCache(oValue);
             return CacheService.Set(sKey, bModule, dCacheTime);
         }
-                   
-        public Dictionary<string,LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys)
+
+        public Dictionary<string, LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys)
         {
-            Dictionary<string, LinearChannelSettings> linearChannelSettings = new Dictionary<string,LinearChannelSettings>();
+            Dictionary<string, LinearChannelSettings> linearChannelSettings = new Dictionary<string, LinearChannelSettings>();
             try
             {
                 List<int> missingsKeys = null;
-                LinearChannelSettings linear = null;                
+                LinearChannelSettings linear = null;
                 List<string> fullKeys = keys.Distinct().Select(k => (string.Format("LinearChannelSettings_{0}_{1}", groupID, k))).ToList();
-                Dictionary<string, object> values = GetValues(fullKeys);                
+                Dictionary<string, object> values = GetValues(fullKeys);
                 if (values != null && values.Count > 0)
-                {                    
+                {
                     foreach (KeyValuePair<string, object> pair in values)
                     {
                         if (!string.IsNullOrEmpty(pair.Key) && pair.Value != null)
@@ -264,133 +264,131 @@ namespace Core.Catalog.Cache
                             linear = (LinearChannelSettings)pair.Value;
                             if (linear != null)
                             {
-                                linearChannelSettings.Add(linear.ChannelID, linear);                                
+                                linearChannelSettings.Add(linear.ChannelID, linear);
                             }
                         }
                     }
                     // complete missing channel => get list of missings channels
-                    missingsKeys = keys.Except(linearChannelSettings.Keys).Select(k =>int.Parse(k)).ToList<int>();
+                    missingsKeys = keys.Except(linearChannelSettings.Keys).Select(k => int.Parse(k)).ToList<int>();
                 }
                 else
                 {
                     missingsKeys = keys.Select(k => int.Parse(k)).ToList<int>();
                 }
-                
+
                 if (missingsKeys != null && missingsKeys.Count > 0)
                 {
                     //get from DB
                     DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetLinearChannelSettings(groupID, missingsKeys);
                     DataRow drAccount = null;
                     DataTable dtChannel;
-                    if (ds != null)
+                    if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
                     {
-                        if (ds.Tables != null && ds.Tables.Count == 2)
+                        dtChannel = ds.Tables[1];
+                        if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                         {
-                            dtChannel = ds.Tables[1];
-                            if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
-                            {
-                                drAccount = ds.Tables[0].Rows[0];
-                            }
-                            //inset to cache
-                            foreach (DataRow channel in dtChannel.Rows)
-                            {
-                                linear = SetLinearChannelSettings(drAccount, channel);
+                            drAccount = ds.Tables[0].Rows[0];
+                        }
+                        //inset to cache
+                        foreach (DataRow channel in dtChannel.Rows)
+                        {
+                            linear = SetLinearChannelSettings(drAccount, channel);
 
-                                string channelID = ODBCWrapper.Utils.GetSafeStr(channel, "ID");
-                                string sKey = string.Format("LinearChannelSettings_{0}_{1}", groupID, channelID);
-                                if (linear != null && !linearChannelSettings.ContainsKey(channelID))
-                                {
-                                    linearChannelSettings.Add(channelID, linear);
-                                    Set(sKey, linear);
-                                }
+                            string channelID = ODBCWrapper.Utils.GetSafeStr(channel, "ID");
+                            string sKey = string.Format("LinearChannelSettings_{0}_{1}", groupID, channelID);
+                            if (linear != null && !linearChannelSettings.ContainsKey(channelID))
+                            {
+                                linearChannelSettings.Add(channelID, linear);
+                                Set(sKey, linear);
                             }
                         }
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                log.ErrorFormat("Error whileGetLinearChannelSettings. groupID {0}, ex: {1}", groupID, ex);
                 return null;
             }
             return linearChannelSettings;
         }
-        
+
         private static LinearChannelSettings SetLinearChannelSettings(DataRow drAccount, DataRow drChannel)
-         {
-             int enable = 0;
-             int enableChannel = 0;
-             LinearChannelSettings linearChannelSettings = new LinearChannelSettings();
+        {
+            int enable = 0;
+            int enableChannel = 0;
+            LinearChannelSettings linearChannelSettings = new LinearChannelSettings();
 
-             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CDVR"); // account
-             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_CDVR"); // channel settings
-             if (enable == 1 && enableChannel == 2)
-             {   
-                     enable = enableChannel;              
-             }
+            enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CDVR"); // account
+            enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_CDVR"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
 
-             linearChannelSettings.EnableCDVR = enable == 1 ? true : false;
+            linearChannelSettings.EnableCDVR = enable == 1 ? true : false;
 
 
-             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CATCH_UP"); // account
-             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_CATCH_UP"); // channel settings
-             if (enable == 1 && enableChannel == 2)
-             {
-                 enable = enableChannel;
-             }
-             linearChannelSettings.EnableCatchUp = enable == 1 ? true : false;
+            enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CATCH_UP"); // account
+            enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_CATCH_UP"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableCatchUp = enable == 1 ? true : false;
 
-             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_START_OVER"); // account
-             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_START_OVER"); // channel settings
-             if (enable == 1 && enableChannel == 2)
-             {
-                 enable = enableChannel;
-             }
-             linearChannelSettings.EnableStartOver = enable == 1 ? true : false;
+            enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_START_OVER"); // account
+            enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_START_OVER"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableStartOver = enable == 1 ? true : false;
 
-             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_TRICK_PLAY"); // account
-             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_TRICK_PLAY"); //channel settings
-             if (enable == 1 && enableChannel == 2)
-             {
-                 enable = enableChannel;
-             }
-             linearChannelSettings.EnableTrickPlay = enable == 1 ? true : false;
+            enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_TRICK_PLAY"); // account
+            enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_TRICK_PLAY"); //channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableTrickPlay = enable == 1 ? true : false;
 
-             // Buffer setting from Channel - if zero - get it from account            
-             int buffer = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "CATCH_UP_BUFFER"); // channel settings
-             if (buffer == 0)
-             {
-                 buffer = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "CATCH_UP_BUFFER"); // account
-             }
-             linearChannelSettings.CatchUpBuffer = buffer;
+            // Buffer setting from Channel - if zero - get it from account            
+            int buffer = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "CATCH_UP_BUFFER"); // channel settings
+            if (buffer == 0)
+            {
+                buffer = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "CATCH_UP_BUFFER"); // account
+            }
+            linearChannelSettings.CatchUpBuffer = buffer;
 
-             buffer = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "TRICK_PLAY_BUFFER"); // channel settings
-             if (buffer == 0)
-             {
-                 buffer = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "TRICK_PLAY_BUFFER"); // account
-             }
-             linearChannelSettings.TrickPlayBuffer = buffer;
+            buffer = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "TRICK_PLAY_BUFFER"); // channel settings
+            if (buffer == 0)
+            {
+                buffer = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "TRICK_PLAY_BUFFER"); // account
+            }
+            linearChannelSettings.TrickPlayBuffer = buffer;
 
-             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "enable_recording_playback_non_entitled"); // account
-             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "enable_recording_playback_non_entitled"); // channel settings
-             if (enable == 1 && enableChannel == 2)
-             {
-                 enable = enableChannel;
-             }
-             linearChannelSettings.EnableRecordingPlaybackNonEntitledChannel = enable == 1 ? true : false;
+            enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "enable_recording_playback_non_entitled"); // account
+            enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "enable_recording_playback_non_entitled"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableRecordingPlaybackNonEntitledChannel = enable == 1 ? true : false;
 
-             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "enable_recording_playback_non_existing"); // account
-             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "enable_recording_playback_non_existing"); // channel settings
-             if (enable == 1 && enableChannel == 2)
-             {
-                 enable = enableChannel;
-             }
-             linearChannelSettings.EnableRecordingPlaybackNonExistingChannel = enable == 1 ? true : false;
+            enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "enable_recording_playback_non_existing"); // account
+            enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "enable_recording_playback_non_existing"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableRecordingPlaybackNonExistingChannel = enable == 1 ? true : false;
 
-             linearChannelSettings.linearMediaId = ODBCWrapper.Utils.GetLongSafeVal(drChannel, "media_id", 0);
-             linearChannelSettings.ChannelID = ODBCWrapper.Utils.GetSafeStr(drChannel, "ID"); 
-             return linearChannelSettings;
-         }
-        
+            linearChannelSettings.linearMediaId = ODBCWrapper.Utils.GetLongSafeVal(drChannel, "media_id", 0);
+            linearChannelSettings.ChannelID = ODBCWrapper.Utils.GetSafeStr(drChannel, "ID");
+            return linearChannelSettings;
+        }
+
         private Dictionary<string, object> GetValues(List<string> keys)
         {
             Dictionary<string, object> values = null;
@@ -403,13 +401,13 @@ namespace Core.Catalog.Cache
             return values;
         }
 
-        public Dictionary<int,string> GetGroupWatchPermissionsTypes(int groupID)
+        public Dictionary<int, string> GetGroupWatchPermissionsTypes(int groupID)
         {
-            Dictionary<int,string> watchPermissionsTypes = null;
+            Dictionary<int, string> watchPermissionsTypes = null;
             try
             {
                 string sKey = "GroupWatchPermissionsTypes_" + groupID.ToString();
-                watchPermissionsTypes = Get<Dictionary<int,string>>(sKey);
+                watchPermissionsTypes = Get<Dictionary<int, string>>(sKey);
 
                 if (watchPermissionsTypes == null || watchPermissionsTypes.Count == 0)
                 {
@@ -419,15 +417,15 @@ namespace Core.Catalog.Cache
                         return null;
                     else
                     {
-                        watchPermissionsTypes = new Dictionary<int,string>();
+                        watchPermissionsTypes = new Dictionary<int, string>();
                         foreach (DataRow row in dataTable.Rows)
                         {
-                            watchPermissionsTypes.Add(Utils.GetIntSafeVal(row, "ID"),Utils.GetStrSafeVal(row, "NAME"));
+                            watchPermissionsTypes.Add(Utils.GetIntSafeVal(row, "ID"), Utils.GetStrSafeVal(row, "NAME"));
                         }
                     }
 
                     if (watchPermissionsTypes == null)
-                        Set(sKey, new Dictionary<int,string>(), SHORT_IN_CACHE_MINUTES);
+                        Set(sKey, new Dictionary<int, string>(), SHORT_IN_CACHE_MINUTES);
                     else
                         Set(sKey, watchPermissionsTypes);
                 }
@@ -447,12 +445,12 @@ namespace Core.Catalog.Cache
             try
             {
                 string key = LayeredCacheKeys.GetGroupGeoBlockRulesKey(groupId);
-                if (!LayeredCache.Instance.Get<Dictionary<int, string>>(key, 
-                                                                        ref result, 
-                                                                        Utils.GetGroupGeoblockRules, 
-                                                                        new Dictionary<string, object>() { { "groupId", groupId } }, 
+                if (!LayeredCache.Instance.Get<Dictionary<int, string>>(key,
+                                                                        ref result,
+                                                                        Utils.GetGroupGeoblockRules,
+                                                                        new Dictionary<string, object>() { { "groupId", groupId } },
                                                                         groupId,
-                                                                        LayeredCacheConfigNames.GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME, 
+                                                                        LayeredCacheConfigNames.GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME,
                                                                         new List<string>() { LayeredCacheKeys.GetGroupGeoBlockRulesInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting GetGroupGeoBlockRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);

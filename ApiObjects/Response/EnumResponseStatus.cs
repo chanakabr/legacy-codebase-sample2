@@ -268,8 +268,9 @@ namespace ApiObjects.Response
         NoParentAssociatedToTopic = 4075,
         WrongParentAssociation = 4076,
         MetaDoesNotBelongToParentAssetStruct = 4077,
-        MetaIdsDuplication = 4078,
-        AssetFilePPVNotExist = 4079,
+        GroupDoesNotContainLanguage = 4078,
+        MetaIdsDuplication = 4079,
+        AssetFilePPVNotExist = 4080,
 
         #endregion
 

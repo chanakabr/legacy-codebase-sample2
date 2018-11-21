@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
+using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -168,5 +167,36 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        /// <summary>
+        /// Fill current Asset data members with given asset only if they are empty\null (without metas and tags)
+        /// </summary>
+        /// <param name="asset">given asset to fill with</param>
+        public virtual bool UpdateFields(Asset asset)
+        {
+            bool needToUpdateBasicData = false;
+
+            if (asset != null)
+            {
+                this.Id = asset.Id;
+                this.AssetType = asset.AssetType;
+                this.CreateDate = asset.CreateDate;
+                this.StartDate = this.StartDate.GetUpdatedValue(asset.StartDate, ref needToUpdateBasicData);
+                this.EndDate = this.EndDate.GetUpdatedValue(asset.EndDate, ref needToUpdateBasicData);
+                this.Name = this.Name.GetUpdatedValue(asset.Name, ref needToUpdateBasicData);
+                this.Description = this.Description.GetUpdatedValue(asset.Description, ref needToUpdateBasicData);
+
+                if (this.Images == null || this.Images.Count == 0)
+                {
+                    this.Images = asset.Images;
+                }
+
+                if (this.CoGuid.IsNullOrEmptyOrWhiteSpace())
+                {
+                    this.CoGuid = asset.CoGuid;
+                }
+            }
+
+            return needToUpdateBasicData;
+        }
     }
 }

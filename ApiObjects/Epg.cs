@@ -9,45 +9,62 @@ namespace ApiObjects
 {
     [Serializable]
     [JsonObject(Id = "epg")]
-    public class EpgCB 
+    public class EpgCB
     {
+        #region DataMembers
+
         [JsonProperty("epg_id")]
         public ulong EpgID;
+
         [JsonProperty("epg_identifier")]
         public string EpgIdentifier { get; set; }
+
         [JsonProperty("is_active")]
-        public bool isActive { get; set; }
+        public bool IsActive { get; set; }
+
         [JsonProperty("status")]
         public int Status { get; set; }
+
         [JsonProperty("type")]
         public string Type { get; protected set; }
+
         [JsonProperty("create_date")]
         [JsonConverter(typeof(EpgTimeConverter))]
         public DateTime CreateDate { get; set; }
+
         [JsonProperty("update_date")]
         [JsonConverter(typeof(EpgTimeConverter))]
         public DateTime UpdateDate { get; set; }
 
         [JsonProperty("group_id")]
         public int GroupID { get; set; }
+
         [JsonProperty("parent_group_id")]
         public int ParentGroupID { get; set; }
+
         [JsonProperty("channel_id")]
         public int ChannelID { get; set; }
+
         [JsonProperty("name")]
         public string Name { get; set; }
+
         [JsonProperty("description")]
         public string Description { get; set; }
+
         [JsonProperty("start_date")]
         [JsonConverter(typeof(EpgTimeConverter))]
         public DateTime StartDate { get; set; }
+
         [JsonProperty("end_date")]
         [JsonConverter(typeof(EpgTimeConverter))]
         public DateTime EndDate { get; set; }
+
         [JsonProperty("co_guid")]
         public string CoGuid { get; set; }
+
         [JsonProperty("pic_url", NullValueHandling = NullValueHandling.Ignore)]
         public string PicUrl { get; set; }
+
         [JsonProperty("pic_id")]
         public int PicID { get; set; }
 
@@ -57,31 +74,36 @@ namespace ApiObjects
 
         [JsonProperty("basic")]
         public EpgBasicData BasicData { get; protected set; }
+
         [JsonProperty("stats")]
         public Stats Statistics { get; protected set; }
+
         [JsonProperty("extra_data")]
         public EpgExtraData ExtraData { get; set; }
+
         [JsonProperty("metas")]
-        public Dictionary<string, List<string>> Metas { get;  set; }
-       
+        public Dictionary<string, List<string>> Metas { get; set; }
+
         [JsonProperty("tags")]
         public Dictionary<string, List<string>> Tags { get; set; }
 
         [JsonProperty("language")]
         public string Language { get; set; }
 
-
         // from LUNA version
-        [JsonProperty("pictures",Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("pictures", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public List<EpgPicture> pictures { get; set; }
 
         //from ROBIN version
         [JsonProperty("enable_cdvr", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public int EnableCDVR { get; set; }
+
         [JsonProperty("enable_catch_up", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public int EnableCatchUp { get; set; }
+
         [JsonProperty("enable_start_over", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public int EnableStartOver { get; set; }
+
         [JsonProperty("enable_trick_play", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public int EnableTrickPlay { get; set; }
 
@@ -93,18 +115,21 @@ namespace ApiObjects
         [JsonProperty("crid", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public string Crid { get; set; }
 
+        [JsonProperty("document_id")]
+        public string DocumentId { get; set; }
+
         [JsonIgnore()]
-        public string DocumentId
-        {
-            get;
-            set;
-        }
+        public long ChannelCatchUpBuffer { get; set; }
+
+        #endregion
+
+        #region Ctor
 
         public EpgCB()
         {
             EpgID = 0;
             EpgIdentifier = string.Empty;
-            isActive = false;
+            IsActive = false;
             Status = 2;
             Type = "epg";
             CreateDate = DateTime.MinValue;
@@ -138,15 +163,14 @@ namespace ApiObjects
             DocumentId = string.Empty;
         }
 
-
         public EpgCB(EpgCB epgCb)
         {
-            Initialize(epgCb);   
+            Initialize(epgCb);
         }
 
         public EpgCB(EpgCB epgCb, title t)
         {
-            Initialize(epgCb);           
+            Initialize(epgCb);
             this.Name = t.Value;
         }
 
@@ -156,11 +180,15 @@ namespace ApiObjects
             this.Description = d.Value;
         }
 
+        #endregion
+
+        #region Initialize
+
         private void Initialize(EpgCB epgCb)
         {
             this.EpgID = epgCb.EpgID;
             this.EpgIdentifier = epgCb.EpgIdentifier;
-            this.isActive = epgCb.isActive;
+            this.IsActive = epgCb.IsActive;
             this.Status = epgCb.Status;
             this.Type = "epg";
             this.CreateDate = epgCb.CreateDate;
@@ -190,6 +218,28 @@ namespace ApiObjects
             this.Crid = epgCb.Crid;
         }
 
+        public void Initialize(int kalturaChannelID, int groupId, int parentGroupId, string externalId, DateTime startDate, DateTime endDate,
+                               int enablecatchup, int enablecdvr, int enablestartover, int enabletrickplay, string crid)
+        {
+            this.ChannelID = kalturaChannelID;
+            this.GroupID = groupId;
+            this.ParentGroupID = parentGroupId;
+            this.EpgIdentifier = externalId;
+            this.StartDate = startDate;
+            this.EndDate = endDate;
+            this.UpdateDate = DateTime.UtcNow;
+            this.CreateDate = DateTime.UtcNow;
+            this.IsActive = true;
+            this.Status = 1;
+            this.EnableCatchUp = enablecatchup;
+            this.EnableCDVR = enablecdvr;
+            this.EnableStartOver = enablestartover;
+            this.EnableTrickPlay = enabletrickplay;
+            this.Crid = crid;
+        }
+
+        #endregion
+
         public bool Equals(EpgCB obj, List<FieldTypeEntity> fieldEntityMapping)
         {
             //Check for null and compare run-time types. 
@@ -218,7 +268,7 @@ namespace ApiObjects
                     if (obj.ExtraData.MediaID != this.ExtraData.MediaID)
                         return false;
                 }
-                if (this.EnableCatchUp != obj.EnableCatchUp || this.EnableCDVR != obj.EnableCDVR || 
+                if (this.EnableCatchUp != obj.EnableCatchUp || this.EnableCDVR != obj.EnableCDVR ||
                     this.EnableStartOver != obj.EnableStartOver || this.EnableTrickPlay != obj.EnableTrickPlay)
                     return false;
 
@@ -312,27 +362,6 @@ namespace ApiObjects
             return true;
         }
 
-
-        public void Initialize(int kalturaChannelID, int groupId, int parentGroupId, string externalId, DateTime startDate, DateTime endDate, 
-            int enablecatchup, int enablecdvr, int enablestartover, int enabletrickplay, string crid)
-        {
-            this.ChannelID = kalturaChannelID;
-            this.GroupID = groupId;
-            this.ParentGroupID = parentGroupId;
-            this.EpgIdentifier = externalId;
-            this.StartDate = startDate;
-            this.EndDate = endDate;
-            this.UpdateDate = DateTime.UtcNow;
-            this.CreateDate = DateTime.UtcNow;
-            this.isActive = true;
-            this.Status = 1;
-            this.EnableCatchUp = enablecatchup;
-            this.EnableCDVR = enablecdvr;
-            this.EnableStartOver = enablestartover;
-            this.EnableTrickPlay = enabletrickplay;
-            this.Crid = crid;
-        }
-
         public EpgCB DeepCopy(string language)
         {
             EpgCB cloneEpg = (EpgCB)this.MemberwiseClone();
@@ -344,11 +373,8 @@ namespace ApiObjects
     [Serializable]
     public class EpgBasicData
     {
-       
-
         public EpgBasicData()
         {
-
         }
     }
 

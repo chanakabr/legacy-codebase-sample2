@@ -199,6 +199,7 @@
     <Compile Include="Catalog\CatalogLogic.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\AssetManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\ChannelManager.cs" />
+    <Compile Include="Catalog\CatalogManagement\Managers\EpgAssetManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\FileManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\IngestManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\Asset.cs" />
