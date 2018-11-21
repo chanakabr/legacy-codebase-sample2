@@ -19,9 +19,11 @@ namespace ApiObjects.Segmentation
 
         private const int USER_SEGMENT_TTL_HOURS = 24;
 
+        #region Members
+
         [JsonIgnore()]
         public string UserId { get; set; }
-        
+
         [JsonProperty()]
         public long SegmentId { get; set; }
 
@@ -30,17 +32,23 @@ namespace ApiObjects.Segmentation
 
         [JsonIgnore()]
         public Status ActionStatus { get; set; }
-        
+
         [JsonProperty()]
         public DateTime CreateDate { get; set; }
 
         [JsonProperty()]
         public DateTime UpdateDate { get; set; }
 
+        #endregion
+
+        #region CoreObject override methods
+
         public override CoreObject CoreClone()
         {
             throw new NotImplementedException();
         }
+
+        #region Insert, Update, Delete
 
         protected override bool DoInsert()
         {
@@ -83,14 +91,14 @@ namespace ApiObjects.Segmentation
                 return false;
             }
 
-            bool validSegmentId = validSegmentId = segmentationType.Value.HasSegmentId(SegmentId);
+            bool validSegmentId = segmentationType.Value.HasSegmentId(SegmentId);
 
             if (!validSegmentId)
             {
                 this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Given segment id does not exist for this segmentation type");
                 return false;
             }
-            
+
             if (userSegments.Segments.ContainsKey(SegmentId))
             {
                 userSegments.Segments[SegmentId].UpdateDate = DateTime.UtcNow;
@@ -119,30 +127,7 @@ namespace ApiObjects.Segmentation
 
             result = setResult;
 
-
             return result;
-        }
-
-        private static string GetCombinedString(long segmentationTypeId, long? segmentId)
-        {
-            if (segmentId.HasValue)
-            {
-                return string.Format("t_{0}_s_{1}", segmentationTypeId, segmentId);
-            }
-            else
-            {
-                return string.Format("t_{0}", segmentationTypeId);
-            }
-        }
-
-        private static string GetUserSegmentsDocument(string userId)
-        {
-            return string.Format("user_segments_{0}", userId);
-        }
-
-        private string GetUserSegmentsSequenceDocument()
-        {
-            return "user_segment_sequence";
         }
 
         protected override bool DoDelete()
@@ -150,7 +135,7 @@ namespace ApiObjects.Segmentation
             bool result = false;
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-  
+
             string userSegmentsKey = GetUserSegmentsDocument(this.UserId);
 
             UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
@@ -186,7 +171,7 @@ namespace ApiObjects.Segmentation
                 log.ErrorFormat("Error updating user segments.");
                 return false;
             }
-            
+
             result = setResult;
 
             return result;
@@ -196,6 +181,12 @@ namespace ApiObjects.Segmentation
         {
             return true;
         }
+
+        #endregion
+
+        #endregion
+
+        #region List
 
         public static List<UserSegment> List(int groupId, string userId, int pageIndex, int pageSize, out int totalCount)
         {
@@ -208,7 +199,6 @@ namespace ApiObjects.Segmentation
 
             if (userSegments != null && userSegments.Segments != null)
             {
-
                 List<long> segmentsToRemove = GetUserSegmentsToCleanup(groupId, userSegments.Segments.Values.ToList());
 
                 if (segmentsToRemove.Count > 0)
@@ -227,7 +217,7 @@ namespace ApiObjects.Segmentation
                 }
 
                 totalCount = userSegments.Segments.Count;
-                
+
                 if (pageSize == 0 && pageIndex == 0)
                 {
                     result = userSegments.Segments.Values.ToList();
@@ -256,6 +246,32 @@ namespace ApiObjects.Segmentation
             {
                 return new List<UserSegment>();
             }
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private static string GetCombinedString(long segmentationTypeId, long? segmentId)
+        {
+            if (segmentId.HasValue)
+            {
+                return string.Format("t_{0}_s_{1}", segmentationTypeId, segmentId);
+            }
+            else
+            {
+                return string.Format("t_{0}", segmentationTypeId);
+            }
+        }
+
+        private static string GetUserSegmentsDocument(string userId)
+        {
+            return string.Format("user_segments_{0}", userId);
+        }
+
+        private string GetUserSegmentsSequenceDocument()
+        {
+            return "user_segment_sequence";
         }
 
         private static List<long> GetUserSegmentsToCleanup(int groupId, List<UserSegment> userSegments)
@@ -299,7 +315,7 @@ namespace ApiObjects.Segmentation
                     continue;
                 }
 
-                // if segment was added more then defined TTL ago - remove it
+                // if segment was added more than defined TTL ago - remove it
                 if (userSegment.UpdateDate.AddHours(USER_SEGMENT_TTL_HOURS) < DateTime.UtcNow)
                 {
                     segmentsToRemove.Add(userSegment.SegmentId);
@@ -309,6 +325,109 @@ namespace ApiObjects.Segmentation
 
             return segmentsToRemove;
         }
+
+        #endregion
+
+        #region Bulk Insert
+
+        public static bool MultiInsert(int groupId, Dictionary<string, List<long>> usersSegments)
+        {
+            bool result = true;
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+
+            foreach (string userId in usersSegments.Keys)
+            {
+                string userSegmentsKey = GetUserSegmentsDocument(userId);
+
+                UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
+
+                if (userSegments == null)
+                {
+                    userSegments = new UserSegments()
+                    {
+                        UserId = userId
+                    };
+                }
+
+                if (userSegments.Segments == null)
+                {
+                    userSegments.Segments = new Dictionary<long, UserSegment>();
+                }
+
+                int totalCount;
+                
+                foreach (var segmentId in usersSegments[userId])
+                {
+                    // segment is valid until proved othersise
+                    bool validSegmentId = true;
+
+                    long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
+
+                    var segmentationTypes = SegmentationType.List(groupId, new List<long>() { segmentationTypeId }, 0, 1000, out totalCount);
+
+                    SegmentationType segmentationType = null;
+
+                    if (segmentationTypes != null && segmentationTypes.Count > 0)
+                    {
+                        segmentationType = segmentationTypes.FirstOrDefault();
+                    }
+
+                    if (segmentationType == null)
+                    {
+                        log.WarnFormat("UserSegment..MultiInsert : for user {0} ignored invalid segment id {1}", userId, segmentId);
+                        validSegmentId = false;
+                    }
+
+                    bool typeHasSegment = segmentationType.Value.HasSegmentId(segmentId);
+
+                    if (!typeHasSegment)
+                    {
+                        log.WarnFormat("UserSegment..MultiInsert : for user {0} ignored invalid segment id {1}", userId, segmentId);
+                        validSegmentId = false;
+                    }
+
+                    if (validSegmentId)
+                    {
+                        // just update update date if segment exists for user
+                        if (userSegments.Segments.ContainsKey(segmentId))
+                        {
+                            userSegments.Segments[segmentId].UpdateDate = DateTime.UtcNow;
+                        }
+                        else
+                        {
+                            // otherwise create full object
+                            userSegments.Segments.Add(segmentId, new UserSegment()
+                            {
+                                CreateDate = DateTime.UtcNow,
+                                UpdateDate = DateTime.UtcNow,
+                                GroupId = groupId,
+                                UserId = userId,
+                                SegmentId = segmentId
+                            });
+                        }
+                    }
+                }
+
+                // cleanup invalid and expired segments
+                List<long> segmentsToRemove = GetUserSegmentsToCleanup(groupId, userSegments.Segments.Values.ToList());
+                segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
+
+                bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
+
+                result &= setResult;
+
+                if (!setResult)
+                {
+                    log.ErrorFormat("Error updating user segments.");
+                    continue;
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 
     public class UserSegments
