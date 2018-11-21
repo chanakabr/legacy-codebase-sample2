@@ -9,7 +9,6 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
-using TvinciImporter;
 using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
@@ -30,7 +29,7 @@ namespace Core.Catalog.CatalogManagement
 
         #endregion
 
-        #region Public Methods
+        #region Internal Methods
 
         internal static List<EpgAsset> GetEpgAssetsFromCache(List<long> epgIds, int groupId, List<string> languageCodes = null)
         {
@@ -127,20 +126,20 @@ namespace Core.Catalog.CatalogManagement
 
 
                 Dictionary<long, List<string>> epgMetaIdToValues = new Dictionary<long, List<string>>();
-                foreach (var item in epgMetas[defaultLanguageCode])
+                if (epgMetas != null)
                 {
-                    var metaId = (long)metasTypesIds[item.Key.ToLower()];
-                    if (!epgMetaIdToValues.ContainsKey(metaId))
+                    foreach (var item in epgMetas[defaultLanguageCode])
                     {
-                        epgMetaIdToValues.Add(metaId, new List<string>());
-                    }
+                        var metaId = (long)metasTypesIds[item.Key.ToLower()];
+                        if (!epgMetaIdToValues.ContainsKey(metaId))
+                        {
+                            epgMetaIdToValues.Add(metaId, new List<string>());
+                        }
 
-                    epgMetaIdToValues[metaId].AddRange(item.Value);
+                        epgMetaIdToValues[metaId].AddRange(item.Value);
+                    }
                 }
 
-                //var epgMetaIdToValues = epgMetas[defaultLanguageCode].ToDictionary
-                //    (x => (long)metasTypesIds[x.Key.ToLower()], y => y.Value);
-                //
                 long newEpgId = EpgDal.InsertEpgToDB(epgCbToAdd, userId, dateTimeNow, epgMetaIdToValues, catalogGroupCache.DefaultLanguage.ID, epgTagsIds);
                 if (newEpgId == 0)
                 {
@@ -191,8 +190,6 @@ namespace Core.Catalog.CatalogManagement
                 List<int> epgTagsIds;
 
                 List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
-                // TODO ANAT - RETURN THE RELEVENT TAGS (THE SAME WAY SHIR DID WITH METAS) - WE NEED TO 
-                // TAKE THEM FROM HERE BECAUSE THERE IS NO RESUN TO RUN OVER THEM MORE THEM ONE TIME
                 Status validateStatus = ValidateEpgAssetForUpdate(groupId, userId, epgAssetToUpdate, oldEpgAsset, catalogGroupCache, mappingFields, out needToUpdateBasicData,
                                                                   out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds);
 
@@ -323,8 +320,52 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        internal static Status RemoveTopicsFromAsset(int groupId, long id, HashSet<long> topicIds, long userId, CatalogGroupCache catalogGroupCache, Asset asset)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            // validate topicsIds exist on asset
+            EpgAsset epgAsset = asset as EpgAsset;
+            if (epgAsset != null)
+            {
+                List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
+
+                // needed for a check that meta exist at mapping
+                List<FieldTypeEntity> metaMappingFields = mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToList();
+                Dictionary<string, int> metaIds = new Dictionary<string, int>();
+                foreach (FieldTypeEntity fte in metaMappingFields)
+                {
+                    metaIds.Add(fte.Name.ToLower(), fte.ID);
+                }
+
+                foreach (var meta in epgAsset.Metas)
+                {
+                    // check that meta exist at mapping
+                    if (!metaIds.ContainsKey(meta.m_oTagMeta.m_sName.ToLower()))
+                    {
+                        var errorMsg = string.Format(META_DOES_NOT_EXIST, "meta", meta.m_oTagMeta.m_sName);
+                        return new Status((int)eResponseStatus.MetaDoesNotExist, errorMsg);
+                    }
+                }
+
+
+                //List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag
+                //                                                             && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                //List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type != ApiObjects.MetaType.Tag
+                //                                                          && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+
+                ////if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId))
+                //{
+                //}
+            }
+
+            return result;
+        }
+
         #endregion
 
+
+        #region Private Methods
         private static void SaveEpgCbToCB(EpgCB epgCB, string defaultLanguageCode,
                                           Dictionary<string, string> allNames,
                                           Dictionary<string, string> allDescriptions,
@@ -343,13 +384,13 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 epgCB.Metas = null;
-                if (epgMetas.ContainsKey(currLang.Key))
+                if (epgMetas != null && epgMetas.ContainsKey(currLang.Key))
                 {
                     epgCB.Metas = epgMetas[currLang.Key];
                 }
 
                 epgCB.Tags = null;
-                if (epgTags.ContainsKey(currLang.Key))
+                if (epgTags != null && epgTags.ContainsKey(currLang.Key))
                 {
                     epgCB.Tags = epgTags[currLang.Key];
                 }
@@ -558,9 +599,7 @@ namespace Core.Catalog.CatalogManagement
             epgMetas = null;
             epgTagsIds = null;
 
-            // TODO ANAT - ask lior when to remove from comment (AssetStruct check) AND STOP USING ID = 2254
-            //AssetStruct programAssetStruct = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
-            AssetStruct programAssetStruct = catalogGroupCache.AssetStructsMapById[2254];
+            AssetStruct programAssetStruct = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
             if (programAssetStruct == null)
             {
                 return new Status((int)eResponseStatus.AssetStructDoesNotExist, "Program AssetStruct does not exist");
@@ -1125,34 +1164,6 @@ namespace Core.Catalog.CatalogManagement
             return topicValues;
         }
 
-        // OLD CODE
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="epgProgramTags"></param>
-        /// <param name="isMeta"></param>
-        /// <param name="metaValue"></param>
-        /// <param name="id">epg_meta_id or epg_tag_id</param>
-        /// <param name="epgCb"></param>
-        /// <param name="updaterId"></param>
-        /// <param name="languageID"></param>
-        /// <returns></returns>
-        private static DataRow GetEpgProgramTagsRow(DataTable epgProgramTags, int id, EpgCB epgCb, long updaterId)
-        {
-            DataRow row = epgProgramTags.NewRow();
-
-            row["program_id"] = epgCb.EpgID;
-            row["epg_tag_id"] = id;
-            row["group_id"] = epgCb.GroupID;
-            row["status"] = epgCb.Status;
-            row["updater_id"] = updaterId;
-            row["create_date"] = epgCb.CreateDate;
-            row["update_date"] = epgCb.UpdateDate;
-
-            return row;
-        }
-
         private static void FillEpgTagValueTable(int groupId, long tagTypeId, string value, long updaterId, DateTime createDate, DateTime updateDate, ref DataTable dtEPGTagValue)
         {
             DataRow row = dtEPGTagValue.NewRow();
@@ -1164,220 +1175,6 @@ namespace Core.Catalog.CatalogManagement
             row["create_date"] = createDate;
             row["update_date"] = updateDate;
             dtEPGTagValue.Rows.Add(row);
-        }
-
-        // TODO ANAT - DELETE THIS METHOD AND STOP USING IT AFTER IMPELMENTING INSERT OF TAGS IN EpgDal.InsertEpgToDB
-        // and delete all inner methods that are not relevent any more (with no references)
-        private static void InsertEpgTagsToDB(Dictionary<string, List<string>> epgTags, EpgCB epgCb, long userId,
-                                              int groupId, CatalogGroupCache catalogGroupCache)
-        {
-            epgCb.Tags = epgTags;
-
-            DataTable dtEpgTags = InitEPGProgramTagsDataTable();
-            DataTable dtEpgTagsValues = InitEPGTagsValues();
-            Dictionary<long, HashSet<string>> tagsAndValues = new Dictionary<long, HashSet<string>>();
-
-            foreach (var currTag in epgCb.Tags)
-            {
-                if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(currTag.Key))
-                {
-                    long tagTypeID = catalogGroupCache.TopicsMapBySystemName[currTag.Key].Id;
-
-                    if (!tagsAndValues.ContainsKey(tagTypeID))
-                    {
-                        tagsAndValues.Add(tagTypeID, new HashSet<string>());
-                    }
-
-                    foreach (string tagValue in currTag.Value)
-                    {
-                        if (!tagsAndValues[tagTypeID].Contains(tagValue))
-                        {
-                            tagsAndValues[tagTypeID].Add(tagValue);
-                        }
-                    }
-                }
-            }
-
-            //return relevant tag value ID, if they exist in the DB
-            Dictionary<long, Dictionary<string, int>> tagTypeIdMappingDB = GetTagTypeMapping(groupId, tagsAndValues);
-
-            // new tag values and the EPGs that have them
-            var newTagValueEpgs = UpdateExistingTagValuesPerEPG(groupId, epgCb, catalogGroupCache, ref dtEpgTags, ref dtEpgTagsValues, tagTypeIdMappingDB, userId);
-
-            InsertNewTagValues(epgCb, dtEpgTagsValues, ref dtEpgTags, newTagValueEpgs, groupId, userId, catalogGroupCache.DefaultLanguage.ID);
-
-            //insert EPG Tags to DB
-            EpgDal.InsertBulk(dtEpgTags, "EPG_program_tags");
-            //Utils.InsertBulk(dtEpgPictures, "epg_multi_pictures", sConn);//insert Multi epg pictures to DB
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="groupID"></param>
-        /// <param name="tagsAndValues"></param>
-        /// <returns>Dictionary of epg_tag_type_id map to Dictionary of VALUE and ID</returns>
-        private static Dictionary<long, Dictionary<string, int>> GetTagTypeMapping(int groupID, Dictionary<long, HashSet<string>> tagsAndValues)
-        {
-            //per tag type, thier values and IDs
-            Dictionary<long, Dictionary<string, int>> dicTagTypeWithValues = new Dictionary<long, Dictionary<string, int>>();
-
-            DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(groupID, tagsAndValues.ToDictionary(x => (int)x.Key, y => y.Value.ToList()));
-
-            if (dtTagValueID != null && dtTagValueID.Rows != null && dtTagValueID.Rows.Count > 0)
-            {
-                foreach (DataRow row in dtTagValueID.Rows)
-                {
-                    int tagTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
-                    string value = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
-                    int id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-
-                    if (dicTagTypeWithValues.ContainsKey(tagTypeID))
-                    {
-                        //check if the value exists already in the dictionary (maybe in UpperCase\LowerCase)
-                        if (!dicTagTypeWithValues[tagTypeID].ContainsKey(value))
-                        {
-                            dicTagTypeWithValues[tagTypeID].Add(value, id);
-                        }
-                    }
-                    else
-                    {
-                        dicTagTypeWithValues.Add(tagTypeID, new Dictionary<string, int>() { { value, id } });
-                    }
-                }
-            }
-            else
-            {
-                log.ErrorFormat("Get_EPGTagValueIDs return empty response. gruop = {0}", groupID);
-            }
-
-            return dicTagTypeWithValues;
-        }
-
-        private static Dictionary<KeyValuePair<string, long>, List<string>> UpdateExistingTagValuesPerEPG
-            (int groupId, EpgCB epg, CatalogGroupCache catalogGroupCache, ref DataTable dtEpgTags, ref DataTable dtEpgTagsValues,
-             Dictionary<long, Dictionary<string, int>> tagTypeIdMapDB, long nUpdaterID)
-        {
-            Dictionary<KeyValuePair<string, long>, List<string>> newTagValueEpgs = new Dictionary<KeyValuePair<string, long>, List<string>>();
-            foreach (var currTag in epg.Tags)
-            {
-                if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(currTag.Key))
-                {
-                    long tagTypeID = catalogGroupCache.TopicsMapBySystemName[currTag.Key].Id;
-
-                    DateTime utcDateTime = DateTime.UtcNow;
-
-                    // Run on the tags of the EPG
-                    foreach (var sTagValue in currTag.Value)
-                    {
-                        KeyValuePair<string, long> kvp = new KeyValuePair<string, long>(sTagValue, tagTypeID);
-
-                        if (tagTypeIdMapDB.ContainsKey(tagTypeID) && tagTypeIdMapDB[tagTypeID].ContainsKey(sTagValue))
-                        {
-                            dtEpgTags.Rows.Add(GetEpgProgramTagsRow(dtEpgTags, tagTypeIdMapDB[tagTypeID][sTagValue], epg, nUpdaterID));
-                        }
-                        else if (newTagValueEpgs.ContainsKey(kvp))
-                        {
-                            newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
-                        }
-                        else
-                        {
-                            FillEpgTagValueTable(groupId, tagTypeID, sTagValue, nUpdaterID, utcDateTime, utcDateTime, ref dtEpgTagsValues);
-                            List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
-                            newTagValueEpgs.Add(kvp, lEpgGUID);
-                        }
-                    }
-                }
-            }
-
-            return newTagValueEpgs;
-        }
-
-        private static void InsertNewTagValues
-            (EpgCB epgCbToAdd, DataTable dtEpgTagsValues, ref DataTable dtEpgTags, Dictionary<KeyValuePair<string, long>, List<string>> newTagValueEpgs, int groupID, long nUpdaterID, int languageId)
-        {
-            Dictionary<KeyValuePair<string, int>, int> tagValueWithID = new Dictionary<KeyValuePair<string, int>, int>();
-            Dictionary<int, List<string>> dicTagTypeIDAndValues = new Dictionary<int, List<string>>();
-
-            if (dtEpgTagsValues != null && dtEpgTagsValues.Rows != null && dtEpgTagsValues.Rows.Count > 0)
-            {
-                //insert all New tag values from dtEpgTagsValues to DB
-                EpgDal.InsertBulk(dtEpgTagsValues, "EPG_tags");
-
-                //retrun back all the IDs of the new Tags_Values
-                for (int k = 0; k < dtEpgTagsValues.Rows.Count; k++)
-                {
-                    DataRow row = dtEpgTagsValues.Rows[k];
-                    string sTagValue = ODBCWrapper.Utils.GetSafeStr(row, "value");
-                    int nTagTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
-                    if (!dicTagTypeIDAndValues.Keys.Contains(nTagTypeID))
-                    {
-                        dicTagTypeIDAndValues.Add(nTagTypeID, new List<string>() { sTagValue });
-                    }
-                    else
-                    {
-                        dicTagTypeIDAndValues[nTagTypeID].Add(sTagValue);
-                    }
-                }
-
-                DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(groupID, dicTagTypeIDAndValues);
-
-                //update the IDs in tagValueWithID
-                if (dtTagValueID != null && dtTagValueID.Rows != null && dtTagValueID.Rows.Count > 0)
-                {
-                    for (int i = 0; i < dtTagValueID.Rows.Count; i++)
-                    {
-                        DataRow row = dtTagValueID.Rows[i];
-                        if (row != null)
-                        {
-                            int nTagValueID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                            string sTagValue = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
-                            int nTagType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
-
-                            KeyValuePair<string, int> tagValueAndType = new KeyValuePair<string, int>(sTagValue, nTagType);
-                            if (!tagValueWithID.Keys.Contains(tagValueAndType))
-                            {
-                                tagValueWithID.Add(tagValueAndType, nTagValueID);
-                            }
-                        }
-                    }
-                }
-            }
-
-            //go over all newTagValueEpgs and update the EPG_Program_Tags
-            foreach (KeyValuePair<string, long> kvpUpdated in newTagValueEpgs.Keys)
-            {
-                KeyValuePair<string, int> tempTagValue = tagValueWithID.Keys.FirstOrDefault(x => x.Key.Equals(kvpUpdated.Key) && x.Value == kvpUpdated.Value);
-                if (!tempTagValue.IsDefault())
-                {
-                    int TagValueID = tagValueWithID[tempTagValue];
-                    if (TagValueID > 0)
-                    {
-                        foreach (string epgGUID in newTagValueEpgs[kvpUpdated])
-                        {
-                            if (epgCbToAdd.EpgIdentifier.Equals(epgGUID))
-                            {
-                                EpgCB epgToUpdate = epgCbToAdd;
-                                dtEpgTags.Rows.Add(GetEpgProgramTagsRow(dtEpgTags, TagValueID, epgToUpdate, nUpdaterID));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-
-        private static DataTable InitEPGProgramTagsDataTable()
-        {
-            DataTable dt = new DataTable();
-            dt.Columns.Add("program_id", typeof(int));
-            dt.Columns.Add("epg_tag_id", typeof(int));
-            dt.Columns.Add("group_id", typeof(int));
-            dt.Columns.Add("status", typeof(int));
-            dt.Columns.Add("updater_id", typeof(int));
-            dt.Columns.Add("create_date", typeof(DateTime));
-            dt.Columns.Add("update_date", typeof(DateTime));
-            return dt;
         }
 
         private static DataTable InitEPGTagsValues()
@@ -1484,5 +1281,7 @@ namespace Core.Catalog.CatalogManagement
 
             return row;
         }
+
+        #endregion
     }
 }

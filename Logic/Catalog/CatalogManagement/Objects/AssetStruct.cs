@@ -33,7 +33,7 @@ namespace Core.Catalog.CatalogManagement
         public bool IsLinearAssetStruct { get; set; }
 
         // currently used only for internal use for migration and migrated accounts
-        public bool IsProgramAssetStruct { get; set; }
+        public bool IsProgramAssetStruct { get { return !string.IsNullOrEmpty(SystemName) && SystemName.ToLower().Equals("program"); } }
 
         public AssetStruct()
         {
