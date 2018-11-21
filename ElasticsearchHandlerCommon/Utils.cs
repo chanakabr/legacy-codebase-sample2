@@ -195,7 +195,7 @@ namespace ElasticsearchTasksCommon
                         epg.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(row["EPG_CHANNEL_ID"]);
                         epg.EpgID = ODBCWrapper.Utils.GetUnsignedLongSafeVal(row["ID"]);
                         epg.GroupID = ODBCWrapper.Utils.GetIntSafeVal(row["GROUP_ID"]);
-                        epg.isActive = (ODBCWrapper.Utils.GetIntSafeVal(row["IS_ACTIVE"]) == 1) ? true : false;
+                        epg.IsActive = (ODBCWrapper.Utils.GetIntSafeVal(row["IS_ACTIVE"]) == 1) ? true : false;
                         epg.Description = ODBCWrapper.Utils.GetSafeStr(row["DESCRIPTION"]);
                         epg.Name = ODBCWrapper.Utils.GetSafeStr(row["NAME"]);
                         if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["START_DATE"])))
@@ -307,7 +307,7 @@ namespace ElasticsearchTasksCommon
                         epg.ChannelID = ODBCWrapper.Utils.GetIntSafeVal(row["EPG_CHANNEL_ID"]);
                         epg.EpgID = ODBCWrapper.Utils.GetUnsignedLongSafeVal(row["ID"]);
                         epg.GroupID = ODBCWrapper.Utils.GetIntSafeVal(row["GROUP_ID"]);
-                        epg.isActive = (ODBCWrapper.Utils.GetIntSafeVal(row["IS_ACTIVE"]) == 1) ? true : false;
+                        epg.IsActive = (ODBCWrapper.Utils.GetIntSafeVal(row["IS_ACTIVE"]) == 1) ? true : false;
                         epg.Description = ODBCWrapper.Utils.GetSafeStr(row["DESCRIPTION"]);
                         epg.Name = ODBCWrapper.Utils.GetSafeStr(row["NAME"]);
                         if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row["START_DATE"])))
