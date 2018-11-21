@@ -130,7 +130,7 @@ namespace ExcelManager
                     externalIdToResultMap = new Dictionary<string, Status>();
                     foreach (DataRow dr in dt.Rows)
                     {
-                        MediaAsset mediaAsset = new MediaAsset() { MediaType = new Core.Catalog.MediaType(mediaType, (int)mediaTypeId) };
+                        MediaAsset mediaAsset = new MediaAsset() { MediaType = new Core.Catalog.MediaType(mediaType, (int)mediaTypeId), AssetType = ApiObjects.eAssetTypes.MEDIA };
                         string externalId = GetStringValueFromCell(dr, externalIdIndex);
                         if (string.IsNullOrEmpty(externalId))
                         {
@@ -165,12 +165,12 @@ namespace ExcelManager
 
                         GenericResponse<Asset> assetGenResponse = new GenericResponse<Asset>();
                         if (doesMediaAlreadyExists)
-                        {
-                            assetGenResponse = AssetManager.UpdateAsset(groupId, externalIdToMediaAssetMap[externalId].Id, ApiObjects.eAssetTypes.MEDIA, mediaAsset, userId);
+                        {                        
+                            assetGenResponse = AssetManager.UpdateAsset(groupId, externalIdToMediaAssetMap[externalId].Id, mediaAsset, userId);
                         }
                         else
                         {
-                            assetGenResponse = AssetManager.AddAsset(groupId, ApiObjects.eAssetTypes.MEDIA, mediaAsset, userId);
+                            assetGenResponse = AssetManager.AddAsset(groupId, mediaAsset, userId);
                         }
 
                         if (assetGenResponse != null && !IsValidStatus(assetGenResponse.Status, externalId, ref externalIdToResultMap))

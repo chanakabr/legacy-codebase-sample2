@@ -134,8 +134,9 @@ namespace EpgIngest
             dt.Columns.Add("CRID", typeof(string));
             return dt;
         }
+        
+        internal static void FillEPGDataTable(Dictionary<string, EpgCB> epgDic, ref DataTable dtEPG, DateTime dPublishDate, long updaterId = 400)
 
-        internal static void FillEPGDataTable(Dictionary<string, EpgCB> epgDic, ref DataTable dtEPG, DateTime dPublishDate)
         {
             if (epgDic != null && epgDic.Count > 0)
             {
@@ -169,9 +170,9 @@ namespace EpgIngest
                         row["END_DATE"] = epg.EndDate;
                         row["PIC_ID"] = epg.PicID;
                         row["STATUS"] = epg.Status;
-                        row["IS_ACTIVE"] = epg.isActive;
+                        row["IS_ACTIVE"] = epg.IsActive;
                         row["GROUP_ID"] = epg.GroupID;
-                        row["UPDATER_ID"] = 400;
+                        row["UPDATER_ID"] = updaterId;
                         row["UPDATE_DATE"] = epg.UpdateDate;
                         row["PUBLISH_DATE"] = dPublishDate;
                         row["CREATE_DATE"] = epg.CreateDate;

@@ -19,5 +19,20 @@ namespace TVinciShared
 
             return isDefault;
         }
+
+        public static T? GetUpdatedValue<T>(this T? value, T? otherValue, ref bool needToUpdate) where T : struct
+        {
+            if (value != null && value.HasValue && !value.Equals(otherValue))
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                value = otherValue;
+            }
+
+            return value;
+        }
+
     }
 }

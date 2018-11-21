@@ -254,7 +254,7 @@ namespace TVinciShared
             bool bValid = true;
 
             epg.UpdateDate = DateTime.UtcNow;
-            epg.isActive = true;
+            epg.IsActive = true;
             epg.Status = 1;
             int enable = 0;
 

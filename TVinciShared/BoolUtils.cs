@@ -16,7 +16,7 @@ namespace TVinciShared
                 return false;
             }
 
-            if (value.Contains("0") || value.Contains("1"))
+            if (value.Equals("0") || value.Equals("1"))
             {
                 int intVal = 0;
                 if (int.TryParse(value, out intVal))

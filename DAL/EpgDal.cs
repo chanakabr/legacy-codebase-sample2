@@ -1,5 +1,10 @@
-﻿using ApiObjects.Epg;
+﻿using ApiObjects;
+using ApiObjects.Epg;
+using ConfigurationManager;
+using CouchbaseManager;
+using DAL;
 using KLogMonitor;
+using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;
@@ -12,6 +17,7 @@ namespace Tvinci.Core.DAL
     public class EpgDal : BaseDal
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
         public static DataTable GetEpgScheduleDataTable(int? topRowsNumber, int groupID, DateTime? fromUTCDay, DateTime? toUTCDay, int epgChannelID)
         {
@@ -706,5 +712,224 @@ namespace Tvinci.Core.DAL
 
             return dt;
         }
+
+        public static bool SaveEpgCB(EpgCB epgCB, bool isMainLang)
+        {
+            bool bRes = false;
+
+            if (epgCB == null)
+                return false;
+
+            string key = string.Empty;
+            if (isMainLang)
+            {
+                key = epgCB.EpgID.ToString();
+            }
+            else
+            {
+                key = string.Format("epg_{0}_lang_{1}", epgCB.EpgID, epgCB.Language.ToLower());
+            }
+
+            epgCB.DocumentId = key;
+
+            try
+            {
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
+                uint expiration = (uint)(epgCB.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalSeconds;
+
+                for (int i = 0; i < 3 && !bRes; i++)
+                {
+                    bRes = cbManager.Set(key, JsonConvert.SerializeObject(epgCB, Formatting.None), expiration);
+                }
+
+                if (!bRes)
+                {
+                    log.Error("SaveEpgCB - " + string.Format("Failed insert to CB id={0}", key));
+                    key = string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("SaveEpgCB - " + string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
+                   epgCB.EpgID, epgCB.EpgIdentifier, epgCB.ChannelID, ex.Message, ex.StackTrace), ex);
+            }
+
+            return bRes;
+        }
+
+        public static List<EpgCB> GetEpgCBList(long epgId, List<LanguageObj> languages)
+        {
+            List<EpgCB> resultEpgs = new List<EpgCB>();
+
+            if (languages != null && languages.Count > 0)
+            {
+                Dictionary<string, string> langCodeToKeyMapping = new Dictionary<string, string>();
+
+                foreach (var lang in languages)
+                {
+                    string key;
+
+                    if (lang.IsDefault)
+                    {
+                        key = epgId.ToString();
+                    }
+                    else
+                    {
+                        key = string.Format("epg_{0}_lang_{1}", epgId, lang.Code.ToLower());
+                    }
+
+                    langCodeToKeyMapping.Add(lang.Code, key);
+                }
+
+                List<string> recordingKeys = new List<string>();
+                List<EpgCB> tempEpgs = UtilsDal.GetObjectListFromCB<EpgCB>(eCouchbaseBucket.EPG, langCodeToKeyMapping.Values.ToList(), true);
+
+                if (tempEpgs != null && tempEpgs.Count > 0)
+                {
+                    foreach (var epg in tempEpgs)
+                    {
+                        if (epg.Status == 1)
+                        {
+                            resultEpgs.Add(epg);
+                        }
+                        else
+                        {
+                            recordingKeys.Add(langCodeToKeyMapping[epg.Language]);
+                            log.WarnFormat("GetEpgCBList - epg with key {0} from CB, returned with status {1}", langCodeToKeyMapping[epg.Language], epg.Status);
+                        }
+                    }
+                }
+
+                resultEpgs.AddRange(GetEpgCBRecordingsList(recordingKeys, langCodeToKeyMapping));
+            }
+
+            return resultEpgs;
+        }
+
+        private static List<EpgCB> GetEpgCBRecordingsList(List<string> keys, Dictionary<string, string> langCodeToKeyMapping)
+        {
+            List<EpgCB> resultEpgs = new List<EpgCB>();
+
+            List<EpgCB> tempEpgs = UtilsDal.GetObjectListFromCB<EpgCB>(eCouchbaseBucket.RECORDINGS, keys);
+
+            if (tempEpgs != null && tempEpgs.Count > 0)
+            {
+                foreach (var epg in tempEpgs)
+                {
+                    if (epg.Status == 1)
+                    {
+                        resultEpgs.Add(epg);
+                    }
+                    else
+                    {
+                        log.WarnFormat("GetEpgCBRecordingsList - epg with key {0} from CB, returned with status {1}", langCodeToKeyMapping[epg.Language], epg.Status);
+                    }
+                }
+            }
+
+            return resultEpgs;
+        }
+
+        public static long InsertEpgToDB(EpgCB epgCbToAdd, long userId, DateTime publishDate, Dictionary<long, List<string>> epgMetaIdToValues,
+                                         int languageId, List<int> epgTagsIds)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_Epg");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@epgChannelId", epgCbToAdd.ChannelID);
+            sp.AddParameter("@epgIdentifier", epgCbToAdd.EpgIdentifier);
+            sp.AddParameter("@name", epgCbToAdd.Name);
+            sp.AddParameter("@description", epgCbToAdd.Description);
+            sp.AddParameter("@startDate", epgCbToAdd.StartDate);
+            sp.AddParameter("@endDate", epgCbToAdd.EndDate);
+            sp.AddParameter("@picId", epgCbToAdd.PicID);
+            sp.AddParameter("@status", epgCbToAdd.Status);
+            sp.AddParameter("@isActive", epgCbToAdd.IsActive);
+            sp.AddParameter("@groupId", epgCbToAdd.GroupID);
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@updateDate", epgCbToAdd.UpdateDate);
+            sp.AddParameter("@publishDate", publishDate);
+            sp.AddParameter("@createDate", epgCbToAdd.CreateDate);
+            sp.AddParameter("@mediaId", epgCbToAdd.ExtraData.MediaID);
+            sp.AddParameter("@fbObjectId", epgCbToAdd.ExtraData.FBObjectID);
+            sp.AddParameter("@likeCounter", epgCbToAdd.Statistics.Likes);
+            sp.AddParameter("@enableCatchUp", epgCbToAdd.EnableCatchUp);
+            sp.AddParameter("@enablCdvr", epgCbToAdd.EnableCDVR);
+            sp.AddParameter("@enableStartOver", epgCbToAdd.EnableStartOver);
+            sp.AddParameter("@enableTrickPlay", epgCbToAdd.EnableTrickPlay);
+            sp.AddParameter("@crid", epgCbToAdd.Crid);
+            sp.AddParameter("@languageId", languageId);
+            sp.AddKeyValueListParameter<long, string>("@epgMetaIdToValues", epgMetaIdToValues, "key", "value");
+            sp.AddIDListParameter("@epgTagIdToValues", epgTagsIds, "id");
+
+           long  insertedEpgId = sp.ExecuteReturnValue<long>();
+
+            return insertedEpgId;
+        }
+
+        public static bool DeleteEpgAsset(long epgId, long userId)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_Epg");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@programId", epgId);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool UpdateEpgMetas(long epgId, Dictionary<long, List<string>> epgMetaIdToValues, long userId, DateTime updateDate, int groupId, int languageId)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_EpgMetas");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@programId", epgId);
+            sp.AddKeyValueListParameter<long, string>("@epgMetaIdToValues", epgMetaIdToValues, "key", "value");
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@updateDate", updateDate);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@languageId", languageId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool UpdateEpgTags(long programId, List<int> epgTagsIds, long userId, DateTime updateDate, int groupId)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_EpgTags");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@programId", programId);
+            sp.AddIDListParameter("@epgTagIdToValues", epgTagsIds, "id");
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@updateDate", updateDate);
+            sp.AddParameter("@groupId", groupId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static void InsertBulk(DataTable dt, string tableName)
+        {
+            if (dt != null)
+            {
+                ODBCWrapper.InsertQuery insertMessagesBulk = new ODBCWrapper.InsertQuery();
+                insertMessagesBulk.SetConnectionKey("MAIN_CONNECTION_STRING");
+                try
+                {
+                    insertMessagesBulk.InsertBulk(tableName, dt);
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    log.Error("", ex);
+
+                    #endregion
+                }
+                finally
+                {
+                    if (insertMessagesBulk != null)
+                    {
+                        insertMessagesBulk.Finish();
+                    }
+                    insertMessagesBulk = null;
+                }
+            }
+        }
+
     }
 }

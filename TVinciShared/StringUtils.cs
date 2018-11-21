@@ -19,6 +19,20 @@ namespace TVinciShared
             return (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value));
         }
 
+        public static string GetUpdatedValue(this string value, string otherValue, ref bool needToUpdate)
+        {
+            if (!value.IsNullOrEmptyOrWhiteSpace() && !value.Equals(otherValue))
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                value = otherValue;
+            }
+
+            return value;
+        }
+
         /// <summary>
         /// Convert string value to nullable struct
         /// </summary>

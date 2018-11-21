@@ -134,19 +134,15 @@ namespace EpgIngest
 
             foreach (string tagType in epg.Tags.Keys)
             {
-                string tagTypel = tagType.ToLower();
-                int tagTypeID = 0;
-                List<FieldTypeEntity> tagField = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Tag && x.Name.ToLower() == tagTypel).ToList();
+                FieldTypeEntity tagFieldTypeEntity = FieldEntityMapping.FirstOrDefault(x => x.FieldType == FieldTypes.Tag && x.Name.ToLower().Equals(tagType));
 
-                if (tagField != null && tagField.Count > 0)
-                {
-                    tagTypeID = tagField[0].ID;
-                }
-                else
+                if (tagFieldTypeEntity == null)
                 {
                     log.Debug("UpdateExistingTagValuesPerEPG - " + string.Format("Missing tag Definition in FieldEntityMapping of tag:{0} in EPG:{1}", tagType, epg.EpgID));
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
+
+                int tagTypeID = tagFieldTypeEntity.ID;                
 
                 if (!tagsAndValues.ContainsKey(tagTypeID))
                 {

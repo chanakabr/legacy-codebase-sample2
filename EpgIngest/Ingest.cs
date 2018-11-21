@@ -184,7 +184,6 @@ namespace EpgIngest
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
             bool success = false;
             int nCount = 0;
-            int nPicID = 0;
             List<ulong> epgIds = new List<ulong>();
             EpgCB newEpgItem;
             DateTime dProgStartDate;
@@ -194,8 +193,6 @@ namespace EpgIngest
 
             Dictionary<string, EpgCB> dEpgCbTranslate = new Dictionary<string, EpgCB>(); // Language, EpgCB
             Dictionary<string, List<KeyValuePair<string, EpgCB>>> dEpg = new Dictionary<string, List<KeyValuePair<string, EpgCB>>>();// EpgIdentifier , <Language, EpgCB>
-            Dictionary<string, List<KeyValuePair<string, string>>> dMetas = new Dictionary<string, List<KeyValuePair<string, string>>>(); // metaType, List<language, metaValue>
-            Dictionary<string, List<EpgTagTranslate>> dTags = new Dictionary<string, List<EpgTagTranslate>>(); // tagType, List<EpgTagTranslate>
 
             //update log topic with kaltura channelID
             MonitorLogsHelper.SetContext(Constants.TOPIC, string.Format("save channel programs for kalturaChannelID:{0}", kalturaChannelID));
@@ -205,6 +202,7 @@ namespace EpgIngest
             IngestAssetStatus ingestAssetStatus = null;
 
             #region each program  create CB objects
+
             foreach (programme prog in programs)
             {
                 ingestAssetStatus = new IngestAssetStatus()
@@ -217,14 +215,13 @@ namespace EpgIngest
                 ingestResponse.AssetsStatus.Add(ingestAssetStatus);
 
                 newEpgItem = new EpgCB();
-                dEpgCbTranslate = new Dictionary<string, EpgCB>(); // Language, EpgCB
+
                 try
                 {
                     dProgStartDate = DateTime.MinValue;
                     dProgEndDate = DateTime.MinValue;
                     epgPicture = new EpgPicture();
 
-                    nPicID = 0;
                     string sPicUrl = string.Empty;
                     if (isTstvSettings && string.IsNullOrEmpty(prog.crid))
                     {
@@ -257,7 +254,7 @@ namespace EpgIngest
                     newEpgItem.EndDate = dProgEndDate;
                     newEpgItem.UpdateDate = DateTime.UtcNow;
                     newEpgItem.CreateDate = DateTime.UtcNow;
-                    newEpgItem.isActive = true;
+                    newEpgItem.IsActive = true;
                     newEpgItem.Status = 1;
                     newEpgItem.EnableCatchUp = EnableLinearSetting(prog.enablecatchup);
                     newEpgItem.EnableCDVR = EnableLinearSetting(prog.enablecdvr);
@@ -266,7 +263,11 @@ namespace EpgIngest
                     newEpgItem.Crid = prog.crid;
 
                     string picName = string.Empty;
+
                     #region Name  With languages
+
+                    dEpgCbTranslate = new Dictionary<string, EpgCB>(); // name.lang, EpgCB
+
                     foreach (title name in prog.title)
                     {
                         EpgCB newEpgItemLang = new EpgCB(newEpgItem);
@@ -279,9 +280,11 @@ namespace EpgIngest
                             picName = name.Value;
                         }
                     }
+
                     #endregion
 
                     #region Description With languages
+
                     if (prog.desc != null)
                     {
                         foreach (desc description in prog.desc)
@@ -303,20 +306,22 @@ namespace EpgIngest
                             }
                         }
                     }
+
                     #endregion
 
                     #region Upload Picture
+
                     if (!string.IsNullOrEmpty(picName) && prog.icon != null) // create the urlPic if this is the main language
                     {
                         foreach (icon icon in prog.icon)
                         {
                             string imgurl = icon.src; // TO BE ABLE TO WORK WITH MORE THEN ONE PIC 
                             // get the ratioid by ratio
-                            int ratio = ODBCWrapper.Utils.GetIntSafeVal(ratios.Where(x => x.Value == icon.ratio).FirstOrDefault().Key);
+                            int ratio = ODBCWrapper.Utils.GetIntSafeVal(ratios.FirstOrDefault(x => x.Value == icon.ratio).Key);
                             epgPicture = new EpgPicture();
                             if (!string.IsNullOrEmpty(imgurl))
                             {
-                                nPicID = ImporterImpl.DownloadEPGPic(imgurl, picName, m_Channels.groupid, 0, kalturaChannelID, ratio);
+                                int nPicID = ImporterImpl.DownloadEPGPic(imgurl, picName, m_Channels.groupid, 0, kalturaChannelID, ratio);
 
                                 if (nPicID != 0)
                                 {
@@ -351,11 +356,13 @@ namespace EpgIngest
                             }
                         }
                     }
+
                     #endregion
 
                     EpgCB mainLanguageEpgCB = null;
 
                     #region Tags and Metas
+
                     foreach (KeyValuePair<string, EpgCB> epg in dEpgCbTranslate)
                     {
                         language = epg.Key.ToLower();
@@ -380,6 +387,7 @@ namespace EpgIngest
                             mainLanguageEpgCB = epg.Value;
                         }
                     }
+
                     #endregion
 
                     // Complete all languages that do not exist with copies of the main language
@@ -409,6 +417,7 @@ namespace EpgIngest
                     log.Error("Genarate Epgs - " + string.Format("Exception in generating EPG name {0} in group: {1}. exception: {2} ", newEpgItem.Name, m_Channels.parentgroupid, ex.Message), ex);
                 }
             }
+
             #endregion
 
             //insert EPGs to DB in batches
@@ -436,7 +445,7 @@ namespace EpgIngest
 
             // get all protected meta data from DB and insert it to dEpg meta value 
             List<string> protectedMetas = FieldEntityMapping.Where(x => x.isProtectFromUpdates.HasValue && x.isProtectFromUpdates.Value).Select(x => x.Name.ToLower()).ToList();
-            GetProtectedEpgMetas(ref dEpg, currentEpgCB, protectedMetas);            
+            GetProtectedEpgMetas(ref dEpg, currentEpgCB, protectedMetas);
 
             foreach (List<KeyValuePair<string, EpgCB>> lEpg in dEpg.Values)
             {
@@ -507,9 +516,7 @@ namespace EpgIngest
 
             success = true;
             return success;
-        }
-
-       
+        }       
 
         private void GetProtectedEpgMetas(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> dEpg, List<EpgCB> lResCB, List<string> protectedMetaName)
         {
@@ -577,7 +584,7 @@ namespace EpgIngest
                         rgx = null;
 
                         // get the regex expression to alias 
-                        metaMapping = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Meta && x.Name.ToLower() == meta.MetaType).FirstOrDefault();
+                        metaMapping = FieldEntityMapping.FirstOrDefault(x => x.FieldType == FieldTypes.Meta && x.Name.ToLower() == meta.MetaType);                        
                         if (metaMapping != null && !string.IsNullOrEmpty(metaMapping.RegexExpression))
                         {
                             checkReg = true;
@@ -585,7 +592,8 @@ namespace EpgIngest
                         }
 
                         // get all relevant language 
-                        List<MetaValues> metaValues = meta.MetaValues.Where(x => x.lang.ToLower() == language).ToList();
+                        List<MetaValues> metaValues = meta.MetaValues.Where(x => x.lang.ToLower() == language).ToList();                        
+
                         foreach (MetaValues value in metaValues)
                         {
                             if (checkReg)
@@ -794,7 +802,7 @@ namespace EpgIngest
                 foreach (string sGuid in epgDic.Keys)
                 {
                     // get only the main language
-                    KeyValuePair<string, EpgCB> epg = epgDic[sGuid].Where(x => x.Key == mainLlanguage).FirstOrDefault();
+                    KeyValuePair<string, EpgCB> epg = epgDic[sGuid].FirstOrDefault(x => x.Key == mainLlanguage);
 
                     if (string.IsNullOrEmpty(epg.Key) || epg.Value == null)
                     {
@@ -864,7 +872,7 @@ namespace EpgIngest
 
                 Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs = new Dictionary<KeyValuePair<string, int>, List<string>>();// new tag values and the EPGs that have them
                 //return relevant tag value ID, if they exist in the DB
-                Dictionary<int, List<KeyValuePair<string, int>>> tagTypeIdWithValueFromDB = getTagTypeWithRelevantValues(groupID, FieldEntityMappingTags, tagsAndValuesOfEPGs);
+                Dictionary<int, List<KeyValuePair<string, int>>> tagTypeIdWithValueFromDB = getTagTypeWithRelevantValues(groupID, FieldEntityMappingTags, tagsAndValuesOfEPGs);                
 
                 //update all values that already exsits in table
                 UpdateEPG_Channels_sched(ref epgDic, publishDate, channelID);
@@ -1038,25 +1046,24 @@ namespace EpgIngest
         /*Build epgMeta datatable to insert it later to db*/
         private void UpdateMetasPerEPG(ref DataTable dtEpgMetas, EpgCB epg, List<FieldTypeEntity> FieldEntityMappingMetas, int nUpdaterID)
         {
-            List<FieldTypeEntity> metaField = new List<FieldTypeEntity>();
+            FieldTypeEntity metaField = new FieldTypeEntity();
             LanguageObj oLanguage = lLanguage.FirstOrDefault<LanguageObj>(x => x.Code.ToLower() == epg.Language.ToLower());
             foreach (string sMetaName in epg.Metas.Keys)
             {
-                metaField = FieldEntityMappingMetas.Where(x => x.Name == sMetaName).ToList();
-                int nID = 0;
-                if (metaField != null && metaField.Count > 0)
+                metaField = FieldEntityMappingMetas.FirstOrDefault(x => x.Name == sMetaName);
+                if (metaField != null)
                 {
-                    nID = metaField[0].ID;
                     if (epg.Metas[sMetaName].Count > 0)
                     {
                         string sValue = epg.Metas[sMetaName][0];
-                        InitTables.FillEpgExtraDataTable(ref dtEpgMetas, true, sValue, epg.EpgID, nID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow, oLanguage.ID);
+                        InitTables.FillEpgExtraDataTable(ref dtEpgMetas, true, sValue, epg.EpgID, metaField.ID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow, oLanguage.ID);
                     }
                 }
                 else
                 {   //missing meta definition in DB (in FieldEntityMapping)
                     log.Debug("UpdateMetasPerEPG - " + string.Format("Missing Meta Definition in FieldEntityMapping of Meta:{0} in EPG:{1}", sMetaName, epg.EpgID));
                 }
+
                 metaField = null;
             }
         }
