@@ -24,6 +24,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -156,6 +157,10 @@
       <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
@@ -247,6 +252,10 @@
     <ProjectReference Include="..\ScheduledPurchaseHandler\ScheduledPurchaseHandler.csproj">
       <Project>{7bfdf68c-5a48-4d5e-bc2a-ca98650ee71a}</Project>
       <Name>ScheduledPurchaseHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SegmentationTaskHandler\SegmentationTaskHandler.csproj">
+      <Project>{785a8e70-b3ee-43b5-9b5a-7bc6eb96ed97}</Project>
+      <Name>SegmentationTaskHandler</Name>
     </ProjectReference>
     <ProjectReference Include="..\SeriesRecordingTaskHandler\SeriesRecordingTaskHandler.csproj">
       <Project>{e30a1b56-81b4-4bac-98b3-c48c74f93188}</Project>
