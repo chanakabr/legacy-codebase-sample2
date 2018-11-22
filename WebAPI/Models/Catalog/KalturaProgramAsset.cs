@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
@@ -29,6 +30,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "epgId")]
         [JsonProperty(PropertyName = "epgId")]
         [XmlElement(ElementName = "epgId")]
+        [SchemeProperty(ReadOnly = true)]
         public string EpgId { get; set; }
 
         /// <summary>
@@ -52,7 +54,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "linearAssetId")]
         [JsonProperty(PropertyName = "linearAssetId")]
-        [XmlElement(ElementName = "linearAssetId")]
+        [XmlElement(ElementName = "linearAssetId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public long? LinearAssetId { get; set; }
 
         /// <summary>
@@ -60,35 +63,46 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "enableCdvr")]
         [JsonProperty(PropertyName = "enableCdvr")]
-        [XmlElement(ElementName = "enableCdvr")]
-        [SchemeProperty(ReadOnly = true)]
-        public bool CdvrEnabled { get; set; }
+        [XmlElement(ElementName = "enableCdvr")]        
+        public bool? CdvrEnabled { get; set; }
 
         /// <summary>
         /// Is catch-up enabled for this asset
         /// </summary>
         [DataMember(Name = "enableCatchUp")]
         [JsonProperty(PropertyName = "enableCatchUp")]
-        [XmlElement(ElementName = "enableCatchUp")]
-        [SchemeProperty(ReadOnly = true)]
-        public bool CatchUpEnabled { get; set; }
+        [XmlElement(ElementName = "enableCatchUp")]        
+        public bool? CatchUpEnabled { get; set; }
 
         /// <summary>
         /// Is start over enabled for this asset
         /// </summary>
         [DataMember(Name = "enableStartOver")]
         [JsonProperty(PropertyName = "enableStartOver")]
-        [XmlElement(ElementName = "enableStartOver")]
-        [SchemeProperty(ReadOnly = true)]
-        public bool StartOverEnabled { get; set; }
+        [XmlElement(ElementName = "enableStartOver")]        
+        public bool? StartOverEnabled { get; set; }
 
         /// <summary>
         /// Is trick-play enabled for this asset
         /// </summary>
         [DataMember(Name = "enableTrickPlay")]
         [JsonProperty(PropertyName = "enableTrickPlay")]
-        [XmlElement(ElementName = "enableTrickPlay")]
-        [SchemeProperty(ReadOnly = true)]
-        public bool TrickPlayEnabled { get; set; }
+        [XmlElement(ElementName = "enableTrickPlay")]        
+        public bool? TrickPlayEnabled { get; set; }
+
+        internal override void ValidateForInsert()
+        {
+            base.ValidateForInsert();
+
+            if (!EpgChannelId.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "epgChannelId");
+            }
+
+            if (string.IsNullOrEmpty(Crid))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "crid");
+            }
+        }
     }
 }

@@ -234,6 +234,52 @@ namespace WebAPI.Models.General
         {
 
         }
+
+        /// <summary>
+        /// Convert comma separated string to collection.
+        /// </summary>
+        /// <typeparam name="U">Collection of T</typeparam>
+        /// <typeparam name="T">Type of items in collection</typeparam>
+        /// <param name="itemsIn">Comma separated string</param>
+        /// <param name="propertyName">The property name of comma separated string (for error message)</param>
+        /// <returns></returns>
+        internal U GetItemsIn<U, T>(string itemsIn, string propertyName) where T : IConvertible where U : ICollection<T>
+        {
+            U values = Activator.CreateInstance<U>();
+
+            if (!string.IsNullOrEmpty(itemsIn))
+            {
+                string[] stringValues = itemsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                Type t = typeof(T);
+                foreach (string stringValue in stringValues)
+                {
+                    T value;
+
+                    try
+                    {
+                        value = (T)Convert.ChangeType(stringValue, t);
+                    }
+                    catch (Exception)
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, propertyName);
+                    }
+
+                    if (value != null && !value.Equals(default(T)))
+                    {
+                        if (!values.Contains(value))
+                        {
+                            values.Add(value);
+                        }
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, propertyName);
+                    }
+                }
+            }
+
+            return values;
+        }
     }
 
     /// <summary>

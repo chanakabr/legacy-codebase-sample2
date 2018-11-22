@@ -7103,6 +7103,11 @@
             groupBy
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter.GroupByOrder">
+            <summary>
+            order by of grouping
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaPersonalListSearchFilter.PartnerListTypeIn">
             <summary>
             Comma separated list of partner list types to search within. 
@@ -11674,6 +11679,16 @@
             Base class
             </summary>
         </member>
+        <member name="M:WebAPI.Models.General.KalturaOTTObject.GetItemsIn``2(System.String,System.String)">
+            <summary>
+            Convert comma separated string to collection.
+            </summary>
+            <typeparam name="U">Collection of T</typeparam>
+            <typeparam name="T">Type of items in collection</typeparam>
+            <param name="itemsIn">Comma separated string</param>
+            <param name="propertyName">The property name of comma separated string (for error message)</param>
+            <returns></returns>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaOTTFile">
             <summary>
             Base class
@@ -14773,6 +14788,13 @@
             <param name="argument">Argument name</param>
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
+        </member>
+        <member name="M:WebAPI.Utils.SerializationUtils.ConvertToUnixTimestamp(System.String)">
+            <summary>
+            convert string to dateTime in format dd/MM/yyyy HH:mm:ss
+            </summary>
+            <param name="date"></param>
+            <returns></returns>
         </member>
         <member name="M:ObjectsConvertor.Mapping.UsersMappings.ConvertUserAssetsListType(Core.Users.ListType)">
             <summary>

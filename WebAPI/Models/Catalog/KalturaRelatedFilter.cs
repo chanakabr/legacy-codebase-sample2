@@ -47,27 +47,9 @@ namespace WebAPI.Models.Catalog
 
         internal List<int> getTypeIn()
         {
-            if (string.IsNullOrEmpty(TypeIn))
-                return null;
-
-            List<int> values = new List<int>();
-            string[] stringValues = TypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string stringValue in stringValues)
-            {
-                int value;
-                if (int.TryParse(stringValue, out value))
-                {
-                    values.Add(value);
-                }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaRelatedFilter.typeIn");
-                }
-            }
-
-            return values;
+            return this.GetItemsIn<List<int>, int>(TypeIn, "KalturaRelatedFilter.typeIn");
         }
-        
+
         internal override void Validate()
         {
             if (!IdEqual.HasValue)

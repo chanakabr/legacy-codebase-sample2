@@ -213,8 +213,10 @@ namespace WebAPI.Models.Catalog
             }
         }
 
-        internal void ValidateForUpdate()
+        internal override void ValidateForUpdate()
         {
+            base.ValidateForUpdate();
+
             if (ExternalEpgIngestId != null && ExternalEpgIngestId == string.Empty)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalEpgIngestId");

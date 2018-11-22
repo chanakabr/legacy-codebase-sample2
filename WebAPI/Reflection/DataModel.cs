@@ -763,6 +763,8 @@ namespace WebAPI.Reflection
                     {
                         case "GroupBy":
                             return "groupBy";
+                        case "GroupByOrder":
+                            return "groupOrderBy";
                         case "Ksql":
                             return "kSql";
                     }

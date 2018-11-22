@@ -151,27 +151,18 @@ namespace WebAPI.Models.General
         {
             if(Values != null && Values.Count > 0)
             {
-                KalturaTranslationToken token;
-                IEnumerable<KalturaTranslationToken> tokens = Values.Where(translation => translation.Language.Equals(RequestLanguageCode));
-                if (tokens != null && tokens.Count() > 0)
+                KalturaTranslationToken token = Values.FirstOrDefault(translation => translation.Language.Equals(RequestLanguageCode));
+                if (token != null)
                 {
-                    token = tokens.First();
-                    if (token != null)
-                    {
-                        return token.Value;
-                    }
+                    return token.Value;
                 }
 
                 if (GroupDefaultLanguageCode != null && !GroupDefaultLanguageCode.Equals(RequestLanguageCode))
                 {
-                    tokens = Values.Where(translation => translation.Language.Equals(GroupDefaultLanguageCode));
-                    if (tokens != null && tokens.Count() > 0)
+                    token = Values.FirstOrDefault(translation => translation.Language.Equals(GroupDefaultLanguageCode));
+                    if (token != null)
                     {
-                        token = tokens.First();
-                        if (token != null)
-                        {
-                            return token.Value;
-                        }
+                        return token.Value;
                     }
                 }
             }
@@ -253,8 +244,7 @@ namespace WebAPI.Models.General
                 }
             }
         }
-
-
+        
         public string ToCustomJson(Version currentVersion, bool omitObsolete, string propertyName)
         {
             string ret = null;

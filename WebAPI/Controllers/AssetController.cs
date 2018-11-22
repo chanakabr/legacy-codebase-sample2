@@ -152,7 +152,7 @@ namespace WebAPI.Controllers
         {
             KalturaAssetListResponse response = null;
 
-            KS ks = KS.GetFromRequest();            
+            KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
             string userID = ks.UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -188,11 +188,11 @@ namespace WebAPI.Controllers
                 }
                 //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
-                {                    
+                {
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
 
                     if (filter is KalturaSearchAssetListFilter && ((KalturaSearchAssetListFilter)filter).ExcludeWatched)
-                    {                        
+                    {
                         if (pager.getPageIndex() > 0)
                         {
                             throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
@@ -219,7 +219,7 @@ namespace WebAPI.Controllers
                         bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
                         response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.Ksql,
                             regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy,
-                            regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets);
+                            regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, regularAssetFilter.GroupByOrder);
                     }
                 }
 
@@ -292,7 +292,7 @@ namespace WebAPI.Controllers
                 }
                 // Returns assets that belong to a channel
                 else if (filter is KalturaChannelFilter)
-                {                    
+                {
                     KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
                     if (channelFilter.ExcludeWatched)
                     {
@@ -327,7 +327,7 @@ namespace WebAPI.Controllers
                 else if (filter is KalturaScheduledRecordingProgramFilter)
                 {
                     KalturaScheduledRecordingProgramFilter scheduledRecordingFilter = (KalturaScheduledRecordingProgramFilter)filter;
-                    response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(groupId, userID, domainId, udid, language, scheduledRecordingFilter.ConvertChannelsIn(), pager.getPageIndex(), 
+                    response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(groupId, userID, domainId, udid, language, scheduledRecordingFilter.ConvertChannelsIn(), pager.getPageIndex(),
                         pager.getPageSize(), scheduledRecordingFilter.StartDateGreaterThanOrNull, scheduledRecordingFilter.EndDateLessThanOrNull, scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual,
                         scheduledRecordingFilter.DynamicOrderBy);
                 }
@@ -362,7 +362,7 @@ namespace WebAPI.Controllers
         [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
         static public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
-            KalturaAsset response = null;            
+            KalturaAsset response = null;
 
             if (string.IsNullOrEmpty(id))
             {
@@ -375,7 +375,7 @@ namespace WebAPI.Controllers
                 int groupId = ks.GroupId;
                 string userID = ks.UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                string language = Utils.Utils.GetLanguageFromRequest();                
+                string language = Utils.Utils.GetLanguageFromRequest();
 
                 switch (assetReferenceType)
                 {
@@ -388,7 +388,7 @@ namespace WebAPI.Controllers
                             }
 
                             bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
-                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);                          
+                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);
                         }
 
                         break;
@@ -1052,7 +1052,7 @@ namespace WebAPI.Controllers
             {
                 KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                 response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.Ksql,
-                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList);
+                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList, filter.GroupByOrder);
             }
             catch (ClientException ex)
             {
@@ -1107,7 +1107,7 @@ namespace WebAPI.Controllers
         /// <param name="asset">Asset object</param>
         /// <returns></returns>
         [Action("add")]
-        [ApiAuthorize]                
+        [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
         [Throws(eResponseStatus.InvalidMetaType)]
@@ -1119,49 +1119,9 @@ namespace WebAPI.Controllers
             KalturaAsset response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
-            if (asset.Name == null || asset.Name.Values == null || asset.Name.Values.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            }
 
-            asset.Name.Validate("multilingualName");
+            asset.ValidateForInsert();
 
-            if (asset.Description != null && asset.Description.Values != null && asset.Description.Values.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
-            }
-
-            if (asset.Description != null)
-            {
-                asset.Description.Validate("multilingualDescription");
-            }
-
-            if (!asset.Type.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
-            }
-
-            if (string.IsNullOrEmpty(asset.ExternalId))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
-            }
-
-            asset.ValidateMetas();
-            asset.ValidateTags();
-
-            Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
-            if ((kalturaMediaAssetType.IsAssignableFrom(asset.GetType())) && !(asset as KalturaMediaAsset).Status.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
-            }
-
-            Type kalturaLinearMediaAssetType = typeof(KalturaLiveAsset);
-            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
-            {
-                KalturaLiveAsset linearAsset = asset as KalturaLiveAsset;
-                linearAsset.ValidateForInsert();
-            }
-            
             try
             {
                 response = ClientsManager.CatalogClient().AddAsset(groupId, asset, userId);
@@ -1182,7 +1142,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("delete")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AssetDoesNotExist)]        
+        [Throws(eResponseStatus.AssetDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
@@ -1225,42 +1185,8 @@ namespace WebAPI.Controllers
             KalturaAsset response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
-            if (asset.Name != null)
-            {
-                if ((asset.Name.Values == null || asset.Name.Values.Count == 0))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-                }
-                else
-                {
-                    asset.Name.Validate("multilingualName");
-                }
-            }
 
-            if (asset.Description != null)
-            {
-                if ((asset.Description.Values == null || asset.Description.Values.Count == 0))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
-                }
-                else
-                {
-                    asset.Description.ValidateForUpdate("multilingualDescription");
-                }
-            }
-
-            if (asset.ExternalId != null && asset.ExternalId == string.Empty)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
-            }
-
-            asset.ValidateMetas();
-            asset.ValidateTags();
-
-            if (asset is KalturaLiveAsset)
-            {
-                (asset as KalturaLiveAsset).ValidateForUpdate();
-            }
+            asset.ValidateForUpdate();
 
             try
             {

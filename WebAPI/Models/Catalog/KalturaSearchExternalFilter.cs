@@ -82,20 +82,7 @@ namespace WebAPI.Models.Catalog
 
         internal List<string> convertQueryToList()
         {
-            if (string.IsNullOrEmpty(Query))
-                return null;
-
-            string[] stringValues = Query.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string stringValue in stringValues)
-            {
-                if (string.IsNullOrEmpty(stringValue))
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSearchExternalFilter.query");
-                }
-            }
-
-            return stringValues.ToList();
+            return this.GetItemsIn<List<string>, string>(Query, "KalturaSearchExternalFilter.query");
         }
-
     }
 }

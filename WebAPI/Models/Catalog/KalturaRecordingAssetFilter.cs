@@ -48,22 +48,7 @@ namespace WebAPI.Models.Catalog
 
         public List<long> ConvertChannelsIn()
         {
-            List<long> channelsIds = new List<long>();
-            if (!string.IsNullOrEmpty(ChannelsIn))
-            {
-                string[] splitChannels = ChannelsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);                
-                foreach (string channelId in splitChannels)
-                {
-                    long parsedChannelId;
-                    if (long.TryParse(channelId, out parsedChannelId) && parsedChannelId > 0)
-                    {
-                        channelsIds.Add(parsedChannelId);
-                    }
-                }
-            }
-
-            return channelsIds;
-
+            return this.GetItemsIn<List<long>, long>(ChannelsIn, "KalturaScheduledRecordingProgramFilter.ChannelsIn");
         }
     }
 }
