@@ -65,8 +65,13 @@ namespace WebAPI.Utils
         public static long ConvertToUnixTimestamp(string date)
         {
             string dateFormat = "dd/MM/yyyy HH:mm:ss";
-            DateTime formattedDate = DateTime.ParseExact(date, dateFormat, null);
-            return ConvertToUnixTimestamp(formattedDate);
+            DateTime formattedDate;
+            if (DateTime.TryParseExact(date, dateFormat, null, System.Globalization.DateTimeStyles.None, out formattedDate))
+            {
+                return ConvertToUnixTimestamp(formattedDate);
+            }
+
+            return 0;
         }
 
         public static long? ConvertToUnixTimestamp(DateTime? date)
