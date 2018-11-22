@@ -670,6 +670,10 @@ public partial class adm_channels_new : System.Web.UI.Page
         dr_edit_data.Initialize("Editor remarks", "adm_table_header_nbg", "FormInput", "EDITOR_REMARKS", false);
         theRecord.AddRecord(dr_edit_data);
 
+        DataRecordBoolField dr_segmentation_order = new DataRecordBoolField(true);
+        dr_segmentation_order.Initialize("Support segmentation ordering", "adm_table_header_nbg", "FormInput", "SUPPORT_SEGMENT_BASED_ORDERING", false);
+        theRecord.AddRecord(dr_segmentation_order);
+
         DataRecordShortIntField dr_channel_type = new DataRecordShortIntField(false, 3, 3);
         dr_channel_type.Initialize("Channel type", "adm_table_header_nbg", "FormInput", "CHANNEL_TYPE", false);
         if (int.Parse(Session["channel_type"].ToString()) == 1)

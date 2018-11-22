@@ -556,6 +556,10 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         dr_groupBy.Initialize("Group By (Meta or Tag)", "adm_table_header_nbg", "FormInput", "group_by", false);
         theRecord.AddRecord(dr_groupBy);
 
+        DataRecordBoolField dr_segmentation_order = new DataRecordBoolField(true);
+        dr_segmentation_order.Initialize("Support segmentation ordering", "adm_table_header_nbg", "FormInput", "SUPPORT_SEGMENT_BASED_ORDERING", false);
+        theRecord.AddRecord(dr_segmentation_order);
+
         DataRecordShortIntField dr_channel_type = new DataRecordShortIntField(false, 3, 3);
         dr_channel_type.Initialize("Channel type", "adm_table_header_nbg", "FormInput", "CHANNEL_TYPE", false);
         dr_channel_type.SetValue("4");
