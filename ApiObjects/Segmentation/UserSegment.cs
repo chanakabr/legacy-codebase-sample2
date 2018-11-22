@@ -334,6 +334,11 @@ namespace ApiObjects.Segmentation
         {
             bool result = true;
 
+            if (usersSegments == null || usersSegments.Count == 0)
+            {
+                return true;
+            }
+
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
             foreach (string userId in usersSegments.Keys)
