@@ -1,4 +1,4 @@
-﻿FROM microsoft/iis
+﻿FROM microsoft/iis:windowsservercore-1803
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 
 RUN Install-WindowsFeature NET-Framework-45-ASPNET
