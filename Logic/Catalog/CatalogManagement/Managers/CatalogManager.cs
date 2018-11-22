@@ -20,7 +20,8 @@ namespace Core.Catalog.CatalogManagement
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-        public const string LINEAR_ASSET_STRUCT_SYSTEM_NAME = "Linear";
+        public const string LINEAR_ASSET_STRUCT_SYSTEM_NAME = "Program";
+        public const string PROGRAM_ASSET_STRUCT_SYSTEM_NAME = "Linear";
         private const string TITLE_META_NAME = "Title";
         private const string EPG_TITLE_META_NAME = "Name";
         private const string DESCRIPTION_META_NAME = "Description";
