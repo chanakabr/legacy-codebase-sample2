@@ -235,5 +235,10 @@ namespace WebAPI.Utils
             return APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS);
         }
 
+        internal static bool GetAbortOnErrorFromRequest()
+        {
+            var abortOnError= HttpContext.Current.Items[RequestParser.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR];
+            return abortOnError != null ? (bool)abortOnError : false;
+        }
     }
 }

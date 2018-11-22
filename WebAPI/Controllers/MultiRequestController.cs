@@ -375,6 +375,7 @@ namespace WebAPI.Controllers
             int abortingRequestIndex = 0;
             bool isPreviousErrorOccurred = false;
             bool isAnyErrorOccurred = false;
+            bool globalAbortOnError = Utils.Utils.GetAbortOnErrorFromRequest();
 
             for (int i = 0; i < request.Count(); i++)
             {
@@ -441,7 +442,7 @@ namespace WebAPI.Controllers
 
                 responses[i] = response;
 
-                if (!needToAbortRequest && request[i].AbortAllOnError && isPreviousErrorOccurred)
+                if (!needToAbortRequest && (request[i].AbortAllOnError || globalAbortOnError) && isPreviousErrorOccurred)
                 {
                     needToAbortRequest = true;
                     abortingRequestIndex = i;
