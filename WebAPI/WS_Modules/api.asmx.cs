@@ -4283,6 +4283,23 @@ namespace WS_API
         }
 
         [WebMethod]
+        public bool IncrementLayeredCacheGroupConfigVersion(string sWSUserName, string sWSPassword)
+        {
+            bool response = false;
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                response = Core.Api.Module.IncrementLayeredCacheGroupConfigVersion(groupId);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
+        [WebMethod]
         public ApiObjects.DrmAdapterResponse SendDrmAdapterConfiguration(string sWSUserName, string sWSPassword, int adapterID)
         {
             int groupId = GetGroupID(sWSUserName, sWSPassword);
