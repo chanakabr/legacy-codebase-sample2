@@ -367,6 +367,7 @@ namespace ApiObjects.Segmentation
                     // segment is valid until proved othersise
                     bool validSegmentId = true;
 
+                    /*
                     long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
 
                     var segmentationTypes = SegmentationType.List(groupId, new List<long>() { segmentationTypeId }, 0, 1000, out totalCount);
@@ -412,6 +413,25 @@ namespace ApiObjects.Segmentation
                             });
                         }
                     }
+                    */
+
+                    // just update update date if segment exists for user
+                    if (userSegments.Segments.ContainsKey(segmentId))
+                    {
+                        userSegments.Segments[segmentId].UpdateDate = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        // otherwise create full object
+                        userSegments.Segments.Add(segmentId, new UserSegment()
+                        {
+                            CreateDate = DateTime.UtcNow,
+                            UpdateDate = DateTime.UtcNow,
+                            GroupId = groupId,
+                            UserId = userId,
+                            SegmentId = segmentId
+                        });
+                    }
                 }
 
                 // cleanup invalid and expired segments
@@ -420,11 +440,9 @@ namespace ApiObjects.Segmentation
 
                 bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
 
-                result &= setResult;
-
                 if (!setResult)
                 {
-                    log.ErrorFormat("Error updating user segments.");
+                    log.ErrorFormat("Error updating user segments. userId:{0} ", userId);
                     continue;
                 }
             }
