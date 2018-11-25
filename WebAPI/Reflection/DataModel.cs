@@ -13,6 +13,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
+using WebAPI.Models.MultiRequest;
 using WebAPI.Models.General;
 using WebAPI.Models.Notifications;
 using WebAPI.Models.Notification;
@@ -29,7 +30,6 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
-using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Reflection
 {
@@ -82,6 +82,14 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Type":
                             return "type";
+                    }
+                    break;
+                    
+                case "KalturaAggregatedPropertySkipCondition":
+                    switch(property.Name)
+                    {
+                        case "AggregationType":
+                            return "aggregationType";
                     }
                     break;
                     

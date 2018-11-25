@@ -8588,6 +8588,16 @@
             The value on which the condition is checked
             </summary>
         </member>
+        <member name="T:WebAPI.Models.MultiRequest.KalturaAggregatedPropertySkipCondition">
+            <summary>
+            Skips current request according to aggregation condition on given property 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.MultiRequest.KalturaAggregatedPropertySkipCondition.AggregationType">
+            <summary>
+            The aggregation type on which the condition is based on
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.MultiRequest.KalturaMultiRequestAction.AbortAllOnError">
             <summary>
             Abort all following requests if current request has an error

@@ -9,6 +9,7 @@ using WebAPI.Filters;
 using WebAPI.Reflection;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
+using WebAPI.Models.MultiRequest;
 using WebAPI.Models.General;
 using WebAPI.Models.Notifications;
 using WebAPI.Models.Notification;
@@ -24,7 +25,6 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
-using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Reflection
 {
@@ -54,6 +54,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAdsSource":
                     return new KalturaAdsSource(parameters);
+                    
+                case "KalturaAggregatedPropertySkipCondition":
+                    return new KalturaAggregatedPropertySkipCondition(parameters);
                     
                 case "KalturaAggregationCountFilter":
                     return new KalturaAggregationCountFilter(parameters);
@@ -5575,6 +5578,63 @@ namespace WebAPI.Models.Social
                     {
                         NetworkStatus = buildList(typeof(KalturaNetworkActionStatus), parameters["failStatus"] as object[]);
                     }
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models.MultiRequest
+{
+    public partial class KalturaAggregatedPropertySkipCondition
+    {
+        public KalturaAggregatedPropertySkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("aggregationType") && parameters["aggregationType"] != null)
+                {
+                    AggregationType = (KalturaAggregationType) Enum.Parse(typeof(KalturaAggregationType), parameters["aggregationType"].ToString(), true);
+                }
+            }
+        }
+    }
+    public partial class KalturaPropertySkipCondition
+    {
+        public KalturaPropertySkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("propertyPath") && parameters["propertyPath"] != null)
+                {
+                    PropertyPath = (String) Convert.ChangeType(parameters["propertyPath"], typeof(String));
+                }
+                if (parameters.ContainsKey("operator") && parameters["operator"] != null)
+                {
+                    Operator = (KalturaSkipOperators) Enum.Parse(typeof(KalturaSkipOperators), parameters["operator"].ToString(), true);
+                }
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaSkipCondition
+    {
+        public KalturaSkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSkipOnErrorCondition
+    {
+        public KalturaSkipOnErrorCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("condition") && parameters["condition"] != null)
+                {
+                    Condition = (KalturaSkipOptions) Enum.Parse(typeof(KalturaSkipOptions), parameters["condition"].ToString(), true);
                 }
             }
         }
@@ -15118,23 +15178,23 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute ProtectionPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -15549,23 +15609,23 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute AssetIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         private static RuntimeSchemePropertyAttribute AssetFileIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         public KalturaAssetFilePpvFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -23419,50 +23479,6 @@ namespace WebAPI.Models.Api
                     {
                         PersonalListList = buildList(typeof(KalturaPersonalList), parameters["objects"] as object[]);
                     }
-                }
-            }
-        }
-    }
-}
-
-namespace WebAPI.Models.MultiRequest
-{
-    public partial class KalturaPropertySkipCondition
-    {
-        public KalturaPropertySkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("propertyPath") && parameters["propertyPath"] != null)
-                {
-                    PropertyPath = (String) Convert.ChangeType(parameters["propertyPath"], typeof(String));
-                }
-                if (parameters.ContainsKey("operator") && parameters["operator"] != null)
-                {
-                    Operator = (KalturaSkipOperators) Enum.Parse(typeof(KalturaSkipOperators), parameters["operator"].ToString(), true);
-                }
-                if (parameters.ContainsKey("value") && parameters["value"] != null)
-                {
-                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
-                }
-            }
-        }
-    }
-    public partial class KalturaSkipCondition
-    {
-        public KalturaSkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
-    public partial class KalturaSkipOnErrorCondition
-    {
-        public KalturaSkipOnErrorCondition(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("condition") && parameters["condition"] != null)
-                {
-                    Condition = (KalturaSkipOptions) Enum.Parse(typeof(KalturaSkipOptions), parameters["condition"].ToString(), true);
                 }
             }
         }

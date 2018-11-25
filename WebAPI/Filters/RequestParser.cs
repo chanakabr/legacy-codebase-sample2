@@ -859,8 +859,7 @@ namespace WebAPI.Filters
                                 skipConditionType = typeof(KalturaPropertySkipCondition);
                                 break;
                             case "KalturaAggregatedPropertySkipCondition":
-                                // TODO SHIR - add KalturaSkipCondition types
-                                //skipConditionType = typeof(KalturaAggregatedPropertySkipCondition);
+                                skipConditionType = typeof(KalturaAggregatedPropertySkipCondition);
                                 break;
                         }
 
