@@ -35,8 +35,9 @@ namespace WebAPI.Controllers
     public class MultiRequestController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static Dictionary<Type, Dictionary<string, PropertyInfo>> typesToPropertyInfosMap = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
 
-        static private object translateToken(object parameter, List<string> tokens)
+        static private object translateToken(object parameter, List<string> tokens, out Type propertyType)
         {
             string token = tokens.ElementAt(0);
             tokens.RemoveAt(0);
@@ -46,6 +47,8 @@ namespace WebAPI.Controllers
                 throw new RequestParserException();
 
             Type parameterType = parameter.GetType();
+            propertyType = parameterType;
+
             if (parameterType.IsArray)
             {
                 int index;
@@ -78,69 +81,60 @@ namespace WebAPI.Controllers
                     }
                     
                     List<object> valueList = new List<object>();
-                    // item1 = value, item2 = condition
-                    Dictionary<Type, Tuple<PropertyInfo, PropertyInfo>> typesToPropertyInfosMap = new Dictionary<Type, Tuple<PropertyInfo, PropertyInfo>>();
                     Dictionary<Type, object> typesToConditionValueMap = new Dictionary<Type, object>();
+                    object conditionValue = null;
+                    KalturaSkipOperators skipOperator = KalturaSkipOperators.Equal;
 
                     foreach (var item in parametersList)
                     {
                         Type itemType = item.GetType();
+
                         if (!typesToPropertyInfosMap.ContainsKey(itemType))
                         {
+                            typesToPropertyInfosMap.Add(itemType, new Dictionary<string, PropertyInfo>());
+                        }
+
+                        if (!typesToPropertyInfosMap[itemType].ContainsKey(propertyValueName))
+                        {
                             PropertyInfo propertyInfoValue = GetPropertyInfo(itemType, propertyValueName);
-                            PropertyInfo propertyInfoCoindition = null;
-                            if (matchCondition.Success)
+                            if (propertyInfoValue != null)
                             {
-                                propertyInfoCoindition = GetPropertyInfo(itemType, conditionPropertyName);
+                                typesToPropertyInfosMap[itemType].Add(propertyValueName, propertyInfoValue);
+                            }   
+                        }
+
+                        if (!typesToPropertyInfosMap[itemType].ContainsKey(propertyValueName))
+                            continue;
+
+                        object checkValue = null;
+                        
+                        if (matchCondition.Success)
+                        {
+                            if (!typesToPropertyInfosMap[itemType].ContainsKey(conditionPropertyName))
+                            {
+                                PropertyInfo propertyInfoCoindition = GetPropertyInfo(itemType, conditionPropertyName);
                                 if (propertyInfoCoindition != null)
                                 {
-                                    Type conditionType = Nullable.GetUnderlyingType(propertyInfoCoindition.PropertyType);
-                                    if (conditionType == null)
-                                    {
-                                        conditionType = propertyInfoCoindition.PropertyType;
-                                    }
-
-                                    if ((operatorValue.Equals("<") || operatorValue.Equals(">")) && !CanUseGreaterOrLessThanOperator(conditionType))
-                                    {
-                                        throw new RequestParserException(RequestParserException.INVALID_OPERATOR, operatorValue, conditionType.Name);
-                                    }
-
-                                    object conditionConvertedValue = TryConvertTo(conditionType, conditionValueToConvert);
-
-                                    if (conditionConvertedValue == null)
-                                    {
-                                        throw new RequestParserException(RequestParserException.INVALID_CONDITION_VALUE, conditionValueToConvert, conditionType.Name);
-                                    }
-
-                                    typesToConditionValueMap.Add(itemType, conditionConvertedValue);
+                                    typesToPropertyInfosMap[itemType].Add(conditionPropertyName, propertyInfoCoindition);
                                 }
                             }
 
-                            typesToPropertyInfosMap.Add(itemType, new Tuple<PropertyInfo, PropertyInfo>(propertyInfoValue, propertyInfoCoindition));
-                        }
-
-                        if (typesToPropertyInfosMap[itemType].Item1 == null)
-                        {
-                            continue;
-                        }
-                        
-                        object checkValue = null;
-                        object conditionValue = null;
-                        if (matchCondition.Success)
-                        {
-                            if (typesToPropertyInfosMap[itemType].Item2 == null)
-                            {
+                            if (!typesToPropertyInfosMap[itemType].ContainsKey(conditionPropertyName))
                                 continue;
+
+                            if (conditionValue == null)
+                            {
+                                skipOperator = ConvertToKalturaSkipOperators(operatorValue);
+                                conditionValue = GetConvertedValue(itemType, conditionPropertyName, skipOperator, conditionValueToConvert);
                             }
                             
-                            checkValue = typesToPropertyInfosMap[itemType].Item2.GetValue(item);
-                            conditionValue = typesToConditionValueMap[itemType];
+                            checkValue = typesToPropertyInfosMap[itemType][conditionPropertyName].GetValue(item);
                         }
-
-                        var value = typesToPropertyInfosMap[itemType].Item1.GetValue(item);
+                        
+                        var value = typesToPropertyInfosMap[itemType][propertyValueName].GetValue(item);
                         if (value != null)
                         {
-                            if (!matchCondition.Success || CheckCondition(operatorValue, checkValue, conditionValue))
+                            if (!matchCondition.Success || CheckCondition(skipOperator, checkValue, conditionValue))
                             {
                                 valueList.Add(value);
                             }
@@ -180,7 +174,18 @@ namespace WebAPI.Controllers
                     string name = DataModel.getApiName(property);
                     if (!token.Equals(name, StringComparison.CurrentCultureIgnoreCase))
                         continue;
+                    
+                    if (!typesToPropertyInfosMap.ContainsKey(parameterType))
+                    {
+                        typesToPropertyInfosMap.Add(parameterType, new Dictionary<string, PropertyInfo>());
+                    }
 
+                    if (!typesToPropertyInfosMap[parameterType].ContainsKey(name))
+                    {
+                        typesToPropertyInfosMap[parameterType].Add(name, property);
+                    }
+
+                    propertyType = property.PropertyType;
                     result = property.GetValue(parameter);
                     found = true;
                     break;
@@ -205,12 +210,12 @@ namespace WebAPI.Controllers
 
             if (tokens.Count > 0)
             {
-                return translateToken(result, tokens);
+                return translateToken(result, tokens, out propertyType);
             }
 
             return result;
         }
-
+        
         private static PropertyInfo GetPropertyInfo(Type type, string propertyName)
         {
             PropertyInfo propertyInfo = type.GetProperties().FirstOrDefault
@@ -219,13 +224,17 @@ namespace WebAPI.Controllers
             return propertyInfo;
         }
 
-        private static bool CanUseGreaterOrLessThanOperator(Type type)
+        private static bool ValidateOperator(Type type, KalturaSkipOperators skipOperator)
         {
-            if (type == null)
+            if (type == null || typeof(IList).IsAssignableFrom(type))
                 return false;
+            
+            if (skipOperator == KalturaSkipOperators.Equal || skipOperator == KalturaSkipOperators.UnEqual)
+            {
+                return true;
+            }
 
             TypeCode typeCode = Type.GetTypeCode(type);
-
             switch (typeCode)
             {
                 case TypeCode.SByte:
@@ -246,7 +255,19 @@ namespace WebAPI.Controllers
             return false;
         }
 
-        private static bool CheckCondition(string operatorValue, dynamic obj1, dynamic obj2)
+        private static KalturaSkipOperators ConvertToKalturaSkipOperators(string operatorValue)
+        {
+            switch (operatorValue)
+            {
+                case "=": return KalturaSkipOperators.Equal;
+                case "!=": return KalturaSkipOperators.UnEqual;
+                case ">": return KalturaSkipOperators.GreaterThan;
+                case "<": return KalturaSkipOperators.LessThan;
+                default: throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "operator", "= , != , > , < ");
+            }
+        }
+
+        private static bool CheckCondition(KalturaSkipOperators skipOperator, dynamic obj1, dynamic obj2)
         {
             if (obj1 == null)
             {
@@ -259,14 +280,46 @@ namespace WebAPI.Controllers
                 obj1 = Activator.CreateInstance(t);
             }
 
-            switch (operatorValue)
+            switch (skipOperator)
             {
-                case "=": return obj1.Equals(obj2);
-                case "!=": return !obj1.Equals(obj2);
-                case ">": return obj1 > obj2;
-                case "<": return obj1 < obj2;
-                default: throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "operator", "= , != , > , < ");
+                case KalturaSkipOperators.Equal: return obj1.Equals(obj2);
+                case KalturaSkipOperators.UnEqual: return !obj1.Equals(obj2);
+                case KalturaSkipOperators.GreaterThan: return obj1 > obj2;
+                case KalturaSkipOperators.LessThan: return obj1 < obj2;
             }
+
+            return false;
+        }
+
+        private static object GetConvertedValue(Type itemType, string propertyName, KalturaSkipOperators skipOperator, string valueToConvert, Type propertyType = null)
+        {
+            if (propertyType != null || typesToPropertyInfosMap.ContainsKey(itemType) && typesToPropertyInfosMap[itemType].ContainsKey(propertyName))
+            {
+                if (propertyType == null)
+                {
+                    propertyType = Nullable.GetUnderlyingType(typesToPropertyInfosMap[itemType][propertyName].PropertyType);
+                    if (propertyType == null)
+                    {
+                        propertyType = typesToPropertyInfosMap[itemType][propertyName].PropertyType;
+                    }
+                }
+                
+                if (!ValidateOperator(propertyType, skipOperator))
+                {
+                    throw new RequestParserException(RequestParserException.INVALID_OPERATOR, skipOperator.ToString(), propertyType.Name);
+                }
+
+                object convertedValue = TryConvertTo(propertyType, valueToConvert);
+                
+                if (convertedValue == null)
+                {
+                    throw new RequestParserException(RequestParserException.INVALID_CONDITION_VALUE, valueToConvert, propertyType.Name);
+                }
+
+                return convertedValue;
+            }
+
+            return null;
         }
 
         private static object TryConvertTo(Type type, string value)
@@ -286,8 +339,9 @@ namespace WebAPI.Controllers
             return null;
         }
 
-        static private object translateMultirequestTokens(object parameter, object[] responses)
+        static private object translateMultirequestTokens(object parameter, object[] responses, out Type propertyType)
         {
+            propertyType = null;
             if (parameter.GetType() == typeof(string))
             {
                 string text = parameter as string;
@@ -307,7 +361,7 @@ namespace WebAPI.Controllers
                     {
                         List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
                         tokens.RemoveAt(0);
-                        translatedValue = translateToken(responses[index], tokens);
+                        translatedValue = translateToken(responses[index], tokens, out propertyType);
                     }
                     else
                     {
@@ -327,7 +381,7 @@ namespace WebAPI.Controllers
                 object[] array = (object[])parameter;
                 foreach (object item in array)
                 {
-                    list.Add(translateMultirequestTokens(item, responses));
+                    list.Add(translateMultirequestTokens(item, responses, out propertyType));
                 }
                 parameter = list.ToArray();
             }
@@ -337,7 +391,7 @@ namespace WebAPI.Controllers
                 JArray array = (JArray)parameter;
                 foreach (object item in array)
                 {
-                    list.Add(translateMultirequestTokens(item, responses));
+                    list.Add(translateMultirequestTokens(item, responses, out propertyType));
                 }
                 parameter = list.ToArray();
             }
@@ -348,7 +402,7 @@ namespace WebAPI.Controllers
 
                 foreach (KeyValuePair<string, object> item in dict)
                 {
-                    result.Add(item.Key, translateMultirequestTokens(item.Value, responses));
+                    result.Add(item.Key, translateMultirequestTokens(item.Value, responses, out propertyType));
                 }
                 parameter = result;
             }
@@ -388,16 +442,21 @@ namespace WebAPI.Controllers
                     continue;
                 }
 
-                if ((isPreviousErrorOccurred && request[i].SkipOnError == KalturaSkipOptions.Previous) || 
-                    (isAnyErrorOccurred && request[i].SkipOnError == KalturaSkipOptions.Any))
+                if (request[i].SkipCondition is KalturaSkipOnErrorCondition)
                 {
-                    var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
-                    responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
-                    isAnyErrorOccurred = true;
-                    continue;
+                    KalturaSkipOnErrorCondition skipOnErrorCondition = request[i].SkipCondition as KalturaSkipOnErrorCondition;
+                    if ((isPreviousErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Previous) ||
+                        (isAnyErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Any))
+                    {
+                        var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
+                        responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
+                        isAnyErrorOccurred = true;
+                        continue;
+                    }
                 }
 
                 isPreviousErrorOccurred = false;
+                Type propertyType;
                 
                 Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
                 if (controller == null)
@@ -410,10 +469,41 @@ namespace WebAPI.Controllers
                 {
                     try
                     {
+                        //if (request[i].SkipCondition is KalturaAggregatedPropertySkipCondition)
+                        //{
+                        //    KalturaPropertySkipCondition propertySkipCondition = request[i].SkipCondition as KalturaPropertySkipCondition;
+                        //    object propertyValue = translateMultirequestTokens(propertySkipCondition.PropertyPath, responses);
+                        //    if (propertyValue != null)
+                        //    {
+
+                        //    }
+                        //}
+                        //string[] stringValues = valueToConvert.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        //Type listType = typeof(List<>).MakeGenericType(propertyType);
+                        //dynamic list = Activator.CreateInstance(listType);
+
+                        //foreach (var item in stringValues)
+                        //{
+                        //    var convertedItem = TryConvertTo(propertyType, item);
+                        //    list.Add((dynamic)convertedItem);
+                        //}
+
+                        //convertedValue = list;
+
+                        if (request[i].SkipCondition is KalturaPropertySkipCondition)
+                        {
+                            if (CheckSkipCondition(request[i].SkipCondition as KalturaPropertySkipCondition, responses))
+                            {
+                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
+                                responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
+                                continue;
+                            }
+                        }
+
                         Dictionary<string, object> parameters = request[i].Parameters;
                         if (i > 0)
                         {
-                            parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses);
+                            parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses, out propertyType);
                         }
                         RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
                         Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
@@ -449,6 +539,31 @@ namespace WebAPI.Controllers
             }
 
             return responses;
+        }
+
+        private static bool CheckSkipCondition(KalturaPropertySkipCondition propertySkipCondition, object[] responses)
+        {
+            Type propertyType;
+            object propertyValue = translateMultirequestTokens(propertySkipCondition.PropertyPath, responses, out propertyType);
+            if (propertyValue != null)
+            {
+                var convertedPropValue = GetConvertedValue(null, null, propertySkipCondition.Operator, propertyValue.ToString(), propertyType);
+                if (convertedPropValue != null)
+                {
+                    Type conditionType;
+                    object conditionValue = translateMultirequestTokens(propertySkipCondition.Value, responses, out conditionType);
+                    if (conditionValue != null)
+                    {
+                        var convertedConditionValue = GetConvertedValue(null, null, propertySkipCondition.Operator, conditionValue.ToString(), propertyType);
+                        if (convertedConditionValue != null && !CheckCondition(propertySkipCondition.Operator, convertedPropValue, convertedConditionValue))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

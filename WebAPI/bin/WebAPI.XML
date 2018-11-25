@@ -8553,6 +8553,46 @@
             Holder object for Catalog With enum
             </summary>    
         </member>
+        <member name="T:WebAPI.Models.MultiRequest.KalturaSkipCondition">
+            <summary>
+            Skip current request according to skip condition
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.MultiRequest.KalturaSkipOnErrorCondition">
+            <summary>
+            Skips current request if an error occurs according to the selected skip option 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.MultiRequest.KalturaSkipOnErrorCondition.Condition">
+            <summary>
+            Indicates which error should be considered to skip the current request
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.MultiRequest.KalturaPropertySkipCondition">
+            <summary>
+            Skips current request according to condition on given property 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.MultiRequest.KalturaPropertySkipCondition.PropertyPath">
+            <summary>
+            The property path on which the condition is checked
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.MultiRequest.KalturaPropertySkipCondition.Operator">
+            <summary>
+            The operator that applies the check to the condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.MultiRequest.KalturaPropertySkipCondition.Value">
+            <summary>
+            The value on which the condition is checked
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.MultiRequest.KalturaMultiRequestAction.AbortAllOnError">
+            <summary>
+            Abort all following requests if current request has an error
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaAssetFilePpv">
             <summary>
             Asset file ppv
@@ -11769,9 +11809,9 @@
             Abort all following requests if current request has an error
             </summary>
         </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.SkipOnError">
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.SkipCondition">
             <summary>
-            Skip current request according to skip option
+            Skip current request according to skip condition
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaSessionType">
@@ -14282,16 +14322,6 @@
         <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementStatus">
             <summary>
             Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.MultiRequest.KalturaMultiRequestAction.AbortAllOnError">
-            <summary>
-            Abort all following requests if current request has an error
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.MultiRequest.KalturaMultiRequestAction.SkipOnError">
-            <summary>
-            skip current request according to skip option
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.AssetIdEqual">

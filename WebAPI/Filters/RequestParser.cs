@@ -815,19 +815,50 @@ namespace WebAPI.Filters
                     BoolUtils.TryConvert(currentRequestParams["abortAllOnError"], out abortAllOnError);
                 }
 
-                KalturaSkipOptions skipOption = KalturaSkipOptions.No;
-                if (currentRequestParams.ContainsKey("skipOnError"))
+                KalturaSkipCondition skipCondition = null; 
+                if (currentRequestParams.ContainsKey("skipCondition"))
                 {
-                    Enum.TryParse<KalturaSkipOptions>(currentRequestParams["skipOnError"].ToString(), true, out skipOption);
+                    Dictionary<string, object> skipConditionParams;
+                    if (currentRequestParams["skipCondition"].GetType() == typeof(JObject) || currentRequestParams["skipCondition"].GetType().IsSubclassOf(typeof(JObject)))
+                    {
+                        skipConditionParams = ((JObject)currentRequestParams["skipCondition"]).ToObject<Dictionary<string, object>>();
+                    }
+                    else
+                    {
+                        skipConditionParams = (Dictionary<string, object>)currentRequestParams["skipCondition"];
+                    }
+
+                    if (skipConditionParams.ContainsKey("objectType"))
+                    {
+                        Type skipConditionType = null;
+                        switch (skipConditionParams["objectType"].ToString())
+                        {
+                            case "KalturaSkipOnErrorCondition":
+                                skipConditionType = typeof(KalturaSkipOnErrorCondition);
+                                break;
+                            case "KalturaPropertySkipCondition":
+                                skipConditionType = typeof(KalturaPropertySkipCondition);
+                                break;
+                            case "KalturaAggregatedPropertySkipCondition":
+                                // TODO SHIR - add KalturaSkipCondition types
+                                //skipConditionType = typeof(KalturaAggregatedPropertySkipCondition);
+                                break;
+                        }
+
+                        if (skipConditionType != null)
+                        {
+                            skipCondition = Deserializer.deserialize(skipConditionType, skipConditionParams) as KalturaSkipCondition;
+                        }
+                    }
                 }
-                
+
                 KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction()
                 {
                     Service = currentRequestParams["service"].ToString(),
                     Action = currentRequestParams["action"].ToString(),
                     Parameters = currentRequestParams,
                     AbortAllOnError = abortAllOnError,
-                    SkipOnError = skipOption
+                    SkipCondition = skipCondition
                 };
                 
                 requests.Add(currentRequest);

@@ -572,6 +572,7 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("description", "Abort all following requests if current request has an error");
             writer.WriteEndElement(); // abortAllOnError
 
+            // TODO SHIR - NEED TO SET THIS?
             writer.WriteStartElement("skipOnError");
             writer.WriteAttributeString("type", "string");
             writer.WriteAttributeString("enumType", "KalturaSkipOptions");

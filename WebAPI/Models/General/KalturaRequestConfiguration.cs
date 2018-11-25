@@ -5,18 +5,10 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Models.General
 {
-    public enum KalturaSkipOptions
-    {
-        No = 0,
-        // Skip current request if previous Request has an error
-        Previous = 1,
-        // Skip current request if any of previous Requests had an error
-        Any = 2
-    }
-
     /// <summary>
     /// Define client request optional configurations
     /// </summary>
@@ -79,17 +71,16 @@ namespace WebAPI.Models.General
         public bool AbortAllOnError { get; set; }
 
         /// <summary>
-        /// Skip current request according to skip option
+        /// Skip current request according to skip condition
         /// </summary>
-        [DataMember(Name = "skipOnError")]
-        [JsonProperty("skipOnError")]
-        [XmlElement(ElementName = "skipOnError")]
-        public KalturaSkipOptions SkipOnError { get; set; }
+        [DataMember(Name = "skipCondition")]
+        [JsonProperty("skipCondition")]
+        [XmlElement(ElementName = "skipCondition")]
+        public KalturaSkipCondition SkipCondition { get; set; }
 
         public KalturaRequestConfiguration()
         {
             AbortAllOnError = false;
-            SkipOnError = KalturaSkipOptions.No;
         }
     }
 }

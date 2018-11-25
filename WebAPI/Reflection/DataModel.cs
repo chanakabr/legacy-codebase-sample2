@@ -29,6 +29,7 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
+using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Reflection
 {
@@ -4268,6 +4269,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPropertySkipCondition":
+                    switch(property.Name)
+                    {
+                        case "Operator":
+                            return "operator";
+                        case "PropertyPath":
+                            return "propertyPath";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
                 case "KalturaPublicCouponGenerationOptions":
                     switch(property.Name)
                     {
@@ -4653,8 +4666,8 @@ namespace WebAPI.Reflection
                             return "partnerId";
                         case "ResponseProfile":
                             return "responseProfile";
-                        case "SkipOnError":
-                            return "skipOnError";
+                        case "SkipCondition":
+                            return "skipCondition";
                         case "UserID":
                             return "userId";
                     }
@@ -4943,6 +4956,14 @@ namespace WebAPI.Reflection
                     {
                         case "Id":
                             return "id";
+                    }
+                    break;
+                    
+                case "KalturaSkipOnErrorCondition":
+                    switch(property.Name)
+                    {
+                        case "Condition":
+                            return "condition";
                     }
                     break;
                     
