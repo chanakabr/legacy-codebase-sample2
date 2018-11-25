@@ -54,41 +54,38 @@ namespace EpgBL
 
         public static void UpdateProgrammeWithMultilingual(ref List<EPGChannelProgrammeObject> result, LanguageObj languageObj, List<EPGChannelProgrammeObject> resultForMultilingual)
         {
-            EPGChannelProgrammeObject multilingualProgrammeObject = null;
-            EPGDictionary multilingualEpgDictionary;
-            EPGDictionary epgDictionary;
-            int epgIndex = 0;
-
             if (resultForMultilingual != null && resultForMultilingual.Count > 0)
             {
                 foreach (var programmeObject in result)
                 {
                     // find epg_id at resultForMultilingual2
-                    multilingualProgrammeObject = resultForMultilingual.Where(x => x.EPG_ID == programmeObject.EPG_ID).First();
+                    EPGChannelProgrammeObject multilingualProgrammeObject = resultForMultilingual.FirstOrDefault(x => x.EPG_ID == programmeObject.EPG_ID);
                     if (multilingualProgrammeObject != null)
                     {
                         programmeObject.ProgrammeName = SetLanguageContainer(programmeObject.ProgrammeName, languageObj, multilingualProgrammeObject.NAME);
                         programmeObject.ProgrammeDescription = SetLanguageContainer(programmeObject.ProgrammeDescription, languageObj, multilingualProgrammeObject.DESCRIPTION);
 
-                        if (programmeObject.EPG_TAGS.Count == multilingualProgrammeObject.EPG_TAGS.Count)
+                        // set Multilingual tags
+                        for (int i = 0; i < programmeObject.EPG_TAGS.Count; i++)
                         {
-                            for (epgIndex = 0; epgIndex < programmeObject.EPG_TAGS.Count; epgIndex++)
+                            EPGDictionary currTag = programmeObject.EPG_TAGS[i];
+                            EPGDictionary currMultilingualTag = multilingualProgrammeObject.EPG_TAGS.FirstOrDefault(x => currTag.Key.Equals(x.Key));
+                            if (!currMultilingualTag.Equals(default(EPGDictionary)))
                             {
-                                epgDictionary = programmeObject.EPG_TAGS[epgIndex];
-                                multilingualEpgDictionary = multilingualProgrammeObject.EPG_TAGS[epgIndex];
-                                epgDictionary.Values = SetLanguageContainer(epgDictionary.Values, languageObj, multilingualEpgDictionary.Value);
-                                programmeObject.EPG_TAGS[epgIndex] = epgDictionary;
+                                currTag.Values = SetLanguageContainer(currTag.Values, languageObj, currMultilingualTag.Value);
+                                programmeObject.EPG_TAGS[i] = currTag;
                             }
                         }
-
-                        if (programmeObject.EPG_Meta.Count == multilingualProgrammeObject.EPG_Meta.Count)
+                        
+                        // set Multilingual Metas
+                        for (int i = 0; i < programmeObject.EPG_Meta.Count; i++)
                         {
-                            for (epgIndex = 0; epgIndex < programmeObject.EPG_Meta.Count; epgIndex++)
+                            EPGDictionary currMeta = programmeObject.EPG_Meta[i];
+                            EPGDictionary currMultilingualMeta = multilingualProgrammeObject.EPG_Meta.FirstOrDefault(x => currMeta.Key.Equals(x.Key));
+                            if (!currMultilingualMeta.Equals(default(EPGDictionary)))
                             {
-                                epgDictionary = programmeObject.EPG_Meta[epgIndex];
-                                multilingualEpgDictionary = multilingualProgrammeObject.EPG_Meta[epgIndex];
-                                epgDictionary.Values = SetLanguageContainer(epgDictionary.Values, languageObj, multilingualEpgDictionary.Value);
-                                programmeObject.EPG_Meta[epgIndex] = epgDictionary;
+                                currMeta.Values = SetLanguageContainer(currMeta.Values, languageObj, currMultilingualMeta.Value);
+                                programmeObject.EPG_Meta[i] = currMeta;
                             }
                         }
                     }
