@@ -136,6 +136,8 @@ namespace WebAPI.Filters
         public const string REQUEST_PATH_DATA = "pathData";
         public const string REQUEST_RESPONSE_PROFILE = "responseProfile";
 
+        public const string MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR= "global_abort_on_error";
+
 
         public static object GetRequestPayload()
         {
@@ -793,7 +795,24 @@ namespace WebAPI.Filters
         {
             List<KalturaMultiRequestAction> requests = new List<KalturaMultiRequestAction>();
             Dictionary<string, object> currentRequestParams;
-            
+
+            // multi request abort on error
+            HttpContext.Current.Items.Remove(MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR);
+            if (requestParams.ContainsKey("abortOnError") && requestParams["abortOnError"] != null)
+            {
+                bool abortOnError;
+                if (requestParams["abortOnError"].GetType() == typeof(JObject) || requestParams["abortOnError"].GetType().IsSubclassOf(typeof(JObject)))
+                {
+                    abortOnError = ((JObject)requestParams["abortOnError"]).ToObject<bool>();
+                }
+                else
+                {
+                    abortOnError = (bool)Convert.ChangeType(requestParams["abortOnError"], typeof(bool));
+                }
+
+                HttpContext.Current.Items.Add(MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR, abortOnError);
+            }
+
             int requestIndex = 0;
             foreach (var param in requestParams)
             {
