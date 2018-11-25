@@ -1010,28 +1010,39 @@ namespace EpgBL
             EPGDictionary dicEpgl;
 
             List<EPGDictionary> lMetas = new List<EPGDictionary>();
-            foreach (string key in epg.Metas.Keys)
+            if (epg.Metas != null && epg.Metas.Count > 0)
             {
-                foreach (string val in epg.Metas[key])
+                foreach (var meta in epg.Metas)
                 {
-                    dicEpgl = new EPGDictionary();
-                    dicEpgl.Key = key;
-                    dicEpgl.Value = val;
-                    lMetas.Add(dicEpgl);
+                    foreach (var value in meta.Value)
+                    {
+                        dicEpgl = new EPGDictionary()
+                        {
+                            Key = meta.Key,
+                            Value = value
+                        };
+                        lMetas.Add(dicEpgl);
+                    }
                 }
             }
-
+            
             List<EPGDictionary> lTags = new List<EPGDictionary>();
-            foreach (string key in epg.Tags.Keys)
+            if (epg.Tags != null && epg.Tags.Count > 0)
             {
-                foreach (string val in epg.Tags[key])
+                foreach (var tag in epg.Tags)
                 {
-                    dicEpgl = new EPGDictionary();
-                    dicEpgl.Key = key;
-                    dicEpgl.Value = val;
-                    lTags.Add(dicEpgl);
+                    foreach (string val in tag.Value)
+                    {
+                        dicEpgl = new EPGDictionary()
+                        {
+                            Key = tag.Key,
+                            Value = val
+                        };
+                        lTags.Add(dicEpgl);
+                    }
                 }
             }
+            
             int nUPDATER_ID = 0;                      //not in use
             DateTime nPUBLISH_DATE = DateTime.UtcNow; //not in use  
             oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"), 
