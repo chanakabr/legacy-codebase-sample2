@@ -20,7 +20,6 @@ namespace Core.Catalog.CatalogManagement
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-        public const string PROGRAM_ASSET_STRUCT_SYSTEM_NAME = "Program";
         public const string LINEAR_ASSET_STRUCT_SYSTEM_NAME = "Linear";
         private const string TITLE_META_NAME = "Title";
         private const string EPG_TITLE_META_NAME = "Name";
@@ -42,7 +41,7 @@ namespace Core.Catalog.CatalogManagement
         private const string EPG_END_DATE_META_NAME = "Program End";
         private const string OPC_UI_METADATA = "metadata";
         private const string OPC_UI_AVAILABILITY = "availability";
-        private const string OPC_UI_TEXTAREA= "textarea";
+        private const string OPC_UI_TEXTAREA = "textarea";
         private const string OPC_UI_READONLY = "readonly";
         private const string OPC_UI_MANDATORY = "mandatory";
 
@@ -188,8 +187,6 @@ namespace Core.Catalog.CatalogManagement
                 string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                 if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName))
                 {
-                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
-                    long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TYPE_ID");
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
                     DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
                     List<LanguageContainer> namesInOtherLanguages = new List<LanguageContainer>();
@@ -212,13 +209,23 @@ namespace Core.Catalog.CatalogManagement
                     {
                         features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
                     }
-                    long connectingMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTING_META_ID");
-                    long connectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID");
-                    string pluralName = ODBCWrapper.Utils.GetSafeStr(dr, "PLURAL_NAME");
-                    result = new AssetStruct(id, name, namesInOtherLanguages, systemName, isPredefined, parentId,
-                                                createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
-                                                updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0,
-                                                features, connectingMetaId, connectedParentMetaId, pluralName);
+
+                    result = new AssetStruct()
+                    {
+                        Id = id,
+                        Name = name,
+                        NamesInOtherLanguages = namesInOtherLanguages,
+                        SystemName = systemName,
+                        IsPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC"),
+                        ParentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TYPE_ID"),
+                        CreateDate = createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
+                        UpdateDate = updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0,
+                        Features = features,
+                        ConnectingMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTING_META_ID"),
+                        ConnectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID"),
+                        PluralName = ODBCWrapper.Utils.GetSafeStr(dr, "PLURAL_NAME"),
+                        IsProgramAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_PROGRAM") == 1
+                    };
                 }
             }
 
@@ -839,7 +846,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (update)
                 {
-                    AssetManager.UpdateAsset(groupId, childAsset.Id, childAsset, userId, false, false);                    
+                    AssetManager.UpdateAsset(groupId, childAsset.Id, childAsset, userId, false, false);
                 }
             }
         }
@@ -1533,7 +1540,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
                     }
-                }                
+                }
 
                 DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName,
                                                           shouldUpdateMetaIds, metaIdsToPriority, userId, assetStructToUpdate.GetCommaSeparatedFeatures(),
@@ -2692,7 +2699,7 @@ namespace Core.Catalog.CatalogManagement
                     case AssetManager.ENTRY_ID_META_SYSTEM_NAME:
                         topicToAdd.Type = MetaType.String;
                         topicToAdd.Features.Add(OPC_UI_METADATA);
-                        break;                                            
+                        break;
                     case AssetManager.STATUS_META_SYSTEM_NAME:
                         topicToAdd.Type = MetaType.Bool;
                         topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
@@ -2711,7 +2718,7 @@ namespace Core.Catalog.CatalogManagement
                 result.Add(topicToAdd);
             }
 
-            return result;    
+            return result;
         }
 
         public static List<Topic> GetBasicProgramTopics()
