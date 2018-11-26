@@ -32,6 +32,9 @@ namespace Core.Catalog.CatalogManagement
         // currently used only for internal use for migration and migrated accounts
         public bool IsLinearAssetStruct { get; set; }
 
+        // currently used only for internal use for migration and migrated accounts
+        public bool IsProgramAssetStruct { get; set; }
+
         public AssetStruct()
         {
             this.Id = 0;
@@ -51,7 +54,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, long parentId,
-            long createDate, long updateDate, HashSet<string> features, long connectingMetaId, long connectedParentMetaId, string pluralName)
+            long createDate, long updateDate, HashSet<string> features, long connectingMetaId, long connectedParentMetaId, string pluralName, bool isProgramAssetStruct)
         {
             this.Id = id;
             this.Name = name;
@@ -67,6 +70,7 @@ namespace Core.Catalog.CatalogManagement
             this.ConnectingMetaId = connectingMetaId;
             this.ConnectedParentMetaId = connectedParentMetaId;
             this.PluralName = pluralName;
+            this.IsProgramAssetStruct = isProgramAssetStruct;
         }
 
         public AssetStruct(AssetStruct assetStructToCopy)
@@ -85,6 +89,7 @@ namespace Core.Catalog.CatalogManagement
             this.ConnectingMetaId = assetStructToCopy.ConnectingMetaId;
             this.ConnectedParentMetaId = assetStructToCopy.ConnectedParentMetaId;
             this.PluralName = assetStructToCopy.PluralName;
+            this.IsProgramAssetStruct = assetStructToCopy.IsProgramAssetStruct;
         }
 
         public string GetCommaSeparatedFeatures()
@@ -142,6 +147,7 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("ConnectingMetaId: {0}, ", ConnectingMetaId.HasValue ? ConnectingMetaId.Value.ToString() : string.Empty);
             sb.AppendFormat("ConnectedParentMetaId: {0}, ", ConnectedParentMetaId.HasValue ? ConnectedParentMetaId.Value.ToString() : string.Empty);
             sb.AppendFormat("PluralName: {0},", PluralName);
+            sb.AppendFormat("IsProgramAssetStruct: {0},", IsProgramAssetStruct);
 
             return sb.ToString();
         }
