@@ -1374,8 +1374,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     assetType = eAssetTypes.MEDIA;
                     break;
                 case KalturaAssetReferenceType.epg_internal:
+                    assetType = eAssetTypes.EPG;
                     break;
                 case KalturaAssetReferenceType.epg_external:
+                    assetType = eAssetTypes.EPG;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Invalid assetType");
