@@ -303,6 +303,24 @@ namespace Core.Catalog.CatalogManagement
                 result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                 //update CB
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgAssetsFromCache", groupId);
+                    return null;
+                }
+
+                List<LanguageObj> languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
+
+                List<EpgCB> epgCbList = EpgDal.GetEpgCBList(epgId, languages);
+
+                foreach (EpgCB epgCB in epgCbList)
+                {
+                    if (!EpgDal.DeleteEpgCB(epgCB, epgCB.Language.Equals(catalogGroupCache.DefaultLanguage.Code)))
+                    {
+                        log.ErrorFormat("Failed to DeleteEpgCB for epgId: {0}", epgId);
+                    }
+                }               
 
                 // Delete Index
                 bool indexingResult = IndexManager.DeleteProgram(groupId, new List<int>() { (int)epgId });
@@ -1355,7 +1373,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0} in EpgAssetManager", epgCB.EpgID);
                 }
             }
-            catch(Exception exc)
+            catch (Exception exc)
             {
                 log.ErrorFormat("Exception at RemoveTopicsFromProgramEpgCB for epgId: {0} in EpgAssetManager", epgCB.EpgID, exc);
             }
