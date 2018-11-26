@@ -320,7 +320,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("Failed to DeleteEpgCB for epgId: {0}", epgId);
                     }
-                }               
+                }
 
                 // Delete Index
                 bool indexingResult = IndexManager.DeleteProgram(groupId, new List<int>() { (int)epgId });
@@ -544,7 +544,7 @@ namespace Core.Catalog.CatalogManagement
             updateMetas = true;
             epgTagsIds = null;
 
-            if (!epgAssetToUpdate.EpgIdentifier.Equals(oldEpgAsset.EpgIdentifier))
+            if (!string.IsNullOrEmpty(epgAssetToUpdate.EpgIdentifier) && !epgAssetToUpdate.EpgIdentifier.Equals(oldEpgAsset.EpgIdentifier))
             {
                 return new Status((int)eResponseStatus.Error, "cannot update EPG_IDENTIFIER");
             }
