@@ -18,6 +18,7 @@ namespace Tvinci.Core.DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
+        private const int RETRY_LIMIT = 5;
 
         public static DataTable GetEpgScheduleDataTable(int? topRowsNumber, int groupID, DateTime? fromUTCDay, DateTime? toUTCDay, int epgChannelID)
         {
@@ -88,7 +89,7 @@ namespace Tvinci.Core.DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
 
-                foreach (DataRow dr in ds.Tables[0].Rows )
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
                     epgIds.Add(id);
@@ -207,7 +208,7 @@ namespace Tvinci.Core.DAL
 
             return ds;
         }
-        
+
         public static DataTable GetParentGroupIdByGroupId(int nGroupId)
         {
             DataTable data = null;
@@ -415,7 +416,7 @@ namespace Tvinci.Core.DAL
                 log.Error("", ex);
                 return new Dictionary<string, List<EpgChannelObj>>();
             }
-        }       
+        }
 
         public static int InsertNewChannel(int GroupID, string ChannelID, string Name)
         {
@@ -516,7 +517,7 @@ namespace Tvinci.Core.DAL
         {
             StoredProcedure sp = new StoredProcedure("Delete_Epg_Program_Details");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddIDListParameter<int>("@epgIDs", epgIDs, "Id");            
+            sp.AddIDListParameter<int>("@epgIDs", epgIDs, "Id");
             sp.AddIDListParameter<int>("@protectedMetas", protectedMetas, "Id");
 
             bool retVal = sp.ExecuteReturnValue<bool>();
@@ -667,7 +668,7 @@ namespace Tvinci.Core.DAL
             List<long> list = null;
             try
             {
-                
+
                 StoredProcedure sp = new StoredProcedure("Get_EpgIds");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
@@ -685,7 +686,7 @@ namespace Tvinci.Core.DAL
                     list = ds.Tables[0].AsEnumerable().Select(x => (long)(x["id"])).ToList();
                 }
             }
-            catch 
+            catch
             {
                 return null;
             }
@@ -696,7 +697,7 @@ namespace Tvinci.Core.DAL
         {
             StoredProcedure sp = new StoredProcedure("GetProtectedEpgMetas");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddIDListParameter<int>("@epgIDs", epgIds, "Id");            
+            sp.AddIDListParameter<int>("@epgIDs", epgIds, "Id");
             sp.AddIDListParameter<int>("@protectedMetas", protectedMetas, "Id");
 
             return sp.Execute();
@@ -861,7 +862,7 @@ namespace Tvinci.Core.DAL
             sp.AddKeyValueListParameter<long, string>("@epgMetaIdToValues", epgMetaIdToValues, "key", "value");
             sp.AddIDListParameter("@epgTagIdToValues", epgTagsIds, "id");
 
-           long  insertedEpgId = sp.ExecuteReturnValue<long>();
+            long insertedEpgId = sp.ExecuteReturnValue<long>();
 
             return insertedEpgId;
         }
@@ -936,7 +937,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveMetasAndTagsFromProgram");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@programId", programId);            
+            sp.AddParameter("@programId", programId);
             sp.AddParameter("@metasExist", programMetaIds != null && programMetaIds.Count > 0 ? 1 : 0);
             sp.AddIDListParameter("@metaIdsToRemove", programMetaIds, "id");
             sp.AddParameter("@tagsExist", programTagIds != null && programTagIds.Count > 0 ? 1 : 0);
@@ -944,6 +945,47 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@updaterId", userId);
 
             return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool DeleteEpgCB(EpgCB epgCB, bool isMainLang)
+        {
+            bool result = false;
+            int limitRetries = RETRY_LIMIT;
+
+            string key = string.Empty;
+            if (isMainLang)
+            {
+                key = epgCB.EpgID.ToString();
+            }
+            else
+            {
+                key = string.Format("epg_{0}_lang_{1}", epgCB.EpgID, epgCB.Language.ToLower());
+            }
+
+            try
+            {
+                CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
+                int numOfRetries = 0;
+                Random r = new Random();
+
+                while (!result && numOfRetries < limitRetries)
+                {
+                    result = cbManager.Remove(key);
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while DeleteEpgCB. number of tries: {0}/{1}. epgId: {2}",
+                                        numOfRetries, limitRetries, epgCB.EpgID);
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while remove epgCB : {0}, ex: {1}", epgCB.EpgID, ex);
+            }
+
+            return result;
         }
     }
 }
