@@ -2247,7 +2247,7 @@ namespace Core.Catalog.CatalogManagement
                 // isAllowedToViewInactiveAssets = true because only operator can update asset
                 GenericResponse<Asset> oldAsset = null;
 
-                if (!isForMigration || !isCleared)
+                if (!isForMigration && !isCleared)
                 {
                     oldAsset = AssetManager.GetAsset(groupId, id, assetToUpdate.AssetType, true);
 
