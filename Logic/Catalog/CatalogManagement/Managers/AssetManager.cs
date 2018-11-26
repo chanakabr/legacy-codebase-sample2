@@ -2411,7 +2411,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 // validate that asset exist
                 // isAllowedToViewInactiveAssets = true because only operator can remove topics from asset 
-                List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id) }, true);
+                List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(assetType, id) }, true);
                 if (assets == null || assets.Count != 1)
                 {
                     result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
@@ -2436,7 +2436,7 @@ namespace Core.Catalog.CatalogManagement
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
-                        result = EpgAssetManager.RemoveTopicsFromAsset(groupId, id, topicIds, userId, catalogGroupCache, assets[0]);
+                        result = EpgAssetManager.RemoveTopicsFromProgram(groupId, topicIds, userId, catalogGroupCache, assets[0]);
                         break;
                     case eAssetTypes.MEDIA:
                         result = RemoveTopicsFromMediaAsset(groupId, id, topicIds, userId, catalogGroupCache, assets[0]);

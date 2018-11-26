@@ -237,9 +237,6 @@ namespace Core.Catalog.CatalogManagement
                         epgMetaIdToValues[metaId].AddRange(item.Value);
                     }
 
-                    //var epgMetaIdToValues = epgMetas[defaultLanguageCode].ToDictionary
-                    //    (x => catalogGroupCache.TopicsMapBySystemName[x.Key].Id, y => y.Value);
-
                     if (EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.DefaultLanguage.ID))
                     {
                         log.Error("UpdateEpgMetas Failed");
@@ -305,6 +302,8 @@ namespace Core.Catalog.CatalogManagement
             {
                 result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
+                //update CB
+
                 // Delete Index
                 bool indexingResult = IndexManager.DeleteProgram(groupId, new List<int>() { (int)epgId });
                 if (!indexingResult)
@@ -320,50 +319,73 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static Status RemoveTopicsFromAsset(int groupId, long id, HashSet<long> topicIds, long userId, CatalogGroupCache catalogGroupCache, Asset asset)
+        internal static Status RemoveTopicsFromProgram(int groupId, HashSet<long> topicIds, long userId, CatalogGroupCache catalogGroupCache, Asset asset)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            // validate topicsIds exist on asset
-            EpgAsset epgAsset = asset as EpgAsset;
-            if (epgAsset != null)
+            try
             {
-                List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
-
-                // needed for a check that meta exist at mapping
-                List<FieldTypeEntity> metaMappingFields = mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToList();
-                Dictionary<string, int> metaIds = new Dictionary<string, int>();
-                foreach (FieldTypeEntity fte in metaMappingFields)
+                // validate topicsIds exist on asset
+                EpgAsset epgAsset = asset as EpgAsset;
+                if (epgAsset != null)
                 {
-                    metaIds.Add(fte.Name.ToLower(), fte.ID);
-                }
-
-                foreach (var meta in epgAsset.Metas)
-                {
-                    // check that meta exist at mapping
-                    if (!metaIds.ContainsKey(meta.m_oTagMeta.m_sName.ToLower()))
+                    List<long> existingTopicsIds = epgAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
+                                                                  .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList();
+                    existingTopicsIds.AddRange(epgAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
+                                                              .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList());
+                    List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
+                    if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
                     {
-                        var errorMsg = string.Format(META_DOES_NOT_EXIST, "meta", meta.m_oTagMeta.m_sName);
-                        return new Status((int)eResponseStatus.MetaDoesNotExist, errorMsg);
+                        result = new Status((int)eResponseStatus.MetaIdsDoesNotExistOnAsset, string.Format("{0} for the following Meta Ids: {1}",
+                                                    eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString(), string.Join(",", noneExistingMetaIds)));
+                        return result;
+                    }
+
+                    // get topics to removed             
+                    List<Topic> topics = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName.ToLower())).Select(x => x.Value).ToList();
+
+                    List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
+
+                    // needed for a check that meta exist at mapping
+                    Dictionary<string, int> programMetas = new Dictionary<string, int>
+                        (mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToDictionary(key => key.Name.ToLower(), value => value.ID));
+
+                    List<int> programMetaIds = new List<int>(topics.Where(t => programMetas.ContainsKey(t.SystemName.ToLower())).Select(x => programMetas[x.SystemName.ToLower()]));
+                    List<string> metasToRemoveByName = new List<string>(topics.Where(t => programMetas.ContainsKey(t.SystemName.ToLower())).Select(x => x.SystemName.ToLower()));
+
+                    Dictionary<string, int> programTags = new Dictionary<string, int>
+                        (mappingFields.Where(x => x.FieldType == FieldTypes.Tag).ToDictionary(key => key.Name.ToLower(), value => value.ID));
+
+                    List<int> programTagIds = new List<int>(topics.Where(t => programTags.ContainsKey(t.SystemName.ToLower())).Select(x => programTags[x.SystemName.ToLower()]));
+                    List<string> tagsToRemoveByName = new List<string>(topics.Where(t => programTags.ContainsKey(t.SystemName.ToLower())).Select(x => x.SystemName.ToLower()));
+
+                    if (EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId))
+                    {
+                        result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                        // update Epg metas and tags 
+                        RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
+
+                        // UpdateIndex
+                        bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id });
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromMediaAsset", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+                        }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed to remove topics from asset with id: {0}, type: {1}, groupId: {2}", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
                     }
                 }
-
-
-                //List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag
-                //                                                             && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
-                //List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type != ApiObjects.MetaType.Tag
-                //                                                          && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
-
-                ////if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId))
-                //{
-                //}
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed RemoveTopicsFromProgram for groupId: {0} , id: {1} , assetType: {2}", groupId, asset.Id, eAssetTypes.EPG.ToString()), ex);
             }
 
             return result;
         }
-
         #endregion
-
 
         #region Private Methods
         private static void SaveEpgCbToCB(EpgCB epgCB, string defaultLanguageCode,
@@ -1285,6 +1307,63 @@ namespace Core.Catalog.CatalogManagement
             row["CRID"] = epgCb.Crid;
 
             return row;
+        }
+
+        private static void RemoveTopicsFromProgramEpgCBs(int groupId, long epgId, List<string> programMetas, List<string> programTags)
+        {
+            CatalogGroupCache catalogGroupCache;
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgAssetsFromCache", groupId);
+                return;
+            }
+
+            List<LanguageObj> languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
+            List<EpgCB> epgCbList = EpgDal.GetEpgCBList(epgId, languages);
+
+            foreach (EpgCB epgCB in epgCbList)
+            {
+                RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags);
+            }
+        }
+
+        private static void RemoveTopicsFromProgramEpgCB(EpgCB epgCB, List<string> programMetas, List<string> programTags)
+        {
+            try
+            {
+                if (epgCB.Metas != null)
+                {
+                    foreach (string systemName in programMetas)
+                    {
+                        var meta = epgCB.Metas.FirstOrDefault(x => x.Key.ToLower().Equals(systemName));
+                        if (!string.IsNullOrEmpty(meta.Key))
+                        {
+                            epgCB.Metas.Remove(meta.Key);
+                        }
+                    }
+                }
+
+                if (epgCB.Tags != null)
+                {
+                    foreach (string systemName in programTags)
+                    {
+                        var tag = epgCB.Tags.FirstOrDefault(x => x.Key.ToLower().Equals(systemName));
+                        if (!string.IsNullOrEmpty(tag.Key))
+                        {
+                            epgCB.Tags.Remove(tag.Key);
+                        }
+                    }
+                }
+
+                if (!EpgDal.SaveEpgCB(epgCB, true))
+                {
+                    log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0} in EpgAssetManager", epgCB.EpgID);
+                }
+            }
+            catch(Exception exc)
+            {
+                log.ErrorFormat("Exception at RemoveTopicsFromProgramEpgCB for epgId: {0} in EpgAssetManager", epgCB.EpgID, exc);
+            }
         }
 
         #endregion
