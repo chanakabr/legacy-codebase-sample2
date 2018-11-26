@@ -173,7 +173,7 @@ namespace WebAPI.Clients
             return success;
 
         }
-        
+
         internal bool Update(int groupId, string userId, KalturaNotificationsSettings settings)
         {
             bool success = false;
@@ -288,7 +288,7 @@ namespace WebAPI.Clients
             KalturaAnnouncement result = Mapper.Map<KalturaAnnouncement>(response.Announcement);
             return result;
         }
-        
+
         internal KalturaAnnouncement UpdateAnnouncement(int groupId, int announcementId, Models.Notifications.KalturaAnnouncement announcement)
         {
             MessageAnnouncementResponse response = null;
@@ -569,7 +569,7 @@ namespace WebAPI.Clients
             OrderDir order = OrderDir.DESC;
             if (orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
                 order = OrderDir.ASC;
-            
+
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -654,12 +654,18 @@ namespace WebAPI.Clients
             }
 
             // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null, 0, 0, 
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null, 0, 0,
                                                                                     new List<int>() { assetId }, KalturaAssetOrderBy.START_DATE_DESC);
-            
+
             FollowDataTvSeries followData = new FollowDataTvSeries();
             followData.AssetId = assetId;
-            followData.Title = !string.IsNullOrEmpty(mediaInfoResponse.Objects[0].Name.GetDefaultLanugageValue()) ? mediaInfoResponse.Objects[0].Name.GetDefaultLanugageValue() : string.Empty;
+
+            string name = string.Empty;
+            if (mediaInfoResponse.Objects.Count > 0 && mediaInfoResponse.Objects[0] != null && mediaInfoResponse.Objects[0].Name != null)
+            {
+                name = !string.IsNullOrEmpty(mediaInfoResponse.Objects[0].Name.GetDefaultLanugageValue()) ? mediaInfoResponse.Objects[0].Name.GetDefaultLanugageValue() : string.Empty;
+            }
+            followData.Title = name;
 
             try
             {
@@ -699,7 +705,7 @@ namespace WebAPI.Clients
             // get asset name
             var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null, 0, 0,
                                                                                     new List<int>() { followData.AssetId }, KalturaAssetOrderBy.START_DATE_DESC);
-                        
+
             followData.Status = 1;
             followData.Title = mediaInfoResponse.Objects[0].Name.GetDefaultLanugageValue();
             followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);
@@ -1221,7 +1227,7 @@ namespace WebAPI.Clients
             AnnouncementsResponse response = null;
             List<KalturaTopic> result = null;
             KalturaTopicResponse ret = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1257,7 +1263,7 @@ namespace WebAPI.Clients
         internal bool DeleteAnnouncementsOlderThan()
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1420,7 +1426,7 @@ namespace WebAPI.Clients
         internal bool DeleteReminder(int userId, int groupId, long reminderId, KalturaReminderType type)
         {
             Status response = null;
-            
+
             // get group ID
             ReminderType wsReminderType = NotificationMapping.ConvertReminderType(type);
 
@@ -1448,7 +1454,7 @@ namespace WebAPI.Clients
         internal bool RemoveUsersNotificationData(int groupId, List<string> userIds)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
