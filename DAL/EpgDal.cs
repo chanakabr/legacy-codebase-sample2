@@ -415,7 +415,7 @@ namespace Tvinci.Core.DAL
                 log.Error("", ex);
                 return new Dictionary<string, List<EpgChannelObj>>();
             }
-        }
+        }       
 
         public static int InsertNewChannel(int GroupID, string ChannelID, string Name)
         {
@@ -931,5 +931,19 @@ namespace Tvinci.Core.DAL
             }
         }
 
+        public static bool RemoveMetasAndTagsFromProgram(int groupId, long programId, List<int> programMetaIds, List<int> programTagIds, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveMetasAndTagsFromProgram");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@programId", programId);            
+            sp.AddParameter("@metasExist", programMetaIds != null && programMetaIds.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter("@metaIdsToRemove", programMetaIds, "id");
+            sp.AddParameter("@tagsExist", programTagIds != null && programTagIds.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter("@tagIdsToRemove", programTagIds, "id");
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }
