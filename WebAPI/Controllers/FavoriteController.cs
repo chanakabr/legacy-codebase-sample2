@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
 
                 KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userId, domainId, udid, null, 0, 1, new List<int>() { (int)favorite.AssetId }, KalturaAssetOrderBy.NAME_ASC);
                 if (assetListResponse != null)
-                    asset = assetListResponse.Objects.First();
+                    asset = assetListResponse.Objects.FirstOrDefault();
 
                 // call client
                 if (asset != null)

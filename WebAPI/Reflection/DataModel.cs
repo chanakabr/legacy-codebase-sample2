@@ -13,6 +13,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
+using WebAPI.Models.MultiRequest;
 using WebAPI.Models.General;
 using WebAPI.Models.Notifications;
 using WebAPI.Models.Notification;
@@ -81,6 +82,14 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Type":
                             return "type";
+                    }
+                    break;
+                    
+                case "KalturaAggregatedPropertySkipCondition":
+                    switch(property.Name)
+                    {
+                        case "AggregationType":
+                            return "aggregationType";
                     }
                     break;
                     
@@ -4268,6 +4277,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPropertySkipCondition":
+                    switch(property.Name)
+                    {
+                        case "Operator":
+                            return "operator";
+                        case "PropertyPath":
+                            return "propertyPath";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
                 case "KalturaPublicCouponGenerationOptions":
                     switch(property.Name)
                     {
@@ -4653,8 +4674,8 @@ namespace WebAPI.Reflection
                             return "partnerId";
                         case "ResponseProfile":
                             return "responseProfile";
-                        case "SkipOnError":
-                            return "skipOnError";
+                        case "SkipCondition":
+                            return "skipCondition";
                         case "UserID":
                             return "userId";
                     }
@@ -4943,6 +4964,14 @@ namespace WebAPI.Reflection
                     {
                         case "Id":
                             return "id";
+                    }
+                    break;
+                    
+                case "KalturaSkipOnErrorCondition":
+                    switch(property.Name)
+                    {
+                        case "Condition":
+                            return "condition";
                     }
                     break;
                     

@@ -1220,6 +1220,8 @@ namespace WebAPI.Controllers
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
+            string udid = KSUtils.ExtractKSPayload().UDID;
+            string language = Utils.Utils.GetLanguageFromRequest();
 
             HashSet<long> topicIds = new HashSet<long>();
             if (string.IsNullOrEmpty(idIn))
@@ -1245,6 +1247,26 @@ namespace WebAPI.Controllers
 
             try
             {
+                switch (assetReferenceType)
+                {
+                    case KalturaAssetReferenceType.epg_external:
+                        KalturaAssetListResponse epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userId.ToString(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                             0, 1, new List<string> { id.ToString() }, KalturaAssetOrderBy.START_DATE_DESC);
+
+                        // if no response - return not found status 
+                        if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                        {
+                            throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
+                        }
+
+                        id = epgRes.Objects.First().Id.Value;                        
+                        break;
+                    case KalturaAssetReferenceType.media:
+                    case KalturaAssetReferenceType.epg_internal:
+                    default:
+                        break;
+                }
+
                 result = ClientsManager.CatalogClient().RemoveTopicsFromAsset(groupId, id, assetReferenceType, topicIds, userId);
             }
             catch (ClientException ex)

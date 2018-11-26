@@ -703,6 +703,8 @@
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
+    <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
+    <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpv.cs" />
     <Compile Include="Models\Pricing\KalturaPpvFilter.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpvFilter.cs" />

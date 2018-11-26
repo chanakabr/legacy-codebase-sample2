@@ -19,18 +19,14 @@ namespace WebAPI.Models.MultiRequest
         /// Abort all following requests if current request has an error
         /// </summary>
         public bool AbortAllOnError { get; set; }
-
-        /// <summary>
-        /// skip current request according to skip option
-        /// </summary>
-        public KalturaSkipOptions SkipOnError { get; set; }
+        
+        public KalturaSkipCondition SkipCondition { get; set; }
        
         public Dictionary<string, object> Parameters { get; set; }
 
         public KalturaMultiRequestAction()
         {
             AbortAllOnError = false;
-            SkipOnError = KalturaSkipOptions.No;
         }
     }
 }
