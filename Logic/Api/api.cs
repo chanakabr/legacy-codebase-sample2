@@ -9782,7 +9782,6 @@ namespace Core.Api
 
                 if (assetType != eAssetTypes.MEDIA && group.m_oEpgGroupSettings != null)
                 {
-
                     if (group.m_oEpgGroupSettings.metas != null && (metaType == ApiObjects.MetaType.String || metaType == ApiObjects.MetaType.All))
                     {
                         foreach (long key in group.m_oEpgGroupSettings.metas.Keys)
@@ -9794,7 +9793,6 @@ namespace Core.Api
                                 AssetType = eAssetTypes.EPG,
                                 FieldName = MetaFieldName.None,
                                 Name = GetTagName(val, group.m_oEpgGroupSettings.MetasDisplayName),
-
                                 Type = ApiObjects.MetaType.String,
                                 MultipleValue = false,
                                 PartnerId = group.m_oEpgGroupSettings.GroupId
@@ -9832,7 +9830,7 @@ namespace Core.Api
                         var metasMapping = response.MetaList.Where(x => epgAliasMappings.Select(y => y.Name).ToList().Contains(x.Name)).ToList();
                         foreach (var metaMapping in metasMapping)
                         {
-                            ApiObjects.Epg.FieldTypeEntity epgFieldTypeEntity = epgAliasMappings.Where(x => x.Name == metaMapping.Name).FirstOrDefault();
+                            ApiObjects.Epg.FieldTypeEntity epgFieldTypeEntity = epgAliasMappings.FirstOrDefault(x => x.Name == metaMapping.Name);
                             if (epgFieldTypeEntity != null)
                             {
                                 metaMapping.FieldName = GetFieldNameByAlias(epgFieldTypeEntity.Alias);
@@ -9861,21 +9859,25 @@ namespace Core.Api
                             keyIndex++;
                             foreach (var metaVal in groupMetas)
                             {
-                                meta = new Meta()
+                                var currGroupMetaType = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key);
+                                if (currGroupMetaType != ApiObjects.MetaType.DateTime)
                                 {
-                                    AssetType = eAssetTypes.MEDIA,
-                                    FieldName = MetaFieldName.None,
-                                    Name = metaVal.Value,
-                                    Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
-                                    PartnerId = partnerId,
-                                    MultipleValue = false
-                                };
+                                    meta = new Meta()
+                                    {
+                                        AssetType = eAssetTypes.MEDIA,
+                                        FieldName = MetaFieldName.None,
+                                        Name = metaVal.Value,
+                                        Type = currGroupMetaType,
+                                        PartnerId = partnerId,
+                                        MultipleValue = false
+                                    };
 
-                                meta.Id = BuildMetaId(meta, metaVal.Key);
+                                    meta.Id = BuildMetaId(meta, metaVal.Key);
 
-                                if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
-                                {
-                                    response.MetaList.Add(meta);
+                                    if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
+                                    {
+                                        response.MetaList.Add(meta);
+                                    }
                                 }
                             }
                         }
@@ -9912,7 +9914,7 @@ namespace Core.Api
                     {
                         foreach (var meta in response.MetaList)
                         {
-                            topicInterestMeta = topicInterestList.Where(x => x.Id == meta.Id).FirstOrDefault();
+                            topicInterestMeta = topicInterestList.FirstOrDefault(x => x.Id == meta.Id);
                             if (topicInterestMeta != null)
                             {
                                 meta.Features = topicInterestMeta.Features;
@@ -9931,7 +9933,7 @@ namespace Core.Api
                     }
                 }
 
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -9942,7 +9944,6 @@ namespace Core.Api
 
         private static List<Meta> FilterMetaList(List<Meta> list, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual)
         {
-
             List<Meta> filteredMetaList = null;
             if (fieldNameEqual == MetaFieldName.All && fieldNameNotEqual == MetaFieldName.All)
                 return list;
