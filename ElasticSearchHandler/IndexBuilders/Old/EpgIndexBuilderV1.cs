@@ -121,9 +121,9 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
                         HashSet<long> epgAssetStructMetaIds = new HashSet<long>();
-                        if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManager.PROGRAM_ASSET_STRUCT_SYSTEM_NAME))
+                        if (catalogGroupCache.AssetStructsMapById.Values.Any(x => x.IsProgramAssetStruct))
                         {
-                            epgAssetStructMetaIds = new HashSet<long>(catalogGroupCache.AssetStructsMapBySystemName[CatalogManager.PROGRAM_ASSET_STRUCT_SYSTEM_NAME].MetaIds);                            
+                            epgAssetStructMetaIds = new HashSet<long>(catalogGroupCache.AssetStructsMapById.Values.Where(x => x.IsProgramAssetStruct).First().MetaIds);
                         }
 
                         tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)
