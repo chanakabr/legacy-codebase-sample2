@@ -121,16 +121,23 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             try
             {
-                filter.Validate();
-                if (filter.AssetStructIdEqual.HasValue && filter.AssetStructIdEqual.Value > 0)
+                if (ClientsManager.CatalogClient().DoesGroupUsesTemplates(groupId))
                 {
-                    response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValueEqual, filter.AssetStructIdEqual.Value);
+                    filter.Validate();
+                    if (filter.AssetStructIdEqual.HasValue && filter.AssetStructIdEqual.Value > 0)
+                    {
+                        response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValueEqual, filter.AssetStructIdEqual.Value);
+                    }
+                    else
+                    {
+                        response = ClientsManager.CatalogClient().GetMetas(groupId, filter.GetIdIn(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValueEqual);
+                    }
                 }
                 else
                 {
-                    response = ClientsManager.CatalogClient().GetMetas(groupId, filter.GetIdIn(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValueEqual);
+                    filter.OldValidate();
+                    response = ClientsManager.ApiClient().GetGroupMeta(groupId, filter.AssetTypeEqual, filter.TypeEqual, filter.FieldNameEqual, filter.FieldNameNotEqual, filter.GetFeaturesIn());
                 }
-
             }
             catch (ClientException ex)
             {
