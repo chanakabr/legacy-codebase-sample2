@@ -615,9 +615,10 @@ namespace WebAPI.Managers
                 return false;
             }
 
+            Group group = GroupsManager.GetGroup(ks.GroupId);
+
             if (!string.IsNullOrEmpty(ks.UserId) &&  ks.UserId != "0")
             {
-                Group group = GroupsManager.GetGroup(ks.GroupId);
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
 
                 string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
