@@ -866,6 +866,7 @@ namespace WebAPI.Filters
                         if (skipConditionType != null)
                         {
                             skipCondition = Deserializer.deserialize(skipConditionType, skipConditionParams) as KalturaSkipCondition;
+                            skipCondition.Validate();
                         }
                     }
                 }

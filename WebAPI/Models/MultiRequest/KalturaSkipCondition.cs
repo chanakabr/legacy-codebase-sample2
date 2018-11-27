@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.MultiRequest
@@ -14,6 +15,9 @@ namespace WebAPI.Models.MultiRequest
     /// </summary>
     public abstract partial class KalturaSkipCondition : KalturaOTTObject
     {
+        internal virtual void Validate()
+        {
+        }
     }
 
     /// <summary>
@@ -63,6 +67,20 @@ namespace WebAPI.Models.MultiRequest
         [JsonProperty("value")]
         [XmlElement(ElementName = "value")]
         public string Value { get; set; }
+
+        internal override void Validate()
+        {
+            base.Validate();
+            if (string.IsNullOrEmpty(PropertyPath))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, this.objectType + ".propertyPath");
+            }
+
+            if (string.IsNullOrEmpty(Value))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, this.objectType + ".value");
+            }
+        }
     }
 
     /// <summary>
