@@ -9859,25 +9859,21 @@ namespace Core.Api
                             keyIndex++;
                             foreach (var metaVal in groupMetas)
                             {
-                                var currGroupMetaType = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key);
-                                if (currGroupMetaType != ApiObjects.MetaType.DateTime)
+                                meta = new Meta()
                                 {
-                                    meta = new Meta()
-                                    {
-                                        AssetType = eAssetTypes.MEDIA,
-                                        FieldName = MetaFieldName.None,
-                                        Name = metaVal.Value,
-                                        Type = currGroupMetaType,
-                                        PartnerId = partnerId,
-                                        MultipleValue = false
-                                    };
+                                    AssetType = eAssetTypes.MEDIA,
+                                    FieldName = MetaFieldName.None,
+                                    Name = metaVal.Value,
+                                    Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
+                                    PartnerId = partnerId,
+                                    MultipleValue = false
+                                };
 
-                                    meta.Id = BuildMetaId(meta, metaVal.Key);
+                                meta.Id = BuildMetaId(meta, metaVal.Key);
 
-                                    if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
-                                    {
-                                        response.MetaList.Add(meta);
-                                    }
+                                if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
+                                {
+                                    response.MetaList.Add(meta);
                                 }
                             }
                         }

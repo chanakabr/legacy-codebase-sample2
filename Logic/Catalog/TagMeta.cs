@@ -108,8 +108,23 @@ namespace Core.Catalog
         public Tags(TagMeta tagMeta, List<string> values, IEnumerable<LanguageContainer[]> languageContainers)
         {
             m_oTagMeta = tagMeta;
-            m_lValues = new List<string>(values);
-            Values = new List<LanguageContainer[]>(languageContainers);
+            if (values != null)
+            {
+                m_lValues = new List<string>(values);
+            }
+            else
+            {
+                m_lValues = new List<string>();
+            }
+
+            if (languageContainers != null)
+            {
+                Values = new List<LanguageContainer[]>(languageContainers);
+            }
+            else
+            {
+                Values = new List<LanguageContainer[]>();
+            }
         }
 
         public bool Equals(Tags other)
