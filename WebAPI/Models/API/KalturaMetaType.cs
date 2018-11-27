@@ -11,6 +11,7 @@ namespace WebAPI.Models.API
         STRING,
         NUMBER,
         BOOLEAN,
-        STRING_ARRAY // tag
+        STRING_ARRAY, // tag
+        DATE
     }
 }

@@ -1607,19 +1607,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static bool ConvertIsTag(KalturaMetaType kalturaMetaType)
         {
-            switch (kalturaMetaType)
+            if (kalturaMetaType == KalturaMetaType.STRING_ARRAY)
             {
-                case KalturaMetaType.STRING:
-                    return false;
-                case KalturaMetaType.NUMBER:
-                    return false;
-                case KalturaMetaType.BOOLEAN:
-                    return false;
-                case KalturaMetaType.STRING_ARRAY:
-                    return true;
-                default:
-                    return false;
+                return true;
             }
+
+            return false;
         }
 
         private static List<MetaFeatureType> ConvertFeatures(string metaFeatureType)
@@ -2572,6 +2565,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ApiObjects.MetaType.Tag:
                     response = KalturaMetaType.STRING_ARRAY;
                     break;
+                case ApiObjects.MetaType.DateTime:
+                    response = KalturaMetaType.DATE;
+                    break;
                 case ApiObjects.MetaType.All:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown meta type");
@@ -2647,6 +2643,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     case KalturaMetaType.STRING_ARRAY:
                         response = ApiObjects.MetaType.Tag;
+                        break;
+                    case KalturaMetaType.DATE:
+                        response = ApiObjects.MetaType.DateTime;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown meta type");
