@@ -171,30 +171,36 @@ namespace WebAPI.Controllers
             }
             else if (parameterType.IsSubclassOf(typeof(KalturaOTTObject)))
             {
-                var properties = parameterType.GetProperties();
-                result = null;
                 bool found = false;
-                foreach (PropertyInfo property in properties)
+                result = null;
+
+                if (typesToPropertyInfosMap.ContainsKey(parameterType) && typesToPropertyInfosMap[parameterType].ContainsKey(token))
                 {
-                    string name = DataModel.getApiName(property);
-                    if (!token.Equals(name, StringComparison.CurrentCultureIgnoreCase))
-                        continue;
-                    
-                    if (!typesToPropertyInfosMap.ContainsKey(parameterType))
-                    {
-                        typesToPropertyInfosMap.Add(parameterType, new Dictionary<string, PropertyInfo>());
-                    }
-
-                    if (!typesToPropertyInfosMap[parameterType].ContainsKey(name))
-                    {
-                        typesToPropertyInfosMap[parameterType].Add(name, property);
-                    }
-
-                    propertyType = property.PropertyType;
-                    result = property.GetValue(parameter);
+                    propertyType = GetRealType(typesToPropertyInfosMap[parameterType][token].PropertyType);
+                    result = typesToPropertyInfosMap[parameterType][token].GetValue(parameter);
                     found = true;
-                    break;
                 }
+                else
+                {
+                    PropertyInfo propertyInfo = GetPropertyInfo(parameterType, token);
+                    if (propertyInfo != null)
+                    {
+                        if (!typesToPropertyInfosMap.ContainsKey(parameterType))
+                        {
+                            typesToPropertyInfosMap.Add(parameterType, new Dictionary<string, PropertyInfo>());
+                        }
+
+                        if (!typesToPropertyInfosMap[parameterType].ContainsKey(token))
+                        {
+                            typesToPropertyInfosMap[parameterType].Add(token, propertyInfo);
+                        }
+
+                        propertyType = GetRealType(propertyInfo.PropertyType);
+                        result = propertyInfo.GetValue(parameter);
+                        found = true;
+                    }
+                }
+               
                 if (!found)
                     throw new RequestParserException();
             }
@@ -460,7 +466,7 @@ namespace WebAPI.Controllers
                     if ((isPreviousErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Previous) ||
                         (isAnyErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Any))
                     {
-                        var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
+                        var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, "because there was an error in request number " + (abortingRequestIndex + 1));
                         responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
                         isAnyErrorOccurred = true;
                         continue;
@@ -485,7 +491,7 @@ namespace WebAPI.Controllers
                         {
                             if (!ValidateAggregationSkipCondition(request[i].SkipCondition as KalturaAggregatedPropertySkipCondition, responses))
                             {
-                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
+                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, string.Empty);
                                 responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
                                 continue;
                             }
@@ -494,7 +500,7 @@ namespace WebAPI.Controllers
                         {
                             if (!ValidateSkipCondition(request[i].SkipCondition as KalturaPropertySkipCondition, responses))
                             {
-                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, abortingRequestIndex + 1);
+                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, string.Empty);
                                 responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
                                 continue;
                             }
@@ -578,7 +584,7 @@ namespace WebAPI.Controllers
                 if (conditionValue != null)
                 {
                     var convertedConditionValue = GetConvertedValue(null, null, aggregatedPropertySkipCondition.Operator, conditionValue.ToString(), realType);
-                    if (convertedConditionValue != null && !CheckCondition(aggregatedPropertySkipCondition.Operator, aggregatedValue, convertedConditionValue))
+                    if (convertedConditionValue != null && CheckCondition(aggregatedPropertySkipCondition.Operator, aggregatedValue, convertedConditionValue))
                     {
                         return false;
                     }
@@ -602,7 +608,7 @@ namespace WebAPI.Controllers
                     if (conditionValue != null)
                     {
                         var convertedConditionValue = GetConvertedValue(null, null, propertySkipCondition.Operator, conditionValue.ToString(), propertyType);
-                        if (convertedConditionValue != null && !CheckCondition(propertySkipCondition.Operator, convertedPropValue, convertedConditionValue))
+                        if (convertedConditionValue != null && CheckCondition(propertySkipCondition.Operator, convertedPropValue, convertedConditionValue))
                         {
                             return false;
                         }
