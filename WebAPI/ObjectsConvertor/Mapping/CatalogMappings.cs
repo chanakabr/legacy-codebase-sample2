@@ -386,7 +386,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //BaseObject to KalturaAsset
             cfg.CreateMap<BaseObject, KalturaAsset>()
-                .Include<RecordingObj, KalturaRecordingAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dUpdateDate)));
 
@@ -480,6 +479,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //RecordingObj to KalturaRecordingAsset
             cfg.CreateMap<RecordingObj, KalturaRecordingAsset>()
                 .IncludeBase<BaseObject, KalturaAsset>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Program.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Program.m_oProgram.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Program.m_oProgram.ProgrammeDescription)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
