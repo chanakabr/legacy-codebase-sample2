@@ -36,6 +36,7 @@ namespace WebAPI.Controllers
         static public KalturaSubscriptionListResponse List(KalturaSubscriptionFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaSubscriptionListResponse response = new KalturaSubscriptionListResponse();
+            bool isFilterValid = false;
 
             if (pager == null)
             {
@@ -45,10 +46,11 @@ namespace WebAPI.Controllers
             if (filter == null)
             {
                 filter = new KalturaSubscriptionFilter();
+                isFilterValid = true;
             }
             else
             {
-                filter.Validate();
+                isFilterValid = filter.Validate();
             }
 
             int groupId = KS.GetFromRequest().GroupId;
@@ -71,14 +73,14 @@ namespace WebAPI.Controllers
                 else if (!string.IsNullOrEmpty(filter.SubscriptionIdIn))
                 {
                     // call client
-                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy , pager.getPageIndex(), pager.PageSize);
+                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
                 }
                 else if (!string.IsNullOrEmpty(filter.ExternalIdIn))
                 {
                     // call client
                     response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsDataByProductCodes(groupId, filter.getExternalIdIn(), filter.OrderBy);
                 }
-                else
+                else if (isFilterValid)
                 {
                     response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
                 }

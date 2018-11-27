@@ -50,7 +50,7 @@ namespace WebAPI.Models.Pricing
             return KalturaSubscriptionOrderBy.START_DATE_ASC;
         }
 
-        internal void Validate()
+        internal bool Validate()
         {
             if (MediaFileIdEqual.HasValue && (!string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn)))
             {
@@ -66,6 +66,13 @@ namespace WebAPI.Models.Pricing
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.productCodeIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
             }
+
+            if (string.IsNullOrEmpty(ExternalIdIn) && (!MediaFileIdEqual.HasValue || MediaFileIdEqual.Value == 0) && string.IsNullOrEmpty(SubscriptionIdIn))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         internal string[] getSubscriptionIdIn()
