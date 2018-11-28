@@ -188,10 +188,11 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, Dictionary<string, List<string>>> epgMetas;
                 bool needToUpdateMetas;
                 List<int> epgTagsIds;
+                bool needToUpdateTags;
 
                 List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
                 Status validateStatus = ValidateEpgAssetForUpdate(groupId, userId, epgAssetToUpdate, oldEpgAsset, catalogGroupCache, mappingFields, out needToUpdateBasicData,
-                                                                  out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds);
+                                                                  out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds, out needToUpdateTags);
 
                 if (!validateStatus.IsOkStatusCode())
                 {
@@ -244,8 +245,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                // update EPG_program_tags table (tags)                
-                if (epgAssetToUpdate.Tags != null && epgAssetToUpdate.Tags.Count > 0)
+                if (needToUpdateTags)
                 {
                     if (EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId))
                     {
@@ -536,13 +536,14 @@ namespace Core.Catalog.CatalogManagement
         private static Status ValidateEpgAssetForUpdate(int groupId, long userId, EpgAsset epgAssetToUpdate, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache, List<FieldTypeEntity> mappingFields,
                                                         out bool updateBasicData, out Dictionary<string, string> allNames,
                                                         out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out bool updateMetas,
-                                                        out List<int> epgTagsIds)
+                                                        out List<int> epgTagsIds, out bool updateTags)
         {
             updateBasicData = false;
             allNames = null;
             epgMetas = null;
             updateMetas = true;
             epgTagsIds = null;
+            updateTags = true;
 
             if (!string.IsNullOrEmpty(epgAssetToUpdate.EpgIdentifier) && !epgAssetToUpdate.EpgIdentifier.Equals(oldEpgAsset.EpgIdentifier))
             {
@@ -573,6 +574,14 @@ namespace Core.Catalog.CatalogManagement
                 epgAssetToUpdate.Metas = oldEpgAsset.Metas;
                 // needToValidateMetas
                 updateMetas = false;
+            }
+
+            // update EPG_program_tags table (tags)
+            if (epgAssetToUpdate.Tags == null || epgAssetToUpdate.Tags.Count == 0)
+            {
+                epgAssetToUpdate.Tags = oldEpgAsset.Tags;
+                // needToValidateTags
+                updateTags = false;
             }
 
             Status assetStructValidationStatus = ValidateEpgAssetStruct(groupId, userId, epgAssetToUpdate, catalogGroupCache, updateMetas, mappingFields, allNames, out epgMetas, out epgTagsIds);
@@ -1121,7 +1130,10 @@ namespace Core.Catalog.CatalogManagement
 
                                         if (epgTags[otherTagsValue.LanguageCode].ContainsKey(tags.m_oTagMeta.m_sName))
                                         {
-                                            epgTags[otherTagsValue.LanguageCode][tags.m_oTagMeta.m_sName].Add(otherTagsValue.Value);
+                                            if (!epgTags[otherTagsValue.LanguageCode][tags.m_oTagMeta.m_sName].Contains(otherTagsValue.Value))
+                                            {
+                                                epgTags[otherTagsValue.LanguageCode][tags.m_oTagMeta.m_sName].Add(otherTagsValue.Value);
+                                            }
                                         }
                                         else
                                         {
