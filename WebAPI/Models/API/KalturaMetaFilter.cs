@@ -179,6 +179,18 @@ namespace WebAPI.Models.API
 
             if (FieldNameEqual.HasValue && FieldNameEqual.Value != KalturaMetaFieldName.NONE && AssetTypeEqual == KalturaAssetType.media)
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.fieldNameEqual", "KalturaMetaFilter.assetTypeEqual");
+
+            if (!string.IsNullOrEmpty(IdIn))
+                throw new BadRequestException(BadRequestException.PROPERTY_IS_OPC_SUPPORTED, "idIn");
+
+            if (AssetStructIdEqual.HasValue)
+                throw new BadRequestException(BadRequestException.PROPERTY_IS_OPC_SUPPORTED, "assetStructIdEqual");
+
+            if (DataTypeEqual.HasValue)
+                throw new BadRequestException(BadRequestException.PROPERTY_IS_OPC_SUPPORTED, "dataTypeEqual");
+
+            if (MultipleValueEqual.HasValue)
+                throw new BadRequestException(BadRequestException.PROPERTY_IS_OPC_SUPPORTED, "multipleValueEqual");
         }
     }
 }

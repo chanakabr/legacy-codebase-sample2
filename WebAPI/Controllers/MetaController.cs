@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
             {
                 filter = new KalturaMetaFilter();
             }
-
+            
             KalturaMetaListResponse response = new KalturaMetaListResponse();
             int groupId = KS.GetFromRequest().GroupId;
             try

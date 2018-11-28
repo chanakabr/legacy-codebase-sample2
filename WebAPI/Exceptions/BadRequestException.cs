@@ -31,7 +31,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType INVALID_ACTION_PARAMETER = new ApiExceptionType(StatusCode.InvalidActionParameter, StatusCode.InvalidActionParameters, "Invalid action parameter [@parameter@]", "parameter");
         public static ApiExceptionType INVALID_ACTION_PARAMETERS = new ApiExceptionType(StatusCode.InvalidActionParameters, "Invalid action parameters");
         public static ApiExceptionType REQUEST_ABORTED = new ApiExceptionType(StatusCode.RequestAborted, "This request aborted because there was an error in request number [@index@]", "index");
-        public static ApiExceptionType REQUEST_SKIPPED = new ApiExceptionType(StatusCode.RequestSkipped, "This request skipped [@reason]", "reason");
+        public static ApiExceptionType REQUEST_SKIPPED = new ApiExceptionType(StatusCode.RequestSkipped, "This request skipped [@reason@]", "reason");
 
         public static ApiExceptionType INVALID_ARGUMENT = new ApiExceptionType(StatusCode.InvalidArgument, StatusCode.BadRequest, "Argument [@argument@] is invalid", "argument");
         public static ApiExceptionType ARGUMENT_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.ArgumentMustBeNumeric, StatusCode.BadRequest, "Argument [@argument@] must be numeric", "argument");
@@ -61,6 +61,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType DUPLICATE_FILE = new ApiExceptionType(StatusCode.DuplicateFile, StatusCode.BadRequest, "Duplicate file: id [@id@]", "id");
         public static ApiExceptionType UNABLE_TO_CREATE_HOUSEHOLD_FOR_USER_ROLE = new ApiExceptionType(StatusCode.UnableToCreateHouseholdForRole, StatusCode.BadRequest, "Unable to create household for role");
         public static ApiExceptionType HTTP_METHOD_NOT_SUPPORTED = new ApiExceptionType(StatusCode.HttpMethodNotSupported, StatusCode.BadRequest, "HTTP [@argument@] method not supported", "argument" );
+        public static ApiExceptionType PROPERTY_IS_OPC_SUPPORTED = new ApiExceptionType(StatusCode.PropertyIsOpcSupported, StatusCode.InvalidActionParameters, "Property [@property@] is supported only for OPC accounts", "property");
 
         public BadRequestException()
             : this(BAD_REQUEST)
