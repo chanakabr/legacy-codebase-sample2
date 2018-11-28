@@ -8964,7 +8964,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            DynamicMinInt = 1,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };

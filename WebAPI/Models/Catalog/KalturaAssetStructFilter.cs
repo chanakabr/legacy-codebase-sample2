@@ -35,7 +35,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = true)]
-        [SchemeProperty(DynamicMinInt = 1)]
+        [SchemeProperty(DynamicMinInt = 0)]
         public string IdIn { get; set; }
 
         /// <summary>
