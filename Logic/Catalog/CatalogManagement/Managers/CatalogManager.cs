@@ -1285,6 +1285,10 @@ namespace Core.Catalog.CatalogManagement
                 if (ids != null && ids.Count > 0)
                 {
                     response.Objects = ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => catalogGroupCache.AssetStructsMapById[x]).ToList();
+                    if (ids.Contains(0) && catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId))
+                    {
+                        response.Objects.Add(catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId]);
+                    }
                 }
                 else
                 {
@@ -1428,22 +1432,27 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<AssetStruct> result = new GenericResponse<AssetStruct>();
             try
             {
-                CatalogGroupCache catalogGroupCache = null;
                 bool shouldUpdateOtherNames = false;
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 List<KeyValuePair<long, int>> metaIdsToPriority = null;
                 List<long> removedTopicIds = new List<long>();
                 bool shouldUpdateAssetStructAssets = shouldUpdateMetaIds && shouldCheckRegularFlowValidations;
                 AssetStruct assetStruct = null;
+                CatalogGroupCache catalogGroupCache = null;
+
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAssetStruct", groupId);
+                    return result;
+                }
+
+                if (id == 0)
+                {
+                    id = catalogGroupCache.ProgramAssetStructId;
+                }
 
                 if (shouldCheckRegularFlowValidations)
                 {
-                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                    {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAssetStruct", groupId);
-                        return result;
-                    }
-
                     if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                     {
                         result.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
@@ -1598,6 +1607,11 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteAssetStruct", groupId);
                     return result;
+                }
+
+                if (id == 0)
+                {
+                    id = catalogGroupCache.ProgramAssetStructId;
                 }
 
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))

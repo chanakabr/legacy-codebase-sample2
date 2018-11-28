@@ -53,6 +53,24 @@ namespace Core.Catalog.CatalogManagement
 
         public bool IsAssetUserRuleEnabled { get; set; }
 
+        private long programAssetStructId;
+        public long ProgramAssetStructId
+        {
+            get
+            {
+                if (programAssetStructId == 0)
+                { 
+                    var programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
+                    if (programAssetStruct != null)
+                    {
+                        programAssetStructId = programAssetStruct.Id;
+                    }
+                }
+
+                return programAssetStructId;
+            }
+        }
+
         public CatalogGroupCache()
         {
             DefaultLanguage = null;
@@ -61,12 +79,14 @@ namespace Core.Catalog.CatalogManagement
             AssetStructsMapBySystemName = new Dictionary<string, AssetStruct>(StringComparer.OrdinalIgnoreCase);
             AssetStructsMapById = new Dictionary<long, AssetStruct>();
             TopicsMapBySystemName = new Dictionary<string, Topic>(StringComparer.OrdinalIgnoreCase);
-            TopicsMapById = new Dictionary<long, Topic>();            
+            TopicsMapById = new Dictionary<long, Topic>();
+            programAssetStructId = 0;
         }
 
         // TODO - Lior, move all language related properties in this class to seperate cache or invalidate catalogGroupCache when adding\updating languages (doesn't exist at the moment)
         public CatalogGroupCache(int groupId, List<LanguageObj> languages, List<AssetStruct> assetStructs, List<Topic> topics)
         {
+            programAssetStructId = 0;
             LanguageObj defaultLanguage = languages.FirstOrDefault(x => x.IsDefault);
             if (defaultLanguage != null && defaultLanguage.ID > 0)
             {

@@ -648,7 +648,11 @@ namespace Core.Catalog.CatalogManagement
             epgMetas = null;
             epgTagsIds = null;
 
-            AssetStruct programAssetStruct = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
+            AssetStruct programAssetStruct = null;
+            if (catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId))
+            {
+                programAssetStruct = catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId];
+            }
             if (programAssetStruct == null)
             {
                 return new Status((int)eResponseStatus.AssetStructDoesNotExist, "Program AssetStruct does not exist");
