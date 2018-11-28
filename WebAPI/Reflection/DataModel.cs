@@ -10771,12 +10771,6 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetStruct", "delete") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                },
                             });
                             return ret;
                             
@@ -10794,12 +10788,6 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "assetStruct", "update") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                },
                             });
                             ret.Add("assetStruct", new MethodParam(){
                                 NewName = newParamName,

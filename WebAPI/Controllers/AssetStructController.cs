@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
                     response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, filter.IsProtectedEqual, filter.MetaIdEqual.Value);
                 }
                 else
-                {                   
+                {           
                     response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetIdIn(), filter.OrderBy, filter.IsProtectedEqual);
                 }
 
@@ -114,7 +114,6 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
         [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
         [Throws(eResponseStatus.MetaIdsDuplication)]
-        [SchemeArgument("id", MinLong = 1)]
         static public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
@@ -140,7 +139,7 @@ namespace WebAPI.Controllers
             assetStruct.Validate();
 
             try
-            {                
+            {
                 response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, id, assetStruct, userId);
             }
             catch (ClientException ex)
@@ -161,7 +160,6 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedAssetStruct)]
         [Throws(eResponseStatus.CanNotDeleteParentAssetStruct)]
-        [SchemeArgument("id", MinLong = 1)]
         static public bool Delete(long id)
         {
             bool result = false;
