@@ -85,7 +85,7 @@ namespace Core.Catalog.CatalogManagement
             this.CreateDate = assetStructToCopy.CreateDate;
             this.UpdateDate = assetStructToCopy.UpdateDate;
             this.AssetStructMetas = new Dictionary<long, AssetStructMeta>(assetStructToCopy.AssetStructMetas);
-            this.Features = new HashSet<string>(assetStructToCopy.Features, StringComparer.OrdinalIgnoreCase);
+            this.Features = assetStructToCopy.Features != null ? new HashSet<string>(assetStructToCopy.Features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             this.ConnectingMetaId = assetStructToCopy.ConnectingMetaId;
             this.ConnectedParentMetaId = assetStructToCopy.ConnectedParentMetaId;
             this.PluralName = assetStructToCopy.PluralName;
