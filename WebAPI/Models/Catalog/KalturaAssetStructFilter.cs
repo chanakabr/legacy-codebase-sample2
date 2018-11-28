@@ -30,7 +30,7 @@ namespace WebAPI.Models.Catalog
     public partial class KalturaAssetStructFilter : KalturaFilter<KalturaAssetStructOrderBy>
     {
         /// <summary>
-        /// Comma separated identifiers
+        /// Comma separated identifiers, id = 0 is identified as program AssetStruct
         /// </summary>
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]

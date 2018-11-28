@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update an existing assetStruct
         /// </summary>
-        /// <param name="id">AssetStruct Identifier</param>
+        /// <param name="id">AssetStruct Identifier, id = 0 is identified as program AssetStruct</param>
         /// <param name="assetStruct">AssetStruct Object</param>
         /// <returns></returns>
         [Action("update")]
@@ -114,6 +114,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
         [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
         [Throws(eResponseStatus.MetaIdsDuplication)]
+        [SchemeArgument("id", MinLong = 0)]
         static public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
@@ -153,13 +154,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Delete an existing assetStruct
         /// </summary>
-        /// <param name="id">AssetStruct Identifier</param>
+        /// <param name="id">AssetStruct Identifier, id = 0 is identified as program AssetStruct</param>
         /// <returns></returns>
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedAssetStruct)]
         [Throws(eResponseStatus.CanNotDeleteParentAssetStruct)]
+        [SchemeArgument("id", MinLong = 0)]
         static public bool Delete(long id)
         {
             bool result = false;
