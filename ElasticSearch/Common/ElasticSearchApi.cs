@@ -571,6 +571,9 @@ namespace ElasticSearch.Common
             {
                 foreach (var bulk in bulkRequests)
                 {
+                    // remove any new line
+                    bulk.document = bulk.document.Replace(Environment.NewLine, " ").Replace("\n", " ");
+
                     requestString.Append("{ \"");
                     requestString.Append(bulk.Operation.ToString());
                     requestString.Append("\": { ");
@@ -635,6 +638,7 @@ namespace ElasticSearch.Common
                                 if (itemError != null)
                                 {
                                     invalidRecords.Add(new KeyValuePair<string, string>(id.ToString(), itemError.ToString()));
+                                    log.ErrorFormat("Failed indexing percolator for channel {0} because of error {1}", id, itemError.ToString());
                                 }
                             }
                         }
