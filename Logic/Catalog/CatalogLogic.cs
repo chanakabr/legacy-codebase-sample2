@@ -1891,7 +1891,8 @@ namespace Core.Catalog
                     return;
                 }
 
-                parentMediaTypes = catalogGroupCache.AssetStructsMapById.ToDictionary(x => (int)x.Key, x => (int)x.Value.ParentId);
+                parentMediaTypes = catalogGroupCache.AssetStructsMapById.
+                    Where(x => x.Value.ParentId.HasValue).ToDictionary(x => (int)x.Key, x => (int)x.Value.ParentId);
             }
             else
             {
