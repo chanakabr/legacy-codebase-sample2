@@ -151,6 +151,20 @@ namespace Core.Catalog
         }       
     }
 
+    class TagsComparer : IEqualityComparer<Tags>
+    {
+        public bool Equals(Tags t1, Tags t2)
+        {
+            return t1.m_oTagMeta.m_sName.Equals(t2.m_oTagMeta.m_sName) &&
+                   t1.m_oTagMeta.m_sType.Equals(t1.m_oTagMeta.m_sType);
+        }
+
+        public int GetHashCode(Tags t)
+        {
+            return t.m_oTagMeta.GetHashCode();
+        }
+    }
+
     [DataContract]
     public class KeyValue
     {

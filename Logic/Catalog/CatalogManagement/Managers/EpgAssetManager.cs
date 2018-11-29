@@ -188,11 +188,11 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, Dictionary<string, List<string>>> epgMetas;
                 bool needToUpdateMetas;
                 List<int> epgTagsIds;
-                bool needToInsetTags;
+                bool needToUpdateTags;
 
                 List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
                 Status validateStatus = ValidateEpgAssetForUpdate(groupId, userId, epgAssetToUpdate, oldEpgAsset, catalogGroupCache, mappingFields, out needToUpdateBasicData,
-                                                                  out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds, out needToInsetTags);
+                                                                  out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds, out needToUpdateTags);
 
                 if (!validateStatus.IsOkStatusCode())
                 {
@@ -245,9 +245,9 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                if (needToInsetTags)
+                if (needToUpdateTags)
                 {
-                    EpgDal.InsertEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);
+                    EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);                  
                 }
 
                 Dictionary<string, Dictionary<string, List<string>>> epgTags = GetEpgTags(epgAssetToUpdate.Tags, allNames, defaultLanguageCode);
@@ -532,14 +532,14 @@ namespace Core.Catalog.CatalogManagement
         private static Status ValidateEpgAssetForUpdate(int groupId, long userId, EpgAsset epgAssetToUpdate, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache, List<FieldTypeEntity> mappingFields,
                                                         out bool updateBasicData, out Dictionary<string, string> allNames,
                                                         out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out bool updateMetas,
-                                                        out List<int> epgTagsIds, out bool needToInsertTags)
+                                                        out List<int> epgTagsIds, out bool updateTags)
         {
             updateBasicData = false;
             allNames = null;
             epgMetas = null;
             updateMetas = true;
             epgTagsIds = null;
-            needToInsertTags = true;
+            updateTags = true;
 
             if (!string.IsNullOrEmpty(epgAssetToUpdate.EpgIdentifier) && !epgAssetToUpdate.EpgIdentifier.Equals(oldEpgAsset.EpgIdentifier))
             {
@@ -577,17 +577,33 @@ namespace Core.Catalog.CatalogManagement
             {
                 epgAssetToUpdate.Tags = oldEpgAsset.Tags;
                 // needToValidateTags
-                needToInsertTags = false;
+                updateTags = false;
             }
+            else
+            {
+                // check for missing tags at epgAssetToUpdate vs.  oldEpgAsset and update epgAssetToUpdate
+                epgAssetToUpdate.Tags = SetEpgAssetToUpdate(epgAssetToUpdate.Tags, oldEpgAsset.Tags);
+            }            
 
-            Status assetStructValidationStatus = ValidateEpgAssetStruct(groupId, userId, epgAssetToUpdate, catalogGroupCache, updateMetas, mappingFields, allNames,
-                out epgMetas, out epgTagsIds);
+            Status assetStructValidationStatus = ValidateEpgAssetStruct(groupId, userId, epgAssetToUpdate, catalogGroupCache, updateMetas, mappingFields, allNames, out epgMetas, out epgTagsIds);
             if (!assetStructValidationStatus.IsOkStatusCode())
             {
                 return assetStructValidationStatus;
             }
 
             return new Status((int)eResponseStatus.OK);
+        }
+
+        private static List<Tags> SetEpgAssetToUpdate(List<Tags> epgTagsToUpdate, List<Tags> oldTagsAsset)
+        {
+            List<Tags> finalList = oldTagsAsset != null && epgTagsToUpdate != null ? oldTagsAsset.Where(x => !epgTagsToUpdate.Contains( x,new TagsComparer())).ToList() : new List<Tags>();
+
+            if (finalList != null)
+            {
+                epgTagsToUpdate.AddRange(finalList);
+            }            
+
+            return epgTagsToUpdate;
         }
 
         private static Status ValidateEpgAssetForInsert(int groupId, long userId, EpgAsset epgAssetToAdd, CatalogGroupCache catalogGroupCache, List<FieldTypeEntity> mappingFields,
@@ -688,8 +704,7 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
-        private static Status HandleEpgAssetTags(int groupId, long userId, string mainCode, List<Tags> tags, List<FieldTypeEntity> mappingFields, CatalogGroupCache catalogGroupCache,
-            AssetStruct programAssetStruct, out List<int> epgTagsIds)
+        private static Status HandleEpgAssetTags(int groupId, long userId, string mainCode, List<Tags> tags, List<FieldTypeEntity> mappingFields, CatalogGroupCache catalogGroupCache, AssetStruct programAssetStruct, out List<int> epgTagsIds)
         {
             var distinctTopics = new HashSet<string>();
             epgTagsIds = new List<int>();
