@@ -891,12 +891,12 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool InsertEpgTags(long programId, List<int> epgTagsIds, long userId, DateTime updateDate, int groupId)
+        public static bool UpdateEpgTags(long programId, List<int> epgTagsIds, long userId, DateTime updateDate, int groupId)
         {
-            StoredProcedure sp = new StoredProcedure("Insert_EpgTags");
+            StoredProcedure sp = new StoredProcedure("Update_EpgTags");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@programId", programId);
-            sp.AddIDListParameter("@epgTagIds", epgTagsIds, "id");
+            sp.AddIDListParameter("@epgTagIdToValues", epgTagsIds, "id");
             sp.AddParameter("@updaterId", userId);
             sp.AddParameter("@updateDate", updateDate);
             sp.AddParameter("@groupId", groupId);
