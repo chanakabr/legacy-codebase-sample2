@@ -188,11 +188,11 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, Dictionary<string, List<string>>> epgMetas;
                 bool needToUpdateMetas;
                 List<int> epgTagsIds;
-                bool needToUpdateTags;
+                bool needToInsetTags;
 
                 List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
                 Status validateStatus = ValidateEpgAssetForUpdate(groupId, userId, epgAssetToUpdate, oldEpgAsset, catalogGroupCache, mappingFields, out needToUpdateBasicData,
-                                                                  out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds, out needToUpdateTags);
+                                                                  out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds, out needToInsetTags);
 
                 if (!validateStatus.IsOkStatusCode())
                 {
@@ -245,13 +245,9 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                if (needToUpdateTags)
+                if (needToInsetTags)
                 {
-                    if (EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId))
-                    {
-                        log.ErrorFormat("UpdateEpgTags Failed. groupId: {0}", groupId);
-                        return result;
-                    }
+                    EpgDal.InsertEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);
                 }
 
                 Dictionary<string, Dictionary<string, List<string>>> epgTags = GetEpgTags(epgAssetToUpdate.Tags, allNames, defaultLanguageCode);
@@ -536,14 +532,14 @@ namespace Core.Catalog.CatalogManagement
         private static Status ValidateEpgAssetForUpdate(int groupId, long userId, EpgAsset epgAssetToUpdate, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache, List<FieldTypeEntity> mappingFields,
                                                         out bool updateBasicData, out Dictionary<string, string> allNames,
                                                         out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out bool updateMetas,
-                                                        out List<int> epgTagsIds, out bool updateTags)
+                                                        out List<int> epgTagsIds, out bool needToInsertTags)
         {
             updateBasicData = false;
             allNames = null;
             epgMetas = null;
             updateMetas = true;
             epgTagsIds = null;
-            updateTags = true;
+            needToInsertTags = true;
 
             if (!string.IsNullOrEmpty(epgAssetToUpdate.EpgIdentifier) && !epgAssetToUpdate.EpgIdentifier.Equals(oldEpgAsset.EpgIdentifier))
             {
@@ -581,10 +577,11 @@ namespace Core.Catalog.CatalogManagement
             {
                 epgAssetToUpdate.Tags = oldEpgAsset.Tags;
                 // needToValidateTags
-                updateTags = false;
+                needToInsertTags = false;
             }
 
-            Status assetStructValidationStatus = ValidateEpgAssetStruct(groupId, userId, epgAssetToUpdate, catalogGroupCache, updateMetas, mappingFields, allNames, out epgMetas, out epgTagsIds);
+            Status assetStructValidationStatus = ValidateEpgAssetStruct(groupId, userId, epgAssetToUpdate, catalogGroupCache, updateMetas, mappingFields, allNames,
+                out epgMetas, out epgTagsIds);
             if (!assetStructValidationStatus.IsOkStatusCode())
             {
                 return assetStructValidationStatus;
@@ -681,7 +678,8 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
-        private static Status HandleEpgAssetTags(int groupId, long userId, string mainCode, List<Tags> tags, List<FieldTypeEntity> mappingFields, CatalogGroupCache catalogGroupCache, AssetStruct programAssetStruct, out List<int> epgTagsIds)
+        private static Status HandleEpgAssetTags(int groupId, long userId, string mainCode, List<Tags> tags, List<FieldTypeEntity> mappingFields, CatalogGroupCache catalogGroupCache,
+            AssetStruct programAssetStruct, out List<int> epgTagsIds)
         {
             var distinctTopics = new HashSet<string>();
             epgTagsIds = new List<int>();
