@@ -554,17 +554,17 @@ namespace WebAPI.Controllers
             if (propertyValue != null && typeof(IList).IsAssignableFrom(propertyType))
             {
                 string[] stringValues = propertyValue.ToString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                dynamic list = Activator.CreateInstance(propertyType);
-                Type realType = propertyType.GenericTypeArguments[0];
-
+                List<long> list = new List<long>();
                 foreach (var item in stringValues)
                 {
-                    var convertedItem = TryConvertTo(realType, item);
-                    list.Add((dynamic)convertedItem);
+                    long convertedItem;
+                    if (long.TryParse(item, out convertedItem))
+                    {
+                        list.Add(convertedItem);
+                    }
                 }
-                
-                dynamic aggregatedValue = Activator.CreateInstance(realType);
-                //int aggregatedValue = 0;
+
+                double aggregatedValue = 0;
                 switch (aggregatedPropertySkipCondition.AggregationType)
                 {
                     case KalturaAggregationType.Count:
@@ -577,13 +577,12 @@ namespace WebAPI.Controllers
                         aggregatedValue =Enumerable.Average(list);
                         break;
                 }
-
                 
                 Type conditionType;
                 object conditionValue = translateMultirequestTokens(aggregatedPropertySkipCondition.Value, responses, out conditionType);
                 if (conditionValue != null)
                 {
-                    var convertedConditionValue = GetConvertedValue(null, null, aggregatedPropertySkipCondition.Operator, conditionValue.ToString(), realType);
+                    var convertedConditionValue = GetConvertedValue(null, null, aggregatedPropertySkipCondition.Operator, conditionValue.ToString(), typeof(double));
                     if (convertedConditionValue != null && CheckCondition(aggregatedPropertySkipCondition.Operator, aggregatedValue, convertedConditionValue))
                     {
                         return false;
