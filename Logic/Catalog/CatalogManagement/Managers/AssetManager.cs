@@ -1611,6 +1611,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     int fileTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
                     bool isFree = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_FREE", 0) == 1;
+
                     if (fileTypeId > 0 && !fileTypes.Contains(fileTypeId))
                     {
                         fileTypes.Add(fileTypeId);
@@ -1620,8 +1621,6 @@ namespace Core.Catalog.CatalogManagement
                     {
                         freeFileTypes.Add(fileTypeId);
                     }
-
-
                 }
             }
 
@@ -1718,7 +1717,9 @@ namespace Core.Catalog.CatalogManagement
                     m_sMFTypes = fileTypes != null ? string.Join(";", fileTypes) : string.Empty,
                     freeFileTypes = freeFileTypes != null ? new List<int>(freeFileTypes) : new List<int>(),
                     isFree = freeFileTypes != null && freeFileTypes.Count > 0,
-                    inheritancePolicy = (int)mediaAsset.InheritancePolicy
+                    inheritancePolicy = (int)mediaAsset.InheritancePolicy,
+                    allowedCountries = mediaAsset.AllowedCountries,
+                    blockedCountries = mediaAsset.BlockedCountries
                 };
 
                 result.Add(language.ID, media);

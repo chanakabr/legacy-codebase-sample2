@@ -42,6 +42,16 @@ namespace Core.Catalog.CatalogManagement
 
         [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public AssetInheritancePolicy? InheritancePolicy { get; set; }
+        
+        //
+        // TODO: add attributes
+        //
+        public List<int> AllowedCountries;
+
+        //
+        // TODO: add attributes
+        //
+        public List<int> BlockedCountries;
 
         public MediaAsset()
             :base()
