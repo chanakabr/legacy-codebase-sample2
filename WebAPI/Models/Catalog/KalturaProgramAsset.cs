@@ -22,6 +22,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "epgChannelId")]
         [JsonProperty(PropertyName = "epgChannelId")]
         [XmlElement(ElementName = "epgChannelId")]
+        [SchemeProperty(ReadOnly = true)]
         public long? EpgChannelId { get; set; }
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "linearAssetId")]
         [JsonProperty(PropertyName = "linearAssetId")]
         [XmlElement(ElementName = "linearAssetId", IsNullable = true)]
-        [SchemeProperty(ReadOnly = true)]
+        [SchemeProperty(InsertOnly = true)]
         public long? LinearAssetId { get; set; }
 
         /// <summary>

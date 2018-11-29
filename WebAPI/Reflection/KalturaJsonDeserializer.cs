@@ -11889,6 +11889,15 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaProgramAsset
     {
+        private static RuntimeSchemePropertyAttribute EpgChannelIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         private static RuntimeSchemePropertyAttribute EpgIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
         {
             ReadOnly = true,
@@ -11900,8 +11909,8 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute LinearAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
         {
-            ReadOnly = true,
-            InsertOnly = false,
+            ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
@@ -11915,6 +11924,10 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("epgChannelId") && parameters["epgChannelId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        EpgChannelIdSchemaProperty.Validate("epgChannelId", parameters["epgChannelId"]);
+                    }
                     EpgChannelId = (Int64) Convert.ChangeType(parameters["epgChannelId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("epgId") && parameters["epgId"] != null)
