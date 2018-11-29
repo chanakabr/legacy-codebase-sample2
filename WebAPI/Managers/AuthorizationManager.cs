@@ -613,35 +613,37 @@ namespace WebAPI.Managers
             }
 
             Group group = GroupsManager.GetGroup(ks.GroupId);
-            string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
-
-            string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
-
-            ApiToken revokedToken = cbManager.Get<ApiToken>(revokedKsCbKey, true);
-            if (revokedToken != null)
+            if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
             {
-                return false;
-            }
+                string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
 
-            string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
-            string userSessionsCbKey = string.Format(userSessionsKeyFormat, ks.UserId);
-            UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
+                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
 
-            if (usersSessions != null)
-            {
-                var ksData = KSUtils.ExtractKSPayload(ks);
-
-                if (usersSessions.UserRevocation > 0)
+                ApiToken revokedToken = cbManager.Get<ApiToken>(revokedKsCbKey, true);
+                if (revokedToken != null)
                 {
-                    return ksData.CreateDate >= usersSessions.UserRevocation;
+                    return false;
                 }
 
-                if (!string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID))
+                string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
+                string userSessionsCbKey = string.Format(userSessionsKeyFormat, ks.UserId);
+                UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
+
+                if (usersSessions != null)
                 {
-                    return ksData.CreateDate >= usersSessions.UserWithUdidRevocations[ksData.UDID];
+                    var ksData = KSUtils.ExtractKSPayload(ks);
+
+                    if (usersSessions.UserRevocation > 0)
+                    {
+                        return ksData.CreateDate >= usersSessions.UserRevocation;
+                    }
+
+                    if (!string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID))
+                    {
+                        return ksData.CreateDate >= usersSessions.UserWithUdidRevocations[ksData.UDID];
+                    }
                 }
             }
-
             if (ks.Privileges != null && ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
             {
                 string sessionId = ks.Privileges[APP_TOKEN_PRIVILEGE_SESSION_ID];
