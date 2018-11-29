@@ -100,7 +100,7 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "parentId", IsNullable = true)]
         [SchemeProperty(MinInteger = 1)]
         public long? ParentId { get; set; }
-
+        
         /// <summary>
         /// connectingMetaId
         /// </summary>
