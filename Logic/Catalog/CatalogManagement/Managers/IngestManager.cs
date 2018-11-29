@@ -247,7 +247,7 @@ namespace Core.Catalog.CatalogManagement
         private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations, int groupId, 
                                                    CatalogGroupCache catalogGroupCache, ref IngestResponse ingestResponse)
         {
-            // TODO SHIR
+            // TODO SHIR - HandleTagsTranslations
             foreach (var topic in tagsTranslations)
             {
                 // tagsTranslation.Key == Genre

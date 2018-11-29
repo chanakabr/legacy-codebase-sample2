@@ -96,7 +96,7 @@ namespace Core.Catalog.CatalogManagement
                 result.SetStatus(CreateAssetResponseStatusFromResult(id));
                 return result;
             }
-
+            
             result.Object = CreateMediaAsset(groupId, id, ds, defaultLanguage, groupLanguages);
 
             if (result.Object != null)
@@ -652,7 +652,11 @@ namespace Core.Catalog.CatalogManagement
                         else
                         {
                             DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID, isAllowedToViewInactiveAssets.Value);
-                            assets.AddRange(CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList()));
+                            List<MediaAsset> mediaAssets = CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                            if (mediaAssets != null && mediaAssets.Count > 0)
+                            {
+                                assets.AddRange(mediaAssets);
+                            }
                         }
 
                         res = assets.Count() == ids.Count() || !isAllowedToViewInactiveAssets.Value;
@@ -766,12 +770,13 @@ namespace Core.Catalog.CatalogManagement
                 // Add Description meta values (for languages that are not default)
                 ExtractTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, DESCRIPTION_META_SYSTEM_NAME);
 
-                DateTime startDate = assetToAdd.StartDate.HasValue ? assetToAdd.StartDate.Value : DateTime.UtcNow;
-                DateTime catalogStartDate = assetToAdd.CatalogStartDate.HasValue ? assetToAdd.CatalogStartDate.Value : startDate;
-                DateTime endDate = assetToAdd.EndDate.HasValue ? assetToAdd.EndDate.Value : DateTime.MaxValue;
+                DateTime startDate = assetToAdd.StartDate ?? DateTime.UtcNow;
+                DateTime catalogStartDate = assetToAdd.CatalogStartDate ?? startDate;
+                DateTime endDate = assetToAdd.EndDate ?? DateTime.MaxValue;
                 DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
                                                         assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
                                                         startDate, endDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId, (int)assetToAdd.InheritancePolicy);
+                
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
 
                 if (result.HasObject() && result.Object.Id > 0 && !isLinear)
@@ -816,90 +821,7 @@ namespace Core.Catalog.CatalogManagement
 
             return responseStatus;
         }
-
-        private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear,
-                                                               long userId, bool isFromIngest = false)
-        {
-            GenericResponse<Asset> result = new GenericResponse<Asset>();
-            try
-            {
-                // validate asset
-                XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate = null;
-                AssetStruct assetStruct = null;
-                DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
-                if (currentAsset.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(currentAsset.MediaType.m_nTypeID))
-                {
-                    assetStruct = catalogGroupCache.AssetStructsMapById[currentAsset.MediaType.m_nTypeID];
-                }
-
-                HashSet<string> currentAssetMetasAndTags = new HashSet<string>(currentAsset.Metas.Select(x => x.m_oTagMeta.m_sName).ToList(), StringComparer.OrdinalIgnoreCase);
-                currentAssetMetasAndTags.UnionWith(currentAsset.Tags.Select(x => x.m_oTagMeta.m_sName).ToList());
-                Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
-                                                                                ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate,
-                                                                                ref assetFinalEndDate, isFromIngest);
-                if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
-                {
-                    result.SetStatus(validateAssetTopicsResult);
-                    return result;
-                }
-
-                // Update asset catalogStartDate and finalEndDate
-                assetToUpdate.CatalogStartDate = assetCatalogStartDate;
-                assetToUpdate.FinalEndDate = assetFinalEndDate;
-
-                // Add Name meta values (for languages that are not default), Name can only be updated
-                if (string.IsNullOrEmpty(currentAsset.Name))
-                {
-                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, NAME_META_SYSTEM_NAME);
-                }
-                else
-                {
-                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
-                }
-
-                // Add Description meta values (for languages that are not default), Description can be updated or added
-                if (string.IsNullOrEmpty(currentAsset.Description))
-                {
-                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);
-                }
-                else
-                {
-                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
-                }
-
-                DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : currentAsset.StartDate.HasValue ? currentAsset.StartDate.Value : DateTime.UtcNow;
-                DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : currentAsset.CatalogStartDate.HasValue ? currentAsset.CatalogStartDate.Value : DateTime.UtcNow;
-                DateTime endDate = assetToUpdate.EndDate.HasValue ? assetToUpdate.EndDate.Value : currentAsset.EndDate.HasValue ? currentAsset.EndDate.Value : DateTime.MaxValue;
-
-                // TODO Lior - check if true
-                if (!assetToUpdate.InheritancePolicy.HasValue)
-                {
-                    assetToUpdate.InheritancePolicy = AssetInheritancePolicy.Enable;
-                }
-
-                // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
-                DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
-                                                        assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
-                                                        endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId, (int)assetToUpdate.InheritancePolicy.Value);
-                result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                if (result.HasObject() && result.Object.Id > 0 && !isLinear)
-                {
-                    // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, result.Object.Id);
-                    if (!indexingResult)
-                    {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed UpdateAsset for groupId: {0} and asset: {1}", groupId, assetToUpdate.ToString()), ex);
-            }
-
-            return result;
-        }
-
+        
         private static bool IsMetaValueValid(Metas meta, long topicId, int defaultLanguageId, Dictionary<string, LanguageObj> LanguageMapByCode, ref Status resultStatus,
                                              ref XmlDocument metasXmlDoc, ref XmlNode rootNode, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
         {
@@ -1229,7 +1151,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
                                                         assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
                                                         endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId, (int)inheritancePolicy);
-
+                
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                 if (!isForMigration && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Object != null && result.Object.Id > 0 && !isLinear)
                 {
@@ -1748,7 +1670,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static LiveAsset CreateLinearMediaAssetFromDataTable(int groupId, DataTable dt, MediaAsset mediaAsset)
+        private static LiveAsset CreateLinearMediaAssetFromDataTable(int groupId, DataTable dt, MediaAsset mediaAsset, long? epgChannelId = null)
         {
             LiveAsset result = null;
             if (dt == null || dt.Rows == null || dt.Rows.Count != 1)
@@ -1769,9 +1691,13 @@ namespace Core.Catalog.CatalogManagement
             string externalCdvrId = ODBCWrapper.Utils.GetSafeStr(dr, "CDVR_ID");
             LinearChannelType channelType = (LinearChannelType)ODBCWrapper.Utils.GetIntSafeVal(dr, "epg_channel_type");
             TimeShiftedTvPartnerSettings accountTstvSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
-            // TODO SHIR - GET EPG_CHNNLE_ID
-            result = new LiveAsset(enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
-                                                catchUpBuffer, trickPlayBuffer, externalIngestId, externalCdvrId, mediaAsset, accountTstvSettings, channelType);
+            if (!epgChannelId.HasValue)
+            {
+                epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+            }
+            
+            result = new LiveAsset(epgChannelId.Value, enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
+                                   catchUpBuffer, trickPlayBuffer, externalIngestId, externalCdvrId, mediaAsset, accountTstvSettings, channelType);
 
             return result;
         }
@@ -1814,8 +1740,8 @@ namespace Core.Catalog.CatalogManagement
                                                                 linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState, linearMediaAssetToUpdate.EnableStartOverState,
                                                                 linearMediaAssetToUpdate.EnableTrickPlayState, linearMediaAssetToUpdate.BufferCatchUp, linearMediaAssetToUpdate.BufferTrickPlay,
                                                                 linearMediaAssetToUpdate.ExternalCdvrId, linearMediaAssetToUpdate.ExternalEpgIngestId, linearMediaAssetToUpdate.ChannelType, userId);
-                result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
-
+                result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset, linearMediaAssetToUpdate.EpgChannelId);
+                
                 if (result.Object != null)
                 {
                     result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -2153,36 +2079,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
-        /// <summary>
-        /// Returns dictionary of [assetId, [language, media]]
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <returns></returns>
-        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupMediaAssets(int groupId)
-        {
-            // <assetId, <languageId, media>>
-            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMediaAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
-            try
-            {
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupMediaAssets", groupId);
-                    return groupMediaAssetsMap;
-                }
-
-                DataSet groupAssetsDs = CatalogDAL.GetGroupMediaAssets(groupId, catalogGroupCache.DefaultLanguage.ID);
-                groupMediaAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, catalogGroupCache);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetGroupMediaAssets for groupId: {0}", groupId), ex);
-            }
-
-            return groupMediaAssetsMap;
-        }
-
+        
         public static GenericResponse<Asset> AddAsset(int groupId, Asset assetToAdd, long userId, bool isFromIngest = false)
         {
             // TODO ANAT (DONE) - SET SOME VAL IF isFromIngest = TRUE

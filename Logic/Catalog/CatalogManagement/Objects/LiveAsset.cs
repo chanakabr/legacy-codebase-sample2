@@ -27,7 +27,7 @@ namespace Core.Catalog.CatalogManagement
         public long SummedTrickPlayBuffer { get; set; }
         public bool RecordingPlaybackNonEntitledChannelEnabled { get; set; }
         public LinearChannelType? ChannelType { get; set; }
-        // TODO SHIR - EPG_CHNNLE_ID
+        public long EpgChannelId { get; set; }
 
         public LiveAsset()
             :base()
@@ -75,7 +75,7 @@ namespace Core.Catalog.CatalogManagement
             this.ChannelType = null;
         }
 
-        public LiveAsset(TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableStartOver, TstvState? enableTrickPlay, TstvState? enableRecordingPlaybackNonEntitledChannel, long catchUpBuffer,
+        public LiveAsset(long epgChannelId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableStartOver, TstvState? enableTrickPlay, TstvState? enableRecordingPlaybackNonEntitledChannel, long catchUpBuffer,
                                 long trickPlayBuffer, string externalIngestId, string externalCdvrId, MediaAsset mediaAsset, TimeShiftedTvPartnerSettings accountTstvSettings, LinearChannelType channelType)
             : base(mediaAsset)
         {
@@ -90,6 +90,7 @@ namespace Core.Catalog.CatalogManagement
             this.ExternalEpgIngestId = externalIngestId;
             this.ExternalCdvrId = externalCdvrId;
             this.ChannelType = channelType;
+            this.EpgChannelId = epgChannelId;
             FillEnabledAndBufferProperties(accountTstvSettings);
         }
 

@@ -619,25 +619,21 @@ namespace Core.Catalog.CatalogManagement
             {
                 return new Status((int)eResponseStatus.EPGSProgramDatesError, EPGS_PROGRAM_DATES_ERROR);
             }
+            
+            long linearAssetId = epgAssetToAdd.LinearAssetId ?? 0;
+            var linearAssetResult = AssetManager.GetAsset(groupId, linearAssetId, eAssetTypes.MEDIA, true);
+            if (!linearAssetResult.HasObject() || !(linearAssetResult.Object is LiveAsset))
+            {
+                return new Status((int)eResponseStatus.AssetDoesNotExist, "The LiveAsset for this program does not exist");
+            }
 
-            long channelId = epgAssetToAdd.EpgChannelId ?? 0;
-            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(new List<string>() { epgAssetToAdd.EpgIdentifier }, (int)channelId);
+            epgAssetToAdd.EpgChannelId = (linearAssetResult.Object as LiveAsset).EpgChannelId;
+            DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(new List<string>() { epgAssetToAdd.EpgIdentifier }, (int)epgAssetToAdd.EpgChannelId.Value);
             if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null && dtEpgIDGUID.Rows.Count > 0)
             {
                 return new Status((int)eResponseStatus.AssetExternalIdMustBeUnique, eResponseStatus.AssetExternalIdMustBeUnique.ToString());
             }
-
-            // TODO SHIR - FINISH new code for channle id changes
-            //long linearAssetId = epgAssetToAdd.LinearAssetId ?? 0;
-            //var linearAssetResult = AssetManager.GetAsset(groupId, linearAssetId, eAssetTypes.MEDIA, true);
-            //if (!linearAssetResult.HasObject() || !(linearAssetResult.Object is LiveAsset))
-            //{
-            //    // TODO SHIR - SET ERROR FOR NO ASSET
-            //}
-
-            //(linearAssetResult.Object as LiveAsset).epg
-            // NEED TO CHECK IF EPG EXIST
-
+            
             // Add Name meta values
             var nameValues = GetSystemTopicValues(epgAssetToAdd.Name, epgAssetToAdd.NamesWithLanguages, catalogGroupCache,
                                                   AssetManager.NAME_META_SYSTEM_NAME, true);
