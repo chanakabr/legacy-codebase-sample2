@@ -489,18 +489,37 @@ namespace WebAPI.Controllers
                     {
                         if (request[i].SkipCondition is KalturaAggregatedPropertySkipCondition)
                         {
-                            if (!ValidateAggregationSkipCondition(request[i].SkipCondition as KalturaAggregatedPropertySkipCondition, responses))
+                            KalturaAggregatedPropertySkipCondition aggregatedPropertySkipCondition = request[i].SkipCondition as KalturaAggregatedPropertySkipCondition;
+                            Tuple<double, double> translatedConditionValues;
+                            if (!ValidateAggregationSkipCondition(aggregatedPropertySkipCondition, responses, out translatedConditionValues))
                             {
-                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, string.Empty);
+                                // FORMAT: count({2:result:objects:0:id}=1) lessthan ({2:result:totalCount}=3)
+                                string reason = string.Format("{0}({1}={2}) {3} ({4}={5})" ,
+                                                               aggregatedPropertySkipCondition.AggregationType,
+                                                               aggregatedPropertySkipCondition.PropertyPath,
+                                                               translatedConditionValues.Item1,
+                                                               aggregatedPropertySkipCondition.Operator,
+                                                               aggregatedPropertySkipCondition.Value,
+                                                               translatedConditionValues.Item2);
+                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, reason);
                                 responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
                                 continue;
                             }
                         }
                         else if (request[i].SkipCondition is KalturaPropertySkipCondition)
                         {
-                            if (!ValidateSkipCondition(request[i].SkipCondition as KalturaPropertySkipCondition, responses))
+                            KalturaPropertySkipCondition propertySkipCondition = request[i].SkipCondition as KalturaPropertySkipCondition;
+                            Tuple<object, object> translatedConditionValues;
+                            if (!ValidateSkipCondition(propertySkipCondition, responses, out translatedConditionValues))
                             {
-                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, string.Empty);
+                                // FORMAT: ({2:result:objects:0:id}=1) lessthan ({2:result:totalCount}=3)
+                                string reason = string.Format("({0}={1}) {2} ({3}={4})",
+                                                               propertySkipCondition.PropertyPath,
+                                                               translatedConditionValues.Item1,
+                                                               propertySkipCondition.Operator,
+                                                               propertySkipCondition.Value,
+                                                               translatedConditionValues.Item2);
+                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, reason);
                                 responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
                                 continue;
                             }
@@ -547,7 +566,7 @@ namespace WebAPI.Controllers
             return responses;
         }
 
-        private static bool ValidateAggregationSkipCondition(KalturaAggregatedPropertySkipCondition aggregatedPropertySkipCondition, object[] responses)
+        private static bool ValidateAggregationSkipCondition(KalturaAggregatedPropertySkipCondition aggregatedPropertySkipCondition, object[] responses, out Tuple<double, double> translatedConditionValues)
         {
             Type propertyType;
             object propertyValue = translateMultirequestTokens(aggregatedPropertySkipCondition.PropertyPath, responses, out propertyType);
@@ -585,15 +604,17 @@ namespace WebAPI.Controllers
                     var convertedConditionValue = GetConvertedValue(null, null, aggregatedPropertySkipCondition.Operator, conditionValue.ToString(), typeof(double));
                     if (convertedConditionValue != null && CheckCondition(aggregatedPropertySkipCondition.Operator, aggregatedValue, convertedConditionValue))
                     {
+                        translatedConditionValues = new Tuple<double, double>(aggregatedValue, (double)convertedConditionValue);
                         return false;
                     }
                 }
             }
 
+            translatedConditionValues = new Tuple<double, double>(0, 0);
             return true;
         }
 
-        private static bool ValidateSkipCondition(KalturaPropertySkipCondition propertySkipCondition, object[] responses)
+        private static bool ValidateSkipCondition(KalturaPropertySkipCondition propertySkipCondition, object[] responses, out Tuple<object, object> translatedConditionValues)
         {
             Type propertyType;
             object propertyValue = translateMultirequestTokens(propertySkipCondition.PropertyPath, responses, out propertyType);
@@ -609,12 +630,14 @@ namespace WebAPI.Controllers
                         var convertedConditionValue = GetConvertedValue(null, null, propertySkipCondition.Operator, conditionValue.ToString(), propertyType);
                         if (convertedConditionValue != null && CheckCondition(propertySkipCondition.Operator, convertedPropValue, convertedConditionValue))
                         {
+                            translatedConditionValues = new Tuple<object, object>(convertedPropValue, convertedConditionValue);
                             return false;
                         }
                     }
                 }
             }
 
+            translatedConditionValues = new Tuple<object, object>(0, 0);
             return true;
         }
     }
