@@ -27,6 +27,7 @@ namespace Core.Catalog.CatalogManagement
         public long SummedTrickPlayBuffer { get; set; }
         public bool RecordingPlaybackNonEntitledChannelEnabled { get; set; }
         public LinearChannelType? ChannelType { get; set; }
+        // TODO SHIR - EPG_CHNNLE_ID
 
         public LiveAsset()
             :base()
