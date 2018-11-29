@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
@@ -7,7 +8,6 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -722,6 +722,9 @@ namespace Core.Users
                 // delete user 
                 if (UsersDal.DeleteUser(GroupId, userId))
                 {
+                    // GDPR TTV
+                    UserSegment.Remove(userId.ToString());
+
                     response.Code = (int)eResponseStatus.OK;
                     response.Message = eResponseStatus.OK.ToString();
 

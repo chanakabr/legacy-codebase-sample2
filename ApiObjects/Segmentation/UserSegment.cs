@@ -2,13 +2,10 @@
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Segmentation
 {
@@ -186,7 +183,7 @@ namespace ApiObjects.Segmentation
 
         #endregion
 
-        #region List
+        #region Public methods
 
         public static List<UserSegment> List(int groupId, string userId, int pageIndex, int pageSize, out int totalCount)
         {
@@ -248,88 +245,6 @@ namespace ApiObjects.Segmentation
             }
         }
 
-        #endregion
-
-        #region Private methods
-
-        private static string GetCombinedString(long segmentationTypeId, long? segmentId)
-        {
-            if (segmentId.HasValue)
-            {
-                return string.Format("t_{0}_s_{1}", segmentationTypeId, segmentId);
-            }
-            else
-            {
-                return string.Format("t_{0}", segmentationTypeId);
-            }
-        }
-
-        private static string GetUserSegmentsDocument(string userId)
-        {
-            return string.Format("user_segments_{0}", userId);
-        }
-
-        private string GetUserSegmentsSequenceDocument()
-        {
-            return "user_segment_sequence";
-        }
-
-        private static List<long> GetUserSegmentsToCleanup(int groupId, List<UserSegment> userSegments)
-        {
-            List<long> segmentsToRemove = new List<long>();
-
-            foreach (var userSegment in userSegments)
-            {
-                long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(userSegment.SegmentId);
-
-                // if we didn't find the type of this segment id - delete it
-                if (segmentationTypeId == 0)
-                {
-                    segmentsToRemove.Add(userSegment.SegmentId);
-                    continue;
-                }
-
-                int tempCount;
-
-                // get the segmentation type of this segment id
-                var segmentationTypes = SegmentationType.List(groupId, new List<long>() { segmentationTypeId }, 0, 1, out tempCount);
-
-                // if we didn't find the type of this segment id - delete it
-                if (segmentationTypes == null || segmentationTypes.Count == 0)
-                {
-                    segmentsToRemove.Add(userSegment.SegmentId);
-                    continue;
-                }
-
-                // if the type doesn't have a value at all - delete it
-                if (segmentationTypes[0].Value == null)
-                {
-                    segmentsToRemove.Add(userSegment.SegmentId);
-                    continue;
-                }
-
-                // if the segment id does not exists for this type - delete it
-                if (!segmentationTypes[0].Value.HasSegmentId(userSegment.SegmentId))
-                {
-                    segmentsToRemove.Add(userSegment.SegmentId);
-                    continue;
-                }
-
-                // if segment was added more than defined TTL ago - remove it
-                if (userSegment.UpdateDate.AddHours(USER_SEGMENT_TTL_HOURS) < DateTime.UtcNow)
-                {
-                    segmentsToRemove.Add(userSegment.SegmentId);
-                    continue;
-                }
-            }
-
-            return segmentsToRemove;
-        }
-
-        #endregion
-
-        #region Bulk Insert
-
         public static bool MultiInsert(int groupId, Dictionary<string, List<long>> usersSegments)
         {
             bool result = true;
@@ -361,7 +276,7 @@ namespace ApiObjects.Segmentation
                 }
 
                 int totalCount;
-                
+
                 foreach (var segmentId in usersSegments[userId])
                 {
                     // segment is valid until proved othersise
@@ -448,6 +363,109 @@ namespace ApiObjects.Segmentation
             }
 
             return result;
+        }
+
+        public static void Remove(string userId)
+        {
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            string userSegmentsKey = GetUserSegmentsDocument(userId);
+            if (!string.IsNullOrEmpty(userSegmentsKey))
+            {
+                UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
+                if (userSegments != null)
+                {
+                    if (!couchbaseManager.Remove(userSegmentsKey))
+                    {
+                        log.ErrorFormat("Error at UserSegments remove from cb, for user : {0} not exist ", userSegmentsKey);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Error at UserSegments get document for user : {0}", userId);
+                }
+            }
+            else
+            {
+                log.ErrorFormat("Error at UserSegments remove, userSegmentsKey for user : {0} not exist", userId);
+            }
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private static string GetCombinedString(long segmentationTypeId, long? segmentId)
+        {
+            if (segmentId.HasValue)
+            {
+                return string.Format("t_{0}_s_{1}", segmentationTypeId, segmentId);
+            }
+            else
+            {
+                return string.Format("t_{0}", segmentationTypeId);
+            }
+        }
+
+        private static string GetUserSegmentsDocument(string userId)
+        {
+            return string.Format("user_segments_{0}", userId);
+        }
+
+        private string GetUserSegmentsSequenceDocument()
+        {
+            return "user_segment_sequence";
+        }
+
+        private static List<long> GetUserSegmentsToCleanup(int groupId, List<UserSegment> userSegments)
+        {
+            List<long> segmentsToRemove = new List<long>();
+
+            foreach (var userSegment in userSegments)
+            {
+                long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(userSegment.SegmentId);
+
+                // if we didn't find the type of this segment id - delete it
+                if (segmentationTypeId == 0)
+                {
+                    segmentsToRemove.Add(userSegment.SegmentId);
+                    continue;
+                }
+
+                int tempCount;
+
+                // get the segmentation type of this segment id
+                var segmentationTypes = SegmentationType.List(groupId, new List<long>() { segmentationTypeId }, 0, 1, out tempCount);
+
+                // if we didn't find the type of this segment id - delete it
+                if (segmentationTypes == null || segmentationTypes.Count == 0)
+                {
+                    segmentsToRemove.Add(userSegment.SegmentId);
+                    continue;
+                }
+
+                // if the type doesn't have a value at all - delete it
+                if (segmentationTypes[0].Value == null)
+                {
+                    segmentsToRemove.Add(userSegment.SegmentId);
+                    continue;
+                }
+
+                // if the segment id does not exists for this type - delete it
+                if (!segmentationTypes[0].Value.HasSegmentId(userSegment.SegmentId))
+                {
+                    segmentsToRemove.Add(userSegment.SegmentId);
+                    continue;
+                }
+
+                // if segment was added more than defined TTL ago - remove it
+                if (userSegment.UpdateDate.AddHours(USER_SEGMENT_TTL_HOURS) < DateTime.UtcNow)
+                {
+                    segmentsToRemove.Add(userSegment.SegmentId);
+                    continue;
+                }
+            }
+
+            return segmentsToRemove;
         }
 
         #endregion

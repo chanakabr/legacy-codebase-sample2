@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
@@ -1969,6 +1970,9 @@ namespace Core.Users
                 // delete user 
                 if (UsersDal.DeleteUser(m_nGroupID, userId))
                 {
+                    // GDPR TTV
+                    UserSegment.Remove(userId.ToString());
+
                     response.Code = (int)eResponseStatus.OK;
                     response.Message = eResponseStatus.OK.ToString();
 

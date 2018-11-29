@@ -2,7 +2,7 @@
 using ApiObjects.DRM;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
-using ApiObjects.Rules;
+using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Users.Cache;
@@ -547,6 +547,9 @@ namespace Core.Users
 
                 if (rowsAffected > 0)
                 {
+                    // GDPR TTV
+                    UserSegment.Remove(nUserID.ToString());
+
                     // send message to update data of the user in the domain (like series recordings, entitlements)
                     var queue = new QueueWrapper.GenericCeleryQueue();
                     ApiObjects.QueueObjects.UserTaskData message = new ApiObjects.QueueObjects.UserTaskData(nGroupID, UserTaskType.Delete, nUserID.ToString(), nDomainID);
@@ -3023,6 +3026,9 @@ namespace Core.Users
                 foreach (var userId in domainUserIds)
                 {
                     usersCache.RemoveUser(userId, m_nGroupID);
+
+                    // GDPR TTV
+                    UserSegment.Remove(userId.ToString());
 
                     // add invalidation key for user roles cache
                     string userRoleInvalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
