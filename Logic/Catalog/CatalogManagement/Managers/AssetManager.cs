@@ -1768,6 +1768,7 @@ namespace Core.Catalog.CatalogManagement
             string externalCdvrId = ODBCWrapper.Utils.GetSafeStr(dr, "CDVR_ID");
             LinearChannelType channelType = (LinearChannelType)ODBCWrapper.Utils.GetIntSafeVal(dr, "epg_channel_type");
             TimeShiftedTvPartnerSettings accountTstvSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+            // TODO SHIR - GET EPG_CHNNLE_ID
             result = new LiveAsset(enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
                                                 catchUpBuffer, trickPlayBuffer, externalIngestId, externalCdvrId, mediaAsset, accountTstvSettings, channelType);
 

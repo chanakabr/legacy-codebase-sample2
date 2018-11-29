@@ -43,7 +43,7 @@ namespace Core.Catalog.CatalogManagement
             this.SystemName = string.Empty;
             this.MetaIds = new List<long>();
             this.IsPredefined = null;
-            this.ParentId = 0;
+            this.ParentId = null;
             this.CreateDate = 0;
             this.UpdateDate = 0;
             this.AssetStructMetas = new Dictionary<long, AssetStructMeta>();
@@ -53,7 +53,7 @@ namespace Core.Catalog.CatalogManagement
             this.PluralName = string.Empty;
         }
 
-        public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, long parentId,
+        public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, long? parentId,
             long createDate, long updateDate, HashSet<string> features, long connectingMetaId, long connectedParentMetaId, string pluralName, bool isProgramAssetStruct)
         {
             this.Id = id;

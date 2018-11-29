@@ -210,6 +210,7 @@ namespace Core.Catalog.CatalogManagement
                         features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
                     }
 
+                    long? parentId = ODBCWrapper.Utils.GetNullableLong(dr, "PARENT_TYPE_ID");
                     result = new AssetStruct()
                     {
                         Id = id,
@@ -217,7 +218,7 @@ namespace Core.Catalog.CatalogManagement
                         NamesInOtherLanguages = namesInOtherLanguages,
                         SystemName = systemName,
                         IsPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC"),
-                        ParentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TYPE_ID"),
+                        ParentId = parentId.HasValue && parentId.Value == 0 ? null : parentId,
                         CreateDate = createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
                         UpdateDate = updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0,
                         Features = features,
@@ -1006,7 +1007,7 @@ namespace Core.Catalog.CatalogManagement
         internal static void UpdateChildAssetsMetaInherited(int groupId, CatalogGroupCache catalogGroupCache, long userId, AssetStruct currentAssetStruct,
             Asset newAsset, Asset currentAsset)
         {
-            List<AssetStruct> connectedAssetStructs = catalogGroupCache.AssetStructsMapById.Select(x => x.Value).Where(x => x.ParentId.HasValue && x.ParentId.Value == currentAssetStruct.Id).ToList();
+            List<AssetStruct> connectedAssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.ParentId.HasValue && x.ParentId.Value == currentAssetStruct.Id).ToList();
             // Get connected AssetStructs (children)
             if (connectedAssetStructs != null && connectedAssetStructs.Count > 0)
             {
@@ -1162,7 +1163,7 @@ namespace Core.Catalog.CatalogManagement
         {
             AssetStruct assetStruct = null;
 
-            List<AssetStruct> connectedAssetStructs = catalogGroupCache.AssetStructsMapById.Select(x => x.Value).Where(x => x.ParentId.HasValue && x.ParentId.Value == parentAssetStructId).ToList();
+            List<AssetStruct> connectedAssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.ParentId.HasValue && x.ParentId.Value == parentAssetStructId).ToList();
             // Get connected AssetStructs (children)
             if (connectedAssetStructs != null && connectedAssetStructs.Count > 0)
             {
@@ -1186,7 +1187,7 @@ namespace Core.Catalog.CatalogManagement
                 return;
             }
 
-            List<AssetStruct> connectedAssetStructs = catalogGroupCache.AssetStructsMapById.Select(x => x.Value).Where(x => x.ParentId.HasValue && x.ParentId.Value == currentAssetStruct.Id).ToList();
+            List<AssetStruct> connectedAssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.ParentId.HasValue && x.ParentId.Value == currentAssetStruct.Id).ToList();
             // Get connected AssetStructs (children)
             if (connectedAssetStructs != null && connectedAssetStructs.Count > 0)
             {
@@ -1439,20 +1440,20 @@ namespace Core.Catalog.CatalogManagement
                 bool shouldUpdateAssetStructAssets = shouldUpdateMetaIds && shouldCheckRegularFlowValidations;
                 AssetStruct assetStruct = null;
                 CatalogGroupCache catalogGroupCache = null;
-
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAssetStruct", groupId);
-                    return result;
-                }
-
-                if (id == 0)
-                {
-                    id = catalogGroupCache.ProgramAssetStructId;
-                }
-
+                
                 if (shouldCheckRegularFlowValidations)
                 {
+                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAssetStruct", groupId);
+                        return result;
+                    }
+
+                    if (id == 0)
+                    {
+                        id = catalogGroupCache.ProgramAssetStructId;
+                    }
+
                     if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                     {
                         result.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
