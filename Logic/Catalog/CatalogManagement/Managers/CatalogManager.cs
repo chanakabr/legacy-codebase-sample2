@@ -1288,12 +1288,19 @@ namespace Core.Catalog.CatalogManagement
                     response.Objects = ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => catalogGroupCache.AssetStructsMapById[x]).ToList();
                     if (ids.Contains(0) && catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId))
                     {
-                        response.Objects.Add(catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId]);
+                        var programAssetStruct = catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId];
+                        programAssetStruct.Id = 0;
+                        response.Objects.Add(programAssetStruct);
                     }
                 }
                 else
                 {
                     response.Objects = catalogGroupCache.AssetStructsMapById.Values.ToList();
+                    int programAssetStructIndex = response.Objects.FindIndex(x => x.IsProgramAssetStruct);
+                    if (programAssetStructIndex > -1)
+                    {
+                        response.Objects[programAssetStructIndex].Id = 0;
+                    }
                 }
 
                 if (isProtected.HasValue)
@@ -1326,6 +1333,13 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     response.Objects = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();
+
+                    int programAssetStructIndex = response.Objects.FindIndex(x => x.IsProgramAssetStruct);
+                    if (programAssetStructIndex > -1)
+                    {
+                        response.Objects[programAssetStructIndex].Id = 0;
+                    }
+
                     if (isProtected.HasValue)
                     {
                         response.Objects = response.Objects.Where(x => x.IsPredefined.HasValue && x.IsPredefined == isProtected.Value).ToList();
@@ -1440,7 +1454,8 @@ namespace Core.Catalog.CatalogManagement
                 bool shouldUpdateAssetStructAssets = shouldUpdateMetaIds && shouldCheckRegularFlowValidations;
                 AssetStruct assetStruct = null;
                 CatalogGroupCache catalogGroupCache = null;
-                
+                bool isProgram = false;
+
                 if (shouldCheckRegularFlowValidations)
                 {
                     if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -1452,6 +1467,7 @@ namespace Core.Catalog.CatalogManagement
                     if (id == 0)
                     {
                         id = catalogGroupCache.ProgramAssetStructId;
+                        isProgram = true;
                     }
 
                     if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
@@ -1588,6 +1604,11 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
+                }
+
+                if (isProgram)
+                {
+                    result.Object.Id = 0;
                 }
             }
             catch (Exception ex)
