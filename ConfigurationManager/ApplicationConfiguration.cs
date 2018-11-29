@@ -123,7 +123,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue PreviewModuleNumOfCancelOrRefundAttempts;
         public static StringConfigurationValue MetaFeaturesPattern;
         public static StringConfigurationValue ExcludeTemplatesImplementation;
-
+        public static NumericConfigurationValue UserSegmentTTL;
         #endregion
 
         #region Private Members
@@ -537,6 +537,12 @@ namespace ConfigurationManager
                 DefaultValue = "203",
                 ShouldAllowEmpty = true
             };
+            UserSegmentTTL = new NumericConfigurationValue("user_segment_ttl_hours")
+            {
+                DefaultValue = 36,
+                ShouldAllowEmpty = true,
+                Description = "How long do we keep information about the users' segments"
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -639,7 +645,8 @@ namespace ConfigurationManager
                     PwlalPMaxResultsSize,
                     PreviewModuleNumOfCancelOrRefundAttempts,
                     MetaFeaturesPattern,
-                    ExcludeTemplatesImplementation
+                    ExcludeTemplatesImplementation,
+                    UserSegmentTTL
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

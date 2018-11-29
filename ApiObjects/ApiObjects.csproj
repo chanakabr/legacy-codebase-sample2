@@ -584,6 +584,10 @@
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

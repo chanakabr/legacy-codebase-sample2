@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -14,7 +15,7 @@ namespace ApiObjects.Segmentation
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const int USER_SEGMENT_TTL_HOURS = 24;
+        private static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.UserSegmentTTL.IntValue;
 
         #region Members
 
