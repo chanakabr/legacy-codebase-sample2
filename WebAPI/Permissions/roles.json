@@ -47,7 +47,9 @@
         "MEDIAFILETYPE_VIEW",
         "MY_USER_MNG",
         "TEAM_VIEW",
-        "RULES_VIEW"
+        "RULES_VIEW",
+		"PLAYBACK_PPV",
+		"PLAYBACK_SUBSCRIPTION"
       ],
       "excluded_permissions": [],
       "name": "Operator"
