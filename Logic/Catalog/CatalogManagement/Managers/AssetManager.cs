@@ -1512,7 +1512,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
-                        MediaAsset mediaAsset = CreateMediaAsset(groupId, id, assetDataset, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                        MediaAsset mediaAsset = CreateMediaAsset(groupId, id, assetDataset, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList(), true);
                         if (mediaAsset != null)
                         {
                             EnumerableRowCollection<DataRow> assetFileTypes = null;
