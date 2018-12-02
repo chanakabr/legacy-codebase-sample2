@@ -529,6 +529,11 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("description", "API Version");
             writer.WriteEndElement(); // apiVersion
 
+            writer.WriteStartElement("abortOnError");
+            writer.WriteAttributeString("type", "bool");
+            writer.WriteAttributeString("description", "Abort the Multireuqset call if any error occurs in one of the requests");
+            writer.WriteEndElement(); // abortOnError
+
             writer.WriteEndElement(); // client
 
 
