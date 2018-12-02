@@ -443,7 +443,8 @@ namespace WebAPI.Controllers
             Assembly asm = Assembly.GetExecutingAssembly();
             object[] responses = new object[request.Count()];
             bool needToAbortRequest = false;
-            int abortingRequestIndex = 0;
+            int abortingIndex = 0;
+            int lastFaildIndex = 0;
             bool isPreviousErrorOccurred = false;
             bool isAnyErrorOccurred = false;
             bool globalAbortOnError = Utils.Utils.GetAbortOnErrorFromRequest();
@@ -451,83 +452,24 @@ namespace WebAPI.Controllers
             for (int i = 0; i < request.Count(); i++)
             {
                 object response;
-                
-                if (needToAbortRequest)
+                try
                 {
-                    var requestAbortException = new BadRequestException(BadRequestException.REQUEST_ABORTED, abortingRequestIndex + 1);
-                    responses[i] = WrappingHandler.prepareExceptionResponse(requestAbortException.Code, requestAbortException.Message, requestAbortException.Args);
-                    isAnyErrorOccurred = true;
-                    continue;
-                }
-
-                if (request[i].SkipCondition is KalturaSkipOnErrorCondition)
-                {
-                    KalturaSkipOnErrorCondition skipOnErrorCondition = request[i].SkipCondition as KalturaSkipOnErrorCondition;
-                    if ((isPreviousErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Previous) ||
-                        (isAnyErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Any))
+                    BadRequestException badRequest;
+                    if (ValidateErrors(asm, request[i].Service, needToAbortRequest, abortingIndex, request[i].SkipCondition, isAnyErrorOccurred, 
+                                       lastFaildIndex, isPreviousErrorOccurred, i, responses, out badRequest))
                     {
-                        var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, "because there was an error in request number " + (abortingRequestIndex + 1));
-                        responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
+                        response = badRequest;
+                        isPreviousErrorOccurred = true;
                         isAnyErrorOccurred = true;
-                        continue;
+                        lastFaildIndex = i;
                     }
-                }
-
-                isPreviousErrorOccurred = false;
-                Type propertyType;
-                
-                Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
-                if (controller == null)
-                {
-                    response = new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
-                    isPreviousErrorOccurred = true;
-                    isAnyErrorOccurred = true;
-                }
-                else
-                {
-                    try
+                    else
                     {
-                        if (request[i].SkipCondition is KalturaAggregatedPropertySkipCondition)
-                        {
-                            KalturaAggregatedPropertySkipCondition aggregatedPropertySkipCondition = request[i].SkipCondition as KalturaAggregatedPropertySkipCondition;
-                            Tuple<double, double> translatedConditionValues;
-                            if (!ValidateAggregationSkipCondition(aggregatedPropertySkipCondition, responses, out translatedConditionValues))
-                            {
-                                // FORMAT: count({2:result:objects:0:id}=1) lessthan ({2:result:totalCount}=3)
-                                string reason = string.Format("{0}({1}={2}) {3} ({4}={5})" ,
-                                                               aggregatedPropertySkipCondition.AggregationType,
-                                                               aggregatedPropertySkipCondition.PropertyPath,
-                                                               translatedConditionValues.Item1,
-                                                               aggregatedPropertySkipCondition.Operator,
-                                                               aggregatedPropertySkipCondition.Value,
-                                                               translatedConditionValues.Item2);
-                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, reason);
-                                responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
-                                continue;
-                            }
-                        }
-                        else if (request[i].SkipCondition is KalturaPropertySkipCondition)
-                        {
-                            KalturaPropertySkipCondition propertySkipCondition = request[i].SkipCondition as KalturaPropertySkipCondition;
-                            Tuple<object, object> translatedConditionValues;
-                            if (!ValidateSkipCondition(propertySkipCondition, responses, out translatedConditionValues))
-                            {
-                                // FORMAT: ({2:result:objects:0:id}=1) lessthan ({2:result:totalCount}=3)
-                                string reason = string.Format("({0}={1}) {2} ({3}={4})",
-                                                               propertySkipCondition.PropertyPath,
-                                                               translatedConditionValues.Item1,
-                                                               propertySkipCondition.Operator,
-                                                               propertySkipCondition.Value,
-                                                               translatedConditionValues.Item2);
-                                var requestSkippedException = new BadRequestException(BadRequestException.REQUEST_SKIPPED, reason);
-                                responses[i] = WrappingHandler.prepareExceptionResponse(requestSkippedException.Code, requestSkippedException.Message, requestSkippedException.Args);
-                                continue;
-                            }
-                        }
-
+                        isPreviousErrorOccurred = false;
                         Dictionary<string, object> parameters = request[i].Parameters;
                         if (i > 0)
                         {
+                            Type propertyType;
                             parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses, out propertyType);
                         }
                         RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
@@ -535,20 +477,22 @@ namespace WebAPI.Controllers
                         List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
                         response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                     }
-                    catch (ApiException e)
-                    {
-                        response = e;
-                        isPreviousErrorOccurred = true;
-                        isAnyErrorOccurred = true;
-                    }
-                    catch (Exception e)
-                    {
-                        response = e.InnerException;
-                        isPreviousErrorOccurred = true;
-                        isAnyErrorOccurred = true;
-                    }
                 }
-                
+                catch (ApiException e)
+                {
+                    response = e;
+                    isPreviousErrorOccurred = true;
+                    isAnyErrorOccurred = true;
+                    lastFaildIndex = i;
+                }
+                catch (Exception e)
+                {
+                    response = e.InnerException;
+                    isPreviousErrorOccurred = true;
+                    isAnyErrorOccurred = true;
+                    lastFaildIndex = i;
+                }
+
                 if (response is ApiException)
                 {
                     response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
@@ -559,11 +503,85 @@ namespace WebAPI.Controllers
                 if (!needToAbortRequest && (request[i].AbortAllOnError || globalAbortOnError) && isPreviousErrorOccurred)
                 {
                     needToAbortRequest = true;
-                    abortingRequestIndex = i;
+                    abortingIndex = i;
+                    lastFaildIndex = i;
                 }
             }
 
             return responses;
+        }
+
+        private static bool ValidateErrors(Assembly executingAssembly, string service, bool needToAbort, int abortingIndex, KalturaSkipCondition skipCondition, bool isAnyErrorOccurred,
+                                           int lastFaildIndex, bool isPreviousErrorOccurred, int currentIndex, object[] responses, out BadRequestException badRequest)
+        {
+            badRequest = null;
+
+            if (needToAbort)
+            {
+                badRequest = new BadRequestException(BadRequestException.REQUEST_ABORTED, abortingIndex + 1);
+                return true;
+            }
+
+            if (skipCondition is KalturaSkipOnErrorCondition)
+            {
+                KalturaSkipOnErrorCondition skipOnErrorCondition = skipCondition as KalturaSkipOnErrorCondition;
+
+                if (isAnyErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Any)
+                {
+                    badRequest = new BadRequestException(BadRequestException.REQUEST_SKIPPED, "because there was an error in request number " + (lastFaildIndex + 1));
+                    return true;
+                }
+                else if (isPreviousErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Previous)
+                {
+                    badRequest = new BadRequestException(BadRequestException.REQUEST_SKIPPED, "because there was an error in request number " + currentIndex);
+                    return true;
+                }
+            }
+
+            if (skipCondition is KalturaAggregatedPropertySkipCondition)
+            {
+                KalturaAggregatedPropertySkipCondition aggregatedPropertySkipCondition = skipCondition as KalturaAggregatedPropertySkipCondition;
+                Tuple<double, double> translatedConditionValues;
+                if (!ValidateAggregationSkipCondition(aggregatedPropertySkipCondition, responses, out translatedConditionValues))
+                {
+                    // FORMAT: count({2:result:objects:0:id}=1) lessthan ({2:result:totalCount}=3)
+                    string reason = string.Format("{0}({1}={2}) {3} ({4}={5})",
+                                                   aggregatedPropertySkipCondition.AggregationType,
+                                                   aggregatedPropertySkipCondition.PropertyPath,
+                                                   translatedConditionValues.Item1,
+                                                   aggregatedPropertySkipCondition.Operator,
+                                                   aggregatedPropertySkipCondition.Value,
+                                                   translatedConditionValues.Item2);
+                    badRequest = new BadRequestException(BadRequestException.REQUEST_SKIPPED, reason);
+                    return true;
+                }
+            }
+            else if (skipCondition is KalturaPropertySkipCondition)
+            {
+                KalturaPropertySkipCondition propertySkipCondition = skipCondition as KalturaPropertySkipCondition;
+                Tuple<object, object> translatedConditionValues;
+                if (!ValidateSkipCondition(propertySkipCondition, responses, out translatedConditionValues))
+                {
+                    // FORMAT: ({2:result:objects:0:id}=1) lessthan ({2:result:totalCount}=3)
+                    string reason = string.Format("({0}={1}) {2} ({3}={4})",
+                                                   propertySkipCondition.PropertyPath,
+                                                   translatedConditionValues.Item1,
+                                                   propertySkipCondition.Operator,
+                                                   propertySkipCondition.Value,
+                                                   translatedConditionValues.Item2);
+                    badRequest = new BadRequestException(BadRequestException.REQUEST_SKIPPED, reason);
+                    return true;
+                }
+            }
+            
+            Type controller = executingAssembly.GetType(string.Format("WebAPI.Controllers.{0}Controller", service), false, true);
+            if (controller == null)
+            {
+                badRequest = new BadRequestException(BadRequestException.INVALID_SERVICE, service);
+                return true;
+            }
+
+            return false;
         }
 
         private static bool ValidateAggregationSkipCondition(KalturaAggregatedPropertySkipCondition aggregatedPropertySkipCondition, object[] responses, out Tuple<double, double> translatedConditionValues)
