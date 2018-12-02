@@ -93,9 +93,7 @@ namespace WebAPI.Models.API
             }
 
         }
-
         
-
         /// <summary>
         /// Fill current AssetRule data members with given assetRule only if they are empty\null
         /// </summary>
@@ -111,17 +109,17 @@ namespace WebAPI.Models.API
                     this.Name = oldRule.Name;
                 }
 
-                if (string.IsNullOrEmpty(this.Description) || string.IsNullOrWhiteSpace(this.Description))
+                if (this.Description == null)
                 {
                     this.Description = oldRule.Description;
                 }
 
-                if (this.Actions == null || this.Actions.Count == 0)
+                if (this.Actions == null)
                 {
                     this.Actions = oldRule.Actions;
                 }
 
-                if (this.Conditions == null || this.Conditions.Count == 0)
+                if (this.Conditions == null)
                 {
                     this.Conditions = oldRule.Conditions;
                 }
