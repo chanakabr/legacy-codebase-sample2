@@ -107,7 +107,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static MediaAsset CreateMediaAsset(int groupId, long id, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
+        private static MediaAsset CreateMediaAsset(int groupId, long id, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages, bool isForIndex = false)
         {
             MediaAsset result = null;
 
@@ -260,7 +260,7 @@ namespace Core.Catalog.CatalogManagement
                                     isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes, assetInheritancePolicy);
 
             // if media is linear we also have the epg channel table returned
-            if (ds.Tables.Count == 7)
+            if (!isForIndex && ds.Tables.Count == 7)
             {
                 result = CreateLinearMediaAssetFromDataTable(groupId, ds.Tables[6], result);
             }
@@ -1433,6 +1433,25 @@ namespace Core.Catalog.CatalogManagement
                     assetUpdateDate = ds.Tables[5].AsEnumerable();
                 }
 
+                Dictionary<int, List<DataRow>> geoAvailability = new Dictionary<int, List<DataRow>>();
+                // Geo Availability
+                if (ds.Tables.Count > 6 && ds.Tables[6] != null && ds.Tables[6].Rows != null && ds.Tables[6].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[6].Rows)
+                    {
+                        int mediaId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_ID");
+                        int countryId = ODBCWrapper.Utils.GetIntSafeVal(row, "COUNTRY_ID");
+                        if (mediaId > 0 && countryId > 0)
+                        {
+                            if (!geoAvailability.ContainsKey(mediaId))
+                            {
+                                geoAvailability.Add(mediaId, new List<DataRow>());
+                            }
+                            geoAvailability[mediaId].Add(row);
+                        }
+                    }
+                }
+
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
                 {
                     int id = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ID", 0);
@@ -1505,6 +1524,23 @@ namespace Core.Catalog.CatalogManagement
                             }
 
                             Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache);
+                            if (geoAvailability.ContainsKey(id))
+                            {
+                                foreach (DataRow row in geoAvailability[id])
+                                {
+                                    int countryId = ODBCWrapper.Utils.GetIntSafeVal(row, "COUNTRY_ID");
+                                    int isAllowed = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ALLOWED");
+                                    if (isAllowed > 0)
+                                    {
+                                        assets[id].allowedCountries.Add(countryId);
+                                    }
+                                    else
+                                    {
+                                        assets[id].blockedCountries.Add(countryId);
+                                    }
+                                }
+                            }
+
                             groupAssetsMap.Add((int)mediaAsset.Id, assets);
                         }
                     }
@@ -1640,8 +1676,8 @@ namespace Core.Catalog.CatalogManagement
                     freeFileTypes = freeFileTypes != null ? new List<int>(freeFileTypes) : new List<int>(),
                     isFree = freeFileTypes != null && freeFileTypes.Count > 0,
                     inheritancePolicy = (int)mediaAsset.InheritancePolicy,
-                    allowedCountries = mediaAsset.AllowedCountries,
-                    blockedCountries = mediaAsset.BlockedCountries
+                    allowedCountries = new List<int>(),
+                    blockedCountries = new List<int>()
                 };
 
                 result.Add(language.ID, media);
@@ -2059,7 +2095,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList(), true);
                 if (mediaAsset != null)
                 {
                     EnumerableRowCollection<DataRow> assetFileTypes = null;
@@ -2069,6 +2105,27 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache);
+
+                    if (ds != null && ds.Tables != null && ds.Tables.Count > 6 && ds.Tables[6] != null && ds.Tables[6].Rows != null && ds.Tables[6].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in ds.Tables[6].Rows)
+                        {
+                            int countryId = ODBCWrapper.Utils.GetIntSafeVal(row, "COUNTRY_ID");
+                            if (countryId > 0)
+                            {
+                                int isAllowed = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ALLOWED");
+                                if (isAllowed > 0)
+                                {
+                                    assets[(int)mediaId].allowedCountries.Add(countryId);
+                                }
+                                else
+                                {
+                                    assets[(int)mediaId].blockedCountries.Add(countryId);
+                                }
+                            }
+                        }
+                    }
+
                     result.Add((int)mediaAsset.Id, assets);
                 }
             }
