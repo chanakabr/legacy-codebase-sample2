@@ -639,12 +639,18 @@ namespace Core.Catalog.CatalogManagement
 
             long linearAssetId = epgAssetToAdd.LinearAssetId ?? 0;
             var linearAssetResult = AssetManager.GetAsset(groupId, linearAssetId, eAssetTypes.MEDIA, true);
+
             if (!linearAssetResult.HasObject() || !(linearAssetResult.Object is LiveAsset))
             {
                 return new Status((int)eResponseStatus.AssetDoesNotExist, "The LiveAsset for this program does not exist");
             }
 
             epgAssetToAdd.EpgChannelId = (linearAssetResult.Object as LiveAsset).EpgChannelId;
+            if (!epgAssetToAdd.EpgChannelId.HasValue || epgAssetToAdd.EpgChannelId.Value == 0)
+            {
+                return new Status((int)eResponseStatus.ChannelDoesNotExist, "Could not find the channel for linear Asset Id: " + linearAssetId.ToString());
+            }
+
             DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(new List<string>() { epgAssetToAdd.EpgIdentifier }, (int)epgAssetToAdd.EpgChannelId.Value);
             if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null && dtEpgIDGUID.Rows.Count > 0)
             {
