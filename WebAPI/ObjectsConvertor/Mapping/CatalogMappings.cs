@@ -362,16 +362,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //EPGChannelProgrammeObject to KalturaProgramAsset
             cfg.CreateMap<EPGChannelProgrammeObject, KalturaProgramAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EPG_ID)) //???
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.ProgrammeDescription)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CREATE_DATE)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UPDATE_DATE)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.START_DATE)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.END_DATE)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CREATE_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))
-                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.EPG_CHANNEL_ID)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.EPG_PICTURES))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.EPG_IDENTIFIER))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.EPG_CHANNEL_ID)))
                 .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EPG_IDENTIFIER))
                 .ForMember(dest => dest.RelatedMediaId, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.media_id)))
                 .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.CRID))
@@ -379,8 +381,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.ENABLE_CDVR == 1))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.ENABLE_CATCH_UP == 1))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.ENABLE_START_OVER == 1))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.ENABLE_TRICK_PLAY == 1))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.EPG_PICTURES));
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.ENABLE_TRICK_PLAY == 1));
 
             #region Old Asset (Obj)
 
@@ -456,16 +457,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //ProgramObj to KalturaProgramAsset
             cfg.CreateMap<ProgramObj, KalturaProgramAsset>()
                 .IncludeBase<BaseObject, KalturaAsset>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeDescription)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_oProgram.CREATE_DATE)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_oProgram.START_DATE)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_oProgram.END_DATE)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_oProgram.CREATE_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_oProgram.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_oProgram.EPG_TAGS)))
-                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.m_oProgram.EPG_CHANNEL_ID)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_oProgram.EPG_IDENTIFIER))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.m_oProgram.EPG_CHANNEL_ID)))
                 .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.m_oProgram.EPG_IDENTIFIER))
                 .ForMember(dest => dest.RelatedMediaId, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.m_oProgram.media_id)))
                 .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.m_oProgram.CRID))
@@ -473,9 +475,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_CDVR == 1))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_CATCH_UP == 1))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_START_OVER == 1))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_TRICK_PLAY == 1))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES));
-
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_TRICK_PLAY == 1));
+            
             //RecordingObj to KalturaRecordingAsset
             cfg.CreateMap<RecordingObj, KalturaRecordingAsset>()
                 .IncludeBase<BaseObject, KalturaAsset>()
@@ -559,7 +560,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForPath(dest => dest.EpgIdentifier, opt => opt.MapFrom(src => src.ExternalId))
                 .ForPath(dest => dest.RelatedMediaId, opt => opt.MapFrom(src => src.RelatedMediaId))
                 .ForPath(dest => dest.Crid, opt => opt.MapFrom(src => src.Crid))
-                .ForPath(dest => dest.LinearAssetId, opt => opt.Ignore())
+                .ForPath(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.LinearAssetId))
                 .ForPath(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
                 .ForPath(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
                 .ForPath(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
@@ -618,7 +619,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<Asset, KalturaAsset>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
-                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.EpgIdentifier))
                 .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgIdentifier))
                 .ForMember(dest => dest.RelatedMediaId, opt => opt.MapFrom(src => src.RelatedMediaId))
                 .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.Crid))

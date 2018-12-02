@@ -95,9 +95,9 @@ namespace WebAPI.Models.Catalog
         {
             base.ValidateForInsert();
 
-            if (!EpgChannelId.HasValue)
+            if (!LinearAssetId.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "epgChannelId");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "linearAssetId");
             }
 
             if (string.IsNullOrEmpty(Crid))
