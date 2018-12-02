@@ -117,13 +117,12 @@ namespace Core.Catalog.CatalogManagement
                 // TODO Anat - take metaidFrom mapping
 
 
-                List<FieldTypeEntity> tagsMappingFields = mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToList();
+                List<FieldTypeEntity> metasMappingFields = mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToList();
                 Dictionary<string, int> metasTypesIds = new Dictionary<string, int>();
-                foreach (FieldTypeEntity fte in tagsMappingFields)
+                foreach (FieldTypeEntity fte in metasMappingFields)
                 {
                     metasTypesIds.Add(fte.Name.ToLower(), fte.ID);
                 }
-
 
                 Dictionary<long, List<string>> epgMetaIdToValues = new Dictionary<long, List<string>>();
                 if (epgMetas != null)
@@ -238,16 +237,12 @@ namespace Core.Catalog.CatalogManagement
                         epgMetaIdToValues[metaId].AddRange(item.Value);
                     }
 
-                    if (EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.DefaultLanguage.ID))
-                    {
-                        log.Error("UpdateEpgMetas Failed");
-                        return result;
-                    }
+                    EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.DefaultLanguage.ID);
                 }
 
                 if (needToUpdateTags)
                 {
-                    EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);                  
+                    EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);
                 }
 
                 Dictionary<string, Dictionary<string, List<string>>> epgTags = GetEpgTags(epgAssetToUpdate.Tags, allNames, defaultLanguageCode);
@@ -571,6 +566,11 @@ namespace Core.Catalog.CatalogManagement
                 // needToValidateMetas
                 updateMetas = false;
             }
+            else
+            {
+                // check for missing metas at epgAssetToUpdate vs.  oldEpgAsset and update epgAssetToUpdate
+                epgAssetToUpdate.Metas = SetEpgMetaToUpdate(catalogGroupCache, epgAssetToUpdate.Metas, oldEpgAsset.Metas);
+            }
 
             // update EPG_program_tags table (tags)
             if (epgAssetToUpdate.Tags == null || epgAssetToUpdate.Tags.Count == 0)
@@ -582,8 +582,8 @@ namespace Core.Catalog.CatalogManagement
             else
             {
                 // check for missing tags at epgAssetToUpdate vs.  oldEpgAsset and update epgAssetToUpdate
-                epgAssetToUpdate.Tags = SetEpgAssetToUpdate(epgAssetToUpdate.Tags, oldEpgAsset.Tags);
-            }            
+                epgAssetToUpdate.Tags = SetEpgTagsToUpdate(epgAssetToUpdate.Tags, oldEpgAsset.Tags);
+            }
 
             Status assetStructValidationStatus = ValidateEpgAssetStruct(groupId, userId, epgAssetToUpdate, catalogGroupCache, updateMetas, mappingFields, allNames, out epgMetas, out epgTagsIds);
             if (!assetStructValidationStatus.IsOkStatusCode())
@@ -594,14 +594,31 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
-        private static List<Tags> SetEpgAssetToUpdate(List<Tags> epgTagsToUpdate, List<Tags> oldTagsAsset)
+        private static List<Metas> SetEpgMetaToUpdate(CatalogGroupCache catalogGroupCache, List<Metas> epgMetasToUpdate, List<Metas> oldMetasAsset)
         {
-            List<Tags> finalList = oldTagsAsset != null && epgTagsToUpdate != null ? oldTagsAsset.Where(x => !epgTagsToUpdate.Contains( x,new TagsComparer())).ToList() : new List<Tags>();
+            List<Metas> excluded = oldMetasAsset != null && epgMetasToUpdate != null ? oldMetasAsset.Where(x => !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList() : new List<Metas>();
 
-            if (finalList != null)
+            if (excluded != null)
             {
-                epgTagsToUpdate.AddRange(finalList);
-            }            
+                // set Metas original m_sType 
+                foreach (Metas meta in excluded)
+                {
+                    meta.m_oTagMeta.m_sType = catalogGroupCache.TopicsMapBySystemName[meta.m_oTagMeta.m_sName].Type.ToString();
+                }
+                epgMetasToUpdate.AddRange(excluded);
+            }
+
+            return epgMetasToUpdate;
+        }
+
+        private static List<Tags> SetEpgTagsToUpdate(List<Tags> epgTagsToUpdate, List<Tags> oldTagsAsset)
+        {
+            List<Tags> excluded = oldTagsAsset != null && epgTagsToUpdate != null ? oldTagsAsset.Where(x => !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList() : new List<Tags>();
+
+            if (excluded != null)
+            {
+                epgTagsToUpdate.AddRange(excluded);
+            }
 
             return epgTagsToUpdate;
         }
@@ -619,7 +636,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 return new Status((int)eResponseStatus.EPGSProgramDatesError, EPGS_PROGRAM_DATES_ERROR);
             }
-            
+
             long linearAssetId = epgAssetToAdd.LinearAssetId ?? 0;
             var linearAssetResult = AssetManager.GetAsset(groupId, linearAssetId, eAssetTypes.MEDIA, true);
             if (!linearAssetResult.HasObject() || !(linearAssetResult.Object is LiveAsset))
@@ -633,7 +650,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 return new Status((int)eResponseStatus.AssetExternalIdMustBeUnique, eResponseStatus.AssetExternalIdMustBeUnique.ToString());
             }
-            
+
             // Add Name meta values
             var nameValues = GetSystemTopicValues(epgAssetToAdd.Name, epgAssetToAdd.NamesWithLanguages, catalogGroupCache,
                                                   AssetManager.NAME_META_SYSTEM_NAME, true);
@@ -853,7 +870,11 @@ namespace Core.Catalog.CatalogManagement
 
                         if (epgMetas[otherLanguageMeta.LanguageCode].ContainsKey(meta.m_oTagMeta.m_sName))
                         {
-                            epgMetas[otherLanguageMeta.LanguageCode][meta.m_oTagMeta.m_sName].Add(otherLanguageMeta.Value);
+                            if (!epgMetas[otherLanguageMeta.LanguageCode][meta.m_oTagMeta.m_sName].Contains(otherLanguageMeta.Value))
+
+                            {
+                                epgMetas[otherLanguageMeta.LanguageCode][meta.m_oTagMeta.m_sName].Add(otherLanguageMeta.Value);
+                            }
                         }
                         else
                         {
