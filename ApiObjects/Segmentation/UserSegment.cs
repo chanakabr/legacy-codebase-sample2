@@ -113,7 +113,7 @@ namespace ApiObjects.Segmentation
             List<long> segmentsToRemove = GetUserSegmentsToCleanup(GroupId, userSegments.Segments.Values.ToList());
             segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
-            bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
+            bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTtl());
 
             if (!setResult)
             {
@@ -162,7 +162,7 @@ namespace ApiObjects.Segmentation
 
             userSegments.Segments.Remove(SegmentId);
 
-            bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
+            bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTtl());
 
             if (!setResult)
             {
@@ -206,7 +206,7 @@ namespace ApiObjects.Segmentation
 
                     try
                     {
-                        couchbaseManager.Set(userSegmentsKey, userSegments);
+                        couchbaseManager.Set(userSegmentsKey, userSegments, GetDocumentTtl());
                     }
                     catch (Exception ex)
                     {
@@ -354,7 +354,7 @@ namespace ApiObjects.Segmentation
                 List<long> segmentsToRemove = GetUserSegmentsToCleanup(groupId, userSegments.Segments.Values.ToList());
                 segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
-                bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
+                bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTtl());
 
                 if (!setResult)
                 {
@@ -467,6 +467,11 @@ namespace ApiObjects.Segmentation
             }
 
             return segmentsToRemove;
+        }
+
+        private static uint GetDocumentTtl()
+        {
+            return (uint)USER_SEGMENT_TTL_HOURS * 2 * 60 * 60;
         }
 
         #endregion
