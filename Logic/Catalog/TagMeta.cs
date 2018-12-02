@@ -151,7 +151,7 @@ namespace Core.Catalog
         }       
     }
 
-    class TagsComparer : IEqualityComparer<Tags>
+    public class TagsComparer : IEqualityComparer<Tags>
     {
         public bool Equals(Tags t1, Tags t2)
         {
@@ -162,6 +162,20 @@ namespace Core.Catalog
         public int GetHashCode(Tags t)
         {
             return t.m_oTagMeta.GetHashCode();
+        }
+    }
+
+    public class MetasComparer : IEqualityComparer<Metas>
+    {
+        public bool Equals(Metas m1, Metas m2)
+        {
+            return m1.m_oTagMeta.m_sName.Equals(m2.m_oTagMeta.m_sName) &&
+                   m1.m_oTagMeta.m_sType.Equals(m1.m_oTagMeta.m_sType);
+        }
+
+        public int GetHashCode(Metas m)
+        {
+            return m.m_oTagMeta.GetHashCode();
         }
     }
 
