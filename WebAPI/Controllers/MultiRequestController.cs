@@ -440,7 +440,7 @@ namespace WebAPI.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         static public object[] Do(KalturaMultiRequestAction[] request)
         {
-            Assembly asm = Assembly.GetExecutingAssembly();
+            Assembly executingAssembly = Assembly.GetExecutingAssembly();
             object[] responses = new object[request.Count()];
             bool needToAbortRequest = false;
             int abortingIndex = 0;
@@ -452,47 +452,57 @@ namespace WebAPI.Controllers
             for (int i = 0; i < request.Count(); i++)
             {
                 object response;
-                try
+
+                if (needToAbortRequest)
                 {
-                    BadRequestException badRequest;
-                    if (ValidateErrors(asm, request[i].Service, needToAbortRequest, abortingIndex, request[i].SkipCondition, isAnyErrorOccurred, 
-                                       lastFaildIndex, isPreviousErrorOccurred, i, responses, out badRequest))
+                    response = new BadRequestException(BadRequestException.REQUEST_ABORTED, abortingIndex + 1);
+                }
+                else
+                {
+                    isPreviousErrorOccurred = false;
+                    try
                     {
-                        response = badRequest;
+                        BadRequestException badRequest;
+                        if (!ValidateSkipCondition(request[i].SkipCondition, isAnyErrorOccurred, lastFaildIndex, isPreviousErrorOccurred, i, responses, out badRequest))
+                        {
+                            response = badRequest;
+                        }
+                        else
+                        {
+                            Type controller = executingAssembly.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
+                            if (controller == null)
+                            {
+                                throw new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
+                            }
+
+                            Dictionary<string, object> parameters = request[i].Parameters;
+                            if (i > 0)
+                            {
+                                Type propertyType;
+                                parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses, out propertyType);
+                            }
+                            RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
+                            Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
+                            List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
+                            response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
+                        }
+                    }
+                    catch (ApiException e)
+                    {
+                        response = e;
                         isPreviousErrorOccurred = true;
                         isAnyErrorOccurred = true;
                         lastFaildIndex = i;
                     }
-                    else
+                    catch (Exception e)
                     {
-                        isPreviousErrorOccurred = false;
-                        Dictionary<string, object> parameters = request[i].Parameters;
-                        if (i > 0)
-                        {
-                            Type propertyType;
-                            parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses, out propertyType);
-                        }
-                        RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
-                        Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
-                        List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
-                        response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
+                        response = e.InnerException;
+                        isPreviousErrorOccurred = true;
+                        isAnyErrorOccurred = true;
+                        lastFaildIndex = i;
                     }
                 }
-                catch (ApiException e)
-                {
-                    response = e;
-                    isPreviousErrorOccurred = true;
-                    isAnyErrorOccurred = true;
-                    lastFaildIndex = i;
-                }
-                catch (Exception e)
-                {
-                    response = e.InnerException;
-                    isPreviousErrorOccurred = true;
-                    isAnyErrorOccurred = true;
-                    lastFaildIndex = i;
-                }
-
+                
                 if (response is ApiException)
                 {
                     response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
@@ -500,28 +510,21 @@ namespace WebAPI.Controllers
 
                 responses[i] = response;
 
-                if (!needToAbortRequest && (request[i].AbortAllOnError || globalAbortOnError) && isPreviousErrorOccurred)
+                if (!needToAbortRequest && isPreviousErrorOccurred && (request[i].AbortAllOnError || globalAbortOnError))
                 {
                     needToAbortRequest = true;
                     abortingIndex = i;
-                    lastFaildIndex = i;
                 }
             }
 
             return responses;
         }
 
-        private static bool ValidateErrors(Assembly executingAssembly, string service, bool needToAbort, int abortingIndex, KalturaSkipCondition skipCondition, bool isAnyErrorOccurred,
-                                           int lastFaildIndex, bool isPreviousErrorOccurred, int currentIndex, object[] responses, out BadRequestException badRequest)
+        private static bool ValidateSkipCondition(KalturaSkipCondition skipCondition, bool isAnyErrorOccurred, int lastFaildIndex, bool isPreviousErrorOccurred, 
+                                           int currentIndex, object[] responses, out BadRequestException badRequest)
         {
             badRequest = null;
-
-            if (needToAbort)
-            {
-                badRequest = new BadRequestException(BadRequestException.REQUEST_ABORTED, abortingIndex + 1);
-                return true;
-            }
-
+            
             if (skipCondition is KalturaSkipOnErrorCondition)
             {
                 KalturaSkipOnErrorCondition skipOnErrorCondition = skipCondition as KalturaSkipOnErrorCondition;
@@ -529,16 +532,15 @@ namespace WebAPI.Controllers
                 if (isAnyErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Any)
                 {
                     badRequest = new BadRequestException(BadRequestException.REQUEST_SKIPPED, "because there was an error in request number " + (lastFaildIndex + 1));
-                    return true;
+                    return false;
                 }
                 else if (isPreviousErrorOccurred && skipOnErrorCondition.Condition == KalturaSkipOptions.Previous)
                 {
                     badRequest = new BadRequestException(BadRequestException.REQUEST_SKIPPED, "because there was an error in request number " + currentIndex);
-                    return true;
+                    return false;
                 }
             }
-
-            if (skipCondition is KalturaAggregatedPropertySkipCondition)
+            else if (skipCondition is KalturaAggregatedPropertySkipCondition)
             {
                 KalturaAggregatedPropertySkipCondition aggregatedPropertySkipCondition = skipCondition as KalturaAggregatedPropertySkipCondition;
                 Tuple<double, double> translatedConditionValues;
@@ -553,7 +555,7 @@ namespace WebAPI.Controllers
                                                    aggregatedPropertySkipCondition.Value,
                                                    translatedConditionValues.Item2);
                     badRequest = new BadRequestException(BadRequestException.REQUEST_SKIPPED, reason);
-                    return true;
+                    return false;
                 }
             }
             else if (skipCondition is KalturaPropertySkipCondition)
@@ -570,18 +572,11 @@ namespace WebAPI.Controllers
                                                    propertySkipCondition.Value,
                                                    translatedConditionValues.Item2);
                     badRequest = new BadRequestException(BadRequestException.REQUEST_SKIPPED, reason);
-                    return true;
+                    return false;
                 }
             }
             
-            Type controller = executingAssembly.GetType(string.Format("WebAPI.Controllers.{0}Controller", service), false, true);
-            if (controller == null)
-            {
-                badRequest = new BadRequestException(BadRequestException.INVALID_SERVICE, service);
-                return true;
-            }
-
-            return false;
+            return true;
         }
 
         private static bool ValidateAggregationSkipCondition(KalturaAggregatedPropertySkipCondition aggregatedPropertySkipCondition, object[] responses, out Tuple<double, double> translatedConditionValues)
