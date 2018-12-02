@@ -594,6 +594,10 @@ namespace WebAPI.Controllers
                     {
                         list.Add(convertedItem);
                     }
+                    else
+                    {
+                        throw new RequestParserException(RequestParserException.INVALID_CONDITION_VALUE, item, "Numeric (int, long, etc)");
+                    }
                 }
 
                 double aggregatedValue = 0;
