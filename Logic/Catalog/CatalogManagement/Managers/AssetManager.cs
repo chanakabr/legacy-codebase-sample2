@@ -2424,6 +2424,35 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        /// <summary>
+        /// Returns dictionary of [assetId, [language, media]] - use in remote task
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupMediaAssets(int groupId)
+        {
+            // <assetId, <languageId, media>>
+            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMediaAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupMediaAssets", groupId);
+                    return groupMediaAssetsMap;
+                }
+
+                DataSet groupAssetsDs = CatalogDAL.GetGroupMediaAssets(groupId, catalogGroupCache.DefaultLanguage.ID);
+                groupMediaAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, catalogGroupCache);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupMediaAssets for groupId: {0}", groupId), ex);
+            }
+
+            return groupMediaAssetsMap;
+        }
+
         #endregion
     }
 }
