@@ -285,7 +285,7 @@ namespace WebAPI.Models.Catalog
                     if (metaValues.Value.GetType() == typeof(KalturaMultilingualStringValue))
                     {
                         KalturaMultilingualStringValue multilingualStringValue = metaValues.Value as KalturaMultilingualStringValue;
-                        if (multilingualStringValue != null)
+                        if (multilingualStringValue != null && multilingualStringValue.value != null)
                         {
                             multilingualStringValue.value.Validate(metaValues.Key);
                         }
