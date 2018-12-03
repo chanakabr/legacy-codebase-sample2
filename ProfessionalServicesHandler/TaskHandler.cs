@@ -46,10 +46,15 @@ namespace ProfessionalServicesHandler
                 log.InfoFormat("Sending POST to url:[{0}], with data:[{1}]", setting.HandlerUrl, data);
                 result = HttpPost(setting.HandlerUrl, data, "application/json");
             }
+            else
+            {
+                log.InfoFormat("Trying to load dll:[{0}], type:[{1}]", setting.DllLocation, setting.Type);
+                var newTaskHandler = GetTaskHandler(setting);
+                log.InfoFormat("Executing external PS handler");
+                result = TryExecuteExternalTaskHandler(data, newTaskHandler, result, request);
+            }
 
-            var newTaskHandler = GetTaskHandler(setting);
-            result = TryExecuteExternalTaskHandler(data, newTaskHandler, result, request);
-
+            log.InfoFormat("Got response:[{}]", result);
             return result;
         }
 
