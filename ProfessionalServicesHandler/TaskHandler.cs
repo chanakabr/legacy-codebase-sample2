@@ -54,7 +54,7 @@ namespace ProfessionalServicesHandler
                 result = TryExecuteExternalTaskHandler(data, newTaskHandler, result, request);
             }
 
-            log.InfoFormat("Got response:[{}]", result);
+            log.InfoFormat("Got response:[{0}]", result);
             return result;
         }
 
@@ -139,7 +139,7 @@ namespace ProfessionalServicesHandler
             {
                 log.ErrorFormat("Failed loading specific action implementation from assembly. location = {0}, type = {1}, ex = {2}",
                     setting.DllLocation, setting.Type, ex);
-                return null;
+                throw;
             }
         }
 
