@@ -79,9 +79,14 @@ namespace KlogMonitorHelper
                     doc.LoadXml(requestString);
 
                     // get action name
-                    XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
-                    if (tempXmlNodeList.Count > 0)
-                        HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
+                    if (HttpContext.Current.Request.Headers[Constants.ACTION.ToString()] == null)
+                    {
+                        XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
+                        if (tempXmlNodeList.Count > 0)
+                            HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
+                    }
+                    else
+                        HttpContext.Current.Items[Constants.ACTION] = HttpContext.Current.Request.Headers[Constants.ACTION];
 
                     // get group ID
                     XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
@@ -171,17 +176,19 @@ namespace KlogMonitorHelper
                     log.Debug("REQUEST STRING IS EMPTY");
                 else
                 {
+                    // get action name
                     if (requestMessage.Headers != null)
                     {
-                        // get action name
-                        if (requestMessage.Headers.Action != null)
+                        if (OperationContext.Current.IncomingMessageHeaders.FindHeader(KLogMonitor.Constants.ACTION, string.Empty) > -1)
+                            MonitorLogsHelper.SetContext(KLogMonitor.Constants.ACTION, OperationContext.Current.IncomingMessageHeaders.GetHeader<string>(KLogMonitor.Constants.ACTION, string.Empty));
+                        else
                         {
                             string actionName = requestMessage.Headers.Action.Substring(requestMessage.Headers.Action.LastIndexOf("/") + 1);
                             MonitorLogsHelper.SetContext(Constants.ACTION, actionName);
                         }
-                        else
-                            MonitorLogsHelper.SetContext(Constants.ACTION, "null");
                     }
+                    else
+                        MonitorLogsHelper.SetContext(Constants.ACTION, "null");
 
                     // get request ID
                     if (OperationContext.Current.IncomingMessageHeaders.FindHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty) == -1)

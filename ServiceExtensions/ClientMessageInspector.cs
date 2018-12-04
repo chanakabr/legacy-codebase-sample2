@@ -39,6 +39,9 @@ namespace ServiceExtensions
 
                         if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.KS, out res))
                             request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.KS, string.Empty, res.ToString()));
+
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.ACTION, out res))
+                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.ACTION, string.Empty, res.ToString()));
                     }
                 }
                 else
