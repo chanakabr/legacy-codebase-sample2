@@ -258,6 +258,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                             
                             Dictionary<string, LanguageContainer> valuesInOtherLanguages = new Dictionary<string, LanguageContainer>();
+                            string defaultValue = null;
                             containersCounter++;
 
                             foreach (IngestLanguageValue languageValue in container.Values)
@@ -268,41 +269,51 @@ namespace Core.Catalog.CatalogManagement
                                     status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", languageValue.LangCode));
                                     return status;
                                 }
-                                
+
+                                if (string.IsNullOrEmpty(languageValue.Text))
+                                {
+                                    return new Status((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
+                                }
+
                                 // add default value
                                 if (defaultLanguageCode.Equals(languageValue.LangCode))
                                 {
                                     // check if default language allready have this value
                                     if (tagNameToTranslations[metaTag.Name].ContainsKey(languageValue.Text))
                                     {
-                                        return new Status((int)eResponseStatus.Error, string.Format("For meta: {0} the value: {1} has been sent more than once default language: {2}", 
+                                        return new Status((int)eResponseStatus.Error, string.Format("For meta: {0} the value: {1} has been sent more than once default language: {2}",
                                                                                                     metaTag.Name, languageValue.Text, languageValue.LangCode));
                                     }
-
-                                    if (string.IsNullOrEmpty(languageValue.Text))
-                                    {
-                                        return new Status((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
-                                    }
-
+                                    
                                     // add metaTag value (Drama)
                                     tagNameToTranslations[metaTag.Name].Add(languageValue.Text, valuesInOtherLanguages);
                                     defaultLangCodeCounter++;
+                                    defaultValue = languageValue.Text;
                                 }
                                 else
                                 {
-                                    // Validate Value
-                                    if (valuesInOtherLanguages.ContainsKey(languageValue.LangCode))
+                                    if (defaultValue == null)
                                     {
-                                        return new Status((int)eResponseStatus.Error, string.Format("For meta: {0} the language: {1} has been sent more than once in the same container",
-                                                                                                    metaTag.Name, languageValue.LangCode));
-                                    }
+                                        // Validate Value
+                                        if (valuesInOtherLanguages.ContainsKey(languageValue.LangCode))
+                                        {
+                                            return new Status((int)eResponseStatus.Error, string.Format("For meta: {0} the language: {1} has been sent more than once in the same container",
+                                                                                                        metaTag.Name, languageValue.LangCode));
+                                        }
 
-                                    if (string.IsNullOrEmpty(languageValue.Text))
+                                        valuesInOtherLanguages.Add(languageValue.LangCode, new LanguageContainer(languageValue.LangCode, languageValue.Text));
+                                    }
+                                    else
                                     {
-                                        return new Status((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
-                                    }
+                                        // Validate Value
+                                        if (tagNameToTranslations[metaTag.Name][defaultValue].ContainsKey(languageValue.LangCode))
+                                        {
+                                            return new Status((int)eResponseStatus.Error, string.Format("For meta: {0} the language: {1} has been sent more than once in the same container",
+                                                                                                        metaTag.Name, languageValue.LangCode));
+                                        }
 
-                                    valuesInOtherLanguages.Add(languageValue.LangCode, new LanguageContainer(languageValue.LangCode, languageValue.Text));
+                                        tagNameToTranslations[metaTag.Name][defaultValue].Add(languageValue.LangCode, new LanguageContainer(languageValue.LangCode, languageValue.Text));
+                                    }
                                 }
                             }
                         }
