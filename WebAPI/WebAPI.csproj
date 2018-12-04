@@ -663,6 +663,7 @@
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AssetFilePpvController.cs" />
     <Compile Include="Controllers\BusinessModuleRuleController.cs" />
+    <Compile Include="Controllers\PlaybackProfileController.cs" />
     <Compile Include="Controllers\SegmentationTypeController.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
@@ -697,11 +698,14 @@
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\UserSegmentController.cs" />
     <Compile Include="Models\API\KalturaBusinessModuleRuleFilter.cs" />
+    <Compile Include="Models\API\KalturaPlaybackProfile.cs" />
+    <Compile Include="Models\API\KalturaPlaybackProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaRule.cs" />
     <Compile Include="Models\API\KalturaBusinessModuleRule.cs" />
     <Compile Include="Models\API\KalturaDRMProfile.cs" />
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
+    <Compile Include="Models\API\KalturaPlaybackProfileFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
     <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />

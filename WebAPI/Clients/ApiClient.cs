@@ -4063,5 +4063,37 @@ namespace WebAPI.Clients
                 ClientUtils.GetResponseFromWS<KalturaBusinessModuleRule, BusinessModuleRule>(GetBusinessModuleRuleFunc);
             return result;
         }
+
+        internal KalturaPlaybackProfileListResponse GetPlaybackProfiles(int groupId)
+        {
+            KalturaPlaybackProfileListResponse result = new KalturaPlaybackProfileListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<PlaybackAdapter>> getPlaybackProfilesFunc = () =>
+               Core.Api.Module.GetPlaybackProfiles(groupId);
+
+            KalturaGenericListResponse<KalturaPlaybackProfile> response =
+                ClientUtils.GetResponseListFromWS<KalturaPlaybackProfile, PlaybackAdapter>(getPlaybackProfilesFunc);
+
+            result.PlaybackProfiles = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaPlaybackProfileListResponse GetPlaybackProfile(int groupId, long playbackProfileId)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaPlaybackProfile InsertPlaybackProfile(int groupId, string userId, KalturaPlaybackProfile playbackProfile)
+        {
+            Func<PlaybackAdapter, GenericResponse<PlaybackAdapter>> addBusinessModuleRuleFunc = (PlaybackAdapter playbackAdapterToAdd) =>
+              Core.Api.Module.AddPlaybackAdapter(groupId, userId, playbackAdapterToAdd);
+
+            KalturaPlaybackProfile result =
+                ClientUtils.GetResponseFromWS<KalturaPlaybackProfile, PlaybackAdapter>(playbackProfile, addBusinessModuleRuleFunc);
+
+            return result;
+        }
     }
 }
