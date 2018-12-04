@@ -4097,7 +4097,7 @@ namespace TVPApiServices
                     #endregion
 
                     response = new APIInternalChannelLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
-                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, string.Empty, filter, kaltura_identifier.ToString())
+                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, string.Empty, filter, kaltura_identifier.ToString(), initObj.UDID)
                     {
                         Order = order
                     }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
