@@ -2188,7 +2188,7 @@ namespace Core.Api
 
             }
             return res;
-        }
+        }        
 
         static public List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
@@ -11319,6 +11319,98 @@ namespace Core.Api
             return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
         }
 
+        internal static GenericListResponse<PlaybackAdapter> GetPlaybackProfiles(int groupId)
+        {
+            GenericListResponse<PlaybackAdapter> response = new GenericListResponse<PlaybackAdapter>();
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
+            try
+            {
+                List<PlaybackAdapter> playbackAdapter = DAL.ApiDAL.GetPlaybackAdapters(groupId);
+                if (playbackAdapter == null || playbackAdapter.Count == 0)
+                {
+                    response.SetStatus(eResponseStatus.OK, "No adapters found");
+                }
+                else
+                {
+                    response.Objects.AddRange(playbackAdapter);
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetPlaybackProfiles with groupId: {0}. ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        internal static GenericResponse<PlaybackAdapter> AddPlaybackAdapter(int groupId, string userId, PlaybackAdapter adapter)
+        {
+            GenericResponse<PlaybackAdapter> response = new GenericResponse<PlaybackAdapter>();
+            try
+            {
+                if (adapter == null)
+                {
+                    response.SetStatus((int)eResponseStatus.NoAdapterToInsert, NO_ADAPTER_TO_INSERT);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.Name))
+                {
+                    response.SetStatus((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
+                {
+                    response.SetStatus((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.ExternalIdentifier))
+                {
+                    response.SetStatus((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    return response;
+                }
+
+                //check External Identifier uniqueness 
+                PlaybackAdapter responseAdapter = ApiDAL.GetplaybackAdapterByExternalId(groupId, adapter.ExternalIdentifier);
+
+                if (responseAdapter != null && responseAdapter.Id > 0)
+                {
+                    response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                    return response;
+                }
+
+                // Create Shared secret 
+                adapter.SharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+
+                DataTable dt = ApiDAL.AddPlaybackAdapter(groupId, userId, adapter);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    adapter.Id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+
+                    response.Object = adapter;
+                    response.SetStatus(eResponseStatus.OK, "New playback adapter was successfully inserted");
+
+                    //if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter))
+                    //    log.ErrorFormat("InsertEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", response.EngagementAdapter.ID);
+                }
+                else
+                {
+                    response.SetStatus((int)eResponseStatus.Error, "failed to insert new playback Adapter");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed to insert playback adapter. Group Id: {0}. ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
     }
 }

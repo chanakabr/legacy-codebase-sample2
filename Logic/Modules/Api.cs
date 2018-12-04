@@ -2226,5 +2226,15 @@ namespace Core.Api
         {
             return Core.Api.api.GetBusinessModuleRules(groupId, filter);
         }
+
+        public static GenericListResponse<PlaybackAdapter> GetPlaybackProfiles(int groupId)
+        {
+            return Core.Api.api.GetPlaybackProfiles(groupId);
+        }
+
+        public static GenericResponse<PlaybackAdapter> AddPlaybackAdapter(int groupId, string userId, PlaybackAdapter playbackAdapterToAdd)
+        {
+            return Core.Api.api.AddPlaybackAdapter(groupId, userId, playbackAdapterToAdd);
+        }
     }
 }
