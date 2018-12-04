@@ -23,15 +23,15 @@ namespace TVPApiModule.CatalogLoaders
         #region Ctor
 
         public APIInternalChannelLoader(int groupId, PlatformType platform, string userIP, int pageSize, int pageIndex, int domainId, string siteGuid, 
-            string localeLanguage, List<string> with, string externalChannelId, string filterQuery, string internalChannelId)
+            string localeLanguage, List<string> with, string externalChannelId, string filterQuery, string internalChannelId, string udid)
             : base(groupId, platform, domainId, userIP, pageSize, pageIndex, new List<int>(), string.Empty, with, null, localeLanguage)
         {
             this.SiteGuid = siteGuid;
             this.DomainId = domainId;
             this.externalChannelId = externalChannelId;
             this.internalChannelId = internalChannelId;
-
             this.Filter = filterQuery;
+            this.DeviceId = udid;
         }
 
         #endregion
