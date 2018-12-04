@@ -974,12 +974,15 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Metas descMeta = metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == DESCRIPTION_META_SYSTEM_NAME.ToLower());
-                if (descMeta != null && !string.IsNullOrEmpty(descMeta.m_sValue))
+                if (descMeta != null)
                 {
-                    description = descMeta.m_sValue;
-                    if (descMeta.Value != null && descMeta.Value.Length > 0)
+                    if (!string.IsNullOrEmpty(descMeta.m_sValue))
                     {
-                        descriptionsWithLanguages = new List<LanguageContainer>(descMeta.Value);
+                        description = descMeta.m_sValue;
+                        if (descMeta.Value != null && descMeta.Value.Length > 0)
+                        {
+                            descriptionsWithLanguages = new List<LanguageContainer>(descMeta.Value);
+                        }
                     }
 
                     metas.Remove(descMeta);
