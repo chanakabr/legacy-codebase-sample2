@@ -16,7 +16,6 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Xml.Linq;
 
 namespace DAL
 {
@@ -5271,5 +5270,93 @@ namespace DAL
         }
 
         #endregion
+
+        public static List<DrmAdapter> GetPlaybackAdapterDrmAdapters(int groupID)
+        {
+            List<DrmAdapter> res = new List<DrmAdapter>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DrmAdapters");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        res.Add(CreateDrmAdapter(dr));
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                res = new List<DrmAdapter>();
+            }
+            return res;
+        }
+
+        public static List<PlaybackAdapter> GetPlaybackAdapters(int groupId)
+        {
+            List<PlaybackAdapter> res = new List<PlaybackAdapter>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PlaybackAdapters");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        res.Add(new PlaybackAdapter()
+                        {
+                            ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier"),
+                            AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
+                            Settings = ODBCWrapper.Utils.GetSafeStr(dr, "settings"),
+                            Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                            IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 1,
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                            SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
+                            Ksql = ODBCWrapper.Utils.GetSafeStr(dr, "ksql")
+                        });
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                res = new List<PlaybackAdapter>();
+            }
+            return res;
+        }
+
+        public static PlaybackAdapter GetplaybackAdapterByExternalId(int groupId, string externalIdentifier)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static DataTable AddPlaybackAdapter(int groupId, string userId, PlaybackAdapter adapter)
+        {
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PlaybackAdapter");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", adapter.Name);
+                sp.AddParameter("@adapterUrl", adapter.AdapterUrl);
+                sp.AddParameter("@externalIdentifier", adapter.ExternalIdentifier);
+                sp.AddParameter("@sharedSecret", adapter.SharedSecret);
+                sp.AddParameter("@isActive", adapter.IsActive);
+                sp.AddParameter("@ksql", adapter.Ksql);
+                sp.AddParameter("@settings", adapter.Settings);
+                sp.AddParameter("@updaterId", userId);
+                dt = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddPlaybackAdapter in DB, groupId: {0}, name: {1}, ex:{2} ", groupId, adapter.Name, ex);
+            }
+
+            return dt;
+        }
     }
 }
