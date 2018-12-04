@@ -86,7 +86,6 @@ namespace Core.Catalog.CatalogManagement
         // TODO - Lior, move all language related properties in this class to seperate cache or invalidate catalogGroupCache when adding\updating languages (doesn't exist at the moment)
         public CatalogGroupCache(int groupId, List<LanguageObj> languages, List<AssetStruct> assetStructs, List<Topic> topics)
         {
-            programAssetStructId = 0;
             LanguageObj defaultLanguage = languages.FirstOrDefault(x => x.IsDefault);
             if (defaultLanguage != null && defaultLanguage.ID > 0)
             {
@@ -148,6 +147,12 @@ namespace Core.Catalog.CatalogManagement
             }
 
             SetCatalogGroupCacheDefaults(groupId, this);
+
+            var programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
+            if (programAssetStruct != null)
+            {
+                programAssetStructId = programAssetStruct.Id;
+            }
         }
 
         public bool IsValid()

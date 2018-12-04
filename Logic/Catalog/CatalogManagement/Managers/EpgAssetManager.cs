@@ -562,28 +562,22 @@ namespace Core.Catalog.CatalogManagement
             // update EPG_program_metas table (metas)
             if (epgAssetToUpdate.Metas == null || epgAssetToUpdate.Metas.Count == 0)
             {
-                epgAssetToUpdate.Metas = oldEpgAsset.Metas;
                 // needToValidateMetas
                 updateMetas = false;
             }
-            else
-            {
-                // check for missing metas at epgAssetToUpdate vs.  oldEpgAsset and update epgAssetToUpdate
-                epgAssetToUpdate.Metas = SetEpgMetaToUpdate(catalogGroupCache, epgAssetToUpdate.Metas, oldEpgAsset.Metas);
-            }
+
+            // check for missing metas at epgAssetToUpdate vs.  oldEpgAsset and update epgAssetToUpdate
+            epgAssetToUpdate.Metas = SetEpgMetaToUpdate(catalogGroupCache, epgAssetToUpdate.Metas, oldEpgAsset.Metas);
 
             // update EPG_program_tags table (tags)
             if (epgAssetToUpdate.Tags == null || epgAssetToUpdate.Tags.Count == 0)
             {
-                epgAssetToUpdate.Tags = oldEpgAsset.Tags;
                 // needToValidateTags
                 updateTags = false;
             }
-            else
-            {
-                // check for missing tags at epgAssetToUpdate vs.  oldEpgAsset and update epgAssetToUpdate
-                epgAssetToUpdate.Tags = SetEpgTagsToUpdate(epgAssetToUpdate.Tags, oldEpgAsset.Tags);
-            }
+
+            // check for missing tags at epgAssetToUpdate vs.  oldEpgAsset and update epgAssetToUpdate
+            epgAssetToUpdate.Tags = SetEpgTagsToUpdate(catalogGroupCache, epgAssetToUpdate.Tags, oldEpgAsset.Tags);
 
             Status assetStructValidationStatus = ValidateEpgAssetStruct(groupId, userId, epgAssetToUpdate, catalogGroupCache, updateMetas, mappingFields, allNames, out epgMetas, out epgTagsIds);
             if (!assetStructValidationStatus.IsOkStatusCode())
@@ -596,9 +590,18 @@ namespace Core.Catalog.CatalogManagement
 
         private static List<Metas> SetEpgMetaToUpdate(CatalogGroupCache catalogGroupCache, List<Metas> epgMetasToUpdate, List<Metas> oldMetasAsset)
         {
-            List<Metas> excluded = oldMetasAsset != null && epgMetasToUpdate != null ? oldMetasAsset.Where(x => !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList() : new List<Metas>();
+            if (epgMetasToUpdate == null)
+            {
+                epgMetasToUpdate = new List<Metas>();
+            }
 
-            if (excluded != null)
+            List<Metas> excluded = oldMetasAsset != null && oldMetasAsset.Count > 0? 
+                oldMetasAsset.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName) && 
+                                         catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId) &&
+                                         catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.ContainsKey(catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id) && 
+                                         !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList() : null;
+
+            if (excluded != null && excluded.Count > 0)
             {
                 // set Metas original m_sType 
                 foreach (Metas meta in excluded)
@@ -611,11 +614,20 @@ namespace Core.Catalog.CatalogManagement
             return epgMetasToUpdate;
         }
 
-        private static List<Tags> SetEpgTagsToUpdate(List<Tags> epgTagsToUpdate, List<Tags> oldTagsAsset)
+        private static List<Tags> SetEpgTagsToUpdate(CatalogGroupCache catalogGroupCache, List<Tags> epgTagsToUpdate, List<Tags> oldTagsAsset)
         {
-            List<Tags> excluded = oldTagsAsset != null && epgTagsToUpdate != null ? oldTagsAsset.Where(x => !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList() : new List<Tags>();
+            if (epgTagsToUpdate == null)
+            {
+                epgTagsToUpdate = new List<Tags>();
+            }
 
-            if (excluded != null)
+            List<Tags> excluded = oldTagsAsset != null && oldTagsAsset.Count > 0 ?
+                oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName) &&
+                                         catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId) &&
+                                         catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.ContainsKey(catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id) &&
+                                         !oldTagsAsset.Contains(x, new TagsComparer())).ToList() : null;
+
+            if (excluded != null && excluded.Count > 0)
             {
                 epgTagsToUpdate.AddRange(excluded);
             }
@@ -639,12 +651,18 @@ namespace Core.Catalog.CatalogManagement
 
             long linearAssetId = epgAssetToAdd.LinearAssetId ?? 0;
             var linearAssetResult = AssetManager.GetAsset(groupId, linearAssetId, eAssetTypes.MEDIA, true);
+
             if (!linearAssetResult.HasObject() || !(linearAssetResult.Object is LiveAsset))
             {
                 return new Status((int)eResponseStatus.AssetDoesNotExist, "The LiveAsset for this program does not exist");
             }
 
             epgAssetToAdd.EpgChannelId = (linearAssetResult.Object as LiveAsset).EpgChannelId;
+            if (!epgAssetToAdd.EpgChannelId.HasValue || epgAssetToAdd.EpgChannelId.Value == 0)
+            {
+                return new Status((int)eResponseStatus.ChannelDoesNotExist, "Could not find the channel for linear Asset Id: " + linearAssetId.ToString());
+            }
+
             DataTable dtEpgIDGUID = EpgDal.Get_EpgIDbyEPGIdentifier(new List<string>() { epgAssetToAdd.EpgIdentifier }, (int)epgAssetToAdd.EpgChannelId.Value);
             if (dtEpgIDGUID != null && dtEpgIDGUID.Rows != null && dtEpgIDGUID.Rows.Count > 0)
             {
