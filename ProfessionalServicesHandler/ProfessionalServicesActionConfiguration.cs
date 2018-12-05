@@ -24,5 +24,12 @@ namespace ProfessionalServicesHandler
             get;
             set;
         }
+
+        [JsonProperty("HandlerUrl")]
+        public string HandlerUrl
+        {
+            get;
+            set;
+        }
     }
 }
