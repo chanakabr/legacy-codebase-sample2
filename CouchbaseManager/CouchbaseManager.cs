@@ -51,6 +51,7 @@ namespace CouchbaseManager
         #region Consts
 
         public const string COUCHBASE_CONFIG = "couchbaseClients/Couchbase";
+        public const string COUCHBASE_TCM_CONFIG_KEY= "couchbase_client_config";
         public const string COUCHBASE_APP_CONFIG = "CouchbaseSectionMapping";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private const double GET_LOCK_TS_SECONDS = 5;
@@ -101,7 +102,7 @@ namespace CouchbaseManager
             serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
             serializer.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
             clientConfiguration = GetCouchbaseClientConfiguration();
-            clientConfiguration.Transcoder = GetTranscoder;
+            
         }
         /// <summary>
         /// Initializes a CouchbaseManager instance with configuration in web.config, according to predefined bucket sections
@@ -150,25 +151,54 @@ namespace CouchbaseManager
         // Should we cache this in memory instead of retriving the setting again from tcm \ web.config ?
         private static ClientConfiguration GetCouchbaseClientConfiguration()
         {
-            const string couchbaseClientConfigTCMKey = "couchbase_client_config";
-            //First try to load from TCM
+            //First try to load from TCM 
+            var configToReturn = GetCouchbaseClientConfigurationFromTCM();
+            
+            // if Get from TCM fail it will return null then load from Web.Config
+            if (configToReturn == null)
+            {
+                GetCouchbaseClientConfigurationFromWebConfig();
+            }
+
+            return configToReturn;
+        }
+
+        private static ClientConfiguration GetCouchbaseClientConfigurationFromWebConfig()
+        {
+            ClientConfiguration configToReturn;
             try
             {
-                var couchbaseConfigFromTCM = TCMClient.Settings.Instance.GetValue<ClientConfiguration>(couchbaseClientConfigTCMKey);
+                clientConfiguration.Transcoder = GetTranscoder;
+                configToReturn = new ClientConfiguration((CouchbaseClientSection) ConfigurationManager.GetSection(COUCHBASE_CONFIG));
+            }
+            catch (Exception e)
+            {
+                log.WarnFormat("Could not load couchbase configuration from Web.Config using key:[{0}], trying to load it from web.config file. exception details:{1}", COUCHBASE_CONFIG, e);
+                throw;
+            }
+
+            return configToReturn;
+        }
+
+        private static ClientConfiguration GetCouchbaseClientConfigurationFromTCM()
+        {
+            try
+            {
+                var couchbaseConfigFromTCM = TCMClient.Settings.Instance.GetValue<ClientConfiguration>(COUCHBASE_TCM_CONFIG_KEY);
                 if (couchbaseConfigFromTCM != null)
                 {
                     // This is here because the default constructor of ClientConfiguration adds a http://localhost:8091/pools url to the 0 index :\
                     couchbaseConfigFromTCM.Servers.RemoveAt(0);
+                    clientConfiguration.Transcoder = GetTranscoder;
                     return couchbaseConfigFromTCM;
                 }
             }
             catch (Exception e)
             {
-                log.WarnFormat("Could not load couchbase configuration from TCM using key:[{0}], trying to load it from web.config file. exception details:{1}", couchbaseClientConfigTCMKey, e);
+                log.WarnFormat("Could not load couchbase configuration from TCM using key:[{0}], trying to load it from web.config file. exception details:{1}", COUCHBASE_TCM_CONFIG_KEY, e);
             }
 
-            // Else load from Web.Config
-            return new ClientConfiguration((CouchbaseClientSection)ConfigurationManager.GetSection(COUCHBASE_CONFIG));
+            return null;
         }
 
         private static ITypeTranscoder GetTranscoder()
