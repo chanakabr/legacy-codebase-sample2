@@ -81,7 +81,7 @@ namespace CouchbaseManager
         #region Data Members
 
         private string bucketName;
-        private ClientConfiguration clientConfiguration;
+        private static readonly ClientConfiguration clientConfiguration;
 
         #endregion
 
@@ -100,6 +100,8 @@ namespace CouchbaseManager
             serializer.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
             serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
             serializer.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+            clientConfiguration = GetCouchbaseClientConfiguration();
+            clientConfiguration.Transcoder = GetTranscoder;
         }
         /// <summary>
         /// Initializes a CouchbaseManager instance with configuration in web.config, according to predefined bucket sections
@@ -123,8 +125,6 @@ namespace CouchbaseManager
         {
             subSection = subSection.ToLower();
 
-            this.clientConfiguration = new ClientConfiguration((CouchbaseClientSection)ConfigurationManager.GetSection(COUCHBASE_CONFIG));
-
             if (fromTcm)
             {
                 bucketName = GetBucketName(subSection);
@@ -133,8 +133,6 @@ namespace CouchbaseManager
             {
                 bucketName = GetBucketNameFromSettings(subSection);
             }
-
-            this.clientConfiguration.Transcoder = GetTranscoder;
 
             if (!IsClusterInitialized)
             {
@@ -149,7 +147,31 @@ namespace CouchbaseManager
             }
         }
 
-        private ITypeTranscoder GetTranscoder()
+        // Should we cache this in memory instead of retriving the setting again from tcm \ web.config ?
+        private static ClientConfiguration GetCouchbaseClientConfiguration()
+        {
+            const string couchbaseClientConfigTCMKey = "couchbase_client_config";
+            //First try to load from TCM
+            try
+            {
+                var couchbaseConfigFromTCM = TCMClient.Settings.Instance.GetValue<ClientConfiguration>(couchbaseClientConfigTCMKey);
+                if (couchbaseConfigFromTCM != null)
+                {
+                    // This is here because the default constructor of ClientConfiguration adds a http://localhost:8091/pools url to the 0 index :\
+                    couchbaseConfigFromTCM.Servers.RemoveAt(0);
+                    return couchbaseConfigFromTCM;
+                }
+            }
+            catch (Exception e)
+            {
+                log.WarnFormat("Could not load couchbase configuration from TCM using key:[{0}], trying to load it from web.config file. exception details:{1}", couchbaseClientConfigTCMKey, e);
+            }
+
+            // Else load from Web.Config
+            return new ClientConfiguration((CouchbaseClientSection)ConfigurationManager.GetSection(COUCHBASE_CONFIG));
+        }
+
+        private static ITypeTranscoder GetTranscoder()
         {
             JsonSerializerSettings serializerSettings = new JsonSerializerSettings()
             {
@@ -483,12 +505,12 @@ namespace CouchbaseManager
             try
             {
                 var bucket = ClusterHelper.GetBucket(bucketName);
-                
+
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
                 string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.INSERT, Database = cbDescription })                
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.INSERT, Database = cbDescription })
                 {
                     if (!asJson)
                         insertResult = bucket.Insert<T>(key, value, expiration);
@@ -1586,9 +1608,9 @@ namespace CouchbaseManager
 
             return result;
         }
-        
+
         #region View Methods
-        
+
         /// <summary>
         /// Get specific, typed, objects from view
         /// </summary>
@@ -1598,7 +1620,7 @@ namespace CouchbaseManager
         public List<T> View<T>(ViewManager definitions)
         {
             long totalNumOfResults = 0;
-            return View<T>(definitions, ref  totalNumOfResults);
+            return View<T>(definitions, ref totalNumOfResults);
         }
 
         /// <summary>
@@ -1836,7 +1858,7 @@ namespace CouchbaseManager
 
             return result;
         }
-        
+
         #endregion
 
 
