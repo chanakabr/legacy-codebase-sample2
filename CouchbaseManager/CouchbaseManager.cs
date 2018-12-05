@@ -157,7 +157,7 @@ namespace CouchbaseManager
             // if Get from TCM fail it will return null then load from Web.Config
             if (configToReturn == null)
             {
-                GetCouchbaseClientConfigurationFromWebConfig();
+                configToReturn = GetCouchbaseClientConfigurationFromWebConfig();
             }
 
             return configToReturn;
@@ -168,8 +168,8 @@ namespace CouchbaseManager
             ClientConfiguration configToReturn;
             try
             {
-                clientConfiguration.Transcoder = GetTranscoder;
                 configToReturn = new ClientConfiguration((CouchbaseClientSection) ConfigurationManager.GetSection(COUCHBASE_CONFIG));
+                configToReturn.Transcoder = GetTranscoder;
             }
             catch (Exception e)
             {
@@ -189,7 +189,7 @@ namespace CouchbaseManager
                 {
                     // This is here because the default constructor of ClientConfiguration adds a http://localhost:8091/pools url to the 0 index :\
                     couchbaseConfigFromTCM.Servers.RemoveAt(0);
-                    clientConfiguration.Transcoder = GetTranscoder;
+                    couchbaseConfigFromTCM.Transcoder = GetTranscoder;
                     return couchbaseConfigFromTCM;
                 }
             }
