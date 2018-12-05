@@ -91,7 +91,7 @@ namespace WebAPI.Clients
 
             return roles;
 
-        }
+        }        
 
         #region Parental Rules
 
@@ -195,8 +195,8 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }
-        
+        }       
+
         internal KalturaUserRole UpdateRole(int groupId, long id, KalturaUserRole role)
         {
             KalturaUserRole userRole = new KalturaUserRole();
@@ -233,7 +233,7 @@ namespace WebAPI.Clients
             }
 
             return userRole;
-        }
+        }       
 
         internal bool DeleteRole(int groupId, long id)
         {
@@ -4064,6 +4064,7 @@ namespace WebAPI.Clients
             return result;
         }
 
+        #region PlaybackProfile
         internal KalturaPlaybackProfileListResponse GetPlaybackProfiles(int groupId)
         {
             KalturaPlaybackProfileListResponse result = new KalturaPlaybackProfileListResponse() { TotalCount = 0 };
@@ -4095,5 +4096,37 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaPlaybackProfile GeneratePlaybackAdapterSharedSecret(int groupId, long playbackAdapterId)
+        {
+            KalturaPlaybackProfile kalturaPlaybackProfile = null;
+            Func<PlaybackAdapter, GenericResponse<PlaybackAdapter>> generateAdapterSharedSecretFunc = (PlaybackAdapter playbackAdapter) =>
+             Core.Api.Module.GeneratePlaybackAdapterSharedSecret(groupId, playbackAdapterId);
+
+            KalturaPlaybackProfile result =
+                ClientUtils.GetResponseFromWS<KalturaPlaybackProfile, PlaybackAdapter>(kalturaPlaybackProfile, generateAdapterSharedSecretFunc);
+
+            return result;
+        }
+
+        internal KalturaPlaybackProfile SetPlaybackProfile(int groupId, string userId, KalturaPlaybackProfile playbackProfile)
+        {
+            Func<PlaybackAdapter, GenericResponse<PlaybackAdapter>> updateBusinessModuleRuleFunc = (PlaybackAdapter playbackAdapterToUpdate) =>
+             Core.Api.Module.AddPlaybackAdapter(groupId, userId, playbackAdapterToUpdate);
+
+            KalturaPlaybackProfile result =
+                ClientUtils.GetResponseFromWS<KalturaPlaybackProfile, PlaybackAdapter>(playbackProfile, updateBusinessModuleRuleFunc);
+
+            return result;
+        }
+
+        internal bool DeletePlaybackProfile(int groupId, string userId, int id)
+        {
+            Func<Status> deletePlaybackProfileFunc = () => Core.Api.Module.DeletePlaybackAdapter(groupId, userId, id);
+            ClientUtils.GetResponseStatusFromWS(deletePlaybackProfileFunc);
+
+            return true;
+        }
+        #endregion
     }
 }

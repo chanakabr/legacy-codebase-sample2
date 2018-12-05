@@ -47,44 +47,42 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        ///// <summary>
-        ///// Delete Playback adapter by Playback adapter id
-        ///// </summary>
-        ///// <remarks>
-        ///// Possible status codes:       
-        ///// playback adapter identifier required = 8025, playback adapter not exist = 8026,  action is not allowed = 5011
-        ///// </remarks>
-        ///// <param name="id">Playback adapter identifier</param>
-        //[Action("delete")]
-        //[ApiAuthorize]
-        //[Throws(eResponseStatus.PlaybackProfileIdentifierRequired)]
-        //[Throws(eResponseStatus.PlaybackProfileNotExist)]
-        //[Throws(eResponseStatus.ActionIsNotAllowed)]
-        //static public bool Delete(int id)
-        //{
-        //    bool response = false;
+        /// <summary>
+        /// Delete Playback adapter by Playback adapter id
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">Playback adapter identifier</param>
+        [Action("delete")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
+        static public bool Delete(int id)
+        {
+            bool response = false;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.NotificationClient().DeletePlaybackProfile(groupId, id);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            try
+            {
+                string userId = KS.GetFromRequest().UserId;
 
-        //    return response;
-        //}
+                // call client
+                response = ClientsManager.ApiClient().DeletePlaybackProfile(groupId, userId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
 
         /// <summary>
         /// Insert new Playback adapter for partner
         /// </summary>
         /// <remarks>
-        /// Possible status codes:     
-        /// no playback adapter to insert = 8028, name required = 5005, provider url required = 8033
         /// </remarks>
         /// <param name="playbackProfile">Playback adapter Object</param>
         [Action("add")]
@@ -121,82 +119,75 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        ///// <summary>
-        ///// Update Playback adapter details
-        ///// </summary>
-        ///// <remarks>
-        ///// Possible status codes:   
-        ///// name required = 5005, playback adapter identifier required = 8025, no playback adapter to update = 8029, provider url required = 8033
-        ///// </remarks>
-        ///// <param name="id">Playback adapter identifier</param>       
-        ///// <param name="playbackProfile">Playback adapter Object</param>       
-        //[Action("update")]
-        //[ApiAuthorize]
-        //[Throws(eResponseStatus.PlaybackProfileIdentifierRequired)]
-        //[Throws(eResponseStatus.NoPlaybackProfileToUpdate)]
-        //[Throws(eResponseStatus.NameRequired)]
-        //[Throws(eResponseStatus.ProviderUrlRequired)]
-        //static public KalturaPlaybackProfile Update(int id, KalturaPlaybackProfile playbackProfile)
-        //{
-        //    KalturaPlaybackProfile response = null;
+        /// <summary>
+        /// Update Playback adapter details
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">Playback adapter identifier</param>       
+        /// <param name="playbackProfile">Playback adapter Object</param>       
+        [Action("update")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.NameRequired)]
+        static public KalturaPlaybackProfile Update(int id, KalturaPlaybackProfile playbackProfile)
+        {
+            KalturaPlaybackProfile response = null;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
-        //    playbackProfile.Id = id;
+            int groupId = KS.GetFromRequest().GroupId;
+            playbackProfile.Id = id;
 
-        //    if (string.IsNullOrWhiteSpace(playbackProfile.AdapterUrl))
-        //        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "adapterUrl");
+            if (string.IsNullOrWhiteSpace(playbackProfile.AdapterUrl))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "adapterUrl");
+            
+            if (string.IsNullOrWhiteSpace(playbackProfile.Name))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
 
-        //    if (string.IsNullOrWhiteSpace(playbackProfile.ProviderUrl))
-        //        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "providerUrl");
+            try
+            {
+                string userId = KS.GetFromRequest().UserId;
+                // call client
+                response = ClientsManager.ApiClient().SetPlaybackProfile(groupId, userId, playbackProfile);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    if (string.IsNullOrWhiteSpace(playbackProfile.Name))
-        //        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.NotificationClient().SetPlaybackProfile(groupId, playbackProfile);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
-
-        //    return response;
-        //}
+            return response;
+        }
 
 
-        ///// <summary>
-        ///// Generate playback adapter shared secret
-        ///// </summary>
-        ///// <remarks>
-        ///// Possible status codes:  
-        ///// playback adapter identifier required = 8025, playback adapter not exist = 8026
-        ///// </remarks>
-        ///// <param name="id">Playback adapter identifier</param>
-        //[Action("generateSharedSecret")]
-        //[ApiAuthorize]
-        //[ValidationException(SchemeValidationType.ACTION_NAME)]
-        //[Throws(eResponseStatus.PlaybackProfileIdentifierRequired)]
-        //[Throws(eResponseStatus.PlaybackProfileNotExist)]
-        //static public KalturaPlaybackProfile GenerateSharedSecret(int id)
-        //{
-        //    KalturaPlaybackProfile response = null;
+        /// <summary>
+        /// Generate playback adapter shared secret
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">Playback adapter identifier</param>
+        [Action("generateSharedSecret")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        static public KalturaPlaybackProfile GenerateSharedSecret(int id)
+        {
+            KalturaPlaybackProfile response = null;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.NotificationClient().GeneratePlaybackSharedSecret(groupId, id);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().GeneratePlaybackAdapterSharedSecret(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
     }
 }

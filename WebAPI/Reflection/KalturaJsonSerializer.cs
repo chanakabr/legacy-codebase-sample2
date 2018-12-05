@@ -14549,6 +14549,142 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaPlaybackProfile
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(AdapterUrl != null)
+            {
+                ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
+            }
+            if(Id.HasValue)
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
+            }
+            if(Ksql != null)
+            {
+                ret.Add("ksql", "\"ksql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(Settings != null)
+            {
+                ret.Add("settings", "\"settings\": " + "\"" + EscapeJson(Settings) + "\"");
+            }
+            if(SharedSecret != null)
+            {
+                ret.Add("sharedSecret", "\"sharedSecret\": " + "\"" + EscapeJson(SharedSecret) + "\"");
+            }
+            if(SystemName != null)
+            {
+                ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(SystemName) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(AdapterUrl != null)
+            {
+                ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
+            }
+            if(Id.HasValue)
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
+            }
+            if(Ksql != null)
+            {
+                ret.Add("ksql", "<ksql>" + EscapeXml(Ksql) + "</ksql>");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(Settings != null)
+            {
+                ret.Add("settings", "<settings>" + EscapeXml(Settings) + "</settings>");
+            }
+            if(SharedSecret != null)
+            {
+                ret.Add("sharedSecret", "<sharedSecret>" + EscapeXml(SharedSecret) + "</sharedSecret>");
+            }
+            if(SystemName != null)
+            {
+                ret.Add("systemName", "<systemName>" + EscapeXml(SystemName) + "</systemName>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPlaybackProfileFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(PlaybackProfileIdEqual.HasValue)
+            {
+                ret.Add("playbackProfileEqual", "\"playbackProfileEqual\": " + PlaybackProfileIdEqual);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(PlaybackProfileIdEqual.HasValue)
+            {
+                ret.Add("playbackProfileEqual", "<playbackProfileEqual>" + PlaybackProfileIdEqual + "</playbackProfileEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPlaybackProfileListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(PlaybackProfiles != null)
+            {
+                propertyValue = "[" + String.Join(", ", PlaybackProfiles.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(PlaybackProfiles != null)
+            {
+                propertyValue = PlaybackProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaPurchaseSettings
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)

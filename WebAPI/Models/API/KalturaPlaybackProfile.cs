@@ -65,7 +65,7 @@ namespace WebAPI.Models.API
         public string SystemName { get; set; } // TODO Anat: ask Ira
 
         /// <summary>
-        /// DRM shared secret
+        /// Playback adapter shared secret
         /// </summary>
         [DataMember(Name = "sharedSecret")]
         [JsonProperty("sharedSecret")]

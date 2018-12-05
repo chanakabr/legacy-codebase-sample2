@@ -103,15 +103,38 @@
             <remarks>       
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.PlaybackProfileController.Delete(System.Int32)">
+            <summary>
+            Delete Playback adapter by Playback adapter id
+            </summary>
+            <remarks>
+            </remarks>
+            <param name="id">Playback adapter identifier</param>
+        </member>
         <member name="M:WebAPI.Controllers.PlaybackProfileController.Add(WebAPI.Models.API.KalturaPlaybackProfile)">
             <summary>
             Insert new Playback adapter for partner
             </summary>
             <remarks>
-            Possible status codes:     
-            no playback adapter to insert = 8028, name required = 5005, provider url required = 8033
             </remarks>
             <param name="playbackProfile">Playback adapter Object</param>
+        </member>
+        <member name="M:WebAPI.Controllers.PlaybackProfileController.Update(System.Int32,WebAPI.Models.API.KalturaPlaybackProfile)">
+            <summary>
+            Update Playback adapter details
+            </summary>
+            <remarks>
+            </remarks>
+            <param name="id">Playback adapter identifier</param>       
+            <param name="playbackProfile">Playback adapter Object</param>       
+        </member>
+        <member name="M:WebAPI.Controllers.PlaybackProfileController.GenerateSharedSecret(System.Int32)">
+            <summary>
+            Generate playback adapter shared secret
+            </summary>
+            <remarks>
+            </remarks>
+            <param name="id">Playback adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.SegmentationTypeController.Add(WebAPI.Models.Segmentation.KalturaSegmentationType)">
             <summary>
@@ -4815,7 +4838,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaPlaybackProfile.SharedSecret">
             <summary>
-            DRM shared secret
+            Playback adapter shared secret
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaPlaybackProfile.Ksql">

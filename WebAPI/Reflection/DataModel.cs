@@ -3923,6 +3923,44 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPlaybackProfile":
+                    switch(property.Name)
+                    {
+                        case "AdapterUrl":
+                            return "adapterUrl";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Ksql":
+                            return "ksql";
+                        case "Name":
+                            return "name";
+                        case "Settings":
+                            return "settings";
+                        case "SharedSecret":
+                            return "sharedSecret";
+                        case "SystemName":
+                            return "systemName";
+                    }
+                    break;
+                    
+                case "KalturaPlaybackProfileFilter":
+                    switch(property.Name)
+                    {
+                        case "PlaybackProfileIdEqual":
+                            return "playbackProfileEqual";
+                    }
+                    break;
+                    
+                case "KalturaPlaybackProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "PlaybackProfiles":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaPlaybackSource":
                     switch(property.Name)
                     {
@@ -8293,6 +8331,32 @@ namespace WebAPI.Reflection
                             }
                             RolesManager.ValidateActionPermitted("pin", "validate", false);
                             return PinController.Validate((string) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
+                            
+                    }
+                    break;
+                    
+                case "playbackprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("playbackProfile", "add", false);
+                            return PlaybackProfileController.Add((KalturaPlaybackProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("playbackProfile", "delete", false);
+                            return PlaybackProfileController.Delete((int) methodParams[0]);
+                            
+                        case "generatesharedsecret":
+                            RolesManager.ValidateActionPermitted("playbackProfile", "generateSharedSecret", false);
+                            return PlaybackProfileController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("playbackProfile", "list", false);
+                            return PlaybackProfileController.List((KalturaPlaybackProfileFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("playbackProfile", "update", false);
+                            return PlaybackProfileController.Update((int) methodParams[0], (KalturaPlaybackProfile) methodParams[1]);
                             
                     }
                     break;
@@ -15026,6 +15090,54 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsNullable = true,
                                 Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "playbackprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("playbackProfile", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPlaybackProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "generatesharedsecret":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPlaybackProfileFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("playbackProfile", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPlaybackProfile),
                             });
                             return ret;
                             

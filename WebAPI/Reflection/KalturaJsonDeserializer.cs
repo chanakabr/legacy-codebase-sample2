@@ -1069,6 +1069,15 @@ namespace WebAPI.Reflection
                 case "KalturaPlaybackContextOptions":
                     return new KalturaPlaybackContextOptions(parameters);
                     
+                case "KalturaPlaybackProfile":
+                    return new KalturaPlaybackProfile(parameters);
+                    
+                case "KalturaPlaybackProfileFilter":
+                    return new KalturaPlaybackProfileFilter(parameters);
+                    
+                case "KalturaPlaybackProfileListResponse":
+                    return new KalturaPlaybackProfileListResponse(parameters);
+                    
                 case "KalturaPlaybackSource":
                     return new KalturaPlaybackSource(parameters);
                     
@@ -14662,6 +14671,121 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaPinType) Enum.Parse(typeof(KalturaPinType), parameters["type"].ToString(), true);
+                }
+            }
+        }
+    }
+    public partial class KalturaPlaybackProfile
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPlaybackProfile")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPlaybackProfile")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute KsqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPlaybackProfile")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            MaxLength = -1,
+            MinLength = 1,
+        };
+        public KalturaPlaybackProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
+                {
+                    IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("adapterUrl") && parameters["adapterUrl"] != null)
+                {
+                    AdapterUrl = (String) Convert.ChangeType(parameters["adapterUrl"], typeof(String));
+                }
+                if (parameters.ContainsKey("settings") && parameters["settings"] != null)
+                {
+                    Settings = (String) Convert.ChangeType(parameters["settings"], typeof(String));
+                }
+                if (parameters.ContainsKey("systemName") && parameters["systemName"] != null)
+                {
+                    SystemName = (String) Convert.ChangeType(parameters["systemName"], typeof(String));
+                }
+                if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
+                    }
+                    SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
+                }
+                if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        KsqlSchemaProperty.Validate("ksql", parameters["ksql"]);
+                    }
+                    Ksql = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPlaybackProfileFilter
+    {
+        public KalturaPlaybackProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("playbackProfileEqual") && parameters["playbackProfileEqual"] != null)
+                {
+                    PlaybackProfileIdEqual = (Int64) Convert.ChangeType(parameters["playbackProfileEqual"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaPlaybackProfileListResponse
+    {
+        public KalturaPlaybackProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        PlaybackProfiles = buildList<KalturaPlaybackProfile>(typeof(KalturaPlaybackProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        PlaybackProfiles = buildList(typeof(KalturaPlaybackProfile), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
