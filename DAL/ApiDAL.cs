@@ -5331,7 +5331,18 @@ namespace DAL
 
         public static PlaybackAdapter GetplaybackAdapterByExternalId(int groupId, string externalIdentifier)
         {
-            throw new NotImplementedException();
+            PlaybackAdapter res = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PlaybackAdapterByExternald");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", externalIdentifier);
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                res = CreatePlaybackAdapter(dt.Rows[0]);
+            }
+
+            return res; ;
         }
 
         public static DataTable AddPlaybackAdapter(int groupId, string userId, PlaybackAdapter adapter)
@@ -5358,5 +5369,92 @@ namespace DAL
 
             return dt;
         }
+
+        public static PlaybackAdapter GetPlaybackAdapter(int groupId, long adapterId)
+        {
+            PlaybackAdapter res = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PlaybackAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", adapterId);
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = CreatePlaybackAdapter(dt.Rows[0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetPlaybackAdapter, groupId: {0}, id: {1}, ex:{2} ", groupId, adapterId, ex);
+            }
+            return res;
+        }
+
+        public static bool SetPlaybackAdapterSharedSecret(int groupId, long adapterId, string sharedSecret)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PlaybackAdapterSharedSecret");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", adapterId);
+            sp.AddParameter("@sharedSecret", sharedSecret);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static PlaybackAdapter SetPlaybackAdapter(int groupId, string userId, PlaybackAdapter adapter)
+        {
+            PlaybackAdapter res = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PlaybackAdapter");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", adapter.Id);
+                sp.AddParameter("@name", adapter.Name);
+                sp.AddParameter("@adapterUrl", adapter.AdapterUrl);
+                sp.AddParameter("@externalIdentifier", adapter.ExternalIdentifier);
+                sp.AddParameter("@isActive", adapter.IsActive);
+                sp.AddParameter("@ksql", adapter.Ksql);
+                sp.AddParameter("@settings", adapter.Settings);
+                sp.AddParameter("@updaterId", userId);
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = CreatePlaybackAdapter(dt.Rows[0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetPlaybackAdapter in DB, groupId: {0}, name: {1}, ex:{2} ", groupId, adapter.Name, ex);
+            }
+
+            return res;
+        }
+
+
+        private static PlaybackAdapter CreatePlaybackAdapter(DataRow dr)
+        {
+            return (new PlaybackAdapter()
+            {
+                ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier"),
+                AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
+                Settings = ODBCWrapper.Utils.GetSafeStr(dr, "settings"),
+                Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 1,
+                Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
+                Ksql = ODBCWrapper.Utils.GetSafeStr(dr, "ksql")
+            });
+        }
+
+        public static bool DeletePlaybackAdapter(int groupId, string userId, int id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PlaybackAdapter");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
     }
 }
