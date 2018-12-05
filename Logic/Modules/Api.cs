@@ -2236,5 +2236,20 @@ namespace Core.Api
         {
             return Core.Api.api.AddPlaybackAdapter(groupId, userId, playbackAdapterToAdd);
         }
+
+        public static GenericResponse<PlaybackAdapter> GeneratePlaybackAdapterSharedSecret(int groupId, long playbackAdapterId)
+        {
+            return Core.Api.api.GeneratePlaybackAdapterSharedSecret(groupId, playbackAdapterId);
+        }
+
+        public static GenericResponse<PlaybackAdapter> UpdatePlaybackAdapter(int groupId, string userId, PlaybackAdapter playbackAdapterToUpdate)
+        {
+            return Core.Api.api.UpdatePlaybackAdapter(groupId, userId, playbackAdapterToUpdate);
+        }
+
+        public static Status DeletePlaybackAdapter(int groupId, string userId , int id)
+        {
+            return Core.Api.api.DeletePlaybackAdapter(groupId, userId, id);
+        }
     }
 }

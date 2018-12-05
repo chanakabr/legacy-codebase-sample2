@@ -11412,5 +11412,138 @@ namespace Core.Api
 
             return response;
         }
+
+
+        internal static GenericResponse<PlaybackAdapter> GeneratePlaybackAdapterSharedSecret(int groupId, long adapterId)
+        {
+            GenericResponse<PlaybackAdapter> response = new GenericResponse<PlaybackAdapter>();
+            try
+            {
+                if (adapterId <= 0)
+                {
+                    response.SetStatus((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return response;
+                }
+
+                //check Adapter exist
+                PlaybackAdapter adapter = ApiDAL.GetPlaybackAdapter(groupId, adapterId);
+                if (adapter == null || adapter.Id <= 0)
+                {
+                    response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                // Create Shared secret 
+                string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+
+                if (!ApiDAL.SetPlaybackAdapterSharedSecret(groupId, adapterId, sharedSecret))
+                {
+                    response.SetStatus((int)eResponseStatus.Error, "Adapter failed set changes");
+                    return response;
+                }
+
+                adapter.SharedSecret = sharedSecret;
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed groupId = {0}, adapterId={1}. ex:{2}", groupId, adapterId, ex);
+            }
+
+            return response;
+        }
+
+        internal static GenericResponse<PlaybackAdapter> UpdatePlaybackAdapter(int groupId, string userId, PlaybackAdapter adapter)
+        {
+            GenericResponse<PlaybackAdapter> response = new GenericResponse<PlaybackAdapter>();
+
+            try
+            {
+                if (adapter == null || adapter.Id <= 0)
+                {
+                    response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.Name))
+                {
+                    response.SetStatus((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
+                {
+                    response.SetStatus((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                // SharedSecret generated only at insert 
+                // this value not relevant at update and should be ignored
+                //--------------------------------------------------------
+                adapter.SharedSecret = null;
+
+                // check adapter with this ID exists
+                PlaybackAdapter existingAdapter = ApiDAL.GetPlaybackAdapter(groupId, adapter.Id);
+                if (existingAdapter == null)
+                {
+                    response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                PlaybackAdapter playbackAdapter = ApiDAL.SetPlaybackAdapter(groupId, userId, adapter);
+
+                if (playbackAdapter == null)
+                {
+                    response.SetStatus((int)eResponseStatus.Error, "Playback failed set changes");
+                    return response;
+                }
+
+                //TODO anat SendConfigurationToAdapter
+
+                //if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter))
+                //    log.ErrorFormat("InsertEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", response.EngagementAdapter.ID);
+
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed to update playback adapter. Group Id: {0}. ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        internal static Status DeletePlaybackAdapter(int groupId, string userId, int id)
+        {
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                if (id <= 0)
+                {
+                    response.Set((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                // check adapter with this ID exists
+                PlaybackAdapter existingAdapter = ApiDAL.GetPlaybackAdapter(groupId, id);
+                if (existingAdapter == null)
+                {
+                    response.Set((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                if (!ApiDAL.DeletePlaybackAdapter(groupId, userId, id))
+                {
+                    response.Set((int)eResponseStatus.Error, "Playback failed to delete");
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed to delete engagement adapter. Group ID: {0}, engagementAdapterId: {1}", groupId, id), ex);
+            }
+            return response;
+        }
     }
 }
