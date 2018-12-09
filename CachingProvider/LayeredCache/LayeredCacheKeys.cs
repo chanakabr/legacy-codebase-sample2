@@ -314,6 +314,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("Asset_type_{0}_id_{1}", assetType, id);
         }
 
+        public static string GetAssetWithLanguageKey(string assetType, string id, int languageId)
+        {
+            return string.Format("Asset_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
+        }
+
         public static string GetGroupImageTypesKey(int groupId)
         {
             return string.Format("GroupImageTypes_groupId_{0}", groupId);
@@ -363,6 +368,21 @@ namespace CachingProvider.LayeredCache
                 foreach (long id in assetIds)
                 {
                     result.Add(GetAssetKey(assetType, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, string> GetAssetsWithLanguageKeyMap(string assetType, List<string> assetIds, int languageId)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (assetIds != null && assetIds.Count > 0)
+            {
+                assetIds = assetIds.Distinct().ToList();
+                foreach (string id in assetIds)
+                {
+                    result.Add(GetAssetWithLanguageKey(assetType, id, languageId), id.ToString());
                 }
             }
 
