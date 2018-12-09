@@ -1,4 +1,5 @@
-﻿using ConfigurationManager;
+﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,8 @@ public partial class adm_external_recommendation_search_new : System.Web.UI.Page
                     Int32 nGroupID = LoginManager.GetLoginGroupID();
                     GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                     groupManager.UpdateGroup(nGroupID);
+                    LayeredCache.Instance.InvalidateKeys(
+                        new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(nGroupID)) });
 
                     return;
                 }
@@ -168,6 +171,8 @@ public partial class adm_external_recommendation_search_new : System.Web.UI.Page
             client.Url = url;
 
             client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+            LayeredCache.Instance.InvalidateKeys(
+                new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(parentGroupId) });
         }
 
         return;
@@ -183,7 +188,6 @@ public partial class adm_external_recommendation_search_new : System.Web.UI.Page
         Dictionary<string, object> dualList = new Dictionary<string, object>();
         dualList.Add("FirstListTitle", "Current Enrichments");
         dualList.Add("SecondListTitle", "Available Enrichments");
-
 
         //int channelId = Convert.ToInt32(Session["channel_id"]);
         long enrichments = GetGroupEnrichments(LoginManager.GetLoginGroupID());
