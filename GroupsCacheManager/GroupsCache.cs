@@ -390,6 +390,8 @@ namespace GroupsCacheManager
                         }
                     }
                 }
+
+                bUpdate &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
                 return bUpdate;
             }
             catch (Exception ex)
@@ -532,6 +534,8 @@ namespace GroupsCacheManager
                     }
                 }
 
+                bAdd &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
+
                 return bAdd;
             }
             catch (Exception ex)
@@ -567,6 +571,8 @@ namespace GroupsCacheManager
                         }
                     }
                 }
+
+                bDelete &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
 
                 return bDelete;
             }
@@ -649,6 +655,8 @@ namespace GroupsCacheManager
                     }
                 }
 
+                bAdd &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
+
                 return bAdd;
             }
             catch (Exception ex)
@@ -680,6 +688,8 @@ namespace GroupsCacheManager
                         }
                     }
                 }
+
+                bDelete &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
 
                 return bDelete;
             }
@@ -746,6 +756,8 @@ namespace GroupsCacheManager
                         isUpdated = this.groupCacheService.SetWithVersion<Group>(sKey, vModule, dCacheTT);
                     }
                 }
+
+                isUpdated &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(groupID) });
 
                 return isUpdated;
             }
