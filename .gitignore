@@ -1,3 +1,5 @@
 Ingest/obj/
 Ingest/bin/
 packages/
+/.vs
+*.user
