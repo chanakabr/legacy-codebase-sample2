@@ -1608,5 +1608,377 @@ namespace Core.Catalog
 
             return assets;
         }
+
+        public static List<BaseObject> GetOrderedAssets(int groupId, List<BaseObject> assets, Filter filter, bool managementData = false)
+        {
+            List<BaseObject> result = new List<BaseObject>();
+            int languageId = filter != null ? filter.m_nLanguage : 0;
+            try
+            {
+                if (assets != null && assets.Count > 0)
+                {
+                    List <KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Select(x => new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
+                    List<BaseObject> npvrs = assets.Where(x => x.AssetType == eAssetTypes.NPVR).ToList();
+                    List<long> epgIdsFromRecording = GetEpgIdsFromNpvrObject(npvrs);
+                    if (epgIdsFromRecording != null && epgIdsFromRecording.Count > 0)
+                    {
+                        assetsToRetrieve.AddRange(epgIdsFromRecording.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.EPG, x)));
+                    }
+                             
+                    List <BaseObject> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, filter, managementData);
+                    if (unOrderedAssets == null || unOrderedAssets.Count == 0)
+                    {                        
+                        return result;
+                    }
+                    else if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
+                    {
+                        log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
+                                            assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}_{2}", x.AssetType.ToString(), x.AssetId, languageId)).ToList()) : string.Empty);                        
+                        return result;
+                    }
+
+                    string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
+                    Dictionary<string, BaseObject> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.AssetId), x => x);
+                    foreach (BaseObject baseAsset in assets)
+                    {
+                        string key = string.Empty;
+                        bool isNpvr = baseAsset.AssetType == eAssetTypes.NPVR;
+                        RecordingType? scheduledRecordingType = null;
+                        if (isNpvr)
+                        {                            
+                            string epgId = GetEpgIdFromNpvrObject(baseAsset, ref scheduledRecordingType);
+                            if (!string.IsNullOrEmpty(epgId))
+                            {
+                                key = string.Format(keyFormat, eAssetTypes.EPG.ToString(), baseAsset.AssetId);
+                            }
+                        }
+                        else
+                        {
+                            key = string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId);
+                        }
+                        if (mappedAssets.ContainsKey(key))
+                        {
+                            if (isNpvr)
+                            {
+                                BaseObject obj = mappedAssets[key];
+                                long recordingId;
+                                if (long.TryParse(obj.AssetId, out recordingId) && recordingId > 0)
+                                {
+                                    ProgramObj programObject = obj as ProgramObj;
+                                    RecordingObj recordingObject = new RecordingObj()
+                                    {
+                                        RecordingId = recordingId,
+                                        RecordingType = scheduledRecordingType,
+                                        Program = programObject
+                                    };
+
+                                    result.Add(recordingObject);
+                                }
+                            }
+                            else
+                            {
+                                result.Add(mappedAssets[key]);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetOrderedAssets for groupId: {0}, assets: {1}", groupId,
+                                            assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
+        private static string GetEpgIdFromNpvrObject(BaseObject baseObject, ref RecordingType? scheduledRecordingType)
+        {
+            string epgId = null;
+            try
+            {                               
+                RecordingSearchResult searchResult = baseObject as RecordingSearchResult;
+                if (searchResult != null)
+                {
+                    epgId = searchResult.EpgId;
+                    scheduledRecordingType = searchResult.RecordingType;
+                }
+                else
+                {
+                    UserWatchHistory watchHistory = baseObject as UserWatchHistory;
+                    if (watchHistory != null)
+                    {
+                        epgId = watchHistory.EpgId.ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetRecordingObjFromBaseObject, baseObject: {0}", baseObject != null ? string.Format("{0}_{1}", baseObject.AssetType, baseObject.AssetId) : "null"), ex);
+            }
+
+            return epgId;
+        }
+
+        private static List<long> GetEpgIdsFromNpvrObject(List<BaseObject> npvrs)
+        {
+            List<long> result = null;
+            try
+            {
+                if (npvrs != null && npvrs.Count > 0)
+                {
+                    foreach (BaseObject npvr in npvrs)
+                    {
+                        RecordingSearchResult searchResult = npvr as RecordingSearchResult;
+                        if (searchResult != null)
+                        {
+                            result.Add(long.Parse(searchResult.EpgId));
+                        }
+                        else
+                        {
+                            UserWatchHistory watchHistory = npvr as UserWatchHistory;
+                            if (watchHistory != null)
+                            {
+                                result.Add(watchHistory.EpgId);
+                            }
+                        }
+                    }                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetEpgIdsFromNpvrObject, npvrs: {0}",
+                            npvrs != null ? string.Join(",", npvrs.Select(x => string.Format("{0}_{1}", x.AssetType, x.AssetId)).ToList()) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
+        private static List<BaseObject> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, Filter filter, bool managementData = false)
+        {
+            List<BaseObject> result = null;
+            int languageId = filter != null ? filter.m_nLanguage : 0;
+            try
+            {
+                if (assets != null && assets.Count > 0)
+                {
+                    result = new List<BaseObject>();                                        
+                    List<int> mediaIds = assets.Where(x => x.Key == eAssetTypes.MEDIA).Select(x => (int)x.Value).ToList();
+                    List<long> epgIds = assets.Where(x => x.Key == eAssetTypes.EPG).Select(x => x.Value).ToList();                                        
+                    if (mediaIds != null && mediaIds.Count > 0)
+                    {
+                        List<MediaObj> mediaAssets = null;
+                        if (managementData)
+                        {
+                            mediaAssets = CatalogLogic.CompleteMediaDetails(mediaIds, groupId, filter, true);
+                        }
+                        else
+                        {
+                            mediaAssets = GetMediaObjectsFromCache(groupId, mediaIds, filter);
+                        }
+
+                        if (mediaAssets == null || mediaAssets.Count != mediaIds.Count)
+                        {
+                            List<int> missingMediaIds = mediaAssets == null ? mediaIds : mediaIds.Except(mediaAssets.Select(x => int.Parse(x.AssetId))).ToList();
+                            log.WarnFormat("GetMediaObjectsFromCache didn't find the following mediaIds: {0}", string.Join(",", missingMediaIds));
+                        }
+                        else if (mediaAssets != null)
+                        {
+                            result.AddRange(mediaAssets);
+                        }
+                    }
+
+                    if (epgIds != null && epgIds.Count > 0)
+                    {
+                        List<ProgramObj> epgs = GetProgramFromCache(groupId, epgIds, filter);
+                        if (epgs == null || epgs.Count != mediaIds.Count)
+                        {
+                            List<long> missingEpgIds = epgs == null ? epgIds : epgIds.Except(epgs.Select(x => long.Parse(x.AssetId))).ToList();
+                            log.WarnFormat("GetProgramFromCache didn't find the following epgIds: {0}", string.Join(",", missingEpgIds));
+                        }
+                        else if (epgs != null)
+                        {
+                            result.AddRange(epgs);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssets with groupId: {0}, assets: {1}", groupId,
+                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}_{2}", x.Key, x.Value, languageId)).ToList()) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
+        private static List<MediaObj> GetMediaObjectsFromCache(int groupId, List<int> ids, Filter filter)
+        {
+            List<MediaObj> result = null;
+            try
+            {
+                if (ids == null || ids.Count == 0)
+                {
+                    return result;
+                }
+
+                eAssetTypes assetType = eAssetTypes.MEDIA;
+                Dictionary<string, MediaObj> mediaObjMap = null;
+                int languageId = filter != null ? filter.m_nLanguage : 0;
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsWithLanguageKeyMap(assetType.ToString(), ids.Select(x => x.ToString()).ToList() , languageId);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids.Select(x => (long)x).ToList());
+
+                if (!LayeredCache.Instance.GetValues<MediaObj>(keyToOriginalValueMap, ref mediaObjMap, GetMediaObjects, new Dictionary<string, object>() { { "groupId", groupId }, { "ids", ids },
+                                                                { "filter", filter } }, groupId, LayeredCacheConfigNames.GET_ASSETS_WITH_LANGUAGE_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
+                {
+                    log.ErrorFormat("Failed getting GetMediaObjectsFromCache from LayeredCache, groupId: {0}, ids: {1}, filter language: {2}",
+                                    groupId, ids != null ? string.Join(",", ids) : string.Empty, assetType.ToString(), filter != null ? filter.m_nLanguage.ToString() : "null filter");
+                }
+                else if (mediaObjMap != null)
+                {
+                    result = mediaObjMap.Values.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetMediaAssetsFromCache with groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<Dictionary<string, MediaObj>, bool> GetMediaObjects(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, MediaObj> result = new Dictionary<string, MediaObj>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("filter") && funcParams.ContainsKey("groupId"))
+                {
+                    string key = string.Empty;
+                    List<int> ids;
+                    int? groupId = funcParams["groupId"] as int?;
+                    Filter filter = funcParams["filter"] as Filter;
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        ids = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        ids = funcParams["ids"] != null ? funcParams["ids"] as List<int> : null;
+                    }
+
+                    List<MediaObj> assets = new List<MediaObj>();
+
+                    // filter can be null? according to CatalogLogic.CompleteMediaDetails code, yes it can...
+                    if (ids != null && groupId.HasValue)
+                    {
+                        assets = CatalogLogic.CompleteMediaDetails(ids, groupId.Value, filter, false);
+                        res = assets.Count() == ids.Count();
+                    }
+
+                    if (res)
+                    {
+                        result = assets.ToDictionary(x => LayeredCacheKeys.GetAssetWithLanguageKey(eAssetTypes.MEDIA.ToString(), x.AssetId, filter.m_nLanguage), x => x);
+                    }
+                    else
+                    {
+                        List<int> missingIds = assets.Select(x => int.Parse(x.AssetId)).Except(ids).ToList();
+                        log.DebugFormat("Missing media ids: {0}", missingIds);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaObjects failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, MediaObj>, bool>(result, res);
+        }
+
+        private static List<ProgramObj> GetProgramFromCache(int groupId, List<long> ids, Filter filter)
+        {
+            List<ProgramObj> result = null;
+            try
+            {
+                if (ids == null || ids.Count == 0)
+                {
+                    return result;
+                }
+
+                eAssetTypes assetType = eAssetTypes.EPG;
+                Dictionary<string, ProgramObj> programsMap = null;
+                int languageId = filter != null ? filter.m_nLanguage : 0;
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsWithLanguageKeyMap(assetType.ToString(), ids.Select(x => x.ToString()).ToList(), languageId);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids);
+
+                if (!LayeredCache.Instance.GetValues<ProgramObj>(keyToOriginalValueMap, ref programsMap, GetPrograms, new Dictionary<string, object>() { { "groupId", groupId }, { "ids", ids },
+                                                                { "filter", filter } }, groupId, LayeredCacheConfigNames.GET_ASSETS_WITH_LANGUAGE_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
+                {
+                    log.ErrorFormat("Failed getting GetProgramFromCache from LayeredCache, groupId: {0}, ids: {1}, filter language: {2}",
+                                    groupId, ids != null ? string.Join(",", ids) : string.Empty, assetType.ToString(), filter != null ? filter.m_nLanguage.ToString() : "null filter");
+                }
+                else if (programsMap != null)
+                {
+                    result = programsMap.Values.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetProgramFromCache with groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<Dictionary<string, ProgramObj>, bool> GetPrograms(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, ProgramObj> result = new Dictionary<string, ProgramObj>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("filter") && funcParams.ContainsKey("groupId"))
+                {
+                    string key = string.Empty;
+                    List<long> ids;
+                    int? groupId = funcParams["groupId"] as int?;
+                    Filter filter = funcParams["filter"] as Filter;
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        ids = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        ids = funcParams["ids"] != null ? funcParams["ids"] as List<long> : null;
+                    }
+
+                    List<ProgramObj> programs = new List<ProgramObj>();
+
+                    // filter can be null? according to CatalogLogic.GetEPGProgramInformation code, yes it can...
+                    if (ids != null && groupId.HasValue)
+                    {
+                        programs = CatalogLogic.GetEPGProgramInformation(ids, groupId.Value, filter);
+                        res = programs.Count() == ids.Count();
+                    }
+
+                    if (res)
+                    {
+                        result = programs.ToDictionary(x => LayeredCacheKeys.GetAssetWithLanguageKey(eAssetTypes.EPG.ToString(), x.AssetId, filter.m_nLanguage), x => x);
+                    }
+                    else
+                    {
+                        List<long> missingIds = programs.Select(x => long.Parse(x.AssetId)).Except(ids).ToList();
+                        log.DebugFormat("Missing media ids: {0}", missingIds);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetPrograms failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, ProgramObj>, bool>(result, res);
+        }
+
     }
 }
