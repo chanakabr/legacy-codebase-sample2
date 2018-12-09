@@ -237,6 +237,7 @@
     <Compile Include="Catalog\PicSize.cs" />
     <Compile Include="Catalog\Picture.cs" />
     <Compile Include="Catalog\ProgramObj.cs" />
+    <Compile Include="Catalog\RecordingObj.cs" />
     <Compile Include="Catalog\Request\AssetCommentAddRequest.cs" />
     <Compile Include="Catalog\Request\AssetCommentsRequest.cs" />
     <Compile Include="Catalog\Request\AssetInfoRequest.cs" />
