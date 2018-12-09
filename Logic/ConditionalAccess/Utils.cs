@@ -4676,6 +4676,8 @@ namespace Core.ConditionalAccess
         private static Tuple<TimeShiftedTvPartnerSettings, bool> GetTimeShiftedTvPartnerSettings(Dictionary<string, object> funcParams)
         {
             TimeShiftedTvPartnerSettings tstvAccountSettings = null;
+            bool getTstsvSuccess = false;
+
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -4683,7 +4685,8 @@ namespace Core.ConditionalAccess
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue)
                     {
-                        DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupId.Value);
+                        DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupId.Value, out getTstsvSuccess);
+
                         if (dr != null)
                         {
                             int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", 0);
@@ -4723,10 +4726,8 @@ namespace Core.ConditionalAccess
             {
                 log.Error(string.Format("GetTimeShiftedTvPartnerSettings failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-
-            bool res = tstvAccountSettings != null;
-
-            return new Tuple<TimeShiftedTvPartnerSettings, bool>(tstvAccountSettings, res);
+            
+            return new Tuple<TimeShiftedTvPartnerSettings, bool>(tstvAccountSettings, getTstsvSuccess);
         }
 
         internal static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupId)
