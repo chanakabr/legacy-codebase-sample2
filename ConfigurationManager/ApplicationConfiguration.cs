@@ -145,7 +145,8 @@ namespace ConfigurationManager
             if (!string.IsNullOrEmpty(application) || !string.IsNullOrEmpty(host) || !string.IsNullOrEmpty(environment))
             {
                 TCMClient.TCMConfiguration config = (TCMClient.TCMConfiguration)System.Configuration.ConfigurationManager.GetSection("TCMConfig");
-
+                config.OverrideEnvironmentVariable();
+                
                 if (string.IsNullOrEmpty(application))
                 {
                     application = config.Application;
