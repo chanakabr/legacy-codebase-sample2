@@ -627,7 +627,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHousehold SetDomainInfo(int groupId, int domainId, string name, string description)
+        internal KalturaHousehold SetDomainInfo(int groupId, int domainId, string name, string description, string externalId = null)
         {
             KalturaHousehold result = null;
             DomainStatusResponse response = null;
@@ -637,7 +637,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SetDomainInfo(groupId, domainId, name, description);
+                    response = Core.Domains.Module.SetDomainInfo(groupId, domainId, name, description, externalId);
                 }
             }
             catch (Exception ex)

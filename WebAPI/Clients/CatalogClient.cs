@@ -2700,21 +2700,21 @@ namespace WebAPI.Clients
             key.AppendFormat("search_q={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 query, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            MediaIdsStatusResponse mediaIdsResponse = new MediaIdsStatusResponse();
-            if (!CatalogUtils.GetBaseResponse<MediaIdsStatusResponse>(request, out mediaIdsResponse, true, key.ToString())
-                || mediaIdsResponse == null || mediaIdsResponse.Status.Code != (int)StatusCode.OK)
+            UnifiedSearchResponse response = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out response, true, key.ToString())
+                || response == null || response.status.Code != (int)StatusCode.OK)
             {
-                if (mediaIdsResponse == null)
+                if (response == null)
                     throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
 
                 // general error
-                throw new ClientException((int)mediaIdsResponse.Status.Code, mediaIdsResponse.Status.Message);
+                throw new ClientException((int)response.status.Code, response.status.Message);
             }
 
-            if (mediaIdsResponse.assetIds != null && mediaIdsResponse.assetIds.Count > 0)
+            if (response.searchResults != null && response.searchResults.Count > 0)
             {
-                result.Objects = CatalogUtils.GetAssets(mediaIdsResponse.assetIds.Select(a => (BaseObject)a).ToList(), request);
-                result.TotalCount = mediaIdsResponse.m_nTotalItems;
+                result.Objects = CatalogUtils.GetAssets(response.searchResults.Select(a => (BaseObject)a).ToList(), request);
+                result.TotalCount = response.m_nTotalItems;
             }
             return result;
         }
