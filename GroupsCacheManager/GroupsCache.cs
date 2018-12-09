@@ -460,7 +460,7 @@ namespace GroupsCacheManager
                     isRemovingChannelSucceded = true;
                 }
 
-                isRemovingChannelSucceded && = LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
+                isRemovingChannelSucceded &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
             }
             catch (Exception ex)
             {
