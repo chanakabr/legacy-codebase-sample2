@@ -80,11 +80,14 @@ namespace EpgIngest
             Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
             ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
 
-            DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(m_Channels.parentgroupid);
-             if (dr != null)
+            bool getTstvSuccess = false;
+            DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(m_Channels.parentgroupid, out getTstvSuccess);
+
+             if (dr != null && getTstvSuccess)
              {
                  isTstvSettings = true;
              }
+
             return true;
         }
 
