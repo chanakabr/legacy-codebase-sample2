@@ -39,7 +39,8 @@ namespace WebAPI.Clients
 
         public string Signature { get; set; }
         public string SignString { get; set; }
-        
+        public int CacheDuration { get; set; }
+
         public string SignatureKey
         {
             set
@@ -599,7 +600,7 @@ namespace WebAPI.Clients
                 else
                 {
                     // build the assetsBaseDataList from the hit array 
-                    result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);
+                    result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, managementData, responseProfile);
                 }
 
                 result.TotalCount = searchResponse.aggregationResults[0].totalItems;
@@ -614,7 +615,7 @@ namespace WebAPI.Clients
                 else
                 {
                     // get base objects list                    
-                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);
+                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, managementData);
                 }
 
                 result.TotalCount = searchResponse.m_nTotalItems;
@@ -651,9 +652,7 @@ namespace WebAPI.Clients
             return result;
         }        
 
-        #endregion
-
-        public int CacheDuration { get; set; }
+        #endregion        
 
         private string GetSignature(string signString, string signatureKey)
         {
@@ -750,7 +749,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -855,7 +854,7 @@ namespace WebAPI.Clients
             }
 
             // get assets from catalog/cache
-            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request, CacheDuration, managementData);
+            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request, managementData);
             result.TotalCount = totalCount;
 
             return result;
@@ -1099,7 +1098,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToSlimAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, with, CatalogConvertor.ConvertBaseObjectsToSlimAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -1165,7 +1164,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // combine asset info and watch history info
                 finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
@@ -1252,7 +1251,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // combine asset info and watch history info
                 finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
@@ -1346,7 +1345,7 @@ namespace WebAPI.Clients
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration, with);
+            result = CatalogUtils.GetMedia(request, key.ToString(), with);
 
             return result;
         }
@@ -1399,7 +1398,7 @@ namespace WebAPI.Clients
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration, responseProfile);
+            result = CatalogUtils.GetMedia(request, key.ToString(), responseProfile);
 
             return result;
         }
@@ -1482,7 +1481,7 @@ namespace WebAPI.Clients
             }
 
             // get assets from catalog/cache
-            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request, CacheDuration);
+            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request);
             result.TotalCount = totalCount;
 
             return result;
@@ -1526,7 +1525,7 @@ namespace WebAPI.Clients
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), CacheDuration, with);
+            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), with);
 
             return result;
         }
@@ -1568,7 +1567,7 @@ namespace WebAPI.Clients
             key.AppendFormat("search_q={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 query, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), CacheDuration, with);
+            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), with);
 
             return result;
         }
@@ -1633,7 +1632,7 @@ namespace WebAPI.Clients
 
             if (channelResponse.m_nMedias != null && channelResponse.m_nMedias.Count > 0)
             {
-                result.Objects = CatalogUtils.GetMediaByIds(channelResponse.m_nMedias, request, CacheDuration, with);
+                result.Objects = CatalogUtils.GetMediaByIds(channelResponse.m_nMedias, request, with);
                 result.TotalCount = channelResponse.m_nTotalItems;
             }
             return result;
@@ -1711,7 +1710,7 @@ namespace WebAPI.Clients
                 result.TotalCount = channelResponse.m_nTotalItems;
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -1763,7 +1762,7 @@ namespace WebAPI.Clients
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
-                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, CacheDuration, with);
+                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, with);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
 
@@ -1812,7 +1811,7 @@ namespace WebAPI.Clients
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
-                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, CacheDuration);
+                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
 
@@ -2013,7 +2012,7 @@ namespace WebAPI.Clients
                 }).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
                 result.TotalCount = epgProgramResponse.m_nTotalItems;
 
                 if (result.Objects != null)
@@ -2362,7 +2361,7 @@ namespace WebAPI.Clients
 
                 // get assets from catalog/cache
                 List<KalturaIAssetable> assetsInfo =
-                    CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                    CatalogUtils.GetAssets(assetsBaseDataList, request, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -2608,7 +2607,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
 
                 CatalogUtils.UpdateEpgTags(result.Objects, assetsBaseDataList);
 
@@ -2658,7 +2657,7 @@ namespace WebAPI.Clients
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), CacheDuration);
+            result = CatalogUtils.GetMediaWithStatus(request, key.ToString());
 
             return result;
         }
@@ -2714,7 +2713,7 @@ namespace WebAPI.Clients
 
             if (mediaIdsResponse.assetIds != null && mediaIdsResponse.assetIds.Count > 0)
             {
-                result.Objects = CatalogUtils.GetAssets(mediaIdsResponse.assetIds.Select(a => (BaseObject)a).ToList(), request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(mediaIdsResponse.assetIds.Select(a => (BaseObject)a).ToList(), request);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
             return result;
@@ -2878,7 +2877,7 @@ namespace WebAPI.Clients
             }
 
             // get assets from catalog/cache
-            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request, CacheDuration);
+            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request);
             result.TotalCount = totalCount;
 
             return result;
@@ -2933,7 +2932,7 @@ namespace WebAPI.Clients
             key.AppendFormat("bundle_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}_type={6}",
                 id, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty, bundleType.ToString());
 
-            result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration);
+            result = CatalogUtils.GetMedia(request, key.ToString());
 
             return result;
         }
@@ -3133,7 +3132,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = scheduledRecordingResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
                 result.TotalCount = scheduledRecordingResponse.m_nTotalItems;
             }
 
