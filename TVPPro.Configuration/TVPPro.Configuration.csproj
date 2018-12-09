@@ -117,7 +117,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="TCMClient">
-      <HintPath>..\..\TVinciCommon\External\TCMClient.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
