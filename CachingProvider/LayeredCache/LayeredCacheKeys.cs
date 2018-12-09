@@ -833,6 +833,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_all_ppv_groupId_{0}", groupId);
         }
 
+        public static string GroupManagerGetGroupInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_group_manager_get_group_{0}", groupId);
+        }
+
         #endregion
 
         #region Domains
