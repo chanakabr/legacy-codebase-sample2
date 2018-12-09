@@ -43,8 +43,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -109,6 +109,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\DataSources\ApiObjects.SlidingWindowInfoObj.datasource" />
     <None Include="Service References\WS_Catalog\CrowdsourcingFeeder.WS_Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
