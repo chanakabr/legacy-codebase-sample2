@@ -1393,15 +1393,24 @@ namespace Core.Users
             
             try
             {
-                string key = LayeredCacheKeys.GetUserRolesKey(userId);
-                List<long> roleIds = null;
-                
-                // try to get from cache            
-                if (LayeredCache.Instance.Get<List<long>>(key, ref roleIds, Utils.Get_UserRoleIds, new Dictionary<string, object>() { { "groupId", m_nGroupID }, { "userId", userId } },
-                                                          groupId, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
+                // if this is an anonymous user - simply return an empty list (just like the stored procedure returns)
+                if (string.IsNullOrEmpty(userId) || userId == "0")
                 {
-                    response.Ids = roleIds;
+                    response.Ids = new List<long>();
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    string key = LayeredCacheKeys.GetUserRolesKey(userId);
+                    List<long> roleIds = null;
+
+                    // try to get from cache            
+                    if (LayeredCache.Instance.Get<List<long>>(key, ref roleIds, Utils.Get_UserRoleIds, new Dictionary<string, object>() { { "groupId", m_nGroupID }, { "userId", userId } },
+                                                              groupId, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
+                    {
+                        response.Ids = roleIds;
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
             }
             catch (Exception ex)

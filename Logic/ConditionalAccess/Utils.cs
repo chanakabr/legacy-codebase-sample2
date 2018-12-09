@@ -7470,23 +7470,34 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, MeidaMaper[] mapper, ref DomainEntitlements domainEntitlements)
+        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, MeidaMaper[] mapperMapperList, ref DomainEntitlements domainEntitlements)
         {
-            bool res = false;
+            bool result = false;
+
             try
             {
                 string key = LayeredCacheKeys.GetDomainEntitlementsKey(groupId, domainId);
+
                 // if mapper is null init it to empty for passing validation in InitializeDomainEntitlements
-                if (mapper == null)
+                if (mapperMapperList == null)
                 {
-                    mapper = new MeidaMaper[0];
+                    mapperMapperList = new MeidaMaper[0];
                 }
 
-                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapper } };
-                res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId,
-                                                                    LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME,
-                                                                    LayeredCacheKeys.GetDomainEntitlementInvalidationKeys(domainId));
-                if (res && domainEntitlements != null)
+                if (domainId == 0)
+                {
+                    domainEntitlements = new DomainEntitlements();
+                    result = true;
+                }
+                else
+                {
+                    Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapperMapperList } };
+                    result = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId,
+                                                                        LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME,
+                                                                        LayeredCacheKeys.GetDomainEntitlementInvalidationKeys(domainId));
+                }
+
+                if (result && domainEntitlements != null)
                 {
                     // remove expired PPV's
                     if (domainEntitlements.DomainPpvEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
@@ -7507,12 +7518,12 @@ namespace Core.ConditionalAccess
                     }
 
                     // Get mappings of mediaFileIDs - MediaIDs
-                    if (mapper != null && mapper.Length > 0)
+                    if (mapperMapperList != null && mapperMapperList.Length > 0)
                     {
                         HashSet<int> mediaIdsToMap = new HashSet<int>();
                         Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
                         Dictionary<string, string> keyToOriginalValueMap = new Dictionary<string, string>();
-                        foreach (MeidaMaper mediaMapper in mapper)
+                        foreach (MeidaMaper mediaMapper in mapperMapperList)
                         {
                             if (!mediaIdsToMap.Contains(mediaMapper.m_nMediaID))
                             {
@@ -7622,7 +7633,7 @@ namespace Core.ConditionalAccess
                 log.Error(string.Format("Failed TryGetDomainEntitlementsFromCache, groupId: {0}, domainId: {1}", groupId, domainId), ex);
             }
 
-            return res && domainEntitlements != null;
+            return result && domainEntitlements != null;
         }
 
         private static Tuple<DomainEntitlements, bool> InitializeDomainEntitlements(Dictionary<string, object> funcParams)
