@@ -109,6 +109,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="XML_Adapter\ADI3Adapter\Genre.xlsx" />
   </ItemGroup>
   <ItemGroup>
