@@ -12,6 +12,7 @@ using System.ServiceModel;
 using QueueWrapper;
 using ApiObjects;
 using ConfigurationManager;
+using CachingProvider.LayeredCache;
 
 namespace SetupTaskHandler
 {
@@ -69,10 +70,16 @@ namespace SetupTaskHandler
                             success = v1Success && v2Success;
                         }
 
+                        if (success || v1Success || v2Success)
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheConfigNames.GET_COUNTRY_BY_IP_INVALIDATION_KEY);
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheConfigNames.GET_PROXY_IP_INVALIDATION_KEY);
+                        }
+
                         break;
 
                         #endregion
-                    }
+                    }                    
                     case ApiObjects.eSetupTask.NotificationSeriesCleanupIteration:
                     {
                         #region Notification Clean Iteration
