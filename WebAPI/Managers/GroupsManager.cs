@@ -16,6 +16,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers;
 using WebAPI.Models.API;
 using ConfigurationManager;
+using CachingProvider.LayeredCache;
 
 namespace WebAPI.ClientManagers
 {
@@ -48,82 +49,46 @@ namespace WebAPI.ClientManagers
             }
         }
 
-        public static Group GetGroup(int groupId, HttpContext context = null)
+        public static Group GetGroup(int groupId)
         {
             if (instance == null)
+            {
                 instance = new GroupsManager();
+            }
+
+            Group group = null;
 
             string groupKey = string.Format(groupKeyFormat, groupId);
-            Group tempGroup = null;
-
-            if ((context == null && HttpContext.Current.Cache.Get(groupKey) == null) || (context != null && context.Cache.Get(groupKey) == null))
+            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId } };
+            if (!LayeredCache.Instance.Get<Group>(groupKey, ref group, BuildGroup, funcParams, groupId, LayeredCacheConfigNames.PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME,
+                                                            new List<string>() { LayeredCacheKeys.PhoenixGroupsManagerInvalidationKey(groupId) }))
             {
-                if (syncLock.TryEnterWriteLock(10000))
-                {
-                    try
-                    {
-                        if ((context == null && HttpContext.Current.Cache.Get(groupKey) == null) || (context != null && context.Cache.Get(groupKey) == null))
-                        {
-                            Group group = createNewInstance(groupId);
+                log.ErrorFormat("Failed building Phoenix group object for groupId: {0}", groupId);
+            }
 
-                            if (group != null)
-                            {
-                                if (context == null)
-                                {
-                                    HttpContext.Current.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
-                                }
-                                else
-                                {
-                                    context.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
+            return group;
+        }
+
+        private static Tuple<Group, bool> BuildGroup(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            Group group = null;
+
+            if (funcParams != null && funcParams.ContainsKey("groupId"))
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue && groupId.Value > 0)
+                {
+                    group = createNewInstance(groupId.Value);
+
+                    if (group != null)
                     {
-                        log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception: {2}", groupKey, groupId, ex);
-                        throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
-                    }
-                    finally
-                    {
-                        syncLock.ExitWriteLock();
+                        result = true;
                     }
                 }
             }
 
-            // If item already exist
-            if (syncLock.TryEnterReadLock(10000))
-            {
-                try
-                {
-                    object res = null;
-
-                    if (context == null)
-                    {
-                        res = HttpContext.Current.Cache.Get(groupKey);
-                    }
-                    else
-                    {
-                        res = context.Cache.Get(groupKey);
-                    }
-
-                    if (res != null && res is Group)
-                    {
-                        tempGroup = res as Group;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception {2}", groupKey, groupId, ex);
-                    throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
-                }
-                finally
-                {
-                    syncLock.ExitReadLock();
-                }
-            }
-
-            return tempGroup;
+            return new Tuple<Group, bool>(group, result);
         }
 
         private static Group createNewInstance(int groupId)
@@ -141,7 +106,7 @@ namespace WebAPI.ClientManagers
 
                 if (group == null)
                 {
-                    log.Warn("failed to get group cache from Couchbase");
+                    log.Warn("failed to get group cache on createNewInstance method");
                     throw new Exception();
                 }
 
@@ -157,6 +122,84 @@ namespace WebAPI.ClientManagers
 
             return group;
         }
+
+        //public static Group GetGroup(int groupId, HttpContext context = null)
+        //{
+        //    if (instance == null)
+        //        instance = new GroupsManager();
+
+        //    string groupKey = string.Format(groupKeyFormat, groupId);
+        //    Group tempGroup = null;
+
+        //    if ((context == null && HttpContext.Current.Cache.Get(groupKey) == null) || (context != null && context.Cache.Get(groupKey) == null))
+        //    {
+        //        if (syncLock.TryEnterWriteLock(10000))
+        //        {
+        //            try
+        //            {
+        //                if ((context == null && HttpContext.Current.Cache.Get(groupKey) == null) || (context != null && context.Cache.Get(groupKey) == null))
+        //                {
+        //                    Group group = createNewInstance(groupId);
+
+        //                    if (group != null)
+        //                    {
+        //                        if (context == null)
+        //                        {
+        //                            HttpContext.Current.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+        //                        }
+        //                        else
+        //                        {
+        //                            context.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception: {2}", groupKey, groupId, ex);
+        //                throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
+        //            }
+        //            finally
+        //            {
+        //                syncLock.ExitWriteLock();
+        //            }
+        //        }
+        //    }
+
+        //    // If item already exist
+        //    if (syncLock.TryEnterReadLock(10000))
+        //    {
+        //        try
+        //        {
+        //            object res = null;
+
+        //            if (context == null)
+        //            {
+        //                res = HttpContext.Current.Cache.Get(groupKey);
+        //            }
+        //            else
+        //            {
+        //                res = context.Cache.Get(groupKey);
+        //            }
+
+        //            if (res != null && res is Group)
+        //            {
+        //                tempGroup = res as Group;
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception {2}", groupKey, groupId, ex);
+        //            throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
+        //        }
+        //        finally
+        //        {
+        //            syncLock.ExitReadLock();
+        //        }
+        //    }
+
+        //    return tempGroup;
+        //}        
 
 
     }
