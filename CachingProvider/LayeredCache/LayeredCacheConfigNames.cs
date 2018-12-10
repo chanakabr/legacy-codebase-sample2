@@ -90,6 +90,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_ALL_PPVS = "GetAllPpvs";
         public const string GROUP_MANAGER_GET_GROUP_CONFIG_NAME = "GroupManagerGetGroup";
         public const string PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME = "PhoenixGroupsManager";
+        public const string QUERY_CACHE_CONFIG_NAME = "QueryCache";
+
         #endregion
 
         #region Constant Invalidation Keys

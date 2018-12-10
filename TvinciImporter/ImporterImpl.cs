@@ -340,6 +340,10 @@ namespace TvinciImporter
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(NAME)))", "=", sName.Trim().ToLower());
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+
+            // TSKF-16 - add cache
+            selectQuery.SetCachedSec(86400);
+
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;

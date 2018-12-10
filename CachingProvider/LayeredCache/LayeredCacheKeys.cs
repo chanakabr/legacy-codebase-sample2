@@ -494,6 +494,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("all_ppvs_groupId_{0}", groupId);
         }
 
+        public static string GetQueryCacheDefinitionsKey()
+        {
+            return "query_cache";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -891,6 +896,11 @@ namespace CachingProvider.LayeredCache
         public static string PhoenixGroupsManagerInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_PhoenixGroupsManager_{0}", groupId);
+        }
+
+        public static string QueryCacheInvalidationKey()
+        {
+            return "invalidationKey_query_cache";
         }
 
         #endregion

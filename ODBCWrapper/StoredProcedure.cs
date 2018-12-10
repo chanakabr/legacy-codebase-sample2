@@ -12,9 +12,17 @@ namespace ODBCWrapper
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected string dbName;
 
-        public StoredProcedure(string sProcedureName)
+        public StoredProcedure(string sProcedureName, bool isVersionless = false)
         {
-            procedureNameWithDbVersionPrefix = string.Format("{0}{1}", Utils.dBVersionPrefix, sProcedureName);
+            if (!isVersionless)
+            {
+                procedureNameWithDbVersionPrefix = string.Format("{0}{1}", Utils.dBVersionPrefix, sProcedureName);
+            }
+            else
+            {
+                procedureNameWithDbVersionPrefix = sProcedureName;
+            }
+
             procedureName = sProcedureName;
             m_Parameters = new Dictionary<string, object>();
             m_bIsWritable = (sProcedureName.ToLower().StartsWith("get") && !sProcedureName.ToLower().StartsWith("getorinsert")) ? false : true;
@@ -35,6 +43,12 @@ namespace ODBCWrapper
         protected string m_sConnectionKey;
         protected bool m_bIsWritable;
 
+        /// <summary>
+        /// by default - false. all stored procedures have versions.
+        /// However there is a limited amount of unique cases where the stored procedure is version less, 
+        /// Database data wise
+        /// </summary>
+        public bool isVersionless = false;
         private int LongQueryTime
         {
             get
@@ -293,6 +307,8 @@ namespace ODBCWrapper
                             }
                         }
                     }
+
+                    con.Close();
                 }
                 catch (Exception ex)
                 {
