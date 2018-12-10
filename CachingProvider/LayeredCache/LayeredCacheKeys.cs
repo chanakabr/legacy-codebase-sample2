@@ -753,6 +753,36 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public static Dictionary<string, List<string>> GetMediaInvalidationKeysMap(int groupId, string assetType, List<long> ids)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (ids != null && ids.Count > 0)
+            {
+                ids = ids.Distinct().ToList();
+                foreach (long id in ids)
+                {
+                    result.Add(GetAssetKey(assetType, id), new List<string>() { GetMediaInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, List<string>> GetEpgInvalidationKeysMap(int groupId, string assetType, List<long> ids)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (ids != null && ids.Count > 0)
+            {
+                ids = ids.Distinct().ToList();
+                foreach (long id in ids)
+                {
+                    result.Add(GetAssetKey(assetType, id), new List<string>() { GetEpgInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
         public static string GetUserParentalRuleInvalidationKey(string siteGuid)
         {
             return string.Format("user_parental_rules_{0}", siteGuid);
@@ -856,6 +886,11 @@ namespace CachingProvider.LayeredCache
         public static string GroupManagerGetGroupInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_group_manager_get_group_{0}", groupId);
+        }
+
+        public static string PhoenixGroupsManagerInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_PhoenixGroupsManager_{0}", groupId);
         }
 
         #endregion

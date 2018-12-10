@@ -89,12 +89,14 @@ namespace CachingProvider.LayeredCache
         public const string GET_DOMAIN_BUNDLES_LAYERED_CACHE_CONFIG_NAME = "GetDomainBundles";
         public const string GET_ALL_PPVS = "GetAllPpvs";
         public const string GROUP_MANAGER_GET_GROUP_CONFIG_NAME = "GroupManagerGetGroup";
+        public const string PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME = "PhoenixGroupsManager";
         #endregion
 
         #region Constant Invalidation Keys
 
         public const string GET_COUNTRY_BY_IP_INVALIDATION_KEY = "invalidateGetCountryByIp";
-        public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";
+        public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";        
+
 
         #endregion
 
