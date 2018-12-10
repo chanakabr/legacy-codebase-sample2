@@ -22,8 +22,18 @@ ARG API_LOG_DIR=C:\\log\\api\\%COMPUTERNAME%
 ENV API_LOG_DIR ${API_LOG_DIR}
 
 COPY WebAPI WebAPI
+COPY WebAPI\\ssl-dev\\cert.pfx C:\\Certificate\\cert.pfx
+
+RUN $pwd = ConvertTo-SecureString -String "123456" -Force -AsPlainText; \
+    $cert = Import-PfxCertificate -Password $pwd -FilePath \"C:\\Certificate\\cert.pfx\" -CertStoreLocation \"Cert:\LocalMachine\My\"; \
+    $guid = [guid]::NewGuid().ToString(\"B\"); \
+    netsh http add sslcert hostnameport=\"*:443\" certhash=$cert certstorename=MY appid=\"$guid\"; \
+    New-WebBinding -name WebApi -Protocol https -Port 443 -SslFlags 0
+
+
 
 EXPOSE 80
+EXPOSE 443
 
 ARG VERSION
 LABEL version=${VERSION}
