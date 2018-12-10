@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaPlaybackProfileListResponse List(KalturaPlaybackProfileFilter filter)
+        static public KalturaPlaybackProfileListResponse List(KalturaPlaybackProfileFilter filter = null)
         {
             KalturaPlaybackProfileListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
