@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
@@ -21,7 +22,8 @@ namespace WebAPI.Models.API
         BUSINESS_MODULE,
         SEGMENTS,
         DATE,
-        OR
+        OR,
+        HEADER
     }
     
     /// <summary>
@@ -121,28 +123,15 @@ namespace WebAPI.Models.API
 
         public List<int> getCountries()
         {
-            List<int> countries = new List<int>();
-
-            if (!string.IsNullOrEmpty(Countries))
-            {
-                string[] splitted = Countries.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                int countryId = 0;
-
-                foreach (var country in splitted)
-                {
-                    if (int.TryParse(country, out countryId) && countryId > 0)
-                    {
-                        countries.Add(countryId);
-                    }
-                }
-            }
-
-            return countries;
+            return this.GetItemsIn<List<int>, int>(Countries, "KalturaCountryCondition.countries");
         }
 
         internal override void Validate()
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(Countries))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaCountryCondition.countries");
+            }
         }
     }
 
@@ -168,7 +157,10 @@ namespace WebAPI.Models.API
 
         internal override void Validate()
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(Ksql) || string.IsNullOrWhiteSpace(Ksql))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+            }
         }
     }
 
@@ -199,6 +191,16 @@ namespace WebAPI.Models.API
             base.Init();
             this.Type = KalturaRuleConditionType.CONCURRENCY;
         }
+
+        internal override void Validate()
+        {
+            base.Validate();
+
+            if (Limit < 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaConcurrencyCondition.limit", "0");
+            }
+        }
     }
 
     public enum KalturaConcurrencyLimitationType
@@ -211,7 +213,7 @@ namespace WebAPI.Models.API
     /// IP range condition
     /// </summary>
     [Serializable]
-    public partial class KalturaIpRangeCondition : KalturaCondition
+    public partial class KalturaIpRangeCondition : KalturaNotCondition
     {
         /// <summary>
         /// From IP address range
@@ -237,7 +239,29 @@ namespace WebAPI.Models.API
 
         internal override void Validate()
         {
-            throw new NotImplementedException();
+            string ipRegex = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
+
+            if (string.IsNullOrEmpty(FromIP) || !Regex.IsMatch(FromIP, ipRegex))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fromIP");
+            }
+
+            if (string.IsNullOrEmpty(ToIP) || !Regex.IsMatch(ToIP, ipRegex))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "toIP");
+            }
+
+            // check for range IP
+            string[] fromIPSplited = FromIP.Split('.');
+            Int64 ipFrom = Int64.Parse(fromIPSplited[3]) + Int64.Parse(fromIPSplited[2]) * 256 + Int64.Parse(fromIPSplited[1]) * 256 * 256 + Int64.Parse(fromIPSplited[0]) * 256 * 256 * 256;
+
+            string[] toIPSplited = ToIP.Split('.');
+            Int64 ipTo = Int64.Parse(toIPSplited[3]) + Int64.Parse(toIPSplited[2]) * 256 + Int64.Parse(toIPSplited[1]) * 256 * 256 + Int64.Parse(toIPSplited[0]) * 256 * 256 * 256;
+
+            if (ipTo < ipFrom)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "fromIP", "toIP");
+            }
         }
     }
 
@@ -363,4 +387,75 @@ namespace WebAPI.Models.API
             }
         }
     }
+
+    /// <summary>
+    /// Header condition
+    /// </summary>
+    public partial class KalturaHeaderCondition : KalturaNotCondition
+    {
+        /// <summary>
+        /// Header key
+        /// </summary>
+        [DataMember(Name = "key")]
+        [JsonProperty("key")]
+        [XmlElement(ElementName = "key")]
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Header value
+        /// </summary>
+        [DataMember(Name = "value")]
+        [JsonProperty("value")]
+        [XmlElement(ElementName = "value")]
+        public string Value { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.HEADER;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaHeaderCondition.key");
+            }
+
+            if (string.IsNullOrEmpty(Value))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaHeaderCondition.value");
+            }
+        }
+    }
+
+    //public partial class KalturaNotOrCondition : KalturaNotCondition
+    //{
+    //    /// <summary>
+    //    /// List of conditions with or between them  
+    //    /// </summary>
+    //    [DataMember(Name = "conditions")]
+    //    [JsonProperty("conditions")]
+    //    [XmlElement(ElementName = "conditions")]
+    //    public KalturaOrCondition OrCondition { get; set; }
+
+    //    protected override void Init()
+    //    {
+    //        base.Init();
+    //        this.Type = KalturaRuleConditionType.OR;
+    //    }
+
+    //    internal override void Validate()
+    //    {
+    //        if (this.Conditions == null || this.Conditions.Count == 0)
+    //        {
+    //            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "condition.conditions");
+    //        }
+
+    //        foreach (var condition in this.Conditions)
+    //        {
+    //            condition.Validate();
+    //        }
+    //    }
+    //}
 }

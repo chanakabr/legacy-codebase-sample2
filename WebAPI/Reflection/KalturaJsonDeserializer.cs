@@ -670,6 +670,9 @@ namespace WebAPI.Reflection
                 case "KalturaGroupPermission":
                     return new KalturaGroupPermission(parameters);
                     
+                case "KalturaHeaderCondition":
+                    return new KalturaHeaderCondition(parameters);
+                    
                 case "KalturaHomeNetwork":
                     return new KalturaHomeNetwork(parameters);
                     
@@ -12630,6 +12633,10 @@ namespace WebAPI.Models.API
                         AssetApplied = (KalturaSlimAsset) Deserializer.deserialize(typeof(KalturaSlimAsset), (Dictionary<string, object>) parameters["assetApplied"]);
                     }
                 }
+                if (parameters.ContainsKey("actionsContainType") && parameters["actionsContainType"] != null)
+                {
+                    ActionsContainType = (KalturaRuleActionType) Enum.Parse(typeof(KalturaRuleActionType), parameters["actionsContainType"].ToString(), true);
+                }
             }
         }
     }
@@ -13699,6 +13706,23 @@ namespace WebAPI.Models.API
                     {
                         GenericRules = buildList(typeof(KalturaGenericRule), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaHeaderCondition
+    {
+        public KalturaHeaderCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("key") && parameters["key"] != null)
+                {
+                    Key = (String) Convert.ChangeType(parameters["key"], typeof(String));
+                }
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
                 }
             }
         }
