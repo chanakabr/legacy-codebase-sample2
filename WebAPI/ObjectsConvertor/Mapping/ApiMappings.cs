@@ -901,6 +901,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FilterBySegments, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? true : false));
 
             #endregion
+
+            #region Playback Profile
+            cfg.CreateMap<PlaybackAdapter, KalturaPlaybackProfile>()
+             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))             
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+             .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
+             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+
+            cfg.CreateMap<KalturaPlaybackProfile, PlaybackAdapter>()
+             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+             .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
+             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+            #endregion
         }
 
         private static ContentConditionLengthType? ConvertLengthType(KalturaContentActionConditionLengthType? lengthType)
