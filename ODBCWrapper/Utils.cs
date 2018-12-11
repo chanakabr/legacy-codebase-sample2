@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using CachingProvider;
 using ConfigurationManager;
+using CachingProvider.LayeredCache;
 
 namespace ODBCWrapper
 {
@@ -1168,32 +1169,24 @@ namespace ODBCWrapper
         {
             string key = GetDbSpRoutingKey();
             DbProceduresRouting dbProceduresRouting = null;
-            try
-            {
-                if (!ODBCWrapperCache.Instance.TryGet(key, out dbProceduresRouting))
-                {
-                    lock (locker)
-                    {
-                        if (!ODBCWrapperCache.Instance.TryGet(key, out dbProceduresRouting))
-                        {
-                            log.Debug("Getting DB Procedures Routing from DB");
-                            dbProceduresRouting = InitializeDbProceduresRouting();
-                            if (dbProceduresRouting != null)
-                            {
-                                ODBCWrapperCache.Instance.Add(key, dbProceduresRouting, DB_SP_ROUTING_EXPIRY_HOURS * 60);
-                            }
-                        }
-                    }
-                }
-                else if (dbProceduresRouting == null)
-                {
-                    log.Error("DB Procedures Routing is null");
-                }                
-            }
 
-            catch (Exception ex)
+            LayeredCache.Instance.Get<DbProceduresRouting>(
+                // key
+                LayeredCacheKeys.GetDbProceduresRoutingKey(), 
+                // ref result object
+                ref dbProceduresRouting, 
+                // running method and params
+                InitializeDbProceduresRouting, new Dictionary<string, object>(), 
+                // group id - irrelevent
+                0,
+                // config name
+                LayeredCacheConfigNames.PROCEDURES_ROUTING_CONFIG_NAME, 
+                // invalidation keys
+                new List<string>() { LayeredCacheKeys.GetProceduresRoutingInvalidationKey() });
+
+            if (dbProceduresRouting == null)
             {
-                log.Error("Error in GetDbProceduresRouting", ex);
+                log.Error("DB Procedures Routing is null");
             }
 
             return dbProceduresRouting;
@@ -1212,15 +1205,19 @@ namespace ODBCWrapper
         {
             return DB_SP_ROUTING_KEY;
         }
-
-        private static DbProceduresRouting InitializeDbProceduresRouting()
+        
+        private static Tuple<DbProceduresRouting, bool> InitializeDbProceduresRouting(Dictionary<string, object> funcParams)
         {
-            DbProceduresRouting routing = new DbProceduresRouting();            
-            StoredProcedure spInitializeDbProceduresRouting = new StoredProcedure("InitializeDbProceduresRouting");
-            spInitializeDbProceduresRouting.SetConnectionKey("MAIN_CONNECTION_STRING");
+            Tuple<DbProceduresRouting, bool> result = null;
+            bool success = false;
+            DbProceduresRouting routing = new DbProceduresRouting();
+            StoredProcedure storedProcedure = new StoredProcedure("InitializeDbProceduresRouting");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+
             try
             {
-                DataTable dt = spInitializeDbProceduresRouting.Execute();
+                DataTable dt = storedProcedure.Execute();
+
                 if (dt != null && dt.Rows != null)
                 {
                     foreach (DataRow dr in dt.Rows)
@@ -1234,14 +1231,19 @@ namespace ODBCWrapper
                         }
                     }
                 }
-            }
 
+                success = true;
+            }
             catch (Exception ex)
             {
                 log.Error("Failed InitializeDbProceduresRouting from DB", ex);
+                success = false;
+                routing = null;
             }
+            
+            result = new Tuple<DbProceduresRouting, bool>(routing, success);
 
-            return routing;
+            return result;
         }
 
         public static long DateTimeToUnixTimestampUtcMilliseconds(DateTime dateTime)

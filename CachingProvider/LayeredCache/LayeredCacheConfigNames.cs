@@ -91,6 +91,8 @@ namespace CachingProvider.LayeredCache
         public const string GROUP_MANAGER_GET_GROUP_CONFIG_NAME = "GroupManagerGetGroup";
         public const string PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME = "PhoenixGroupsManager";
         public const string QUERY_CACHE_CONFIG_NAME = "QueryCache";
+        public const string PROCEDURES_ROUTING_CONFIG_NAME = "ProceduresRouting";
+        public const string QUERIES_ROUTING_CONFIG_NAME = "QueriesRouting";
 
         #endregion
 

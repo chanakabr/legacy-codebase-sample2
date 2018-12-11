@@ -499,6 +499,15 @@ namespace CachingProvider.LayeredCache
             return "query_cache";
         }
 
+        public static string GetDbProceduresRoutingKey()
+        {
+            return "db_procedures_routing";
+        }
+        public static string GetDbQueryRoutingKey()
+        {
+            return "db_query_routing";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -898,9 +907,19 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_PhoenixGroupsManager_{0}", groupId);
         }
 
-        public static string QueryCacheInvalidationKey()
+        public static string GetQueryCacheInvalidationKey()
         {
             return "invalidationKey_query_cache";
+        }
+
+        public static string GetProceduresRoutingInvalidationKey()
+        {
+            return "invalidationKey_procedures_routing";
+        }
+
+        public static string GetQueriesRoutingInvalidationKey()
+        {
+            return "invalidationKey_queries_routing";
         }
 
         #endregion

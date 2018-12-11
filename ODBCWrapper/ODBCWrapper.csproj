@@ -185,6 +185,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="QueryCacheDefinitions.cs" />
+    <Compile Include="QueryRoutingDefinitions.cs" />
     <Compile Include="SelectCacher.cs" />
     <Compile Include="SelectQuery.cs">
       <SubType>Code</SubType>

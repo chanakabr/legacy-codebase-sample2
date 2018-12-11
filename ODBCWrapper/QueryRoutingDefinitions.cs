@@ -11,23 +11,23 @@ using System.Threading.Tasks;
 
 namespace ODBCWrapper
 {
-    public class QueryCacheDefinitions
+    public class QueryRoutingDefinitions
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object locker = new object();
-        private static QueryCacheDefinitions instance = null;
+        private static QueryRoutingDefinitions instance = null;
 
-        private static readonly string STORED_PROCEDURE_NAME = "usp_get_db_query_cached";
+        private static readonly string STORED_PROCEDURE_NAME = "usp_get_db_AdHocQueries_routing ";
 
         #region Members
 
-        private Dictionary<string, int> definitions;
+        public Dictionary<string, bool> definitions;
 
         #endregion
 
         #region Instance
 
-        public static QueryCacheDefinitions Instance
+        public static QueryRoutingDefinitions Instance
         {
             get
             {
@@ -37,7 +37,7 @@ namespace ODBCWrapper
                     {
                         if (instance == null)
                         {
-                            instance = new QueryCacheDefinitions();
+                            instance = new QueryRoutingDefinitions();
                         }
                     }
                 }
@@ -46,23 +46,23 @@ namespace ODBCWrapper
             }
         }
 
-        public QueryCacheDefinitions()
+        public QueryRoutingDefinitions()
         {
-            definitions = new Dictionary<string, int>();
+            definitions = new Dictionary<string, bool>();
 
             SqlCommand command = new SqlCommand();
 
-            bool success = LayeredCache.Instance.Get<Dictionary<string, int>>(LayeredCacheKeys.GetQueryCacheDefinitionsKey(),
-                ref definitions, GetDefinitions, new Dictionary<string, object>(), 0, LayeredCacheConfigNames.QUERY_CACHE_CONFIG_NAME, new List<string>()
-                { LayeredCacheKeys.GetQueryCacheInvalidationKey() });
+            bool success = LayeredCache.Instance.Get<Dictionary<string, bool>>(LayeredCacheKeys.GetDbQueryRoutingKey(),
+                ref definitions, GetDefinitions, new Dictionary<string, object>(), 0, LayeredCacheConfigNames.QUERIES_ROUTING_CONFIG_NAME, new List<string>()
+                { LayeredCacheKeys.GetQueriesRoutingInvalidationKey() });
         }
 
         #endregion
 
-        private static Tuple<Dictionary<string, int>, bool> GetDefinitions(Dictionary<string, object> funcParams)
+        private static Tuple<Dictionary<string, bool>, bool> GetDefinitions(Dictionary<string, object> funcParams)
         {
-            Tuple<Dictionary<string, int>, bool> result = null;
-            Dictionary<string, int> definitions = new Dictionary<string, int>();
+            Tuple<Dictionary<string, bool>, bool> result = null;
+            Dictionary<string, bool> definitions = new Dictionary<string, bool>();
 
             StoredProcedure storedProcedure = new StoredProcedure(STORED_PROCEDURE_NAME, true);
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -73,26 +73,25 @@ namespace ODBCWrapper
             {
                 foreach (DataRow row in table.Rows)
                 {
-                    int time = Utils.ExtractInteger(row, "cached_in_sec");
                     // remove all spaces and lowercase the query, just in case
                     string query = Utils.ExtractString(row, "query_str").Replace(" ", string.Empty).ToLower();
 
                     // check unique-ness! don't fall for this
                     if (!definitions.ContainsKey(query))
                     {
-                        definitions.Add(query, time);
+                        definitions.Add(query, true);
                     }
                 }
             }
 
-            result = new Tuple<Dictionary<string, int>, bool>(definitions, true);
+            result = new Tuple<Dictionary<string, bool>, bool>(definitions, true);
 
             return result;
         }
 
-        public int GetCacheTime(string query)
+        public bool ShouldQueryRouteToSlave(string query)
         {
-            int result = 0;
+            bool result = false;
 
             string queryKey = query.Replace(" ", string.Empty).ToLower();
 
