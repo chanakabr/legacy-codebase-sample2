@@ -23,5 +23,13 @@ ARG INGEST_LOG_DIR=C:\\log\\ingest\\%COMPUTERNAME%
 ENV INGEST_LOG_DIR ${INGEST_LOG_DIR}
 
 COPY Ingest Ingest
+COPY Ingest\\ssl-dev\\cert.pfx C:\\Certificate\\cert.pfx
+
+RUN import-module webadministration; \
+    $pwd = ConvertTo-SecureString -String "123456" -Force -AsPlainText; \
+    $cert = Import-PfxCertificate -Password $pwd -FilePath \"C:\\Certificate\\cert.pfx\" -CertStoreLocation \"Cert:\LocalMachine\My\"; \
+    New-Item -path IIS:\SslBindings\0.0.0.0!443 -value $cert; \
+    New-WebBinding -Name "Ingest" -IP "*" -Port 443 -Protocol https
 
 EXPOSE 80
+EXPOSE 443
