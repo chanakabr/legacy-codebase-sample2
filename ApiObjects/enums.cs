@@ -1087,7 +1087,8 @@ namespace ApiObjects
         BusinessModule,
         Segments,
         Date,
-        Or
+        Or,
+        Header
     }
 
     public enum RuleActionTaskType

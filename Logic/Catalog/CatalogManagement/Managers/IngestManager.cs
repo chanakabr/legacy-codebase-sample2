@@ -60,7 +60,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (ingestResponse.IngestStatus == null || ingestResponse.IngestStatus.Code == (int)eResponseStatus.Error)
             {
-                // TODO SHIR - SET SOME ERROR
+                // TODO - SET SOME ERROR
             }
 
             log.DebugFormat("End HandleMediaIngest. groupId:{0}", groupId);
@@ -168,7 +168,7 @@ namespace Core.Catalog.CatalogManagement
                                 Tags = GetTagsList(tagNameToTranslations, catalogGroupCache.DefaultLanguage.Code, ref tagsTranslations)
                             };
 
-                            // TODO SHIR - ASK IRA IF SOMEONE SENT IT AND THE MEDIA IS NEW, NEED EXAMPLE
+                            // TODO - ASK IRA IF SOMEONE SENT IT AND THE MEDIA IS NEW, NEED EXAMPLE
                             //string sEpgIdentifier = GetNodeValue(ref theItem, "basic/epg_identifier");
 
                             if (mediaAsset.Id == 0)
@@ -197,7 +197,7 @@ namespace Core.Catalog.CatalogManagement
                             AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)mediaAsset.Id);
                         }
 
-                        // TODO SHIR - ASK IRA ABOUT THIS
+                        // TODO IRA - UpdateIndex for ingest
                         // Update record in Catalog (see the flow inside Update Index
                         //change eAction.Delete
                         //if (ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update))
@@ -247,7 +247,7 @@ namespace Core.Catalog.CatalogManagement
         private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations, int groupId, 
                                                    CatalogGroupCache catalogGroupCache, ref IngestResponse ingestResponse)
         {
-            // TODO SHIR - HandleTagsTranslations
+            // TODO - HandleTagsTranslations check that this is true
             foreach (var topic in tagsTranslations)
             {
                 // tagsTranslation.Key == Genre
@@ -359,7 +359,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
-                    // TODO SHIR - SET SOME ERROR
+                    // TODO - SET SOME ERROR
                 }
             }
 
@@ -694,7 +694,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     if (media.Basic.Name != null && media.Basic.Name.Values != null && media.Basic.Name.Values.Count > 0)
                     {
-                        // TODO SHIR - SET METHOD COMMON FOR ALL ERROS
+                        // TODO - SET METHOD COMMON FOR ALL ERROS
                         Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                         if (nameValidationStatus != null && nameValidationStatus.Code != (int)eResponseStatus.OK)
                         {
@@ -786,7 +786,6 @@ namespace Core.Catalog.CatalogManagement
             return 0;
         }
 
-        // TODO SHIR - CHECK IF METHOD IS CURRECT
         public static DateTime GetDateTimeFromString(string date, DateTime defaultDate)
         {
             try
@@ -843,7 +842,7 @@ namespace Core.Catalog.CatalogManagement
             return null;
         }
 
-        // TODO SHIR - use good method
+        // TODO - use good method
         private static int GetBillingTypeIdByName(string billingTypeName)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -984,7 +983,7 @@ namespace Core.Catalog.CatalogManagement
         private static void HandleAssetImages(int groupId, long assetId, eAssetImageType imageObjectType, Dictionary<long, Image> imagesToHandle, bool isUpdateRequest,
                                               ref IngestResponse ingestResponse, int index)
         {
-            // TODO SHIR - UPDATE PREFORMENCE HandleAssetImages
+            // TODO - UPDATE PREFORMENCE HandleAssetImages
             List<Image> imagesToAdd = null;
             List<Image> imagesToUpdate = new List<Image>();
 
@@ -1228,7 +1227,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        // TODO SHIR - use good method
+        // TODO - use good method
         static private int GetPPVModuleID(string moduleName, int groupId)
         {
             int nRet = 0;
@@ -1255,7 +1254,7 @@ namespace Core.Catalog.CatalogManagement
             return nRet;
         }
 
-        // TODO SHIR - use good method
+        // TODO - use good method
         static private bool InsertFilePPVModule(int ppvModule, long fileID, int groupId, DateTime? startDate, DateTime? endDate, bool clear)
         {
             bool res = false;

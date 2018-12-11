@@ -401,7 +401,7 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
+        internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null, RuleActionType? ruleActionType = null)
         {
             GenericListResponse<AssetRule> response = new GenericListResponse<AssetRule>();
 
@@ -430,11 +430,26 @@ namespace Core.Api.Managers
                 }
                 
                 response.Objects = allAssetRules;
-                
+
+                if (ruleActionType.HasValue)
+                {
+                    allAssetRules = allAssetRules.Where(x => x.Actions.Any(a => a.Type == ruleActionType.Value)).ToList();
+                    response.Objects = allAssetRules;
+                }
+
                 if (slimAsset != null)
                 {
                     List<AssetRule> assetRulesByAsset = new List<AssetRule>();
-                    string assetRulesByAssetKey = LayeredCacheKeys.GetAssetRulesByAssetKey(slimAsset.Id, (int)slimAsset.Type, (int)assetRuleConditionType);
+
+                    string assetRulesByAssetKey;
+                    if (ruleActionType.HasValue)
+                    {
+                        assetRulesByAssetKey = LayeredCacheKeys.GetAssetRulesByAssetKey(slimAsset.Id, (int)slimAsset.Type, (int)assetRuleConditionType, (int)ruleActionType.Value);
+                    }
+                    else
+                    {
+                        assetRulesByAssetKey = LayeredCacheKeys.GetAssetRulesByAssetKey(slimAsset.Id, (int)slimAsset.Type, (int)assetRuleConditionType);
+                    }
 
                     long assetId = long.Parse(slimAsset.Id);
                     string assetTypeInvalidationKey = slimAsset.Type == eAssetTypes.MEDIA ?
@@ -464,7 +479,7 @@ namespace Core.Api.Managers
 
                     response.Objects = assetRulesByAsset;
                 }
-
+                
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -610,7 +625,7 @@ namespace Core.Api.Managers
 
             return response;
         }
-
+        
         #endregion
 
         #region Private Methods

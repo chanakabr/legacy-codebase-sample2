@@ -8745,11 +8745,7 @@ namespace Core.ConditionalAccess
             
             if (programId == 0)
             {
-                string epgChannelId = EpgManager.GetEpgChannelId(mediaId, groupId);
-                if (!string.IsNullOrEmpty(epgChannelId))
-                {
-                    programId = EpgManager.GetCurrentProgram(groupId, epgChannelId);
-                }
+                programId = GetCurrentProgramByMediaId(groupId, mediaId);
             }
             
             if (programId > 0)
@@ -8763,6 +8759,18 @@ namespace Core.ConditionalAccess
             }
 
             return assetEpgRuleIds;
+        }
+
+        internal static long GetCurrentProgramByMediaId(int groupId, int mediaId)
+        {
+            long programId = 0;
+            string epgChannelId = EpgManager.GetEpgChannelId(mediaId, groupId);
+            if (!string.IsNullOrEmpty(epgChannelId))
+            {
+                programId = EpgManager.GetCurrentProgram(groupId, epgChannelId);
+            }
+
+            return programId;
         }
 
         internal static List<EPGChannelProgrammeObject> GetEpgsByExternalIds(int nGroupID, List<string> epgExternalIds)

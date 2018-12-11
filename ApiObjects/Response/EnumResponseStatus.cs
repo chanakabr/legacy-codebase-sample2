@@ -185,6 +185,7 @@ namespace ApiObjects.Response
         UnknownPriceReason = 3077,
         PurchaseFailed = 3078,
         PurchasePassedEntitlementFailed = 3079,
+        NetworkRuleBlock = 3080,
 
         #endregion
 

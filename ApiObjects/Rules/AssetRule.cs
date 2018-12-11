@@ -30,31 +30,8 @@ namespace ApiObjects.Rules
 
             return false;
         }
-
-        public AssetRuleConcurrency GetAssetRuleConcurrency()
-        {
-            return new AssetRuleConcurrency()
-            {
-                Id = this.Id,
-                Name = this.Name,
-                Description = this.Description,
-                GroupId = this.GroupId,
-                Conditions = this.Conditions == null? null : new List<ConcurrencyCondition>(this.Conditions.Where(x=> x is ConcurrencyCondition).Select(x => x as ConcurrencyCondition)),
-                Actions = this.Actions == null ? null : new List<AssetBlockAction>(this.Actions.Where(x => x is AssetBlockAction).Select(x => x as AssetBlockAction))
-            };
-        }
     }
-
-    public class AssetRuleConcurrency
-    {
-        public long Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public int GroupId { get; set; }
-        public List<ConcurrencyCondition> Conditions { get; set; }
-        public List<AssetBlockAction> Actions { get; set; }
-    }
-
+    
     [Serializable]
     public class AssetRuleTypeMapping
     {

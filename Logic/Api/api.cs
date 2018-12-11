@@ -2507,8 +2507,7 @@ namespace Core.Api
 
             if (rules != null && rules.Count > 0)
             {
-                if (rules.Where(x => x.Actions != null &&
-                                    x.Actions.Any(z => z is BlockPlaybackAction)).ToList().Count > 0)
+                if (rules.Count(x => x.Actions != null && x.Actions.Any(a => a.Type == RuleActionType.BlockPlayback)) > 0)
                 {
                     ruleName = "Blacklist";
                     return true;
@@ -2587,7 +2586,7 @@ namespace Core.Api
                 return assetRules;
 
             assetRules = assetRulesResponse.Objects.Where(x => x.Conditions != null &&
-                                                   x.Conditions.Any(z => z is IpRangeCondition) &&
+                                                   x.Conditions.Any(z => z.Type == RuleConditionType.IP_RANGE) &&
                                                    x.Conditions.OfType<IpRangeCondition>().Any(p => p.IpFrom <= convertedIp && convertedIp <= p.IpTo)).ToList();
             return assetRules;
         }
@@ -10844,9 +10843,9 @@ namespace Core.Api
             return AssetRuleManager.DeleteAssetRule(groupId, assetRuleId);
         }
 
-        internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
+        internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null, RuleActionType? ruleActionType = null)
         {
-            return AssetRuleManager.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
+            return AssetRuleManager.GetAssetRules(assetRuleConditionType, groupId, slimAsset, ruleActionType);
         }
 
         internal static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRule)

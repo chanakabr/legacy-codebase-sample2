@@ -4,8 +4,10 @@ using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
+using Core.Api.Managers;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;
@@ -129,6 +131,13 @@ namespace Core.ConditionalAccess
                     }
                 }
 
+                var networkRulesStatus = CheckNetworkRules(assetType, groupId, long.Parse(assetId), ip);
+                if (networkRulesStatus.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = networkRulesStatus;
+                    return response;
+                }
+                
                 List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
                 Dictionary<long, AdsControlData> assetFileIdsAds = new Dictionary<long, AdsControlData>();
 
@@ -388,14 +397,14 @@ namespace Core.ConditionalAccess
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoFilesFound, "No files found");
                     return response;
                 }
-
+                
                 MediaFile file = files[0];
                 MediaFileItemPricesContainer price;
 
                 PlaybackContextResponse playbackContextResponse = GetPlaybackContext(cas, groupId, userId, assetId, assetType, new List<long>() { fileId }, 
                                                                                      file.StreamerType.Value, file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, 
                                                                                      ip, udid, out price, UrlType.playmanifest);
-
+                
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = playbackContextResponse.Status;
@@ -781,6 +790,53 @@ namespace Core.ConditionalAccess
             }
 
             return response;
+        }
+
+        private static ApiObjects.Response.Status CheckNetworkRules(eAssetTypes assetType, int groupId, long assetId, string ip)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+            
+            if (assetType == eAssetTypes.MEDIA)
+            {
+                long programId = Utils.GetCurrentProgramByMediaId(groupId, (int)assetId);
+                if (programId != 0)
+                {
+                    ApiObjects.Response.Status programStatus = CheckNetworkRules(eAssetTypes.EPG, groupId, programId, ip);
+                    if (programStatus.Code != (int)eResponseStatus.OK)
+                    {
+                        return programStatus;
+                    }
+                }
+            }
+
+            long convertedIp;
+            APILogic.Utils.ConvertIpToNumber(ip, out convertedIp);
+            Dictionary<string, string> headers = ListUtils.ToDictionary(System.Web.HttpContext.Current.Request.Headers);
+            SlimAsset asset = new SlimAsset(assetId, assetType);
+
+            ConditionScope conditionScope = new ConditionScope()
+            {
+                Headers = headers,
+                Ip = convertedIp
+            };
+            
+            var networkAssetRules = AssetRuleManager.GetAssetRules(RuleConditionType.Asset, groupId, asset, RuleActionType.Block);
+            if (networkAssetRules.HasObjects())
+            {
+                foreach (var networkRule in networkAssetRules.Objects)
+                {
+                    foreach (var condition in networkRule.Conditions)
+                    {
+                        if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && condition.Evaluate(conditionScope))
+                        {
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.NetworkRuleBlock, "Network rule block");
+                            return status;
+                        }
+                    }
+                }
+            }
+
+            return status;
         }
     }
 }

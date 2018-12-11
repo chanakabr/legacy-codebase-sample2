@@ -17,7 +17,7 @@ namespace ApiObjects.Rules
         [JsonProperty("Description")]
         public string Description { get; set; }
 
-        public abstract bool Evaluate<T>(T scope) where T: ISegmentsConditionScope, IBusinessModuleConditionScope, IDateConditionScope;
+        public abstract bool Evaluate<T>(T scope) where T: ISegmentsConditionScope, IBusinessModuleConditionScope, IDateConditionScope, IHeaderConditionScope, IIpRangeConditionScope;
     }
 
     [Serializable]
@@ -36,7 +36,7 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class OrCondition : RuleCondition
+    public class OrCondition : AssetRuleCondition
     {
         [JsonProperty("Conditions", ItemTypeNameHandling = TypeNameHandling.All)]
         public List<RuleCondition> Conditions { get; set; }
@@ -48,14 +48,17 @@ namespace ApiObjects.Rules
 
         public override bool Evaluate<OrConditionScope>(OrConditionScope scope)
         {
+            bool isOneConditionEvaluate = false;
             foreach (RuleCondition condition in Conditions)
             {
                 if (condition.Evaluate(scope))
                 {
-                    return true;
+                    isOneConditionEvaluate = true;
+                    break;
                 }
             }
-            return false;
+            
+            return isOneConditionEvaluate;
         }
     }
 
@@ -116,7 +119,7 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class IpRangeCondition : AssetCondition
+    public class IpRangeCondition : AssetRuleCondition
     {
         [JsonProperty("fromIp")]
         public string FromIp { get; set; }
@@ -130,9 +133,28 @@ namespace ApiObjects.Rules
         [JsonProperty("ipTo")]
         public long IpTo { get; set; }
 
+        [JsonProperty("Not")]
+        public bool Not { get; set; }
+
         public IpRangeCondition()
         {
             this.Type = RuleConditionType.IP_RANGE;
+        }
+
+        public override bool Evaluate<IIpRangeConditionScope>(IIpRangeConditionScope scope)
+        {
+            bool isInRange = false;
+            if (IpFrom <= scope.Ip && scope.Ip <= IpTo)
+            {
+                isInRange = true;
+            }
+
+            if (Not)
+            {
+                isInRange = !isInRange;
+            }
+
+            return isInRange;
         }
     }
 
@@ -219,4 +241,67 @@ namespace ApiObjects.Rules
             return false;
         }
     }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class HeaderCondition : AssetRuleCondition
+    {
+        [JsonProperty("Not")]
+        public bool Not { get; set; }
+        
+        [JsonProperty("key")]
+        public string Key { get; set; }
+        
+        [JsonProperty("value")]
+        public string Value { get; set; }
+
+        public HeaderCondition()
+        {
+            this.Type = RuleConditionType.Header;
+        }
+
+        public override bool Evaluate<IHeaderConditionScope>(IHeaderConditionScope scope)
+        {
+            bool isInHeaders = false;
+            if (scope.Headers.ContainsKey(Key) && scope.Headers[Key].Equals(Value))
+            {
+                isInHeaders = true;
+            }
+
+            if (Not)
+            {
+                isInHeaders = !isInHeaders;
+            }
+
+            return isInHeaders;
+        }
+    }
+
+    //[Serializable]
+    //[JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    //public class NotOrCondition : AssetRuleCondition
+    //{
+    //    [JsonProperty("Not")]
+    //    public bool Not { get; set; }
+
+    //    [JsonProperty("Conditions", ItemTypeNameHandling = TypeNameHandling.All)]
+    //    public OrCondition orCondition { get; set; }
+
+    //    public NotOrCondition()
+    //    {
+    //        Type = RuleConditionType.Or;
+    //    }
+
+    //    public override bool Evaluate<OrConditionScope>(OrConditionScope scope)
+    //    {
+    //        bool isOrConditionEvaluate = orCondition.Evaluate(scope);
+
+    //        if (Not)
+    //        {
+    //            isOrConditionEvaluate = !isOrConditionEvaluate;
+    //        }
+
+    //        return isOrConditionEvaluate;
+    //    }
+    //}
 }

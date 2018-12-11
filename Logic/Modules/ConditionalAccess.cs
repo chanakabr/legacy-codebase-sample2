@@ -2881,8 +2881,8 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static PlaybackContextResponse GetPlaybackContext(int groupID, string userId, string udid, string ip, string assetId, eAssetTypes assetType,
-            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, UrlType urlType)
+        public static PlaybackContextResponse GetPlaybackContext(int groupID, string userId, string udid, string ip, string assetId, eAssetTypes assetType, List<long> fileIds, 
+                                                                 StreamerType? streamerType, string mediaProtocol, PlayContextType context, UrlType urlType)
         {
             PlaybackContextResponse response = new PlaybackContextResponse();
             ConditionalAccess.BaseConditionalAccess t = null;

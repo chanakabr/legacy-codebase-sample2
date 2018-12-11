@@ -1192,7 +1192,7 @@ namespace Core.Catalog
             }
         }
 
-        // TODO SHIR - UPDATE PREFORMENCE GetGeoBlockRuleId
+        // TODO - UPDATE PREFORMENCE GetGeoBlockRuleId
         internal static int? GetGeoBlockRuleId(int groupId, string geoBlockRuleName)
         {
             Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
@@ -1242,7 +1242,7 @@ namespace Core.Catalog
             }
         }
 
-        // TODO SHIR - UPDATE PREFORMENCE GetDeviceRuleId
+        // TODO - UPDATE PREFORMENCE GetDeviceRuleId
         internal static int? GetDeviceRuleId(int groupId, string deviceRuleName)
         {
             Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
