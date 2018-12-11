@@ -22,5 +22,13 @@ ARG API_LOG_DIR=C:\\log\\api\\%COMPUTERNAME%
 ENV API_LOG_DIR ${API_LOG_DIR}
 
 COPY WS_TVPApi WebAPI
+COPY WS_TVPApi\\ssl-dev\\cert.pfx C:\\Certificate\\cert.pfx
+
+RUN import-module webadministration; \
+    $pwd = ConvertTo-SecureString -String "123456" -Force -AsPlainText; \
+    $cert = Import-PfxCertificate -Password $pwd -FilePath \"C:\\Certificate\\cert.pfx\" -CertStoreLocation \"Cert:\LocalMachine\My\"; \
+    New-Item -path IIS:\SslBindings\0.0.0.0!443 -value $cert; \
+    New-WebBinding -Name "WebAPI" -IP "*" -Port 443 -Protocol https
 
 EXPOSE 80
+EXPOSE 443
