@@ -24,11 +24,11 @@ ENV API_LOG_DIR ${API_LOG_DIR}
 COPY WebAPI WebAPI
 COPY WebAPI\\ssl-dev\\cert.pfx C:\\Certificate\\cert.pfx
 
-RUN $pwd = ConvertTo-SecureString -String "123456" -Force -AsPlainText; \
+RUN import-module webadministration; \
+    $pwd = ConvertTo-SecureString -String "123456" -Force -AsPlainText; \
     $cert = Import-PfxCertificate -Password $pwd -FilePath \"C:\\Certificate\\cert.pfx\" -CertStoreLocation \"Cert:\LocalMachine\My\"; \
-    $guid = [guid]::NewGuid().ToString(\"B\"); \
-    netsh http add sslcert hostnameport=\"*:443\" certhash=$cert certstorename=MY appid=\"$guid\"; \
-    New-WebBinding -name WebApi -Protocol https -Port 443 -SslFlags 0
+    New-Item -path IIS:\SslBindings\0.0.0.0!443 -value $cert; \
+    New-WebBinding -Name "WebAPI" -IP "*" -Port 443 -Protocol https
 
 
 
