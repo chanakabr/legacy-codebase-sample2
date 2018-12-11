@@ -434,6 +434,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("asset_rules_by_assetId_{0}_assetType_{1}_conditionType_{2}", assetId, assetType, assetRuleConditionType);
         }
 
+        public static string GetAssetRulesByAssetKey(string assetId, int assetType, int assetRuleConditionType, int assetRuleActionType)
+        {
+            return string.Format("asset_rules_by_Id_{0}_type_{1}_condition_{2}_action_{3}", assetId, assetType, assetRuleConditionType, assetRuleActionType);
+        }
+
         public static string GetAssetUserRuleIdsGroupKey(int groupId)
         {
             return string.Format("asset_user_rule_ids_groupId_{0}", groupId);

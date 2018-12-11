@@ -885,7 +885,7 @@ namespace TVinciShared
             return rationId;
         }
 
-        // TODO SHIR - USE GOOD METHOD
+        // TODO - USE GOOD METHOD
         public static string GetGroupDefaultRatioName(int groupId)
         {
             int ratioId = GetGroupDefaultRatio(groupId);
