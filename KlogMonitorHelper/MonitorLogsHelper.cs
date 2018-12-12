@@ -79,14 +79,9 @@ namespace KlogMonitorHelper
                     doc.LoadXml(requestString);
 
                     // get action name
-                    if (HttpContext.Current.Request.Headers[Constants.ACTION.ToString()] == null)
-                    {
-                        XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
-                        if (tempXmlNodeList.Count > 0)
-                            HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
-                    }
-                    else
-                        HttpContext.Current.Items[Constants.ACTION] = HttpContext.Current.Request.Headers[Constants.ACTION];
+                    XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
+                    if (tempXmlNodeList.Count > 0)
+                        HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
 
                     // get group ID
                     XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
@@ -179,9 +174,7 @@ namespace KlogMonitorHelper
                     // get action name
                     if (requestMessage.Headers != null)
                     {
-                        if (OperationContext.Current.IncomingMessageHeaders.FindHeader(KLogMonitor.Constants.ACTION, string.Empty) > -1)
-                            MonitorLogsHelper.SetContext(KLogMonitor.Constants.ACTION, OperationContext.Current.IncomingMessageHeaders.GetHeader<string>(KLogMonitor.Constants.ACTION, string.Empty));
-                        else
+                        if (requestMessage.Headers.Action != null)
                         {
                             string actionName = requestMessage.Headers.Action.Substring(requestMessage.Headers.Action.LastIndexOf("/") + 1);
                             MonitorLogsHelper.SetContext(Constants.ACTION, actionName);
