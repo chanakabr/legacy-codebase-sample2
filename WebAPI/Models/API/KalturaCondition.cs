@@ -71,7 +71,7 @@ namespace WebAPI.Models.API
         private bool not;
     }
 
-    public partial class KalturaOrCondition : KalturaCondition
+    public partial class KalturaOrCondition : KalturaNotCondition
     {
         /// <summary>
         /// List of conditions with or between them  
@@ -213,7 +213,7 @@ namespace WebAPI.Models.API
     /// IP range condition
     /// </summary>
     [Serializable]
-    public partial class KalturaIpRangeCondition : KalturaNotCondition
+    public partial class KalturaIpRangeCondition : KalturaCondition
     {
         /// <summary>
         /// From IP address range
@@ -428,34 +428,4 @@ namespace WebAPI.Models.API
             }
         }
     }
-
-    //public partial class KalturaNotOrCondition : KalturaNotCondition
-    //{
-    //    /// <summary>
-    //    /// List of conditions with or between them  
-    //    /// </summary>
-    //    [DataMember(Name = "conditions")]
-    //    [JsonProperty("conditions")]
-    //    [XmlElement(ElementName = "conditions")]
-    //    public KalturaOrCondition OrCondition { get; set; }
-
-    //    protected override void Init()
-    //    {
-    //        base.Init();
-    //        this.Type = KalturaRuleConditionType.OR;
-    //    }
-
-    //    internal override void Validate()
-    //    {
-    //        if (this.Conditions == null || this.Conditions.Count == 0)
-    //        {
-    //            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "condition.conditions");
-    //        }
-
-    //        foreach (var condition in this.Conditions)
-    //        {
-    //            condition.Validate();
-    //        }
-    //    }
-    //}
 }

@@ -615,11 +615,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaOrCondition, OrCondition>()
                 .IncludeBase<KalturaCondition, AssetRuleCondition>()
-                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions));
+                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
 
             cfg.CreateMap<OrCondition, KalturaOrCondition>()
                 .IncludeBase<AssetRuleCondition, KalturaCondition>()
-                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions));
+                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
 
             cfg.CreateMap<KalturaBusinessModuleCondition, BusinessModuleCondition>()
                 .IncludeBase<KalturaCondition, RuleCondition>()
@@ -755,14 +757,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FromIp, opt => opt.MapFrom(src => src.FromIP))
                 .ForMember(dest => dest.ToIp, opt => opt.MapFrom(src => src.ToIP))
                 .ForMember(dest => dest.IpFrom, opt => opt.ResolveUsing(src => GetConvertedIp(src.FromIP)))
-                .ForMember(dest => dest.IpTo, opt => opt.ResolveUsing(src => GetConvertedIp(src.ToIP)))
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
+                .ForMember(dest => dest.IpTo, opt => opt.ResolveUsing(src => GetConvertedIp(src.ToIP)));
 
             cfg.CreateMap<IpRangeCondition, KalturaIpRangeCondition>()
                 .IncludeBase<AssetRuleCondition, KalturaCondition>()
                 .ForMember(dest => dest.FromIP, opt => opt.MapFrom(src => src.FromIp))
-                .ForMember(dest => dest.ToIP, opt => opt.MapFrom(src => src.ToIp))
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not)); ;
+                .ForMember(dest => dest.ToIP, opt => opt.MapFrom(src => src.ToIp));
 
             cfg.CreateMap<KalturaCountryCondition, CountryCondition>()
                .IncludeBase<KalturaCondition, AssetRuleCondition>()
@@ -2147,6 +2147,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case RuleType.AssetUser:
                     result = WebAPI.Models.API.KalturaRuleType.assetUser;
+                    break;
+                case RuleType.Network:
+                    result = WebAPI.Models.API.KalturaRuleType.network;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown rule type");
