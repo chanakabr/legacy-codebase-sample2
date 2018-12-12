@@ -46,92 +46,98 @@ namespace WebAPI.Models.API
             bool concurrencyConditionExist = false;
             bool assetConditionExist = false;
             bool ipRangeConditionExist = false;
-            bool validateActionsNeeded = true;
+            bool orConditionExist = false;
+            bool headerConditionExist = false;
 
             foreach (var condition in Conditions)
             {
-                if (condition is KalturaCountryCondition)
+                switch (condition.Type)
                 {
-                    if (concurrencyConditionExist)
-                    {
-                        throw new BadRequestException
-                        (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                         "conditions=" + KalturaRuleConditionType.COUNTRY.ToString(), "conditions= " + KalturaRuleConditionType.CONCURRENCY.ToString());
-                    }
+                    case KalturaRuleConditionType.COUNTRY:
+                        {
+                            if (concurrencyConditionExist)
+                            {
+                                throw new BadRequestException
+                                (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                 "conditions=" + KalturaRuleConditionType.COUNTRY.ToString(), "conditions= " + KalturaRuleConditionType.CONCURRENCY.ToString());
+                            }
 
-                    countryConditionExist = true;
-                    KalturaCountryCondition kCountryCondition = condition as KalturaCountryCondition;
-                    if (string.IsNullOrEmpty(kCountryCondition.Countries))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaCountryCondition.countries");
-                    }
+                            countryConditionExist = true;
+                        }
+                        break;
+                    case KalturaRuleConditionType.CONCURRENCY:
+                        {
+                            if (concurrencyConditionExist)
+                            {
+                                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "conditions");
+                            }
+
+                            if (countryConditionExist || assetConditionExist)
+                            {
+                                throw new BadRequestException
+                                (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                 "conditions=" + KalturaRuleConditionType.CONCURRENCY.ToString(),
+                                 "conditions= " + KalturaRuleConditionType.COUNTRY.ToString() + "/" + KalturaRuleConditionType.ASSET.ToString());
+                            }
+
+                            concurrencyConditionExist = true;
+                        }
+                        break;
+                    case KalturaRuleConditionType.ASSET:
+                        {
+                            if (concurrencyConditionExist)
+                            {
+                                throw new BadRequestException
+                                (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                 "conditions=" + KalturaRuleConditionType.ASSET.ToString(), "conditions= " + KalturaRuleConditionType.CONCURRENCY.ToString());
+                            }
+
+                            assetConditionExist = true;
+                        }
+                        break;
+                    case KalturaRuleConditionType.IP_RANGE:
+                        {
+                            ipRangeConditionExist = true;
+                        }
+                        break;
+                    case KalturaRuleConditionType.OR:
+                        {
+                            orConditionExist = true;
+                        }
+                        break;
+                    case KalturaRuleConditionType.HEADER:
+                        {
+                            headerConditionExist = true;
+                        }
+                        break;
+                    default:
+                        break;
                 }
-                else if (condition is KalturaConcurrencyCondition)
-                {
-                    if (concurrencyConditionExist)
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "conditions");
-                    }
-
-                    if (countryConditionExist || assetConditionExist)
-                    {
-                        throw new BadRequestException
-                        (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                         "conditions=" + KalturaRuleConditionType.CONCURRENCY.ToString(),
-                         "conditions= " + KalturaRuleConditionType.COUNTRY.ToString() + "/" + KalturaRuleConditionType.ASSET.ToString());
-                    }
-
-                    concurrencyConditionExist = true;
-                    KalturaConcurrencyCondition kConcurrencyCondition = condition as KalturaConcurrencyCondition;
-                    if (kConcurrencyCondition.Limit < 0)
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaConcurrencyCondition.limit", "0");
-                    }
-
-                    ValidateKsql(kConcurrencyCondition.Ksql);
-                }
-                else if (condition is KalturaAssetCondition)
-                {
-                    if (concurrencyConditionExist)
-                    {
-                        throw new BadRequestException
-                        (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                         "conditions=" + KalturaRuleConditionType.ASSET.ToString(), "conditions= " + KalturaRuleConditionType.CONCURRENCY.ToString());
-                    }
-
-                    assetConditionExist = true;
-                    KalturaAssetCondition ksqlCondition = condition as KalturaAssetCondition;
-                    ValidateKsql(ksqlCondition.Ksql);
-                }
-                else if (condition is KalturaIpRangeCondition)
-                {
-                    validateActionsNeeded = false;
-                    ipRangeConditionExist = true;
-                    KalturaIpRangeCondition kCondition = condition as KalturaIpRangeCondition;
-                    ValidateIpRange(kCondition.FromIP, kCondition.ToIP);
-                }
+                
+                condition.Validate();
             }
 
-            if (!countryConditionExist && !concurrencyConditionExist && !ipRangeConditionExist)
+            if (!orConditionExist && !countryConditionExist && !concurrencyConditionExist && !ipRangeConditionExist && !headerConditionExist)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
             }
 
             ValidateActions();
 
-            if (validateActionsNeeded)
+            if (ipRangeConditionExist)
             {
-                ValidateActions(concurrencyConditionExist);
+                ValidateIpRangeActions();
             }
             else
             {
-                ValidateIpRangeActions();
+                ValidateActions(concurrencyConditionExist);
+
             }
         }
 
         private void ValidateIpRangeActions()
         {
-            var ruleAction = Actions.Count(x => x is KalturaAllowPlaybackAction || x is KalturaBlockPlaybackAction);
+            var ruleAction = Actions.Count(x => x.Type == KalturaRuleActionType.ALLOW_PLAYBACK || x.Type == KalturaRuleActionType.BLOCK_PLAYBACK);
 
             if (ruleAction == 0)
             {
@@ -139,33 +145,6 @@ namespace WebAPI.Models.API
             }
         }
         
-        private void ValidateIpRange(string fromIP, string toIP)
-        {
-            string ipRegex = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
-
-            if (string.IsNullOrEmpty(fromIP) || !Regex.IsMatch(fromIP, ipRegex))
-            {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fromIP");
-            }
-
-            if (string.IsNullOrEmpty(toIP) || !Regex.IsMatch(toIP, ipRegex))
-            {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "toIP");
-            }
-
-            // check for range IP
-            string[] fromIPSplited = fromIP.Split('.');
-            Int64 ipFrom = Int64.Parse(fromIPSplited[3]) + Int64.Parse(fromIPSplited[2]) * 256 + Int64.Parse(fromIPSplited[1]) * 256 * 256 + Int64.Parse(fromIPSplited[0]) * 256 * 256 * 256;
-
-            string[] toIPSplited = toIP.Split('.');
-            Int64 ipTo = Int64.Parse(toIPSplited[3]) + Int64.Parse(toIPSplited[2]) * 256 + Int64.Parse(toIPSplited[1]) * 256 * 256 + Int64.Parse(toIPSplited[0]) * 256 * 256 * 256;
-
-            if (ipTo < ipFrom)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "fromIP", "toIP");
-            }
-        }
-
         private void ValidateActions()
         {
             if (this.Actions == null || this.Actions.Count == 0)
@@ -198,15 +177,7 @@ namespace WebAPI.Models.API
                     "actions= " + KalturaRuleActionType.END_DATE_OFFSET.ToString() + "/" + KalturaRuleActionType.START_DATE_OFFSET.ToString());
             }
         }
-
-        private void ValidateKsql(string ksql)
-        {
-            if (string.IsNullOrEmpty(ksql) || string.IsNullOrWhiteSpace(ksql))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
-            }
-        }
-
+        
         /// <summary>
         /// Fill current AssetRule data members with givven assetRule only if they are empty\null
         /// </summary>

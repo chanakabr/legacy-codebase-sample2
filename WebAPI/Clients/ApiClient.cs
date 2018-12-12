@@ -3701,11 +3701,11 @@ namespace WebAPI.Clients
         internal KalturaAssetRule AddAssetRule(int groupId, KalturaAssetRule assetRule)
         {
             Func<AssetRule, GenericResponse<AssetRule>> addAssetRuleFunc = (AssetRule assetRuleToAdd) =>
-                Core.Api.Module.AddAssetRule(groupId, assetRuleToAdd);
+                    Core.Api.Module.AddAssetRule(groupId, assetRuleToAdd);
 
             KalturaAssetRule result =
                 ClientUtils.GetResponseFromWS<KalturaAssetRule, AssetRule>(assetRule, addAssetRuleFunc);
-
+            
             return result;
         }
 
@@ -3719,10 +3719,10 @@ namespace WebAPI.Clients
 
         internal KalturaAssetRuleListResponse GetAssetRules(int groupId, KalturaAssetRuleFilter filter)
         {
-            RuleConditionType assetRuleConditionType = ApiMappings.ConvertRuleConditionType(filter.ConditionsContainType);
+            RuleConditionType assetRuleConditionType = Mapper.Map<RuleConditionType>(filter.ConditionsContainType);
+            RuleActionType? ruleActionType = filter.ActionsContainType.HasValue ? Mapper.Map<RuleActionType?>(filter.ActionsContainType.Value) : null;
 
             SlimAsset slimAsset = null;
-
             if (filter.AssetApplied != null)
             {
                 slimAsset = Mapper.Map<SlimAsset>(filter.AssetApplied);
@@ -3731,7 +3731,7 @@ namespace WebAPI.Clients
             KalturaAssetRuleListResponse result = new KalturaAssetRuleListResponse();
 
             Func<GenericListResponse<AssetRule>> getAssetRulesFunc = () =>
-               Core.Api.Module.GetAssetRules(assetRuleConditionType, groupId, slimAsset);
+               Core.Api.Module.GetAssetRules(assetRuleConditionType, groupId, slimAsset, ruleActionType);
 
             KalturaGenericListResponse<KalturaAssetRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaAssetRule, AssetRule>(getAssetRulesFunc);
