@@ -638,6 +638,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Permissions\controllers\businessmodulerule.json" />
+    <Content Include="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -1579,7 +1582,10 @@
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="ssl-dev\cert.pfx" />
+    <Content Include="ssl-dev\cert.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="README.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
