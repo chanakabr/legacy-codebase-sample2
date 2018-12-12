@@ -2585,9 +2585,8 @@ namespace Core.Api
             if (assetRulesResponse == null || !assetRulesResponse.HasObjects())
                 return assetRules;
 
-            assetRules = assetRulesResponse.Objects.Where(x => x.Conditions != null &&
-                                                   x.Conditions.Any(z => z.Type == RuleConditionType.IP_RANGE) &&
-                                                   x.Conditions.OfType<IpRangeCondition>().Any(p => p.IpFrom <= convertedIp && convertedIp <= p.IpTo)).ToList();
+            assetRules = assetRulesResponse.Objects.Where(x => x.Conditions.Any(z => z.Type == RuleConditionType.IP_RANGE) &&
+                                                               x.Conditions.OfType<IpRangeCondition>().Any(p => p.IpFrom <= convertedIp && convertedIp <= p.IpTo)).ToList();
             return assetRules;
         }
 
@@ -5553,12 +5552,13 @@ namespace Core.Api
             }
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
-        
+
         public static GenericRuleResponse GetMediaRules(int groupId, string siteGuid, long mediaId, long domainId, string ip, string udid, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
         {
-            GenericRuleResponse response = new GenericRuleResponse();
-
-            response.Status = ValidateUserAndDomain(groupId, siteGuid, (int)domainId);
+            GenericRuleResponse response = new GenericRuleResponse
+            {
+                Status = ValidateUserAndDomain(groupId, siteGuid, (int)domainId)
+            };
 
             if (response.Status.Code == (int)eResponseStatus.OK)
             {
@@ -5608,8 +5608,20 @@ namespace Core.Api
                                 Name = rule.name,
                                 RuleType = RuleType.Parental
                             });
-
                         }
+                    }
+
+                    AssetRule blockingRule;
+                    Status networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.MEDIA, groupId, mediaId, ip, out blockingRule);
+                    if (!networkRulesStatus.IsOkStatusCode())
+                    {
+                        response.Rules.Add(new GenericRule()
+                        {
+                            Id = blockingRule.Id,
+                            Description = blockingRule.Description,
+                            Name = blockingRule.Name,
+                            RuleType = RuleType.Network
+                        });
                     }
 
                     // order results
@@ -5625,11 +5637,11 @@ namespace Core.Api
                             break;
                     }
 
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
+                    response.Status.Set((int)eResponseStatus.OK, "OK");
                 }
                 catch (Exception ex)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
+                    response.Status.Set((int)eResponseStatus.Error, "Error");
 
                     log.Error("GetMediaRules - " + string.Format("Error in GetMediaRules: group = {0}, user = {3}, media = {4}, ex = {1}, ST = {2}",
                         groupId, ex.Message, ex.StackTrace, siteGuid, mediaId),
@@ -5848,6 +5860,19 @@ namespace Core.Api
                                     RuleType = RuleType.Parental
                                 });
                             }
+                        }
+
+                        AssetRule blockingRule;
+                        Status networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.EPG, groupId, epgId, ip, out blockingRule);
+                        if (!networkRulesStatus.IsOkStatusCode())
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Id = blockingRule.Id,
+                                Description = blockingRule.Description,
+                                Name = blockingRule.Name,
+                                RuleType = RuleType.Network
+                            });
                         }
 
                         // order results

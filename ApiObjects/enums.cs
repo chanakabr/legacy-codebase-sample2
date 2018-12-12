@@ -56,7 +56,8 @@ namespace ApiObjects
         Geo = 1,
         UserType = 2,
         Device = 3,
-        AssetUser = 4
+        AssetUser = 4,
+        Network = 5
     }
 
     public enum eMailTemplateType

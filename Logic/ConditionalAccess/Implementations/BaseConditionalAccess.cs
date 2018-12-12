@@ -16,6 +16,7 @@ using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api.Managers;
 using Core.Catalog.Response;
 using Core.ConditionalAccess.Modules;
 using Core.ConditionalAccess.Response;
@@ -10691,6 +10692,17 @@ namespace Core.ConditionalAccess
                            prices[0].m_oItemPrices[0].m_oPrice != null ? prices[0].m_oItemPrices[0].m_oPrice.m_dPrice.ToString() : string.Empty));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidPrice.ToString(), (int)eResponseStatus.NotEntitled, "Not entitled");
                         return response;
+                    }
+
+                    if (eLinkType == eObjectType.Media)
+                    {
+                        AssetRule blockingRule;
+                        var networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.MEDIA, m_nGroupID, mediaId, ip, out blockingRule);
+                        if (!networkRulesStatus.IsOkStatusCode())
+                        {
+                            response.Status = networkRulesStatus;
+                            return response;
+                        }
                     }
 
                     string CdnStrID = string.Empty;

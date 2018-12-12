@@ -15,7 +15,8 @@ using Core.Pricing;
 using Core.Billing;
 using ApiObjects.ConditionalAccess;
 using Core.ConditionalAccess.Modules;
-
+using Core.Api.Managers;
+using ApiObjects.Rules;
 
 namespace Core.ConditionalAccess
 {
@@ -573,9 +574,18 @@ namespace Core.ConditionalAccess
                 int programId = -1;
                 if (eformat != eEPGFormatType.NPVR)
                 {
-                    bool res = int.TryParse(sProgramId, out programId);
+                    if (int.TryParse(sProgramId, out programId))
+                    {
+                        AssetRule blockingRule;
+                        var networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.EPG, m_nGroupID, programId, sUserIP, out blockingRule);
+                        if (!networkRulesStatus.IsOkStatusCode())
+                        {
+                            response.Status = networkRulesStatus;
+                            return response;
+                        }
+                    }
                 }
-
+                
                 LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, 
                                                                              sCouponCode, eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, 
                                                                              ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid, programId);
@@ -593,6 +603,8 @@ namespace Core.ConditionalAccess
                 //TODO - comment and replace
                 if (eformat == eEPGFormatType.NPVR)
                 {
+                    //TODO SHIR - ira will CHECK for NETWORK RULES NPVR
+
                     /*
                      * 2.12.14
                      * Vodafone patch. In Vodafone we retrieve the NPVR Licensed Link directly from the NPVR Provider (ALU)

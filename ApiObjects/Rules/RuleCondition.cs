@@ -40,6 +40,9 @@ namespace ApiObjects.Rules
     {
         [JsonProperty("Conditions", ItemTypeNameHandling = TypeNameHandling.All)]
         public List<RuleCondition> Conditions { get; set; }
+        
+        [JsonProperty("Not")]
+        public bool Not { get; set; }
 
         public OrCondition()
         {
@@ -57,7 +60,12 @@ namespace ApiObjects.Rules
                     break;
                 }
             }
-            
+
+            if (Not)
+            {
+                isOneConditionEvaluate = !isOneConditionEvaluate;
+            }
+
             return isOneConditionEvaluate;
         }
     }
@@ -132,10 +140,7 @@ namespace ApiObjects.Rules
 
         [JsonProperty("ipTo")]
         public long IpTo { get; set; }
-
-        [JsonProperty("Not")]
-        public bool Not { get; set; }
-
+        
         public IpRangeCondition()
         {
             this.Type = RuleConditionType.IP_RANGE;
@@ -143,18 +148,12 @@ namespace ApiObjects.Rules
 
         public override bool Evaluate<IIpRangeConditionScope>(IIpRangeConditionScope scope)
         {
-            bool isInRange = false;
             if (IpFrom <= scope.Ip && scope.Ip <= IpTo)
             {
-                isInRange = true;
+                return true;
             }
 
-            if (Not)
-            {
-                isInRange = !isInRange;
-            }
-
-            return isInRange;
+            return false;
         }
     }
 
@@ -276,32 +275,4 @@ namespace ApiObjects.Rules
             return isInHeaders;
         }
     }
-
-    //[Serializable]
-    //[JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    //public class NotOrCondition : AssetRuleCondition
-    //{
-    //    [JsonProperty("Not")]
-    //    public bool Not { get; set; }
-
-    //    [JsonProperty("Conditions", ItemTypeNameHandling = TypeNameHandling.All)]
-    //    public OrCondition orCondition { get; set; }
-
-    //    public NotOrCondition()
-    //    {
-    //        Type = RuleConditionType.Or;
-    //    }
-
-    //    public override bool Evaluate<OrConditionScope>(OrConditionScope scope)
-    //    {
-    //        bool isOrConditionEvaluate = orCondition.Evaluate(scope);
-
-    //        if (Not)
-    //        {
-    //            isOrConditionEvaluate = !isOrConditionEvaluate;
-    //        }
-
-    //        return isOrConditionEvaluate;
-    //    }
-    //}
 }

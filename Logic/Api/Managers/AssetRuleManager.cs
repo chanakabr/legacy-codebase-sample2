@@ -625,7 +625,58 @@ namespace Core.Api.Managers
 
             return response;
         }
-        
+
+        internal static Status CheckNetworkRules(eAssetTypes assetType, int groupId, long assetId, string ip, out AssetRule blockingRule)
+        {
+            Status status = new Status((int)eResponseStatus.OK);
+            blockingRule = null;
+            
+            // check the program of the linear asset
+            if (assetType == eAssetTypes.MEDIA)
+            {
+                long programId = ConditionalAccess.Utils.GetCurrentProgramByMediaId(groupId, (int)assetId);
+                if (programId != 0)
+                {
+                    Status programStatus = CheckNetworkRules(eAssetTypes.EPG, groupId, programId, ip, out blockingRule);
+                    if (!programStatus.IsOkStatusCode())
+                    {
+                        return programStatus;
+                    }
+                }
+            }
+
+            long convertedIp;
+            APILogic.Utils.ConvertIpToNumber(ip, out convertedIp);
+            Dictionary<string, string> headers = ListUtils.ToDictionary(System.Web.HttpContext.Current.Request.Headers);
+            SlimAsset asset = new SlimAsset(assetId, assetType);
+
+            ConditionScope conditionScope = new ConditionScope()
+            {
+                Headers = headers,
+                Ip = convertedIp
+            };
+
+            var networkAssetRules = GetAssetRules(RuleConditionType.Asset, groupId, asset, RuleActionType.Block);
+            if (networkAssetRules.HasObjects())
+            {
+                foreach (var networkRule in networkAssetRules.Objects)
+                {
+                    foreach (var condition in networkRule.Conditions)
+                    {
+                        if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && condition.Evaluate(conditionScope))
+                        {
+                            blockingRule = networkRule;
+                            status = new Status((int)eResponseStatus.NetworkRuleBlock, "Network rule block");
+
+                            return status;
+                        }
+                    }
+                }
+            }
+
+            return status;
+        }
+
         #endregion
 
         #region Private Methods
