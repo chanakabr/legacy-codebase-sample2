@@ -423,7 +423,7 @@ namespace EpgIngest
             InsertEpgsDBBatches(ref dEpg, m_Channels.groupid, nCountPackage, FieldEntityMapping, m_Channels.mainlang.ToLower(), dPublishDate, kalturaChannelID);
 
             // Delete all EpgIdentifiers that are not needed (per channel per day)
-            List<int> lProgramsID = DeleteEpgs(dPublishDate, kalturaChannelID, m_Channels.groupid, deletedDays);
+            List<long> lProgramsID = DeleteEpgs(dPublishDate, kalturaChannelID, m_Channels.groupid, deletedDays);
 
             if (lProgramsID != null && lProgramsID.Count > 0)
             {
@@ -1207,28 +1207,42 @@ namespace EpgIngest
             }
         }
 
-        private List<int> DeleteEpgs(DateTime dPublishDate, int channelID, int groupID, List<DateTime> deletedDays)
+        /// <summary>
+        /// Deletes old EPGs of specific channel for given days and returns list of EPG IDs that were deleted
+        /// </summary>
+        /// <param name="publishDate"></param>
+        /// <param name="channelId"></param>
+        /// <param name="groupId"></param>
+        /// <param name="deletedDays"></param>
+        /// <returns></returns>
+        private List<long> DeleteEpgs(DateTime publishDate, int channelId, int groupId, List<DateTime> deletedDays)
         {
+            List<long> epgIds = null;
+
             try
             {
-                List<int> epgIds = new List<int>();
-                //Delete all program by :  channelID , publishDate , groupID, deletedDays 
-                DataTable dt = EpgDal.DeleteEpgs(channelID, groupID, dPublishDate, deletedDays);
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                 epgIds = EpgDal.GetEPGsToDelete(channelId, groupId, publishDate, deletedDays);
+
+                int bulkSize = ApplicationConfiguration.EPGDeleteBulkSize.IntValue;
+
+                if (bulkSize <= 0)
                 {
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        int epgID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-                        epgIds.Add(epgID);
-                    }
+                    bulkSize = 10;
                 }
-                return epgIds;
+
+                bool deleteSuccess = EpgDal.DeleteEpgsInBulks(epgIds, bulkSize);
+
+                if (!deleteSuccess)
+                {
+                    log.ErrorFormat("Failed deleting EPGs from DB by bulk, group Id = {0}, channelId = {1}", groupId, channelId);
+                }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("fail to ProtecteDeleteEpgs from DB ex = {0}", ex.Message), ex);
-                return null;
+                log.ErrorFormat("Failed to DeleteEpgs from DB, group Id = {0}, channelId = {1}, ex = {2}", ex.Message, ex, groupId, channelId);
             }
+
+            return epgIds;
         }
 
         private bool UpdateEpgIndex(List<ulong> epgIDs, int groupID, eAction action)

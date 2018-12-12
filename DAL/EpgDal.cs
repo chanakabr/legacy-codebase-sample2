@@ -533,6 +533,65 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+        public static List<long> GetEPGsToDelete(int channelId, int groupId, DateTime publishDate, List<DateTime> deletedDays)
+        {
+            List<long> result = new List<long>();
+
+            StoredProcedure storedProcedure = new StoredProcedure("Get_EPGsToDelete");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            storedProcedure.AddParameter("@channelID", channelId);
+            storedProcedure.AddParameter("@groupID", groupId);
+            storedProcedure.AddParameter("@dPublishDate", publishDate);
+            storedProcedure.AddIDListParameter<DateTime>("@deletedDays", deletedDays, "Id");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                DataTable table = dataSet.Tables[0];
+
+                if (table != null && table.Rows != null && table.Rows.Count > 0)
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        result.Add(ODBCWrapper.Utils.ExtractValue<long>(row, "ID"));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static bool DeleteEpgsInBulks(List<long> epgIds, int bulkSize)
+        {
+            bool result = false;
+
+            if (epgIds == null || epgIds.Count == 0)
+            {
+                return true;
+            }
+
+            int index = 0;
+
+            while (index < epgIds.Count)
+            {
+                var idsBulk = epgIds.Skip(index).Take(bulkSize);
+                string idsBulkString = string.Join(",", idsBulk);
+                StoredProcedure storedProcedure = new StoredProcedure("Delete_EpgsByIds");
+                storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                storedProcedure.AddParameter("@epgIds", idsBulkString);
+
+                DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+                // what to do with result?
+            }
+
+            result = true;
+            return result;
+        }
+
         public static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int groupID, int channelID)
         {
             StoredProcedure sp = new StoredProcedure("InsertNewEPGMultiPic");
