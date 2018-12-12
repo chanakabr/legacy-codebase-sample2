@@ -123,6 +123,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue PreviewModuleNumOfCancelOrRefundAttempts;
         public static StringConfigurationValue MetaFeaturesPattern;
         public static StringConfigurationValue ExcludeTemplatesImplementation;
+        public static NumericConfigurationValue EPGDeleteBulkSize;
 
         #endregion
 
@@ -162,7 +163,7 @@ namespace ConfigurationManager
                 }
 
                 //Populate settings from remote
-                TCMClient.Settings.Instance.Init(config.URL, application, host, environment, config.AppID, config.AppSecret);
+                TCMClient.Settings.Instance.Init(config.URL, application, host, environment, config.AppID, config.AppSecret, string.Empty);
             }
             else
             {
@@ -537,6 +538,11 @@ namespace ConfigurationManager
                 DefaultValue = "203",
                 ShouldAllowEmpty = true
             };
+            EPGDeleteBulkSize = new NumericConfigurationValue("epg_delete_bulk_size")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 10
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -639,7 +645,8 @@ namespace ConfigurationManager
                     PwlalPMaxResultsSize,
                     PreviewModuleNumOfCancelOrRefundAttempts,
                     MetaFeaturesPattern,
-                    ExcludeTemplatesImplementation
+                    ExcludeTemplatesImplementation,
+                    EPGDeleteBulkSize
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
