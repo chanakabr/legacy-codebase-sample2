@@ -86,12 +86,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingProvider", "..\tvm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "..\Core\ConfigurationManager\ConfigurationManager.csproj", "{27CC9E99-D886-4403-899B-1E0769FDB649}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3B77BC15-A08B-4BB1-B300-043976B9B1B9}"
-	ProjectSection(SolutionItems) = preProject
-		Dockerfile = Dockerfile
-		README.md = README.md
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
