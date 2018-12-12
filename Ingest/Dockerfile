@@ -33,3 +33,6 @@ RUN import-module webadministration; \
 
 EXPOSE 80
 EXPOSE 443
+
+ARG VERSION
+LABEL version=${VERSION}
