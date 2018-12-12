@@ -259,7 +259,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         //topic.Key == drama
                         var tagValues = 
-                            CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, catalogGroupCache.DefaultLanguage.ID, 0, 1);
+                            CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, catalogGroupCache.DefaultLanguage.ID, 1, 30);
 
                         ApiObjects.SearchObjects.TagValue tagValueToUpsert = new ApiObjects.SearchObjects.TagValue()
                         {
@@ -274,7 +274,8 @@ namespace Core.Catalog.CatalogManagement
                             var addTagResponse = CatalogManager.AddTag(groupId, tagValueToUpsert, USER_ID);
                             if (addTagResponse != null && !addTagResponse.HasObject())
                             {
-                                string errorMsg = string.Format("HandleTagsTranslations - AddTag faild. topicId: {0}, addTagStatus: {1}.", catalogTopic.Id, addTagResponse.ToStringStatus());
+                                string errorMsg = string.Format("HandleTagsTranslations-AddTag faild. topicName: {0}, topicId: {1}, tagValue: {2}, addTagStatus: {3}.",
+                                                                topic.Key, catalogTopic.Id, tag.Key, addTagResponse.ToStringStatus());
                                 ingestResponse.AddError(errorMsg);
                                 log.Debug(errorMsg);
                             }
@@ -286,7 +287,8 @@ namespace Core.Catalog.CatalogManagement
                             var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValueToUpsert.tagId, tagValueToUpsert, USER_ID);
                             if (updateTagResponse != null && !updateTagResponse.HasObject())
                             {
-                                string errorMsg = string.Format("HandleTagsTranslations - UpdateTag faild. tagId: {0}, updateTagStatus: {1}.", tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
+                                string errorMsg = string.Format("HandleTagsTranslations-UpdateTag faild. topicName: {0}, topicId: {1}, tagValue: {2}, tagId: {3}, updateTagStatus: {4}.",
+                                                                topic.Key, catalogTopic.Id, tag.Key, tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
                                 ingestResponse.AddError(errorMsg);
                                 log.Debug(errorMsg);
                             }

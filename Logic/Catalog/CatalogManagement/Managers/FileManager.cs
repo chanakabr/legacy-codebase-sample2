@@ -224,6 +224,7 @@ namespace Core.Catalog.CatalogManagement
                 typeName = fileType.Name;
             }
 
+            DateTime? catalogEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CATALOG_END_DATE");
             return new AssetFile(typeName)
             {
                 AdditionalData = ODBCWrapper.Utils.GetSafeStr(dr, "ADDITIONAL_DATA"),
@@ -247,7 +248,7 @@ namespace Core.Catalog.CatalogManagement
                 TypeId = typeId,
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1,
-                CatalogEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CATALOG_END_DATE")
+                CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate : new DateTime(2099, 1, 1)
             };
         }       
 

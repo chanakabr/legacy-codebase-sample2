@@ -124,6 +124,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue MetaFeaturesPattern;
         public static StringConfigurationValue ExcludeTemplatesImplementation;
         public static NumericConfigurationValue UserSegmentTTL;
+        public static NumericConfigurationValue EPGDeleteBulkSize;
         #endregion
 
         #region Private Members
@@ -145,7 +146,8 @@ namespace ConfigurationManager
             if (!string.IsNullOrEmpty(application) || !string.IsNullOrEmpty(host) || !string.IsNullOrEmpty(environment))
             {
                 TCMClient.TCMConfiguration config = (TCMClient.TCMConfiguration)System.Configuration.ConfigurationManager.GetSection("TCMConfig");
-
+                config.OverrideEnvironmentVariable();
+                
                 if (string.IsNullOrEmpty(application))
                 {
                     application = config.Application;
@@ -543,6 +545,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 Description = "How long do we keep information about the users' segments"
             };
+            EPGDeleteBulkSize = new NumericConfigurationValue("epg_delete_bulk_size")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 10
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -646,7 +653,8 @@ namespace ConfigurationManager
                     PreviewModuleNumOfCancelOrRefundAttempts,
                     MetaFeaturesPattern,
                     ExcludeTemplatesImplementation,
-                    UserSegmentTTL
+                    UserSegmentTTL,
+                    EPGDeleteBulkSize
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
