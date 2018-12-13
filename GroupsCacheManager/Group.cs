@@ -73,6 +73,8 @@ namespace GroupsCacheManager
         /// The default region of this group (in case a domain isn't associated with any region)
         /// </summary>
         public int defaultRegion;
+
+        /// <summary>
         /// List of channel Ids of this group
         /// </summary>
         [JsonProperty("m_nChannelIds")]

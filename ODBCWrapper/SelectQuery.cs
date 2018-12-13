@@ -128,7 +128,10 @@ namespace ODBCWrapper
             bool bRet = true;
             m_sOraStr = new System.Text.StringBuilder(oraStr);
             int_Execute();
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+
+            bool shouldRouteToSlave = QueryRoutingDefinitions.Instance.ShouldQueryRouteToSlave(m_sOraStr.ToString());
+
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable || !shouldRouteToSlave);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
