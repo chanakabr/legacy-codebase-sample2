@@ -1,4 +1,5 @@
-﻿using ConfigurationManager;
+﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -168,6 +169,9 @@ public partial class adm_external_recommendation_related_new : System.Web.UI.Pag
             client.Url = url;
 
             client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
+
+            LayeredCache.Instance.InvalidateKeys(
+                new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(parentGroupId) });
         }
 
         return;

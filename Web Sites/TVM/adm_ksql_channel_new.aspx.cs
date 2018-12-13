@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using DAL;
 using KLogMonitor;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 
 public partial class adm_ksql_channel_new : System.Web.UI.Page
 {
@@ -111,6 +112,8 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
                         //Update channel at Lucene/ ES
 
                         result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { channelId }, ApiObjects.eAction.Update);
+
+                        LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(loginGroupID)) });
                     }
                     return;
                 }

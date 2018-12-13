@@ -9,6 +9,8 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
+using CachingProvider.LayeredCache;
+using System.Collections.Generic;
 
 public partial class adm_media_types_new : System.Web.UI.Page
 {
@@ -35,6 +37,7 @@ public partial class adm_media_types_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork();
+                LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID())) });
                 return;
             }
 
@@ -49,6 +52,7 @@ public partial class adm_media_types_new : System.Web.UI.Page
                     LoginManager.LogoutFromSite("login.html");
                     return;
                 }
+                
             }
             else
                 Session["media_type_id"] = 0;

@@ -1,4 +1,5 @@
-﻿using ConfigurationManager;
+﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -78,6 +79,8 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
 
                             var updateCacheResponse = client.UpdateCache(parentGroupId, "CACHE", keys.ToArray());
                             var updateConfigurationResponse = client.UpdateRecommendationEngineConfiguration(userName, password, adapterId);
+
+                            LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID())) });
                         }
 
                         return;
