@@ -3662,15 +3662,15 @@ namespace DAL
                 // if stored procedure succeeded we will get a table
                 if (dt != null && dt.Rows != null)
                 {
-                    // mark the call as success
-                    success = true;
-
                     // if group has TSTV settings it will have a row with all the data
                     if (dt.Rows.Count > 0)
                     {
                         dr = dt.Rows[0];
                     }
                 }
+
+                // mark the call as success
+                success = true;
             }
 
             catch (Exception ex)
