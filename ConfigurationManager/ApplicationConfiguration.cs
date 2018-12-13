@@ -125,6 +125,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue ExcludeTemplatesImplementation;
         public static NumericConfigurationValue UserSegmentTTL;
         public static NumericConfigurationValue EPGDeleteBulkSize;
+
         #endregion
 
         #region Private Members
@@ -539,12 +540,19 @@ namespace ConfigurationManager
                 DefaultValue = "203",
                 ShouldAllowEmpty = true
             };
+
             UserSegmentTTL = new NumericConfigurationValue("user_segment_ttl_hours")
             {
                 DefaultValue = 36,
                 ShouldAllowEmpty = true,
                 Description = "How long do we keep information about the users' segments"
             };
+            EPGDeleteBulkSize = new NumericConfigurationValue("epg_delete_bulk_size")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 10
+            };
+
             EPGDeleteBulkSize = new NumericConfigurationValue("epg_delete_bulk_size")
             {
                 ShouldAllowEmpty = true,
