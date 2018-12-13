@@ -183,7 +183,7 @@ namespace Core.Catalog
 
             try
             {
-                lMediaObj = CompleteMediaDetails(mediaIds, nStartIndex, ref nEndIndex, ref totalItems, groupId, filter, siteGuid, managementData);
+                lMediaObj = CompleteMediaDetails(mediaIds, nStartIndex, ref nEndIndex, ref totalItems, groupId, filter, managementData);
 
                 mediaResponse.m_nTotalItems = totalItems;
                 mediaResponse.m_lObj = lMediaObj.Select(media => (BaseObject)media).ToList();
@@ -206,13 +206,13 @@ namespace Core.Catalog
         /// <param name="filter"></param>        
         /// <param name="siteGuid"></param>
         /// <returns></returns>
-        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int groupId, Filter filter, string siteGuid, bool managementData = false)
+        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int groupId, Filter filter, bool managementData = false)
         {
             int startIndex = 0;
             int endIndex = 0;
             int totalItems = 0;
 
-            return CatalogLogic.CompleteMediaDetails(mediaIds, startIndex, ref endIndex, ref totalItems, groupId, filter, siteGuid, managementData);
+            return CatalogLogic.CompleteMediaDetails(mediaIds, startIndex, ref endIndex, ref totalItems, groupId, filter, managementData);
         }
 
         /// <summary>
@@ -226,8 +226,7 @@ namespace Core.Catalog
         /// <param name="filter"></param>
         /// <param name="siteGuid"></param>
         /// <returns></returns>
-        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int nStartIndex, ref int nEndIndex,
-             ref int totalItems, int groupId, Filter filter, string siteGuid, bool managementData = false)
+        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int nStartIndex, ref int nEndIndex, ref int totalItems, int groupId, Filter filter, bool managementData = false)
         {
             List<MediaObj> mediaObjects = new List<MediaObj>();
 
@@ -271,7 +270,7 @@ namespace Core.Catalog
 
                     try
                     {
-                        var currentMedia = GetMediaDetails(nMedia, groupId, filter, siteGuid, bIsMainLang, lSubGroup, managementData);
+                        var currentMedia = GetMediaDetails(nMedia, groupId, filter, bIsMainLang, lSubGroup, managementData);
                         dMediaObj[nMedia] = currentMedia;
 
                         // If couldn't get media details for this media - probably it doesn't exist, and it shouldn't appear in ES index
@@ -368,10 +367,10 @@ namespace Core.Catalog
 
         private static MediaObj GetMediaDetails(int nMedia, MediasProtocolRequest mediaRequest, bool bIsMainLang, List<int> lSubGroup)
         {
-            return GetMediaDetails(nMedia, mediaRequest.m_nGroupID, mediaRequest.m_oFilter, mediaRequest.m_sSiteGuid, bIsMainLang, lSubGroup);
+            return GetMediaDetails(nMedia, mediaRequest.m_nGroupID, mediaRequest.m_oFilter, bIsMainLang, lSubGroup);
         }
 
-        private static MediaObj GetMediaDetails(int nMedia, int groupId, Filter filter, string siteGuid, bool bIsMainLang, List<int> lSubGroup, bool managementData = false)
+        private static MediaObj GetMediaDetails(int nMedia, int groupId, Filter filter, bool bIsMainLang, List<int> lSubGroup, bool managementData = false)
         {
             bool result = true;
             GroupManager groupManager = new GroupManager();

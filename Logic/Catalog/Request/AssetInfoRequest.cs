@@ -90,8 +90,7 @@ namespace Core.Catalog.Request
 
                 if (mediaIds != null && mediaIds.Count > 0)
                 {
-                    response.mediaList = CatalogLogic.CompleteMediaDetails(mediaIds.Select(id => (int)id).ToList(),
-                        this.m_nGroupID, this.m_oFilter, this.m_sSiteGuid, this.ManagementData);
+                    response.mediaList = CatalogLogic.CompleteMediaDetails(mediaIds.Select(id => (int)id).ToList(), this.m_nGroupID, this.m_oFilter, this.ManagementData);
                 }
             }
             catch (Exception ex)
