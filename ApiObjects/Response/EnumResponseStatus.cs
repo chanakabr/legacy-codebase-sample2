@@ -314,6 +314,7 @@ namespace ApiObjects.Response
         ParentalRuleNameAlreadyInUse = 5035,
         ParentalRuleDoesNotExist = 5036,
         CanNotDeleteDefaultParentalRule = 5037,
+        RoleDoesNotExists = 5038,
 
         #endregion
 

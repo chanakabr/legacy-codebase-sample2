@@ -308,7 +308,12 @@ namespace Core.Api
 
             try
             {
-                if (DAL.ApiDAL.DeleteRole(groupId, id))
+                var role = ApiDAL.GetRoles(groupId, new List<long>() { id }).FirstOrDefault();
+                if (role == null)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.RoleDoesNotExists, eResponseStatus.RoleDoesNotExists.ToString());
+                }
+                else if (DAL.ApiDAL.DeleteRole(groupId, id))
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
