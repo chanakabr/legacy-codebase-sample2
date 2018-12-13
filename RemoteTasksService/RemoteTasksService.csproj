@@ -139,8 +139,13 @@
   <ItemGroup>
     <Content Include="log4net.config" />
     <Content Include="packages.config" />
+    <Content Include="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\PublishProfiles\remote tasks.pubxml" />
-    <Content Include="ssl-dev\cert.pfx" />
+    <Content Include="ssl-dev\cert.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
