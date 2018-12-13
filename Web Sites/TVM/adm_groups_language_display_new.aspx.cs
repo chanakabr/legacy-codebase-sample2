@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -24,6 +25,9 @@ public partial class adm_groups_language_display_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("MAIN_CONNECTION_STRING");
+
+                LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID())) });
+
                 return;
             }
 

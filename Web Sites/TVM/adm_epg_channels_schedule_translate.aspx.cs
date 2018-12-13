@@ -348,11 +348,7 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
         theRecord.AddRecord(dr_LIVE_TRICK_PLAY);
 
         bool isTstvSettings = false;
-        System.Data.DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(nParentGroupID);
-        if (dr != null)
-        {
-            isTstvSettings = true;
-        }
+        System.Data.DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(nParentGroupID, out isTstvSettings);
 
         //Recordings (EPG) Data model
         DataRecordLongTextField dr_CRID = new DataRecordLongTextField("ltr", true, 60, 10);
