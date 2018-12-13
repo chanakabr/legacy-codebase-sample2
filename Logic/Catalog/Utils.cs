@@ -308,11 +308,9 @@ namespace Core.Catalog
 
             if (searcher != null)
             {
-
                 if (searcher.GetType().Equals(typeof(LuceneWrapper)))
                 {
                     DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0);
-
                     lMediaRes = GetMediaUpdateDate(lMediaIDs.Select(id => new SearchResult() { assetID = id, UpdateDate = dt }).ToList(), nParentGroupID);
                 }
                 else
@@ -352,26 +350,24 @@ namespace Core.Catalog
                             {
                                 log.ErrorFormat("Failed getting document of media {0}. ex = {1}", mediaID, ex);
                             }
-                        }
-                        );
+                        });
                     }
                     catch (Exception ex)
                     {
                         log.ErrorFormat("Failed performing parallel GetMediaUpdateDate for group {0}. ex = {1}", nParentGroupID, ex);
                     }
-
-                    //lMediaRes = dictRes.Values.ToList();
-
+                    
                     foreach (var item in lMediaIDs)
                     {
-                        lMediaRes.Add(dictRes[item]);
+                        if (dictRes[item].assetID > 0)
+                        {
+                            lMediaRes.Add(dictRes[item]);
+                        }
                     }
                 }
             }
-
-
+            
             return lMediaRes;
-
         }
 
         public static bool IsGroupIDContainedInConfig(long lGroupID, string rawStrFromConfig, char cSeperator)
@@ -1874,12 +1870,12 @@ namespace Core.Catalog
                     if (ids != null && groupId.HasValue)
                     {
                         assets = CatalogLogic.CompleteMediaDetails(ids, groupId.Value, filter, false);
-                        res = assets.Count() == ids.Count();
+                        res = assets.Count == ids.Count;
                     }
 
                     if (res)
                     {
-                        result = assets.ToDictionary(x => LayeredCacheKeys.GetAssetWithLanguageKey(eAssetTypes.MEDIA.ToString(), x.AssetId, filter.m_nLanguage), x => x);
+                        result = assets.Where(a => a != null).ToDictionary(x => LayeredCacheKeys.GetAssetWithLanguageKey(eAssetTypes.MEDIA.ToString(), x.AssetId, filter.m_nLanguage), x => x);
                     }
                     else
                     {

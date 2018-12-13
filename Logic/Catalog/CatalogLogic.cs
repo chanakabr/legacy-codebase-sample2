@@ -232,9 +232,9 @@ namespace Core.Catalog
 
             bool bIsMainLang = Utils.IsLangMain(groupId, filter.m_nLanguage);
 
-            if (nStartIndex == 0 && nEndIndex == 0 && mediaIds != null && mediaIds.Count() > 0)
+            if (nStartIndex == 0 && nEndIndex == 0 && mediaIds != null && mediaIds.Count > 0)
             {
-                nEndIndex = mediaIds.Count();
+                nEndIndex = mediaIds.Count;
             }
 
             //Start MultiThread Call
@@ -300,12 +300,12 @@ namespace Core.Catalog
             if (mediaIds != null)
             {
                 totalItems = mediaIds.Count;
-
                 foreach (int nMedia in mediaIds)
                 {
-                    var currentMedia = dMediaObj[nMedia];
-
-                    mediaObjects.Add(currentMedia);
+                    if (dMediaObj[nMedia] != null)
+                    {
+                        mediaObjects.Add(dMediaObj[nMedia]);
+                    }
                 }
             }
 
