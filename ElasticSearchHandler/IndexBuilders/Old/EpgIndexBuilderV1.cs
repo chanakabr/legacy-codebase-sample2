@@ -114,6 +114,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 List<string> tags = new List<string>();
                 Dictionary<string, KeyValuePair<eESFieldType, string>> metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
+
                 // Check if group supports Templates
                 if (doesGroupUsesTemplates)
                 {
@@ -145,21 +146,21 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
                 else
                 {
-                    if (group.m_oMetasValuesByGroupId != null)
+                    if (group.m_oEpgGroupSettings != null)
                     {
-                        foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
+                        if (group.m_oEpgGroupSettings.m_lMetasName != null)
                         {
-                            foreach (KeyValuePair<string, string> meta in metaMap)
+                            foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
                             {
-                                string nullValue;
-                                eESFieldType metaType;
-                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
-                                metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                                metas.Add(meta, new KeyValuePair<eESFieldType, string>(eESFieldType.STRING, string.Empty));
                             }
                         }
-                    }
 
-                    tags.AddRange(group.m_oGroupTags.Values);
+                        if (group.m_oEpgGroupSettings.m_lTagsName != null)
+                        {
+                            tags.AddRange(group.m_oEpgGroupSettings.m_lTagsName);
+                        }
+                    }
                 }
 
                 string sMapping = serializer.CreateEpgMapping(metas, tags, specificMappingAnlyzers, null, baseType, shouldAddRouting);                
