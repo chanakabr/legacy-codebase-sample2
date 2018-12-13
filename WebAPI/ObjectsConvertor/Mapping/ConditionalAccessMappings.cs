@@ -465,8 +465,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.DirectUrl))
               .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
-            // TODO SHIR - BEO-5925 ASK IRENA ABOUT URL THAT IS STRING.EMPTY? ITS OK? 
-            //.ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.Url.Substring(src.Url.LastIndexOf('.'))))
               .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.Url) || !src.Url.Contains(".") ? string.Empty : src.Url.Substring(src.Url.LastIndexOf('.'))))
               .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))                          
               .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.HasValue ? src.StreamerType.ToString(): string.Empty))

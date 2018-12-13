@@ -114,10 +114,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.QuotaInMinutes, opt => opt.MapFrom(src => src.Quota))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-            // LanguageContainer to TranslationContainer
-            cfg.CreateMap<LanguageContainer, KalturaTranslationToken>()
-               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.LanguageCode))
-               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
             // LanguageContainer to TranslationContainer
             cfg.CreateMap<LanguageContainer, KalturaTranslationToken>()

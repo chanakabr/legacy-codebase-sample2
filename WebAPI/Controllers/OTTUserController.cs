@@ -839,10 +839,9 @@ namespace WebAPI.Controllers
             try
             {
                 HashSet<long> roleIdsIn = filter != null ? filter.GetItemsIn<HashSet<long>, long>(filter.RoleIdsIn, "roleIdsIn") : null;
-                // TODO SHIR - FIX OF BEO-5843
                 bool isOperatorAndAbove = RolesManager.GetRoleIds(KS.GetFromRequest()).Any(ur => ur == RolesManager.OPERATOR_ROLE_ID ||
                                                                                                  ur == RolesManager.MANAGER_ROLE_ID ||
-                                                                                                 ur == RolesManager.ADMINISTRATOR_ROLE_ID );
+                                                                                                 ur == RolesManager.ADMINISTRATOR_ROLE_ID);
 
                 // call client
                 if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UsernameEqual) && string.IsNullOrEmpty(filter.IdIn)))
