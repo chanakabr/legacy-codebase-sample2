@@ -585,6 +585,8 @@ namespace Tvinci.Core.DAL
 
                 DataSet dataSet = storedProcedure.ExecuteDataSet();
 
+                index += bulkSize;
+
                 // what to do with result?
             }
 
