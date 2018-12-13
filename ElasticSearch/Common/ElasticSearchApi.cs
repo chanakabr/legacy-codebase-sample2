@@ -729,9 +729,7 @@ namespace ElasticSearch.Common
 
             url = builder.ToString();
             int httpStatus = 0;
-
             result = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, searchQuery, true);
-
             log.DebugFormat("ES API request: URL = {0}, body = {1}, result = {2}", url, searchQuery, result);
 
             if (httpStatus != 200)

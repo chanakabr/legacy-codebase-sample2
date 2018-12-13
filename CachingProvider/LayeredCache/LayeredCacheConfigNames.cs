@@ -8,7 +8,6 @@ namespace CachingProvider.LayeredCache
 {
     public class LayeredCacheConfigNames
     {
-
         #region Constant Config Names
 
         public const string MEDIA_FILE_ID_BY_CO_GUID_LAYERED_CACHE_CONFIG_NAME = "GetMediaFileIDByCoGuid";
@@ -59,6 +58,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME = "GetGroupGeoBlockRules";
         public const string GET_ASSET_CACHE_CONFIG_NAME = "GetAsset";
         public const string GET_ASSETS_LIST_CACHE_CONFIG_NAME = "GetAssets";
+        public const string GET_ASSETS_WITH_LANGUAGE_LIST_CACHE_CONFIG_NAME = "GetAssetsWithLanguage";
         public const string GET_IMAGE_TYPE_CACHE_CONFIG_NAME = "GetImageType";
         public const string GET_RATIOS_CACHE_CONFIG_NAME = "GetRatios";
         public const string GET_MEDIA_FILE_TYPES_CONFIG_NAME = "GetMediaFileTypess";
@@ -90,14 +90,19 @@ namespace CachingProvider.LayeredCache
         public const string GET_BUSINESS_MODULE_RULE = "GetBusinessModuleRule";
         public const string GET_ALL_BUSINESS_MODULE_RULE_IDS = "GetAllBusinessModuleRuleIds";
         public const string GET_SSO_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME = "GetSSOAdapaterByGroupId";
+        public const string GROUP_MANAGER_GET_GROUP_CONFIG_NAME = "GroupManagerGetGroup";
+        public const string PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME = "PhoenixGroupsManager";
+        public const string QUERY_CACHE_CONFIG_NAME = "QueryCache";
+        public const string PROCEDURES_ROUTING_CONFIG_NAME = "ProceduresRouting";
+        public const string QUERIES_ROUTING_CONFIG_NAME = "QueriesRouting";
+
         #endregion
 
         #region Constant Invalidation Keys
 
         public const string GET_COUNTRY_BY_IP_INVALIDATION_KEY = "invalidateGetCountryByIp";
-        public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";
+        public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";        
 
         #endregion
-
     }
 }
