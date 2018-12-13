@@ -11,6 +11,8 @@ using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using System;
 using Newtonsoft.Json.Linq;
+using KLogMonitor;
+using System.Reflection;
 
 namespace WebAPI.Models.General
 {
@@ -33,8 +35,11 @@ namespace WebAPI.Models.General
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
-            List<LanguageContainer> tempValuesList = values != null? new List<LanguageContainer>(values) : new List<LanguageContainer>();
-            if (!tempValuesList.Any(x => x.LanguageCode == GroupDefaultLanguageCode))
+            
+            List <LanguageContainer> tempValuesList = values != null? new List<LanguageContainer>(values) : new List<LanguageContainer>();
+
+            if (!string.IsNullOrEmpty(GroupDefaultLanguageCode) &&
+                !tempValuesList.Any(x => x.LanguageCode == GroupDefaultLanguageCode))
             {
                 tempValuesList.Add(new LanguageContainer(GroupDefaultLanguageCode, defaultLanguageValue, true));
             }
@@ -149,13 +154,17 @@ namespace WebAPI.Models.General
 
         public override string ToString()
         {
-            if(Values != null && Values.Count > 0)
+            if (Values != null && Values.Count > 0)
             {
                 KalturaTranslationToken token;
-                IEnumerable<KalturaTranslationToken> tokens = Values.Where(translation => translation.Language.Equals(RequestLanguageCode));
+                IEnumerable<KalturaTranslationToken> tokens = Values.Where(translation => (translation != null) &&
+                    (!string.IsNullOrEmpty(translation.Language)) &&
+                    (translation.Language.Equals(RequestLanguageCode)));
+
                 if (tokens != null && tokens.Count() > 0)
                 {
-                    token = tokens.First();
+                    token = tokens.FirstOrDefault();
+
                     if (token != null)
                     {
                         return token.Value;
@@ -164,10 +173,14 @@ namespace WebAPI.Models.General
 
                 if (GroupDefaultLanguageCode != null && !GroupDefaultLanguageCode.Equals(RequestLanguageCode))
                 {
-                    tokens = Values.Where(translation => translation.Language.Equals(GroupDefaultLanguageCode));
+                    tokens = Values.Where(translation => (translation != null) &&
+                    (!string.IsNullOrEmpty(translation.Language)) &&
+                    (translation.Language.Equals(GroupDefaultLanguageCode)));
+
                     if (tokens != null && tokens.Count() > 0)
                     {
-                        token = tokens.First();
+                        token = tokens.FirstOrDefault();
+
                         if (token != null)
                         {
                             return token.Value;

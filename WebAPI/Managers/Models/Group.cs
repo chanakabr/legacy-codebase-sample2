@@ -122,8 +122,8 @@ namespace WebAPI.Managers.Models
 
         [JsonProperty("is_refresh_token_enabled")]
         public bool IsRefreshTokenEnabled { get; set; }
-
-        [JsonIgnore]
+        
+        [JsonProperty("languages")]
         public List<Language> Languages { get; set; }
 
     }
