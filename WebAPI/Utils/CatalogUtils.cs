@@ -268,9 +268,9 @@ namespace WebAPI.Utils
             return result;
         }
 
-        internal static List<KalturaIAssetable> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
+        internal static List<KalturaIAssetable> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
         {
-            var assets = GetOrderedAssets(assetsBaseData, request, cacheDuration);
+            List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID,assetsBaseData, request.m_oFilter);
             if (assets != null)
             {
                 return convertAssets(request.m_nGroupID, assets, withList);
@@ -279,136 +279,16 @@ namespace WebAPI.Utils
                 return null;
         }
 
-        internal static List<KalturaAsset> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, bool managementData = false)
+        internal static List<KalturaAsset> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, bool managementData = false)
         {
-            var assets = GetOrderedAssets(assetsBaseData, request, cacheDuration, managementData);
+            List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID, assetsBaseData, request.m_oFilter, managementData);            
 
             if (assets != null)
                 return  MapAssets(assets);
             else
                 return null;
         }
-
-        private static List<BaseObject> GetOrderedAssets(List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, bool managementData = false)
-        {
-            List<BaseObject> finalResult = new List<BaseObject>();
-            List<MediaObj> medias = new List<MediaObj>();
-            List<ProgramObj> epgs = new List<ProgramObj>();
-
-            List<MediaObj> mediasFromCatalog = new List<MediaObj>();
-            List<ProgramObj> epgsFromCatalog = new List<ProgramObj>();
-            List<ProgramObj> recordingsFromCatalog = new List<ProgramObj>();
-            List<long> missingMediaIds = new List<long>();
-            List<long> missingEpgIds = new List<long>();
-
-            if (managementData)
-            {
-                BuildMediasFromCatalogAccordingAssetsBaseData(assetsBaseData, out missingMediaIds);
-
-                // get assets from db (not from cache)
-                // Get the assets from catalog that were missing in cache (and add them to cache)                 
-                GetAssetsFromCatalog(request, cacheDuration, missingMediaIds, missingEpgIds,
-                    out mediasFromCatalog, out epgsFromCatalog, managementData);
-                // Append the medias from Catalog to the medias from cache
-                if (mediasFromCatalog != null)
-                    medias.AddRange(mediasFromCatalog);
-
-                // Append the EPGs from Catalog to the EPGs from cache
-                if (epgs != null)
-                    epgs.AddRange(epgsFromCatalog);
-            }
-            else
-            {
-                // get assets from cache
-                if (!GetAssetsFromCache(assetsBaseData, request.m_oFilter.m_nLanguage, out medias, out epgs,
-                    out missingMediaIds, out missingEpgIds))
-                {
-                    if ((missingMediaIds != null && missingMediaIds.Count > 0) ||
-                        (missingEpgIds != null && missingEpgIds.Count > 0))
-                    {
-                        // Get the assets from catalog that were missing in cache (and add them to cache) 
-                        GetAssetsFromCatalog(request, cacheDuration, missingMediaIds, missingEpgIds,
-                            out mediasFromCatalog, out epgsFromCatalog);
-
-                        // Append the medias from Catalog to the medias from cache
-                        if (mediasFromCatalog != null)
-                            medias.AddRange(mediasFromCatalog);
-
-                        // Append the EPGs from Catalog to the EPGs from cache
-                        if (epgs != null)
-                            epgs.AddRange(epgsFromCatalog);
-                    }
-                }
-            }
-
-            // build combined EPG and Media results
-            foreach (var item in assetsBaseData)
-            {
-                BaseObject baseObject = new BaseObject();
-
-                switch (item.AssetType)
-                {
-                    case eAssetTypes.EPG:
-                        {
-                            baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == item.AssetId).FirstOrDefault();
-                            if (baseObject != null)
-                                finalResult.Add(baseObject);
-                            break;
-                        }
-                    case eAssetTypes.NPVR:
-                        {
-                            string epgId = string.Empty;
-                            RecordingType? scheduledRecordingType = null;
-                            var searchResult = item as RecordingSearchResult;
-                            if (searchResult != null)
-                            {
-                                epgId = searchResult.EpgId;
-                                scheduledRecordingType = searchResult.RecordingType;
-                            }
-                            else
-                            {
-                                var watchHistory = item as UserWatchHistory;
-
-                                if (watchHistory != null)
-                                {
-                                    epgId = watchHistory.EpgId.ToString();
-                                }
-                            }
-
-                            baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == epgId).FirstOrDefault();
-                            long recordingId;
-                            if (baseObject != null && long.TryParse(item.AssetId, out recordingId) && recordingId > 0)
-                            {
-                                ProgramObj programObject = baseObject as ProgramObj;
-                                RecordingObj recordingObject = new RecordingObj()
-                                {
-                                    RecordingId = recordingId,
-                                    RecordingType = ConditionalAccessMappings.ConvertNullableRecordingType(scheduledRecordingType),
-                                    Program = programObject
-                                };
-
-                                finalResult.Add(recordingObject);
-                            }
-
-                            break;
-                        }
-
-                    case eAssetTypes.MEDIA:
-                        {
-                            baseObject = medias.Where(m => m != null && Convert.ToString(m.AssetId) == item.AssetId).FirstOrDefault();
-                            if (baseObject != null)
-                                finalResult.Add(baseObject);
-                            break;
-                        }
-                    case eAssetTypes.UNKNOWN:
-                    default:
-                        break;
-                }
-            }
-
-            return finalResult;
-        }
-
+        
         private static void BuildMediasFromCatalogAccordingAssetsBaseData(List<BaseObject> assetsBaseDataList, out List<long> missingMediaIds)
         {
             missingMediaIds = new List<long>();
@@ -423,7 +303,7 @@ namespace WebAPI.Utils
             }
         }
 
-        public static KalturaAssetInfoListResponse GetMedia(BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
+        public static KalturaAssetInfoListResponse GetMedia(BaseRequest request, string key, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -441,7 +321,7 @@ namespace WebAPI.Utils
                 List<BaseObject> assetsBaseDataList = mediaIdsResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -454,7 +334,7 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static KalturaAssetListResponse GetMedia(BaseRequest request, string key, int cacheDuration, KalturaBaseResponseProfile responseProfile = null)
+        public static KalturaAssetListResponse GetMedia(BaseRequest request, string key, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -475,7 +355,7 @@ namespace WebAPI.Utils
                 mediaIdsResponse.aggregationResults[0].results != null && mediaIdsResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
             {
                 // build the assetsBaseDataList from the hit array 
-                result.Objects = CatalogUtils.GetAssets(mediaIdsResponse.aggregationResults[0].results, request, cacheDuration, false, responseProfile);
+                result.Objects = CatalogUtils.GetAssets(mediaIdsResponse.aggregationResults[0].results, request, false, responseProfile);
                 result.TotalCount = mediaIdsResponse.aggregationResults[0].totalItems;
             }
 
@@ -485,14 +365,14 @@ namespace WebAPI.Utils
                 List<BaseObject> assetsBaseDataList = mediaIdsResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
 
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
             return result;
         }
 
-        public static KalturaAssetInfoListResponse GetMediaWithStatus(BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
+        public static KalturaAssetInfoListResponse GetMediaWithStatus(BaseRequest request, string key, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -511,7 +391,7 @@ namespace WebAPI.Utils
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
 
-                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, cacheDuration, with);
+                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, with);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
 
@@ -519,7 +399,7 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static List<KalturaAssetInfo> GetMediaByIds(List<SearchResult> mediaIds, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> with)
+        public static List<KalturaAssetInfo> GetMediaByIds(List<SearchResult> mediaIds, BaseRequest request, List<KalturaCatalogWith> with)
         {
             List<KalturaAssetInfo> result = null;
 
@@ -532,7 +412,7 @@ namespace WebAPI.Utils
             }).ToList();
 
             // get assets from catalog/cache
-            List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+            List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
             // build AssetInfoWrapper response
             if (assetsInfo != null)
@@ -543,7 +423,7 @@ namespace WebAPI.Utils
             return result;
         }
 
-        internal static KalturaAssetListResponse GetMediaWithStatus(BaseRequest request, string key, int cacheDuration)
+        internal static KalturaAssetListResponse GetMediaWithStatus(BaseRequest request, string key)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -562,13 +442,13 @@ namespace WebAPI.Utils
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
 
-                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, cacheDuration);
+                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
             return result;
         }
 
-        internal static List<KalturaAsset> GetMediaByIds(List<SearchResult> mediaIds, BaseRequest request, int cacheDuration)
+        internal static List<KalturaAsset> GetMediaByIds(List<SearchResult> mediaIds, BaseRequest request)
         {
             List<KalturaAsset> result = null;
 
@@ -581,7 +461,7 @@ namespace WebAPI.Utils
             }).ToList();
 
             // get assets from catalog/cache
-            result = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration);
+            result = CatalogUtils.GetAssets(assetsBaseDataList, request);
             return result;
         }
 
@@ -613,7 +493,7 @@ namespace WebAPI.Utils
         //    return result;
         //}
 
-        internal static List<KalturaAsset> GetAssets(List<AggregationResult> results, BaseRequest request, int cacheDuration, bool managementData, KalturaBaseResponseProfile responseProfile)
+        internal static List<KalturaAsset> GetAssets(List<AggregationResult> results, BaseRequest request, bool managementData, KalturaBaseResponseProfile responseProfile)
         {
             // get base objects list
 
@@ -626,7 +506,7 @@ namespace WebAPI.Utils
                 }
             }
 
-            var assets = GetOrderedAssets(assetsBaseDataList, request, cacheDuration, managementData);
+            List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID, assetsBaseDataList, request.m_oFilter, managementData); 
 
             if (assets != null)
             {

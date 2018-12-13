@@ -617,7 +617,7 @@ namespace WebAPI.Managers
 
             Group group = GroupsManager.GetGroup(ks.GroupId);
 
-            if (!string.IsNullOrEmpty(ks.UserId) &&  ks.UserId != "0")
+            if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
             {
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
 
@@ -630,7 +630,6 @@ namespace WebAPI.Managers
                 }
 
                 string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
-
                 string userSessionsCbKey = string.Format(userSessionsKeyFormat, ks.UserId);
                 UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
 
