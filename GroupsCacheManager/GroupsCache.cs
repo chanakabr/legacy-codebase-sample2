@@ -772,53 +772,21 @@ namespace GroupsCacheManager
         {
             List<MediaType> mediaTypes = new List<MediaType>();
 
-            HashSet<int> missingTypesList = new HashSet<int>();
-
             try
             {
-                foreach (int typeId in typeIds)
+                if (typeIds != null)
                 {
-                    MediaType currentType = null;
-                    string cacheKey = BuildMediaTypeCacheKey(groupId, typeId);
+                    Group group = this.GetGroup(groupId);
 
-                    if (!this.groupCacheService.GetJsonAsT<MediaType>(cacheKey, out currentType))
+                    if (group != null && group.mediaTypes != null)
                     {
-                        missingTypesList.Add(typeId);
-                    }
-                    else if (currentType == null)
-                    {
-                        missingTypesList.Add(typeId);
-                    }
-                    else
-                    {
-                        mediaTypes.Add(currentType);
-                    }
-                }
-
-                if (missingTypesList.Count > 0)
-                {
-                    List<MediaType> newMediaTypes = ChannelRepository.BuildMediaTypes(missingTypesList.ToList(), groupId);
-
-                    foreach (MediaType newMediaType in newMediaTypes)
-                    {
-                        int typeId = newMediaType.id;
-
-                        string cacheKey = BuildMediaTypeCacheKey(groupId, typeId);
-
-                        bool wasInsert = false;
-
-                        for (int i = 0; i < 3 && !wasInsert; i++)
-                        {
-                            wasInsert = this.groupCacheService.SetJson<MediaType>(cacheKey, newMediaType, dCacheTT);
-                        }
-
-                        mediaTypes.Add(newMediaType);
+                        mediaTypes = group.mediaTypes.Where(mediaType => typeIds.Contains(mediaType.id)).ToList();
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error("", ex);
+                log.ErrorFormat("Error in GetMediaTypes, group = {0}, ex = {1}", groupId, ex);
             }
 
             return (mediaTypes);

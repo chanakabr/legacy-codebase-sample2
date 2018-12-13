@@ -35,7 +35,7 @@ namespace GroupsCacheManager
         [JsonProperty("m_oGroupTags")]
         public Dictionary<int, string> m_oGroupTags { get; set; }
         [JsonProperty("tagToGroup")]
-        public Dictionary<int, int> TagToGroup { get; set; }        
+        public Dictionary<int, int> TagToGroup { get; set; }
         [JsonProperty("m_oEpgGroupSettings")]
         public EpgGroupSettings m_oEpgGroupSettings { get; set; }
         [JsonProperty("m_sPermittedWatchRules")]
@@ -128,6 +128,9 @@ namespace GroupsCacheManager
         [JsonProperty("is_asset_user_rule_enabled")]
         public bool isAssetUserRuleEnabled;
 
+        [JsonProperty("media_types")]
+        public List<MediaType> mediaTypes;
+
         #endregion
 
         #region CTOR
@@ -156,6 +159,7 @@ namespace GroupsCacheManager
             this.channelIDs = new HashSet<int>();
             this.linearChannelMediaTypes = new List<int>();
             this.groupMediaFileTypeToFileType = new Dictionary<int, int>();
+            this.mediaTypes = new List<MediaType>();
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
@@ -719,6 +723,7 @@ namespace GroupsCacheManager
         {
             InitializeMediaTypes();
 
+            
             // Convert dictionary to list of ints
             return (this.mediaTypesIdToName.Keys.ToList());
         }
