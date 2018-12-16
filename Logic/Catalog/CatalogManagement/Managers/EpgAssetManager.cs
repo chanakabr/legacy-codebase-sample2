@@ -167,7 +167,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed AddMediaAsset for groupId: {0} and epgAsset.Id: {1}. ex: {2}", groupId, epgAssetToAdd.Id, ex);
+                log.ErrorFormat("Failed AddEpgAsset for groupId: {0} and epgAsset.Id: {1}. ex: {2}", groupId, epgAssetToAdd.Id, ex);
             }
 
             return result;
@@ -595,10 +595,10 @@ namespace Core.Catalog.CatalogManagement
                 epgMetasToUpdate = new List<Metas>();
             }
 
-            List<Metas> excluded = oldMetasAsset != null && oldMetasAsset.Count > 0? 
-                oldMetasAsset.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName) && 
+            List<Metas> excluded = oldMetasAsset != null && oldMetasAsset.Count > 0 ?
+                oldMetasAsset.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName) &&
                                          catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId) &&
-                                         catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.ContainsKey(catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id) && 
+                                         catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.ContainsKey(catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id) &&
                                          !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList() : null;
 
             if (excluded != null && excluded.Count > 0)
@@ -746,7 +746,8 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<string, int> tagsTypesIds = new Dictionary<string, int>();
             foreach (FieldTypeEntity fte in tagsMappingFields)
             {
-                tagsTypesIds.Add(fte.Name.ToLower(), fte.ID);
+                if (!tagsTypesIds.ContainsKey(fte.Name.ToLower()))
+                    tagsTypesIds.Add(fte.Name.ToLower(), fte.ID);
             }
 
             foreach (var tag in tags)

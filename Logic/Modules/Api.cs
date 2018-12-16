@@ -2227,22 +2227,22 @@ namespace Core.Api
             return Core.Api.api.GetBusinessModuleRules(groupId, filter);
         }
 
-        public static GenericListResponse<PlaybackAdapter> GetPlaybackProfiles(int groupId)
+        public static GenericListResponse<PlaybackProfile> GetPlaybackProfiles(int groupId)
         {
             return Core.Api.api.GetPlaybackProfiles(groupId);
         }
 
-        public static GenericResponse<PlaybackAdapter> AddPlaybackAdapter(int groupId, string userId, PlaybackAdapter playbackAdapterToAdd)
+        public static GenericResponse<PlaybackProfile> AddPlaybackAdapter(int groupId, string userId, PlaybackProfile playbackAdapterToAdd)
         {
             return Core.Api.api.AddPlaybackAdapter(groupId, userId, playbackAdapterToAdd);
         }
 
-        public static GenericResponse<PlaybackAdapter> GeneratePlaybackAdapterSharedSecret(int groupId, long playbackAdapterId)
+        public static GenericResponse<PlaybackProfile> GeneratePlaybackAdapterSharedSecret(int groupId, long playbackAdapterId)
         {
             return Core.Api.api.GeneratePlaybackAdapterSharedSecret(groupId, playbackAdapterId);
         }
 
-        public static GenericResponse<PlaybackAdapter> UpdatePlaybackAdapter(int groupId, string userId, PlaybackAdapter playbackAdapterToUpdate)
+        public static GenericResponse<PlaybackProfile> UpdatePlaybackAdapter(int groupId, string userId, PlaybackProfile playbackAdapterToUpdate)
         {
             return Core.Api.api.UpdatePlaybackAdapter(groupId, userId, playbackAdapterToUpdate);
         }

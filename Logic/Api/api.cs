@@ -11319,14 +11319,14 @@ namespace Core.Api
             return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
         }
 
-        internal static GenericListResponse<PlaybackAdapter> GetPlaybackProfiles(int groupId)
+        internal static GenericListResponse<PlaybackProfile> GetPlaybackProfiles(int groupId)
         {
-            GenericListResponse<PlaybackAdapter> response = new GenericListResponse<PlaybackAdapter>();
+            GenericListResponse<PlaybackProfile> response = new GenericListResponse<PlaybackProfile>();
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             try
             {
-                List<PlaybackAdapter> playbackAdapter = DAL.ApiDAL.GetPlaybackAdapters(groupId);
+                List<PlaybackProfile> playbackAdapter = DAL.ApiDAL.GetPlaybackAdapters(groupId);
                 if (playbackAdapter == null || playbackAdapter.Count == 0)
                 {
                     response.SetStatus(eResponseStatus.OK, "No adapters found");
@@ -11347,9 +11347,9 @@ namespace Core.Api
             return response;
         }
 
-        internal static GenericResponse<PlaybackAdapter> AddPlaybackAdapter(int groupId, string userId, PlaybackAdapter adapter)
+        internal static GenericResponse<PlaybackProfile> AddPlaybackAdapter(int groupId, string userId, PlaybackProfile adapter)
         {
-            GenericResponse<PlaybackAdapter> response = new GenericResponse<PlaybackAdapter>();
+            GenericResponse<PlaybackProfile> response = new GenericResponse<PlaybackProfile>();
             try
             {
                 if (adapter == null)
@@ -11377,9 +11377,9 @@ namespace Core.Api
                 }
 
                 //check External Identifier uniqueness 
-                PlaybackAdapter responseAdapter = ApiDAL.GetplaybackAdapterByExternalId(groupId, adapter.ExternalIdentifier);
+                PlaybackProfile playbackProfile = ApiDAL.GetplaybackAdapterByExternalId(groupId, adapter.ExternalIdentifier);
 
-                if (responseAdapter != null && responseAdapter.Id > 0)
+                if (playbackProfile != null && playbackProfile.Id > 0)
                 {
                     response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
@@ -11396,8 +11396,8 @@ namespace Core.Api
                     response.Object = adapter;
                     response.SetStatus(eResponseStatus.OK, "New playback adapter was successfully inserted");
 
-                    //if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter))
-                    //    log.ErrorFormat("InsertEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", response.EngagementAdapter.ID);
+                    if (!PlaybackAdapterController.GetInstance().SendConfiguration(adapter, groupId ))
+                        log.ErrorFormat("AddPlaybackAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", adapter.Id);
                 }
                 else
                 {
@@ -11414,9 +11414,9 @@ namespace Core.Api
         }
 
 
-        internal static GenericResponse<PlaybackAdapter> GeneratePlaybackAdapterSharedSecret(int groupId, long adapterId)
+        internal static GenericResponse<PlaybackProfile> GeneratePlaybackAdapterSharedSecret(int groupId, long adapterId)
         {
-            GenericResponse<PlaybackAdapter> response = new GenericResponse<PlaybackAdapter>();
+            GenericResponse<PlaybackProfile> response = new GenericResponse<PlaybackProfile>();
             try
             {
                 if (adapterId <= 0)
@@ -11426,7 +11426,7 @@ namespace Core.Api
                 }
 
                 //check Adapter exist
-                PlaybackAdapter adapter = ApiDAL.GetPlaybackAdapter(groupId, adapterId);
+                PlaybackProfile adapter = ApiDAL.GetPlaybackAdapter(groupId, adapterId);
                 if (adapter == null || adapter.Id <= 0)
                 {
                     response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
@@ -11453,9 +11453,9 @@ namespace Core.Api
             return response;
         }
 
-        internal static GenericResponse<PlaybackAdapter> UpdatePlaybackAdapter(int groupId, string userId, PlaybackAdapter adapter)
+        internal static GenericResponse<PlaybackProfile> UpdatePlaybackAdapter(int groupId, string userId, PlaybackProfile adapter)
         {
-            GenericResponse<PlaybackAdapter> response = new GenericResponse<PlaybackAdapter>();
+            GenericResponse<PlaybackProfile> response = new GenericResponse<PlaybackProfile>();
 
             try
             {
@@ -11483,26 +11483,26 @@ namespace Core.Api
                 adapter.SharedSecret = null;
 
                 // check adapter with this ID exists
-                PlaybackAdapter existingAdapter = ApiDAL.GetPlaybackAdapter(groupId, adapter.Id);
+                PlaybackProfile existingAdapter = ApiDAL.GetPlaybackAdapter(groupId, adapter.Id);
                 if (existingAdapter == null)
                 {
                     response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                     return response;
                 }
 
-                PlaybackAdapter playbackAdapter = ApiDAL.SetPlaybackAdapter(groupId, userId, adapter);
+                PlaybackProfile playbackProfile = ApiDAL.SetPlaybackAdapter(groupId, userId, adapter);
 
-                if (playbackAdapter == null)
+                if (playbackProfile == null)
                 {
                     response.SetStatus((int)eResponseStatus.Error, "Playback failed set changes");
                     return response;
                 }
 
-                //TODO anat SendConfigurationToAdapter
+                response.Object = playbackProfile;
+                response.SetStatus(eResponseStatus.OK);
 
-                //if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter))
-                //    log.ErrorFormat("InsertEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", response.EngagementAdapter.ID);
-
+                if (!PlaybackAdapterController.GetInstance().SendConfiguration(playbackProfile, groupId))
+                    log.ErrorFormat("AddPlaybackAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", playbackProfile.Id);
             }
             catch (Exception ex)
             {
@@ -11525,7 +11525,7 @@ namespace Core.Api
                 }
 
                 // check adapter with this ID exists
-                PlaybackAdapter existingAdapter = ApiDAL.GetPlaybackAdapter(groupId, id);
+                PlaybackProfile existingAdapter = ApiDAL.GetPlaybackAdapter(groupId, id);
                 if (existingAdapter == null)
                 {
                     response.Set((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
@@ -11544,6 +11544,6 @@ namespace Core.Api
                 log.Error(string.Format("Failed to delete engagement adapter. Group ID: {0}, engagementAdapterId: {1}", groupId, id), ex);
             }
             return response;
-        }
+        }       
     }
 }

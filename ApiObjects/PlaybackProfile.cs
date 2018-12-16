@@ -1,6 +1,6 @@
 ﻿namespace ApiObjects
 {
-    public class PlaybackAdapter
+    public class PlaybackProfile
     {
         public long Id { get; set; }
         public string Name { get; set; }
