@@ -70,10 +70,14 @@ namespace ElasticSearch.Utilities
                                     statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, action));
                             }
 
-                            if (increaseViewCount)
-                            {
-                                esApi.IncrementField(regularIndex, "media", mediaID.ToString(), "views");
-                            }
+                            // 
+                            // Increment views field - it is not used and causes performance issues in production. 
+                            // Until it will be used properly in ordering, it shouldn't happen
+                            //
+                            //if (increaseViewCount)
+                            //{
+                            //    esApi.IncrementField(regularIndex, "media", mediaID.ToString(), "views");
+                            //}
                         }
                     }
                     catch (Exception ex)

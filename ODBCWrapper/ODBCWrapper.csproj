@@ -184,6 +184,8 @@
     <Compile Include="Query.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="QueryCacheDefinitions.cs" />
+    <Compile Include="QueryRoutingDefinitions.cs" />
     <Compile Include="SelectCacher.cs" />
     <Compile Include="SelectQuery.cs">
       <SubType>Code</SubType>
@@ -228,6 +230,9 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

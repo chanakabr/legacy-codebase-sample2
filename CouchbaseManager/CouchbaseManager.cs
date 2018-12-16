@@ -51,6 +51,7 @@ namespace CouchbaseManager
         #region Consts
 
         public const string COUCHBASE_CONFIG = "couchbaseClients/Couchbase";
+        public const string COUCHBASE_TCM_CONFIG_KEY= "couchbase_client_config";
         public const string COUCHBASE_APP_CONFIG = "CouchbaseSectionMapping";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private const double GET_LOCK_TS_SECONDS = 5;
@@ -81,7 +82,7 @@ namespace CouchbaseManager
         #region Data Members
 
         private string bucketName;
-        private ClientConfiguration clientConfiguration;
+        private static readonly ClientConfiguration clientConfiguration;
 
         #endregion
 
@@ -100,6 +101,8 @@ namespace CouchbaseManager
             serializer.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
             serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
             serializer.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+            clientConfiguration = GetCouchbaseClientConfiguration();
+            
         }
         /// <summary>
         /// Initializes a CouchbaseManager instance with configuration in web.config, according to predefined bucket sections
@@ -123,8 +126,6 @@ namespace CouchbaseManager
         {
             subSection = subSection.ToLower();
 
-            this.clientConfiguration = new ClientConfiguration((CouchbaseClientSection)ConfigurationManager.GetSection(COUCHBASE_CONFIG));
-
             if (fromTcm)
             {
                 bucketName = GetBucketName(subSection);
@@ -133,8 +134,6 @@ namespace CouchbaseManager
             {
                 bucketName = GetBucketNameFromSettings(subSection);
             }
-
-            this.clientConfiguration.Transcoder = GetTranscoder;
 
             if (!IsClusterInitialized)
             {
@@ -149,7 +148,60 @@ namespace CouchbaseManager
             }
         }
 
-        private ITypeTranscoder GetTranscoder()
+        // Should we cache this in memory instead of retriving the setting again from tcm \ web.config ?
+        private static ClientConfiguration GetCouchbaseClientConfiguration()
+        {
+            //First try to load from TCM 
+            var configToReturn = GetCouchbaseClientConfigurationFromTCM();
+            
+            // if Get from TCM fail it will return null then load from Web.Config
+            if (configToReturn == null)
+            {
+                configToReturn = GetCouchbaseClientConfigurationFromWebConfig();
+            }
+
+            return configToReturn;
+        }
+
+        private static ClientConfiguration GetCouchbaseClientConfigurationFromWebConfig()
+        {
+            ClientConfiguration configToReturn;
+            try
+            {
+                configToReturn = new ClientConfiguration((CouchbaseClientSection) ConfigurationManager.GetSection(COUCHBASE_CONFIG));
+                configToReturn.Transcoder = GetTranscoder;
+            }
+            catch (Exception e)
+            {
+                log.WarnFormat("Could not load couchbase configuration from Web.Config using key:[{0}], trying to load it from web.config file. exception details:{1}", COUCHBASE_CONFIG, e);
+                throw;
+            }
+
+            return configToReturn;
+        }
+
+        private static ClientConfiguration GetCouchbaseClientConfigurationFromTCM()
+        {
+            try
+            {
+                var couchbaseConfigFromTCM = TCMClient.Settings.Instance.GetValue<ClientConfiguration>(COUCHBASE_TCM_CONFIG_KEY);
+                if (couchbaseConfigFromTCM != null)
+                {
+                    // This is here because the default constructor of ClientConfiguration adds a http://localhost:8091/pools url to the 0 index :\
+                    couchbaseConfigFromTCM.Servers.RemoveAt(0);
+                    couchbaseConfigFromTCM.Transcoder = GetTranscoder;
+                    return couchbaseConfigFromTCM;
+                }
+            }
+            catch (Exception e)
+            {
+                log.WarnFormat("Could not load couchbase configuration from TCM using key:[{0}], trying to load it from web.config file. exception details:{1}", COUCHBASE_TCM_CONFIG_KEY, e);
+            }
+
+            return null;
+        }
+
+        private static ITypeTranscoder GetTranscoder()
         {
             JsonSerializerSettings serializerSettings = new JsonSerializerSettings()
             {
@@ -483,12 +535,12 @@ namespace CouchbaseManager
             try
             {
                 var bucket = ClusterHelper.GetBucket(bucketName);
-                
+
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
                 string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.INSERT, Database = cbDescription })                
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.INSERT, Database = cbDescription })
                 {
                     if (!asJson)
                         insertResult = bucket.Insert<T>(key, value, expiration);
@@ -1586,9 +1638,9 @@ namespace CouchbaseManager
 
             return result;
         }
-        
+
         #region View Methods
-        
+
         /// <summary>
         /// Get specific, typed, objects from view
         /// </summary>
@@ -1598,7 +1650,7 @@ namespace CouchbaseManager
         public List<T> View<T>(ViewManager definitions)
         {
             long totalNumOfResults = 0;
-            return View<T>(definitions, ref  totalNumOfResults);
+            return View<T>(definitions, ref totalNumOfResults);
         }
 
         /// <summary>
@@ -1836,7 +1888,7 @@ namespace CouchbaseManager
 
             return result;
         }
-        
+
         #endregion
 
 

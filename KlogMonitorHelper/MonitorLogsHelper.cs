@@ -171,17 +171,17 @@ namespace KlogMonitorHelper
                     log.Debug("REQUEST STRING IS EMPTY");
                 else
                 {
+                    // get action name
                     if (requestMessage.Headers != null)
                     {
-                        // get action name
                         if (requestMessage.Headers.Action != null)
                         {
                             string actionName = requestMessage.Headers.Action.Substring(requestMessage.Headers.Action.LastIndexOf("/") + 1);
                             MonitorLogsHelper.SetContext(Constants.ACTION, actionName);
                         }
-                        else
-                            MonitorLogsHelper.SetContext(Constants.ACTION, "null");
                     }
+                    else
+                        MonitorLogsHelper.SetContext(Constants.ACTION, "null");
 
                     // get request ID
                     if (OperationContext.Current.IncomingMessageHeaders.FindHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty) == -1)

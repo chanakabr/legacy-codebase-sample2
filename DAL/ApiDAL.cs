@@ -3646,9 +3646,10 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static DataRow GetTimeShiftedTvPartnerSettings(int groupID)
+        public static DataRow GetTimeShiftedTvPartnerSettings(int groupID, out bool success)
         {
             DataRow dr = null;
+            success = false;
             try
             {
                 ODBCWrapper.StoredProcedure spGetTimeShiftedTvPartnerSettings = new ODBCWrapper.StoredProcedure("GetTimeShiftedTvPartnerSettings");
@@ -3656,9 +3657,18 @@ namespace DAL
                 spGetTimeShiftedTvPartnerSettings.AddParameter("@GroupID", groupID);
 
                 DataTable dt = spGetTimeShiftedTvPartnerSettings.Execute();
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+
+                // if stored procedure succeeded we will get a table
+                if (dt != null && dt.Rows != null)
                 {
-                    dr = dt.Rows[0];
+                    // mark the call as success
+                    success = true;
+
+                    // if group has TSTV settings it will have a row with all the data
+                    if (dt.Rows.Count > 0)
+                    {
+                        dr = dt.Rows[0];
+                    }
                 }
             }
 
@@ -4631,7 +4641,7 @@ namespace DAL
 
             return false;
         }
-
+        
         public static DataTable GetAssetRulesDB()
         {
             StoredProcedure sp = new StoredProcedure("Get_AssetRules");

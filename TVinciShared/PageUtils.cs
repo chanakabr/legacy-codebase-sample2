@@ -342,17 +342,46 @@ namespace TVinciShared
             HttpContext.Current.Response.Write(sRet);
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string connectionString = null)
+        /// <summary>
+        /// TSKF-16 - add cache
+        /// </summary>
+        /// <param name="sTable"></param>
+        /// <param name="sFieldName"></param>
+        /// <param name="nID"></param>
+        /// <param name="connectionString"></param>
+        /// <param name="cachedSeconds"></param>
+        /// <returns></returns>
+        static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string connectionString = null, int cachedSeconds = 0)
         {
-            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, connectionString);
+            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, connectionString, cachedSeconds);
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, string connectionString = null)
+        /// <summary>
+        /// TSKF-16 - add cache
+        /// </summary>
+        /// <param name="sTable"></param>
+        /// <param name="sFieldName"></param>
+        /// <param name="sWhereField"></param>
+        /// <param name="sWhereSign"></param>
+        /// <param name="sWhereVal"></param>
+        /// <param name="connectionString"></param>
+        /// <param name="cacheSeconds"></param>
+        /// <returns></returns>
+        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, string connectionString = null, int cacheSeconds = 0)
         {
             object oRet = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
             if (!string.IsNullOrEmpty(connectionString))
+            {
                 selectQuery.SetConnectionKey(connectionString);
+            }
+
+            if (cacheSeconds > 0)
+            {
+                selectQuery.SetCachedSec(cacheSeconds);
+            }
+
             selectQuery += "select " + sFieldName + " from " + sTable + " WITH (nolock) where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sWhereField, sWhereSign, sWhereVal);
             if (selectQuery.Execute("query", true) != null)
@@ -792,8 +821,7 @@ namespace TVinciShared
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GEO_BLOCK_TYPE_ID", "=", nGeoBlockID);
             selectQuery += "and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
-            selectQuery += "and status=1";
-
+            
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
