@@ -5270,34 +5270,10 @@ namespace DAL
         }
 
         #endregion
-
-        public static List<DrmAdapter> GetPlaybackAdapterDrmAdapters(int groupID)
+     
+        public static List<PlaybackProfile> GetPlaybackAdapters(int groupId)
         {
-            List<DrmAdapter> res = new List<DrmAdapter>();
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DrmAdapters");
-                sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
-                DataTable dt = sp.Execute();
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        res.Add(CreateDrmAdapter(dr));
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                res = new List<DrmAdapter>();
-            }
-            return res;
-        }
-
-        public static List<PlaybackAdapter> GetPlaybackAdapters(int groupId)
-        {
-            List<PlaybackAdapter> res = new List<PlaybackAdapter>();
+            List<PlaybackProfile> res = new List<PlaybackProfile>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PlaybackAdapters");
@@ -5308,7 +5284,7 @@ namespace DAL
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        res.Add(new PlaybackAdapter()
+                        res.Add(new PlaybackProfile()
                         {
                             ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier"),
                             AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
@@ -5324,18 +5300,18 @@ namespace DAL
             }
             catch (Exception)
             {
-                res = new List<PlaybackAdapter>();
+                res = new List<PlaybackProfile>();
             }
             return res;
         }
 
-        public static PlaybackAdapter GetplaybackAdapterByExternalId(int groupId, string externalIdentifier)
+        public static PlaybackProfile GetplaybackAdapterByExternalId(int groupId, string externalIdentifier)
         {
-            PlaybackAdapter res = null;
+            PlaybackProfile res = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PlaybackAdapterByExternald");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@id", externalIdentifier);
+            sp.AddParameter("@externalIdentifier", externalIdentifier);
             DataTable dt = sp.Execute();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
@@ -5345,7 +5321,7 @@ namespace DAL
             return res; ;
         }
 
-        public static DataTable AddPlaybackAdapter(int groupId, string userId, PlaybackAdapter adapter)
+        public static DataTable AddPlaybackAdapter(int groupId, string userId, PlaybackProfile adapter)
         {
             DataTable dt = null;
             try
@@ -5370,9 +5346,9 @@ namespace DAL
             return dt;
         }
 
-        public static PlaybackAdapter GetPlaybackAdapter(int groupId, long adapterId)
+        public static PlaybackProfile GetPlaybackAdapter(int groupId, long adapterId)
         {
-            PlaybackAdapter res = null;
+            PlaybackProfile res = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PlaybackAdapter");
@@ -5403,9 +5379,9 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static PlaybackAdapter SetPlaybackAdapter(int groupId, string userId, PlaybackAdapter adapter)
+        public static PlaybackProfile SetPlaybackAdapter(int groupId, string userId, PlaybackProfile adapter)
         {
-            PlaybackAdapter res = null;
+            PlaybackProfile res = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PlaybackAdapter");
@@ -5433,9 +5409,9 @@ namespace DAL
         }
 
 
-        private static PlaybackAdapter CreatePlaybackAdapter(DataRow dr)
+        private static PlaybackProfile CreatePlaybackAdapter(DataRow dr)
         {
-            return (new PlaybackAdapter()
+            return (new PlaybackProfile()
             {
                 ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier"),
                 AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
