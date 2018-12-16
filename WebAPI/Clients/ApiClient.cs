@@ -4069,11 +4069,11 @@ namespace WebAPI.Clients
         {
             KalturaPlaybackProfileListResponse result = new KalturaPlaybackProfileListResponse() { TotalCount = 0 };
 
-            Func<GenericListResponse<PlaybackAdapter>> getPlaybackProfilesFunc = () =>
+            Func<GenericListResponse<PlaybackProfile>> getPlaybackProfilesFunc = () =>
                Core.Api.Module.GetPlaybackProfiles(groupId);
 
             KalturaGenericListResponse<KalturaPlaybackProfile> response =
-                ClientUtils.GetResponseListFromWS<KalturaPlaybackProfile, PlaybackAdapter>(getPlaybackProfilesFunc);
+                ClientUtils.GetResponseListFromWS<KalturaPlaybackProfile, PlaybackProfile>(getPlaybackProfilesFunc);
 
             result.PlaybackProfiles = response.Objects;
             result.TotalCount = response.TotalCount;
@@ -4088,11 +4088,11 @@ namespace WebAPI.Clients
 
         internal KalturaPlaybackProfile InsertPlaybackProfile(int groupId, string userId, KalturaPlaybackProfile playbackProfile)
         {
-            Func<PlaybackAdapter, GenericResponse<PlaybackAdapter>> addBusinessModuleRuleFunc = (PlaybackAdapter playbackAdapterToAdd) =>
+            Func<PlaybackProfile, GenericResponse<PlaybackProfile>> addBusinessModuleRuleFunc = (PlaybackProfile playbackAdapterToAdd) =>
               Core.Api.Module.AddPlaybackAdapter(groupId, userId, playbackAdapterToAdd);
 
             KalturaPlaybackProfile result =
-                ClientUtils.GetResponseFromWS<KalturaPlaybackProfile, PlaybackAdapter>(playbackProfile, addBusinessModuleRuleFunc);
+                ClientUtils.GetResponseFromWS<KalturaPlaybackProfile, PlaybackProfile>(playbackProfile, addBusinessModuleRuleFunc);
 
             return result;
         }
@@ -4100,22 +4100,22 @@ namespace WebAPI.Clients
         internal KalturaPlaybackProfile GeneratePlaybackAdapterSharedSecret(int groupId, long playbackAdapterId)
         {
             KalturaPlaybackProfile kalturaPlaybackProfile = null;
-            Func<PlaybackAdapter, GenericResponse<PlaybackAdapter>> generateAdapterSharedSecretFunc = (PlaybackAdapter playbackAdapter) =>
+            Func<PlaybackProfile, GenericResponse<PlaybackProfile>> generateAdapterSharedSecretFunc = (PlaybackProfile playbackAdapter) =>
              Core.Api.Module.GeneratePlaybackAdapterSharedSecret(groupId, playbackAdapterId);
 
             KalturaPlaybackProfile result =
-                ClientUtils.GetResponseFromWS<KalturaPlaybackProfile, PlaybackAdapter>(kalturaPlaybackProfile, generateAdapterSharedSecretFunc);
+                ClientUtils.GetResponseFromWS<KalturaPlaybackProfile, PlaybackProfile>(kalturaPlaybackProfile, generateAdapterSharedSecretFunc);
 
             return result;
         }
 
         internal KalturaPlaybackProfile SetPlaybackProfile(int groupId, string userId, KalturaPlaybackProfile playbackProfile)
         {
-            Func<PlaybackAdapter, GenericResponse<PlaybackAdapter>> updateBusinessModuleRuleFunc = (PlaybackAdapter playbackAdapterToUpdate) =>
-             Core.Api.Module.AddPlaybackAdapter(groupId, userId, playbackAdapterToUpdate);
+            Func<PlaybackProfile, GenericResponse<PlaybackProfile>> updateBusinessModuleRuleFunc = (PlaybackProfile playbackAdapterToUpdate) =>
+             Core.Api.Module.UpdatePlaybackAdapter(groupId, userId, playbackAdapterToUpdate);
 
             KalturaPlaybackProfile result =
-                ClientUtils.GetResponseFromWS<KalturaPlaybackProfile, PlaybackAdapter>(playbackProfile, updateBusinessModuleRuleFunc);
+                ClientUtils.GetResponseFromWS<KalturaPlaybackProfile, PlaybackProfile>(playbackProfile, updateBusinessModuleRuleFunc);
 
             return result;
         }

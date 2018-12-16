@@ -903,21 +903,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Playback Profile
-            cfg.CreateMap<PlaybackAdapter, KalturaPlaybackProfile>()
+            cfg.CreateMap<PlaybackProfile, KalturaPlaybackProfile>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))             
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
              .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.ExternalIdentifier))
              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
-            cfg.CreateMap<KalturaPlaybackProfile, PlaybackAdapter>()
+            cfg.CreateMap<KalturaPlaybackProfile, PlaybackProfile>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
              .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.SystemName))
              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
             #endregion
