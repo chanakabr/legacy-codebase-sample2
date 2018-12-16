@@ -236,7 +236,20 @@ namespace WebAPI.Controllers
                     }
                     catch (Exception e)
                     {
-                        response = e.InnerException;
+                        log.ErrorFormat("Exception received while calling MultiRequestController.Do , exception: {0}", e);
+
+                        if (e.InnerException is ApiException)
+                        {
+                            response = e.InnerException;
+                        }
+                        else if (e is ClientException)
+                        {
+                            response = new ApiException(e as ClientException);
+                        }
+                        else
+                        {
+                            response = new ApiException(ErrorUtils.GetClientException(e));
+                        }
                     }
                 }
 
