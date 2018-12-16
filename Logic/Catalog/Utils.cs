@@ -1791,7 +1791,7 @@ namespace Core.Catalog
                     if (epgIds != null && epgIds.Count > 0)
                     {
                         List<ProgramObj> epgs = GetProgramFromCache(groupId, epgIds, filter);
-                        if (epgs == null || epgs.Count != mediaIds.Count)
+                        if (epgs == null || epgs.Count != epgIds.Count)
                         {
                             List<long> missingEpgIds = epgs == null ? epgIds : epgIds.Except(epgs.Select(x => long.Parse(x.AssetId))).ToList();
                             log.WarnFormat("GetProgramFromCache didn't find the following epgIds: {0}", string.Join(",", missingEpgIds));
