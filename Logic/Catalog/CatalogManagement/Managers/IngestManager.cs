@@ -259,7 +259,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         //topic.Key == drama
                         var tagValues = 
-                            CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, catalogGroupCache.DefaultLanguage.ID, 1, 30);
+                            CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, catalogGroupCache.DefaultLanguage.ID, 0, 1);
 
                         ApiObjects.SearchObjects.TagValue tagValueToUpsert = new ApiObjects.SearchObjects.TagValue()
                         {
