@@ -88,8 +88,8 @@
       <HintPath>..\..\tvmcore\External\LinqToTwitter.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\tvpapi_rest\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PerceptiveMCAPI, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -239,6 +239,7 @@
     <Compile Include="Catalog\PicSize.cs" />
     <Compile Include="Catalog\Picture.cs" />
     <Compile Include="Catalog\ProgramObj.cs" />
+    <Compile Include="Catalog\RecordingObj.cs" />
     <Compile Include="Catalog\Request\AssetCommentAddRequest.cs" />
     <Compile Include="Catalog\Request\AssetCommentsRequest.cs" />
     <Compile Include="Catalog\Request\AssetInfoRequest.cs" />
@@ -914,6 +915,7 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.AdapterStatus.datasource" />
     <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.RecommendationsResult.datasource" />
     <None Include="Properties\Settings.settings">

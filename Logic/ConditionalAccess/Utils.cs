@@ -4699,6 +4699,8 @@ namespace Core.ConditionalAccess
         private static Tuple<TimeShiftedTvPartnerSettings, bool> GetTimeShiftedTvPartnerSettings(Dictionary<string, object> funcParams)
         {
             TimeShiftedTvPartnerSettings tstvAccountSettings = null;
+            bool getTstsvSuccess = false;
+
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -4706,7 +4708,8 @@ namespace Core.ConditionalAccess
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue)
                     {
-                        DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupId.Value);
+                        DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupId.Value, out getTstsvSuccess);
+
                         if (dr != null)
                         {
                             int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", 0);
@@ -4746,10 +4749,8 @@ namespace Core.ConditionalAccess
             {
                 log.Error(string.Format("GetTimeShiftedTvPartnerSettings failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-
-            bool res = tstvAccountSettings != null;
-
-            return new Tuple<TimeShiftedTvPartnerSettings, bool>(tstvAccountSettings, res);
+            
+            return new Tuple<TimeShiftedTvPartnerSettings, bool>(tstvAccountSettings, getTstsvSuccess);
         }
 
         public static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupId)
@@ -7493,23 +7494,34 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, MeidaMaper[] mapper, ref DomainEntitlements domainEntitlements)
+        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, MeidaMaper[] mapperMapperList, ref DomainEntitlements domainEntitlements)
         {
-            bool res = false;
+            bool result = false;
+
             try
             {
                 string key = LayeredCacheKeys.GetDomainEntitlementsKey(groupId, domainId);
+
                 // if mapper is null init it to empty for passing validation in InitializeDomainEntitlements
-                if (mapper == null)
+                if (mapperMapperList == null)
                 {
-                    mapper = new MeidaMaper[0];
+                    mapperMapperList = new MeidaMaper[0];
                 }
 
-                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapper } };
-                res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId,
-                                                                    LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME,
-                                                                    LayeredCacheKeys.GetDomainEntitlementInvalidationKeys(domainId));
-                if (res && domainEntitlements != null)
+                if (domainId == 0)
+                {
+                    domainEntitlements = new DomainEntitlements();
+                    result = true;
+                }
+                else
+                {
+                    Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapperMapperList } };
+                    result = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId,
+                                                                        LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME,
+                                                                        LayeredCacheKeys.GetDomainEntitlementInvalidationKeys(domainId));
+                }
+
+                if (result && domainEntitlements != null)
                 {
                     // remove expired PPV's
                     if (domainEntitlements.DomainPpvEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
@@ -7530,12 +7542,12 @@ namespace Core.ConditionalAccess
                     }
 
                     // Get mappings of mediaFileIDs - MediaIDs
-                    if (mapper != null && mapper.Length > 0)
+                    if (mapperMapperList != null && mapperMapperList.Length > 0)
                     {
                         HashSet<int> mediaIdsToMap = new HashSet<int>();
                         Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
                         Dictionary<string, string> keyToOriginalValueMap = new Dictionary<string, string>();
-                        foreach (MeidaMaper mediaMapper in mapper)
+                        foreach (MeidaMaper mediaMapper in mapperMapperList)
                         {
                             if (!mediaIdsToMap.Contains(mediaMapper.m_nMediaID))
                             {
@@ -7645,7 +7657,7 @@ namespace Core.ConditionalAccess
                 log.Error(string.Format("Failed TryGetDomainEntitlementsFromCache, groupId: {0}, domainId: {1}", groupId, domainId), ex);
             }
 
-            return res && domainEntitlements != null;
+            return result && domainEntitlements != null;
         }
 
         private static Tuple<DomainEntitlements, bool> InitializeDomainEntitlements(Dictionary<string, object> funcParams)
@@ -8745,11 +8757,7 @@ namespace Core.ConditionalAccess
             
             if (programId == 0)
             {
-                string epgChannelId = EpgManager.GetEpgChannelId(mediaId, groupId);
-                if (!string.IsNullOrEmpty(epgChannelId))
-                {
-                    programId = EpgManager.GetCurrentProgram(groupId, epgChannelId);
-                }
+                programId = GetCurrentProgramByMediaId(groupId, mediaId);
             }
             
             if (programId > 0)
@@ -8763,6 +8771,18 @@ namespace Core.ConditionalAccess
             }
 
             return assetEpgRuleIds;
+        }
+
+        internal static long GetCurrentProgramByMediaId(int groupId, int mediaId)
+        {
+            long programId = 0;
+            string epgChannelId = EpgManager.GetEpgChannelId(mediaId, groupId);
+            if (!string.IsNullOrEmpty(epgChannelId))
+            {
+                programId = EpgManager.GetCurrentProgram(groupId, epgChannelId);
+            }
+
+            return programId;
         }
 
         internal static List<EPGChannelProgrammeObject> GetEpgsByExternalIds(int nGroupID, List<string> epgExternalIds)

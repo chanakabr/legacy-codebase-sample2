@@ -401,7 +401,7 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null)
+        internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null, RuleActionType? ruleActionType = null)
         {
             GenericListResponse<AssetRule> response = new GenericListResponse<AssetRule>();
 
@@ -430,11 +430,26 @@ namespace Core.Api.Managers
                 }
                 
                 response.Objects = allAssetRules;
-                
+
+                if (ruleActionType.HasValue)
+                {
+                    allAssetRules = allAssetRules.Where(x => x.Actions.Any(a => a.Type == ruleActionType.Value)).ToList();
+                    response.Objects = allAssetRules;
+                }
+
                 if (slimAsset != null)
                 {
                     List<AssetRule> assetRulesByAsset = new List<AssetRule>();
-                    string assetRulesByAssetKey = LayeredCacheKeys.GetAssetRulesByAssetKey(slimAsset.Id, (int)slimAsset.Type, (int)assetRuleConditionType);
+
+                    string assetRulesByAssetKey;
+                    if (ruleActionType.HasValue)
+                    {
+                        assetRulesByAssetKey = LayeredCacheKeys.GetAssetRulesByAssetKey(slimAsset.Id, (int)slimAsset.Type, (int)assetRuleConditionType, (int)ruleActionType.Value);
+                    }
+                    else
+                    {
+                        assetRulesByAssetKey = LayeredCacheKeys.GetAssetRulesByAssetKey(slimAsset.Id, (int)slimAsset.Type, (int)assetRuleConditionType);
+                    }
 
                     long assetId = long.Parse(slimAsset.Id);
                     string assetTypeInvalidationKey = slimAsset.Type == eAssetTypes.MEDIA ?
@@ -464,7 +479,7 @@ namespace Core.Api.Managers
 
                     response.Objects = assetRulesByAsset;
                 }
-
+                
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -609,6 +624,57 @@ namespace Core.Api.Managers
             }
 
             return response;
+        }
+
+        internal static Status CheckNetworkRules(eAssetTypes assetType, int groupId, long assetId, string ip, out AssetRule blockingRule)
+        {
+            Status status = new Status((int)eResponseStatus.OK);
+            blockingRule = null;
+            
+            // check the program of the linear asset
+            if (assetType == eAssetTypes.MEDIA)
+            {
+                long programId = ConditionalAccess.Utils.GetCurrentProgramByMediaId(groupId, (int)assetId);
+                if (programId != 0)
+                {
+                    Status programStatus = CheckNetworkRules(eAssetTypes.EPG, groupId, programId, ip, out blockingRule);
+                    if (!programStatus.IsOkStatusCode())
+                    {
+                        return programStatus;
+                    }
+                }
+            }
+
+            long convertedIp;
+            APILogic.Utils.ConvertIpToNumber(ip, out convertedIp);
+            Dictionary<string, string> headers = ListUtils.ToDictionary(System.Web.HttpContext.Current.Request.Headers);
+            SlimAsset asset = new SlimAsset(assetId, assetType);
+
+            ConditionScope conditionScope = new ConditionScope()
+            {
+                Headers = headers,
+                Ip = convertedIp
+            };
+
+            var networkAssetRules = GetAssetRules(RuleConditionType.Asset, groupId, asset, RuleActionType.Block);
+            if (networkAssetRules.HasObjects())
+            {
+                foreach (var networkRule in networkAssetRules.Objects)
+                {
+                    foreach (var condition in networkRule.Conditions)
+                    {
+                        if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && condition.Evaluate(conditionScope))
+                        {
+                            blockingRule = networkRule;
+                            status = new Status((int)eResponseStatus.NetworkRuleBlock, "Network rule block");
+
+                            return status;
+                        }
+                    }
+                }
+            }
+
+            return status;
         }
 
         #endregion

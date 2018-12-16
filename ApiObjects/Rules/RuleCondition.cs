@@ -17,7 +17,7 @@ namespace ApiObjects.Rules
         [JsonProperty("Description")]
         public string Description { get; set; }
 
-        public abstract bool Evaluate<T>(T scope) where T: ISegmentsConditionScope, IBusinessModuleConditionScope, IDateConditionScope;
+        public abstract bool Evaluate<T>(T scope) where T: ISegmentsConditionScope, IBusinessModuleConditionScope, IDateConditionScope, IHeaderConditionScope, IIpRangeConditionScope;
     }
 
     [Serializable]
@@ -36,10 +36,13 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class OrCondition : RuleCondition
+    public class OrCondition : AssetRuleCondition
     {
         [JsonProperty("Conditions", ItemTypeNameHandling = TypeNameHandling.All)]
         public List<RuleCondition> Conditions { get; set; }
+        
+        [JsonProperty("Not")]
+        public bool Not { get; set; }
 
         public OrCondition()
         {
@@ -48,14 +51,22 @@ namespace ApiObjects.Rules
 
         public override bool Evaluate<OrConditionScope>(OrConditionScope scope)
         {
+            bool isOneConditionEvaluate = false;
             foreach (RuleCondition condition in Conditions)
             {
                 if (condition.Evaluate(scope))
                 {
-                    return true;
+                    isOneConditionEvaluate = true;
+                    break;
                 }
             }
-            return false;
+
+            if (Not)
+            {
+                isOneConditionEvaluate = !isOneConditionEvaluate;
+            }
+
+            return isOneConditionEvaluate;
         }
     }
 
@@ -116,7 +127,7 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class IpRangeCondition : AssetCondition
+    public class IpRangeCondition : AssetRuleCondition
     {
         [JsonProperty("fromIp")]
         public string FromIp { get; set; }
@@ -129,10 +140,20 @@ namespace ApiObjects.Rules
 
         [JsonProperty("ipTo")]
         public long IpTo { get; set; }
-
+        
         public IpRangeCondition()
         {
             this.Type = RuleConditionType.IP_RANGE;
+        }
+
+        public override bool Evaluate<IIpRangeConditionScope>(IIpRangeConditionScope scope)
+        {
+            if (IpFrom <= scope.Ip && scope.Ip <= IpTo)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -217,6 +238,41 @@ namespace ApiObjects.Rules
                 return intersected.Count() == SegmentIds.Count;
             }
             return false;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class HeaderCondition : AssetRuleCondition
+    {
+        [JsonProperty("Not")]
+        public bool Not { get; set; }
+        
+        [JsonProperty("key")]
+        public string Key { get; set; }
+        
+        [JsonProperty("value")]
+        public string Value { get; set; }
+
+        public HeaderCondition()
+        {
+            this.Type = RuleConditionType.Header;
+        }
+
+        public override bool Evaluate<IHeaderConditionScope>(IHeaderConditionScope scope)
+        {
+            bool isInHeaders = false;
+            if (scope.Headers.ContainsKey(Key) && scope.Headers[Key].Equals(Value))
+            {
+                isInHeaders = true;
+            }
+
+            if (Not)
+            {
+                isInHeaders = !isInHeaders;
+            }
+
+            return isInHeaders;
         }
     }
 }

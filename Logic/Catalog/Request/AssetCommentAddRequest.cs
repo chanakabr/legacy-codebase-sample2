@@ -73,7 +73,7 @@ namespace Core.Catalog.Request
                 }
                 else if (this.assetType == ApiObjects.eAssetType.MEDIA)
                 {
-                    var mediaList = CatalogLogic.CompleteMediaDetails(new List<int>() { this.assetId },this.m_nGroupID, this.m_oFilter, this.m_sSiteGuid);
+                    var mediaList = CatalogLogic.CompleteMediaDetails(new List<int>() { this.assetId },this.m_nGroupID, this.m_oFilter);
 
                     if (mediaList == null || mediaList.Count == 0 || mediaList[0] == null)
                     {

@@ -185,6 +185,7 @@ namespace ApiObjects.Response
         UnknownPriceReason = 3077,
         PurchaseFailed = 3078,
         PurchasePassedEntitlementFailed = 3079,
+        NetworkRuleBlock = 3080,
 
         #endregion
 
@@ -313,6 +314,7 @@ namespace ApiObjects.Response
         ParentalRuleNameAlreadyInUse = 5035,
         ParentalRuleDoesNotExist = 5036,
         CanNotDeleteDefaultParentalRule = 5037,
+        RoleDoesNotExists = 5038,
 
         #endregion
 

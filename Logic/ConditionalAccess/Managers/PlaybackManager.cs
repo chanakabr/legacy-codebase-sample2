@@ -4,8 +4,10 @@ using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
+using Core.Api.Managers;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;
@@ -129,6 +131,14 @@ namespace Core.ConditionalAccess
                     }
                 }
 
+                AssetRule blockingRule;
+                var networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetType, groupId, long.Parse(assetId), ip, out blockingRule);
+                if (!networkRulesStatus.IsOkStatusCode())
+                {
+                    response.Status = networkRulesStatus;
+                    return response;
+                }
+                
                 List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
                 Dictionary<long, AdsControlData> assetFileIdsAds = new Dictionary<long, AdsControlData>();
 
@@ -388,14 +398,14 @@ namespace Core.ConditionalAccess
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoFilesFound, "No files found");
                     return response;
                 }
-
+                
                 MediaFile file = files[0];
                 MediaFileItemPricesContainer price;
 
                 PlaybackContextResponse playbackContextResponse = GetPlaybackContext(cas, groupId, userId, assetId, assetType, new List<long>() { fileId }, 
                                                                                      file.StreamerType.Value, file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, 
                                                                                      ip, udid, out price, UrlType.playmanifest);
-
+                
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = playbackContextResponse.Status;

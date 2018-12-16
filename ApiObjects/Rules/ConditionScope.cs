@@ -25,7 +25,17 @@ namespace ApiObjects.Rules
         bool FilterByDate { get; set; }
     }
 
-    public class ConditionScope : IBusinessModuleConditionScope, ISegmentsConditionScope, IDateConditionScope
+    public interface IHeaderConditionScope
+    {
+        Dictionary<string, string> Headers { get; set; }
+    }
+
+    public interface IIpRangeConditionScope
+    {
+        long Ip { get; set; }
+    }
+
+    public class ConditionScope : IBusinessModuleConditionScope, ISegmentsConditionScope, IDateConditionScope, IHeaderConditionScope, IIpRangeConditionScope
     {
         public long BusinessModuleId { get; set; }
 
@@ -37,6 +47,9 @@ namespace ApiObjects.Rules
        
         public List<long> SegmentIds { get; set; }
 
+        public Dictionary<string, string> Headers { get; set; }
+
+        public long Ip { get; set; }
     }
 }
 
