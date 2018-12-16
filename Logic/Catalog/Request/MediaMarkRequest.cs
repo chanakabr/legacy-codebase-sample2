@@ -100,7 +100,11 @@ namespace Core.Catalog.Request
             {
                 log.Error(String.Concat("MediaMarkRequest.GetResponse. ", oBaseRequest.ToString()), ex);
 
-                response.status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new MediaMarkResponse()
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+
                 return response;
             }
         }
