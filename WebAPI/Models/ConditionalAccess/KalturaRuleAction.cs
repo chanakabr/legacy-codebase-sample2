@@ -128,6 +128,12 @@ namespace WebAPI.Models.ConditionalAccess
         {
             this.Type = KalturaRuleActionType.ALLOW_PLAYBACK;
         }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleActionType.ALLOW_PLAYBACK;
+        }
     }
 
     [Serializable]
@@ -135,6 +141,12 @@ namespace WebAPI.Models.ConditionalAccess
     {
         public KalturaBlockPlaybackAction()
         {
+            this.Type = KalturaRuleActionType.BLOCK_PLAYBACK;
+        }
+
+        protected override void Init()
+        {
+            base.Init();
             this.Type = KalturaRuleActionType.BLOCK_PLAYBACK;
         }
     }

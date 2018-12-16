@@ -42,8 +42,7 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "createDate", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
-
-
+        
         /// <summary>
         /// Update date of the rule
         /// </summary>
@@ -62,8 +61,7 @@ namespace WebAPI.Models.API
 
             if (this.Conditions != null || this.Conditions.Count > 0)
             {
-
-                if (Conditions.Where(c => c.Type == KalturaRuleConditionType.BUSINESS_MODULE).Count() > 1)
+                if (Conditions.Count(c => c.Type == KalturaRuleConditionType.BUSINESS_MODULE) > 1)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "KalturaBusinessModuleCondition not in KalturaOrCondition");
                 }
@@ -76,8 +74,7 @@ namespace WebAPI.Models.API
 
             ValidateActions();
         }
-
-
+        
         private void ValidateActions()
         {
             if (this.Actions == null || this.Actions.Count == 0)
@@ -91,7 +88,6 @@ namespace WebAPI.Models.API
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
             }
-
         }
         
         /// <summary>

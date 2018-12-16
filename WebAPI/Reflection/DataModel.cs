@@ -528,6 +528,8 @@ namespace WebAPI.Reflection
                 case "KalturaAssetRuleFilter":
                     switch(property.Name)
                     {
+                        case "ActionsContainType":
+                            return "actionsContainType";
                         case "AssetApplied":
                             return "assetApplied";
                         case "ConditionsContainType":
@@ -2330,6 +2332,16 @@ namespace WebAPI.Reflection
                     {
                         case "Group":
                             return "group";
+                    }
+                    break;
+                    
+                case "KalturaHeaderCondition":
+                    switch(property.Name)
+                    {
+                        case "Key":
+                            return "key";
+                        case "Value":
+                            return "value";
                     }
                     break;
                     

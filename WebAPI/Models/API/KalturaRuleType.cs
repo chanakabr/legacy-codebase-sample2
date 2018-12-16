@@ -11,6 +11,7 @@ namespace WebAPI.Models.API
         geo = 1, 
         user_type = 2, 
         device = 3,
-        assetUser = 4
+        assetUser = 4,
+        network = 5
     }
 }

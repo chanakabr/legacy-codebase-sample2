@@ -5057,6 +5057,11 @@
             Indicates if to return an asset rule list that related to specific asset
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRuleFilter.ActionsContainType">
+            <summary>
+            Indicates which asset rule list to return by this KalturaRuleActionType.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaCondition">
             <summary>
             Condition
@@ -5175,6 +5180,21 @@
         <member name="P:WebAPI.Models.API.KalturaDateCondition.EndDate">
             <summary>
             End date 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaHeaderCondition">
+            <summary>
+            Header condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaHeaderCondition.Key">
+            <summary>
+            Header key
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaHeaderCondition.Value">
+            <summary>
+            Header value
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaAssetUserRuleFilter">

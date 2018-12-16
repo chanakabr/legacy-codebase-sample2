@@ -12022,6 +12022,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(ActionsContainType.HasValue)
+            {
+                ret.Add("actionsContainType", "\"actionsContainType\": " + "\"" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "\"");
+            }
             if(AssetApplied != null)
             {
                 propertyValue = AssetApplied.ToJson(currentVersion, omitObsolete);
@@ -12036,6 +12040,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(ActionsContainType.HasValue)
+            {
+                ret.Add("actionsContainType", "<actionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "" + "</actionsContainType>");
+            }
             if(AssetApplied != null)
             {
                 propertyValue = AssetApplied.ToXml(currentVersion, omitObsolete);
@@ -13467,6 +13475,40 @@ namespace WebAPI.Models.API
             {
                 propertyValue = GenericRules.Count > 0 ? "<item>" + String.Join("</item><item>", GenericRules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaHeaderCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Key != null)
+            {
+                ret.Add("key", "\"key\": " + "\"" + EscapeJson(Key) + "\"");
+            }
+            if(Value != null)
+            {
+                ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Key != null)
+            {
+                ret.Add("key", "<key>" + EscapeXml(Key) + "</key>");
+            }
+            if(Value != null)
+            {
+                ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
             }
             return ret;
         }

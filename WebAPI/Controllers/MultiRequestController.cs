@@ -459,16 +459,17 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    isPreviousErrorOccurred = false;
                     try
                     {
                         BadRequestException badRequest;
                         if (!ValidateSkipCondition(request[i].SkipCondition, isAnyErrorOccurred, lastFaildIndex, isPreviousErrorOccurred, i, responses, out badRequest))
                         {
                             response = badRequest;
+                            isPreviousErrorOccurred = false;
                         }
                         else
                         {
+                            isPreviousErrorOccurred = false;
                             Type controller = executingAssembly.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
                             if (controller == null)
                             {
@@ -489,17 +490,30 @@ namespace WebAPI.Controllers
                     }
                     catch (ApiException e)
                     {
-                        response = e;
                         isPreviousErrorOccurred = true;
                         isAnyErrorOccurred = true;
                         lastFaildIndex = i;
+                        response = e;
                     }
                     catch (Exception e)
                     {
-                        response = e.InnerException;
+                        log.ErrorFormat("Exception received while calling MultiRequestController.Do , exception: {0}", e);
                         isPreviousErrorOccurred = true;
                         isAnyErrorOccurred = true;
                         lastFaildIndex = i;
+
+                        if (e.InnerException is ApiException)
+                        {
+                            response = e.InnerException;
+                        }
+                        else if (e is ClientException)
+                        {
+                            response = new ApiException(e as ClientException);
+                        }
+                        else
+                        {
+                            response = new ApiException(ErrorUtils.GetClientException(e));
+                        }
                     }
                 }
                 

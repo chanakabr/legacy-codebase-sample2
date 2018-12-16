@@ -25,3 +25,6 @@ RUN npm install
 EXPOSE 80
 
 CMD node server.js
+
+ARG VERSION
+LABEL version=${VERSION}

@@ -179,6 +179,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>        
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.RoleDoesNotExists)]
         static public bool Delete(long id)
         {
             bool response = false;

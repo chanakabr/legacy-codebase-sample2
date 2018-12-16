@@ -35,14 +35,15 @@ namespace WebAPI
 
         private static void InitializeLogging()
         {
+            string apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             string logDir = System.Environment.GetEnvironmentVariable("API_LOG_DIR");
             if(logDir != null)
             {
-                logDir = System.Environment.ExpandEnvironmentVariables(logDir);
+                logDir = System.Environment.ExpandEnvironmentVariables(logDir) + "\\" + apiVersion;
             }
             else
             {
-                logDir = "C:\\log\\RestfulApi";
+                logDir = "C:\\log\\RestfulApi\\" + apiVersion;
             }
             log4net.GlobalContext.Properties["LogDir"] = logDir;
 

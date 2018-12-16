@@ -282,13 +282,15 @@ namespace WebAPI.Models.Catalog
             {
                 foreach (KeyValuePair<string, KalturaValue> metaValues in Metas)
                 {
-                    if (metaValues.Value.GetType() == typeof(KalturaMultilingualStringValue))
+                    if (metaValues.Value is KalturaMultilingualStringValue)
                     {
                         KalturaMultilingualStringValue multilingualStringValue = metaValues.Value as KalturaMultilingualStringValue;
-                        if (multilingualStringValue != null)
+                        if (multilingualStringValue.value == null)
                         {
-                            multilingualStringValue.value.Validate(metaValues.Key);
+                            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMultilingualStringValue.value");
                         }
+
+                        multilingualStringValue.value.Validate(metaValues.Key);
                     }
                 }
             }            

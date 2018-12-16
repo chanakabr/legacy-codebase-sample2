@@ -441,7 +441,6 @@ namespace WebAPI.Filters
             {   
                 string query = await actionContext.Request.Content.ReadAsStringAsync();
                 NameValueCollection values = HttpUtility.ParseQueryString(query);
-
                 Dictionary<string, object> ret = new Dictionary<string, object>();
                 foreach (string key in values.Keys)
                 {

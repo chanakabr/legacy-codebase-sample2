@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -41,6 +42,15 @@ namespace WebAPI.Models.API
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaSlimAsset AssetApplied { get; set; }
 
+        /// <summary>
+        /// Indicates which asset rule list to return by this KalturaRuleActionType.
+        /// </summary>
+        [DataMember(Name = "actionsContainType")]
+        [JsonProperty("actionsContainType")]
+        [XmlElement(ElementName = "actionsContainType")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaRuleActionType? ActionsContainType { get; set; }
+
         protected override void Init()
         {
             base.Init();
@@ -49,13 +59,20 @@ namespace WebAPI.Models.API
 
         internal void Validate()
         {
-            if (!KalturaRuleConditionType.CONCURRENCY.Equals(ConditionsContainType) &&
-                !KalturaRuleConditionType.COUNTRY.Equals(ConditionsContainType) &&
-                !KalturaRuleConditionType.IP_RANGE.Equals(ConditionsContainType))
+            if (KalturaRuleConditionType.COUNTRY != ConditionsContainType &&
+                KalturaRuleConditionType.CONCURRENCY != ConditionsContainType &&
+                KalturaRuleConditionType.IP_RANGE != ConditionsContainType)
             {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.conditionsContainType");
+                if (KalturaRuleConditionType.ASSET != ConditionsContainType)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.conditionsContainType");
+                }
+                else if (!ActionsContainType.HasValue || ActionsContainType.Value != KalturaRuleActionType.BLOCK)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.actionsContainType");
+                }
             }
-
+            
             if (AssetApplied != null)
             {
                 long assetId;
