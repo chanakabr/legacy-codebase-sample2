@@ -1194,6 +1194,11 @@ namespace Core.Catalog
         // TODO - UPDATE PREFORMENCE GetGeoBlockRuleId
         internal static int? GetGeoBlockRuleId(int groupId, string geoBlockRuleName)
         {
+            if (geoBlockRuleName.IsNullOrEmptyOrWhiteSpace())
+            {
+                return null;
+            }
+
             Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
             if (geoblockRules == null || geoblockRules.Count == 0)
             {
@@ -1244,6 +1249,11 @@ namespace Core.Catalog
         // TODO - UPDATE PREFORMENCE GetDeviceRuleId
         internal static int? GetDeviceRuleId(int groupId, string deviceRuleName)
         {
+            if (deviceRuleName.IsNullOrEmptyOrWhiteSpace())
+            {
+                return null;
+            }
+
             Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
             if (deviceRules == null || deviceRules.Count == 0)
             {
