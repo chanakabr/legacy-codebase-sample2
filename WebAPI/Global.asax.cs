@@ -39,12 +39,13 @@ namespace WebAPI
             string logDir = System.Environment.GetEnvironmentVariable("API_LOG_DIR");
             if(logDir != null)
             {
-                logDir = System.Environment.ExpandEnvironmentVariables(logDir) + "\\" + apiVersion;
+                logDir = System.Environment.ExpandEnvironmentVariables(logDir) + @"\" + apiVersion;
             }
             else
             {
-                logDir = "C:\\log\\RestfulApi\\" + apiVersion;
+                logDir = @"C:\log\RestfulApi\" + apiVersion;
             }
+            System.IO.File.WriteAllText(@"C:\log\test.log", "logDir: " + logDir);
             log4net.GlobalContext.Properties["LogDir"] = logDir;
 
             // build log4net partial file name
@@ -73,7 +74,6 @@ namespace WebAPI
             }
 
             log4net.GlobalContext.Properties["LogName"] = partialLogName;
-            log4net.Util.LogLog.InternalDebugging = true;
 
             // set monitor and log configuration files
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WS);
