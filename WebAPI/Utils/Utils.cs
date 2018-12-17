@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Web;
 using WebAPI.ClientManagers;
@@ -41,6 +42,7 @@ namespace WebAPI.Utils
             string ip = string.Empty;
             string retIp = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
             string[] ipRange;
+
             if (!string.IsNullOrEmpty(retIp) && (ipRange = retIp.Split(',')) != null && ipRange.Length > 0)
             {
                 ip = ipRange[0];
@@ -52,11 +54,21 @@ namespace WebAPI.Utils
 
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
 
+            // Azur 
+            // when header contains :, it can be of two: either it has a port, or it is an IPv6.
             if (ip.Contains(':'))
             {
-                ip = ip.Substring(0, ip.IndexOf(':'));
-            }
+                IPAddress address;
 
+                if (IPAddress.TryParse(ip, out address))
+                {
+                    ip = address.ToString();
+                }
+                else
+                {
+                    ip = ip.Substring(0, ip.IndexOf(':'));
+                }
+            }
 
             return ip.Trim();
         }
