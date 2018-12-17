@@ -158,13 +158,13 @@ namespace EpgIngest
         }
 
         //Build docids with languages per programid 
-        internal static List<string> BuildDocIdsToRemoveGroupPrograms(List<int> lProgramsID, List<LanguageObj> lLanguage)
+        internal static List<string> BuildDocIdsToRemoveGroupPrograms(List<long> lProgramsID, List<LanguageObj> lLanguage)
         {
             List<string> docIds = new List<string>();
             string docID = string.Empty;
             //build key for languages by languageListObj
 
-            foreach (int id in lProgramsID)
+            foreach (long id in lProgramsID)
             {
                 foreach (LanguageObj language in lLanguage)
                 {

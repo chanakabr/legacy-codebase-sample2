@@ -1,4 +1,5 @@
 ﻿using CachingProvider;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
@@ -163,83 +164,109 @@ namespace GroupsCacheManager
             return string.Format("{0}{1}_{2}", keyCachePrefix, version, nGroupID);
         }
 
-        public Group GetGroup(int nGroupID)
+        public Group GetGroup(int groupId)
         {
             Group group = null;
-            BaseModuleCache baseModule = null;
-            try
+
+            string cacheKey = BuildGroupCacheKey(groupId);
+            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }};
+            bool result = LayeredCache.Instance.Get<Group>(cacheKey, ref group, BuildGroup, funcParams, groupId,
+                LayeredCacheConfigNames.GROUP_MANAGER_GET_GROUP_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(groupId) });
+
+            return group;
+
+            //BaseModuleCache baseModule = null;
+            //try
+            //{
+
+            //    try
+            //    {
+            //        baseModule = this.groupCacheService.Get(cacheKey);
+            //    }
+            //    catch (ArgumentException exception)
+            //    {
+            //        log.Error("GetGroup - " +
+            //            string.Format("Group in cache was not in expected format. " +
+            //            "It will be rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), exception);
+            //    }
+
+            //    if (baseModule != null && baseModule.result != null)
+            //    {
+            //        group = baseModule.result as Group;
+            //    }
+            //    else
+            //    {
+            //        bool bInsert = false;
+
+            //        // try to get group from CB with version
+            //        VersionModuleCache versionModule = null;
+
+            //        try
+            //        {
+            //            versionModule = (VersionModuleCache)this.groupCacheService.GetWithVersion<Group>(cacheKey);
+            //        }
+            //        catch (ArgumentException exception)
+            //        {
+            //            log.Error("GetGroup - " +
+            //                string.Format("Group in cache was not in expected format. " +
+            //                "It willbe rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), exception);
+            //        }
+
+
+            //        if (versionModule != null && versionModule.result != null)
+            //        {
+            //            group = versionModule.result as Group;
+            //        }
+
+            //        // if group is still null 
+            //        if (group == null)
+            //        {
+            //            Group tempGroup = Utils.BuildGroup(nGroupID, true);
+
+            //            for (int i = 0; i < 3 && !bInsert; i++)
+            //            {
+            //                //try insert to Cache
+            //                versionModule.result = tempGroup;
+            //                bInsert = this.groupCacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
+            //                if (bInsert)
+            //                {
+            //                    group = tempGroup;
+            //                }
+            //            }
+
+            //            if (!bInsert)
+            //            {
+            //                log.ErrorFormat("GroupsCache - could not insert group {0} after 3 retries", cacheKey);
+            //            }
+            //        }
+            //    }            
+
+            //    return group;
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.Error("GetGroup - " + string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), ex);
+            //    return null;
+            //}
+        }
+
+        private static Tuple<Group, bool> BuildGroup(Dictionary<string, object> funcParams)
+        {
+            bool success = false;
+            Group group = null;
+
+            if (funcParams != null && funcParams.ContainsKey("groupId"))
             {
-                string cacheKey = BuildGroupCacheKey(nGroupID);
+                int groupId = Convert.ToInt32(funcParams["groupId"]);
+                group = Utils.BuildGroup(groupId, true);
 
-                try
+                if (group != null)
                 {
-                    baseModule = this.groupCacheService.Get(cacheKey);
+                    success = true;
                 }
-                catch (ArgumentException exception)
-                {
-                    log.Error("GetGroup - " +
-                        string.Format("Group in cache was not in expected format. " +
-                        "It will be rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), exception);
-                }
-
-                if (baseModule != null && baseModule.result != null)
-                {
-                    group = baseModule.result as Group;
-                }
-                else
-                {
-                    bool bInsert = false;
-
-                    // try to get group from CB with version
-                    VersionModuleCache versionModule = null;
-
-                    try
-                    {
-                        versionModule = (VersionModuleCache)this.groupCacheService.GetWithVersion<Group>(cacheKey);
-                    }
-                    catch (ArgumentException exception)
-                    {
-                        log.Error("GetGroup - " +
-                            string.Format("Group in cache was not in expected format. " +
-                            "It willbe rebuilt now. GroupId = {0}, Exception = {1}", nGroupID, exception.Message), exception);
-                    }
-
-
-                    if (versionModule != null && versionModule.result != null)
-                    {
-                        group = versionModule.result as Group;
-                    }
-
-                    // if group is still null 
-                    if (group == null)
-                    {
-                        Group tempGroup = Utils.BuildGroup(nGroupID, true);
-
-                        for (int i = 0; i < 3 && !bInsert; i++)
-                        {
-                            //try insert to Cache
-                            versionModule.result = tempGroup;
-                            bInsert = this.groupCacheService.SetWithVersion<Group>(cacheKey, versionModule, dCacheTT);
-                            if (bInsert)
-                            {
-                                group = tempGroup;
-                            }
-                        }
-
-                        if (!bInsert)
-                        {
-                            log.ErrorFormat("GroupsCache - could not insert group {0} after 3 retries", cacheKey);
-                        }
-                    }
-                }            
-
-                return group;
             }
-            catch (Exception ex)
-            {
-                log.Error("GetGroup - " + string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), ex);
-                return null;
-            }
+            
+            return new Tuple<Group, bool>(group, success);
         }
 
         internal bool AddChannelsToOperator(int nOperatorID, List<long> subscriptionChannels, Group group)
@@ -363,6 +390,8 @@ namespace GroupsCacheManager
                         }
                     }
                 }
+
+                bUpdate &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
                 return bUpdate;
             }
             catch (Exception ex)
@@ -421,6 +450,7 @@ namespace GroupsCacheManager
         internal bool RemoveChannel(int nGroupID, int nChannelId)
         {
             bool isRemovingChannelSucceded = false;
+
             try
             {
                 string channelKey = BuildChannelCacheKey(nGroupID, nChannelId);
@@ -432,6 +462,7 @@ namespace GroupsCacheManager
                     isRemovingChannelSucceded = true;
                 }
 
+                isRemovingChannelSucceded &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
             }
             catch (Exception ex)
             {
@@ -465,6 +496,8 @@ namespace GroupsCacheManager
                         }
                     }
                 }
+
+                isRemovingGroupSucceded &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
 
                 return isRemovingGroupSucceded;
             }
@@ -501,6 +534,8 @@ namespace GroupsCacheManager
                     }
                 }
 
+                bAdd &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
+
                 return bAdd;
             }
             catch (Exception ex)
@@ -536,6 +571,8 @@ namespace GroupsCacheManager
                         }
                     }
                 }
+
+                bDelete &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
 
                 return bDelete;
             }
@@ -618,6 +655,8 @@ namespace GroupsCacheManager
                     }
                 }
 
+                bAdd &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
+
                 return bAdd;
             }
             catch (Exception ex)
@@ -649,6 +688,8 @@ namespace GroupsCacheManager
                         }
                     }
                 }
+
+                bDelete &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
 
                 return bDelete;
             }
@@ -716,6 +757,8 @@ namespace GroupsCacheManager
                     }
                 }
 
+                isUpdated &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(groupID) });
+
                 return isUpdated;
             }
             catch (Exception ex)
@@ -729,53 +772,21 @@ namespace GroupsCacheManager
         {
             List<MediaType> mediaTypes = new List<MediaType>();
 
-            HashSet<int> missingTypesList = new HashSet<int>();
-
             try
             {
-                foreach (int typeId in typeIds)
+                if (typeIds != null)
                 {
-                    MediaType currentType = null;
-                    string cacheKey = BuildMediaTypeCacheKey(groupId, typeId);
+                    Group group = this.GetGroup(groupId);
 
-                    if (!this.groupCacheService.GetJsonAsT<MediaType>(cacheKey, out currentType))
+                    if (group != null && group.mediaTypes != null)
                     {
-                        missingTypesList.Add(typeId);
-                    }
-                    else if (currentType == null)
-                    {
-                        missingTypesList.Add(typeId);
-                    }
-                    else
-                    {
-                        mediaTypes.Add(currentType);
-                    }
-                }
-
-                if (missingTypesList.Count > 0)
-                {
-                    List<MediaType> newMediaTypes = ChannelRepository.BuildMediaTypes(missingTypesList.ToList(), groupId);
-
-                    foreach (MediaType newMediaType in newMediaTypes)
-                    {
-                        int typeId = newMediaType.id;
-
-                        string cacheKey = BuildMediaTypeCacheKey(groupId, typeId);
-
-                        bool wasInsert = false;
-
-                        for (int i = 0; i < 3 && !wasInsert; i++)
-                        {
-                            wasInsert = this.groupCacheService.SetJson<MediaType>(cacheKey, newMediaType, dCacheTT);
-                        }
-
-                        mediaTypes.Add(newMediaType);
+                        mediaTypes = group.mediaTypes.Where(mediaType => typeIds.Contains(mediaType.id)).ToList();
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error("", ex);
+                log.ErrorFormat("Error in GetMediaTypes, group = {0}, ex = {1}", groupId, ex);
             }
 
             return (mediaTypes);

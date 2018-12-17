@@ -23,6 +23,13 @@ namespace ODBCWrapper
             m_myDataSet.RemotingFormat = System.Data.SerializationFormat.Binary;
             command = null;
 
+            setCachedSec();
+
+            m_bIsWritable = false;
+        }
+
+        private void setCachedSec()
+        {
             var cachedSec = ApplicationConfiguration.DatabaseConfiguration.ODBCCacheSeconds.IntValue;
 
             if (cachedSec >= 0)
@@ -44,8 +51,6 @@ namespace ODBCWrapper
             {
                 m_nCachedSec = 60;
             }
-
-            m_bIsWritable = false;
         }
 
         public override void Finish()
@@ -96,10 +101,24 @@ namespace ODBCWrapper
                 }
             }
             FillQueryString(oraStr);
+
+            int definedCacheTime = QueryCacheDefinitions.Instance.GetCacheTime(oraStr);
+
+            if (definedCacheTime > 0)
+            {
+                m_nCachedSec = definedCacheTime;
+            }
+
             string sCachStr = GetCachStr();
             System.Data.DataTable dCached = SelectCacher.GetCachedDataTable(sCachStr, m_nCachedSec);
             if (dCached == null)
             {
+                bool shouldRouteToSlave = QueryRoutingDefinitions.Instance.ShouldQueryRouteToSlave(oraStr);
+                if (shouldRouteToSlave)
+                {
+                    Utils.UseWritable = !shouldRouteToSlave;
+                }
+
                 string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
                 if (sConn == "")
                 {
@@ -129,6 +148,8 @@ namespace ODBCWrapper
                             m_myDataSet.Tables.Add(dataTable);
                         }
                         // adapter.Fill(m_myDataSet, sVirtualTableName);
+
+                        con.Close();
                     }
                     catch (Exception ex)
                     {

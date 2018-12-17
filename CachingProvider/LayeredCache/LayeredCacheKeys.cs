@@ -314,6 +314,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("Asset_type_{0}_id_{1}", assetType, id);
         }
 
+        public static string GetAssetWithLanguageKey(string assetType, string id, int languageId)
+        {
+            return string.Format("Asset_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
+        }
+
         public static string GetGroupImageTypesKey(int groupId)
         {
             return string.Format("GroupImageTypes_groupId_{0}", groupId);
@@ -363,6 +368,21 @@ namespace CachingProvider.LayeredCache
                 foreach (long id in assetIds)
                 {
                     result.Add(GetAssetKey(assetType, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, string> GetAssetsWithLanguageKeyMap(string assetType, List<string> assetIds, int languageId)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (assetIds != null && assetIds.Count > 0)
+            {
+                assetIds = assetIds.Distinct().ToList();
+                foreach (string id in assetIds)
+                {
+                    result.Add(GetAssetWithLanguageKey(assetType, id, languageId), id.ToString());
                 }
             }
 
@@ -491,6 +511,21 @@ namespace CachingProvider.LayeredCache
         public static string GetSSOAdapaterImplementationsKey(int adapterId)
         {
             return string.Format("sso_adapter_implementations_{0}", adapterId);
+        }
+
+        public static string GetQueryCacheDefinitionsKey()
+        {
+            return "query_cache";
+        }
+
+        public static string GetDbProceduresRoutingKey()
+        {
+            return "db_procedures_routing";
+        }
+
+        public static string GetDbQueryRoutingKey()
+        {
+            return "db_query_routing";
         }
 
         #endregion
@@ -752,6 +787,36 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public static Dictionary<string, List<string>> GetMediaInvalidationKeysMap(int groupId, string assetType, List<long> ids)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (ids != null && ids.Count > 0)
+            {
+                ids = ids.Distinct().ToList();
+                foreach (long id in ids)
+                {
+                    result.Add(GetAssetKey(assetType, id), new List<string>() { GetMediaInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, List<string>> GetEpgInvalidationKeysMap(int groupId, string assetType, List<long> ids)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (ids != null && ids.Count > 0)
+            {
+                ids = ids.Distinct().ToList();
+                foreach (long id in ids)
+                {
+                    result.Add(GetAssetKey(assetType, id), new List<string>() { GetEpgInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
         public static string GetUserParentalRuleInvalidationKey(string siteGuid)
         {
             return string.Format("user_parental_rules_{0}", siteGuid);
@@ -870,6 +935,31 @@ namespace CachingProvider.LayeredCache
         public static string GetSSOAdapaterImplementationsInvalidationKey(int adapaterId)
         {
             return string.Format("invalidationKey_sso_adapater_implementations_{0}", adapaterId);
+        }
+
+        public static string GroupManagerGetGroupInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_group_manager_get_group_{0}", groupId);
+        }
+
+        public static string PhoenixGroupsManagerInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_PhoenixGroupsManager_{0}", groupId);
+        }
+
+        public static string GetQueryCacheInvalidationKey()
+        {
+            return "invalidationKey_query_cache";
+        }
+
+        public static string GetProceduresRoutingInvalidationKey()
+        {
+            return "invalidationKey_procedures_routing";
+        }
+
+        public static string GetQueriesRoutingInvalidationKey()
+        {
+            return "invalidationKey_queries_routing";
         }
 
         #endregion

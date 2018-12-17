@@ -128,6 +128,13 @@ namespace ODBCWrapper
             bool bRet = true;
             m_sOraStr = new System.Text.StringBuilder(oraStr);
             int_Execute();
+
+            bool shouldRouteToSlave = QueryRoutingDefinitions.Instance.ShouldQueryRouteToSlave(m_sOraStr.ToString());
+            if (shouldRouteToSlave)
+            {
+                Utils.UseWritable = !shouldRouteToSlave;
+            }
+
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {

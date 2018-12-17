@@ -47,7 +47,9 @@ namespace GroupsCacheManager
 
                 SetGroupDefaults(newGroup);
 
-                newGroup.GetMediaTypes();
+                var mediaTypeIds = newGroup.GetMediaTypes();
+
+                newGroup.mediaTypes = BuildMediaTypes(mediaTypeIds, nGroupID);
 
                 SetMediaFileTypes(newGroup);
 
