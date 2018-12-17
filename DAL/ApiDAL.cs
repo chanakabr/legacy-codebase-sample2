@@ -4642,7 +4642,7 @@ namespace DAL
 
             return false;
         }
-
+        
         public static DataTable GetAssetRulesDB()
         {
             StoredProcedure sp = new StoredProcedure("Get_AssetRules");
