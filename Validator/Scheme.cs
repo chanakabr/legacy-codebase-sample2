@@ -389,38 +389,47 @@ namespace Validator.Managers.Scheme
         {
             bool valid = true;
 
-            foreach (Type type in enums.OrderBy(myType => myType.Name))
+            try
             {
-                if (!SchemeManager.Validate(type, false))
-                    valid = false;
-            }
+                foreach (Type type in enums.OrderBy(myType => myType.Name))
+                {
+                    if (!SchemeManager.Validate(type, false))
+                        valid = false;
+                }
 
-            foreach (Type type in types)
+                foreach (Type type in types)
+                {
+                    //Skip master base class
+                    if (type == typeof(KalturaOTTObject))
+                        continue;
+
+                    if (!SchemeManager.Validate(type, false))
+                        valid = false;
+                }
+
+                foreach (Type controller in controllers.OrderBy(controller => controller.Name))
+                {
+                    var controllerAttr = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
+
+                    if (controllerAttr != null && controllerAttr.IgnoreApi)
+                        continue;
+
+                    if (!SchemeManager.Validate(controller, false))
+                        valid = false;
+                }
+
+                SchemeManager.ValidateErrors(exceptions, false);
+            }
+            catch (Exception ex)
             {
-                //Skip master base class
-                if (type == typeof(KalturaOTTObject))
-                    continue;
-
-                if (!SchemeManager.Validate(type, false))
-                    valid = false;
+                Console.WriteLine(string.Format("Error: there was an exception in Scheme.validate(): {0}", ex.ToString()));
+                valid = false;
+                throw;
             }
-
-            foreach (Type controller in controllers.OrderBy(controller => controller.Name))
-            {
-                var controllerAttr = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
-
-                if (controllerAttr != null && controllerAttr.IgnoreApi)
-                    continue;
-
-                if (!SchemeManager.Validate(controller, false))
-                    valid = false;
-            }
-
-            SchemeManager.ValidateErrors(exceptions, false);
-
+            
             return valid;
         }
-
+        
         internal void write(Stream stream)
         {
             this.stream = stream;
