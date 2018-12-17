@@ -232,9 +232,9 @@ namespace Core.Catalog
 
             bool bIsMainLang = Utils.IsLangMain(groupId, filter.m_nLanguage);
 
-            if (nStartIndex == 0 && nEndIndex == 0 && mediaIds != null && mediaIds.Count() > 0)
+            if (nStartIndex == 0 && nEndIndex == 0 && mediaIds != null && mediaIds.Count > 0)
             {
-                nEndIndex = mediaIds.Count();
+                nEndIndex = mediaIds.Count;
             }
 
             //Start MultiThread Call
@@ -300,12 +300,12 @@ namespace Core.Catalog
             if (mediaIds != null)
             {
                 totalItems = mediaIds.Count;
-
                 foreach (int nMedia in mediaIds)
                 {
-                    var currentMedia = dMediaObj[nMedia];
-
-                    mediaObjects.Add(currentMedia);
+                    if (dMediaObj[nMedia] != null)
+                    {
+                        mediaObjects.Add(dMediaObj[nMedia]);
+                    }
                 }
             }
 
@@ -5005,8 +5005,13 @@ namespace Core.Catalog
 
                     long ipVal = 0;
                     ipVal = ParseIPOutOfString(userIP);
-                    CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
+
+                    if (ipVal > 0)
+                    {
+                        CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
+                    }
                 }
+
                 if (countryID > 0)
                 {
                     log.DebugFormat("GetMediaMarkHitInitialData, setting countryId in cache");
@@ -5167,7 +5172,7 @@ namespace Core.Catalog
             {
                 string[] splited = userIP.Split('.');
 
-                if (splited != null && splited.Length >= 3)
+                if (splited != null && splited.Length >= 4)
                 {
                     nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
                 }
