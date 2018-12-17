@@ -1625,7 +1625,8 @@ namespace Core.Catalog
                         assetsToRetrieve.AddRange(epgIdsFromRecording.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.EPG, x)));
                     }
                              
-                    List <BaseObject> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, filter, managementData);
+                    List<BaseObject> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, filter, managementData);
+
                     if (unOrderedAssets == null || unOrderedAssets.Count == 0)
                     {                        
                         return result;
