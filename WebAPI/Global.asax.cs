@@ -73,6 +73,7 @@ namespace WebAPI
             }
 
             log4net.GlobalContext.Properties["LogName"] = partialLogName;
+            log4net.Util.LogLog.InternalDebugging = true;
 
             // set monitor and log configuration files
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WS);
