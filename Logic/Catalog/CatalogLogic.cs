@@ -4995,8 +4995,13 @@ namespace Core.Catalog
 
                     long ipVal = 0;
                     ipVal = ParseIPOutOfString(userIP);
-                    CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
+
+                    if (ipVal > 0)
+                    {
+                        CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
+                    }
                 }
+
                 if (countryID > 0)
                 {
                     log.DebugFormat("GetMediaMarkHitInitialData, setting countryId in cache");
@@ -5157,7 +5162,7 @@ namespace Core.Catalog
             {
                 string[] splited = userIP.Split('.');
 
-                if (splited != null && splited.Length >= 3)
+                if (splited != null && splited.Length >= 4)
                 {
                     nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
                 }

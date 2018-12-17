@@ -10967,6 +10967,10 @@ namespace Core.Api
                         if (mediaId.HasValue && mediaId.HasValue)
                         {
                             mediaCountries = ApiDAL.GetMediaCountries(mediaId.Value);
+                            if (mediaCountries == null)
+                            {
+                                mediaCountries = new DataTable();
+                            }
 
                             result = true;
                         }
