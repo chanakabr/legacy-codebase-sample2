@@ -4719,6 +4719,10 @@ namespace Core.ConditionalAccess
                                             recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy, recoveryGracePeriod);
                             }
                         }
+                        else
+                        {
+                            tstvAccountSettings = new TimeShiftedTvPartnerSettings(false, false, false, false, false, 7, 1, 0, 0, 0, false, 90, 25, 182, 7, true, false, false, 0, 0, 0);
+                        }
                     }
                 }
             }
