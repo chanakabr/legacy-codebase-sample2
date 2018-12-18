@@ -58,7 +58,7 @@ namespace TvinciCache
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetUser failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error(string.Format("GetGroupFeatures failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
             return new Tuple<Dictionary<GroupFeature, bool>, bool>(groupFeatures, res);
