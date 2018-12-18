@@ -1631,12 +1631,6 @@ namespace Core.Catalog
                     {                        
                         return result;
                     }
-                    else if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
-                    {
-                        log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
-                                            assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}_{2}", x.AssetType.ToString(), x.AssetId, languageId)).ToList()) : string.Empty);                        
-                        return result;
-                    }
 
                     string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
                     Dictionary<string, BaseObject> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.AssetId), x => x);
