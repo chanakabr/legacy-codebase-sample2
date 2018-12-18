@@ -753,7 +753,7 @@ namespace Core.Catalog.CatalogManagement
                 searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
             }
 
-            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID, lSubGroups);
+            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
             searchObject.m_bUseStartDate = false;
@@ -936,29 +936,19 @@ namespace Core.Catalog.CatalogManagement
             return definitions;
         }
 
-        private static string GetPermittedWatchRules(int nGroupId, List<int> lSubGroup = null)
+        private static string GetPermittedWatchRules(int nGroupId)
         {
-            DataTable permittedWathRulesDt = CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, lSubGroup);
-            List<string> lWatchRulesIds = null;
-            if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
-            {
-                lWatchRulesIds = new List<string>();
-                foreach (DataRow permittedWatchRuleRow in permittedWathRulesDt.Rows)
-                {
-                    lWatchRulesIds.Add(ODBCWrapper.Utils.GetSafeStr(permittedWatchRuleRow["RuleID"]));
-                }
-            }
-
+            List<string> groupPermittedWatchRules = CatalogLogic.GetGroupPermittedWatchRules(nGroupId);
             string sRules = string.Empty;
 
-            if (lWatchRulesIds != null && lWatchRulesIds.Count > 0)
+            if (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0)
             {
-                sRules = string.Join(" ", lWatchRulesIds);
+                sRules = string.Join(" ", groupPermittedWatchRules);
             }
 
             return sRules;
         }        
-
+        
         private static void CopySearchValuesToSearchObjects(ref MediaSearchObj searchObject, CutWith cutWith, List<SearchValue> channelSearchValues)
         {
             List<SearchValue> m_dAnd = new List<SearchValue>();
