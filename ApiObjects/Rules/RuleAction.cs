@@ -113,4 +113,17 @@ namespace ApiObjects.Rules
             this.Type = RuleActionType.ApplyDiscountModuleRule;
         }
     }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class ApplyPlaybackAdapterRuleAction : AssetRuleAction
+    {
+        [JsonProperty("AdapterId")]
+        public long AdapterId { get; set; }
+
+        public ApplyPlaybackAdapterRuleAction()
+        {
+            this.Type = RuleActionType.ApplyPlaybackAdapter;
+        }
+    }
 }

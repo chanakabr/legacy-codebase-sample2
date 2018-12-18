@@ -18,16 +18,14 @@ using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Api.Modules;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification;
 using Core.Pricing;
-using CouchbaseManager;
 using DAL;
 using EpgBL;
 using KLogMonitor;
-using KlogMonitorHelper;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
@@ -44,7 +42,6 @@ using System.Xml;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
-using Core.Catalog.CatalogManagement;
 
 namespace Core.Api
 {
@@ -11573,6 +11570,67 @@ namespace Core.Api
                 log.Error(string.Format("Failed to delete engagement adapter. Group ID: {0}, engagementAdapterId: {1}", groupId, id), ex);
             }
             return response;
-        }       
+        }
+
+        internal static GenericListResponse<PlaybackProfile> GetPlaybackProfile(int groupId, long playbackProfileId)
+        {
+            GenericListResponse<PlaybackProfile> response = new GenericListResponse<PlaybackProfile>();
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            try
+            {
+                PlaybackProfile playbackAdapter = DAL.ApiDAL.GetPlaybackAdapter(groupId, playbackProfileId);
+                if (playbackAdapter == null)
+                {
+                    response.SetStatus(eResponseStatus.OK, "No adapter found");
+                }
+                else
+                {
+                    response.Objects = new List<PlaybackProfile>() { playbackAdapter };
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetPlaybackProfile with groupId: {0}. adapterId: {1}. ex: {2}", groupId, playbackProfileId, ex);
+            }
+
+            return response;
+        }
+
+        public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackAdapterContext(long adapterId, int groupId, string userId, string udid, string ip, ApiObjects.PlaybackAdapter.PlaybackContext playbackContext)
+        {
+            GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> response = new GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>();
+
+            try
+            {
+                PlaybackProfile adapter = DAL.ApiDAL.GetPlaybackAdapter(groupId, adapterId);
+                if (adapter == null)
+                {
+                    response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                playbackContext = PlaybackAdapterController.GetInstance().GetPlaybackContext(groupId, adapter, userId, udid, ip, playbackContext);
+
+                if (playbackContext == null)
+                {
+                    log.ErrorFormat("Error while GetPlaybackContext. groupId:{0}, adapter:{1}, userId:{2}", groupId, adapter.Id, userId);
+                }
+                else
+                {
+                    response.Object = playbackContext;
+                    response.SetStatus(eResponseStatus.OK);
+                }
+            }
+            catch (Exception)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed in GetPlaybackContext. groupId:{0}, userId:{1}", groupId, userId);
+            }
+            return response;
+        }
     }
 }

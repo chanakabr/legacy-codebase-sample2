@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
+using ApiObjects.PlaybackAdapter;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
@@ -2250,6 +2251,17 @@ namespace Core.Api
         public static Status DeletePlaybackAdapter(int groupId, string userId , int id)
         {
             return Core.Api.api.DeletePlaybackAdapter(groupId, userId, id);
+        }
+
+        public static GenericListResponse<PlaybackProfile> GetPlaybackProfile(int groupId, long playbackProfileId)
+        {
+            return Core.Api.api.GetPlaybackProfile(groupId, playbackProfileId);
+
+        }
+
+        public static GenericResponse<PlaybackContext> GetPlaybackContext(long adapterId, int groupId, string userId, string udid, string ip, PlaybackContext playbackContext)            
+        {
+            return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext);
         }
     }
 }
