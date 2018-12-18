@@ -1,4 +1,5 @@
-﻿using com.llnw.mediavault;
+﻿using CachingProvider.LayeredCache;
+using com.llnw.mediavault;
 using KLogMonitor;
 using System;
 using System.Collections;
@@ -10666,28 +10667,86 @@ namespace TVinciShared
                 }
             }
 
-            // Get rules in which this device is allowed
-            selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "SELECT DISTINCT m.DEVICE_RULE_ID FROM media m, device_rules dr, device_rules_brands drb where m.device_rule_id=dr.ID AND dr.ID=drb.RULE_ID  AND dr.STATUS=1 AND dr.IS_ACTIVE=1 AND drb.STATUS=1 AND ";
-            selectQuery += "m.GROUP_ID " + TVinciShared.PageUtils.GetGroupsStrByParent(nGroupID);
-            selectQuery += " AND ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("drb.BRAND_ID", "=", nBrandID);
+            List<int> deviceRules = new List<int>();
 
-            DataTable dt = selectQuery.Execute("query", true);
-            selectQuery.Finish();
-            if (dt != null)
+            string key = string.Format("protocols_funcs_deviceRules_groupId_{0}_brandId_{1}", nGroupID, nBrandID);
+
+            if (LayeredCache.Instance.Get<List<int>>(key, ref deviceRules, GetDeviceRulesByBrandId, new Dictionary<string, object>() { { "groupId", nGroupID }, { "brandId", nBrandID } },
+                nGroupID, "ProtocolsFunsGetDeviceRulesByBrandId", null))
             {
-                if (dt.Rows.Count > 0)
+                retVal = deviceRules;
+            }
+            else
+            {
+                log.ErrorFormat("Failed getting device rules by brand ID from LayeredCache, key: {0}", key);
+
+                // Get rules in which this device is allowed
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "SELECT DISTINCT m.DEVICE_RULE_ID FROM media m, device_rules dr, device_rules_brands drb where m.device_rule_id=dr.ID AND dr.ID=drb.RULE_ID  AND dr.STATUS=1 AND dr.IS_ACTIVE=1 AND drb.STATUS=1 AND ";
+                selectQuery += "m.GROUP_ID " + TVinciShared.PageUtils.GetGroupsStrByParent(nGroupID);
+                selectQuery += " AND ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("drb.BRAND_ID", "=", nBrandID);
+
+                DataTable dt = selectQuery.Execute("query", true);
+                selectQuery.Finish();
+                if (dt != null)
                 {
-                    foreach (DataRow dr in dt.Rows)
+                    if (dt.Rows.Count > 0)
                     {
-                        retVal.Add(int.Parse(dr["DEVICE_RULE_ID"].ToString()));
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            retVal.Add(int.Parse(dr["DEVICE_RULE_ID"].ToString()));
+                        }
                     }
                 }
             }
+
             return retVal;
         }
 
+        private static Tuple<List<int>, bool> GetDeviceRulesByBrandId(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<int> ruleIds = new List<int>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("brandId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? brandId = funcParams["brandId"] as int?;
+
+                        if (groupId.HasValue && brandId.HasValue)
+                        {
+                            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_DeviceRulesByBrandId");
+
+                            storedProcedure.AddParameter("@groupIdD", groupId);
+                            storedProcedure.AddParameter("@brandId", brandId);
+
+                            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+                            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows != null)
+                            {
+                                foreach (DataRow row in dataSet.Tables[0].Rows)
+                                {
+                                    ruleIds.Add(ODBCWrapper.Utils.ExtractInteger(row, "DEVICE_RULE_ID"));
+                                }
+
+                                result = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDeviceRulesByBrandId failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), result);
+        }
 
         static protected Int32 GetTotalSearchSize(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, bool bAnd, bool bRelated, Int32 nLangID, bool bIsLangMain, bool bWithCache, string sDocStruct, ref ApiObjects.SearchDefinitionObject theSearchCriteria,
             ref ApiObjects.InitializationObject theIniObj, Int32 nCountryID, Int32 nDeviceID, bool bUseStartDate, string sUdid)
