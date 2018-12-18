@@ -18,7 +18,8 @@ namespace WebAPI.Models.ConditionalAccess
         USER_BLOCK,
         ALLOW_PLAYBACK,
         BLOCK_PLAYBACK,
-        APPLY_DISCOUNT_MODULE
+        APPLY_DISCOUNT_MODULE,
+        APPLY_PLAYBACK_ADAPTER
     }
     
     [Serializable]
@@ -167,4 +168,22 @@ namespace WebAPI.Models.ConditionalAccess
             this.Type = KalturaRuleActionType.APPLY_DISCOUNT_MODULE;
         }
     }
+
+    public partial class KalturaApplyPlaybackAdapterAction : KalturaAssetRuleAction
+    {
+        /// <summary>
+        /// Playback Adapter Identifier 
+        /// </summary>
+        [DataMember(Name = "adapterId")]
+        [JsonProperty("adapterId")]
+        [XmlElement(ElementName = "adapterId")]
+        public long AdapterId { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
+        }
+    }
+
 }

@@ -14,6 +14,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -959,6 +960,9 @@ namespace WebAPI.Controllers
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
+
+                    // Check and get PlaybackAdapter in case asset set rule and action.
+                    response = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId,ks.UserId, KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response);                    
 
                     //if sources left after building DRM data, build the manifest URL
                     if (response.Sources.Count > 0)

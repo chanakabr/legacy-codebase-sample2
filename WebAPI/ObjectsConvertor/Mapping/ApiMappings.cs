@@ -4,8 +4,10 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using AutoMapper;
+using AutoMapper.Configuration;
 using Core.Api.Modules;
 using System;
 using System.Collections.Generic;
@@ -16,10 +18,8 @@ using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
-using WebAPI.ObjectsConvertor.Mapping.Utils;
-using AutoMapper.Configuration;
-using ApiObjects.Segmentation;
 using WebAPI.Models.Segmentation;
+using WebAPI.ObjectsConvertor.Mapping.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -523,7 +523,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertAssetType(src.Type)));
-            
+
             cfg.CreateMap<KalturaCondition, RuleCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
@@ -534,7 +534,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaCondition, AssetRuleCondition>()
                 .IncludeBase<KalturaCondition, RuleCondition>();
-            
+
             cfg.CreateMap<AssetRuleCondition, KalturaCondition>()
                 .IncludeBase<RuleCondition, KalturaCondition>();
 
@@ -577,7 +577,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<RuleConditionType, KalturaRuleConditionType>()
-                .ConvertUsing(ruleConditionType => {
+                .ConvertUsing(ruleConditionType =>
+                {
                     switch (ruleConditionType)
                     {
                         case RuleConditionType.Asset:
@@ -634,7 +635,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
 
             cfg.CreateMap<KalturaTransactionType?, eTransactionType>()
-                .ConvertUsing(kalturaTransactionType => {
+                .ConvertUsing(kalturaTransactionType =>
+                {
                     if (kalturaTransactionType.HasValue)
                     {
                         switch (kalturaTransactionType.Value)
@@ -658,7 +660,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<eTransactionType, KalturaTransactionType>()
-                .ConvertUsing(transactionType => {
+                .ConvertUsing(transactionType =>
+                {
                     switch (transactionType)
                     {
                         case eTransactionType.PPV:
@@ -683,7 +686,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<SegmentsCondition, KalturaSegmentsCondition>()
                 .IncludeBase<RuleCondition, KalturaCondition>()
                 .ForMember(dest => dest.SegmentsIds, opt => opt.MapFrom(src => src.SegmentIds != null ? string.Join(",", src.SegmentIds) : null));
-            
+
             cfg.CreateMap<KalturaAssetCondition, AssetCondition>()
                .IncludeBase<KalturaCondition, AssetRuleCondition>()
                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
@@ -711,7 +714,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.MapFrom(src => src.RestrictionPolicy));
 
             cfg.CreateMap<KalturaConcurrencyLimitationType, ConcurrencyRestrictionPolicy>()
-                .ConvertUsing(kalturaConcurrencyLimitationType => {
+                .ConvertUsing(kalturaConcurrencyLimitationType =>
+                {
                     switch (kalturaConcurrencyLimitationType)
                     {
                         case KalturaConcurrencyLimitationType.Single:
@@ -727,7 +731,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<ConcurrencyRestrictionPolicy, KalturaConcurrencyLimitationType>()
-                .ConvertUsing(concurrencyRestrictionPolicy => {
+                .ConvertUsing(concurrencyRestrictionPolicy =>
+                {
                     switch (concurrencyRestrictionPolicy)
                     {
                         case ConcurrencyRestrictionPolicy.Single:
@@ -795,7 +800,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<KalturaRuleActionType, RuleActionType>()
-                .ConvertUsing(kalturaRuleActionType => {
+                .ConvertUsing(kalturaRuleActionType =>
+                {
                     switch (kalturaRuleActionType)
                     {
                         case KalturaRuleActionType.BLOCK:
@@ -819,6 +825,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case KalturaRuleActionType.APPLY_DISCOUNT_MODULE:
                             return RuleActionType.ApplyDiscountModuleRule;
                             break;
+                        case KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER:
+                            return RuleActionType.ApplyPlaybackAdapter;
+                            break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleAction value : {0}", kalturaRuleActionType.ToString()));
                             break;
@@ -826,7 +835,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<RuleActionType, KalturaRuleActionType>()
-                .ConvertUsing(ruleActionType => {
+                .ConvertUsing(ruleActionType =>
+                {
 
                     switch (ruleActionType)
                     {
@@ -851,11 +861,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleActionType.ApplyDiscountModuleRule:
                             return KalturaRuleActionType.APPLY_DISCOUNT_MODULE;
                             break;
+                        case RuleActionType.ApplyPlaybackAdapter:
+                            return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
+                            break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ruleActionType value : {0}", ruleActionType.ToString()));
                             break;
                     }
                 });
+
+            cfg.CreateMap<KalturaApplyPlaybackAdapterAction, ApplyPlaybackAdapterRuleAction>()
+               .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+               .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId));
+
+            cfg.CreateMap<ApplyPlaybackAdapterRuleAction, KalturaApplyPlaybackAdapterAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId));
 
             cfg.CreateMap<KalturaApplyDiscountModuleAction, ApplyDiscountModuleRuleAction>()
                 .IncludeBase<KalturaRuleAction, RuleAction>()
@@ -922,7 +943,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<EndDateOffsetRuleAction, KalturaEndDateOffsetRuleAction>()
                 .IncludeBase<TimeOffsetRuleAction, KalturaTimeOffsetRuleAction>();
-            
+
             #endregion
 
             #region AssetUserRule
@@ -1238,9 +1259,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id)) 
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-            
+
             cfg.CreateMap<KalturaBusinessModuleRuleFilter, ConditionScope>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdApplied.HasValue ? src.BusinessModuleIdApplied.Value : 0))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConditionalAccessMappings.ConvertTransactionType(src.BusinessModuleTypeApplied)))
@@ -1251,7 +1272,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Playback Profile
             cfg.CreateMap<PlaybackProfile, KalturaPlaybackProfile>()
-             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))             
+             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
              .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
@@ -1269,6 +1290,250 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.SystemName))
              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+            #endregion
+
+            #region KalturaPlaybackContext, PlaybackAdapter.AdapterPlaybackContext
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.AdapterPlaybackContext, KalturaPlaybackContext>()
+             .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
+             .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
+             .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources));
+
+            cfg.CreateMap<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.AdapterPlaybackContext>()
+             .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
+             .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
+             .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources));
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackSource, KalturaPlaybackSource>()
+                .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.Format))
+                .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Protocols))
+                .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => src.Drm))
+                .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
+                .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
+                .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.FileExtention))
+                .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
+
+            cfg.CreateMap<KalturaPlaybackSource, ApiObjects.PlaybackAdapter.PlaybackSource>()
+             .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.Format))
+                .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Protocols))
+                .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => src.Drm))
+                .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
+                .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
+                .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.FileExtention))
+                .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>();
+
+            cfg.CreateMap<KalturaPluginData, ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>();
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaDrmPlaybackPluginData>()
+                .IncludeBase<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>()
+                .ForMember(dest => dest.Scheme, opt => opt.MapFrom(src => src.Scheme))
+                .ForMember(dest => dest.LicenseURL, opt => opt.MapFrom(src => src.LicenseURL));
+
+            cfg.CreateMap<KalturaDrmPlaybackPluginData, ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>()
+                .IncludeBase<KalturaPluginData, ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>()
+                .ForMember(dest => dest.Scheme, opt => opt.MapFrom(src => src.Scheme))
+                .ForMember(dest => dest.LicenseURL, opt => opt.MapFrom(src => src.LicenseURL));
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData, KalturaFairPlayPlaybackPluginData>()
+                .IncludeBase<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaDrmPlaybackPluginData>()
+                .ForMember(dest => dest.Certificate, opt => opt.MapFrom(src => src.Certificate));
+
+            cfg.CreateMap<KalturaFairPlayPlaybackPluginData, ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData>()
+                .IncludeBase<KalturaDrmPlaybackPluginData, ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>()
+                .ForMember(dest => dest.Certificate, opt => opt.MapFrom(src => src.Certificate));
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData, KalturaCustomDrmPlaybackPluginData>()
+               .IncludeBase<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaDrmPlaybackPluginData>()
+               .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data));
+
+            cfg.CreateMap<KalturaCustomDrmPlaybackPluginData, ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData>()
+                .IncludeBase<KalturaDrmPlaybackPluginData, ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>()
+                .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data));
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.AccessControlMessage, KalturaAccessControlMessage>()
+            .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+            .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
+
+            cfg.CreateMap<KalturaAccessControlMessage, ApiObjects.PlaybackAdapter.AccessControlMessage>()
+             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+             .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.RuleAction, KalturaRuleAction>()
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaRuleAction, ApiObjects.PlaybackAdapter.RuleAction>()
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaRuleActionType, ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType>()
+               .ConvertUsing(kalturaRuleActionType =>
+               {
+                   switch (kalturaRuleActionType)
+                   {
+                       case KalturaRuleActionType.BLOCK:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.BLOCK;
+                           break;
+                       case KalturaRuleActionType.START_DATE_OFFSET:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.START_DATE_OFFSET;
+                           break;
+                       case KalturaRuleActionType.END_DATE_OFFSET:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.END_DATE_OFFSET;
+                           break;
+                       case KalturaRuleActionType.USER_BLOCK:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.USER_BLOCK;
+                           break;
+                       case KalturaRuleActionType.ALLOW_PLAYBACK:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.ALLOW_PLAYBACK;
+                           break;
+                       case KalturaRuleActionType.BLOCK_PLAYBACK:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.BLOCK_PLAYBACK;
+                           break;
+                       case KalturaRuleActionType.APPLY_DISCOUNT_MODULE:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.APPLY_DISCOUNT_MODULE;
+                           break;
+                       case KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.APPLY_PLAYBACK_ADAPTER;
+                           break;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown kalturaRuleActionType value : {0}", kalturaRuleActionType.ToString()));
+                           break;
+                   }
+               });
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType, KalturaRuleActionType>()
+                .ConvertUsing(ruleActionType =>
+                {
+
+                    switch (ruleActionType)
+                    {
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.BLOCK:
+                            return KalturaRuleActionType.BLOCK;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.START_DATE_OFFSET:
+                            return KalturaRuleActionType.START_DATE_OFFSET;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.END_DATE_OFFSET:
+                            return KalturaRuleActionType.END_DATE_OFFSET;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.USER_BLOCK:
+                            return KalturaRuleActionType.USER_BLOCK;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.ALLOW_PLAYBACK:
+                            return KalturaRuleActionType.ALLOW_PLAYBACK;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.BLOCK_PLAYBACK:
+                            return KalturaRuleActionType.BLOCK_PLAYBACK;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.APPLY_DISCOUNT_MODULE:
+                            return KalturaRuleActionType.APPLY_DISCOUNT_MODULE;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.APPLY_PLAYBACK_ADAPTER:
+                            return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown PlaybackAdapterRuleActionType value : {0}", ruleActionType.ToString()));
+                            break;
+                    }
+                });
+
+            cfg.CreateMap<KalturaAdsPolicy, ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy>()
+               .ConvertUsing(kalturaType =>
+               {
+                   switch (kalturaType)
+                   {
+                       case KalturaAdsPolicy.KEEP_ADS:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy.KEEP_ADS;
+                           break;
+                       case KalturaAdsPolicy.NO_ADS:
+                           return ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy.NO_ADS;
+                           break;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaAdsPolicy value : {0}", kalturaType.ToString()));
+                           break;
+                   }
+               });
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy, KalturaAdsPolicy>()
+                .ConvertUsing(type =>
+                {
+
+                    switch (type)
+                    {
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy.KEEP_ADS:
+                            return KalturaAdsPolicy.KEEP_ADS;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy.NO_ADS:
+                            return KalturaAdsPolicy.NO_ADS;
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown PlaybackAdapterAdsPolicy value : {0}", type.ToString()));
+                            break;
+                    }
+                });
+
+            cfg.CreateMap<KalturaDrmSchemeName, ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName>()
+                .ConvertUsing(kalturaType =>
+                {
+                    switch (kalturaType)
+
+                    {
+                        case KalturaDrmSchemeName.PLAYREADY_CENC:
+                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.PLAYREADY_CENC;
+                            break;
+                        case KalturaDrmSchemeName.WIDEVINE_CENC:
+                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.WIDEVINE_CENC;
+                            break;
+                        case KalturaDrmSchemeName.FAIRPLAY:
+                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.FAIRPLAY;
+                            break;
+                        case KalturaDrmSchemeName.WIDEVINE:
+                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.WIDEVINE;
+                            break;
+                        case KalturaDrmSchemeName.PLAYREADY:
+                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.PLAYREADY;
+                            break;
+                        case KalturaDrmSchemeName.CUSTOM_DRM:
+                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.CUSTOM_DRM;
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaDrmSchemeName value : {0}", kalturaType.ToString()));
+                            break;
+                    }
+                });
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName, KalturaDrmSchemeName>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.PLAYREADY_CENC:
+                            return KalturaDrmSchemeName.PLAYREADY_CENC;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.WIDEVINE_CENC:
+                            return KalturaDrmSchemeName.WIDEVINE_CENC;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.FAIRPLAY:
+                            return KalturaDrmSchemeName.FAIRPLAY;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.WIDEVINE:
+                            return KalturaDrmSchemeName.WIDEVINE;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.PLAYREADY:
+                            return KalturaDrmSchemeName.PLAYREADY;
+                            break;
+                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.CUSTOM_DRM:
+                            return KalturaDrmSchemeName.CUSTOM_DRM;
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown PlaybackAdapterDrmSchemeName value : {0}", type.ToString()));
+                            break;
+                    }
+                });
             #endregion
         }
 
@@ -1539,7 +1804,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             APILogic.Utils.ConvertIpToNumber(ip, out convertIp);
             return convertIp;
         }
-        
+
         private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)
         {
             List<Permission> result = new List<Permission>();
@@ -2364,7 +2629,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
             }
             return result;
-        }        
+        }
 
         public static KalturaOrder ConvertOrderObjToOrder(OrderObj orderObj)
         {
@@ -2433,7 +2698,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
-        }        
+        }
 
         public static CDNAdapterSettings[] ConvertCDNAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
         {
@@ -2716,7 +2981,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         //            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown concurrencyType value : {0}", concurrencyType.ToString()));
         //    }
         //}
-        
+
         //private static KalturaConcurrencyLimitationType ConvertConcurrencyLimitationType(ConcurrencyRestrictionPolicy restrictionPolicy)
         //{
         //    switch (restrictionPolicy)

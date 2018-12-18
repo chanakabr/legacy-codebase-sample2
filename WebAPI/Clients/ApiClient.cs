@@ -36,7 +36,7 @@ namespace WebAPI.Clients
 {
     public class ApiClient : BaseClient
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());       
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public ApiClient()
         {
@@ -91,7 +91,7 @@ namespace WebAPI.Clients
 
             return roles;
 
-        }        
+        }
 
         #region Parental Rules
 
@@ -195,7 +195,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }       
+        }
 
         internal KalturaUserRole UpdateRole(int groupId, long id, KalturaUserRole role)
         {
@@ -233,7 +233,7 @@ namespace WebAPI.Clients
             }
 
             return userRole;
-        }       
+        }
 
         internal bool DeleteRole(int groupId, long id)
         {
@@ -2136,7 +2136,7 @@ namespace WebAPI.Clients
         {
             ExternalChannelResponse response = null;
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -2520,7 +2520,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            return result;            
+            return result;
         }
 
         internal KalturaUserRole AddRole(int groupId, KalturaUserRole role)
@@ -3281,7 +3281,7 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
+
             result.Metas = AutoMapper.Mapper.Map<List<KalturaMeta>>(response.MetaList);
             result.TotalCount = response.MetaList.Count();
 
@@ -3645,11 +3645,11 @@ namespace WebAPI.Clients
 
             try
             {
-                PlayContextType contextType  = PlayContextType.Playback;
+                PlayContextType contextType = PlayContextType.Playback;
 
                 if (context.HasValue)
                 {
-                    contextType = ConditionalAccessMappings.ConvertPlayContextType(context.Value) == PlayContextType.Download? PlayContextType.Download: PlayContextType.Playback;
+                    contextType = ConditionalAccessMappings.ConvertPlayContextType(context.Value) == PlayContextType.Download ? PlayContextType.Download : PlayContextType.Playback;
                 }
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -3705,7 +3705,7 @@ namespace WebAPI.Clients
 
             KalturaAssetRule result =
                 ClientUtils.GetResponseFromWS<KalturaAssetRule, AssetRule>(assetRule, addAssetRuleFunc);
-            
+
             return result;
         }
 
@@ -3727,7 +3727,7 @@ namespace WebAPI.Clients
             {
                 slimAsset = Mapper.Map<SlimAsset>(filter.AssetApplied);
             }
-            
+
             KalturaAssetRuleListResponse result = new KalturaAssetRuleListResponse();
 
             Func<GenericListResponse<AssetRule>> getAssetRulesFunc = () =>
@@ -3744,7 +3744,7 @@ namespace WebAPI.Clients
 
         internal KalturaAssetRule GetAssetRule(int groupId, long assetRuleId)
         {
-            Func<GenericResponse<AssetRule>> getAssetRuleFunc = () => 
+            Func<GenericResponse<AssetRule>> getAssetRuleFunc = () =>
                 Core.Api.Module.GetAssetRule(groupId, assetRuleId);
 
             KalturaAssetRule result =
@@ -3770,7 +3770,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-        
+
         internal KalturaAssetUserRule AddAssetUserRule(int groupId, KalturaAssetUserRule assetUserRule)
         {
             Func<AssetUserRule, GenericResponse<AssetUserRule>> addAssetUserRuleFunc = (AssetUserRule assetUserRuleToAdd) =>
@@ -3781,7 +3781,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-        
+
         internal KalturaAssetUserRule UpdateAssetUserRule(int groupId, long assetUserRuleId, KalturaAssetUserRule assetUserRule)
         {
             Func<AssetUserRule, GenericResponse<AssetUserRule>> updateAssetUserRuleFunc = (AssetUserRule assetUserRuleToUpdate) =>
@@ -3792,7 +3792,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-        
+
         internal void DeleteAssetUserRule(int groupId, long assetUserRuleId)
         {
             Func<Status> deleteAssetUserRuleFunc = () => Core.Api.Module.DeleteAssetUserRule(groupId, assetUserRuleId);
@@ -3804,7 +3804,7 @@ namespace WebAPI.Clients
             Func<Status> addAssetUserRuleToUserFunc = () => Core.Api.Module.AddAssetUserRuleToUser(userId, ruleId, groupId);
             ClientUtils.GetResponseStatusFromWS(addAssetUserRuleToUserFunc);
         }
-        
+
         internal void DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
         {
             Func<Status> deleteAssetUserRuleFromUserFunc = () => Core.Api.Module.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
@@ -3831,8 +3831,8 @@ namespace WebAPI.Clients
 
         internal bool UpdateConcurrencyPartner(int groupId, KalturaConcurrencyPartnerConfig partnerConfig)
         {
-            Func<DeviceConcurrencyPriority, Status> updateConcurrencyPartnerFunc = 
-                (DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate) => 
+            Func<DeviceConcurrencyPriority, Status> updateConcurrencyPartnerFunc =
+                (DeviceConcurrencyPriority deviceConcurrencyPriorityToUpdate) =>
                     Core.Api.Module.UpdateConcurrencyPartner(groupId, deviceConcurrencyPriorityToUpdate);
 
             ClientUtils.GetResponseStatusFromWS<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>(updateConcurrencyPartnerFunc, partnerConfig);
@@ -3974,11 +3974,11 @@ namespace WebAPI.Clients
 
             return result;
         }
-        
+
         internal KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
         {
             KalturaUserSegmentListResponse result = new KalturaUserSegmentListResponse();
-            
+
             Func<GenericListResponse<UserSegment>> getUserSegmentsFunc = () =>
                Core.Api.Module.GetUserSegments(groupId, userId, pageIndex, pageSize);
 
@@ -4001,7 +4001,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-        
+
         internal bool DeleteUserSegment(int groupId, string userId, long segmentId)
         {
             Func<Status> deleteUserSegmentFunc = () => Core.Api.Module.DeleteUserSegment(groupId, userId, segmentId);
@@ -4083,7 +4083,18 @@ namespace WebAPI.Clients
 
         internal KalturaPlaybackProfileListResponse GetPlaybackProfile(int groupId, long playbackProfileId)
         {
-            throw new NotImplementedException();
+            KalturaPlaybackProfileListResponse result = new KalturaPlaybackProfileListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<PlaybackProfile>> getPlaybackProfileFunc = () =>
+               Core.Api.Module.GetPlaybackProfile(groupId, playbackProfileId);
+
+            KalturaGenericListResponse<KalturaPlaybackProfile> response =
+                ClientUtils.GetResponseListFromWS<KalturaPlaybackProfile, PlaybackProfile>(getPlaybackProfileFunc);
+
+            result.PlaybackProfiles = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
         }
 
         internal KalturaPlaybackProfile InsertPlaybackProfile(int groupId, string userId, KalturaPlaybackProfile playbackProfile)
@@ -4128,5 +4139,16 @@ namespace WebAPI.Clients
             return true;
         }
         #endregion
+
+        internal KalturaPlaybackContext GetPlaybackAdapterContext(long adapterId, int groupId, string userId, string udid, string ip, KalturaPlaybackContext kalturaPlaybackContext)
+        {
+            Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext getPlaybackContext) =>
+             Core.Api.Module.GetPlaybackContext(adapterId, groupId, userId, udid, ip, getPlaybackContext);
+
+            KalturaPlaybackContext result =
+                ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
+
+            return result;
+        }
     }
 }

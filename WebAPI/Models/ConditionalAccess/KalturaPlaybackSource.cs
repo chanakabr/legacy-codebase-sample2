@@ -58,5 +58,13 @@ namespace WebAPI.Models.ConditionalAccess
         internal string FileExtention { get; set; }
 
         internal int DrmId;
+
+        /// <summary>
+        /// Is url tokenized
+        /// </summary>
+        [DataMember(Name = "isTokenized")]
+        [JsonProperty("isTokenized")]
+        [XmlElement(ElementName = "isTokenized")]
+        public bool IsTokenized { get; set; }
     }
 }

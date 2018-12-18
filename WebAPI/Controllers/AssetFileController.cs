@@ -77,6 +77,7 @@ namespace WebAPI.Controllers
         /// <param name="contextType">Playback context type</param>
         /// <param name="ks">Kaltura session for the user, not mandatory for anonymous user</param>
         /// <param name="partnerId">Partner identifier</param>
+        /// <param name="tokenizedUrl">Tokenized Url, not mandatory</param>
         /// <remarks></remarks>
         // assetId/{assetId}/assetType/{assetType}/assetFileId/{assetFileId}/ks/{ks}/seekFrom/{seekFrom}
         [Action("playManifest")]
@@ -97,7 +98,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceTypeNotAllowed)]
         [Throws(eResponseStatus.NoFilesFound)]
         [Throws(eResponseStatus.NotEntitled)]
-        static public KalturaAssetFile PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, KalturaPlaybackContextType contextType, string ks = null)
+        static public KalturaAssetFile PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, 
+            long assetFileId, KalturaPlaybackContextType contextType, string ks = null, string tokenizedUrl = null)
         {
             if ((assetType == KalturaAssetType.epg && (contextType != KalturaPlaybackContextType.CATCHUP && contextType != KalturaPlaybackContextType.START_OVER)) ||
                 (assetType == KalturaAssetType.media && (contextType != KalturaPlaybackContextType.TRAILER && contextType != KalturaPlaybackContextType.PLAYBACK)) ||

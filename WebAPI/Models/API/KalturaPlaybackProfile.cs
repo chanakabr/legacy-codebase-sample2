@@ -62,7 +62,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "systemName")]
         [JsonProperty("systemName")]
         [XmlElement(ElementName = "systemName")]
-        public string SystemName { get; set; } // TODO Anat: ask Ira
+        public string SystemName { get; set; }
 
         /// <summary>
         /// Playback adapter shared secret
