@@ -18,6 +18,9 @@ RUN $filePath = \"C:\WINDOWS\System32\Inetsrv\Config\applicationHost.config\"; \
 	$site.AppendChild($child); \
 	$doc.Save($filePath)
 	
+RUN mkdir C:\log
+RUN mkdir C:\log\api
+
 ARG API_LOG_DIR=C:\\log\\api\\%COMPUTERNAME%
 ENV API_LOG_DIR ${API_LOG_DIR}
 
