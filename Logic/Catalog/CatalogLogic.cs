@@ -3024,36 +3024,82 @@ namespace Core.Catalog
             return returnedSearchValues;
         }
 
-        private static string GetPermittedWatchRules(int nGroupId, DataTable extractedPermittedWatchRulesDT)
+        public static List<string> GetGroupPermittedWatchRules(int groupId)
         {
-            DataTable permittedWathRulesDt = null;
-
-            if (extractedPermittedWatchRulesDT == null)
+            List<string> result = null;
+            try
             {
-                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                List<int> lSubGroup = groupManager.GetSubGroup(nGroupId);
-                permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, lSubGroup);
-            }
-            else
-            {
-                permittedWathRulesDt = extractedPermittedWatchRulesDT;
-            }
-
-            List<string> lWatchRulesIds = null;
-            if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
-            {
-                lWatchRulesIds = new List<string>();
-                foreach (DataRow permittedWatchRuleRow in permittedWathRulesDt.Rows)
+                string key = LayeredCacheKeys.GetGroupWatchPermissionRulesKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupWatchPermissionRulesInvalidationKey(groupId);
+                if (!LayeredCache.Instance.Get<List<string>>(key, ref result, GetGroupPermittedWatchRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                                LayeredCacheConfigNames.GROUP_WATCH_PERMISSION_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { invalidationKey }))
                 {
-                    lWatchRulesIds.Add(Utils.GetStrSafeVal(permittedWatchRuleRow, "RuleID"));
+                    log.ErrorFormat("GetGroupPermittedWatchRules - Couldn't get groupId {0} watch permission rules", groupId);
                 }
             }
-
-            string sRules = string.Empty;
-
-            if (lWatchRulesIds != null && lWatchRulesIds.Count > 0)
+            catch (Exception ex)
             {
-                sRules = string.Join(" ", lWatchRulesIds);
+                log.Error(string.Format("Failed GetGroupPermittedWatchRules, groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<string>, bool> GetGroupPermittedWatchRules(Dictionary<string, object> funcParams)
+        {
+            List<string> watchPermissionRules = null;
+            bool res = false;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                    List<int> lSubGroup = groupManager.GetSubGroup(groupId.Value);
+                    watchPermissionRules = new List<string>();
+                    DataTable dt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(groupId.Value, lSubGroup);
+                    if (dt != null && dt.Rows.Count > 0)
+                    {                        
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            watchPermissionRules.Add(Utils.GetStrSafeVal(dr, "RuleID"));
+                        }
+                    }                    
+                }
+
+                res = watchPermissionRules != null;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupPermittedWatchRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<string>, bool>(watchPermissionRules, res);
+        }
+
+        private static string GetPermittedWatchRules(int groupId, DataTable extractedPermittedWatchRulesDT)
+        {            
+            List<string> watchPermissionRules = null;
+            if (extractedPermittedWatchRulesDT == null)
+            {
+                watchPermissionRules = GetGroupPermittedWatchRules(groupId);
+            }
+            else
+            {                
+                if (extractedPermittedWatchRulesDT != null && extractedPermittedWatchRulesDT.Rows.Count > 0)
+                {
+                    watchPermissionRules = new List<string>();
+                    foreach (DataRow permittedWatchRuleRow in extractedPermittedWatchRulesDT.Rows)
+                    {
+                        watchPermissionRules.Add(Utils.GetStrSafeVal(permittedWatchRuleRow, "RuleID"));
+                    }
+                }
+            }
+            
+            string sRules = string.Empty;
+            if (watchPermissionRules != null && watchPermissionRules.Count > 0)
+            {
+                sRules = string.Join(" ", watchPermissionRules);
             }
 
             return sRules;
@@ -8989,6 +9035,8 @@ namespace Core.Catalog
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
+                    unFilteredresult = unFilteredresult.Where(x => x.AssetTypeId != (int)eAssetTypes.UNKNOWN).ToList();
+
                     GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                     Group group = groupManager.GetGroup(groupId);
 
@@ -9010,7 +9058,7 @@ namespace Core.Catalog
                         };
 
                         List<string> listOfMedia = unFilteredresult.Where(
-                            x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR)
+                            x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR && x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
                                 .Select(x => x.AssetId).ToList();
 
                         if (listOfMedia.Count > 0)
@@ -9067,7 +9115,8 @@ namespace Core.Catalog
                                     activeMediaIds.Add(assetId);
                                     unFilteredresult.First(x => int.Parse(x.AssetId) == assetId &&
                                                                 x.AssetTypeId != (int)eAssetTypes.EPG &&
-                                                                x.AssetTypeId != (int)eAssetTypes.NPVR)
+                                                                x.AssetTypeId != (int)eAssetTypes.NPVR &&
+                                                                x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
                                                                 .UpdateDate = searchResult.m_dUpdateDate;
                                 }
                                 else if (searchResult.AssetType == eAssetTypes.NPVR)
@@ -9086,6 +9135,7 @@ namespace Core.Catalog
                         //remove medias that are not active
                         unFilteredresult.RemoveAll(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
                             x.AssetTypeId != (int)eAssetTypes.NPVR &&
+                            x.AssetTypeId != (int)eAssetTypes.UNKNOWN &&
                             !activeMediaIds.Contains(int.Parse(x.AssetId)));
 
                         //remove recordings that are not active
