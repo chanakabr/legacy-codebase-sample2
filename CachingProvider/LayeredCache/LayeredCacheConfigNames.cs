@@ -46,8 +46,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_ANNOUNCEMENTS_LAYERED_CACHE_CONFIG_NAME = "TryGetAnnouncements";
         public const string GET_SUBSCRIPTION_SETS_CACHE_CONFIG_NAME = "GetSubscriptionSets";
         public const string GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPriceCodes";
-        public const string GET_GROUP_UNIFIED_BILLING_CYCLE = "GetGroupUnifiedBillingCycle";
-        public const string GET_ROLE_BY_ROLE_ID = "GetRoleByRoleId";
+        public const string GET_GROUP_UNIFIED_BILLING_CYCLE = "GetGroupUnifiedBillingCycle";        
         public const string GET_ROLES_BY_GROUP_ID = "GetRolesByGroupId";
         public const string GET_GROUP_PERMISSION_ITEMS_BY_GROUP_ID = "GetGroupPermissionItemsDictionary";
         public const string DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "DrmAdapter";
@@ -55,8 +54,7 @@ namespace CachingProvider.LayeredCache
         public const string DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME = "DoesGroupUsesTemplates";
         public const string GET_CATALOG_GROUP_CACHE_CONFIG_NAME = "GetCatalogGroupCache";
         public const string GET_GROUP_DEVICE_RULES_CACHE_CONFIG_NAME = "GetGroupDeviceRules";
-        public const string GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME = "GetGroupGeoBlockRules";
-        public const string GET_ASSET_CACHE_CONFIG_NAME = "GetAsset";
+        public const string GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME = "GetGroupGeoBlockRules";        
         public const string GET_ASSETS_LIST_CACHE_CONFIG_NAME = "GetAssets";
         public const string GET_ASSETS_WITH_LANGUAGE_LIST_CACHE_CONFIG_NAME = "GetAssetsWithLanguage";
         public const string GET_IMAGE_TYPE_CACHE_CONFIG_NAME = "GetImageType";
@@ -70,6 +68,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_USER_WATCHED_MEDIA_IDS_LAYERED_CACHE_CONFIG_NAME = "GetUserWatchedMediaIds";
         public const string UNIFIED_SEARCH_WITH_PERSONAL_DATA = "UnifiedSearchWithPersonalData";
         public const string GET_COUPONS_GROUP = "GetCouponsGroup";
+        public const string GET_MEDIA_COUNTRIES = "GetMediaCountries";
         public const string GET_ALL_ASSET_RULES = "GetAllAssetRules";
         public const string GET_ALL_ASSET_RULES_FROM_DB = "GetAllAssetRulesDB";
         public const string GET_ASSET_RULES_BY_ASSET = "GetAssetRulesByAsset";
@@ -95,6 +94,7 @@ namespace CachingProvider.LayeredCache
         public const string QUERY_CACHE_CONFIG_NAME = "QueryCache";
         public const string PROCEDURES_ROUTING_CONFIG_NAME = "ProceduresRouting";
         public const string QUERIES_ROUTING_CONFIG_NAME = "QueriesRouting";
+        public const string GROUP_WATCH_PERMISSION_RULES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPermittedWatchRules";
 
         #endregion
 

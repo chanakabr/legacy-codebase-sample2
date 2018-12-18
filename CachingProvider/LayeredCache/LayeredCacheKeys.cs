@@ -528,6 +528,11 @@ namespace CachingProvider.LayeredCache
             return "db_query_routing";
         }
 
+        public static string GetGroupWatchPermissionRulesKey(int groupId)
+        {
+            return string.Format("GroupWatchPermissionRules_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -960,6 +965,11 @@ namespace CachingProvider.LayeredCache
         public static string GetQueriesRoutingInvalidationKey()
         {
             return "invalidationKey_queries_routing";
+        }
+
+        public static string GetGroupWatchPermissionRulesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupWatchPermissionRules_{0}", groupId);
         }
 
         #endregion
