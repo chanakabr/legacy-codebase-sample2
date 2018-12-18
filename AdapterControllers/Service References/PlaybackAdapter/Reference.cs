@@ -84,13 +84,7 @@ namespace AdapterControllers.PlaybackAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int AdapterIdField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string DeviceBrandIdField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string DeviceFamilyField;
+        private long AdapterIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string IPField;
@@ -102,10 +96,10 @@ namespace AdapterControllers.PlaybackAdapter {
         private AdapterControllers.PlaybackAdapter.AdapterPlaybackContext PlaybackContextField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private long StartTimeSecondsField;
+        private string SignatureField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string TimeStampField;
+        private long TimeStampField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string UdidField;
@@ -121,7 +115,7 @@ namespace AdapterControllers.PlaybackAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int AdapterId {
+        public long AdapterId {
             get {
                 return this.AdapterIdField;
             }
@@ -129,32 +123,6 @@ namespace AdapterControllers.PlaybackAdapter {
                 if ((this.AdapterIdField.Equals(value) != true)) {
                     this.AdapterIdField = value;
                     this.RaisePropertyChanged("AdapterId");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string DeviceBrandId {
-            get {
-                return this.DeviceBrandIdField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.DeviceBrandIdField, value) != true)) {
-                    this.DeviceBrandIdField = value;
-                    this.RaisePropertyChanged("DeviceBrandId");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string DeviceFamily {
-            get {
-                return this.DeviceFamilyField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.DeviceFamilyField, value) != true)) {
-                    this.DeviceFamilyField = value;
-                    this.RaisePropertyChanged("DeviceFamily");
                 }
             }
         }
@@ -199,25 +167,25 @@ namespace AdapterControllers.PlaybackAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public long StartTimeSeconds {
+        public string Signature {
             get {
-                return this.StartTimeSecondsField;
+                return this.SignatureField;
             }
             set {
-                if ((this.StartTimeSecondsField.Equals(value) != true)) {
-                    this.StartTimeSecondsField = value;
-                    this.RaisePropertyChanged("StartTimeSeconds");
+                if ((object.ReferenceEquals(this.SignatureField, value) != true)) {
+                    this.SignatureField = value;
+                    this.RaisePropertyChanged("Signature");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string TimeStamp {
+        public long TimeStamp {
             get {
                 return this.TimeStampField;
             }
             set {
-                if ((object.ReferenceEquals(this.TimeStampField, value) != true)) {
+                if ((this.TimeStampField.Equals(value) != true)) {
                     this.TimeStampField = value;
                     this.RaisePropertyChanged("TimeStamp");
                 }
@@ -474,6 +442,9 @@ namespace AdapterControllers.PlaybackAdapter {
         private string FormatField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsTokenizedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string ProtocolsField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
@@ -565,6 +536,19 @@ namespace AdapterControllers.PlaybackAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsTokenized {
+            get {
+                return this.IsTokenizedField;
+            }
+            set {
+                if ((this.IsTokenizedField.Equals(value) != true)) {
+                    this.IsTokenizedField = value;
+                    this.RaisePropertyChanged("IsTokenized");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string Protocols {
             get {
                 return this.ProtocolsField;
@@ -633,6 +617,12 @@ namespace AdapterControllers.PlaybackAdapter {
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string LicenseURLField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private AdapterControllers.PlaybackAdapter.DrmSchemeName SchemeField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -640,6 +630,32 @@ namespace AdapterControllers.PlaybackAdapter {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string LicenseURL {
+            get {
+                return this.LicenseURLField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.LicenseURLField, value) != true)) {
+                    this.LicenseURLField = value;
+                    this.RaisePropertyChanged("LicenseURL");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public AdapterControllers.PlaybackAdapter.DrmSchemeName Scheme {
+            get {
+                return this.SchemeField;
+            }
+            set {
+                if ((this.SchemeField.Equals(value) != true)) {
+                    this.SchemeField = value;
+                    this.RaisePropertyChanged("Scheme");
+                }
             }
         }
         
@@ -651,6 +667,29 @@ namespace AdapterControllers.PlaybackAdapter {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="DrmSchemeName", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    public enum DrmSchemeName : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PLAYREADY_CENC = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        WIDEVINE_CENC = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        FAIRPLAY = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        WIDEVINE = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PLAYREADY = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        CUSTOM_DRM = 5,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]

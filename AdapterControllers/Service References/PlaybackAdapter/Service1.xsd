@@ -3,14 +3,12 @@
   <xs:import schemaLocation="http://localhost:86/PlaybackAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
   <xs:complexType name="AdapterPlaybackContextOptions">
     <xs:sequence>
-      <xs:element minOccurs="0" name="AdapterId" type="xs:int" />
-      <xs:element minOccurs="0" name="DeviceBrandId" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="DeviceFamily" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AdapterId" type="xs:long" />
       <xs:element minOccurs="0" name="IP" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="PartnerId" type="xs:int" />
       <xs:element minOccurs="0" name="PlaybackContext" nillable="true" type="tns:AdapterPlaybackContext" />
-      <xs:element minOccurs="0" name="StartTimeSeconds" type="xs:long" />
-      <xs:element minOccurs="0" name="TimeStamp" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Signature" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TimeStamp" type="xs:long" />
       <xs:element minOccurs="0" name="Udid" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
@@ -75,6 +73,7 @@
       <xs:element minOccurs="0" name="DrmId" type="xs:int" />
       <xs:element minOccurs="0" name="FileExtention" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Format" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsTokenized" type="xs:boolean" />
       <xs:element minOccurs="0" name="Protocols" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
@@ -93,9 +92,23 @@
   </xs:complexType>
   <xs:element name="ArrayOfDrmPlaybackPluginData" nillable="true" type="tns:ArrayOfDrmPlaybackPluginData" />
   <xs:complexType name="DrmPlaybackPluginData">
-    <xs:sequence />
+    <xs:sequence>
+      <xs:element minOccurs="0" name="LicenseURL" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Scheme" type="tns:DrmSchemeName" />
+    </xs:sequence>
   </xs:complexType>
   <xs:element name="DrmPlaybackPluginData" nillable="true" type="tns:DrmPlaybackPluginData" />
+  <xs:simpleType name="DrmSchemeName">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PLAYREADY_CENC" />
+      <xs:enumeration value="WIDEVINE_CENC" />
+      <xs:enumeration value="FAIRPLAY" />
+      <xs:enumeration value="WIDEVINE" />
+      <xs:enumeration value="PLAYREADY" />
+      <xs:enumeration value="CUSTOM_DRM" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="DrmSchemeName" nillable="true" type="tns:DrmSchemeName" />
   <xs:complexType name="PlaybackAdapterResponse">
     <xs:sequence>
       <xs:element minOccurs="0" name="PlaybackContext" nillable="true" type="tns:AdapterPlaybackContext" />

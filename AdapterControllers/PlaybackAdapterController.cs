@@ -1,8 +1,12 @@
-﻿using ApiObjects;
+﻿using AdapterControllers.PlaybackAdapter;
+using ApiObjects;
+using ApiObjects.PlaybackAdapter;
+using ApiObjects.Response;
 using KLogMonitor;
 using Synchronizer;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using TVinciShared;
 
@@ -15,6 +19,7 @@ namespace AdapterControllers
         private const string PARAMETER_GROUP_ID = "group_id";
         private const string PARAMETER_ADAPTER = "adapter";
         private const string LOCKER_STRING_FORMAT = "Playback_Adapter_Locker_{0}";
+        private const int STATUS_NO_CONFIGURATION_FOUND = 3;
 
         private static PlaybackAdapterController instance;
         private static readonly object generalLocker = new object();
@@ -83,6 +88,65 @@ namespace AdapterControllers
             return result;
         }
 
+        public ApiObjects.PlaybackAdapter.PlaybackContext GetPlaybackContext(int groupId, PlaybackProfile adapter, string userId, string udid,
+            string ip, ApiObjects.PlaybackAdapter.PlaybackContext kalturaPlaybackContext)
+        {
+            ApiObjects.PlaybackAdapter.PlaybackContext playbackContext = null;
+
+            if (adapter == null)
+            {
+                throw new KalturaException(string.Format("playback adapter doesn't exist"), (int)eResponseStatus.AdapterNotExists);
+            }
+
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
+            {
+                throw new KalturaException("playback adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+            }
+
+            PlaybackAdapter.ServiceClient adapterClient = new PlaybackAdapter.ServiceClient();
+            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+
+            //set unixTimestamp
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            string signature = string.Concat(adapter.Id, groupId, userId, udid, ip, unixTimestamp);
+
+            try
+            {
+
+                AdapterControllers.PlaybackAdapter.AdapterPlaybackContext adapterPlaybackContext = ParsePlaybackContextToAdapterContext(kalturaPlaybackContext);
+
+                PlaybackAdapter.AdapterPlaybackContextOptions contextOption = new PlaybackAdapter.AdapterPlaybackContextOptions()
+                {
+                    AdapterId = adapter.Id,
+                    IP = ip,
+                    PlaybackContext = adapterPlaybackContext,
+                    PartnerId = groupId,
+                    Udid = udid,
+                    TimeStamp = unixTimestamp,
+                    Signature = System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                };
+
+                PlaybackAdapter.PlaybackAdapterResponse adapterResponse = GetAdapterPlaybackContext(adapterClient, contextOption);
+
+                if (adapterResponse != null)
+                {
+                    log.DebugFormat("success. playback adapter response for GetAdapterPlaybackContext: status.code = {0},", adapterResponse.Status != null ? adapterResponse.Status.Code.ToString() : "null");
+                    playbackContext = ParsePlaybackContextResponse(adapterResponse);
+                }
+                else
+                {
+                    log.Error("playback adapter response for GetAdapterPlaybackContext is null");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in GetPlaybackContext: adapterId = {0}. ex: {1}", adapter.Id, ex);
+                throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+            }
+
+            return playbackContext;
+        }
+
         private bool configurationSynchronizer_SynchronizedAct(Dictionary<string, object> parameters)
         {
             bool result = false;
@@ -106,6 +170,139 @@ namespace AdapterControllers
             }
 
             return result;
+        }
+
+        private static PlaybackAdapter.PlaybackAdapterResponse GetAdapterPlaybackContext(PlaybackAdapter.ServiceClient adapterClient, PlaybackAdapter.AdapterPlaybackContextOptions contextOptions)
+        {
+            PlaybackAdapter.PlaybackAdapterResponse adapterResponse;
+
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+            {
+                //call adapter
+                adapterResponse = adapterClient.GetPlaybackContext(contextOptions);
+            }
+
+            if (adapterResponse != null)
+            {
+                log.DebugFormat("success. playback adapter response for GetPlaybackContext: status.code = {0}",
+                    adapterResponse.Status != null ? adapterResponse.Status.Code.ToString() : "null");
+            }
+            else
+            {
+                log.Error("playback adapter response for GetPlaybackContext is null");
+            }
+
+            return adapterResponse;
+        }
+        private static ApiObjects.PlaybackAdapter.PlaybackContext ParsePlaybackContextResponse(PlaybackAdapter.PlaybackAdapterResponse adapterResponse)
+        {
+            ApiObjects.PlaybackAdapter.PlaybackContext kalturaPlaybackContext = null;
+            if (adapterResponse != null && adapterResponse.Status != null)
+            {
+                // If something went wrong in the adapter, throw relevant exception
+                if (adapterResponse.Status.Code != (int)eResponseStatus.OK || adapterResponse.PlaybackContext == null)
+                {
+                    throw new KalturaException("Playback adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+                }
+
+                kalturaPlaybackContext = new ApiObjects.PlaybackAdapter.PlaybackContext();
+                if (adapterResponse.PlaybackContext.Actions != null)
+                {
+                    kalturaPlaybackContext.Actions = adapterResponse.PlaybackContext.Actions.Select(x =>
+                        new ApiObjects.PlaybackAdapter.RuleAction()
+                        {
+                            Description = x.Description,
+                            Type = (PlaybackAdapterRuleActionType)x.Type
+                        }).ToList();
+                }
+
+                if (adapterResponse.PlaybackContext.Messages != null)
+                {
+                    kalturaPlaybackContext.Messages = adapterResponse.PlaybackContext.Messages.Select(x =>
+                        new ApiObjects.PlaybackAdapter.AccessControlMessage()
+                        {
+                            Code = x.Code,
+                            Message = x.Message
+                        }).ToList();
+                }
+
+                if (adapterResponse.PlaybackContext.Sources != null)
+                {
+                    kalturaPlaybackContext.Sources = adapterResponse.PlaybackContext.Sources.Select(x =>
+                        new ApiObjects.PlaybackAdapter.PlaybackSource()
+                        {
+                            AdsParams = x.AdsParams,
+                            AdsPolicy = (PlaybackAdapterAdsPolicy)x.AdsPolicy,
+                            //TODO: anat add inhertince
+                            Drm = x.Drm?.Select(d =>
+                                new ApiObjects.PlaybackAdapter.DrmPlaybackPluginData()
+                                {
+                                    LicenseURL = d.LicenseURL,
+                                    Scheme = (PlaybackAdapterDrmSchemeName)d.Scheme
+                                }).ToList(),
+                            DrmId = x.DrmId,
+                            FileExtention = x.FileExtention,
+                            Format = x.Format,
+                            IsTokenized = x.IsTokenized,
+                            Protocols = x.Protocols
+                        }).ToList();
+                }
+            }
+
+            return kalturaPlaybackContext;
+        }
+
+        private PlaybackAdapter.AdapterPlaybackContext ParsePlaybackContextToAdapterContext(PlaybackContext kalturaPlaybackContext)
+        {
+            PlaybackAdapter.AdapterPlaybackContext playbackContext = null;
+            if (kalturaPlaybackContext != null)
+            {
+                playbackContext = new PlaybackAdapter.AdapterPlaybackContext();
+                if (kalturaPlaybackContext.Actions != null)
+                {
+                    playbackContext.Actions = kalturaPlaybackContext.Actions.Select(x =>
+                         new PlaybackAdapter.RuleAction()
+                         {
+                             Description = x.Description,
+                             Type = (PlaybackAdapter.RuleActionType)x.Type
+
+                         }).ToArray();
+                }
+
+                if (kalturaPlaybackContext.Messages != null)
+                {
+                    playbackContext.Messages = kalturaPlaybackContext.Messages.Select(x =>
+                        new PlaybackAdapter.AccessControlMessage()
+                        {
+                            Code = x.Code,
+                            Message = x.Message
+                        }).ToArray();
+                }
+
+                if (kalturaPlaybackContext.Sources != null)
+                {
+                    playbackContext.Sources = kalturaPlaybackContext.Sources.Select(x =>
+                        new PlaybackAdapter.PlaybackSource()
+                        {
+                            AdsParams = x.AdsParams,
+                            AdsPolicy = (PlaybackAdapter.AdsPolicy)x.AdsPolicy,
+                            //TODO: anat add inhertince
+                            Drm = x.Drm?.Select(d =>
+                                new PlaybackAdapter.DrmPlaybackPluginData()
+                                {
+                                    LicenseURL = d.LicenseURL,
+                                    Scheme = (DrmSchemeName)d.Scheme
+                                }).ToArray(),
+                            DrmId = x.DrmId,
+                            FileExtention = x.FileExtention,
+                            Format = x.Format,
+                            IsTokenized = x.IsTokenized,
+                            Protocols = x.Protocols
+                        }).ToArray();
+                }
+            }
+
+            return playbackContext;
         }
     }
 }
