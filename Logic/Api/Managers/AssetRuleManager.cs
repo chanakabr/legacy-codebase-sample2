@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
 using ApiObjects.Rules;
@@ -628,27 +629,35 @@ namespace Core.Api.Managers
 
         internal static Status CheckNetworkRules(eAssetTypes assetType, int groupId, long assetId, string ip, out AssetRule blockingRule)
         {
-            Status status = new Status((int)eResponseStatus.OK);
             blockingRule = null;
-            
+
+            List<SlimAsset> assetsToCheck = new List<SlimAsset>()
+            {
+                new SlimAsset(assetId, assetType)
+            };
+
             // check the program of the linear asset
             if (assetType == eAssetTypes.MEDIA)
             {
                 long programId = ConditionalAccess.Utils.GetCurrentProgramByMediaId(groupId, (int)assetId);
                 if (programId != 0)
                 {
-                    Status programStatus = CheckNetworkRules(eAssetTypes.EPG, groupId, programId, ip, out blockingRule);
-                    if (!programStatus.IsOkStatusCode())
-                    {
-                        return programStatus;
-                    }
+                    assetsToCheck.Add(new SlimAsset(programId, eAssetTypes.EPG));
                 }
             }
+            else if (assetType == eAssetTypes.EPG)
+            {
+                long linearMediaId = ApiDAL.GetLinearMediaIdByEpgId(assetId);
+                if (linearMediaId > 0)
+                {
+                    assetsToCheck.Add(new SlimAsset(linearMediaId, eAssetTypes.MEDIA));
+                }
+            }
+            //TODO SHIR - ira will CHECK for NETWORK RULES NPVR
 
             long convertedIp;
             APILogic.Utils.ConvertIpToNumber(ip, out convertedIp);
             Dictionary<string, string> headers = ListUtils.ToDictionary(System.Web.HttpContext.Current.Request.Headers);
-            SlimAsset asset = new SlimAsset(assetId, assetType);
 
             ConditionScope conditionScope = new ConditionScope()
             {
@@ -657,27 +666,28 @@ namespace Core.Api.Managers
             };
             log.DebugFormat("CheckNetworkRules - ConditionScope: {0}.",conditionScope.ToString());
 
-            var networkAssetRules = GetAssetRules(RuleConditionType.Asset, groupId, asset, RuleActionType.Block);
-            if (networkAssetRules.HasObjects())
+            foreach (var asset in assetsToCheck)
             {
-                log.DebugFormat("CheckNetworkRules - there are {0} valid networkAssetRules for groupId {1} and for asset id {2} + type {3}.", 
-                                networkAssetRules.Objects.Count, groupId, asset.Id, asset.Type);
-                foreach (var networkRule in networkAssetRules.Objects)
+                var networkAssetRules = GetAssetRules(RuleConditionType.Asset, groupId, asset, RuleActionType.Block);
+                if (networkAssetRules.HasObjects())
                 {
-                    foreach (var condition in networkRule.Conditions)
+                    log.DebugFormat("CheckNetworkRules - there are {0} valid networkAssetRules for groupId {1} and for asset id {2} + type {3}.",
+                                    networkAssetRules.Objects.Count, groupId, asset.Id, asset.Type);
+                    foreach (var networkRule in networkAssetRules.Objects)
                     {
-                        if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && condition.Evaluate(conditionScope))
+                        foreach (var condition in networkRule.Conditions)
                         {
-                            blockingRule = networkRule;
-                            status = new Status((int)eResponseStatus.NetworkRuleBlock, "Network rule block");
-
-                            return status;
+                            if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && condition.Evaluate(conditionScope))
+                            {
+                                blockingRule = networkRule;
+                                return new Status((int)eResponseStatus.NetworkRuleBlock, "Network rule block");
+                            }
                         }
                     }
                 }
             }
-
-            return status;
+            
+            return new Status((int)eResponseStatus.OK);
         }
 
         #endregion
