@@ -254,7 +254,7 @@ namespace EpgIngest
                     {
                         try
                         {
-                            int ratioID = ratios.Where(x => x.Value == epgPicture.Ratio).First().Key;
+                            int ratioID = ratios.First(x => x.Value == epgPicture.Ratio).Key;
                             row["ratio_id"] = ratioID;
                         }
                         catch

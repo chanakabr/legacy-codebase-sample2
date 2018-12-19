@@ -782,16 +782,7 @@ namespace Tvinci.Core.DAL
             if (epgCB == null)
                 return false;
 
-            string key = string.Empty;
-            if (isMainLang)
-            {
-                key = epgCB.EpgID.ToString();
-            }
-            else
-            {
-                key = string.Format("epg_{0}_lang_{1}", epgCB.EpgID, epgCB.Language.ToLower());
-            }
-
+            string key = GetEpgCBKey((long)epgCB.EpgID, isMainLang ? null : epgCB.Language);
             epgCB.DocumentId = key;
 
             try
@@ -829,17 +820,7 @@ namespace Tvinci.Core.DAL
 
                 foreach (var lang in languages)
                 {
-                    string key;
-
-                    if (lang.IsDefault)
-                    {
-                        key = epgId.ToString();
-                    }
-                    else
-                    {
-                        key = string.Format("epg_{0}_lang_{1}", epgId, lang.Code.ToLower());
-                    }
-
+                    string key = GetEpgCBKey(epgId, lang.IsDefault ? null : lang.Code);
                     langCodeToKeyMapping.Add(lang.Code, key);
                 }
 
@@ -1013,15 +994,7 @@ namespace Tvinci.Core.DAL
             bool result = false;
             int limitRetries = RETRY_LIMIT;
 
-            string key = string.Empty;
-            if (isMainLang)
-            {
-                key = epgCB.EpgID.ToString();
-            }
-            else
-            {
-                key = string.Format("epg_{0}_lang_{1}", epgCB.EpgID, epgCB.Language.ToLower());
-            }
+            string key = GetEpgCBKey((long)epgCB.EpgID, isMainLang ? null : epgCB.Language);
 
             try
             {
@@ -1047,6 +1020,18 @@ namespace Tvinci.Core.DAL
             }
 
             return result;
+        }
+        
+        private static string GetEpgCBKey(long epgId, string langCode = null)
+        {
+            if (string.IsNullOrEmpty(langCode))
+            {
+                return epgId.ToString();
+            }
+            else
+            {
+                return string.Format("epg_{0}_lang_{1}", epgId, langCode.ToLower());
+            }
         }
     }
 }
