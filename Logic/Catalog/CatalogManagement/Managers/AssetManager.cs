@@ -2142,7 +2142,6 @@ namespace Core.Catalog.CatalogManagement
         
         public static GenericResponse<Asset> AddAsset(int groupId, Asset assetToAdd, long userId, bool isFromIngest = false)
         {
-            // TODO ANAT (DONE) - SET SOME VAL IF isFromIngest = TRUE
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {

@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.Epg;
 using ApiObjects.Response;
 using Core.Catalog.Cache;
@@ -31,6 +32,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
+        // TODO SHIR - PUT GetEpgAssetsFromCache IN CACHE
         internal static List<EpgAsset> GetEpgAssetsFromCache(List<long> epgIds, int groupId, List<string> languageCodes = null)
         {
             List<EpgAsset> epgAssets = new List<EpgAsset>();
@@ -50,23 +52,16 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 List<LanguageObj> languages = GetLanguagesObj(languageCodes, catalogGroupCache);
+                
+                var ratios = ImageManager.GetRatios(groupId);
 
                 foreach (var epgId in epgIds)
                 {
                     List<EpgCB> epgCbList = EpgDal.GetEpgCBList(epgId, languages);
 
-                    //TODO ANAT - DONT FORGET PIC HANDLING
-                    // get picture sizes from DB
-                    //List<Ratio> epgRatios = new List<Ratio>();
-                    //Dictionary<int, List<EpgPicture>> pictures = CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
-                    //MutateFullEpgPicURL(result, pictures, m_nGroupID);
-
                     if (epgCbList != null && epgCbList.Count > 0)
                     {
-                        // get linear settings about channel
-                        string epgChannelId = epgCbList.FirstOrDefault(x => x.ChannelID > 0).ChannelID.ToString();
-
-                        epgAssets.Add(new EpgAsset(epgCbList, catalogGroupCache.DefaultLanguage.Code));
+                        epgAssets.Add(new EpgAsset(epgCbList, catalogGroupCache.DefaultLanguage.Code, ratios.Objects, groupId));
                     }
                 }
             }
@@ -114,9 +109,8 @@ namespace Core.Catalog.CatalogManagement
 
                 epgCbToAdd.Name = allNames[defaultLanguageCode];
                 epgCbToAdd.Description = allDescriptions.Object.ContainsKey(defaultLanguageCode) ? allDescriptions.Object[defaultLanguageCode] : string.Empty;
-                // TODO Anat - take metaidFrom mapping
-
-
+                // TODO SHIR - ASK ANAT: take metaid From mapping??
+                
                 List<FieldTypeEntity> metasMappingFields = mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToList();
                 Dictionary<string, int> metasTypesIds = new Dictionary<string, int>();
                 foreach (FieldTypeEntity fte in metasMappingFields)
@@ -432,25 +426,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-
-        private static LinearChannelSettings GetLinearChannelSettings(int groupId, string epgChannelId)
-        {
-            LinearChannelSettings linearSettings = null;
-
-            if (!epgChannelId.IsNullOrEmptyOrWhiteSpace())
-            {
-                Dictionary<string, LinearChannelSettings> linearChannelSettings =
-                            CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgChannelId });
-
-                if (linearChannelSettings != null && linearChannelSettings.Count > 0 && linearChannelSettings.ContainsKey(epgChannelId))
-                {
-                    linearSettings = linearChannelSettings[epgChannelId];
-                }
-            }
-
-            return linearSettings;
-        }
-
+        
         private static List<LanguageObj> GetLanguagesObj(List<string> languageCodes, CatalogGroupCache catalogGroupCache)
         {
             List<LanguageObj> languages = new List<LanguageObj>();
@@ -493,7 +469,6 @@ namespace Core.Catalog.CatalogManagement
         private static EpgCB CreateEpgCbFromEpgAsset(EpgAsset epgAsset, int groupId, DateTime createDate, DateTime updateDate)
         {
             int channelId = epgAsset.EpgChannelId.HasValue ? (int)epgAsset.EpgChannelId.Value : 0;
-            var linearChannelSettings = GetLinearChannelSettings(groupId, channelId.ToString());
 
             return new EpgCB()
             {
@@ -510,18 +485,22 @@ namespace Core.Catalog.CatalogManagement
                 ExtraData = new EpgExtraData() { MediaID = epgAsset.RelatedMediaId.HasValue ? (int)epgAsset.RelatedMediaId.Value : 0 },
                 Crid = epgAsset.Crid,
                 CoGuid = epgAsset.CoGuid,
-                EnableCDVR = GetEnableData(epgAsset.CdvrEnabled, linearChannelSettings.EnableCDVR),
-                EnableCatchUp = GetEnableData(epgAsset.CatchUpEnabled, linearChannelSettings.EnableCatchUp),
-                EnableStartOver = GetEnableData(epgAsset.StartOverEnabled, linearChannelSettings.EnableStartOver),
-                EnableTrickPlay = GetEnableData(epgAsset.TrickPlayEnabled, linearChannelSettings.EnableTrickPlay),
-                LinearMediaId = linearChannelSettings != null ? linearChannelSettings.linearMediaId : 0
+                EnableCDVR = GetEnableData(epgAsset.CdvrEnabled),
+                EnableCatchUp = GetEnableData(epgAsset.CatchUpEnabled),
+                EnableStartOver = GetEnableData(epgAsset.StartOverEnabled),
+                EnableTrickPlay = GetEnableData(epgAsset.TrickPlayEnabled)
             };
         }
 
-        private static int GetEnableData(bool? enableDataFromEpgAsset, bool? enableDataFromLinearChannelSettings)
+        private static int GetEnableData(bool? enableDataFromEpgAsset)
         {
-            return enableDataFromEpgAsset.HasValue ? Convert.ToInt32(enableDataFromEpgAsset.Value) :
-                    enableDataFromLinearChannelSettings.HasValue ? Convert.ToInt32(enableDataFromLinearChannelSettings.Value) : 0;
+            if (!enableDataFromEpgAsset.HasValue)
+                return 0; // get value from LinearChannelSettings
+
+            if (enableDataFromEpgAsset.Value)
+                return 1;
+
+            return 2;
         }
 
         private static Status ValidateEpgAssetForUpdate(int groupId, long userId, EpgAsset epgAssetToUpdate, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache, List<FieldTypeEntity> mappingFields,
