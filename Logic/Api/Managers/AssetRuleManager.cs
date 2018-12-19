@@ -655,10 +655,13 @@ namespace Core.Api.Managers
                 Headers = headers,
                 Ip = convertedIp
             };
+            log.DebugFormat("CheckNetworkRules - ConditionScope: {0}.",conditionScope.ToString());
 
             var networkAssetRules = GetAssetRules(RuleConditionType.Asset, groupId, asset, RuleActionType.Block);
             if (networkAssetRules.HasObjects())
             {
+                log.DebugFormat("CheckNetworkRules - there are {0} valid networkAssetRules for groupId {1} and for asset id {2} + type {3}.", 
+                                networkAssetRules.Objects.Count, groupId, asset.Id, asset.Type);
                 foreach (var networkRule in networkAssetRules.Objects)
                 {
                     foreach (var condition in networkRule.Conditions)

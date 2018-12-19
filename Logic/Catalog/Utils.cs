@@ -308,11 +308,9 @@ namespace Core.Catalog
 
             if (searcher != null)
             {
-
                 if (searcher.GetType().Equals(typeof(LuceneWrapper)))
                 {
                     DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0);
-
                     lMediaRes = GetMediaUpdateDate(lMediaIDs.Select(id => new SearchResult() { assetID = id, UpdateDate = dt }).ToList(), nParentGroupID);
                 }
                 else
@@ -352,26 +350,24 @@ namespace Core.Catalog
                             {
                                 log.ErrorFormat("Failed getting document of media {0}. ex = {1}", mediaID, ex);
                             }
-                        }
-                        );
+                        });
                     }
                     catch (Exception ex)
                     {
                         log.ErrorFormat("Failed performing parallel GetMediaUpdateDate for group {0}. ex = {1}", nParentGroupID, ex);
                     }
-
-                    //lMediaRes = dictRes.Values.ToList();
-
+                    
                     foreach (var item in lMediaIDs)
                     {
-                        lMediaRes.Add(dictRes[item]);
+                        if (dictRes[item].assetID > 0)
+                        {
+                            lMediaRes.Add(dictRes[item]);
+                        }
                     }
                 }
             }
-
-
+            
             return lMediaRes;
-
         }
 
         public static bool IsGroupIDContainedInConfig(long lGroupID, string rawStrFromConfig, char cSeperator)
@@ -1625,15 +1621,10 @@ namespace Core.Catalog
                         assetsToRetrieve.AddRange(epgIdsFromRecording.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.EPG, x)));
                     }
                              
-                    List <BaseObject> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, filter, managementData);
+                    List<BaseObject> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, filter, managementData);
+
                     if (unOrderedAssets == null || unOrderedAssets.Count == 0)
                     {                        
-                        return result;
-                    }
-                    else if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
-                    {
-                        log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
-                                            assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}_{2}", x.AssetType.ToString(), x.AssetId, languageId)).ToList()) : string.Empty);                        
                         return result;
                     }
 
@@ -1763,8 +1754,8 @@ namespace Core.Catalog
                 if (assets != null && assets.Count > 0)
                 {
                     result = new List<BaseObject>();                                        
-                    List<int> mediaIds = assets.Where(x => x.Key == eAssetTypes.MEDIA).Select(x => (int)x.Value).ToList();
-                    List<long> epgIds = assets.Where(x => x.Key == eAssetTypes.EPG).Select(x => x.Value).ToList();                                        
+                    List<int> mediaIds = assets.Where(x => x.Key == eAssetTypes.MEDIA).Select(x => (int)x.Value).Distinct().ToList();
+                    List<long> epgIds = assets.Where(x => x.Key == eAssetTypes.EPG).Select(x => x.Value).Distinct().ToList();                                        
                     if (mediaIds != null && mediaIds.Count > 0)
                     {
                         List<MediaObj> mediaAssets = null;
@@ -1777,29 +1768,40 @@ namespace Core.Catalog
                             mediaAssets = GetMediaObjectsFromCache(groupId, mediaIds, filter);
                         }
 
-                        if (mediaAssets == null || mediaAssets.Count != mediaIds.Count)
-                        {
-                            List<int> missingMediaIds = mediaAssets == null ? mediaIds : mediaIds.Except(mediaAssets.Select(x => int.Parse(x.AssetId))).ToList();
-                            log.WarnFormat("GetMediaObjectsFromCache didn't find the following mediaIds: {0}", string.Join(",", missingMediaIds));
-                        }
-                        else if (mediaAssets != null)
+                        if (mediaAssets != null)
                         {
                             result.AddRange(mediaAssets);
+                            if (mediaAssets.Count != mediaIds.Count)
+                            {
+                                List<int> missingMediaIds = mediaIds.Except(mediaAssets.Select(x => int.Parse(x.AssetId))).ToList();
+                                log.WarnFormat("GetMediaObjectsFromCache didn't find the following mediaIds: {0}", string.Join(",", missingMediaIds));
+                            }
                         }
+                        else                                                
+                        {                            
+                            log.WarnFormat("GetMediaObjectsFromCache didn't find the following mediaIds: {0}", string.Join(",", mediaIds));
+                        }
+
                     }
 
                     if (epgIds != null && epgIds.Count > 0)
                     {
                         List<ProgramObj> epgs = GetProgramFromCache(groupId, epgIds, filter);
-                        if (epgs == null || epgs.Count != mediaIds.Count)
-                        {
-                            List<long> missingEpgIds = epgs == null ? epgIds : epgIds.Except(epgs.Select(x => long.Parse(x.AssetId))).ToList();
-                            log.WarnFormat("GetProgramFromCache didn't find the following epgIds: {0}", string.Join(",", missingEpgIds));
-                        }
-                        else if (epgs != null)
+
+                        if (epgs != null)
                         {
                             result.AddRange(epgs);
+                            if (epgs.Count != epgIds.Count)
+                            {
+                                List<long> missingEpgIds = epgIds.Except(epgs.Select(x => long.Parse(x.AssetId))).ToList();
+                                log.WarnFormat("GetProgramFromCache didn't find the following epgIds: {0}", string.Join(",", missingEpgIds));
+                            }
                         }
+                        else
+                        {                            
+                            log.WarnFormat("GetProgramFromCache didn't find the following epgIds: {0}", string.Join(",", epgIds));
+                        }
+
                     }
                 }
             }
@@ -1874,12 +1876,12 @@ namespace Core.Catalog
                     if (ids != null && groupId.HasValue)
                     {
                         assets = CatalogLogic.CompleteMediaDetails(ids, groupId.Value, filter, false);
-                        res = assets.Count() == ids.Count();
+                        res = assets.Count == ids.Count;
                     }
 
                     if (res)
                     {
-                        result = assets.ToDictionary(x => LayeredCacheKeys.GetAssetWithLanguageKey(eAssetTypes.MEDIA.ToString(), x.AssetId, filter.m_nLanguage), x => x);
+                        result = assets.Where(a => a != null).ToDictionary(x => LayeredCacheKeys.GetAssetWithLanguageKey(eAssetTypes.MEDIA.ToString(), x.AssetId, filter.m_nLanguage), x => x);
                     }
                     else
                     {

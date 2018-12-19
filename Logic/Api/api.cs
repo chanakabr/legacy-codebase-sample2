@@ -10969,7 +10969,7 @@ namespace Core.Api
 
             string key = LayeredCacheKeys.GetMediaCountriesKey(mediaId);
             if (!LayeredCache.Instance.Get<DataTable>(key, ref mediaCountries, GetMediaCountries, new Dictionary<string, object>() { { "mediaId", mediaId } },
-                groupId, LayeredCacheConfigNames.GET_COUPONS_GROUP, new List<string>() { LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId) }))
+                groupId, LayeredCacheConfigNames.GET_MEDIA_COUNTRIES, new List<string>() { LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId) }))
             {
                 log.ErrorFormat("Failed media countries from LayeredCache, key: {0}", key);
             }
@@ -10993,6 +10993,10 @@ namespace Core.Api
                         if (mediaId.HasValue && mediaId.HasValue)
                         {
                             mediaCountries = ApiDAL.GetMediaCountries(mediaId.Value);
+                            if (mediaCountries == null)
+                            {
+                                mediaCountries = new DataTable();
+                            }
 
                             result = true;
                         }

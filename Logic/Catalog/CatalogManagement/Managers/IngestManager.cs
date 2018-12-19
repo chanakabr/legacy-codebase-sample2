@@ -247,7 +247,6 @@ namespace Core.Catalog.CatalogManagement
         private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations, int groupId, 
                                                    CatalogGroupCache catalogGroupCache, ref IngestResponse ingestResponse)
         {
-            // TODO - HandleTagsTranslations check that this is true
             foreach (var topic in tagsTranslations)
             {
                 // tagsTranslation.Key == Genre
@@ -259,7 +258,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         //topic.Key == drama
                         var tagValues = 
-                            CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, catalogGroupCache.DefaultLanguage.ID, 1, 30);
+                            CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, catalogGroupCache.DefaultLanguage.ID, 0, 1);
 
                         ApiObjects.SearchObjects.TagValue tagValueToUpsert = new ApiObjects.SearchObjects.TagValue()
                         {

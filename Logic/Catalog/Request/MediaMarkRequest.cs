@@ -100,7 +100,11 @@ namespace Core.Catalog.Request
             {
                 log.Error(String.Concat("MediaMarkRequest.GetResponse. ", oBaseRequest.ToString()), ex);
 
-                response.status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new MediaMarkResponse()
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+
                 return response;
             }
         }
@@ -159,6 +163,7 @@ namespace Core.Catalog.Request
             }
 
             bool isTerminateRequest = false;
+            bool isAnonymousUser = CatalogLogic.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid);
 
             if (string.IsNullOrEmpty(m_oMediaPlayRequestData.m_sAction))
             {
@@ -168,7 +173,7 @@ namespace Core.Catalog.Request
 
             if (Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
             {
-                if (!CatalogLogic.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
+                if (!isAnonymousUser)
                 {
                     bool isError = false;
                     bool isConcurrent = false;
@@ -207,7 +212,7 @@ namespace Core.Catalog.Request
 
                 if (mediaId != 0)
                 {
-                    if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0 || nActionID == (int)MediaPlayActions.HIT)
+                    if (!isAnonymousUser && (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0 || nActionID == (int)MediaPlayActions.HIT))
                     {
                         //  Insert into MediaEOH                        
                         if (devicePlayData != null)

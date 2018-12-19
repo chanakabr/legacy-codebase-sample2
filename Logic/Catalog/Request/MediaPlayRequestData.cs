@@ -107,7 +107,7 @@ namespace Core.Catalog.Request
             }
 
             // update NpvrId
-            if (string.IsNullOrEmpty(currDevicePlayData.NpvrId) && recordingId != 0)
+            if (currDevicePlayData != null && string.IsNullOrEmpty(currDevicePlayData.NpvrId) && recordingId != 0)
             {
                 currDevicePlayData.NpvrId = npvrId;
             }

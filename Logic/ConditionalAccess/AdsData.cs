@@ -10,6 +10,15 @@ namespace APILogic.ConditionalAccess
 {
     public class AdsControlData
     {
+
+        public AdsControlData()
+        {
+            this.FileId = 0;
+            this.FileType = string.Empty;
+            this.AdsParam = string.Empty;
+            this.AdsPolicy = null;
+        }
+
         public int FileId { get; set; }
 
         public string FileType { get; set; }
