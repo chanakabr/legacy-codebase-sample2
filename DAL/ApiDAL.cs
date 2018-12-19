@@ -5302,8 +5302,7 @@ namespace DAL
                             Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
                             IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 1,
                             Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
-                            SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
-                            Ksql = ODBCWrapper.Utils.GetSafeStr(dr, "ksql")
+                            SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret")
                         });
                     }
                 }
@@ -5342,8 +5341,7 @@ namespace DAL
                 sp.AddParameter("@adapterUrl", adapter.AdapterUrl);
                 sp.AddParameter("@externalIdentifier", adapter.ExternalIdentifier);
                 sp.AddParameter("@sharedSecret", adapter.SharedSecret);
-                sp.AddParameter("@isActive", adapter.IsActive);
-                sp.AddParameter("@ksql", adapter.Ksql);
+                sp.AddParameter("@isActive", adapter.IsActive);                
                 sp.AddParameter("@settings", adapter.Settings);
                 sp.AddParameter("@updaterId", userId);
                 dt = sp.Execute();
@@ -5400,8 +5398,7 @@ namespace DAL
                 sp.AddParameter("@name", adapter.Name);
                 sp.AddParameter("@adapterUrl", adapter.AdapterUrl);
                 sp.AddParameter("@externalIdentifier", adapter.ExternalIdentifier);
-                sp.AddParameter("@isActive", adapter.IsActive);
-                sp.AddParameter("@ksql", adapter.Ksql);
+                sp.AddParameter("@isActive", adapter.IsActive);                
                 sp.AddParameter("@settings", adapter.Settings);
                 sp.AddParameter("@updaterId", userId);
                 DataTable dt = sp.Execute();
@@ -5429,8 +5426,7 @@ namespace DAL
                 Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 1,
                 Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
-                SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
-                Ksql = ODBCWrapper.Utils.GetSafeStr(dr, "ksql")
+                SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret")
             });
         }
 
