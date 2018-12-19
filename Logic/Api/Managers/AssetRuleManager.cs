@@ -1,21 +1,16 @@
 ﻿using ApiObjects;
-using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
 using ApiObjects.Rules;
-using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using CouchbaseManager;
 using DAL;
 using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
-using ScheduledTasks;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -31,7 +26,7 @@ namespace Core.Api.Managers
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
-        
+
         private const int MAX_ASSETS_TO_UPDATE = 1000;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -66,7 +61,7 @@ namespace Core.Api.Managers
                     {
                         group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
                     }
-                                        
+
                     if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
                     {
                         List<AssetRule> rules = pair.Value;
@@ -409,7 +404,7 @@ namespace Core.Api.Managers
             {
                 List<AssetRule> allAssetRules = new List<AssetRule>();
                 string allAssetRulesKey = LayeredCacheKeys.GetAllAssetRulesKey(groupId, (int)assetRuleConditionType);
-                string allAssetRulesInvalidationKey = groupId != 0 ? 
+                string allAssetRulesInvalidationKey = groupId != 0 ?
                     LayeredCacheKeys.GetAllAssetRulesGroupInvalidationKey(groupId)
                         : LayeredCacheKeys.GetAllAssetRulesInvalidationKey();
 
@@ -428,7 +423,7 @@ namespace Core.Api.Managers
                     log.ErrorFormat("GetAssetRules - GetAllAssetRules - Failed get data from cache. groupId: {0}", groupId);
                     return response;
                 }
-                
+
                 response.Objects = allAssetRules;
 
                 if (ruleActionType.HasValue)
@@ -479,7 +474,7 @@ namespace Core.Api.Managers
 
                     response.Objects = assetRulesByAsset;
                 }
-                
+
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -490,13 +485,33 @@ namespace Core.Api.Managers
 
             return response;
         }
-        
+
         internal static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRuleToAdd)
         {
             GenericResponse<AssetRule> response = new GenericResponse<AssetRule>();
             try
             {
                 assetRuleToAdd.GroupId = groupId;
+
+                // in case ApplyPlaybackAdapterRuleAction exist, validate adapterId ..
+                List<ApplyPlaybackAdapterRuleAction> assetRuleActions = assetRuleToAdd.Actions.Where(x => x.Type == RuleActionType.ApplyPlaybackAdapter).Select(i => i as ApplyPlaybackAdapterRuleAction).ToList();
+                if(assetRuleActions != null && assetRuleActions.Count == 0 )
+                {
+                    if(assetRuleActions.Count > 1)
+                    {
+                        response.SetStatus((int)eResponseStatus.Error, "Only one ApplyPlaybackAdapterRuleAction allowed");
+                        return response;                        
+                    }
+
+                    // check adapter with this ID exists
+                    PlaybackProfile existingAdapter = ApiDAL.GetPlaybackAdapter(groupId, assetRuleActions[0].AdapterId);
+                    if (existingAdapter == null)
+                    {
+                        response.SetStatus((int)eResponseStatus.AdapterNotExists, "Adapter not exist");
+                        return response;
+                    }
+                }
+
                 DataTable dt = ApiDAL.AddAssetRule(groupId, assetRuleToAdd.Name, assetRuleToAdd.Description, (int)AssetRuleType.AssetRule);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
@@ -630,7 +645,7 @@ namespace Core.Api.Managers
         {
             Status status = new Status((int)eResponseStatus.OK);
             blockingRule = null;
-            
+
             // check the program of the linear asset
             if (assetType == eAssetTypes.MEDIA)
             {
@@ -655,12 +670,12 @@ namespace Core.Api.Managers
                 Headers = headers,
                 Ip = convertedIp
             };
-            log.DebugFormat("CheckNetworkRules - ConditionScope: {0}.",conditionScope.ToString());
+            log.DebugFormat("CheckNetworkRules - ConditionScope: {0}.", conditionScope.ToString());
 
             var networkAssetRules = GetAssetRules(RuleConditionType.Asset, groupId, asset, RuleActionType.Block);
             if (networkAssetRules.HasObjects())
             {
-                log.DebugFormat("CheckNetworkRules - there are {0} valid networkAssetRules for groupId {1} and for asset id {2} + type {3}.", 
+                log.DebugFormat("CheckNetworkRules - there are {0} valid networkAssetRules for groupId {1} and for asset id {2} + type {3}.",
                                 networkAssetRules.Objects.Count, groupId, asset.Id, asset.Type);
                 foreach (var networkRule in networkAssetRules.Objects)
                 {
@@ -712,7 +727,7 @@ namespace Core.Api.Managers
                     {
                         RuleConditionType? assetRuleConditionType = funcParams["assetRuleConditionType"] as RuleConditionType?;
                         int? groupId = funcParams["groupId"] as int?;
-                        
+
                         if (assetRuleConditionType.HasValue && groupId.HasValue)
                         {
                             List<AssetRule> allAssetRulesDB = new List<AssetRule>();
@@ -797,7 +812,7 @@ namespace Core.Api.Managers
                             Parallel.ForEach(assetRulesWithKsql, (currAssetRuleWithKsql) =>
                             {
                                 StringBuilder ksqlFilter = new StringBuilder();
-                                
+
                                 if (eAssetTypes.EPG == slimAsset.Type)
                                 {
                                     ksqlFilter.AppendFormat(string.Format("(and epg_id = '{0}' (or", slimAsset.Id));
@@ -840,7 +855,7 @@ namespace Core.Api.Managers
 
             return new Tuple<List<AssetRule>, bool>(assetRulesByAsset, assetRulesByAsset != null);
         }
-        
+
         /// <summary>
         /// GetAllAssetRules from DB with no filter
         /// </summary>
@@ -881,7 +896,7 @@ namespace Core.Api.Managers
 
             return new Tuple<List<AssetRule>, bool>(assetRules, assetRules != null);
         }
-        
+
         private static void ResetMediaCountries(int groupId, long ruleId)
         {
             DataTable mediaTable = ApiDAL.UpdateMediaCountry(groupId, ruleId);

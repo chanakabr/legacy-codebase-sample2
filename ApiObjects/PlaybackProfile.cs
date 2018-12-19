@@ -8,7 +8,6 @@
         public string AdapterUrl { get; set; }
         public string ExternalIdentifier { get; set; }
         public string SharedSecret { get; set; }
-        public string Ksql { get; set; }
         public string Settings { get; set; }
     }
 }
