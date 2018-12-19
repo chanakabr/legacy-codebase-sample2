@@ -11553,7 +11553,7 @@
             Base filter
             </summary>
         </member>
-        <member name="M:WebAPI.Models.General.KalturaFilter`1.GetItemsIn``2(System.String,System.String)">
+        <member name="M:WebAPI.Models.General.KalturaFilter`1.GetItemsIn``2(System.String,System.String,System.Boolean)">
             <summary>
             Convert comma separated string to collection.
             </summary>
