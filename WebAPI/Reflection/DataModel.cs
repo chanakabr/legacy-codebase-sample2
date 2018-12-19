@@ -3946,6 +3946,8 @@ namespace WebAPI.Reflection
                             return "drm";
                         case "Format":
                             return "format";
+                        case "IsTokenized":
+                            return "isTokenized";
                         case "Protocols":
                             return "protocols";
                     }

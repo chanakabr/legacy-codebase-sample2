@@ -10078,6 +10078,11 @@
             The parameters to pass to the ads server 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.IsTokenized">
+            <summary>
+            Is Tokenized
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">
             <summary>
             KalturaPpvEntitlement

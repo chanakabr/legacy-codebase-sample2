@@ -1889,6 +1889,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("format", "\"format\": " + "\"" + EscapeJson(Format) + "\"");
             }
+            ret.Add("isTokenized", "\"isTokenized\": " + IsTokenized.ToString().ToLower());
             if(Protocols != null)
             {
                 ret.Add("protocols", "\"protocols\": " + "\"" + EscapeJson(Protocols) + "\"");
@@ -1918,6 +1919,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("format", "<format>" + EscapeXml(Format) + "</format>");
             }
+            ret.Add("isTokenized", "<isTokenized>" + IsTokenized.ToString().ToLower() + "</isTokenized>");
             if(Protocols != null)
             {
                 ret.Add("protocols", "<protocols>" + EscapeXml(Protocols) + "</protocols>");

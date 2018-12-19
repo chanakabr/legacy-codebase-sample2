@@ -3644,6 +3644,10 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     AdsParams = (String) Convert.ChangeType(parameters["adsParam"], typeof(String));
                 }
+                if (parameters.ContainsKey("isTokenized") && parameters["isTokenized"] != null)
+                {
+                    IsTokenized = (Boolean) Convert.ChangeType(parameters["isTokenized"], typeof(Boolean));
+                }
             }
         }
     }
@@ -13409,13 +13413,13 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExportTask")
         {
+            MinLong = 1,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
         };
         public KalturaExportTask(Dictionary<string, object> parameters = null) : base(parameters)
         {
