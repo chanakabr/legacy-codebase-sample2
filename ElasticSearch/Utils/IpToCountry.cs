@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
+using System.Net;
 
 namespace ElasticSearch.Utilities
 {
@@ -140,6 +141,7 @@ namespace ElasticSearch.Utilities
         public static Country GetCountryByIp(string ip)
         {
             Country country = null;
+
             try
             {
                 // Build query for getting country
@@ -157,11 +159,38 @@ namespace ElasticSearch.Utilities
 
                 if (!string.IsNullOrEmpty(ip))
                 {
-                    string[] splitted = ip.Split('.');
-                    ipValue =
-                        (Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 +
-                            Int64.Parse(splitted[0]) * 256 * 256 * 256).ToString();
+                    string[] splitted = null;
+                    string toSplit = ip;
+
+                    IPAddress address;
+
+                    try
+                    {
+                        // try to convert to IPv4 only if it was previously mapped to IPv6 and if this is indeed an IPv6
+                        if (IPAddress.TryParse(ip, out address))
+                        {
+                            if (address.IsIPv4MappedToIPv6 && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+                            {
+                                toSplit = address.MapToIPv4().ToString();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("GetCountryByIp - Failed mapping IPv6 to IPv4 for IP = {0}, ex = {1}", ip, ex);
+                    }
+                    
+                    splitted = toSplit.Split('.');
+
+                    // validate that we have a good split result
+                    if (splitted.Length == 4)
+                    {
+                        ipValue =
+                            (Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 +
+                                Int64.Parse(splitted[0]) * 256 * 256 * 256).ToString();
+                    }
                 }
+
                 FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
 
                 // Build range term: the country id will be the closest to these
