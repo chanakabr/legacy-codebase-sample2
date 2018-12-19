@@ -56,9 +56,10 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add asset rule
         /// </summary>
-        /// <param name="assetRule">Asset rule</param>
+        /// <param name="assetRule">Asset rule</param>              
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AdapterNotExists)]
         static public KalturaAssetRule Add(KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.Http;
+using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -962,7 +963,11 @@ namespace WebAPI.Controllers
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
-                    response = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId,ks.UserId, KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response);                    
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId,ks.UserId, KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response);                    
+                    if(adapterResponse != null)
+                    {
+                        response = adapterResponse;
+                    }
 
                     //if sources left after building DRM data, build the manifest URL
                     if (response.Sources.Count > 0)
@@ -971,10 +976,20 @@ namespace WebAPI.Controllers
                         {
                             string baseUrl = WebAPI.Utils.Utils.GetCurrentBaseUrl();
 
+                            StringBuilder url = null;
                             foreach (var source in response.Sources)
                             {
-                                StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
-                                    baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+                                // check if is tokinzed . if yes add base64 url
+                                if (source.IsTokenized == true)
+                                {                                    
+                                    url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}/url/{6}",
+                                        baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context, Convert.ToBase64String(Encoding.UTF8.GetBytes(source.Url))));
+                                }
+                                else
+                                {
+                                    url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
+                                        baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+                                }
 
                                 if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
                                 {

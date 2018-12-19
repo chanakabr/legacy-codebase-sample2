@@ -193,6 +193,26 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaApplyPlaybackAdapterAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("adapterId", "\"adapterId\": " + AdapterId);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("adapterId", "<adapterId>" + AdapterId + "</adapterId>");
+            return ret;
+        }
+    }
     public partial class KalturaAssetFileContext
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -1889,6 +1909,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("format", "\"format\": " + "\"" + EscapeJson(Format) + "\"");
             }
+            ret.Add("isTokenized", "\"isTokenized\": " + IsTokenized.ToString().ToLower());
             if(Protocols != null)
             {
                 ret.Add("protocols", "\"protocols\": " + "\"" + EscapeJson(Protocols) + "\"");
@@ -1918,6 +1939,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("format", "<format>" + EscapeXml(Format) + "</format>");
             }
+            ret.Add("isTokenized", "<isTokenized>" + IsTokenized.ToString().ToLower() + "</isTokenized>");
             if(Protocols != null)
             {
                 ret.Add("protocols", "<protocols>" + EscapeXml(Protocols) + "</protocols>");
@@ -14610,10 +14632,6 @@ namespace WebAPI.Models.API
             {
                 ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
             }
-            if(Ksql != null)
-            {
-                ret.Add("ksql", "\"ksql\": " + "\"" + EscapeJson(Ksql) + "\"");
-            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -14649,11 +14667,7 @@ namespace WebAPI.Models.API
             if(IsActive.HasValue)
             {
                 ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
-            }
-            if(Ksql != null)
-            {
-                ret.Add("ksql", "<ksql>" + EscapeXml(Ksql) + "</ksql>");
-            }
+            }            
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -117,7 +118,14 @@ namespace WebAPI.Controllers
                 string userId = ksObject != null ? ksObject.UserId : "0";
                 string udid = ksObject != null ? KSUtils.ExtractKSPayload(ksObject).UDID : string.Empty;
 
-                response.Url = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType);
+                if (!string.IsNullOrEmpty(tokenizedUrl))
+                {
+                    response.Url = Encoding.UTF8.GetString(Convert.FromBase64String(tokenizedUrl));
+                }
+                else
+                {
+                    response.Url = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType);
+                }
 
                 if (!string.IsNullOrEmpty(response.Url))
                 {

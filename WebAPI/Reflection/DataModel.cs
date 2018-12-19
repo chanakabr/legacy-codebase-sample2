@@ -175,6 +175,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaApplyPlaybackAdapterAction":
+                    switch(property.Name)
+                    {
+                        case "AdapterId":
+                            return "adapterId";
+                    }
+                    break;
+                    
                 case "KalturaAppToken":
                     switch(property.Name)
                     {
@@ -3984,6 +3992,8 @@ namespace WebAPI.Reflection
                             return "drm";
                         case "Format":
                             return "format";
+                        case "IsTokenized":
+                            return "isTokenized";
                         case "Protocols":
                             return "protocols";
                     }
@@ -6192,7 +6202,7 @@ namespace WebAPI.Reflection
                             return AssetFileController.GetContext((string) methodParams[0], (KalturaContextType) methodParams[1]);
                             
                         case "playmanifest":
-                            return AssetFileController.PlayManifest((int) methodParams[0], (string) methodParams[1], (KalturaAssetType) methodParams[2], (long) methodParams[3], (KalturaPlaybackContextType) methodParams[4], (string) methodParams[5]);
+                            return AssetFileController.PlayManifest((int) methodParams[0], (string) methodParams[1], (KalturaAssetType) methodParams[2], (long) methodParams[3], (KalturaPlaybackContextType) methodParams[4], (string) methodParams[5], (string) methodParams[6]);
                             
                     }
                     break;
@@ -10656,6 +10666,12 @@ namespace WebAPI.Reflection
                                 Type = typeof(KalturaPlaybackContextType),
                             });
                             ret.Add("ks", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("tokenizedUrl", new MethodParam(){
                                 NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
