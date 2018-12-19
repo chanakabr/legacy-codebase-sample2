@@ -39,11 +39,11 @@ namespace WebAPI
             string logDir = System.Environment.GetEnvironmentVariable("API_LOG_DIR");
             if(logDir != null)
             {
-                logDir = System.Environment.ExpandEnvironmentVariables(logDir) + "\\" + apiVersion;
+                logDir = System.Environment.ExpandEnvironmentVariables(logDir) + @"\" + apiVersion;
             }
             else
             {
-                logDir = "C:\\log\\RestfulApi\\" + apiVersion;
+                logDir = @"C:\log\RestfulApi\" + apiVersion;
             }
             log4net.GlobalContext.Properties["LogDir"] = logDir;
 

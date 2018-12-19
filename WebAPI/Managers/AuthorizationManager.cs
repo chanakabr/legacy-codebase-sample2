@@ -468,7 +468,7 @@ namespace WebAPI.Managers
 
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
             var cbAppToken = cbManager.Get<AppToken>(appTokenCbKey, true);
-            if (cbAppToken == null)
+            if (cbAppToken == null || !cbAppToken.PartnerId.Equals(groupId))
             {
                 log.ErrorFormat("GetAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
                 throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Application-token", id);
