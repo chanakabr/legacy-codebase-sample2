@@ -11840,12 +11840,28 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalListSearchFilter
     {
+        private static RuntimeSchemePropertyAttribute PartnerListTypeInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalListSearchFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaPersonalListSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("partnerListTypeIn") && parameters["partnerListTypeIn"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        PartnerListTypeInSchemaProperty.Validate("partnerListTypeIn", parameters["partnerListTypeIn"]);
+                    }
                     PartnerListTypeIn = (String) Convert.ChangeType(parameters["partnerListTypeIn"], typeof(String));
                 }
             }
