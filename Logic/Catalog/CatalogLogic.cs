@@ -8959,6 +8959,8 @@ namespace Core.Catalog
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
+                    unFilteredresult = unFilteredresult.Where(x => x.AssetTypeId != (int)eAssetTypes.UNKNOWN).ToList();
+
                     GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                     Group group = groupManager.GetGroup(groupId);
 
@@ -8980,7 +8982,7 @@ namespace Core.Catalog
                         };
 
                         List<string> listOfMedia = unFilteredresult.Where(
-                            x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR)
+                            x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR && x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
                                 .Select(x => x.AssetId).ToList();
 
                         if (listOfMedia.Count > 0)
@@ -9037,7 +9039,8 @@ namespace Core.Catalog
                                     activeMediaIds.Add(assetId);
                                     unFilteredresult.First(x => int.Parse(x.AssetId) == assetId &&
                                                                 x.AssetTypeId != (int)eAssetTypes.EPG &&
-                                                                x.AssetTypeId != (int)eAssetTypes.NPVR)
+                                                                x.AssetTypeId != (int)eAssetTypes.NPVR &&
+                                                                x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
                                                                 .UpdateDate = searchResult.m_dUpdateDate;
                                 }
                                 else if (searchResult.AssetType == eAssetTypes.NPVR)
@@ -9056,6 +9059,7 @@ namespace Core.Catalog
                         //remove medias that are not active
                         unFilteredresult.RemoveAll(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
                             x.AssetTypeId != (int)eAssetTypes.NPVR &&
+                            x.AssetTypeId != (int)eAssetTypes.UNKNOWN &&
                             !activeMediaIds.Contains(int.Parse(x.AssetId)));
 
                         //remove recordings that are not active
