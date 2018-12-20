@@ -248,7 +248,7 @@ namespace Core.Api
                 if (roles == null || roles.Status == null || roles.Roles == null || roles.Roles.Count == 0)
                 {
 
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PermissionNameNotExists, eResponseStatus.PermissionNameNotExists.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleDoesNotExists, eResponseStatus.RoleDoesNotExists.ToString());
                     return response;
                 }
 

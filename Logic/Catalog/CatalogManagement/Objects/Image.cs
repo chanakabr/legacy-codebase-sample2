@@ -42,5 +42,7 @@ namespace Core.Catalog.CatalogManagement
 
         // only used for backward compatibility of pic sizes
         public int Width { get; set; }
+
+        public string RatioName { get; set; }
     }
 }

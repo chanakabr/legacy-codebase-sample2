@@ -3,6 +3,7 @@ using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog;
+using Core.Catalog.Cache;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using KLogMonitor;
@@ -14,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace APILogic.Api.Managers
 {
@@ -41,7 +43,7 @@ namespace APILogic.Api.Managers
             {
                 return allLinearMedia[lMediaId];
             }
-
+            
             return null;
         }
 
@@ -137,7 +139,7 @@ namespace APILogic.Api.Managers
 
                         if (groupId.HasValue && !string.IsNullOrEmpty(epgChannelId))
                         {
-                            var programs = SearchPrograms(groupId.Value, epgChannelId, 1, OrderBy.START_DATE, OrderDir.ASC);
+                            var programs = SearchPrograms(groupId.Value, epgChannelId, 1, OrderBy.START_DATE, ApiObjects.SearchObjects.OrderDir.ASC);
 
                             if (programs != null)
                             {
@@ -224,6 +226,30 @@ namespace APILogic.Api.Managers
         {
             request.m_sSignString = Guid.NewGuid().ToString();
             request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, ApplicationConfiguration.CatalogSignatureKey.Value);
+        }
+
+        internal static LinearChannelSettings GetLinearChannelSettings(int groupId, long? epgChannelId)
+        {
+            LinearChannelSettings linearSettings = null;
+
+            if (epgChannelId.HasValue && epgChannelId.Value > 0)
+            {
+                string strEpgChannelId = epgChannelId.Value.ToString();
+                Dictionary<string, LinearChannelSettings> linearChannelSettings =
+                            CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { strEpgChannelId });
+
+                if (linearChannelSettings != null && linearChannelSettings.Count > 0 && linearChannelSettings.ContainsKey(strEpgChannelId))
+                {
+                    linearSettings = linearChannelSettings[strEpgChannelId];
+                }
+            }
+
+            if (linearSettings == null)
+            {
+                log.ErrorFormat("GetLinearChannelSettings - No LinearChannelSettings were found for groupId: {0} and epgChannelId: {1}.", groupId, epgChannelId);
+            }
+
+            return linearSettings;
         }
     }
 }
