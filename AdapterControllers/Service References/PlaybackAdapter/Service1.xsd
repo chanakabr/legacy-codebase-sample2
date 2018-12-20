@@ -43,6 +43,7 @@
       <xs:enumeration value="ALLOW_PLAYBACK" />
       <xs:enumeration value="BLOCK_PLAYBACK" />
       <xs:enumeration value="APPLY_DISCOUNT_MODULE" />
+      <xs:enumeration value="APPLY_PLAYBACK_ADAPTER" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="RuleActionType" nillable="true" type="tns:RuleActionType" />
@@ -66,18 +67,93 @@
   </xs:complexType>
   <xs:element name="ArrayOfPlaybackSource" nillable="true" type="tns:ArrayOfPlaybackSource" />
   <xs:complexType name="PlaybackSource">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="AdsParams" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="AdsPolicy" nillable="true" type="tns:AdsPolicy" />
-      <xs:element minOccurs="0" name="Drm" nillable="true" type="tns:ArrayOfDrmPlaybackPluginData" />
-      <xs:element minOccurs="0" name="DrmId" type="xs:int" />
-      <xs:element minOccurs="0" name="FileExtention" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Format" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="IsTokenized" type="xs:boolean" />
-      <xs:element minOccurs="0" name="Protocols" nillable="true" type="xs:string" />
-    </xs:sequence>
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:MediaFile">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="AdsParams" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="AdsPolicy" nillable="true" type="tns:AdsPolicy" />
+          <xs:element minOccurs="0" name="Drm" nillable="true" type="tns:ArrayOfDrmPlaybackPluginData" />
+          <xs:element minOccurs="0" name="DrmId" type="xs:int" />
+          <xs:element minOccurs="0" name="FileExtention" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Format" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="IsTokenized" type="xs:boolean" />
+          <xs:element minOccurs="0" name="Protocols" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
   <xs:element name="PlaybackSource" nillable="true" type="tns:PlaybackSource" />
+  <xs:complexType name="MediaFile">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:AssetFile">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="AdditionalData" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="AltCdnCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="AltExternalId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="AltStreamingCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="AlternativeCdnAdapaterProfileId" nillable="true" type="xs:long" />
+          <xs:element minOccurs="0" name="AssetId" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="BillingType" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="CatalogEndDate" nillable="true" type="xs:long" />
+          <xs:element minOccurs="0" name="CdnAdapaterProfileId" nillable="true" type="xs:long" />
+          <xs:element minOccurs="0" name="CdnCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="CdnName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Duration" nillable="true" type="xs:long" />
+          <xs:element minOccurs="0" name="EndDate" nillable="true" type="xs:long" />
+          <xs:element minOccurs="0" name="ExternalId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ExternalStoreId" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="FileSize" nillable="true" type="xs:long" />
+          <xs:element minOccurs="0" name="HandlingType" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Id" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="IsDefaultLanguage" nillable="true" type="xs:boolean" />
+          <xs:element minOccurs="0" name="Language" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="OrderNum" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="OutputProtecationLevel" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PPVModules" nillable="true" type="tns:StringValueArray" />
+          <xs:element minOccurs="0" name="ProductCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Quality" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="StartDate" nillable="true" type="xs:long" />
+          <xs:element minOccurs="0" name="Status" nillable="true" type="xs:boolean" />
+          <xs:element minOccurs="0" name="Type" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="TypeId" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaFile" nillable="true" type="tns:MediaFile" />
+  <xs:complexType name="AssetFile">
+    <xs:sequence />
+  </xs:complexType>
+  <xs:element name="AssetFile" nillable="true" type="tns:AssetFile" />
+  <xs:complexType name="StringValueArray">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Objects" nillable="true" type="tns:ArrayOfStringValue" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="StringValueArray" nillable="true" type="tns:StringValueArray" />
+  <xs:complexType name="ArrayOfStringValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="StringValue" nillable="true" type="tns:StringValue" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfStringValue" nillable="true" type="tns:ArrayOfStringValue" />
+  <xs:complexType name="StringValue">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:Value">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="value" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="StringValue" nillable="true" type="tns:StringValue" />
+  <xs:complexType name="Value">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Value" nillable="true" type="tns:Value" />
   <xs:simpleType name="AdsPolicy">
     <xs:restriction base="xs:string">
       <xs:enumeration value="NO_ADS" />
@@ -92,12 +168,20 @@
   </xs:complexType>
   <xs:element name="ArrayOfDrmPlaybackPluginData" nillable="true" type="tns:ArrayOfDrmPlaybackPluginData" />
   <xs:complexType name="DrmPlaybackPluginData">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="LicenseURL" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Scheme" type="tns:DrmSchemeName" />
-    </xs:sequence>
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:PluginData">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="LicenseURL" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Scheme" type="tns:DrmSchemeName" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
   <xs:element name="DrmPlaybackPluginData" nillable="true" type="tns:DrmPlaybackPluginData" />
+  <xs:complexType name="PluginData">
+    <xs:sequence />
+  </xs:complexType>
+  <xs:element name="PluginData" nillable="true" type="tns:PluginData" />
   <xs:simpleType name="DrmSchemeName">
     <xs:restriction base="xs:string">
       <xs:enumeration value="PLAYREADY_CENC" />
