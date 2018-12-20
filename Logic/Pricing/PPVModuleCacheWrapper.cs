@@ -137,7 +137,7 @@ namespace Core.Pricing
             return null;
         }
 
-        public override PPVModule GetPPVModuleData(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public override PPVModule GetPPVModuleData(string sPPVModuleCode)
         {
             PPVModule res = null;
             if (!string.IsNullOrEmpty(sPPVModuleCode))
@@ -146,7 +146,7 @@ namespace Core.Pricing
                 PPVModule temp = null;
                 if (PricingCache.TryGetPPVModule(cacheKey, out temp) && temp != null)
                     return temp;
-                res = originalBasePPVModule.GetPPVModuleData(sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                res = originalBasePPVModule.GetPPVModuleData(sPPVModuleCode);
                 if (res != null)
                 {
                     if (!PricingCache.TryAddPPVModule(cacheKey, res))
@@ -161,11 +161,12 @@ namespace Core.Pricing
         }
 
         public override PPVModuleDataResponse GetPPVModuleDataResponse(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+
         {
             PPVModuleDataResponse result = new PPVModuleDataResponse();
             try
             {
-                result.PPVModule = GetPPVModuleData(sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                result.PPVModule = GetPPVModuleData(sPPVModuleCode);
                 if (result.PPVModule != null)
                 {
                     result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -193,7 +194,7 @@ namespace Core.Pricing
             return result;
         }
 
-        public override PPVModule[] GetPPVModulesData(string[] sPPVModuleCodes, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public override PPVModule[] GetPPVModulesData(string[] sPPVModuleCodes)
         {
             PPVModule[] ppvModules = null;
             if (sPPVModuleCodes != null && sPPVModuleCodes.Length > 0)
@@ -219,7 +220,7 @@ namespace Core.Pricing
 
                 if (uncachedPPVs.Count > 0)
                 {
-                    PPVModule[] unCachedPPVModules = originalBasePPVModule.GetPPVModulesData(uncachedPPVs.ToArray(), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                    PPVModule[] unCachedPPVModules = originalBasePPVModule.GetPPVModulesData(uncachedPPVs.ToArray());
                     if (unCachedPPVModules != null && unCachedPPVModules.Length > 0)
                     {
                         // add to mappings dictionary and try to add to cache
@@ -423,7 +424,7 @@ namespace Core.Pricing
                         ppvModuleCode = ODBCWrapper.Utils.GetLongSafeVal(dr, "ppmid");
                     }
                     // get the MediaFilePPVModule 
-                    ppvModule = GetPPVModuleData(ppvModuleCode.ToString(), string.Empty, string.Empty, string.Empty);
+                    ppvModule = GetPPVModuleData(ppvModuleCode.ToString());
                 }
             }
             return ppvModule;
@@ -436,7 +437,7 @@ namespace Core.Pricing
             {
                 Dictionary<string, PPVModule> ppvModulesMapping = new Dictionary<string, PPVModule>();
                 List<string> unfoundPPVModules = DAL.PricingDAL.Get_PPVsFromProductCodes(productCodes.Distinct().ToList(), originalBasePPVModule.GroupID).Keys.ToList();
-                ppvModules = GetPPVModulesData(unfoundPPVModules.ToArray(), string.Empty, string.Empty, string.Empty);                
+                ppvModules = GetPPVModulesData(unfoundPPVModules.ToArray());                
             }
 
             return ppvModules;

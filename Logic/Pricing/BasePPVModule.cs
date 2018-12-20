@@ -35,9 +35,9 @@ namespace Core.Pricing
             }
         }
 
-        public abstract PPVModule GetPPVModuleData(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
+        public abstract PPVModule GetPPVModuleData(string sPPVModuleCode);
         public abstract PPVModuleDataResponse GetPPVModuleDataResponse(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
-        public abstract PPVModule[] GetPPVModulesData(string[] sPPVModuleCodes, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
+        public abstract PPVModule[] GetPPVModulesData(string[] sPPVModuleCodes);
         public abstract PPVModule[] GetPPVModuleList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
         public abstract PPVModule[] GetPPVModuleShrinkList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
         public abstract PPVModule[] GetPPVModulesDataByProductCodes(List<string> productCodes);
@@ -64,7 +64,7 @@ namespace Core.Pricing
                     for (int i = 0; i < nCount; i++)
                     {
                         int nPPVID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", i);
-                        PPVModule p = GetPPVModuleData(nPPVID.ToString(), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        PPVModule p = GetPPVModuleData(nPPVID.ToString());
 
                         DateTime? dStartDate = null;
                         DateTime? dEndDate = null;
@@ -146,7 +146,7 @@ namespace Core.Pricing
                                 if (i == 0)
                                     sProductCode = ODBCWrapper.Utils.GetSafeStr(row["Product_Code"]);
                                 Int32 nPPVID = ODBCWrapper.Utils.GetIntSafeVal(row["ppmid"]);
-                                PPVModule p = GetPPVModuleData(nPPVID.ToString(), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                PPVModule p = GetPPVModuleData(nPPVID.ToString());
                                 tmp[i] = p;
                                 i++;
                             }
@@ -229,7 +229,7 @@ namespace Core.Pricing
                                 Int32 nPPVID = ODBCWrapper.Utils.GetIntSafeVal(row["ppmid"]);
                                 startDate = ((startDate = ODBCWrapper.Utils.GetDateSafeVal(row["PPMF_START_DATE"])) == ODBCWrapper.Utils.FICTIVE_DATE) ? DateTime.MinValue : startDate;
                                 endDate = ((endDate = ODBCWrapper.Utils.GetDateSafeVal(row["PPMF_END_DATE"])) == ODBCWrapper.Utils.FICTIVE_DATE) ? DateTime.MaxValue : endDate;
-                                PPVModule p = GetPPVModuleData(nPPVID.ToString(), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                PPVModule p = GetPPVModuleData(nPPVID.ToString());
                                 tmp[i] = new PPVModuleWithExpiry(p, startDate, endDate);
 
                             }
@@ -311,7 +311,7 @@ namespace Core.Pricing
                                 Int32 nPPVID = ODBCWrapper.Utils.GetIntSafeVal(row["ppmid"]);
                                 dtStartDate = ((dtStartDate = ODBCWrapper.Utils.GetDateSafeVal(row["PPMF_START_DATE"])) == ODBCWrapper.Utils.FICTIVE_DATE) ? DateTime.MinValue : dtStartDate;
                                 dtEndDate = ((dtEndDate = ODBCWrapper.Utils.GetDateSafeVal(row["PPMF_END_DATE"])) == ODBCWrapper.Utils.FICTIVE_DATE) ? DateTime.MaxValue : dtEndDate;
-                                PPVModule p = GetPPVModuleData(nPPVID.ToString(), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                PPVModule p = GetPPVModuleData(nPPVID.ToString());
                                 tmp[i] = new PPVModuleWithExpiry(p, dtStartDate, dtEndDate);
 
                             }
