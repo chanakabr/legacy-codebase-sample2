@@ -256,10 +256,9 @@ namespace Core.Pricing
                         GroupID, LayeredCacheConfigNames.PPV_MODULES_CONFIG_NAME, null))
                     {
                         log.ErrorFormat("Error when getting ppv modules data from layered cache");
-                    }
-                    else
-                    {
+
                         DataTable dt = PricingDAL.Get_PPVModulesData(m_nGroupID, ppvModuleCodes);
+
                         if (dt != null & dt.Rows != null && dt.Rows.Count > 0)
                         {
                             ppvModules = new PPVModule[dt.Rows.Count];
