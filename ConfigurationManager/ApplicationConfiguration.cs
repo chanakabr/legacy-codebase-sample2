@@ -124,6 +124,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue MetaFeaturesPattern;
         public static StringConfigurationValue ExcludeTemplatesImplementation;
         public static NumericConfigurationValue EPGDeleteBulkSize;
+        public static BooleanConfigurationValue AllowUnknownCountry;
 
         #endregion
 
@@ -543,6 +544,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = 10
             };
+            AllowUnknownCountry = new BooleanConfigurationValue("allow_unknown_country")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -646,7 +652,8 @@ namespace ConfigurationManager
                     PreviewModuleNumOfCancelOrRefundAttempts,
                     MetaFeaturesPattern,
                     ExcludeTemplatesImplementation,
-                    EPGDeleteBulkSize
+                    EPGDeleteBulkSize,
+                    AllowUnknownCountry
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
