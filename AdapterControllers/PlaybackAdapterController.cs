@@ -233,13 +233,13 @@ namespace AdapterControllers
                         {
                             AdsParams = x.AdsParams,
                             AdsPolicy = (PlaybackAdapterAdsPolicy)x.AdsPolicy,
-                            //TODO: anat add inhertince
-                            Drm = x.Drm?.Select(d =>
-                                new ApiObjects.PlaybackAdapter.DrmPlaybackPluginData()
-                                {
-                                    LicenseURL = d.LicenseURL,
-                                    Scheme = (PlaybackAdapterDrmSchemeName)d.Scheme
-                                }).ToList(),
+                            //TODO: anat add inheritance
+                            Drm = x.Drm == null ? null : x.Drm.Select(d =>
+                                   new ApiObjects.PlaybackAdapter.DrmPlaybackPluginData()
+                                   {
+                                       LicenseURL = d.LicenseURL,
+                                       Scheme = (PlaybackAdapterDrmSchemeName)d.Scheme
+                                   }).ToList(),
                             DrmId = x.DrmId,
                             FileExtention = x.FileExtention,
                             Format = x.Format,
@@ -286,8 +286,8 @@ namespace AdapterControllers
                         {
                             AdsParams = x.AdsParams,
                             AdsPolicy = (PlaybackAdapter.AdsPolicy)x.AdsPolicy,
-                            //TODO: anat add inhertince
-                            Drm = x.Drm?.Select(d =>
+                            //TODO: anat add inheritance
+                            Drm = x.Drm == null ? null : x.Drm.Select(d =>
                                 new PlaybackAdapter.DrmPlaybackPluginData()
                                 {
                                     LicenseURL = d.LicenseURL,
