@@ -979,10 +979,10 @@ namespace WebAPI.Controllers
                             StringBuilder url = null;
                             foreach (var source in response.Sources)
                             {
-                                // check if is tokinzed . if yes add base64 url
+                                // check if is tokenized . if yes add base64 url
                                 if (source.IsTokenized == true)
                                 {                                    
-                                    url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}/url/{6}",
+                                    url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}/tokenizedUrl/{6}",
                                         baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context, Convert.ToBase64String(Encoding.UTF8.GetBytes(source.Url))));
                                 }
                                 else
