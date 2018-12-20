@@ -212,7 +212,7 @@ namespace AdapterControllers
                         new ApiObjects.PlaybackAdapter.RuleAction()
                         {
                             Description = x.Description,
-                            Type = (PlaybackAdapterRuleActionType)x.Type
+                            Type = (ApiObjects.PlaybackAdapter.RuleActionType)x.Type
                         }).ToList();
                 }
 
@@ -232,13 +232,13 @@ namespace AdapterControllers
                         new ApiObjects.PlaybackAdapter.PlaybackSource()
                         {
                             AdsParams = x.AdsParams,
-                            AdsPolicy = (PlaybackAdapterAdsPolicy)x.AdsPolicy,
+                            AdsPolicy = (ApiObjects.PlaybackAdapter.AdsPolicy)x.AdsPolicy,
                             //TODO: anat add inheritance
                             Drm = x.Drm == null ? null : x.Drm.Select(d =>
                                    new ApiObjects.PlaybackAdapter.DrmPlaybackPluginData()
                                    {
                                        LicenseURL = d.LicenseURL,
-                                       Scheme = (PlaybackAdapterDrmSchemeName)d.Scheme
+                                       Scheme = (ApiObjects.PlaybackAdapter.DrmSchemeName)d.Scheme
                                    }).ToList(),
                             DrmId = x.DrmId,
                             FileExtention = x.FileExtention,
@@ -291,7 +291,7 @@ namespace AdapterControllers
                                 new PlaybackAdapter.DrmPlaybackPluginData()
                                 {
                                     LicenseURL = d.LicenseURL,
-                                    Scheme = (DrmSchemeName)d.Scheme
+                                    Scheme = (PlaybackAdapter.DrmSchemeName)d.Scheme
                                 }).ToArray(),
                             DrmId = x.DrmId,
                             FileExtention = x.FileExtention,
