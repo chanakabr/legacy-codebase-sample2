@@ -695,7 +695,20 @@ namespace TVinciShared
             }
             return imageServerUrl;
         }
-
+        
+        /// <summary>
+        /// build image URL. 
+        /// template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
+        /// Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="imageId"></param>
+        /// <param name="version"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="quality"></param>
+        /// <param name="isDynamic"></param>
+        /// <returns></returns>
         public static string BuildImageUrl(int groupId, string imageId, int version = 0, int width = 0, int height = 0, int quality = 100, bool isDynamic = false)
         {
             string imageServerUrl = string.Empty;

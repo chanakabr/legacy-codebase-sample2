@@ -860,25 +860,7 @@ namespace EpgBL
                         }
 
                         oProgram.EPG_PICTURES = finalEpgPicture; // Reassignment epg pictures
-
-                        // complete the picURL for back support                
-                        string baseEpgPicUrl = string.Empty;
-                        if (oProgram != null &&
-                            !string.IsNullOrEmpty(oProgram.PIC_URL) &&
-                            pictures.ContainsKey(progGroup) &&
-                            pictures[progGroup] != null)
-                        {
-                            EpgPicture pict = pictures[progGroup].First();
-                            if (pict != null && !string.IsNullOrEmpty(pict.Url))
-                            {
-                                baseEpgPicUrl = pict.Url;
-                                if (pict.PicHeight != 0 && pict.PicWidth != 0)
-                                {
-                                    oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
-                                }
-                                oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
-                            }
-                        }
+                        oProgram.PIC_URL = CompletePicURLForBackSupport(oProgram.PIC_URL, pictures[progGroup]);
                     }
                 }
             }
@@ -892,7 +874,6 @@ namespace EpgBL
         {
             try
             {
-                string baseEpgPicUrl;
                 EpgPicture pictureItem;
 
                 List<EpgPicture> finalEpgPicture = null;
@@ -931,28 +912,33 @@ namespace EpgBL
                     }
 
                     oProgram.EPG_PICTURES = finalEpgPicture; // Reassignment epg pictures
-
-                    // complete the picURL for back support                
-                    baseEpgPicUrl = string.Empty;
-                    if (oProgram != null && !string.IsNullOrEmpty(oProgram.PIC_URL) && pictures[group] != null)
-                    {
-                        EpgPicture pict = pictures[group].First();
-                        if (pict != null && !string.IsNullOrEmpty(pict.Url))
-                        {
-                            baseEpgPicUrl = pict.Url;
-                            if (pict.PicHeight != 0 && pict.PicWidth != 0)
-                            {
-                                oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
-                            }
-                            oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
-                        }
-                    }
+                    oProgram.PIC_URL = CompletePicURLForBackSupport(oProgram.PIC_URL, pictures[group]);
                 }
             }
             catch (Exception ex)
             {
                 log.Error("MutateFullEpgPicURL - " + string.Format("Failed ex={0}", ex.Message), ex);
             }
+        }
+
+        private static string CompletePicURLForBackSupport(string oldPicURL, List<EpgPicture> pictures)
+        {
+            string newPicURL = oldPicURL;
+            if (!string.IsNullOrEmpty(newPicURL) && pictures != null && pictures.Count > 0)
+            {
+                EpgPicture pict = pictures.FirstOrDefault();
+                if (pict != null && !string.IsNullOrEmpty(pict.Url))
+                {
+                    string baseEpgPicUrl = pict.Url;
+                    if (pict.PicHeight != 0 && pict.PicWidth != 0)
+                    {
+                        newPicURL = newPicURL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
+                    }
+                    newPicURL = string.Format("{0}{1}", baseEpgPicUrl, newPicURL);
+                }
+            }
+
+            return newPicURL;
         }
 
         public override List<EpgCB> GetEpgs(List<string> lIds)
