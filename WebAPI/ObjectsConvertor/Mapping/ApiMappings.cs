@@ -1292,12 +1292,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region KalturaPlaybackContext, PlaybackAdapter.AdapterPlaybackContext
 
-            cfg.CreateMap<ApiObjects.PlaybackAdapter.AdapterPlaybackContext, KalturaPlaybackContext>()
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackContext, KalturaPlaybackContext>()
              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
              .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources));
 
-            cfg.CreateMap<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.AdapterPlaybackContext>()
+            cfg.CreateMap<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>()
              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
              .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources));
@@ -1368,34 +1368,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            cfg.CreateMap<KalturaRuleActionType, ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType>()
+            cfg.CreateMap<KalturaRuleActionType, ApiObjects.PlaybackAdapter.RuleActionType>()
                .ConvertUsing(kalturaRuleActionType =>
                {
                    switch (kalturaRuleActionType)
                    {
                        case KalturaRuleActionType.BLOCK:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.BLOCK;
+                           return ApiObjects.PlaybackAdapter.RuleActionType.BLOCK;
                            break;
                        case KalturaRuleActionType.START_DATE_OFFSET:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.START_DATE_OFFSET;
+                           return ApiObjects.PlaybackAdapter.RuleActionType.START_DATE_OFFSET;
                            break;
                        case KalturaRuleActionType.END_DATE_OFFSET:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.END_DATE_OFFSET;
+                           return ApiObjects.PlaybackAdapter.RuleActionType.END_DATE_OFFSET;
                            break;
                        case KalturaRuleActionType.USER_BLOCK:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.USER_BLOCK;
+                           return ApiObjects.PlaybackAdapter.RuleActionType.USER_BLOCK;
                            break;
                        case KalturaRuleActionType.ALLOW_PLAYBACK:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.ALLOW_PLAYBACK;
+                           return ApiObjects.PlaybackAdapter.RuleActionType.ALLOW_PLAYBACK;
                            break;
                        case KalturaRuleActionType.BLOCK_PLAYBACK:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.BLOCK_PLAYBACK;
+                           return ApiObjects.PlaybackAdapter.RuleActionType.BLOCK_PLAYBACK;
                            break;
                        case KalturaRuleActionType.APPLY_DISCOUNT_MODULE:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.APPLY_DISCOUNT_MODULE;
+                           return ApiObjects.PlaybackAdapter.RuleActionType.APPLY_DISCOUNT_MODULE;
                            break;
                        case KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.APPLY_PLAYBACK_ADAPTER;
+                           return ApiObjects.PlaybackAdapter.RuleActionType.APPLY_PLAYBACK_ADAPTER;
                            break;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown kalturaRuleActionType value : {0}", kalturaRuleActionType.ToString()));
@@ -1403,34 +1403,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
                    }
                });
 
-            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType, KalturaRuleActionType>()
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.RuleActionType, KalturaRuleActionType>()
                 .ConvertUsing(ruleActionType =>
                 {
 
                     switch (ruleActionType)
                     {
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.BLOCK:
+                        case ApiObjects.PlaybackAdapter.RuleActionType.BLOCK:
                             return KalturaRuleActionType.BLOCK;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.START_DATE_OFFSET:
+                        case ApiObjects.PlaybackAdapter.RuleActionType.START_DATE_OFFSET:
                             return KalturaRuleActionType.START_DATE_OFFSET;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.END_DATE_OFFSET:
+                        case ApiObjects.PlaybackAdapter.RuleActionType.END_DATE_OFFSET:
                             return KalturaRuleActionType.END_DATE_OFFSET;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.USER_BLOCK:
+                        case ApiObjects.PlaybackAdapter.RuleActionType.USER_BLOCK:
                             return KalturaRuleActionType.USER_BLOCK;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.ALLOW_PLAYBACK:
+                        case ApiObjects.PlaybackAdapter.RuleActionType.ALLOW_PLAYBACK:
                             return KalturaRuleActionType.ALLOW_PLAYBACK;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.BLOCK_PLAYBACK:
+                        case ApiObjects.PlaybackAdapter.RuleActionType.BLOCK_PLAYBACK:
                             return KalturaRuleActionType.BLOCK_PLAYBACK;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.APPLY_DISCOUNT_MODULE:
+                        case ApiObjects.PlaybackAdapter.RuleActionType.APPLY_DISCOUNT_MODULE:
                             return KalturaRuleActionType.APPLY_DISCOUNT_MODULE;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterRuleActionType.APPLY_PLAYBACK_ADAPTER:
+                        case ApiObjects.PlaybackAdapter.RuleActionType.APPLY_PLAYBACK_ADAPTER:
                             return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
                             break;
                         default:
@@ -1439,16 +1439,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
-            cfg.CreateMap<KalturaAdsPolicy, ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy>()
+            cfg.CreateMap<KalturaAdsPolicy, ApiObjects.PlaybackAdapter.AdsPolicy>()
                .ConvertUsing(kalturaType =>
                {
                    switch (kalturaType)
                    {
                        case KalturaAdsPolicy.KEEP_ADS:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy.KEEP_ADS;
+                           return ApiObjects.PlaybackAdapter.AdsPolicy.KEEP_ADS;
                            break;
                        case KalturaAdsPolicy.NO_ADS:
-                           return ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy.NO_ADS;
+                           return ApiObjects.PlaybackAdapter.AdsPolicy.NO_ADS;
                            break;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaAdsPolicy value : {0}", kalturaType.ToString()));
@@ -1456,16 +1456,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                    }
                });
 
-            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy, KalturaAdsPolicy>()
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.AdsPolicy, KalturaAdsPolicy>()
                 .ConvertUsing(type =>
                 {
 
                     switch (type)
                     {
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy.KEEP_ADS:
+                        case ApiObjects.PlaybackAdapter.AdsPolicy.KEEP_ADS:
                             return KalturaAdsPolicy.KEEP_ADS;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterAdsPolicy.NO_ADS:
+                        case ApiObjects.PlaybackAdapter.AdsPolicy.NO_ADS:
                             return KalturaAdsPolicy.NO_ADS;
                             break;
                         default:
@@ -1474,29 +1474,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
-            cfg.CreateMap<KalturaDrmSchemeName, ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName>()
+            cfg.CreateMap<KalturaDrmSchemeName, ApiObjects.PlaybackAdapter.DrmSchemeName>()
                 .ConvertUsing(kalturaType =>
                 {
                     switch (kalturaType)
 
                     {
                         case KalturaDrmSchemeName.PLAYREADY_CENC:
-                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.PLAYREADY_CENC;
+                            return ApiObjects.PlaybackAdapter.DrmSchemeName.PLAYREADY_CENC;
                             break;
                         case KalturaDrmSchemeName.WIDEVINE_CENC:
-                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.WIDEVINE_CENC;
+                            return ApiObjects.PlaybackAdapter.DrmSchemeName.WIDEVINE_CENC;
                             break;
                         case KalturaDrmSchemeName.FAIRPLAY:
-                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.FAIRPLAY;
+                            return ApiObjects.PlaybackAdapter.DrmSchemeName.FAIRPLAY;
                             break;
                         case KalturaDrmSchemeName.WIDEVINE:
-                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.WIDEVINE;
+                            return ApiObjects.PlaybackAdapter.DrmSchemeName.WIDEVINE;
                             break;
                         case KalturaDrmSchemeName.PLAYREADY:
-                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.PLAYREADY;
+                            return ApiObjects.PlaybackAdapter.DrmSchemeName.PLAYREADY;
                             break;
                         case KalturaDrmSchemeName.CUSTOM_DRM:
-                            return ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.CUSTOM_DRM;
+                            return ApiObjects.PlaybackAdapter.DrmSchemeName.CUSTOM_DRM;
                             break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaDrmSchemeName value : {0}", kalturaType.ToString()));
@@ -1504,31 +1504,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
-            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName, KalturaDrmSchemeName>()
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmSchemeName, KalturaDrmSchemeName>()
                 .ConvertUsing(type =>
                 {
                     switch (type)
                     {
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.PLAYREADY_CENC:
+                        case ApiObjects.PlaybackAdapter.DrmSchemeName.PLAYREADY_CENC:
                             return KalturaDrmSchemeName.PLAYREADY_CENC;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.WIDEVINE_CENC:
+                        case ApiObjects.PlaybackAdapter.DrmSchemeName.WIDEVINE_CENC:
                             return KalturaDrmSchemeName.WIDEVINE_CENC;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.FAIRPLAY:
+                        case ApiObjects.PlaybackAdapter.DrmSchemeName.FAIRPLAY:
                             return KalturaDrmSchemeName.FAIRPLAY;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.WIDEVINE:
+                        case ApiObjects.PlaybackAdapter.DrmSchemeName.WIDEVINE:
                             return KalturaDrmSchemeName.WIDEVINE;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.PLAYREADY:
+                        case ApiObjects.PlaybackAdapter.DrmSchemeName.PLAYREADY:
                             return KalturaDrmSchemeName.PLAYREADY;
                             break;
-                        case ApiObjects.PlaybackAdapter.PlaybackAdapterDrmSchemeName.CUSTOM_DRM:
+                        case ApiObjects.PlaybackAdapter.DrmSchemeName.CUSTOM_DRM:
                             return KalturaDrmSchemeName.CUSTOM_DRM;
                             break;
                         default:
-                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown PlaybackAdapterDrmSchemeName value : {0}", type.ToString()));
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown DrmSchemeName value : {0}", type.ToString()));
                             break;
                     }
                 });

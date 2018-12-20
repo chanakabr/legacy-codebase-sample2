@@ -50,8 +50,7 @@ namespace WebAPI.Utils
 
                     if (playbackContextResponse != null)
                     {
-                        // map PlaybackContext  to kalturaPlaybackContext //TODO anat
-                        return KalturaPlaybackContextResponse;
+                        return playbackContextResponse;
                     }
                 }
             }
