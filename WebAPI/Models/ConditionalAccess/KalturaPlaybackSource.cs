@@ -60,7 +60,7 @@ namespace WebAPI.Models.ConditionalAccess
         internal int DrmId;
 
         /// <summary>
-        /// Is url tokenized
+        /// Is Tokenized
         /// </summary>
         [DataMember(Name = "isTokenized")]
         [JsonProperty("isTokenized")]

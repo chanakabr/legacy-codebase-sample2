@@ -19,12 +19,13 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "partnerListTypeIn")]
         [JsonProperty("partnerListTypeIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
         [XmlElement(ElementName = "partnerListTypeIn", IsNullable = true)]
         public string PartnerListTypeIn { get; set; }
 
         internal HashSet<int> GetPartnerListTypeIn()
         {
-            return this.GetItemsIn<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn");
+            return this.GetItemsIn<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn", true);
         }
     }
 }
