@@ -1331,7 +1331,7 @@ namespace WS_Pricing
             {
                 try
                 {
-                    return Core.Pricing.Module.GetPPVModulesData(nGroupID, sPPVCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                    return Core.Pricing.Module.GetPPVModulesData(nGroupID, sPPVCode);
                 }
                 catch (Exception)
                 {
