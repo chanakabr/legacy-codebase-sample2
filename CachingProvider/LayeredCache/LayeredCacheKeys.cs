@@ -334,6 +334,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("GroupRatios_groupId_{0}", groupId);
         }
 
+        public static string GetPPVModuleKey(long ppvModule)
+        {
+            return string.Format("PPVModule_{0}", ppvModule);
+        }
+
         public static string GetGroupMediaFileTypesKey(int groupId)
         {
             return string.Format("GroupMediaFileTypes_groupId_{0}", groupId);

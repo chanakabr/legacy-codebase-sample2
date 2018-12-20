@@ -93,6 +93,7 @@ namespace CachingProvider.LayeredCache
         public const string PROCEDURES_ROUTING_CONFIG_NAME = "ProceduresRouting";
         public const string QUERIES_ROUTING_CONFIG_NAME = "QueriesRouting";
         public const string GROUP_WATCH_PERMISSION_RULES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPermittedWatchRules";
+        public const string PPV_MODULES_CONFIG_NAME = "PPVModules";
 
         #endregion
 
