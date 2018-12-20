@@ -1,8 +1,12 @@
 ﻿namespace ApiObjects.PlaybackAdapter
 {
-    public class DrmPlaybackPluginData
+    public class PluginData
     {
-        public PlaybackAdapterDrmSchemeName Scheme { get; set; }
+    }
+
+    public class DrmPlaybackPluginData : PluginData
+    {
+        public ApiObjects.PlaybackAdapter.DrmSchemeName Scheme { get; set; }
 
         public string LicenseURL { get; set; }
     }

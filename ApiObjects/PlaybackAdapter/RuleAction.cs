@@ -2,7 +2,7 @@
 {
     public class RuleAction
     {
-        public PlaybackAdapterRuleActionType Type { get; set; }
+        public RuleActionType Type { get; set; }
 
         public string Description { get; set; }
     }

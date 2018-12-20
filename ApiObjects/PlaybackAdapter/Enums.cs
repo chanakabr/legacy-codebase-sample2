@@ -1,12 +1,12 @@
 ﻿namespace ApiObjects.PlaybackAdapter
 {
-    public enum PlaybackAdapterAdsPolicy
+    public enum AdsPolicy
     {
         NO_ADS,
         KEEP_ADS
     }
 
-    public enum PlaybackAdapterDrmSchemeName
+    public enum DrmSchemeName
     {
         PLAYREADY_CENC,
         WIDEVINE_CENC,
@@ -16,7 +16,7 @@
         CUSTOM_DRM
     }
 
-    public enum PlaybackAdapterRuleActionType
+    public enum RuleActionType
     {
         BLOCK,
         START_DATE_OFFSET,

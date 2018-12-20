@@ -1879,7 +1879,7 @@ namespace Core.Api
             return Core.Api.api.DeleteAssetRule(groupId, id);
         }
 
-        public static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId, SlimAsset slimAsset = null, RuleActionType? ruleActionType = null)
+        public static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId, SlimAsset slimAsset = null, ApiObjects.RuleActionType? ruleActionType = null)
         {
             return Core.Api.api.GetAssetRules(assetRuleConditionType, groupId, slimAsset, ruleActionType);
         }

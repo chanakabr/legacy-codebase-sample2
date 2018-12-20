@@ -3,7 +3,7 @@
 namespace ApiObjects.PlaybackAdapter
 {
 
-    public class PlaybackSource
+    public class PlaybackSource : MediaFile
     {
         public string Format { get; set; }
 
@@ -11,7 +11,7 @@ namespace ApiObjects.PlaybackAdapter
 
         public List<DrmPlaybackPluginData> Drm { get; set; }
 
-        public PlaybackAdapterAdsPolicy? AdsPolicy { get; set; }
+        public AdsPolicy? AdsPolicy { get; set; }
 
         public string AdsParams { get; set; }
 
