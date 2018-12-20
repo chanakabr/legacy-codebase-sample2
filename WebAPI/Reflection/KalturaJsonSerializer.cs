@@ -14667,7 +14667,7 @@ namespace WebAPI.Models.API
             if(IsActive.HasValue)
             {
                 ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
-            }            
+            }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
