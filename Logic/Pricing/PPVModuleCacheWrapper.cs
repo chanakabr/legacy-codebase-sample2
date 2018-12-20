@@ -260,14 +260,14 @@ namespace Core.Pricing
             return this.originalBasePPVModule.GetPPVModuleListForAdmin(nMediaFileID, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
         }
 
-        public override PPVModule[] GetPPVModuleList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public override PPVModule[] GetPPVModuleList()
         {
-            return this.originalBasePPVModule.GetPPVModuleList(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+            return this.originalBasePPVModule.GetPPVModuleList();
         }
 
-        public override PPVModule[] GetPPVModuleShrinkList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public override PPVModule[] GetPPVModuleShrinkList()
         {
-            return this.originalBasePPVModule.GetPPVModuleShrinkList(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+            return this.originalBasePPVModule.GetPPVModuleShrinkList();
         }
 
         #endregion

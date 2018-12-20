@@ -38,8 +38,8 @@ namespace Core.Pricing
         public abstract PPVModule GetPPVModuleData(string sPPVModuleCode);
         public abstract PPVModuleDataResponse GetPPVModuleDataResponse(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
         public abstract PPVModule[] GetPPVModulesData(string[] sPPVModuleCodes);
-        public abstract PPVModule[] GetPPVModuleList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
-        public abstract PPVModule[] GetPPVModuleShrinkList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
+        public abstract PPVModule[] GetPPVModuleList();
+        public abstract PPVModule[] GetPPVModuleShrinkList();
         public abstract PPVModule[] GetPPVModulesDataByProductCodes(List<string> productCodes);
 
         public virtual PPVModuleContainer[] GetPPVModuleListForAdmin(Int32 nMediaFileID, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)

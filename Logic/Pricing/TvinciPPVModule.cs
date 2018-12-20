@@ -69,16 +69,15 @@ namespace Core.Pricing
             return retVal;
         }
 
-        protected PPVModule[] GetTvinciPPVModuleList(bool bShrink, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        protected PPVModule[] GetTvinciPPVModuleList(bool shouldShrink)
         {
-
-            PPVModule[] tmp = null;
+            PPVModule[] temporaryArray = null;
 
             DataTable dtPPVModuleData = PricingDAL.Get_PPVModuleData(m_nGroupID, null);
 
             if (dtPPVModuleData != null && dtPPVModuleData.Rows != null && dtPPVModuleData.Rows.Count > 0)
             {
-                tmp = new PPVModule[dtPPVModuleData.Rows.Count];
+                temporaryArray = new PPVModule[dtPPVModuleData.Rows.Count];
                 Int32 nIndex = 0;
                 for (int i = 0; i < dtPPVModuleData.Rows.Count; i++)
                 {
@@ -102,74 +101,89 @@ namespace Core.Pricing
                     }
 
                     PPVModule t = new PPVModule();
-                    if (!bShrink) 
-                        t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
+                    if (!shouldShrink) 
+                        t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, string.Empty, string.Empty, string.Empty, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
                     else
-                        t.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
+                        t.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, string.Empty, string.Empty, string.Empty, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
                     if (t.m_oPriceCode != null)
                     {
-                        tmp[nIndex] = t;
+                        temporaryArray[nIndex] = t;
                         nIndex++;
                     }
                 }
                 if (nIndex < dtPPVModuleData.Rows.Count)
                 {
                     PPVModule[] tmp1 = new PPVModule[nIndex];
-                    Array.Copy(tmp, tmp1, nIndex);
-                    tmp = tmp1;
+                    Array.Copy(temporaryArray, tmp1, nIndex);
+                    temporaryArray = tmp1;
                 }
             }
-            return tmp;
+            return temporaryArray;
         }
 
-        public override PPVModule[] GetPPVModuleList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public override PPVModule[] GetPPVModuleList()
         {
-            return GetTvinciPPVModuleList(false, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+            return GetTvinciPPVModuleList(false);
         }
 
-        public override PPVModule[] GetPPVModuleShrinkList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public override PPVModule[] GetPPVModuleShrinkList()
         {
-            return GetTvinciPPVModuleList(true, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+            return GetTvinciPPVModuleList(true);
         }
 
-        public override PPVModule GetPPVModuleData(string sPPVModuleCode)
+        public override PPVModule GetPPVModuleData(string stringPPVModuleCode)
         {
+            PPVModule result = null;
+
             try
             {
-                Int32 nPPVModuleCode = 0;
-                PPVModule tmp = new PPVModule();
+                int ppvModuleCode = 0;
 
-                if (!Int32.TryParse(sPPVModuleCode, out nPPVModuleCode) || nPPVModuleCode == 0)
-                    return null;
+                if (!int.TryParse(stringPPVModuleCode, out ppvModuleCode) || ppvModuleCode == 0)
+                    return result;
 
-                DataTable dtPPVModuleData = PricingDAL.Get_PPVModuleData(m_nGroupID, nPPVModuleCode);
-
-                if (dtPPVModuleData != null && dtPPVModuleData.Rows != null && dtPPVModuleData.Rows.Count > 0)
+                string key = LayeredCacheKeys.GetPPVModuleKey(ppvModuleCode);
+                Dictionary<string, object> layeredCacheParameters = new Dictionary<string, object>()
                 {
-                    DataRow ppvModuleDataRow = dtPPVModuleData.Rows[0];
-                    string sPriceCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["PRICE_CODE"]);
-                    string sUsageModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["USAGE_MODULE_CODE"]);
-                    string sDiscountModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["DISCOUNT_MODULE_CODE"]);
-                    string sCouponGroupCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["COUPON_GROUP_CODE"]);
-                    string sName = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["NAME"]);
-                    bool bSubOnly = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["SUBSCRIPTION_ONLY"]));
-                    bool bIsFirstDeviceLimitation = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["FIRSTDEVICELIMITATION"]));
-                    string productCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["Product_Code"]);
-                    string adsParam = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow, "ADS_PARAM");
+                    { "ppvModuleCode", ppvModuleCode },
+                    { "groupId", GroupID }
+                };
 
-                    int adsPolicyInt = ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow, "ADS_POLICY");
-                    AdsPolicy? adsPolicy = null;
-                    if (adsPolicyInt > 0)
+                if (!LayeredCache.Instance.Get<PPVModule>(key, ref result, BuildPPVModule, layeredCacheParameters,
+                    GroupID, LayeredCacheConfigNames.PPV_MODULES_CONFIG_NAME, null))
+                {
+                    log.ErrorFormat("Error when getting ppv modules data from layered cache");
+
+                    DataTable dtPPVModuleData = PricingDAL.Get_PPVModuleData(m_nGroupID, ppvModuleCode);
+
+                    if (dtPPVModuleData != null && dtPPVModuleData.Rows != null && dtPPVModuleData.Rows.Count > 0)
                     {
-                        adsPolicy = (AdsPolicy)adsPolicyInt;
+                        result = new PPVModule();
+
+                        DataRow ppvModuleDataRow = dtPPVModuleData.Rows[0];
+                        string sPriceCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["PRICE_CODE"]);
+                        string sUsageModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["USAGE_MODULE_CODE"]);
+                        string sDiscountModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["DISCOUNT_MODULE_CODE"]);
+                        string sCouponGroupCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["COUPON_GROUP_CODE"]);
+                        string sName = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["NAME"]);
+                        bool bSubOnly = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["SUBSCRIPTION_ONLY"]));
+                        bool bIsFirstDeviceLimitation = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["FIRSTDEVICELIMITATION"]));
+                        string productCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["Product_Code"]);
+                        string adsParam = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow, "ADS_PARAM");
+
+                        int adsPolicyInt = ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow, "ADS_POLICY");
+                        AdsPolicy? adsPolicy = null;
+                        if (adsPolicyInt > 0)
+                        {
+                            adsPolicy = (AdsPolicy)adsPolicyInt;
+                        }
+
+                        result.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(ppvModuleCode), m_nGroupID, stringPPVModuleCode, bSubOnly,
+                                       sName, string.Empty, string.Empty, string.Empty, GetPPVFileTypes(m_nGroupID, ppvModuleCode), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
+
+                        return result;
                     }
-
-                    tmp.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(nPPVModuleCode), m_nGroupID, sPPVModuleCode, bSubOnly,
-                                   sName, string.Empty, string.Empty, string.Empty, GetPPVFileTypes(m_nGroupID, nPPVModuleCode), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
-
-                    return tmp;
                 }
-
             }
             catch (Exception ex)
             {
@@ -177,7 +191,7 @@ namespace Core.Pricing
                 StringBuilder sb = new StringBuilder("Exception at GetPPVModuleData. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" G ID: ", m_nGroupID));
-                sb.Append(String.Concat(" PPVMC: ", sPPVModuleCode));
+                sb.Append(String.Concat(" PPVMC: ", stringPPVModuleCode));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 log.Error("Exception - " + sb.ToString(), ex);
@@ -251,7 +265,7 @@ namespace Core.Pricing
                             { "groupId", GroupID }
                         };
 
-                    if (!LayeredCache.Instance.GetValues<PPVModule>(keysToOriginalValueMap, ref results, BuildPPVModule,
+                    if (!LayeredCache.Instance.GetValues<PPVModule>(keysToOriginalValueMap, ref results, BuildPPVModules,
                         layeredCacheParameters,
                         GroupID, LayeredCacheConfigNames.PPV_MODULES_CONFIG_NAME, null))
                     {
@@ -302,7 +316,7 @@ namespace Core.Pricing
 
         }
 
-        private static Tuple<Dictionary<string, PPVModule>, bool> BuildPPVModule(Dictionary<string, object> funcParams)
+        private static Tuple<Dictionary<string, PPVModule>, bool> BuildPPVModules(Dictionary<string, object> funcParams)
         {
             bool success = false;
             Dictionary<string, PPVModule> result = null;
@@ -311,10 +325,7 @@ namespace Core.Pricing
             {
                 if (funcParams != null && 
                     funcParams.ContainsKey("ppvModuleCodes") && 
-                    funcParams.ContainsKey("groupId") &&
-                    funcParams.ContainsKey("countryCode") &&
-                    funcParams.ContainsKey("languageCode") &&
-                    funcParams.ContainsKey("deviceName")
+                    funcParams.ContainsKey("groupId")
                     )
                 {
                     int groupId = Convert.ToInt32(funcParams["groupId"]);
@@ -364,6 +375,61 @@ namespace Core.Pricing
             }
 
             return new Tuple<Dictionary<string, PPVModule>, bool>(result, success);
+        }
+
+        private static Tuple<PPVModule, bool> BuildPPVModule(Dictionary<string, object> funcParams)
+        {
+            bool success = false;
+            PPVModule result = null;
+
+            try
+            {
+                if (funcParams != null &&
+                    funcParams.ContainsKey("ppvModuleCode") &&
+                    funcParams.ContainsKey("groupId")
+                    )
+                {
+                    int groupId = Convert.ToInt32(funcParams["groupId"]);
+                    int ppvModuleCode = Convert.ToInt32(funcParams["ppvModuleCode"]);
+
+                    if (ppvModuleCode > 0)
+                    {
+                        DataTable dtPPVModuleData = PricingDAL.Get_PPVModuleData(groupId, ppvModuleCode);
+
+                        if (dtPPVModuleData != null && dtPPVModuleData.Rows != null && dtPPVModuleData.Rows.Count > 0)
+                        {
+                            result = new PPVModule();
+
+                            DataRow ppvModuleDataRow = dtPPVModuleData.Rows[0];
+                            string sPriceCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["PRICE_CODE"]);
+                            string sUsageModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["USAGE_MODULE_CODE"]);
+                            string sDiscountModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["DISCOUNT_MODULE_CODE"]);
+                            string sCouponGroupCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["COUPON_GROUP_CODE"]);
+                            string sName = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["NAME"]);
+                            bool bSubOnly = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["SUBSCRIPTION_ONLY"]));
+                            bool bIsFirstDeviceLimitation = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["FIRSTDEVICELIMITATION"]));
+                            string productCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["Product_Code"]);
+                            string adsParam = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow, "ADS_PARAM");
+
+                            int adsPolicyInt = ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow, "ADS_POLICY");
+                            AdsPolicy? adsPolicy = null;
+                            if (adsPolicyInt > 0)
+                            {
+                                adsPolicy = (AdsPolicy)adsPolicyInt;
+                            }
+
+                            result.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(ppvModuleCode), groupId, ppvModuleCode.ToString(), bSubOnly,
+                                           sName, string.Empty, string.Empty, string.Empty, GetPPVFileTypes(groupId, ppvModuleCode), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("BuildPPVModule failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<PPVModule, bool>(result, success);
         }
 
         public override PPVModule[] GetPPVModulesDataByProductCodes(List<string> productCodes)

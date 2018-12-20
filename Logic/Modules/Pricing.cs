@@ -312,7 +312,7 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new PPVModuleCacheWrapper(t)).GetPPVModuleList(sCountryCd2, sLanguageCode3, sDeviceName);
+                return (new PPVModuleCacheWrapper(t)).GetPPVModuleList();
             }
             else
             {
@@ -408,7 +408,7 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new PPVModuleCacheWrapper(t)).GetPPVModuleShrinkList(sCountryCd2, sLanguageCode3, sDeviceName);
+                return (new PPVModuleCacheWrapper(t)).GetPPVModuleShrinkList();
             }
             else
             {
@@ -1671,7 +1671,7 @@ namespace Core.Pricing
             {
                 try
                 {
-                    PPVModule[] ppvModules = (new PPVModuleCacheWrapper(t)).GetPPVModuleList(string.Empty, string.Empty, string.Empty);
+                    PPVModule[] ppvModules = (new PPVModuleCacheWrapper(t)).GetPPVModuleList();
                     if (ppvModules != null && ppvModules.Length > 0)
                     {
                         response.Objects.AddRange(ppvModules.ToList());
