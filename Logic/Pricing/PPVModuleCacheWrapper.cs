@@ -137,7 +137,7 @@ namespace Core.Pricing
             return null;
         }
 
-        public override PPVModule GetPPVModuleData(string sPPVModuleCode)
+        public override PPVModule GetPPVModuleData(string sPPVModuleCode, bool shouldShrink = false)
         {
             PPVModule res = null;
             if (!string.IsNullOrEmpty(sPPVModuleCode))
@@ -146,7 +146,7 @@ namespace Core.Pricing
                 PPVModule temp = null;
                 if (PricingCache.TryGetPPVModule(cacheKey, out temp) && temp != null)
                     return temp;
-                res = originalBasePPVModule.GetPPVModuleData(sPPVModuleCode);
+                res = originalBasePPVModule.GetPPVModuleData(sPPVModuleCode, shouldShrink);
                 if (res != null)
                 {
                     if (!PricingCache.TryAddPPVModule(cacheKey, res))

@@ -35,7 +35,7 @@ namespace Core.Pricing
             }
         }
 
-        public abstract PPVModule GetPPVModuleData(string sPPVModuleCode);
+        public abstract PPVModule GetPPVModuleData(string sPPVModuleCode, bool shouldShrink = false);
         public abstract PPVModuleDataResponse GetPPVModuleDataResponse(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
         public abstract PPVModule[] GetPPVModulesData(string[] sPPVModuleCodes);
         public abstract PPVModule[] GetPPVModuleList();
