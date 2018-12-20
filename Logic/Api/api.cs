@@ -11003,7 +11003,7 @@ namespace Core.Api
                     bool allowUnknownCountry = ApplicationConfiguration.AllowUnknownCountry.Value; 
                     if (allowUnknownCountry && countryId == 0) // Do not block if country is unknown and configuration allowes it (for internal IP)
                     {
-                        return true;
+                        return false;
                     } 
                     if (blockedCountries != null && blockedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() != null)
                     {
