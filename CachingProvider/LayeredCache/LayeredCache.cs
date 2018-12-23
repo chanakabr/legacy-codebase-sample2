@@ -414,7 +414,6 @@ namespace CachingProvider.LayeredCache
             LayeredCacheGroupConfig groupConfig = null;
             try
             {
-                string key = GetLayeredCacheGroupConfigKey(groupId);                
                 if (!TryGetLayeredCacheGroupConfig(groupId, out groupConfig, false))
                 {
                     log.DebugFormat("Failed getting GetLayeredCacheGroupConfig for groupId: {0}", groupId);
@@ -463,8 +462,7 @@ namespace CachingProvider.LayeredCache
 
         public bool IsReadAction()
         {
-            return HttpContext.Current != null && 
-                   HttpContext.Current.Items != null && 
+            return HttpContext.Current != null && HttpContext.Current.Items != null &&
                    HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] != null ? (bool)HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] : false;
         }
 
@@ -606,8 +604,8 @@ namespace CachingProvider.LayeredCache
                                     insertToCacheConfig.Add(cacheConfig);
                                     continue;
                                 }
-
                             }
+
                             // we add 1 sec to the current time in case inValidationKey was created exactly at the same time as the cache itself was created
                             if (tupleResult != null && tupleResult.Item2 > maxInValidationDate + 1)
                             {
@@ -662,7 +660,7 @@ namespace CachingProvider.LayeredCache
                 tupleResults = new Dictionary<string, Tuple<T, long>>();
                 if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
                 {
-                    Dictionary<string, KeyValuePair<bool, long>> inValidationKeysMaxDateMapping = null;
+                    Dictionary<string, long> inValidationKeysMaxDateMapping = null;
                     bool hasMaxInvalidationDates = false;
                     foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                     {
@@ -674,7 +672,7 @@ namespace CachingProvider.LayeredCache
                                 if (!hasMaxInvalidationDates)
                                 {
                                     log.ErrorFormat("Error getting inValidationKeysMaxDateMapping for keys: {0}, layeredCacheConfigName: {1}, groupId: {2}",
-                                                     string.Join(",", keysToGet), layeredCacheConfigName, groupId);
+                                                        string.Join(",", keysToGet), layeredCacheConfigName, groupId);
                                     insertToCacheConfig.Add(cacheConfig, new List<string>(keysToGet));
                                     continue;
                                 }
@@ -687,7 +685,7 @@ namespace CachingProvider.LayeredCache
                                 if (resultsToAdd.ContainsKey(keyToGet))
                                 {
                                     Tuple<T, long> tuple = resultsToAdd[keyToGet];
-                                    long maxInValidationDate = inValidationKeysMaxDateMapping != null && inValidationKeysMaxDateMapping.Count > 0 && inValidationKeysMaxDateMapping.ContainsKey(keyToGet) ? inValidationKeysMaxDateMapping[keyToGet].Value + 1 : 0;
+                                    long maxInValidationDate = inValidationKeysMaxDateMapping != null && inValidationKeysMaxDateMapping.Count > 0 && inValidationKeysMaxDateMapping.ContainsKey(keyToGet) ? inValidationKeysMaxDateMapping[keyToGet] + 1 : 0;
                                     if (tuple != null && tuple.Item1 != null && tuple.Item2 > maxInValidationDate)
                                     {
                                         tupleResults.Add(keyToGet, new Tuple<T, long>(tuple.Item1, tuple.Item2));
@@ -927,7 +925,7 @@ namespace CachingProvider.LayeredCache
             return res;
         }
 
-        private bool TryGetInValidationKeysMaxDateMapping(string layeredCacheConfigName, int groupId, Dictionary<string, List<string>> keyMappings, ref Dictionary<string, KeyValuePair<bool, long>> inValidationKeysMaxDateMapping)
+        private bool TryGetInValidationKeysMaxDateMapping(string layeredCacheConfigName, int groupId, Dictionary<string, List<string>> keyMappings, ref Dictionary<string, long> inValidationKeysMaxDateMapping)
         {
             bool res = true;
             try
@@ -937,13 +935,13 @@ namespace CachingProvider.LayeredCache
                     return res;
                 }
 
-                inValidationKeysMaxDateMapping = new Dictionary<string, KeyValuePair<bool, long>>();
+                inValidationKeysMaxDateMapping = new Dictionary<string, long>();
                 foreach (KeyValuePair<string, List<string>> pair in keyMappings)
                 {
                     long maxInvalidationKeyDate = 0;
                     if (TryGetMaxInValidationKeysDate(layeredCacheConfigName, groupId, pair.Value, out maxInvalidationKeyDate))
                     {
-                        inValidationKeysMaxDateMapping.Add(pair.Key, new KeyValuePair<bool, long>(true, maxInvalidationKeyDate));
+                        inValidationKeysMaxDateMapping.Add(pair.Key, maxInvalidationKeyDate);
                     }
                     else
                     {
