@@ -498,8 +498,12 @@ namespace APILogic
                     if (!string.IsNullOrEmpty(ip))
                     {
                         country = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
-       
-                        res = country != null;
+                        if (country == null)
+                        {
+                            country = new ApiObjects.Country();
+                        }
+
+                        res = true;
                     }                    
                 }
 
