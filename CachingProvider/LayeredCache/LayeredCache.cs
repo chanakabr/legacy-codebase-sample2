@@ -414,6 +414,7 @@ namespace CachingProvider.LayeredCache
             LayeredCacheGroupConfig groupConfig = null;
             try
             {
+                string key = GetLayeredCacheGroupConfigKey(groupId);
                 if (!TryGetLayeredCacheGroupConfig(groupId, out groupConfig, false))
                 {
                     log.DebugFormat("Failed getting GetLayeredCacheGroupConfig for groupId: {0}", groupId);
