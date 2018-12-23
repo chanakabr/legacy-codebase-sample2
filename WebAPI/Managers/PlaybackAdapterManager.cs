@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Web;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Models.API;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Utils
@@ -17,15 +18,20 @@ namespace WebAPI.Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static KalturaPlaybackContext GetPlaybackAdapterContext(int groupId, string userId, string udid,
-            string ip, KalturaPlaybackContext kalturaPlaybackContext)
+        internal static KalturaPlaybackContext GetPlaybackAdapterContext(int groupId, string userId, string assetId, KalturaAssetType assetType,
+            string udid, string ip, KalturaPlaybackContext kalturaPlaybackContext)
         {
             KalturaPlaybackContext KalturaPlaybackContextResponse = null;
 
             KalturaAssetRuleFilter filter = new KalturaAssetRuleFilter()
             {
                 ActionsContainType = KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER,
-                ConditionsContainType = KalturaRuleConditionType.ASSET
+                ConditionsContainType = KalturaRuleConditionType.ASSET,
+                AssetApplied = new Models.Catalog.KalturaSlimAsset()
+                {
+                    Id = assetId,
+                    Type = assetType
+                }
             };
 
             KalturaAssetRuleListResponse assetRuleListResponse = ClientsManager.ApiClient().GetAssetRules(groupId, filter);

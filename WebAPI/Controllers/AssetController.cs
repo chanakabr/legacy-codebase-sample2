@@ -963,8 +963,8 @@ namespace WebAPI.Controllers
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
-                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId,ks.UserId, KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response);                    
-                    if(adapterResponse != null)
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId,  assetType, KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response);
+                    if (adapterResponse != null)
                     {
                         response = adapterResponse;
                     }
@@ -980,8 +980,8 @@ namespace WebAPI.Controllers
                             foreach (var source in response.Sources)
                             {
                                 // check if is tokenized . if yes add base64 url
-                                if (source.IsTokenized == true && !string.IsNullOrEmpty( source.Url))
-                                {                                    
+                                if (source.IsTokenized == true && !string.IsNullOrEmpty(source.Url))
+                                {
                                     url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}/tokenizedUrl/{6}",
                                         baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context, Convert.ToBase64String(Encoding.UTF8.GetBytes(source.Url))));
                                 }
@@ -1278,7 +1278,7 @@ namespace WebAPI.Controllers
                             throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                         }
 
-                        id = epgRes.Objects.First().Id.Value;                        
+                        id = epgRes.Objects.First().Id.Value;
                         break;
                     case KalturaAssetReferenceType.media:
                     case KalturaAssetReferenceType.epg_internal:
