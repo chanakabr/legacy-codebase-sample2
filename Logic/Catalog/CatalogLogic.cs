@@ -5034,6 +5034,7 @@ namespace Core.Catalog
                 log.DebugFormat("GetMediaMarkHitInitialData, try getting countryID from ES, if it fails get countryID from DB");
 
                 countryID = Utils.GetIP2CountryId(groupId, userIP);
+
                 //getting from ES failed
                 if (countryID == 0)
                 {
