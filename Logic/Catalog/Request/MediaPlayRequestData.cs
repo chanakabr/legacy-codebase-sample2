@@ -53,12 +53,12 @@ namespace Core.Catalog.Request
         public DevicePlayData GetOrCreateDevicePlayData(int mediaId, MediaPlayActions action, int groupId, bool isLinearChannel, ePlayType playType, int domainId,  
                                                         long recordingId, int platform, int countryId, eExpirationTTL ttl = eExpirationTTL.Short)
         {
-            DevicePlayData currDevicePlayData = CatalogDAL.GetDevicePlayData(this.m_sUDID);
+            DevicePlayData currDevicePlayData = null;
             int userId = StringUtils.ConvertTo<int>(this.m_sSiteGuid);
+            int deviceFamilyId = 0;
             string npvrId = recordingId != 0 ? recordingId.ToString() : string.Empty;
-            
-            // create and save new DevicePlayData if not exist
-            if (userId > 0 && (currDevicePlayData == null || IsReportingMode))
+
+            if (userId > 0)
             {
                 //get domain by user
                 if (domainId == 0)
@@ -66,28 +66,28 @@ namespace Core.Catalog.Request
                     domainId = UsersDal.GetUserDomainID(m_sSiteGuid);
                 }
 
-                int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
-                
-                if (IsReportingMode)
-                {
-                    DevicePlayData devicePlayDataReportingMode = new DevicePlayData(this.m_sUDID, mediaId, userId, 0, playType, action, deviceFamilyId, DateTime.UtcNow.ToUnixTimestamp(), 
-                                                                                    this.ProgramId, npvrId, domainId, null, null, null);
+                deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
+            }
 
-                    if (currDevicePlayData != null)
-                    {
-                        devicePlayDataReportingMode.PlayCycleKey = currDevicePlayData.PlayCycleKey;
-                    }
+            if (IsReportingMode)
+            {
+                currDevicePlayData = new DevicePlayData(this.m_sUDID, mediaId, userId, 0, playType, action, deviceFamilyId, DateTime.UtcNow.ToUnixTimestamp(),
+                                                                                this.ProgramId, npvrId, domainId, null, null, null);
+                currDevicePlayData.PlayCycleKey = Guid.NewGuid().ToString();
+            }
+            else
+            {
+                currDevicePlayData = CatalogDAL.GetDevicePlayData(this.m_sUDID);
 
-                    currDevicePlayData = devicePlayDataReportingMode;
-                }
-                else
+                // create and save new DevicePlayData if not exist
+                if (userId > 0 && (currDevicePlayData == null || IsReportingMode))
                 {
                     List<int> mediaConcurrencyRuleIds = null;
                     List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
                     List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
 
                     currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds,
-                                                                             mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
+                        mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
 
                     //FPNPC -  on First Play create New Play Cycle
                     if (CatalogLogic.IsGroupUseFPNPC(groupId))
@@ -104,31 +104,30 @@ namespace Core.Catalog.Request
                         }
                     }
                 }
-            }
 
-            // update NpvrId
-            if (currDevicePlayData != null && string.IsNullOrEmpty(currDevicePlayData.NpvrId) && recordingId != 0)
-            {
-                currDevicePlayData.NpvrId = npvrId;
-            }
-
-            // update program assetEpgRules for linearChannel
-            if (!IsReportingMode && currDevicePlayData != null && playType == ePlayType.MEDIA && isLinearChannel && currDevicePlayData.ProgramId != this.ProgramId && this.ProgramId != 0)
-            {
-                // if not we need to update the devicePlayData with new assetrules according to the new programId
-                List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
-
-                DevicePlayData newDevicePlayData = new DevicePlayData(currDevicePlayData)
+                // update NpvrId
+                if (currDevicePlayData != null && string.IsNullOrEmpty(currDevicePlayData.NpvrId) && recordingId != 0)
                 {
-                    ProgramId = this.ProgramId,
-                    AssetEpgConcurrencyRuleIds = assetEpgRulesIds
-                };
+                    currDevicePlayData.NpvrId = npvrId;
+                }
 
-                // save new devicePlayData
-                CatalogDAL.UpdateOrInsertDevicePlayData(newDevicePlayData, false, ttl);
-                currDevicePlayData = newDevicePlayData;
+                // update program assetEpgRules for linearChannel
+                if (!IsReportingMode && currDevicePlayData != null && playType == ePlayType.MEDIA && isLinearChannel && currDevicePlayData.ProgramId != this.ProgramId && this.ProgramId != 0)
+                {
+                    // if not we need to update the devicePlayData with new assetrules according to the new programId
+                    List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
+
+                    DevicePlayData newDevicePlayData = new DevicePlayData(currDevicePlayData)
+                    {
+                        ProgramId = this.ProgramId,
+                        AssetEpgConcurrencyRuleIds = assetEpgRulesIds
+                    };
+
+                    // save new devicePlayData
+                    CatalogDAL.UpdateOrInsertDevicePlayData(newDevicePlayData, false, ttl);
+                    currDevicePlayData = newDevicePlayData;
+                }
             }
-            
             return currDevicePlayData;
         }
 
