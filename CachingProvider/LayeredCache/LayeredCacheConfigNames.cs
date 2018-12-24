@@ -86,14 +86,13 @@ namespace CachingProvider.LayeredCache
         public const string DLM_LAYERED_CACHE_CONFIG_NAME = "GetDlm";
         public const string GROUP_FEATURES_LAYERED_CACHE_CONFIG_NAME = "GetGroupFeatureStatus";
         public const string GET_DOMAIN_BUNDLES_LAYERED_CACHE_CONFIG_NAME = "GetDomainBundles";
-        public const string GET_ALL_PPVS = "GetAllPpvs";
+        public const string PPV_MODULES_CACHE_CONFIG_NAME = "PPVModules";
         public const string GROUP_MANAGER_GET_GROUP_CONFIG_NAME = "GroupManagerGetGroup";
         public const string PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME = "PhoenixGroupsManager";
         public const string QUERY_CACHE_CONFIG_NAME = "QueryCache";
         public const string PROCEDURES_ROUTING_CONFIG_NAME = "ProceduresRouting";
         public const string QUERIES_ROUTING_CONFIG_NAME = "QueriesRouting";
         public const string GROUP_WATCH_PERMISSION_RULES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPermittedWatchRules";
-        public const string PPV_MODULES_CONFIG_NAME = "PPVModules";
 
         #endregion
 
