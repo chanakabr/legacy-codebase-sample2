@@ -6,11 +6,16 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Configuration;
 using TVinciShared;
+using CachingProvider.LayeredCache;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_ppv_modules_file_types : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
+
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -142,7 +147,8 @@ public partial class adm_ppv_modules_file_types : System.Web.UI.Page
             return "";
         }
 
-        Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", int.Parse(Session["ppv_module_id"].ToString()), "pricing_connection").ToString());
+        int ppvModuleId = int.Parse(Session["ppv_module_id"].ToString());
+        Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", ppvModuleId, "pricing_connection").ToString());
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
         if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
         {
@@ -160,10 +166,14 @@ public partial class adm_ppv_modules_file_types : System.Web.UI.Page
         }
         else
         {
-            InsertPPVFileTypeID(int.Parse(sID), int.Parse(Session["ppv_module_id"].ToString()), nLogedInGroupID);
+            InsertPPVFileTypeID(int.Parse(sID), ppvModuleId, nLogedInGroupID);
         }
 
-        
+        string invalidationKey = LayeredCacheKeys.GetAllPpvsInvalidationKey(nLogedInGroupID);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set invalidation key for ppv module id {0}, key = {1}", ppvModuleId, invalidationKey);
+        }
 
         return "";
     }
