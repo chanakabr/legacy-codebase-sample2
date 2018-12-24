@@ -11525,6 +11525,18 @@ namespace Core.Api
                     return response;
                 }
 
+                //check External Identifier uniqueness
+                if (!string.IsNullOrEmpty(adapter.ExternalIdentifier) && !adapter.ExternalIdentifier.Equals(existingAdapter.ExternalIdentifier))
+                {
+                    PlaybackProfile tmpPlaybackProfile = ApiDAL.GetplaybackAdapterByExternalId(groupId, adapter.ExternalIdentifier);
+
+                    if (tmpPlaybackProfile != null && tmpPlaybackProfile.Id > 0)
+                    {
+                        response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                        return response;
+                    }
+                }
+
                 PlaybackProfile playbackProfile = ApiDAL.SetPlaybackAdapter(groupId, userId, adapter);
 
                 if (playbackProfile == null)
