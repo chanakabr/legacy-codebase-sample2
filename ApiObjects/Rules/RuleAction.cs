@@ -119,7 +119,7 @@ namespace ApiObjects.Rules
     public class ApplyPlaybackAdapterRuleAction : AssetRuleAction
     {
         [JsonProperty("AdapterId")]
-        public long AdapterId { get; set; }
+        public int AdapterId { get; set; }
 
         public ApplyPlaybackAdapterRuleAction()
         {

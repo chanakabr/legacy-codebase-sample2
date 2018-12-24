@@ -2190,7 +2190,7 @@ namespace Core.Api
 
             }
             return res;
-        }        
+        }
 
         static public List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
@@ -2566,7 +2566,7 @@ namespace Core.Api
                     }
                 }
             }
-            
+
             return isBlocked;
         }
 
@@ -2581,7 +2581,7 @@ namespace Core.Api
                 //invalid ip
                 return assetRules;
             }
-            
+
             // check if assetRule exist
             GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.GetAssetRules(RuleConditionType.IP_RANGE, groupId);
             if (assetRulesResponse == null || !assetRulesResponse.HasObjects())
@@ -2708,7 +2708,7 @@ namespace Core.Api
                     IsActive = true
                 });
             }
-            
+
             // check if the user have assetUserRules 
             long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
             var mediaAssetUserRules = GetMediaAssetUserRulesToUser(groupId, userId, mediaId);
@@ -4494,7 +4494,7 @@ namespace Core.Api
         public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, int groupId, int bmID, eBusinessModule type)
         {
             List<MediaConcurrencyRule> res = new List<MediaConcurrencyRule>();
-            
+
             try
             {
                 var groupMediaConcurrencyRules = GetGroupMediaConcurrencyRules(groupId);
@@ -4507,7 +4507,7 @@ namespace Core.Api
                 string key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
 
                 if (!LayeredCache.Instance.Get<List<int>>(key,
-                                                          ref ruleIds, 
+                                                          ref ruleIds,
                                                           Get_MCRulesIdsByMediaId,
                                                           new Dictionary<string, object>()
                                                           {
@@ -4515,7 +4515,7 @@ namespace Core.Api
                                                             { "mediaId", mediaId },
                                                             { "mcr", groupMediaConcurrencyRules }
                                                           },
-                                                          groupId, 
+                                                          groupId,
                                                           LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
                                                           new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) }))
                 {
@@ -4547,10 +4547,10 @@ namespace Core.Api
 
             // try to get from cache  
             if (!LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key,
-                                                                       ref result, 
-                                                                       APILogic.Utils.Get_MCRulesByGroup, 
+                                                                       ref result,
+                                                                       APILogic.Utils.Get_MCRulesByGroup,
                                                                        new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                       groupId, 
+                                                                       groupId,
                                                                        LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME))
             {
                 log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
@@ -5585,7 +5585,7 @@ namespace Core.Api
 
                     if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
                     {
-                        foreach(AssetUserRule assetUserRule in mediaAssetUserRules)
+                        foreach (AssetUserRule assetUserRule in mediaAssetUserRules)
                         {
                             response.Rules.Add(new GenericRule()
                             {
@@ -6055,9 +6055,9 @@ namespace Core.Api
 
                     DataSet ds = ApiDAL.UpdateParentalRule(groupId, id, parentalRuleToUpdate.name, parentalRuleToUpdate.description, parentalRuleToUpdate.order, parentalRuleToUpdate.mediaTagTypeId,
                                                             shouldUpdateMediaTagValues, parentalRuleToUpdate.mediaTagValues, parentalRuleToUpdate.epgTagTypeId, shouldUpdateEpgTagValues,
-                                                            parentalRuleToUpdate.epgTagValues, parentalRuleToUpdate.blockAnonymousAccess, parentalRuleToUpdate.ruleType, parentalRuleToUpdate.isActive, userId);                    
+                                                            parentalRuleToUpdate.epgTagValues, parentalRuleToUpdate.blockAnonymousAccess, parentalRuleToUpdate.ruleType, parentalRuleToUpdate.isActive, userId);
                     List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
-                    if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id ==  id)
+                    if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id == id)
                     {
                         response.Object = rules[0];
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -6136,7 +6136,7 @@ namespace Core.Api
                         response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                        {                            
+                        {
                             log.ErrorFormat("Failed to invalidate groupParentalRules, invalidationKey: {0} after DeleteParentalRule", invalidationKey);
                         }
                     }
@@ -8874,7 +8874,7 @@ namespace Core.Api
                 if (response.Settings != null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }                
+                }
             }
 
             catch (Exception ex)
@@ -8980,7 +8980,7 @@ namespace Core.Api
 
                 bool isSet = DAL.ApiDAL.DeleteCDNAdapter(groupID, adapterId);
                 if (isSet)
-                {                    
+                {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     string invalidationKey = LayeredCacheKeys.GetCDNAdapterInvalidationKey(groupID, adapterId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
@@ -9663,11 +9663,11 @@ namespace Core.Api
 
             return assets;
         }
-        
+
         public static DeviceFamilyResponse GetDeviceFamilyList()
         {
             DeviceFamilyResponse result = new DeviceFamilyResponse();
-            
+
             DataTable dt = ApiDAL.GetDeviceFamilies();
             if (dt != null && dt.Rows != null)
             {
@@ -9724,12 +9724,12 @@ namespace Core.Api
             try
             {
                 string key = LayeredCacheKeys.GetAllCountryListKey();
-                
-                if (!LayeredCache.Instance.Get<List<Country>>(key, 
-                                                              ref countries, 
-                                                              APILogic.Utils.GetAllCountryList, 
-                                                              new Dictionary<string, object>(), 
-                                                              groupId, 
+
+                if (!LayeredCache.Instance.Get<List<Country>>(key,
+                                                              ref countries,
+                                                              APILogic.Utils.GetAllCountryList,
+                                                              new Dictionary<string, object>(),
+                                                              groupId,
                                                               LayeredCacheConfigNames.GET_ALL_COUNTRY_LIST_LAYERED_CACHE_CONFIG_NAME))
                 {
                     log.ErrorFormat("Failed getting country list by Ids from LayeredCache, groupId: {0}, countryIds: {1}, key: {2}", groupId, string.Join(", ", countryIds), key);
@@ -9752,7 +9752,7 @@ namespace Core.Api
         {
             CountryLocaleResponse result = new CountryLocaleResponse();
             List<Country> countries = GetCountryListByIds(countryIds, groupId);
-            
+
             Dictionary<int, CountryLocale> countriesLocaleMap = null;
             if (groupId > 0)
             {
@@ -10609,7 +10609,7 @@ namespace Core.Api
             }
         }
 
-        internal static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, 
+        internal static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId,
             string externalFileId, string ip, string udid, PlayContextType contextType, string recordingId)
         {
             StringResponse response = new StringResponse();
@@ -10624,7 +10624,7 @@ namespace Core.Api
                     return response;
                 }
 
-                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, 
+                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid,
                     contextType, recordingId);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
@@ -11039,11 +11039,11 @@ namespace Core.Api
                     DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
                     DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
 
-                    bool allowUnknownCountry = ApplicationConfiguration.AllowUnknownCountry.Value; 
+                    bool allowUnknownCountry = ApplicationConfiguration.AllowUnknownCountry.Value;
                     if (allowUnknownCountry && countryId == 0) // Do not block if country is unknown and configuration allowes it (for internal IP)
                     {
                         return false;
-                    } 
+                    }
                     if (blockedCountries != null && blockedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() != null)
                     {
                         return true;
@@ -11078,12 +11078,12 @@ namespace Core.Api
                 {
                     // check that have AssetUserRule for the group in general and return it
                     var assetUserRuleList = AssetUserRuleManager.GetAssetUserRuleList(groupId, null);
-                    
+
                     if (assetUserRuleList == null || !assetUserRuleList.HasObjects())
                     {
                         return null;
                     }
-                    
+
                     List<long> mediaAssetUserRuleIds = null;
                     string mediaAssetUserRulesKey = LayeredCacheKeys.GetMediaAssetUserRulesKey(groupId, mediaId);
 
@@ -11158,7 +11158,7 @@ namespace Core.Api
                             {
                                 if (rule.Conditions != null && rule.Conditions.Count > 0)
                                 {
-                                    filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);    
+                                    filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);
                                     medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
 
                                     if (medias != null && medias.Count() > 0)// there is a match 
@@ -11180,7 +11180,7 @@ namespace Core.Api
             }
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
-        
+
         private static List<GroupRule> ConvertAssetUserRuleToGroupRule(List<AssetUserRule> assetUserRules)
         {
             List<GroupRule> groupRules = new List<GroupRule>();
@@ -11230,8 +11230,8 @@ namespace Core.Api
             {
                 // validate deviceFamilyIds
                 var deviceFamilyList = GetDeviceFamilyList();
-                if (deviceFamilyList == null || 
-                    deviceFamilyList.Status.Code != (int)eResponseStatus.OK || 
+                if (deviceFamilyList == null ||
+                    deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
                     deviceFamilyList.DeviceFamilies.Count == 0)
                 {
                     response.Message = "No DeviceFamilies";
@@ -11241,7 +11241,7 @@ namespace Core.Api
                 var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
                 if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
                 {
-                    response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds, 
+                    response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds,
                                  string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamilies)));
                     return response;
                 }
@@ -11320,7 +11320,7 @@ namespace Core.Api
         }
 
         public static GenericListResponse<PersonalListItem> GetUserPersonalListItems(int groupId, long userId, int pageSize, int pageIndex, OrderDiretion order, HashSet<int> partnerListTypes)
-        {    
+        {
             return APILogic.Api.Managers.PersonalListManager.GetUserPersonalListItems(groupId, userId, pageSize, pageIndex, order, partnerListTypes);
         }
 
@@ -11354,14 +11354,15 @@ namespace Core.Api
             return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
         }
 
-        internal static GenericListResponse<PlaybackProfile> GetPlaybackProfiles(int groupId)
+        #region PlaybackProfiles
+        internal static GenericListResponse<PlaybackProfile> GetPlaybackAdapters(int groupId)
         {
             GenericListResponse<PlaybackProfile> response = new GenericListResponse<PlaybackProfile>();
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             try
             {
-                List<PlaybackProfile> playbackAdapter = DAL.ApiDAL.GetPlaybackAdapters(groupId);
+                List<PlaybackProfile> playbackAdapter = GetPlaybackProfiles(groupId);
                 if (playbackAdapter == null || playbackAdapter.Count == 0)
                 {
                     response.SetStatus(eResponseStatus.OK, "No adapters found");
@@ -11412,8 +11413,7 @@ namespace Core.Api
                 }
 
                 //check External Identifier uniqueness 
-                PlaybackProfile playbackProfile = ApiDAL.GetplaybackAdapterByExternalId(groupId, adapter.ExternalIdentifier);
-
+                PlaybackProfile playbackProfile = GetplaybackAdapterByExternalId(groupId, adapter.ExternalIdentifier);
                 if (playbackProfile != null && playbackProfile.Id > 0)
                 {
                     response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
@@ -11431,7 +11431,13 @@ namespace Core.Api
                     response.Object = adapter;
                     response.SetStatus(eResponseStatus.OK, "New playback adapter was successfully inserted");
 
-                    if (!PlaybackAdapterController.GetInstance().SendConfiguration(adapter, groupId ))
+                    string invalidationKey = LayeredCacheKeys.GetGroupPlaybackProfilesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on AddPlaybackAdapter, key = {0}", invalidationKey);
+                    }
+
+                    if (!PlaybackAdapterController.GetInstance().SendConfiguration(adapter, groupId))
                         log.ErrorFormat("AddPlaybackAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", adapter.Id);
                 }
                 else
@@ -11448,7 +11454,6 @@ namespace Core.Api
             return response;
         }
 
-
         internal static GenericResponse<PlaybackProfile> GeneratePlaybackAdapterSharedSecret(int groupId, long adapterId)
         {
             GenericResponse<PlaybackProfile> response = new GenericResponse<PlaybackProfile>();
@@ -11461,7 +11466,7 @@ namespace Core.Api
                 }
 
                 //check Adapter exist
-                PlaybackProfile adapter = ApiDAL.GetPlaybackAdapter(groupId, adapterId);
+                PlaybackProfile adapter = GetPlaybackAdapter(groupId, adapterId, false);
                 if (adapter == null || adapter.Id <= 0)
                 {
                     response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
@@ -11475,6 +11480,16 @@ namespace Core.Api
                 {
                     response.SetStatus((int)eResponseStatus.Error, "Adapter failed set changes");
                     return response;
+                }
+                else
+                {
+                    response.SetStatus((int)eResponseStatus.OK);
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupPlaybackProfilesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on GeneratePlaybackAdapterSharedSecret, key = {0}", invalidationKey);
+                    }
                 }
 
                 adapter.SharedSecret = sharedSecret;
@@ -11518,7 +11533,7 @@ namespace Core.Api
                 adapter.SharedSecret = null;
 
                 // check adapter with this ID exists
-                PlaybackProfile existingAdapter = ApiDAL.GetPlaybackAdapter(groupId, adapter.Id);
+                PlaybackProfile existingAdapter = GetPlaybackAdapter(groupId, adapter.Id, false);
                 if (existingAdapter == null)
                 {
                     response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
@@ -11528,7 +11543,7 @@ namespace Core.Api
                 //check External Identifier uniqueness
                 if (!string.IsNullOrEmpty(adapter.ExternalIdentifier) && !adapter.ExternalIdentifier.Equals(existingAdapter.ExternalIdentifier))
                 {
-                    PlaybackProfile tmpPlaybackProfile = ApiDAL.GetplaybackAdapterByExternalId(groupId, adapter.ExternalIdentifier);
+                    PlaybackProfile tmpPlaybackProfile = GetplaybackAdapterByExternalId(groupId, adapter.ExternalIdentifier);
 
                     if (tmpPlaybackProfile != null && tmpPlaybackProfile.Id > 0)
                     {
@@ -11547,6 +11562,12 @@ namespace Core.Api
 
                 response.Object = playbackProfile;
                 response.SetStatus(eResponseStatus.OK);
+
+                string invalidationKey = LayeredCacheKeys.GetGroupPlaybackProfilesInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on UpdatePlaybackAdapter, key = {0}", invalidationKey);
+                }
 
                 if (!PlaybackAdapterController.GetInstance().SendConfiguration(playbackProfile, groupId))
                     log.ErrorFormat("AddPlaybackAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", playbackProfile.Id);
@@ -11572,7 +11593,7 @@ namespace Core.Api
                 }
 
                 // check adapter with this ID exists
-                PlaybackProfile existingAdapter = ApiDAL.GetPlaybackAdapter(groupId, id);
+                PlaybackProfile existingAdapter = GetPlaybackAdapter(groupId, id, false);
                 if (existingAdapter == null)
                 {
                     response.Set((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
@@ -11584,23 +11605,29 @@ namespace Core.Api
                     response.Set((int)eResponseStatus.Error, "Playback failed to delete");
                     return response;
                 }
+
+                string invalidationKey = LayeredCacheKeys.GetGroupPlaybackProfilesInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on DeletePlaybackAdapter, key = {0}", invalidationKey);
+                }
             }
             catch (Exception ex)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to delete engagement adapter. Group ID: {0}, engagementAdapterId: {1}", groupId, id), ex);
+                log.Error(string.Format("Failed to delete playback adapter. Group ID: {0}, adapterId: {1}", groupId, id), ex);
             }
             return response;
         }
 
-        internal static GenericListResponse<PlaybackProfile> GetPlaybackProfile(int groupId, long playbackProfileId)
+        internal static GenericListResponse<PlaybackProfile> GetPlaybackProfile(int groupId, long playbackProfileId, bool shouldGetOnlyActive)
         {
             GenericListResponse<PlaybackProfile> response = new GenericListResponse<PlaybackProfile>();
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             try
             {
-                PlaybackProfile playbackAdapter = DAL.ApiDAL.GetPlaybackAdapter(groupId, playbackProfileId);
+                PlaybackProfile playbackAdapter = GetPlaybackAdapter(groupId, playbackProfileId, shouldGetOnlyActive);
                 if (playbackAdapter == null)
                 {
                     response.SetStatus(eResponseStatus.OK, "No adapter found");
@@ -11627,7 +11654,7 @@ namespace Core.Api
 
             try
             {
-                PlaybackProfile adapter = DAL.ApiDAL.GetPlaybackAdapter(groupId, adapterId);
+                PlaybackProfile adapter = GetPlaybackAdapter(groupId, adapterId, true);
                 if (adapter == null)
                 {
                     response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
@@ -11653,5 +11680,85 @@ namespace Core.Api
             }
             return response;
         }
+
+
+        public static List<PlaybackProfile> GetPlaybackProfiles(int groupId)
+        {
+            List<PlaybackProfile> result = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupPlaybackProfileKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupPlaybackProfilesInvalidationKey(groupId);
+                if (!LayeredCache.Instance.Get<List<PlaybackProfile>>(key, ref result, GetGroupPlaybackProfiles, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                                LayeredCacheConfigNames.GROUP_PLAYBACK_PROFILES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("GetPlaybackProfile - Couldn't get groupId {0}", groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetPlaybackProfileNew, groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<PlaybackProfile>, bool> GetGroupPlaybackProfiles(Dictionary<string, object> funcParams)
+        {
+            List<PlaybackProfile> playbackProfiles = null;
+            bool res = false;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    playbackProfiles = ApiDAL.GetPlaybackAdapters(groupId.Value);
+                }
+
+                res = playbackProfiles != null;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetGroupPlaybackProfiles failed, parameters : {0}. ex: {1}", string.Join(";", funcParams.Keys), ex);
+            }
+
+            return new Tuple<List<PlaybackProfile>, bool>(playbackProfiles, res);
+        }
+
+        private static PlaybackProfile GetplaybackAdapterByExternalId(int groupId, string externalIdentifier)
+        {
+            PlaybackProfile playbackProfile = null;
+            List<PlaybackProfile> playbackProfiles = GetPlaybackProfiles(groupId);
+            if (playbackProfiles == null || playbackProfiles.Count > 0)
+            {
+                return playbackProfile;
+            }
+            else
+            {
+                return playbackProfiles.Where(x => x.ExternalIdentifier == externalIdentifier).FirstOrDefault();
+            }
+        }
+
+        private static PlaybackProfile GetPlaybackAdapter(int groupId, long id, bool shouldGetOnlyActive)
+        {
+            PlaybackProfile playbackProfile = null;
+            List<PlaybackProfile> playbackProfiles = GetPlaybackProfiles(groupId);
+            if (playbackProfiles == null || playbackProfiles.Count == 0)
+            {
+                return playbackProfile;
+            }
+            else
+            {
+                if (shouldGetOnlyActive)
+                {
+                    return playbackProfiles.Where(x => x.Id == id && x.IsActive == true).FirstOrDefault();
+                }
+                else
+                {
+                    return playbackProfiles.Where(x => x.Id == id).FirstOrDefault();
+                }
+            }
+        }
+        #endregion
     }
 }
