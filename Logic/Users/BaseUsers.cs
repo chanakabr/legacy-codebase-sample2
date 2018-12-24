@@ -1387,7 +1387,7 @@ namespace Core.Users
             return response;
         }
 
-        public LongIdsResponse GetUserRoleIds(int groupId, string userId)
+        public LongIdsResponse GetUserRoleIds(string userId)
         {
             LongIdsResponse response = new LongIdsResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
             
@@ -1406,10 +1406,14 @@ namespace Core.Users
 
                     // try to get from cache            
                     if (LayeredCache.Instance.Get<List<long>>(key, ref roleIds, Utils.Get_UserRoleIds, new Dictionary<string, object>() { { "groupId", m_nGroupID }, { "userId", userId } },
-                                                              groupId, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
+                                                              m_nGroupID, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
                     {
                         response.Ids = roleIds;
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                    else
+                    {
+                        log.ErrorFormat("GetUserRoleIds failed to get from cache, userId = {0}", userId);
                     }
                 }
             }
@@ -1417,6 +1421,8 @@ namespace Core.Users
             {
                 log.Error(string.Format("GetUserRoleIds failed, ex = {0}, userId = {1}, ", ex.Message, userId), ex);
             }
+
+            
 
             return response;
         }
