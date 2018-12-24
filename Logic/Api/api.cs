@@ -11000,6 +11000,11 @@ namespace Core.Api
                     DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
                     DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
 
+                    bool allowUnknownCountry = ApplicationConfiguration.AllowUnknownCountry.Value; 
+                    if (allowUnknownCountry && countryId == 0) // Do not block if country is unknown and configuration allowes it (for internal IP)
+                    {
+                        return false;
+                    } 
                     if (blockedCountries != null && blockedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() != null)
                     {
                         return true;

@@ -3511,7 +3511,7 @@ namespace Core.ConditionalAccess
                             DataTable tempDt = dt != null ? dt.Clone() : new DataTable();
                             foreach (int missingKey in missingKeys)
                             {
-                                result.Add(LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(missingKey, groupId.Value), tempDt);
+                                result.Add(missingKey.ToString(), tempDt);
                             }
                         }
                     }
