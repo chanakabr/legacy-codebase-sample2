@@ -312,7 +312,7 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new PPVModuleCacheWrapper(t)).GetPPVModuleList(sCountryCd2, sLanguageCode3, sDeviceName);
+                return (new PPVModuleCacheWrapper(t)).GetPPVModuleList();
             }
             else
             {
@@ -408,7 +408,7 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new PPVModuleCacheWrapper(t)).GetPPVModuleShrinkList(sCountryCd2, sLanguageCode3, sDeviceName);
+                return (new PPVModuleCacheWrapper(t)).GetPPVModuleShrinkList();
             }
             else
             {
@@ -423,7 +423,7 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new PPVModuleCacheWrapper(t)).GetPPVModuleData(sPPVCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                return (new PPVModuleCacheWrapper(t)).GetPPVModuleData(sPPVCode);
             }
             else
             {
@@ -815,7 +815,7 @@ namespace Core.Pricing
             }
         }
 
-        public static PPVModuleResponse GetPPVModulesData(int nGroupID, string[] sPPVCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static PPVModuleResponse GetPPVModulesData(int nGroupID, string[] sPPVCode)
         {
             PPVModuleResponse response = new PPVModuleResponse();
             BasePPVModule t = null;
@@ -824,7 +824,7 @@ namespace Core.Pricing
             {
                 try
                 {
-                    response.PPVModules = (new PPVModuleCacheWrapper(t)).GetPPVModulesData(sPPVCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                    response.PPVModules = (new PPVModuleCacheWrapper(t)).GetPPVModulesData(sPPVCode);
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 catch (Exception)
@@ -1717,7 +1717,7 @@ namespace Core.Pricing
             {
                 try
                 {
-                    PPVModule[] ppvModules = (new PPVModuleCacheWrapper(t)).GetPPVModuleList(string.Empty, string.Empty, string.Empty);
+                    PPVModule[] ppvModules = (new PPVModuleCacheWrapper(t)).GetPPVModuleList();
                     if (ppvModules != null && ppvModules.Length > 0)
                     {
                         response.Objects.AddRange(ppvModules.ToList());
