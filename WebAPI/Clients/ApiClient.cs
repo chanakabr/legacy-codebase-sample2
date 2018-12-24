@@ -4086,7 +4086,7 @@ namespace WebAPI.Clients
             KalturaPlaybackProfileListResponse result = new KalturaPlaybackProfileListResponse() { TotalCount = 0 };
 
             Func<GenericListResponse<PlaybackProfile>> getPlaybackProfileFunc = () =>
-               Core.Api.Module.GetPlaybackProfile(groupId, playbackProfileId);
+               Core.Api.Module.GetPlaybackProfile(groupId, playbackProfileId, true);
 
             KalturaGenericListResponse<KalturaPlaybackProfile> response =
                 ClientUtils.GetResponseListFromWS<KalturaPlaybackProfile, PlaybackProfile>(getPlaybackProfileFunc);

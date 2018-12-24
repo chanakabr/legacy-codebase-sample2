@@ -177,7 +177,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "adapterId")]
         [JsonProperty("adapterId")]
         [XmlElement(ElementName = "adapterId")]
-        public long AdapterId { get; set; }
+        public int AdapterId { get; set; }
 
         protected override void Init()
         {
