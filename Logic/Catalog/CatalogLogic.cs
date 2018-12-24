@@ -57,7 +57,6 @@ namespace Core.Catalog
         private static readonly string ENTRY_ID = "entry_id";
         private static readonly string STATUS = "status";
         private static readonly string IS_ACTIVE = "is_active";
-        private static readonly string SUMMARYMEDIUM = "summarymedium";
         private static readonly string EXTERNALID = "externalid";
         private static readonly string ENTRYID = "entryid";
         private static readonly string CREATIONDATE = "creationdate";
@@ -119,7 +118,6 @@ namespace Core.Catalog
             "crid",
             EXTERNALID,
             ENTRYID,
-            SUMMARYMEDIUM,
             "...."
         };
 
@@ -7969,12 +7967,6 @@ namespace Core.Catalog
                             // add language suffix (if the language is not the default)
                             searchKeys.Clear();
                             searchKeys.Add(string.Format("{0}{1}", searchKeyLowered, suffix));
-                        }
-                        else if (searchKeyLowered == SUMMARYMEDIUM)
-                        {
-                            // add language suffix (if the language is not the default)
-                            searchKeys.Clear();
-                            searchKeys.Add(string.Format("{0}{1}", DESCRIPION, suffix));
                         }
                         else if (searchKeyLowered == EXTERNALID)
                         {

@@ -20,10 +20,32 @@ namespace Core.Catalog.CatalogManagement
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            AssetManager.NAME_META_SYSTEM_NAME, 
+            AssetManager.DESCRIPTION_META_SYSTEM_NAME,
+            AssetManager.EXTERNAL_ID_META_SYSTEM_NAME,
+            START_DATE_META_SYSTEM_NAME,
+            END_DATE_META_SYSTEM_NAME,
+            SERIES_NAME_META_SYSTEM_NAME,
+            SERIES_ID_META_SYSTEM_NAME,
+            EPISODE_NUMBER_META_SYSTEM_NAME,
+            SEASON_NUMBER_META_SYSTEM_NAME,
+            CRID_META_SYSTEM_NAME
+        };
+
         private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
         private const string META_DOES_NOT_EXIST = "{0}: {1} does not exist for this group";
         private const string INVALID_LANGUAGE = "Invalid language: {0}. Only languages specified in the name of the asset can be associated.";
         private const string DUPLICATE_VALUE = "Duplicate {0}:{1} sent for {2}.";
+
+        internal const string START_DATE_META_SYSTEM_NAME = "StartDate";
+        internal const string END_DATE_META_SYSTEM_NAME = "EndDate";
+        internal const string SERIES_NAME_META_SYSTEM_NAME = "SeriesName";
+        internal const string SERIES_ID_META_SYSTEM_NAME = "SeriesID";
+        internal const string EPISODE_NUMBER_META_SYSTEM_NAME = "EpisodeNumber";
+        internal const string SEASON_NUMBER_META_SYSTEM_NAME = "SeasonNumber";
+        internal const string CRID_META_SYSTEM_NAME = "Crid";
 
         internal static readonly int MaxDescriptionSize = 1024;
         internal static readonly int MaxNameSize = 255;
@@ -82,8 +104,7 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, string> allNames;
                 Dictionary<string, Dictionary<string, List<string>>> epgMetas;
                 List<int> epgTagsIds;
-
-                List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
+                Dictionary<FieldTypes, Dictionary<string, int>> mappingFields = GetMappingFields(groupId);
 
                 Status validateStatus = ValidateEpgAssetForInsert(groupId, userId, epgAssetToAdd, catalogGroupCache, mappingFields, out allNames, out epgMetas, out epgTagsIds);
 
@@ -109,27 +130,22 @@ namespace Core.Catalog.CatalogManagement
 
                 epgCbToAdd.Name = allNames[defaultLanguageCode];
                 epgCbToAdd.Description = allDescriptions.Object.ContainsKey(defaultLanguageCode) ? allDescriptions.Object[defaultLanguageCode] : string.Empty;
-                // TODO SHIR - ASK ANAT: take metaid From mapping??
                 
-                List<FieldTypeEntity> metasMappingFields = mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToList();
-                Dictionary<string, int> metasTypesIds = new Dictionary<string, int>();
-                foreach (FieldTypeEntity fte in metasMappingFields)
-                {
-                    metasTypesIds.Add(fte.Name.ToLower(), fte.ID);
-                }
-
                 Dictionary<long, List<string>> epgMetaIdToValues = new Dictionary<long, List<string>>();
                 if (epgMetas != null)
                 {
                     foreach (var item in epgMetas[defaultLanguageCode])
                     {
-                        var metaId = (long)metasTypesIds[item.Key.ToLower()];
-                        if (!epgMetaIdToValues.ContainsKey(metaId))
+                        if (mappingFields.ContainsKey(FieldTypes.Meta) && mappingFields[FieldTypes.Meta].ContainsKey(item.Key.ToLower()))
                         {
-                            epgMetaIdToValues.Add(metaId, new List<string>());
-                        }
+                            var metaId = (long)mappingFields[FieldTypes.Meta][item.Key.ToLower()];
+                            if (!epgMetaIdToValues.ContainsKey(metaId))
+                            {
+                                epgMetaIdToValues.Add(metaId, new List<string>());
+                            }
 
-                        epgMetaIdToValues[metaId].AddRange(item.Value);
+                            epgMetaIdToValues[metaId].AddRange(item.Value);
+                        }
                     }
                 }
 
@@ -182,8 +198,8 @@ namespace Core.Catalog.CatalogManagement
                 bool needToUpdateMetas;
                 List<int> epgTagsIds;
                 bool needToUpdateTags;
+                Dictionary<FieldTypes, Dictionary<string, int>> mappingFields = GetMappingFields(groupId);
 
-                List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
                 Status validateStatus = ValidateEpgAssetForUpdate(groupId, userId, epgAssetToUpdate, oldEpgAsset, catalogGroupCache, mappingFields, out needToUpdateBasicData,
                                                                   out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds, out needToUpdateTags);
 
@@ -212,23 +228,19 @@ namespace Core.Catalog.CatalogManagement
 
                 if (needToUpdateMetas)
                 {
-                    List<FieldTypeEntity> metasMappingFields = mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToList();
-                    Dictionary<string, int> metasTypesIds = new Dictionary<string, int>();
-                    foreach (FieldTypeEntity fte in metasMappingFields)
-                    {
-                        metasTypesIds.Add(fte.Name.ToLower(), fte.ID);
-                    }
-
                     Dictionary<long, List<string>> epgMetaIdToValues = new Dictionary<long, List<string>>();
                     foreach (var item in epgMetas[defaultLanguageCode])
                     {
-                        var metaId = (long)metasTypesIds[item.Key.ToLower()];
-                        if (!epgMetaIdToValues.ContainsKey(metaId))
+                        if (mappingFields.ContainsKey(FieldTypes.Meta) && mappingFields[FieldTypes.Meta].ContainsKey(item.Key.ToLower()))
                         {
-                            epgMetaIdToValues.Add(metaId, new List<string>());
-                        }
+                            var metaId = (long)mappingFields[FieldTypes.Meta][item.Key.ToLower()];
+                            if (!epgMetaIdToValues.ContainsKey(metaId))
+                            {
+                                epgMetaIdToValues.Add(metaId, new List<string>());
+                            }
 
-                        epgMetaIdToValues[metaId].AddRange(item.Value);
+                            epgMetaIdToValues[metaId].AddRange(item.Value);
+                        } 
                     }
 
                     EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.DefaultLanguage.ID);
@@ -346,20 +358,23 @@ namespace Core.Catalog.CatalogManagement
                     // get topics to removed             
                     List<Topic> topics = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName.ToLower())).Select(x => x.Value).ToList();
 
-                    List<FieldTypeEntity> mappingFields = GetMappingFields(groupId);
+                    Dictionary<FieldTypes, Dictionary<string, int>> mappingFields = GetMappingFields(groupId);
+                    
+                    List<int> programMetaIds = new List<int>(topics.Where(t => mappingFields.ContainsKey(FieldTypes.Meta) &&
+                                                                               mappingFields[FieldTypes.Meta].ContainsKey(t.SystemName.ToLower()))
+                                                                   .Select(x => mappingFields[FieldTypes.Meta][x.SystemName.ToLower()]));
 
-                    // needed for a check that meta exist at mapping
-                    Dictionary<string, int> programMetas = new Dictionary<string, int>
-                        (mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToDictionary(key => key.Name.ToLower(), value => value.ID));
+                    List<string> metasToRemoveByName = new List<string>(topics.Where(t => mappingFields.ContainsKey(FieldTypes.Meta) &&
+                                                                                          mappingFields[FieldTypes.Meta].ContainsKey(t.SystemName.ToLower()))
+                                                                              .Select(x => x.SystemName.ToLower()));
+                    
+                    List<int> programTagIds = new List<int>(topics.Where(t => mappingFields.ContainsKey(FieldTypes.Tag) &&
+                                                                               mappingFields[FieldTypes.Tag].ContainsKey(t.SystemName.ToLower()))
+                                                                  .Select(x => mappingFields[FieldTypes.Tag][x.SystemName.ToLower()]));
 
-                    List<int> programMetaIds = new List<int>(topics.Where(t => programMetas.ContainsKey(t.SystemName.ToLower())).Select(x => programMetas[x.SystemName.ToLower()]));
-                    List<string> metasToRemoveByName = new List<string>(topics.Where(t => programMetas.ContainsKey(t.SystemName.ToLower())).Select(x => x.SystemName.ToLower()));
-
-                    Dictionary<string, int> programTags = new Dictionary<string, int>
-                        (mappingFields.Where(x => x.FieldType == FieldTypes.Tag).ToDictionary(key => key.Name.ToLower(), value => value.ID));
-
-                    List<int> programTagIds = new List<int>(topics.Where(t => programTags.ContainsKey(t.SystemName.ToLower())).Select(x => programTags[x.SystemName.ToLower()]));
-                    List<string> tagsToRemoveByName = new List<string>(topics.Where(t => programTags.ContainsKey(t.SystemName.ToLower())).Select(x => x.SystemName.ToLower()));
+                    List<string> tagsToRemoveByName = new List<string>(topics.Where(t => mappingFields.ContainsKey(FieldTypes.Tag) &&
+                                                                                          mappingFields[FieldTypes.Tag].ContainsKey(t.SystemName.ToLower()))
+                                                                             .Select(x => x.SystemName.ToLower()));
 
                     if (EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId))
                     {
@@ -503,10 +518,9 @@ namespace Core.Catalog.CatalogManagement
             return 2;
         }
 
-        private static Status ValidateEpgAssetForUpdate(int groupId, long userId, EpgAsset epgAssetToUpdate, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache, List<FieldTypeEntity> mappingFields,
-                                                        out bool updateBasicData, out Dictionary<string, string> allNames,
-                                                        out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out bool updateMetas,
-                                                        out List<int> epgTagsIds, out bool updateTags)
+        private static Status ValidateEpgAssetForUpdate(int groupId, long userId, EpgAsset epgAssetToUpdate, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache, 
+                                                        Dictionary<FieldTypes, Dictionary<string, int>> mappingFields, out bool updateBasicData, out Dictionary<string, string> allNames,
+                                                        out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out bool updateMetas, out List<int> epgTagsIds, out bool updateTags)
         {
             updateBasicData = false;
             allNames = null;
@@ -614,10 +628,8 @@ namespace Core.Catalog.CatalogManagement
             return epgTagsToUpdate;
         }
 
-        private static Status ValidateEpgAssetForInsert(int groupId, long userId, EpgAsset epgAssetToAdd, CatalogGroupCache catalogGroupCache, List<FieldTypeEntity> mappingFields,
-                                                        out Dictionary<string, string> allNames,
-                                                        out Dictionary<string, Dictionary<string, List<string>>> epgMetas,
-                                                        out List<int> epgTagsIds)
+        private static Status ValidateEpgAssetForInsert(int groupId, long userId, EpgAsset epgAssetToAdd, CatalogGroupCache catalogGroupCache, Dictionary<FieldTypes, Dictionary<string, int>> mappingFields,
+                                                        out Dictionary<string, string> allNames, out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out List<int> epgTagsIds)
         {
             allNames = null;
             epgMetas = null;
@@ -673,9 +685,8 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static Status ValidateEpgAssetStruct(int groupId, long userId, EpgAsset epgAsset, CatalogGroupCache catalogGroupCache, bool needToValidateMetas,
-                                                     List<FieldTypeEntity> mappingFields, Dictionary<string, string> allNames,
-                                                     out Dictionary<string, Dictionary<string, List<string>>> epgMetas,
-                                                     out List<int> epgTagsIds)
+                                                     Dictionary<FieldTypes, Dictionary<string, int>> mappingFields, Dictionary<string, string> allNames,
+                                                     out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out List<int> epgTagsIds)
         {
             Status status = null;
             epgMetas = null;
@@ -695,7 +706,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (epgAsset.Metas != null && epgAsset.Metas.Count > 0)
             {
-                status = HandleEpgAssetMetas(mainCode, epgAsset.Metas, mappingFields, needToValidateMetas, catalogGroupCache, programAssetStruct, allNames, out epgMetas);
+                status = HandleEpgAssetMetas(mainCode, epgAsset.Metas, mappingFields[FieldTypes.Meta], needToValidateMetas, catalogGroupCache, programAssetStruct, allNames, out epgMetas);
                 if (!status.IsOkStatusCode())
                 {
                     return status;
@@ -704,7 +715,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (epgAsset.Tags != null && epgAsset.Tags.Count > 0)
             {
-                status = HandleEpgAssetTags(groupId, userId, mainCode, epgAsset.Tags, mappingFields, catalogGroupCache, programAssetStruct, out epgTagsIds);
+                status = HandleEpgAssetTags(groupId, userId, mainCode, epgAsset.Tags, mappingFields[FieldTypes.Tag], catalogGroupCache, programAssetStruct, out epgTagsIds);
                 if (!status.IsOkStatusCode())
                 {
                     return status;
@@ -714,21 +725,14 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
-        private static Status HandleEpgAssetTags(int groupId, long userId, string mainCode, List<Tags> tags, List<FieldTypeEntity> mappingFields, CatalogGroupCache catalogGroupCache, AssetStruct programAssetStruct, out List<int> epgTagsIds)
+        private static Status HandleEpgAssetTags(int groupId, long userId, string mainCode, List<Tags> tags, Dictionary<string, int> tagNameToIdMapping, 
+                                                 CatalogGroupCache catalogGroupCache, AssetStruct programAssetStruct, out List<int> epgTagsIds)
         {
             var distinctTopics = new HashSet<string>();
             epgTagsIds = new List<int>();
 
             Dictionary<int, List<string>> tagsAndValues = new Dictionary<int, List<string>>();
-
-            List<FieldTypeEntity> tagsMappingFields = mappingFields.Where(x => x.FieldType == FieldTypes.Tag).ToList();
-            Dictionary<string, int> tagsTypesIds = new Dictionary<string, int>();
-            foreach (FieldTypeEntity fte in tagsMappingFields)
-            {
-                if (!tagsTypesIds.ContainsKey(fte.Name.ToLower()))
-                    tagsTypesIds.Add(fte.Name.ToLower(), fte.ID);
-            }
-
+            
             foreach (var tag in tags)
             {
                 var validateTopicStatus = ValidateTopic(catalogGroupCache, programAssetStruct, tag.m_oTagMeta, MetaType.Tag, ref distinctTopics, "tag", null);
@@ -738,13 +742,13 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //A get all tags Ids
-                if (!tagsTypesIds.ContainsKey(tag.m_oTagMeta.m_sName.ToLower()))
+                if (!tagNameToIdMapping.ContainsKey(tag.m_oTagMeta.m_sName.ToLower()))
                 {
                     var errorMsg = string.Format(META_DOES_NOT_EXIST, MetaType.Tag, tag.m_oTagMeta.m_sName);
                     return new Status((int)eResponseStatus.MetaDoesNotExist, errorMsg);
                 }
 
-                int tagTypeId = tagsTypesIds[tag.m_oTagMeta.m_sName.ToLower()];
+                int tagTypeId = tagNameToIdMapping[tag.m_oTagMeta.m_sName.ToLower()];
                 if (tagsAndValues.ContainsKey(tagTypeId))
                 {
                     tagsAndValues[tagTypeId].AddRange(tag.m_lValues);
@@ -761,7 +765,7 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<int, List<string>> tagTypeWithMissingValues = new Dictionary<int, List<string>>();
             foreach (var tag in tags)
             {
-                int tagTypeId = tagsTypesIds[tag.m_oTagMeta.m_sName.ToLower()];
+                int tagTypeId = tagNameToIdMapping[tag.m_oTagMeta.m_sName.ToLower()];
                 foreach (string tagValue in tag.m_lValues)
                 {
                     if (!dicTagTypeWithValues.ContainsKey(tagTypeId) || !dicTagTypeWithValues[tagTypeId].ContainsKey(tagValue.ToLower()))
@@ -793,7 +797,7 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (var tag in tags)
             {
-                int tagTypeId = tagsTypesIds[tag.m_oTagMeta.m_sName.ToLower()];
+                int tagTypeId = tagNameToIdMapping[tag.m_oTagMeta.m_sName.ToLower()];
 
                 foreach (var value in tag.m_lValues)
                 {
@@ -808,22 +812,16 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
-        private static Status HandleEpgAssetMetas(string mainCode, List<Metas> metas, List<FieldTypeEntity> mappingFields, bool needToValidateMetas,
+        private static Status HandleEpgAssetMetas(string mainCode, List<Metas> metas, Dictionary<string, int> metaNameToIdMapping, bool needToValidateMetas,
                                                     CatalogGroupCache catalogGroupCache, AssetStruct programAssetStruct, Dictionary<string, string> allNames,
                                                     out Dictionary<string, Dictionary<string, List<string>>> epgMetas)
         {
             var distinctTopics = new HashSet<string>();
 
-            epgMetas = new Dictionary<string, Dictionary<string, List<string>>>();
-            epgMetas.Add(mainCode, new Dictionary<string, List<string>>());
-
-            // needed for a check that meta exist at mapping
-            List<FieldTypeEntity> metaMappingFields = mappingFields.Where(x => x.FieldType == FieldTypes.Meta).ToList();
-            Dictionary<string, int> metaIds = new Dictionary<string, int>();
-            foreach (FieldTypeEntity fte in metaMappingFields)
+            epgMetas = new Dictionary<string, Dictionary<string, List<string>>>
             {
-                metaIds.Add(fte.Name.ToLower(), fte.ID);
-            }
+                { mainCode, new Dictionary<string, List<string>>() }
+            };
 
             foreach (var meta in metas)
             {
@@ -836,7 +834,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
                 // check that meta exist at mapping
-                if (!metaIds.ContainsKey(meta.m_oTagMeta.m_sName.ToLower()))
+                if (!metaNameToIdMapping.ContainsKey(meta.m_oTagMeta.m_sName.ToLower()))
                 {
                     var errorMsg = string.Format(META_DOES_NOT_EXIST, "meta", meta.m_oTagMeta.m_sName);
                     return new Status((int)eResponseStatus.MetaDoesNotExist, errorMsg);
@@ -888,82 +886,58 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        private static List<FieldTypeEntity> GetMappingFields(int groupId)
+        internal static Dictionary<FieldTypes, Dictionary<string, int>> GetMappingFields(int groupId)
         {
+            Dictionary<FieldTypes, Dictionary<string, int>> allFieldTypeMapping = new Dictionary<FieldTypes, Dictionary<string, int>>();
+
             try
             {
-                List<FieldTypeEntity> AllFieldTypeMapping = new List<FieldTypeEntity>();
-
                 DataSet ds = EpgDal.GetEpgMappingFields(new List<int> { groupId }, groupId);
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 5)
                 {
-                    if (ds.Tables[0] != null)//basic
+                    //basic
+                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                     {
-                        InitializeMappingFields(ds.Tables[0], ds.Tables[3], null, FieldTypes.Basic, ref AllFieldTypeMapping);
-                    }
-                    if (ds.Tables[1] != null)//metas
-                    {
-                        InitializeMappingFields(ds.Tables[1], ds.Tables[3], ds.Tables[5], FieldTypes.Meta, ref AllFieldTypeMapping);
-                    }
-                    if (ds.Tables[2] != null)//Tags
-                    {
-                        InitializeMappingFields(ds.Tables[2], ds.Tables[3], ds.Tables[5], FieldTypes.Tag, ref AllFieldTypeMapping);
+                        allFieldTypeMapping.Add(FieldTypes.Basic, GetFields(ds.Tables[0]));
                     }
 
+                    //metas
+                    if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                    {
+                        allFieldTypeMapping.Add(FieldTypes.Meta, GetFields(ds.Tables[1]));
+                    }
+
+                    //Tags
+                    if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
+                    {
+                        allFieldTypeMapping.Add(FieldTypes.Tag, GetFields(ds.Tables[2]));
+                    }
                 }
-
-                return AllFieldTypeMapping;
             }
             catch (Exception ex)
             {
-                log.Error("", ex);
-                return new List<FieldTypeEntity>();
+                log.ErrorFormat("Failed GetMappingFields with groupId: {0}, exception: {1}", groupId, ex.ToString());
             }
-        }
 
-        // initialize each item with all external_ref  
-        private static void InitializeMappingFields(DataTable dataTable, DataTable dataTableRef, DataTable dataTableAlias, FieldTypes fieldTypes, ref List<FieldTypeEntity> AllFieldTypeMapping)
+            return allFieldTypeMapping;
+        }
+        
+        private static Dictionary<string, int> GetFields(DataTable dataTable)
         {
+            Dictionary<string, int> fields = new Dictionary<string, int>(dataTable.Rows.Count);
             foreach (DataRow dr in dataTable.Rows)
             {
-                FieldTypeEntity item = new FieldTypeEntity();
-                item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
-                item.FieldType = fieldTypes;
-
-                if (fieldTypes != FieldTypes.Basic)
+                string name = ODBCWrapper.Utils.GetSafeStr(dr, "Name").ToLower();
+                if (!fields.ContainsKey(name))
                 {
-                    DataRow drAlias = dataTableAlias.Select("type = " + (int)fieldTypes + " and field_id = " + item.ID).FirstOrDefault();
-                    item.Alias = ODBCWrapper.Utils.GetSafeStr(drAlias, "name");
-                    item.RegexExpression = ODBCWrapper.Utils.GetSafeStr(drAlias, "regex_expression");
-
-                    foreach (var x in dataTableRef.Select("type = " + (int)fieldTypes + " and field_id = " + item.ID))
-                    {
-
-                        if (item.XmlReffName == null)
-                        {
-                            item.XmlReffName = new List<string>();
-                            item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
-                        }
-                        else
-                        {
-                            item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
-                        }
-                    }
-
-                    if (fieldTypes == FieldTypes.Meta)
-                    {
-                        item.isProtectFromUpdates = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_protect_from_updates") == 0 ? false : true;
-                    }
+                    fields.Add(name, ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"));
                 }
-
-                AllFieldTypeMapping.Add(item);
             }
+
+            return fields;
         }
-
-
-
+        
         private static Dictionary<int, Dictionary<string, int>> GetTagTypeWithRelevantValues(int groupID, Dictionary<int, List<string>> tagsAndValues)
         {
             //per tag type, their values and IDs
