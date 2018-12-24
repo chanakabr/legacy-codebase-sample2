@@ -14808,7 +14808,7 @@ namespace WebAPI.Models.API
             {
                 if (parameters.ContainsKey("playbackProfileEqual") && parameters["playbackProfileEqual"] != null)
                 {
-                    PlaybackProfileIdEqual = (Int64) Convert.ChangeType(parameters["playbackProfileEqual"], typeof(Int64));
+                    PlaybackProfileIdEqual = (Int32) Convert.ChangeType(parameters["playbackProfileEqual"], typeof(Int32));
                 }
             }
         }

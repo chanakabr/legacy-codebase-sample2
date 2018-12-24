@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
             {
                 if (filter != null && filter.PlaybackProfileIdEqual.HasValue && filter.getPlaybackProfileId() > 0)
                 {
-                    response = ClientsManager.ApiClient().GetPlaybackProfile(groupId, filter.getPlaybackProfileId());  
+                    response = ClientsManager.ApiClient().GetPlaybackProfile(groupId, (long)filter.getPlaybackProfileId());  
                 }
                 else
                 {

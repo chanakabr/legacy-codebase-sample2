@@ -21,11 +21,11 @@ namespace WebAPI.Models.API
         [DataMember(Name = "playbackProfileEqual")]
         [JsonProperty("playbackProfileEqual")]
         [XmlElement(ElementName = "playbackProfileEqual")]
-        public long? PlaybackProfileIdEqual { get; set; }
+        public int? PlaybackProfileIdEqual { get; set; }
        
-        internal long getPlaybackProfileId()
+        internal int getPlaybackProfileId()
         {
-            return PlaybackProfileIdEqual.HasValue ? (long)PlaybackProfileIdEqual : 0;
+            return PlaybackProfileIdEqual.HasValue ? (int)PlaybackProfileIdEqual : 0;
         }
 
         public override KalturaPlaybackProfileOrderBy GetDefaultOrderByValue()
