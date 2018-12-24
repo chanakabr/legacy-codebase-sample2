@@ -5312,23 +5312,7 @@ namespace DAL
                 res = new List<PlaybackProfile>();
             }
             return res;
-        }
-
-        public static PlaybackProfile GetplaybackAdapterByExternalId(int groupId, string externalIdentifier)
-        {
-            PlaybackProfile res = null;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PlaybackAdapterByExternald");
-            sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@externalIdentifier", externalIdentifier);
-            DataTable dt = sp.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                res = CreatePlaybackAdapter(dt.Rows[0]);
-            }
-
-            return res; ;
-        }
+        }       
 
         public static DataTable AddPlaybackAdapter(int groupId, string userId, PlaybackProfile adapter)
         {
@@ -5352,28 +5336,6 @@ namespace DAL
             }
 
             return dt;
-        }
-
-        public static PlaybackProfile GetPlaybackAdapter(int groupId, long adapterId)
-        {
-            PlaybackProfile res = null;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PlaybackAdapter");
-                sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@id", adapterId);
-                DataTable dt = sp.Execute();
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    res = CreatePlaybackAdapter(dt.Rows[0]);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetPlaybackAdapter, groupId: {0}, id: {1}, ex:{2} ", groupId, adapterId, ex);
-            }
-            return res;
         }
 
         public static bool SetPlaybackAdapterSharedSecret(int groupId, long adapterId, string sharedSecret)
@@ -5414,7 +5376,6 @@ namespace DAL
 
             return res;
         }
-
 
         private static PlaybackProfile CreatePlaybackAdapter(DataRow dr)
         {

@@ -538,6 +538,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("GroupWatchPermissionRules_{0}", groupId);
         }
 
+        public static string GetGroupPlaybackProfileKey(int groupId)
+        {
+            return string.Format("GroupPlaybackProfile_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -977,6 +982,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_GroupWatchPermissionRules_{0}", groupId);
         }
 
+        public static string GetGroupPlaybackProfilesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupPlaybackProfiles_{0}", groupId);
+        }
         #endregion
 
         #region Domains
