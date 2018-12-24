@@ -102,6 +102,9 @@ namespace WebAPI.Controllers
             if (string.IsNullOrWhiteSpace(playbackProfile.Name))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
 
+            if (string.IsNullOrWhiteSpace(playbackProfile.SystemName))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
+
             int groupId = KS.GetFromRequest().GroupId;
 
             try
