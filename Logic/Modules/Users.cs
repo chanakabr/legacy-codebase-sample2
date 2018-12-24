@@ -1675,7 +1675,7 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response = t.GetUserRoleIds(nGroupID, userId);
+                response = t.GetUserRoleIds(userId);
             }
             return response;
         }
