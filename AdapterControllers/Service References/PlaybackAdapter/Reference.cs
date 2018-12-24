@@ -589,6 +589,9 @@ namespace AdapterControllers.PlaybackAdapter {
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string UrlField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -596,6 +599,19 @@ namespace AdapterControllers.PlaybackAdapter {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Url {
+            get {
+                return this.UrlField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.UrlField, value) != true)) {
+                    this.UrlField = value;
+                    this.RaisePropertyChanged("Url");
+                }
             }
         }
         
@@ -620,9 +636,6 @@ namespace AdapterControllers.PlaybackAdapter {
         private string AdditionalDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string AltCdnCodeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string AltExternalIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -635,19 +648,10 @@ namespace AdapterControllers.PlaybackAdapter {
         private System.Nullable<int> AssetIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string BillingTypeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<long> CatalogEndDateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<long> CdnAdapaterProfileIdField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string CdnCodeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string CdnNameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<long> DurationField;
@@ -665,9 +669,6 @@ namespace AdapterControllers.PlaybackAdapter {
         private System.Nullable<long> FileSizeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string HandlingTypeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> IdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -683,15 +684,6 @@ namespace AdapterControllers.PlaybackAdapter {
         private string OutputProtecationLevelField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private AdapterControllers.PlaybackAdapter.StringValueArray PPVModulesField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string ProductCodeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string QualityField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<long> StartDateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -703,9 +695,6 @@ namespace AdapterControllers.PlaybackAdapter {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> TypeIdField;
         
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string UrlField;
-        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string AdditionalData {
             get {
@@ -715,19 +704,6 @@ namespace AdapterControllers.PlaybackAdapter {
                 if ((object.ReferenceEquals(this.AdditionalDataField, value) != true)) {
                     this.AdditionalDataField = value;
                     this.RaisePropertyChanged("AdditionalData");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string AltCdnCode {
-            get {
-                return this.AltCdnCodeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.AltCdnCodeField, value) != true)) {
-                    this.AltCdnCodeField = value;
-                    this.RaisePropertyChanged("AltCdnCode");
                 }
             }
         }
@@ -785,19 +761,6 @@ namespace AdapterControllers.PlaybackAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string BillingType {
-            get {
-                return this.BillingTypeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.BillingTypeField, value) != true)) {
-                    this.BillingTypeField = value;
-                    this.RaisePropertyChanged("BillingType");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<long> CatalogEndDate {
             get {
                 return this.CatalogEndDateField;
@@ -819,32 +782,6 @@ namespace AdapterControllers.PlaybackAdapter {
                 if ((this.CdnAdapaterProfileIdField.Equals(value) != true)) {
                     this.CdnAdapaterProfileIdField = value;
                     this.RaisePropertyChanged("CdnAdapaterProfileId");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string CdnCode {
-            get {
-                return this.CdnCodeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.CdnCodeField, value) != true)) {
-                    this.CdnCodeField = value;
-                    this.RaisePropertyChanged("CdnCode");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string CdnName {
-            get {
-                return this.CdnNameField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.CdnNameField, value) != true)) {
-                    this.CdnNameField = value;
-                    this.RaisePropertyChanged("CdnName");
                 }
             }
         }
@@ -915,19 +852,6 @@ namespace AdapterControllers.PlaybackAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string HandlingType {
-            get {
-                return this.HandlingTypeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.HandlingTypeField, value) != true)) {
-                    this.HandlingTypeField = value;
-                    this.RaisePropertyChanged("HandlingType");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<int> Id {
             get {
                 return this.IdField;
@@ -993,45 +917,6 @@ namespace AdapterControllers.PlaybackAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public AdapterControllers.PlaybackAdapter.StringValueArray PPVModules {
-            get {
-                return this.PPVModulesField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.PPVModulesField, value) != true)) {
-                    this.PPVModulesField = value;
-                    this.RaisePropertyChanged("PPVModules");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ProductCode {
-            get {
-                return this.ProductCodeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.ProductCodeField, value) != true)) {
-                    this.ProductCodeField = value;
-                    this.RaisePropertyChanged("ProductCode");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Quality {
-            get {
-                return this.QualityField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.QualityField, value) != true)) {
-                    this.QualityField = value;
-                    this.RaisePropertyChanged("Quality");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<long> StartDate {
             get {
                 return this.StartDateField;
@@ -1082,64 +967,6 @@ namespace AdapterControllers.PlaybackAdapter {
                 }
             }
         }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Url {
-            get {
-                return this.UrlField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.UrlField, value) != true)) {
-                    this.UrlField = value;
-                    this.RaisePropertyChanged("Url");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="StringValueArray", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
-    [System.SerializableAttribute()]
-    public partial class StringValueArray : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private AdapterControllers.PlaybackAdapter.StringValue[] ObjectsField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public AdapterControllers.PlaybackAdapter.StringValue[] Objects {
-            get {
-                return this.ObjectsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.ObjectsField, value) != true)) {
-                    this.ObjectsField = value;
-                    this.RaisePropertyChanged("Objects");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
@@ -1157,6 +984,8 @@ namespace AdapterControllers.PlaybackAdapter {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DrmPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     [System.SerializableAttribute()]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.CustomDrmPlaybackPluginData))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.FairPlayPlaybackPluginData))]
     public partial class DrmPlaybackPluginData : AdapterControllers.PlaybackAdapter.PluginData {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -1194,78 +1023,11 @@ namespace AdapterControllers.PlaybackAdapter {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="StringValue", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
-    [System.SerializableAttribute()]
-    public partial class StringValue : AdapterControllers.PlaybackAdapter.Value {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string valueField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string value {
-            get {
-                return this.valueField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.valueField, value) != true)) {
-                    this.valueField = value;
-                    this.RaisePropertyChanged("value");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Value", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
-    [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.StringValue))]
-    public partial class Value : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string DescriptionField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Description {
-            get {
-                return this.DescriptionField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.DescriptionField, value) != true)) {
-                    this.DescriptionField = value;
-                    this.RaisePropertyChanged("Description");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="PluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.DrmPlaybackPluginData))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.CustomDrmPlaybackPluginData))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.FairPlayPlaybackPluginData))]
     public partial class PluginData : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
@@ -1287,6 +1049,52 @@ namespace AdapterControllers.PlaybackAdapter {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
             if ((propertyChanged != null)) {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="CustomDrmPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.SerializableAttribute()]
+    public partial class CustomDrmPlaybackPluginData : AdapterControllers.PlaybackAdapter.DrmPlaybackPluginData {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string DataField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Data {
+            get {
+                return this.DataField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.DataField, value) != true)) {
+                    this.DataField = value;
+                    this.RaisePropertyChanged("Data");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FairPlayPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.SerializableAttribute()]
+    public partial class FairPlayPlaybackPluginData : AdapterControllers.PlaybackAdapter.DrmPlaybackPluginData {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string CertificateField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Certificate {
+            get {
+                return this.CertificateField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.CertificateField, value) != true)) {
+                    this.CertificateField = value;
+                    this.RaisePropertyChanged("Certificate");
+                }
             }
         }
     }
