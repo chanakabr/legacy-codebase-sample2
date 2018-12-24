@@ -70,11 +70,7 @@
     <xs:complexContent mixed="false">
       <xs:extension base="tns:MediaFile">
         <xs:sequence>
-          <xs:element minOccurs="0" name="AdsParams" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="AdsPolicy" nillable="true" type="tns:AdsPolicy" />
           <xs:element minOccurs="0" name="Drm" nillable="true" type="tns:ArrayOfDrmPlaybackPluginData" />
-          <xs:element minOccurs="0" name="DrmId" type="xs:int" />
-          <xs:element minOccurs="0" name="FileExtention" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="Format" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="IsTokenized" type="xs:boolean" />
           <xs:element minOccurs="0" name="Protocols" nillable="true" type="xs:string" />
@@ -106,7 +102,6 @@
           <xs:element minOccurs="0" name="OutputProtecationLevel" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="StartDate" nillable="true" type="xs:long" />
           <xs:element minOccurs="0" name="Status" nillable="true" type="xs:boolean" />
-          <xs:element minOccurs="0" name="Type" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="TypeId" nillable="true" type="xs:int" />
         </xs:sequence>
       </xs:extension>
@@ -119,13 +114,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="AssetFile" nillable="true" type="tns:AssetFile" />
-  <xs:simpleType name="AdsPolicy">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="NO_ADS" />
-      <xs:enumeration value="KEEP_ADS" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="AdsPolicy" nillable="true" type="tns:AdsPolicy" />
   <xs:complexType name="ArrayOfDrmPlaybackPluginData">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="DrmPlaybackPluginData" nillable="true" type="tns:DrmPlaybackPluginData" />

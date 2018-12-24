@@ -421,19 +421,7 @@ namespace AdapterControllers.PlaybackAdapter {
     public partial class PlaybackSource : AdapterControllers.PlaybackAdapter.MediaFile {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string AdsParamsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Nullable<AdapterControllers.PlaybackAdapter.AdsPolicy> AdsPolicyField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private AdapterControllers.PlaybackAdapter.DrmPlaybackPluginData[] DrmField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int DrmIdField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string FileExtentionField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string FormatField;
@@ -445,32 +433,6 @@ namespace AdapterControllers.PlaybackAdapter {
         private string ProtocolsField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string AdsParams {
-            get {
-                return this.AdsParamsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.AdsParamsField, value) != true)) {
-                    this.AdsParamsField = value;
-                    this.RaisePropertyChanged("AdsParams");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<AdapterControllers.PlaybackAdapter.AdsPolicy> AdsPolicy {
-            get {
-                return this.AdsPolicyField;
-            }
-            set {
-                if ((this.AdsPolicyField.Equals(value) != true)) {
-                    this.AdsPolicyField = value;
-                    this.RaisePropertyChanged("AdsPolicy");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
         public AdapterControllers.PlaybackAdapter.DrmPlaybackPluginData[] Drm {
             get {
                 return this.DrmField;
@@ -479,32 +441,6 @@ namespace AdapterControllers.PlaybackAdapter {
                 if ((object.ReferenceEquals(this.DrmField, value) != true)) {
                     this.DrmField = value;
                     this.RaisePropertyChanged("Drm");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int DrmId {
-            get {
-                return this.DrmIdField;
-            }
-            set {
-                if ((this.DrmIdField.Equals(value) != true)) {
-                    this.DrmIdField = value;
-                    this.RaisePropertyChanged("DrmId");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string FileExtention {
-            get {
-                return this.FileExtentionField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.FileExtentionField, value) != true)) {
-                    this.FileExtentionField = value;
-                    this.RaisePropertyChanged("FileExtention");
                 }
             }
         }
@@ -688,9 +624,6 @@ namespace AdapterControllers.PlaybackAdapter {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<bool> StatusField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string TypeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> TypeIdField;
@@ -943,19 +876,6 @@ namespace AdapterControllers.PlaybackAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Type {
-            get {
-                return this.TypeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.TypeField, value) != true)) {
-                    this.TypeField = value;
-                    this.RaisePropertyChanged("Type");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<int> TypeId {
             get {
                 return this.TypeIdField;
@@ -967,17 +887,6 @@ namespace AdapterControllers.PlaybackAdapter {
                 }
             }
         }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="AdsPolicy", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
-    public enum AdsPolicy : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        NO_ADS = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        KEEP_ADS = 1,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]

@@ -232,7 +232,6 @@ namespace AdapterControllers
                         {
                             AssetId = x.AssetId,
                             Id = x.Id,
-                            Type = x.Type,
                             TypeId = x.TypeId,
                             Duration = x.Duration,
                             AdditionalData = x.AdditionalData,
@@ -252,11 +251,7 @@ namespace AdapterControllers
                             StartDate = x.StartDate,
                             Status = x.Status,
                             Url = x.Url,
-                            AdsParams = x.AdsParams,
-                            AdsPolicy = (ApiObjects.PlaybackAdapter.AdsPolicy)x.AdsPolicy,
                             Drm = x.Drm == null ? null : ParseDrm(x.Drm),
-                            DrmId = x.DrmId,
-                            FileExtention = x.FileExtention,
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols
@@ -373,11 +368,7 @@ namespace AdapterControllers
                     playbackContext.Sources = kalturaPlaybackContext.Sources.Select(x =>
                         new PlaybackAdapter.PlaybackSource()
                         {
-                            AdsParams = x.AdsParams,
-                            AdsPolicy = (PlaybackAdapter.AdsPolicy)x.AdsPolicy,
                             Drm = x.Drm == null ? null : ParseDrm(x.Drm),
-                            DrmId = x.DrmId,
-                            FileExtention = x.FileExtention,
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols
