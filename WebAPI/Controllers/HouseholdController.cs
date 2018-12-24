@@ -68,7 +68,7 @@ namespace WebAPI.Controllers
         [Obsolete]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
-        static public KalturaHousehold GetOldStandard(List<KalturaHouseholdWithHolder> with)
+        static public KalturaHousehold GetOldStandard(List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
