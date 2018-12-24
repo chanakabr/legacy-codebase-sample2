@@ -12499,8 +12499,7 @@ namespace Core.ConditionalAccess
                     if (ppvToMediaFileIDsDictionary != null && ppvToMediaFileIDsDictionary.Count > 0)
                     {
                         // Get PPV Modules data
-                        PPVModuleResponse ppvModulesResponse = Pricing.Module.GetPPVModulesData(m_nGroupID, ppvToMediaFileIDsDictionary.Keys.Cast<string>().ToArray(),
-                                                                                                String.Empty, String.Empty, String.Empty);
+                        PPVModuleResponse ppvModulesResponse = Pricing.Module.GetPPVModulesData(m_nGroupID, ppvToMediaFileIDsDictionary.Keys.Cast<string>().ToArray());
                         if (ppvModulesResponse != null && ppvModulesResponse.Status.Code == (int)eResponseStatus.OK && ppvModulesResponse.PPVModules.Length > 0)
                         {
                             List<int> mediaFilesToMap = new List<int>();

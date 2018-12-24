@@ -9048,6 +9048,8 @@ namespace Core.Catalog
                             shouldAddIsActiveTerm = true
                         };
 
+                        int elasticSearchPageSize = 0;
+
                         List<string> listOfMedia = unFilteredresult.Where(
                             x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR && x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
                                 .Select(x => x.AssetId).ToList();
@@ -9056,6 +9058,7 @@ namespace Core.Catalog
                         {
                             searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, listOfMedia);
                             searchDefinitions.shouldSearchMedia = true;
+                            elasticSearchPageSize += listOfMedia.Count;
                         }
 
                         // From the unfiltered list get only the recordings;
@@ -9086,53 +9089,60 @@ namespace Core.Catalog
                             }
 
                             searchDefinitions.extraReturnFields.Add("epg_id");
+
+                            elasticSearchPageSize += listofRecordings.Count;
                         }
 
-                        ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
-                        int esTotalItems = 0, to = 0;
-                        var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+                        searchDefinitions.pageSize = elasticSearchPageSize;
 
-                        List<int> activeMediaIds = new List<int>();
-                        List<string> activeRecordingIds = new List<string>();
-
-                        if (searchResults != null && searchResults.Count > 0)
+                        if (elasticSearchPageSize > 0)
                         {
-                            foreach (var searchResult in searchResults)
+                            ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
+                            int esTotalItems = 0, to = 0;
+                            var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+
+                            List<int> activeMediaIds = new List<int>();
+                            List<string> activeRecordingIds = new List<string>();
+
+                            if (searchResults != null && searchResults.Count > 0)
                             {
-                                int assetId = int.Parse(searchResult.AssetId);
-
-                                if (searchResult.AssetType == eAssetTypes.MEDIA)
+                                foreach (var searchResult in searchResults)
                                 {
-                                    activeMediaIds.Add(assetId);
-                                    unFilteredresult.First(x => int.Parse(x.AssetId) == assetId &&
-                                                                x.AssetTypeId != (int)eAssetTypes.EPG &&
-                                                                x.AssetTypeId != (int)eAssetTypes.NPVR &&
-                                                                x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
-                                                                .UpdateDate = searchResult.m_dUpdateDate;
-                                }
-                                else if (searchResult.AssetType == eAssetTypes.NPVR)
-                                {
-                                    activeRecordingIds.Add(searchResult.AssetId);
-                                    var recordingResult = unFilteredresult.First(x => x.AssetId.ToString() == searchResult.AssetId &&
-                                                                x.AssetTypeId == (int)eAssetTypes.NPVR);
+                                    int assetId = int.Parse(searchResult.AssetId);
 
-                                    recordingResult.UpdateDate = searchResult.m_dUpdateDate;
-                                    recordingResult.EpgId =
-                                        long.Parse((searchResult as RecordingSearchResult).EpgId);
+                                    if (searchResult.AssetType == eAssetTypes.MEDIA)
+                                    {
+                                        activeMediaIds.Add(assetId);
+                                        unFilteredresult.First(x => int.Parse(x.AssetId) == assetId &&
+                                                                    x.AssetTypeId != (int)eAssetTypes.EPG &&
+                                                                    x.AssetTypeId != (int)eAssetTypes.NPVR &&
+                                                                    x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
+                                                                    .UpdateDate = searchResult.m_dUpdateDate;
+                                    }
+                                    else if (searchResult.AssetType == eAssetTypes.NPVR)
+                                    {
+                                        activeRecordingIds.Add(searchResult.AssetId);
+                                        var recordingResult = unFilteredresult.First(x => x.AssetId.ToString() == searchResult.AssetId &&
+                                                                    x.AssetTypeId == (int)eAssetTypes.NPVR);
+
+                                        recordingResult.UpdateDate = searchResult.m_dUpdateDate;
+                                        recordingResult.EpgId =
+                                            long.Parse((searchResult as RecordingSearchResult).EpgId);
+                                    }
                                 }
                             }
+
+                            //remove medias that are not active
+                            unFilteredresult.RemoveAll(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
+                                x.AssetTypeId != (int)eAssetTypes.NPVR &&
+                                x.AssetTypeId != (int)eAssetTypes.UNKNOWN &&
+                                !activeMediaIds.Contains(int.Parse(x.AssetId)));
+
+                            //remove recordings that are not active
+                            unFilteredresult.RemoveAll(x =>
+                                x.AssetTypeId == (int)eAssetTypes.NPVR &&
+                                !activeRecordingIds.Contains(x.AssetId.ToString()));
                         }
-
-                        //remove medias that are not active
-                        unFilteredresult.RemoveAll(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
-                            x.AssetTypeId != (int)eAssetTypes.NPVR &&
-                            x.AssetTypeId != (int)eAssetTypes.UNKNOWN &&
-                            !activeMediaIds.Contains(int.Parse(x.AssetId)));
-
-                        //remove recordings that are not active
-                        unFilteredresult.RemoveAll(x =>
-                            x.AssetTypeId == (int)eAssetTypes.NPVR &&
-                            !activeRecordingIds.Contains(x.AssetId.ToString()));
                     }
 
                     // filter status 
