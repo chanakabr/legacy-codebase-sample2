@@ -227,7 +227,6 @@ namespace Core.Pricing
             {
                 List<PPVModule> allPpvs = new List<PPVModule>();
                 string allPpvsKey = LayeredCacheKeys.GetAllPpvsKey(groupId);
-                string allPpvsInvalidationKey = LayeredCacheKeys.GetAllPpvsInvalidationKey(groupId);
 
                 if (!LayeredCache.Instance.Get<List<PPVModule>>(allPpvsKey,
                                                                 ref allPpvs,
@@ -237,8 +236,8 @@ namespace Core.Pricing
                                                                     { "groupId", groupId }
                                                                 },
                                                                 groupId,
-                                                                LayeredCacheConfigNames.GET_ALL_PPVS,
-                                                                new List<string>() { allPpvsInvalidationKey }))
+                                                                LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME,
+                                                                new List<string>() { LayeredCacheKeys.GetAllPpvsInvalidationKey(groupId) }))
                 {
                     return response;
                 }
