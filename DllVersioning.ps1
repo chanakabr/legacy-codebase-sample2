@@ -43,8 +43,8 @@ if($tagParts.Length -ge 2) {
 	$major = $tagParts[0]
 	$minor = $commitParts[0]
 	$build = $commitParts[1]
-	$revision = $(git rev-list --count --first-parent HEAD)
-	$version = "$major.$minor.$build.$revision"
+	#$revision = $(git rev-list --count --first-parent HEAD)
+	$version = "$major.$minor.$build.*"
 
 	$date = $(date +'%Y-%m-%d %H:%M:%S')
 	$hostname = $(hostname)
