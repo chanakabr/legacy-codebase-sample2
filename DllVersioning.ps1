@@ -38,11 +38,15 @@ $tagParts = $tag -split '\.'
 
 #If no tag has been added only the sha1 will be returned
 if($tagParts.Length -ge 2) {
-	$commitParts = $tag -split '-'
+	$commitParts = $tagParts[1] -split '-'
 
 	$major = $tagParts[0]
 	$minor = $commitParts[0]
 	$build = $commitParts[1]
+	Write-Host "Major: $major"
+	Write-Host "Minor: $minor"
+	Write-Host "Build: $build"
+
 	#$revision = $(git rev-list --count --first-parent HEAD)
 	$version = "$major.$minor.$build.*"
 
