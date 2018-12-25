@@ -11730,7 +11730,7 @@ namespace Core.Api
         {
             PlaybackProfile playbackProfile = null;
             List<PlaybackProfile> playbackProfiles = GetPlaybackProfiles(groupId);
-            if (playbackProfiles == null || playbackProfiles.Count > 0)
+            if (playbackProfiles == null || playbackProfiles.Count == 0)
             {
                 return playbackProfile;
             }
