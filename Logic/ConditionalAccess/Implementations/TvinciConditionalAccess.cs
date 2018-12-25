@@ -17,6 +17,7 @@ using ApiObjects.ConditionalAccess;
 using Core.ConditionalAccess.Modules;
 using Core.Api.Managers;
 using ApiObjects.Rules;
+using Core.Recordings;
 
 namespace Core.ConditionalAccess
 {
@@ -570,20 +571,31 @@ namespace Core.ConditionalAccess
                 string fileType = string.Empty;
                 int drmId = 0;
                 string fileCoGuid = string.Empty;
-
+                
                 int programId = -1;
-                if (eformat != eEPGFormatType.NPVR)
+                int.TryParse(sProgramId, out programId);
+
+                if (eformat == eEPGFormatType.NPVR)
                 {
-                    if (int.TryParse(sProgramId, out programId))
+                    // get program from recording by externalId
+                    programId = RecordingsManager.GetProgramIdByExternalRecordingId(m_nGroupID, sProgramId, domainId);
+                }
+
+                if (programId > 0)
+                {
+                    AssetRule blockingRule;
+                    var networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.EPG, m_nGroupID, programId, sUserIP, out blockingRule);
+                    if (!networkRulesStatus.IsOkStatusCode())
                     {
-                        AssetRule blockingRule;
-                        var networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.EPG, m_nGroupID, programId, sUserIP, out blockingRule);
-                        if (!networkRulesStatus.IsOkStatusCode())
-                        {
-                            response.Status = networkRulesStatus;
-                            return response;
-                        }
+                        response.Status = networkRulesStatus;
+                        return response;
                     }
+                }
+
+                if (eformat == eEPGFormatType.NPVR)
+                {
+                    programId = -1;
+                    int.TryParse(sProgramId, out programId);
                 }
                 
                 LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, 
@@ -603,8 +615,6 @@ namespace Core.ConditionalAccess
                 //TODO - comment and replace
                 if (eformat == eEPGFormatType.NPVR)
                 {
-                    //TODO SHIR - ira will CHECK for NETWORK RULES NPVR
-
                     /*
                      * 2.12.14
                      * Vodafone patch. In Vodafone we retrieve the NPVR Licensed Link directly from the NPVR Provider (ALU)

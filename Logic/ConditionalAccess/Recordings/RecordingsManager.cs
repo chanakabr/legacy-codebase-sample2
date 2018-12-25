@@ -827,6 +827,22 @@ namespace Core.Recordings
             return status;
         }
 
+        public static int GetProgramIdByExternalRecordingId(int groupId, string externalRecordingId, int domainId)
+        {
+            int programId = 0;
+            
+            try
+            {
+                programId = RecordingsDAL.GetProgramIdByExternalRecordingId(groupId, externalRecordingId, domainId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetProgramIdByExternalRecordingId for groupId: {0}, ExternalRecordingId: {1} and domainId: {2}", groupId, externalRecordingId, domainId), ex);
+            }
+        
+            return programId;
+        }
+
         #endregion
 
         #region Event Methods
