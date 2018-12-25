@@ -11493,6 +11493,7 @@ namespace Core.Api
                 }
 
                 adapter.SharedSecret = sharedSecret;
+                response.Object = adapter;
             }
             catch (Exception ex)
             {
