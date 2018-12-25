@@ -9,6 +9,7 @@ using System.Configuration;
 using KLogMonitor;
 using System.Reflection;
 using ConfigurationManager;
+using CachingProvider.LayeredCache;
 
 public partial class adm_usage_modules_new : System.Web.UI.Page
 {
@@ -125,6 +126,13 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
                     selectQuery.Finish();
                     selectQuery = null;
                 }
+
+                string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(LoginManager.GetLoginGroupID());
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set pricing settings invalidation key after usage module add/update, key = {0}", invalidationKey);
+                }
+
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);

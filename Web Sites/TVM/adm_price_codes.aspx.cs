@@ -208,5 +208,11 @@ public partial class adm_price_codes : System.Web.UI.Page
         {
             log.ErrorFormat("Failed to set invalidation key for Price code. key = {0}", invalidationKey);
         }
+
+        invalidationKey = LayeredCacheKeys.GetAllPpvsInvalidationKey(groupId);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set invalidation key for ppv modules after price code status change, key = {0}", invalidationKey);
+        }
     }
 }
