@@ -100,7 +100,7 @@ public partial class adm_users_list : System.Web.UI.Page
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("users_connection");
 
-        theTable += "select ";
+        theTable += "select top(10000) ";
         theTable += "u.is_active,u.id as id,u.id as 'User ID',u.status,u.fail_count,u.Password,u.USERNAME as 'Username',u.FIRST_NAME as 'First Name',u.LAST_NAME as 'Last Name',";
         theTable += "u.EMAIL_ADD as 'Email Address',u.REG_AFF as 'Affiliate',u.HANDLING_STATUS as 'Open Ticket',lcs.description as 'State',ut.ID as 'User Type ID',ut.description as 'User Type'";
         theTable += "from ";
