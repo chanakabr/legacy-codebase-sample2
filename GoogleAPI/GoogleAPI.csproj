@@ -83,7 +83,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; bash.exe DLLVersioning.sh $(ProjectDir) )</PreBuildEvent>
+    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell ..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
