@@ -82,7 +82,7 @@ namespace Core.Pricing
             List<long> ppvIds = new List<long>();
 
             if (LayeredCache.Instance.Get<List<long>>(key, ref ppvIds, GetAllGroupPPVModulesIds, layeredCacheParameters,
-                GroupID, LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAllPpvsInvalidationKey(GroupID) }))
+                GroupID, LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetPricingSettingsInvalidationKey(GroupID) }))
             {
                 List<PPVModule> ppvModules = new List<PPVModule>();
 
@@ -217,7 +217,7 @@ namespace Core.Pricing
                 };
 
                 if (!LayeredCache.Instance.Get<PPVModule>(key, ref result, BuildPPVModule, layeredCacheParameters,
-                    GroupID, LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAllPpvsInvalidationKey(GroupID) }))
+                    GroupID, LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetPricingSettingsInvalidationKey(GroupID) }))
                 {
                     log.ErrorFormat("Error when getting ppv modules data from layered cache");
 
@@ -333,7 +333,7 @@ namespace Core.Pricing
                 if (ppvModuleCodes.Count > 0)
                 {
                     Dictionary<string, string> keysToOriginalValueMap = ppvModuleCodes.ToDictionary(x => LayeredCacheKeys.GetPPVModuleKey(x), x => x.ToString());
-                    Dictionary<string, List<string>> keysToInvalidationKeysMap = keysToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetAllPpvsInvalidationKey(GroupID) });
+                    Dictionary<string, List<string>> keysToInvalidationKeysMap = keysToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetPricingSettingsInvalidationKey(GroupID) });
                     Dictionary<string, PPVModule> results = new Dictionary<string, PPVModule>();
                     Dictionary<string, object> layeredCacheParameters = new Dictionary<string, object>()
                         {

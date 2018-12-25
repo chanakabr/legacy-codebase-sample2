@@ -237,7 +237,7 @@ namespace Core.Pricing
                                                                 },
                                                                 groupId,
                                                                 LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME,
-                                                                new List<string>() { LayeredCacheKeys.GetAllPpvsInvalidationKey(groupId) }))
+                                                                new List<string>() { LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId) }))
                 {
                     return response;
                 }
