@@ -139,7 +139,7 @@ namespace APILogic.Api.Managers
 
                         if (groupId.HasValue && !string.IsNullOrEmpty(epgChannelId))
                         {
-                            var programs = SearchPrograms(groupId.Value, epgChannelId, 1, OrderBy.START_DATE, ApiObjects.SearchObjects.OrderDir.ASC);
+                            var programs = SearchPrograms(groupId.Value, epgChannelId, 100, OrderBy.START_DATE, ApiObjects.SearchObjects.OrderDir.ASC);
 
                             if (programs != null)
                             {
