@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using CachingProvider.LayeredCache;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_discounts_locales : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     protected string m_sMenu;
     protected string m_sSubMenu;
@@ -187,6 +191,17 @@ public partial class adm_discounts_locales : System.Web.UI.Page
         theTable.Finish();
         theTable = null;
         return sTable;
+    }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        int groupId = LoginManager.GetLoginGroupID();
+
+        string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set pricing settings invalidation key after discount locale status change, {0}, key = {1}", invalidationKey);
+        }
     }
 
 }
