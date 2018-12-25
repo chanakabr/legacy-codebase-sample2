@@ -5367,6 +5367,7 @@ namespace DAL
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     res = CreatePlaybackAdapter(dt.Rows[0]);
+                    res.Id = adapter.Id;
                 }
             }
             catch (Exception ex)
