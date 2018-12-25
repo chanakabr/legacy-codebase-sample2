@@ -1419,7 +1419,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     IsDefault = image.IsDefault,
                     Url = image.Url,
                     Version = image.Version,
-                    Ratio = ratioName
+                    Ratio = ratioName,
+                    Width = image.Width,
+                    Height = image.Height
                 };
             }
 
