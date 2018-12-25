@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using CachingProvider.LayeredCache;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_coupons_new : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
+
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     static public bool IsTvinciImpl()
     {
@@ -57,6 +62,12 @@ public partial class adm_coupons_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("pricing_connection");
+                int groupId = LoginManager.GetLoginGroupID();
+                string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set pricing settings invalidation key after coupons lista add/update, key = {0}", invalidationKey);
+                }
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);

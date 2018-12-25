@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Reflection;
+using CachingProvider.LayeredCache;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_coupons_groups : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
+
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     static public bool IsTvinciImpl()
     {
@@ -207,4 +212,16 @@ public partial class adm_coupons_groups : System.Web.UI.Page
     {
         Response.Write(PageUtils.GetPreHeader() + ": Coupons Groups");
     }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        int groupId = LoginManager.GetLoginGroupID();
+
+        string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set pricing settings invalidation key after coupons group status change, {0}, key = {1}", invalidationKey);
+        }
+    }
 }
+ 

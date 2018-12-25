@@ -120,10 +120,10 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
                     insertQuery = null;
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetAllPpvsInvalidationKey(LoginManager.GetLoginGroupID());
+                string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(LoginManager.GetLoginGroupID());
                 if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
-                    log.ErrorFormat("Failed to set invalidation key for ppv module id {0}, key = {1}", nPPVModuleID, invalidationKey);
+                    log.ErrorFormat("Failed to set pricing settings invalidation key for ppv module id {0}, key = {1}", nPPVModuleID, invalidationKey);
                 }
 
                 return;

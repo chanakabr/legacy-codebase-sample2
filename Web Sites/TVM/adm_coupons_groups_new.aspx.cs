@@ -54,17 +54,23 @@ public partial class adm_coupons_groups_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 long id = DBManipulator.DoTheWork("pricing_connection");
-
-                string invalidationKey = LayeredCacheKeys.GetCouponsGroupInvalidationKey(LoginManager.GetLoginGroupID(), id);
+                int groupId = LoginManager.GetLoginGroupID();
+                string invalidationKey = LayeredCacheKeys.GetCouponsGroupInvalidationKey(groupId, id);
                 if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for CouponsGroupInvalidationKey . key = {0}", invalidationKey);
                 }
 
-                invalidationKey = LayeredCacheKeys.GetCouponsGroupsInvalidationKey(LoginManager.GetLoginGroupID());
+                invalidationKey = LayeredCacheKeys.GetCouponsGroupsInvalidationKey(groupId);
                 if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for CouponsGroupsInvalidationKey. key = {0}", invalidationKey);
+                }
+
+                invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set pricing settings invalidation key after coupons group add/update, key = {0}", invalidationKey);
                 }
 
                 return;
