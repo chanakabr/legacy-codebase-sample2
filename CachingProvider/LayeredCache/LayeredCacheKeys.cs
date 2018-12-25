@@ -937,11 +937,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_GroupFeatures_{0}", groupId);
         }
 
-        public static string GetAllPpvsInvalidationKey(int groupId)
-        {
-            return string.Format("invalidationKey_all_ppv_groupId_{0}", groupId);
-        }
-
         public static string GetAllBusinessModuleRulesGroupInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_all_business_module_rules_groupId_{0}", groupId);
