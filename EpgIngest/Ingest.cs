@@ -2,6 +2,7 @@
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using EpgBL;
 using KLogMonitor;
@@ -161,6 +162,15 @@ namespace EpgIngest
                         epgChannelType = epgChannelObj.ChannelType;
 
                         bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType, ingestResponse, dPublishDate);
+                        if (returnSuccess)
+                        {
+                            string invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(m_Channels.groupid, channelID);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on EpgIngest.ingest.SaveChannelPrograms, key = {0}", invalidationKey);
+                            }
+                        }
+
                         if (success)
                         {
                             success = returnSuccess;
