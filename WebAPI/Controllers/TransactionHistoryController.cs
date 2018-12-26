@@ -55,6 +55,8 @@ namespace WebAPI.Controllers
                         }
                     case KalturaEntityReferenceBy.household:
                         {
+                            bool isDeprecated = DeprecatedAttribute.IsDeprecated("4.8.0.0"); // fix for userFullName and userId disapearing from response since 4.8.0.0
+
                             DateTime startDate = new DateTime(1753, 1, 1);
                             DateTime endDate = DateTime.MaxValue;
 
@@ -69,7 +71,7 @@ namespace WebAPI.Controllers
                             }
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy);
+                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isDeprecated);
                             break;
                         }
                     default:

@@ -1719,7 +1719,7 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 if (parameters.ContainsKey("adapterId") && parameters["adapterId"] != null)
                 {
-                    AdapterId = (Int64) Convert.ChangeType(parameters["adapterId"], typeof(Int64));
+                    AdapterId = (Int32) Convert.ChangeType(parameters["adapterId"], typeof(Int32));
                 }
             }
         }
@@ -14808,7 +14808,7 @@ namespace WebAPI.Models.API
             {
                 if (parameters.ContainsKey("playbackProfileEqual") && parameters["playbackProfileEqual"] != null)
                 {
-                    PlaybackProfileIdEqual = (Int64) Convert.ChangeType(parameters["playbackProfileEqual"], typeof(Int64));
+                    PlaybackProfileIdEqual = (Int32) Convert.ChangeType(parameters["playbackProfileEqual"], typeof(Int32));
                 }
             }
         }
