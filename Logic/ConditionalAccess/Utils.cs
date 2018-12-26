@@ -5608,20 +5608,23 @@ namespace Core.ConditionalAccess
                 DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
                 long viewableUntilEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "VIEWABLE_UNTIL_EPOCH", 0);
                 long protectedUntilDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "PROTECTED_UNTIL_EPOCH", 0);
-                RecordingInternalStatus recordingInternalStatus = (RecordingInternalStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS");
-                DomainRecordingStatus domainRecordingStatus = (DomainRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_RECORDING_STATUS");
+                RecordingInternalStatus recordingInternalStatus =
+                    (RecordingInternalStatus) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS");
+                DomainRecordingStatus domainRecordingStatus =
+                    (DomainRecordingStatus) ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_RECORDING_STATUS");
                 TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(domainRecordingStatus);
                 DateTime epgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
                 DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                 string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
                 string domainExternalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_DOMAIN_RECORDING_ID");
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
-                RecordingType recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
+                RecordingType recordingType = (RecordingType) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
 
                 if (!recordingStatus.HasValue)
                 {
-                    log.ErrorFormat("Failed Convert DomainRecordingStatus: {0} to TstvRecordingStatus for recordingID: {1}, epgID: {2}",
-                                     domainRecordingStatus, recordingID, epgId);
+                    log.ErrorFormat(
+                        "Failed Convert DomainRecordingStatus: {0} to TstvRecordingStatus for recordingID: {1}, epgID: {2}",
+                        domainRecordingStatus, recordingID, epgId);
                     return recording;
                 }
                 // if the domain recording status was 1 now recordingStatus is OK and we need to get recordingStatus from recordings and not domains table
@@ -5630,15 +5633,17 @@ namespace Core.ConditionalAccess
                     recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus, epgStartDate, epgEndDate);
                     if (!recordingStatus.HasValue)
                     {
-                        log.ErrorFormat("Failed Convert RecordingInternalStatus: {0} to TstvRecordingStatus for recordingID: {1}, epgID: {2}",
-                                         recordingInternalStatus, recordingID, epgId);
+                        log.ErrorFormat(
+                            "Failed Convert RecordingInternalStatus: {0} to TstvRecordingStatus for recordingID: {1}, epgID: {2}",
+                            recordingInternalStatus, recordingID, epgId);
                         return recording;
                     }
 
                     // if internal recording status was 0 now recordingStatus is OK and we need to set recording status according to RecordingsManager
                     if (recordingStatus.Value == TstvRecordingStatus.OK)
                     {
-                        recordingStatus = RecordingsManager.GetTstvRecordingStatus(epgStartDate, epgEndDate, TstvRecordingStatus.Scheduled);
+                        recordingStatus = RecordingsManager.GetTstvRecordingStatus(epgStartDate, epgEndDate,
+                            TstvRecordingStatus.Scheduled);
                     }
                 }
 
@@ -5682,7 +5687,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // if recording status is Recorded then set ViewableUntilDate
-                    if (recording.RecordingStatus == TstvRecordingStatus.Recorded)
+                if (recording.RecordingStatus == TstvRecordingStatus.Recorded)
                 {
                     recording.ViewableUntilDate = viewableUntilEpoch;
 
@@ -5707,8 +5712,11 @@ namespace Core.ConditionalAccess
                     }
                 }
 
+                recording.IsProtected = recording.ProtectedUntilDate.HasValue;
+
                 // if we got until here then recording.Status is OK
-                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                recording.Status =
+                    new ApiObjects.Response.Status((int) eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             return recording;

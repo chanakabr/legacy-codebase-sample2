@@ -40,8 +40,9 @@ namespace ApiObjects.TimeShiftedTv
 
         public string Crid { get; set; }
 
-        public bool isExternalRecording { get; set; } 
+        public bool isExternalRecording { get; set; }
 
+        public bool IsProtected { get; set; }
 
         public Recording()
         {

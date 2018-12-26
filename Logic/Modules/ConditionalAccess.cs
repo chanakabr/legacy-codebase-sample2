@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using ApiObjects.TimeShiftedTv;
 using APILogic.ConditionalAccess.Response;
 
 namespace Core.ConditionalAccess
@@ -2613,7 +2614,8 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.ProtectRecord(userID, recordID);
+                var record = new Recording {Id = recordID, IsProtected = true};
+                return t.UpdateRecord(userID, recordID, record);
             }
             else
             {
@@ -3333,5 +3335,13 @@ namespace Core.ConditionalAccess
             return externalRecordingResponse;
         }
 
+        public static Recording UpdateRecording(int groupId, string userId, long recordingId, Recording recordingToUpdate)
+        {
+            BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            Recording response = t.UpdateRecord(userId, recordingId, recordingToUpdate);
+
+            return response;
+        }
     }
 }

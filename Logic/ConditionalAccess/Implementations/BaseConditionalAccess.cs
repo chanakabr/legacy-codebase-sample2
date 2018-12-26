@@ -41,6 +41,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using ExternalRecording = ApiObjects.TimeShiftedTv.ExternalRecording;
 
 namespace Core.ConditionalAccess
 {
@@ -13508,7 +13509,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at Record. ");
-                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat("userId: ", userID));
                 sb.Append(String.Concat(", epgID: ", epgID));
                 sb.Append(String.Concat(", Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
@@ -13640,7 +13641,7 @@ namespace Core.ConditionalAccess
                 {
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
                     recording.Id = domainRecordingId;
-                    log.ErrorFormat("fail to perform cancel or delete recordingId = {0}, domainRecordingID = {1}, tstvRecordingStatus = {2}", recording.Id, domainRecordingId, tstvRecordingStatus.ToString());
+                    log.ErrorFormat("fail to perform cancel or delete recordingId = {0}, domainRecordingId = {1}, tstvRecordingStatus = {2}", recording.Id, domainRecordingId, tstvRecordingStatus.ToString());
                 }
 
                 recording.Id = domainRecordingId;
@@ -13648,7 +13649,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at CancelOrDeleteRecord. ");
-                sb.Append(String.Concat("userID: ", userId));
+                sb.Append(String.Concat("userId: ", userId));
                 sb.Append(String.Concat(", recordID: ", domainRecordingId));
                 sb.Append(String.Concat(", Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
@@ -13770,7 +13771,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at QueryRecords. ");
-                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat("userId: ", userID));
                 sb.Append(", epgIDs: ");
                 foreach (int epgID in epgIDs)
                 {
@@ -14017,7 +14018,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at SerachDomainRecordings. ");
-                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat("userId: ", userID));
                 sb.Append(String.Concat("domainID: ", domainID));
                 sb.Append(", RecordingStatuses: ");
                 foreach (int recordingStatus in recordingStatuses)
@@ -14058,7 +14059,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at GetRecordingByID. ");
-                sb.Append(string.Format("domainRecordingID: {0}, ", domainRecordingID));
+                sb.Append(string.Format("domainRecordingId: {0}, ", domainRecordingID));
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
@@ -14465,140 +14466,234 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public Recording ProtectRecord(string userID, long domainRecordingID)
+        public Recording UpdateRecord(string userId, long domainRecordingId, Recording recordingToUpdate)
         {
-            Recording recording = new Recording() { Id = domainRecordingID };
+            Recording recording = new Recording() { Id = domainRecordingId };
+
             try
             {
                 Domain domain;
                 long domainID = 0;
-                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
+                ApiObjects.Response.Status validationStatus =
+                    Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainID, out domain);
 
                 // Validate user and domain
-                if (validationStatus.Code != (int)eResponseStatus.OK)
+                if (validationStatus.Code != (int) eResponseStatus.OK)
                 {
-                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userId);
                     recording.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
                     return recording;
                 }
 
                 // Validate recording exists
-                recording = Utils.ValidateRecordID(m_nGroupID, domainID, domainRecordingID);
-                if (recording.Status.Code != (int)eResponseStatus.OK)
+                recording = Utils.ValidateRecordID(m_nGroupID, domainID, domainRecordingId);
+                if (recording.Status.Code != (int) eResponseStatus.OK)
                 {
-                    log.DebugFormat("Recording is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingID, domainID, userID, recording != null ? recording.ToString() : string.Empty);
-                    recording.Id = domainRecordingID;
+                    log.DebugFormat(
+                        "Recording is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}",
+                        domainRecordingId, domainID, userId, recording != null ? recording.ToString() : string.Empty);
+      
+                    return recording;
+                }
+
+                recording.Id = domainRecordingId;
+
+                // Validate there is an update
+                bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected);
+                if (!shouldUpdate)
+                {
                     return recording;
                 }
 
                 // Validate recording is in "Recorded" status
                 if (recording.RecordingStatus != TstvRecordingStatus.Recorded)
                 {
-                    log.DebugFormat("RecordingStatus is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingID, domainID, userID, recording.ToString());
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, "Protection failed, only recording in status Recorded can be protected");
-                    recording.Id = domainRecordingID;
+                    log.DebugFormat(
+                        "RecordingStatus is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}",
+                        domainRecordingId, domainID, userId, recording.ToString());
+                    recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.RecordingStatusNotValid,
+                        "Protection failed, only recording in status Recorded can be protected");
+
                     return recording;
                 }
 
-                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                if (recording.isExternalRecording)
+                {
+                    // External recording handling
 
-                // Check if protect is defined and enabled
-                if (accountSettings == null || !accountSettings.IsProtectionEnabled.HasValue)
-                {
-                    log.ErrorFormat("Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    recording.Id = domainRecordingID;
-                    return recording;
-                }
-                else if (!accountSettings.IsProtectionEnabled.Value)
-                {
-                    log.DebugFormat("Protect is not enabled on the account, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountProtectRecordNotEnabled, eResponseStatus.AccountProtectRecordNotEnabled.ToString());
-                    recording.Id = domainRecordingID;
-                    return recording;
-                }
-
-                // Get domains quota
-                int domainsQuotaInSeconds = 0;
-                ApiObjects.TimeShiftedTv.DomainQuotaResponse domainQuota = QuotaManager.Instance.GetDomainQuotaResponse(this.m_nGroupID, domainID);
-                if (domainQuota != null)
-                {
-                    domainsQuotaInSeconds = domainQuota.TotalQuota;
-                }
-
-                // Get protection quota percentages                
-                if (accountSettings == null || !accountSettings.ProtectionQuotaPercentage.HasValue)
-                {
-                    log.ErrorFormat("Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    recording.Id = domainRecordingID;
-                    return recording;
-                }
-
-                // Calculate total protection quota (round up according to spec)
-                int availableProtectionSeconds = (int)Math.Ceiling((double)((domainsQuotaInSeconds * accountSettings.ProtectionQuotaPercentage.Value) / 100));
-                // Get domain used protection minutes
-                Dictionary<long, Recording> domainProtectedRecordings = Utils.GetDomainProtectedRecordings(m_nGroupID, domainID);
-                // Check protection quota before applying protection on recording
-                ApiObjects.Response.Status protectionQuotaStatus = QuotaManager.Instance.CheckQuotaByTotalSeconds(m_nGroupID, domainID, availableProtectionSeconds, false, new List<Recording>() { recording }, domainProtectedRecordings != null ? domainProtectedRecordings.Values.ToList() : new List<Recording>());
-                if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int)eResponseStatus.OK || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
-                {
-                    log.DebugFormat("Domain Exceeded Protection Quota, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededProtectionQuota, eResponseStatus.ExceededProtectionQuota.ToString());
-                    recording.Id = domainRecordingID;
-                    return recording;
-                }
-
-                // Check protection period is defined
-                if (!accountSettings.ProtectionPeriod.HasValue)
-                {
-                    log.ErrorFormat("Failed getting account protection period, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    recording.Id = domainRecordingID;
-                    return recording;
-                }
-
-                // update recording ID to domainRecordingId
-                recording.Id = domainRecordingID;
-                DateTime protectedUntilDate = DateTime.UtcNow.AddDays(accountSettings.ProtectionPeriod.Value);
-                long protectedUntilEpoch = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate);
-                //if protectedUntilDate > recording.visuable until 
-                if (accountSettings.ProtectionPolicy == ProtectionPolicy.LimitedByRecordingLifetime && protectedUntilEpoch > recording.ViewableUntilDate.Value)
-                {
-                    protectedUntilEpoch = recording.ViewableUntilDate.Value;
-                }
-
-                // Try to Update protection details for domain recording and update recording status
-                if (RecordingsDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
-                {
-                    recording.ProtectedUntilDate = protectedUntilEpoch;
-                    if (!recording.ViewableUntilDate.HasValue || (recording.ViewableUntilDate.HasValue && recording.ViewableUntilDate.Value < protectedUntilEpoch))
+                    DateTime? protectedUntilDate = null;
+                    long protectedUntilEpoch = 0;
+                    if (recordingToUpdate.IsProtected)
                     {
-                        recording.ViewableUntilDate = protectedUntilEpoch;
+                        protectedUntilDate = DateTime.UtcNow.AddYears(100);
+                        protectedUntilEpoch = DateUtils.DateTimeToUnixTimestamp(protectedUntilDate.Value);
                     }
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    if (RecordingsDAL.UpdateRecordingProtected(recording.Id, protectedUntilDate,
+                        protectedUntilEpoch))
+                    {
+                        UpdateRecordingSuccessed(recording, protectedUntilEpoch);
+                    }
+                    else
+                    {
+                        log.DebugFormat(
+                            "Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}",
+                            domainID, userId, domainRecordingId);
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    }
                 }
                 else
                 {
-                    log.DebugFormat("Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    // Internal recording handling
+                    DateTime? protectedUntilDate = null;
+                    long protectedUntilEpoch = 0;
+
+                    if (recordingToUpdate.IsProtected)
+                    {
+                        TimeShiftedTvPartnerSettings
+                            accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+
+                        // Check if protect is defined and enabled
+                        if (accountSettings == null || !accountSettings.IsProtectionEnabled.HasValue)
+                        {
+                            log.ErrorFormat(
+                                "Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}",
+                                domainID, userId, domainRecordingId);
+                            recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.Error,
+                                eResponseStatus.Error.ToString());
+
+                            return recording;
+                        }
+                        else if (!accountSettings.IsProtectionEnabled.Value)
+                        {
+                            log.DebugFormat(
+                                "Protect is not enabled on the account, DomainID: {0}, UserID: {1}, recordID: {2}",
+                                domainID, userId, domainRecordingId);
+                            recording.Status = new ApiObjects.Response.Status(
+                                (int) eResponseStatus.AccountProtectRecordNotEnabled,
+                                eResponseStatus.AccountProtectRecordNotEnabled.ToString());
+
+                            return recording;
+                        }
+
+                        // Get domains quota
+                        int domainsQuotaInSeconds = 0;
+                        ApiObjects.TimeShiftedTv.DomainQuotaResponse domainQuota =
+                            QuotaManager.Instance.GetDomainQuotaResponse(this.m_nGroupID, domainID);
+                        if (domainQuota != null)
+                        {
+                            domainsQuotaInSeconds = domainQuota.TotalQuota;
+                        }
+
+                        // Get protection quota percentages                
+                        if (accountSettings == null || !accountSettings.ProtectionQuotaPercentage.HasValue)
+                        {
+                            log.ErrorFormat(
+                                "Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}",
+                                domainID, userId, domainRecordingId);
+                            recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.Error,
+                                eResponseStatus.Error.ToString());
+
+                            return recording;
+                        }
+
+                        // Calculate total protection quota (round up according to spec)
+                        int availableProtectionSeconds = (int) Math.Ceiling(
+                            (double) ((domainsQuotaInSeconds * accountSettings.ProtectionQuotaPercentage.Value) / 100));
+
+                        // Get domain used protection minutes
+                        Dictionary<long, Recording> domainProtectedRecordings =
+                            Utils.GetDomainProtectedRecordings(m_nGroupID, domainID);
+
+                        // Check protection quota before applying protection on recording
+                        ApiObjects.Response.Status protectionQuotaStatus =
+                            QuotaManager.Instance.CheckQuotaByTotalSeconds(
+                                m_nGroupID, domainID, availableProtectionSeconds, false,
+                                new List<Recording>() {recording},
+                                domainProtectedRecordings != null
+                                    ? domainProtectedRecordings.Values.ToList()
+                                    : new List<Recording>());
+
+                        if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int) eResponseStatus.OK ||
+                            recording.Status == null || recording.Status.Code != (int) eResponseStatus.OK)
+                        {
+                            log.DebugFormat(
+                                "Domain Exceeded Protection Quota, DomainID: {0}, UserID: {1}, recordID: {2}",
+                                domainID, userId, domainRecordingId);
+                            recording.Status = new ApiObjects.Response.Status(
+                                (int) eResponseStatus.ExceededProtectionQuota,
+                                eResponseStatus.ExceededProtectionQuota.ToString());
+
+                            return recording;
+                        }
+
+                        // Check protection period is defined
+                        if (!accountSettings.ProtectionPeriod.HasValue)
+                        {
+                            log.ErrorFormat(
+                                "Failed getting account protection period, DomainID: {0}, UserID: {1}, recordID: {2}",
+                                domainID, userId, domainRecordingId);
+                            recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.Error,
+                                eResponseStatus.Error.ToString());
+
+                            return recording;
+                        }
+
+                        protectedUntilDate = DateTime.UtcNow.AddDays(accountSettings.ProtectionPeriod.Value);
+                        protectedUntilEpoch = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate.Value);
+                        //if protectedUntilDate > recording.visuable until 
+                        if (accountSettings.ProtectionPolicy == ProtectionPolicy.LimitedByRecordingLifetime &&
+                            protectedUntilEpoch > recording.ViewableUntilDate.Value)
+                        {
+                            protectedUntilEpoch = recording.ViewableUntilDate.Value;
+                        }
+                    }
+
+                    // Try to Update protection details for domain recording and update recording status
+                    if (RecordingsDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
+                    {
+                        UpdateRecordingSuccessed(recording, protectedUntilEpoch);
+                    }
+                    else
+                    {
+                        log.DebugFormat(
+                            "Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}",
+                            domainID, userId, domainRecordingId);
+                        recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.Error,
+                            eResponseStatus.Error.ToString());
+                    }
                 }
             }
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at ProtectRecord. ");
-                sb.Append(String.Concat("userID: ", userID));
-                sb.Append(String.Concat("recordID: ", domainRecordingID));
+                StringBuilder sb = new StringBuilder("Exception at UpdateRecord. ");
+                sb.Append(String.Concat("userId: ", userId));
+                sb.Append(String.Concat("recordID: ", domainRecordingId));
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
 
                 log.Error(sb.ToString(), ex);
-                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                recording.Id = domainRecordingID;
+                recording.Status =
+                    new ApiObjects.Response.Status((int) eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
 
             return recording;
+        }
+
+        private static void UpdateRecordingSuccessed(Recording recording, long protectedUntilEpoch)
+        {
+            recording.ProtectedUntilDate = protectedUntilEpoch;
+
+            if (!recording.ViewableUntilDate.HasValue ||
+                (recording.ViewableUntilDate.HasValue &&
+                 recording.ViewableUntilDate.Value < protectedUntilEpoch))
+            {
+                recording.ViewableUntilDate = protectedUntilEpoch;
+            }
+
+            recording.Status =
+                new ApiObjects.Response.Status((int) eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
         public bool CleanupRecordings()
@@ -15380,7 +15475,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at CancelOrDeleteSeriesRecord. ");
-                sb.Append(String.Concat("userID: ", userId));
+                sb.Append(String.Concat("userId: ", userId));
                 sb.Append(String.Concat(", recordID: ", domainSeriesRecordingId));
                 sb.Append(String.Concat(", Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
@@ -15544,7 +15639,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at CancelOrDeleteEpg. ");
-                sb.Append(String.Concat("userID: ", userId));
+                sb.Append(String.Concat("userId: ", userId));
                 sb.Append(String.Concat("domainId: ", domainId));
                 sb.Append(String.Concat("epgId: ", epgId));
                 sb.Append(String.Concat(", recordID: ", seriesRecording != null ? seriesRecording.Id : 0));
@@ -15767,7 +15862,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at RecordSeasonOrSeries. ");
-                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat("userId: ", userID));
                 sb.Append(String.Concat(", epgID: ", epgID));
                 sb.Append(String.Concat(", Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
