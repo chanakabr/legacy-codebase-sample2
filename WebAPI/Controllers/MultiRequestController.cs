@@ -220,6 +220,16 @@ namespace WebAPI.Controllers
                 {
                     try
                     {
+                        if (!string.IsNullOrEmpty(request[i].Action))
+                        {
+                            bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(request[i].Action);
+                            HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = isReadAction;
+                            if (!string.IsNullOrEmpty(request[i].Service))
+                            {
+                                HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}", request[i].Service, request[i].Action);
+                            }
+                        }
+
                         Dictionary<string, object> parameters = request[i].Parameters;
                         if (i > 0)
                         {
