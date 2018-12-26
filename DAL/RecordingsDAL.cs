@@ -390,7 +390,7 @@ namespace DAL
             return dt;
         }
 
-        public static bool ProtectRecording(long recordingId, DateTime protectedUntilDate, long protectedUntilEpoch)
+        public static bool ProtectRecording(long recordingId, DateTime? protectedUntilDate, long protectedUntilEpoch)
         {
             bool isProtected = false;
             try
@@ -1331,6 +1331,18 @@ namespace DAL
             sp.AddIDListParameter("@DomainRecordingIds", domainRecordingIds, "ID");
             sp.AddParameter("@RecordingState", (int)domainRecordingStatus);
             return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool UpdateRecordingProtected(long Id, DateTime? protectedUntilDate, long protectedUntilEpoch)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("ProtectRecording");
+
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@ID", Id);
+            sp.AddParameter("@ProtectedUntilDate", protectedUntilDate);
+            sp.AddParameter("@ProtectedUntilEpoch", protectedUntilEpoch);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }
