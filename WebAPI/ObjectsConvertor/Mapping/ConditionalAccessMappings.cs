@@ -372,8 +372,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.RecordingStatus, opt => opt.ResolveUsing(src => ConvertKalturaRecordingStatus(src.Status)))
                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertKalturaRecordingType(src.Type)))
                .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
+               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsProtected))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
-               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)))
+               .ForMember(dest => dest.Status, opt => opt.Ignore());
 
             // Recording to KalturaRecording
             cfg.CreateMap<Recording, KalturaRecording>()

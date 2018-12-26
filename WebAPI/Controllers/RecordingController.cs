@@ -42,6 +42,7 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
             return response;
         }
 
@@ -113,7 +114,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ProgramCatchUpNotEnabled)]
         [Throws(eResponseStatus.CatchUpBufferLimitation)]
         [Throws(eResponseStatus.ProgramNotInRecordingScheduleWindow)]
-        [Throws(eResponseStatus.ExceededQuota)]        
+        [Throws(eResponseStatus.ExceededQuota)]
         [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
         [Throws(eResponseStatus.InvalidAssetId)]
         static public KalturaRecording Add(KalturaRecording recording)
@@ -125,7 +126,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
                 if (recording is KalturaExternalRecording)
-                // external recording implementation
+                    // external recording implementation
                 {
                     KalturaExternalRecording externalRecording = recording as KalturaExternalRecording;
                     if (string.IsNullOrEmpty(externalRecording.ExternalId))
@@ -133,18 +134,21 @@ namespace WebAPI.Controllers
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
                     }
 
-                    response = ClientsManager.ConditionalAccessClient().AddExternalRecording(groupId, externalRecording, userId);
+                    response = ClientsManager.ConditionalAccessClient()
+                        .AddExternalRecording(groupId, externalRecording, userId);
                 }
                 else
-                // regular recording implementation
+                    // regular recording implementation
                 {
-                    response = ClientsManager.ConditionalAccessClient().Record(groupId, userId.ToString(), recording.AssetId);
+                    response = ClientsManager.ConditionalAccessClient()
+                        .Record(groupId, userId.ToString(), recording.AssetId);
                 }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
             return response;
         }
 
@@ -161,7 +165,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        static public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null, KalturaFilterPager pager = null)
+        static public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null,
+            KalturaFilterPager pager = null)
         {
             KalturaRecordingListResponse response = null;
 
@@ -173,24 +178,26 @@ namespace WebAPI.Controllers
 
                 if (pager == null)
                 {
-                    pager = new KalturaFilterPager();                    
+                    pager = new KalturaFilterPager();
                 }
 
                 if (filter == null)
                 {
-                    filter = new KalturaRecordingFilter() { StatusIn = string.Empty };                    
+                    filter = new KalturaRecordingFilter() {StatusIn = string.Empty};
                 }
 
                 filter.Validate();
 
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.ConvertStatusIn(), filter.Ksql, filter.GetExternalRecordingIds(),
-                                                                                     pager.getPageIndex(), pager.PageSize, filter.OrderBy);
+                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId,
+                    filter.ConvertStatusIn(), filter.Ksql, filter.GetExternalRecordingIds(),
+                    pager.getPageIndex(), pager.PageSize, filter.OrderBy);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
             return response;
         }
 
@@ -226,6 +233,7 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
             return response;
         }
 
@@ -259,6 +267,7 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
             return response;
         }
 
@@ -280,6 +289,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.ExceededProtectionQuota)]
         [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
+        [Obsolete]
         static public KalturaRecording Protect(long id)
         {
             KalturaRecording response = null;
@@ -295,8 +305,35 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-            return response;
-        }        
 
+            return response;
+        }
+
+        /// <summary>
+        /// Update an existing recording with is protected field
+        /// </summary>
+        /// <param name="id">Recording identifier</param>
+        /// <returns></returns>   
+        [Action("update")]
+        [ApiAuthorize]
+        public static KalturaRecording Update(KalturaRecording recording, long id)
+        {
+            KalturaRecording response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                
+                // call client                
+                response = ClientsManager.ConditionalAccessClient().UpdateRecording(groupId, userId, id, recording);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

@@ -17,10 +17,12 @@ using System.Net;
 using System.Reflection;
 using System.ServiceModel;
 using System.Web;
+using ApiObjects.Rules;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -2490,5 +2492,43 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseFromWS<KalturaExternalRecording, ExternalRecording>(recording, addExternalRecordigFunc);
         }
 
+        internal KalturaRecording UpdateRecording(int groupId, string userId, long recordingId, KalturaRecording recording)
+        {
+            recording.Id = recordingId;
+            Recording response = null;
+
+            try
+            {
+                Recording recordingToUpdate = AutoMapper.Mapper.Map<Recording>(recording);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.ConditionalAccess.Module.UpdateRecording(groupId, userId, recordingId, recordingToUpdate);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // convert response
+            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
+
+            return recording;
+        }
     }
 }

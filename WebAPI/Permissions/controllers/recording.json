@@ -6,7 +6,9 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [
+        
+      ],
       "name": "Recording_GetContext",
       "service": "Recording",
       "action": "GetContext",
@@ -18,7 +20,9 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [
+        
+      ],
       "name": "Recording_Add",
       "service": "Recording",
       "action": "Add",
@@ -30,7 +34,9 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [
+        
+      ],
       "name": "Recording_Get",
       "service": "Recording",
       "action": "Get",
@@ -42,7 +48,9 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [
+        
+      ],
       "name": "Recording_List",
       "service": "Recording",
       "action": "List",
@@ -54,7 +62,9 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [
+        
+      ],
       "name": "Recording_Cancel",
       "service": "Recording",
       "action": "Cancel",
@@ -66,7 +76,9 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [
+        
+      ],
       "name": "Recording_Delete",
       "service": "Recording",
       "action": "Delete",
@@ -78,7 +90,9 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [
+        
+      ],
       "name": "Recording_Protect",
       "service": "Recording",
       "action": "Protect",
@@ -88,10 +102,26 @@
       "permissions": [
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [
+        
+      ],
       "name": "Recording_Notify",
       "service": "Recording",
       "action": "Notify",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [
+        
+      ],
+      "name": "Recording_Update",
+      "service": "Recording",
+      "action": "Update",
       "type": "Action"
     }
   ],

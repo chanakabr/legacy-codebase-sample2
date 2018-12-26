@@ -39,6 +39,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "assetId")]
         [JsonProperty("assetId")]
         [XmlElement(ElementName = "assetId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
         public long AssetId { get; set; }
 
         /// <summary>
@@ -65,7 +66,6 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
         [XmlElement(ElementName = "isProtected", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
         public bool IsProtected { get; set; }
 
         /// <summary>
@@ -87,5 +87,4 @@ namespace WebAPI.Models.ConditionalAccess
         public long UpdateDate { get; set; }
 
     }
-
 }
