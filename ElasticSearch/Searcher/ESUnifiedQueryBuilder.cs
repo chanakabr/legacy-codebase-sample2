@@ -247,6 +247,12 @@ namespace ElasticSearch.Searcher
                 fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
             }
 
+            if (fromIndex + pageSize > ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue)
+            {
+                fromIndex = 0;
+                pageSize = 0;
+            }
+
             StringBuilder filteredQueryBuilder = new StringBuilder();
 
             filteredQueryBuilder.Append("{");
