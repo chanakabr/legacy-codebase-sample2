@@ -39,7 +39,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "assetId")]
         [JsonProperty("assetId")]
         [XmlElement(ElementName = "assetId")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
+        [SchemeProperty(InsertOnly = true)]
         public long AssetId { get; set; }
 
         /// <summary>
