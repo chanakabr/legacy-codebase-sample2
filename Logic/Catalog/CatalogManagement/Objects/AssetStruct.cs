@@ -104,13 +104,21 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public Status ValidateBasicMetaIds(CatalogGroupCache catalogGroupCache)
+        public Status ValidateBasicMetaIds(CatalogGroupCache catalogGroupCache, bool isProgramStruct)
         {
             Status result = new Status((int)eResponseStatus.AssetStructMissingBasicMetaIds, eResponseStatus.AssetStructMissingBasicMetaIds.ToString());
             List<long> basicMetaIds = new List<long>();
             if (catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
             {
-                basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => AssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                if (isProgramStruct)
+                {
+                    basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => EpgAssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                }
+                else
+                {
+                    basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => AssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                }
+
                 if (this.MetaIds != null)
                 {
                     List<long> noneExistingBasicMetaIds = basicMetaIds.Except(this.MetaIds).ToList();

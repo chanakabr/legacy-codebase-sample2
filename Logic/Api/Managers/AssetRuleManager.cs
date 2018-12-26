@@ -653,7 +653,6 @@ namespace Core.Api.Managers
                     assetsToCheck.Add(new SlimAsset(linearMediaId, eAssetTypes.MEDIA));
                 }
             }
-            //TODO SHIR - ira will CHECK for NETWORK RULES NPVR
 
             long convertedIp;
             APILogic.Utils.ConvertIpToNumber(ip, out convertedIp);

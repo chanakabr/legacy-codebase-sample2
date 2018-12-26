@@ -22,7 +22,7 @@ namespace Core.Catalog.CatalogManagement
 
         private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
         internal const string NAME_META_SYSTEM_NAME = "Name";
-        internal const string DESCRIPTION_META_SYSTEM_NAME = "SummaryMedium";
+        internal const string DESCRIPTION_META_SYSTEM_NAME = "Description";
         internal const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
         internal const string STATUS_META_SYSTEM_NAME = "Status";
         internal const string DEVICE_RULE_ID = "DeviceRuleId";

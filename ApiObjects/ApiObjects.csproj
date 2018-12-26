@@ -147,9 +147,6 @@
     <Compile Include="PlaybackAdapter\PlaybackSource.cs" />
     <Compile Include="PlaybackAdapter\RuleAction.cs" />
     <Compile Include="PlaybackAdapter\PlaybackContext.cs" />
-    <Compile Include="PlaybackAdapter\StringValue.cs" />
-    <Compile Include="PlaybackAdapter\StringValueArray.cs" />
-    <Compile Include="PlaybackAdapter\Value.cs" />
     <Compile Include="PlaybackProfile.cs" />
     <Compile Include="DrmAdapter\DrmAdapterListResponse.cs" />
     <Compile Include="DBFieldMappingAttribute.cs" />
@@ -613,7 +610,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; bash.exe DLLVersioning.sh $(ProjectDir) )</PreBuildEvent>
+    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell ..\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>

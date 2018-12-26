@@ -1383,7 +1383,7 @@ namespace Core.Catalog.CatalogManagement
                 // validate basic metas     
                 if (!isProgramStruct)
                 {
-                    Status validateBasicMetasResult = assetStructToadd.ValidateBasicMetaIds(catalogGroupCache);
+                    Status validateBasicMetasResult = assetStructToadd.ValidateBasicMetaIds(catalogGroupCache, isProgramStruct);
                     if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
                     {
                         result.SetStatus(validateBasicMetasResult);
@@ -1454,7 +1454,10 @@ namespace Core.Catalog.CatalogManagement
                 bool shouldUpdateAssetStructAssets = shouldUpdateMetaIds && shouldCheckRegularFlowValidations;
                 AssetStruct assetStruct = null;
                 CatalogGroupCache catalogGroupCache = null;
-                bool isProgram = false;
+                bool isProgramStruct = false;
+                Dictionary<FieldTypes, Dictionary<string, int>> mappingFields = null;
+                List<KeyValuePair<long, string>> epgMetaIdsToValue = null;
+                List<KeyValuePair<long, string>> epgTagIdsToValue = null;
 
                 if (shouldCheckRegularFlowValidations)
                 {
@@ -1464,10 +1467,13 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    if (id == 0)
+                    if (id == 0 || id == catalogGroupCache.ProgramAssetStructId)
                     {
                         id = catalogGroupCache.ProgramAssetStructId;
-                        isProgram = true;
+                        isProgramStruct = true;
+                        mappingFields = EpgAssetManager.GetMappingFields(groupId);
+                        epgMetaIdsToValue = new List<KeyValuePair<long, string>>();
+                        epgTagIdsToValue = new List<KeyValuePair<long, string>>();
                     }
 
                     if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
@@ -1476,7 +1482,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    if (assetStructToUpdate.ParentId.HasValue && assetStructToUpdate.ParentId.Value > 0)
+                    if (!isProgramStruct && assetStructToUpdate.ParentId.HasValue && assetStructToUpdate.ParentId.Value > 0)
                     {
                         if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructToUpdate.ParentId.Value))
                         {
@@ -1504,7 +1510,7 @@ namespace Core.Catalog.CatalogManagement
                     if (shouldUpdateMetaIds)
                     {
                         // validate basic metas
-                        Status validateBasicMetasResult = assetStructToUpdate.ValidateBasicMetaIds(catalogGroupCache);
+                        Status validateBasicMetasResult = assetStructToUpdate.ValidateBasicMetaIds(catalogGroupCache, isProgramStruct);
                         if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
                         {
                             result.SetStatus(validateBasicMetasResult);
@@ -1538,6 +1544,32 @@ namespace Core.Catalog.CatalogManagement
                     {
                         metaIdsToPriority.Add(new KeyValuePair<long, int>(metaId, priority));
                         priority++;
+
+                        if (isProgramStruct)
+                        {
+                            var topic = catalogGroupCache.TopicsMapById[metaId];
+                            if (!topic.IsPredefined.HasValue || !topic.IsPredefined.Value)
+                            {
+                                if (topic.Type == MetaType.Tag)
+                                {
+                                    long epgTagId = 0;
+                                    if (mappingFields[FieldTypes.Tag].ContainsKey(topic.SystemName.ToLower()))
+                                    {
+                                        epgTagId = mappingFields[FieldTypes.Tag][topic.SystemName.ToLower()];
+                                    }
+                                    epgTagIdsToValue.Add(new KeyValuePair<long, string>(epgTagId, topic.SystemName));
+                                }
+                                else
+                                {
+                                    long epgMetaId = 0;
+                                    if (mappingFields[FieldTypes.Meta].ContainsKey(topic.SystemName.ToLower()))
+                                    {
+                                        epgMetaId = mappingFields[FieldTypes.Meta][topic.SystemName.ToLower()];
+                                    }
+                                    epgMetaIdsToValue.Add(new KeyValuePair<long, string>(epgMetaId, topic.SystemName));
+                                }
+                            }
+                        }
                     }
 
                     // no need to update DB if lists are equal
@@ -1572,6 +1604,21 @@ namespace Core.Catalog.CatalogManagement
                                                           shouldUpdateMetaIds, metaIdsToPriority, userId, assetStructToUpdate.GetCommaSeparatedFeatures(),
                                                           assetStructToUpdate.ConnectingMetaId, assetStructToUpdate.ConnectedParentMetaId, assetStructToUpdate.PluralName,
                                                           assetStructToUpdate.ParentId);
+
+                // For backward compatibility
+                if (shouldUpdateMetaIds && isProgramStruct)
+                {
+                    if (epgMetaIdsToValue.Count > 0 && !CatalogDAL.UpdateEpgAssetStructMetas(groupId, epgMetaIdsToValue, userId))
+                    {
+                        log.ErrorFormat("UpdateEpgAssetStructMetas faild for groupId: {0}, epgMetaIdsToValue: {1}.", groupId, string.Join(",", epgMetaIdsToValue));
+                    }
+
+                    if (epgTagIdsToValue.Count > 0 && !CatalogDAL.UpdateEpgAssetStructTags(groupId, epgTagIdsToValue, userId))
+                    {
+                        log.ErrorFormat("UpdateEpgAssetStructTags faild for groupId: {0}, epgTagIdsToValue: {1}.", groupId, string.Join(",", epgTagIdsToValue));
+                    }
+                }
+
                 result = CreateAssetStructResponseFromDataSet(ds);
 
                 if (shouldCheckRegularFlowValidations)
@@ -1606,7 +1653,7 @@ namespace Core.Catalog.CatalogManagement
                     InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
                 }
 
-                if (isProgram)
+                if (isProgramStruct)
                 {
                     result.Object.Id = 0;
                 }

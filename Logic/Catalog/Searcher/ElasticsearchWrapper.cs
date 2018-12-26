@@ -1186,157 +1186,161 @@ namespace Core.Catalog
                 int httpStatus = 0;
 
                 string indexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions, parentGroupId);
-                string types = ESUnifiedQueryBuilder.GetTypes(unifiedSearchDefinitions);
-                string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
-                if (!string.IsNullOrEmpty(unifiedSearchDefinitions.preference))
+                if (!string.IsNullOrEmpty(indexes))
                 {
-                    url = string.Format("{0}?preference={1}", url, unifiedSearchDefinitions.preference);
-                }
+                    string types = ESUnifiedQueryBuilder.GetTypes(unifiedSearchDefinitions);
+                    string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
-                string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
-                if (httpStatus == STATUS_OK)
-                {
-                    #region Process ElasticSearch result
-
-                    // Parse results
-                    ESAggregationsResult esAggregationResult = null;
-                    Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping = null;
-
-                    if (queryParser.Aggregations != null)
+                    if (!string.IsNullOrEmpty(unifiedSearchDefinitions.preference))
                     {
-                        esAggregationResult = ESAggregationsResult.FullParse(queryResultString, queryParser.Aggregations);
-                        topHitsMapping = MapTopHits(esAggregationResult, unifiedSearchDefinitions);
+                        url = string.Format("{0}?preference={1}", url, unifiedSearchDefinitions.preference);
                     }
 
-                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded =
-                       ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);
+                    string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
 
-                    if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
+                    log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
+
+                    if (httpStatus == STATUS_OK)
                     {
-                        searchResultsList = new List<UnifiedSearchResult>();
-                        var idToDocument = new Dictionary<string, ElasticSearchApi.ESAssetDocument>();
+                        #region Process ElasticSearch result
 
-                        foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
+                        // Parse results
+                        ESAggregationsResult esAggregationResult = null;
+                        Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping = null;
+
+                        if (queryParser.Aggregations != null)
                         {
-                            UnifiedSearchResult result = CreateUnifiedSearchResultFromESDocument(unifiedSearchDefinitions, doc);
-
-                            searchResultsList.Add(result);
-
-                            if (!string.IsNullOrEmpty(distinctGroup.Key))
-                            {
-                                idToDocument.Add(result.AssetId, doc);
-                            }
+                            esAggregationResult = ESAggregationsResult.FullParse(queryResultString, queryParser.Aggregations);
+                            topHitsMapping = MapTopHits(esAggregationResult, unifiedSearchDefinitions);
                         }
 
-                        // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
-                        if (isOrderedByStat)
+                        List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded =
+                           ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);
+
+                        if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                         {
-                            #region Ordered by stat
-                            List<long> assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
+                            searchResultsList = new List<UnifiedSearchResult>();
+                            var idToDocument = new Dictionary<string, ElasticSearchApi.ESAssetDocument>();
 
-                            List<long> orderedIds = null;
-
-                            // Do special sort only when searching by media
-                            if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE && unifiedSearchDefinitions.shouldSearchMedia)
+                            foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
                             {
-                                orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, parentGroupId, order.m_eOrderDir,
-                                    unifiedSearchDefinitions.associationTags,
-                                    unifiedSearchDefinitions.parentMediaTypes);
-                            }
-                            // Recommendation - the order is predefined already. We will use the order that is given to us
-                            else if (orderBy == ApiObjects.SearchObjects.OrderBy.RECOMMENDATION)
-                            {
-                                orderedIds = new List<long>();
-                                HashSet<long> idsHashset = new HashSet<long>(assetIds);
+                                UnifiedSearchResult result = CreateUnifiedSearchResultFromESDocument(unifiedSearchDefinitions, doc);
 
-                                // Add all ordered ids from definitions first
-                                foreach (var id in unifiedSearchDefinitions.specificOrder)
+                                searchResultsList.Add(result);
+
+                                if (!string.IsNullOrEmpty(distinctGroup.Key))
                                 {
-                                    // If the id exists in search results
-                                    if (idsHashset.Remove(id))
+                                    idToDocument.Add(result.AssetId, doc);
+                                }
+                            }
+
+                            // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
+                            if (isOrderedByStat)
+                            {
+                                #region Ordered by stat
+                                List<long> assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
+
+                                List<long> orderedIds = null;
+
+                                // Do special sort only when searching by media
+                                if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE && unifiedSearchDefinitions.shouldSearchMedia)
+                                {
+                                    orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, parentGroupId, order.m_eOrderDir,
+                                        unifiedSearchDefinitions.associationTags,
+                                        unifiedSearchDefinitions.parentMediaTypes);
+                                }
+                                // Recommendation - the order is predefined already. We will use the order that is given to us
+                                else if (orderBy == ApiObjects.SearchObjects.OrderBy.RECOMMENDATION)
+                                {
+                                    orderedIds = new List<long>();
+                                    HashSet<long> idsHashset = new HashSet<long>(assetIds);
+
+                                    // Add all ordered ids from definitions first
+                                    foreach (var id in unifiedSearchDefinitions.specificOrder)
                                     {
-                                        // add to ordered list
+                                        // If the id exists in search results
+                                        if (idsHashset.Remove(id))
+                                        {
+                                            // add to ordered list
+                                            orderedIds.Add(id);
+                                        }
+                                    }
+
+                                    // Add all ids that are left
+                                    foreach (long id in idsHashset)
+                                    {
                                         orderedIds.Add(id);
                                     }
                                 }
-
-                                // Add all ids that are left
-                                foreach (long id in idsHashset)
+                                else
                                 {
-                                    orderedIds.Add(id);
+                                    orderedIds = SortAssetsByStats(assetIds, parentGroupId, orderBy, order.m_eOrderDir);
                                 }
-                            }
-                            else
-                            {
-                                orderedIds = SortAssetsByStats(assetIds, parentGroupId, orderBy, order.m_eOrderDir);
-                            }
 
-                            if (!string.IsNullOrEmpty(distinctGroup.Key))
-                            {
-                                ReorderBuckets(esAggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
-                            }
-
-                            // Page results: check which results should be returned
-
-                            Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
-
-                            // Map all results in dictionary
-                            searchResultsList.ForEach(item =>
-                            {
-                                int assetId = int.Parse(item.AssetId);
-
-                                if (!idToResultDictionary.ContainsKey(assetId))
+                                if (!string.IsNullOrEmpty(distinctGroup.Key))
                                 {
-                                    idToResultDictionary.Add(assetId, item);
+                                    ReorderBuckets(esAggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
                                 }
-                            });
 
-                            searchResultsList.Clear();
+                                // Page results: check which results should be returned
 
-                            bool illegalRequest = false;
-                            assetIds = TVinciShared.ListUtils.Page<long>(orderedIds, pageSize, pageIndex, out illegalRequest).ToList();
+                                Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
 
-                            if (!illegalRequest)
-                            {
-                                UnifiedSearchResult temporaryResult;
-
-                                foreach (int id in assetIds)
+                                // Map all results in dictionary
+                                searchResultsList.ForEach(item =>
                                 {
-                                    if (idToResultDictionary.TryGetValue(id, out temporaryResult))
+                                    int assetId = int.Parse(item.AssetId);
+
+                                    if (!idToResultDictionary.ContainsKey(assetId))
                                     {
-                                        searchResultsList.Add(temporaryResult);
+                                        idToResultDictionary.Add(assetId, item);
+                                    }
+                                });
+
+                                searchResultsList.Clear();
+
+                                bool illegalRequest = false;
+                                assetIds = TVinciShared.ListUtils.Page<long>(orderedIds, pageSize, pageIndex, out illegalRequest).ToList();
+
+                                if (!illegalRequest)
+                                {
+                                    UnifiedSearchResult temporaryResult;
+
+                                    foreach (int id in assetIds)
+                                    {
+                                        if (idToResultDictionary.TryGetValue(id, out temporaryResult))
+                                        {
+                                            searchResultsList.Add(temporaryResult);
+                                        }
                                     }
                                 }
+
+                                #endregion
                             }
 
-                            #endregion
+                            if (esAggregationResult != null && isOrderedByString)
+                            {
+                                // in this case the assets are already ordered in original search results, so we will simply use it
+                                List<long> orderedIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
+                                ReorderBuckets(esAggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
+                            }
                         }
 
-                        if (esAggregationResult != null && isOrderedByString)
+                        if (esAggregationResult != null)
                         {
-                            // in this case the assets are already ordered in original search results, so we will simply use it
-                            List<long> orderedIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
-                            ReorderBuckets(esAggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
+                            aggregationsResults = new List<AggregationsResult>();
+                            aggregationsResults.Add(ConvertAggregationsResponse(esAggregationResult,
+                                unifiedSearchDefinitions.groupBy.Select(g => g.Key).ToList(),
+                                topHitsMapping));
                         }
-                    }
 
-                    if (esAggregationResult != null)
+                        #endregion
+                    }
+                    else if (httpStatus == STATUS_NOT_FOUND || httpStatus >= STATUS_INTERNAL_ERROR)
                     {
-                        aggregationsResults = new List<AggregationsResult>();
-                        aggregationsResults.Add(ConvertAggregationsResponse(esAggregationResult,
-                            unifiedSearchDefinitions.groupBy.Select(g => g.Key).ToList(),
-                            topHitsMapping));
+                        throw new System.Web.HttpException(httpStatus, queryResultString);
                     }
-
-                    #endregion
-                }
-                else if (httpStatus == STATUS_NOT_FOUND || httpStatus >= STATUS_INTERNAL_ERROR)
-                {
-                    throw new System.Web.HttpException(httpStatus, queryResultString);
                 }
             }
 

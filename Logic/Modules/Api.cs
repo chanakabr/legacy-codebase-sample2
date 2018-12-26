@@ -2230,7 +2230,7 @@ namespace Core.Api
 
         public static GenericListResponse<PlaybackProfile> GetPlaybackProfiles(int groupId)
         {
-            return Core.Api.api.GetPlaybackProfiles(groupId);
+            return Core.Api.api.GetPlaybackAdapters(groupId);
         }
 
         public static GenericResponse<PlaybackProfile> AddPlaybackAdapter(int groupId, string userId, PlaybackProfile playbackAdapterToAdd)
@@ -2253,9 +2253,9 @@ namespace Core.Api
             return Core.Api.api.DeletePlaybackAdapter(groupId, userId, id);
         }
 
-        public static GenericListResponse<PlaybackProfile> GetPlaybackProfile(int groupId, long playbackProfileId)
+        public static GenericListResponse<PlaybackProfile> GetPlaybackProfile(int groupId, long playbackProfileId, bool shouldGetOnlyActive)
         {
-            return Core.Api.api.GetPlaybackProfile(groupId, playbackProfileId);
+            return Core.Api.api.GetPlaybackProfile(groupId, playbackProfileId, shouldGetOnlyActive);
 
         }
 

@@ -2,7 +2,6 @@ namespace ApiObjects.PlaybackAdapter
 {
     public class MediaFile : AssetFile
     {
-
         public int? AssetId { get; set; }
 
         public int? Id { get; set; }
@@ -11,29 +10,11 @@ namespace ApiObjects.PlaybackAdapter
 
         public int? TypeId { get; set; }
 
-        public string Url { get; set; }
-
         public long? Duration { get; set; }
 
         public string ExternalId { get; set; }
 
         public string AltExternalId { get; set; }
-
-        public string BillingType { get; set; }
-
-        public string Quality { get; set; }
-
-        public string HandlingType { get; set; }
-
-        public string CdnName { get; set; }
-
-        public string CdnCode { get; set; }
-
-        public string AltCdnCode { get; set; }
-
-        public StringValueArray PPVModules { get; set; }
-
-        public string ProductCode { get; set; }
 
         public long? FileSize { get; set; }
 

@@ -96,7 +96,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
         
-        // TODO SHIR - CHECK WITH LIOR IF THIS METHOD IS CORRECT
+        // TODO SHIR - ASK IRA IF TO UPDATE 510 LIKE THIS METHOD
         private void SetTags(EpgCB epgCb, bool IsDefaultLanguage)
         {
             if (this.Tags == null)
@@ -231,7 +231,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
             {
-                // TODO IRA - DONT FORGET
+                // TODO SHIR - ask ira about this
                 // use old image server flow
                 //MutateFullEpgPicURLOldImageServerFlow(epgList, pictures);
             }
@@ -248,7 +248,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             this.Images.Add(new Image()
                             {
-                                Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, 0, 0, 100, true),
+                                Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, 0, 0, 0, true),
                                 ContentId = picBaseName,
                                 RatioName = epgPicture.Ratio,
                                 Version = epgPicture.Version
@@ -263,7 +263,7 @@ namespace Core.Catalog.CatalogManagement
                                 {
                                     this.Images.Add(new Image()
                                     {
-                                        Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, ratio.Width, ratio.Height),
+                                        Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, ratio.Width, ratio.Height, 100),
                                         ContentId = picBaseName,
                                         RatioName = epgPicture.Ratio,
                                         Height = ratio.Height,
