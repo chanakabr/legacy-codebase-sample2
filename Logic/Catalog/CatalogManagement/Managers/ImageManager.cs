@@ -245,7 +245,6 @@ namespace Core.Catalog.CatalogManagement
                 image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
             }
             
-
             return image;
         }
 
@@ -365,7 +364,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        private static void UpdateImagesForGroupWithPicSizes(int groupId, ref GenericListResponse<Image> imagesResponse)
+        private static void UpdateImagesForGroupWithPicSizes(int groupId, ref GenericListResponse<Image> imagesResponse, bool updateUrl = true)
         {
             try
             {
@@ -384,13 +383,17 @@ namespace Core.Catalog.CatalogManagement
                     {
                         image.Height = ratioIdToPicSize[imageType.RatioId.Value].Height;
                         image.Width = ratioIdToPicSize[imageType.RatioId.Value].Width;
-                        image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, image.Width, image.Height, 100);
+
+                        if (updateUrl)
+                        {
+                            image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, image.Width, image.Height, 100);
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddPicSizesIfNeeded for groupId: {0}", groupId), ex);
+                log.Error(string.Format("Failed UpdateImagesForGroupWithPicSizes for groupId: {0}", groupId), ex);
             }
         }
 
@@ -413,6 +416,8 @@ namespace Core.Catalog.CatalogManagement
                         response.Objects.Add(image);
                     }
                 }
+
+                UpdateImagesForGroupWithPicSizes(groupId, ref response, false);
             }
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
