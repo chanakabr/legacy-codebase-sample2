@@ -9315,9 +9315,9 @@ namespace Core.Api
                 CDNAdapterController cdnAdapter = CDNAdapterController.GetInstance();
                 return cdnAdapter.SendConfiguration(adapter, groupId);
             }
-            catch
+            catch(Exception ex)
             {
-                log.ErrorFormat("SendConfigurationToCdnAdapter failed : groupID = {0}, AdapterID = {1}", groupId, adapter.ID);
+                log.ErrorFormat("SendConfigurationToCdnAdapter failed : groupID = {0}, AdapterID = {1}. ex :{2}", groupId, adapter.ID, ex);
                 return false;
             }
         }
