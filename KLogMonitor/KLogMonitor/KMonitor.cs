@@ -23,7 +23,13 @@ namespace KLogMonitor
         public static KLogEnums.AppType AppType { get; set; }
         private bool disposed = false;
 
+        private const string MUTLIREQUEST = "multirequest";
+
         SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "m")]
+        [DataMember(Name = "z")]
+        public string IsMultiRequest { get; set; }
 
         [Newtonsoft.Json.JsonProperty(PropertyName = "m")]
         [DataMember(Name = "m")]
@@ -102,6 +108,7 @@ namespace KLogMonitor
                 this.Watch = new Stopwatch();
                 this.Watch.Start();
                 this.TimeInTicks = (DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).ToUniversalTime().Ticks).ToString();
+                this.IsMultiRequest = "0";
 
                 this.Event = Events.GetEventString(eventName);
                 this.Server = Environment.MachineName;
@@ -157,6 +164,9 @@ namespace KLogMonitor
 
                 if (data.data.TryGetValue(Constants.HOST_IP, out temp))
                     this.IPAddress = temp.ToString();
+
+                if (data.data.TryGetValue(Constants.MULTIREQUEST, out temp))
+                    this.IsMultiRequest = temp.ToString();
             }
             else
             {
@@ -181,6 +191,9 @@ namespace KLogMonitor
 
                             if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.HOST_IP, out temp))
                                 this.IPAddress = temp.ToString();
+
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.MULTIREQUEST, out temp))
+                                this.IsMultiRequest = temp.ToString();
                         }
                         break;
 
@@ -208,6 +221,9 @@ namespace KLogMonitor
 
                             if (HttpContext.Current.Items[Constants.HOST_IP] != null)
                                 this.IPAddress = HttpContext.Current.Items[Constants.HOST_IP].ToString();
+
+                            if (HttpContext.Current.Items[Constants.MULTIREQUEST] != null)
+                                this.IsMultiRequest = HttpContext.Current.Items[Constants.MULTIREQUEST].ToString();
                         }
                         break;
                 }
@@ -312,6 +328,10 @@ namespace KLogMonitor
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
                     // check if data from context was updated (needed to add action to end_api log)
                     UpdateMonitorData();
+                    if (this.IsMultiRequest == "1")
+                    {
+                        this.Action = string.Format("{0}.{1}", MUTLIREQUEST, MUTLIREQUEST);
+                    }
                 }
 
                 if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
@@ -320,6 +340,10 @@ namespace KLogMonitor
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
                     // check if data from context was updated (needed to add action to end_api log)
                     UpdateMonitorData();
+                    if (this.IsMultiRequest == "1")
+                    {
+                        this.Action = string.Format("{0}.{1}", MUTLIREQUEST, MUTLIREQUEST);
+                    }
                 }
 
                 logger.Monitor(this.ToString());

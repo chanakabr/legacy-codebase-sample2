@@ -15,6 +15,7 @@ namespace KLogMonitor
         public const string HOST_IP = "kmon_host_ip";
         public const string USER_ID = "kmon_user_id";
         public const string TOPIC = "kmon_topic";
+        public const string MULTIREQUEST = "kmon_multirequest";
 
         // same key as in REST solution  WebAPI.Filters.RequestParser 
         // in-case changing this  - you must change there  as well
