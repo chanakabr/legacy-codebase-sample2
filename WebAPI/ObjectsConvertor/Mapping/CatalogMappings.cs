@@ -1420,8 +1420,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     Url = image.Url,
                     Version = image.Version,
                     Ratio = ratioName,
-                    Width = image.Width,
-                    Height = image.Height
+                    Width = image.Width.ToNullable(),
+                    Height = image.Height.ToNullable()
                 };
             }
 
