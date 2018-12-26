@@ -8584,7 +8584,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("recording", "update", false);
-                            return RecordingController.Update((KalturaRecording) methodParams[0], (long) methodParams[1]);
+                            return RecordingController.Update((long) methodParams[0], (KalturaRecording) methodParams[1]);
                             
                     }
                     break;
@@ -15528,14 +15528,14 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
                             ret.Add("recording", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRecording),
-                            });
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
                             });
                             return ret;
                             

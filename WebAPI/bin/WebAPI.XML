@@ -2217,12 +2217,13 @@
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
             RecordingNotFound = 3039, RecordingStatusNotValid = 3043, HouseholdExceededProtectionQuota = 3044, AccountProtectRecordNotEnabled = 3045</remarks>     
         </member>
-        <member name="M:WebAPI.Controllers.RecordingController.Update(WebAPI.Models.ConditionalAccess.KalturaRecording,System.Int64)">
+        <member name="M:WebAPI.Controllers.RecordingController.Update(System.Int64,WebAPI.Models.ConditionalAccess.KalturaRecording)">
             <summary>
             Update an existing recording with is protected field
             </summary>
-            <param name="id">Recording identifier</param>
-            <returns></returns>   
+            <param name="recording">recording to update</param>
+            <param name="id">recording identifier</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.LicensedUrlController.GetOldStandard(WebAPI.Models.Catalog.KalturaAssetType,System.Int32,System.String,System.String,System.Nullable{System.Int64},System.Nullable{WebAPI.Models.ConditionalAccess.KalturaStreamType})">
             <summary>

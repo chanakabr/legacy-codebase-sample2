@@ -312,11 +312,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update an existing recording with is protected field
         /// </summary>
-        /// <param name="id">Recording identifier</param>
-        /// <returns></returns>   
+        /// <param name="recording">recording to update</param>
+        /// <param name="id">recording identifier</param>
+        /// <returns></returns>
         [Action("update")]
         [ApiAuthorize]
-        public static KalturaRecording Update(KalturaRecording recording, long id)
+        public static KalturaRecording Update(long id, KalturaRecording recording)
         {
             KalturaRecording response = null;
 
