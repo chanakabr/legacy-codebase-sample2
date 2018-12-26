@@ -63,7 +63,8 @@ namespace AdapterControllers
 
             if (adapter != null && !string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                CdnAdapter.ServiceClient client = new CdnAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
+                CdnAdapter.ServiceClient client = new CdnAdapter.ServiceClient();
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
                 //set unixTimestamp
                 long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
