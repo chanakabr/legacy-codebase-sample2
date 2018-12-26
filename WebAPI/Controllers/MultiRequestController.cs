@@ -210,7 +210,7 @@ namespace WebAPI.Controllers
             object[] responses = new object[request.Count()];
             for (int i = 0; i < request.Count(); i++)
             {
-                object response;
+                object response;                
                 Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
                 if (controller == null)
                 {
@@ -220,6 +220,8 @@ namespace WebAPI.Controllers
                 {
                     try
                     {
+                        HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = false;
+
                         if (!string.IsNullOrEmpty(request[i].Action))
                         {
                             bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(request[i].Action);
