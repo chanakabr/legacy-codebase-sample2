@@ -34,5 +34,14 @@ namespace TVinciShared
             return value;
         }
 
+        public static T? ToNullable<T>(this T value) where T : struct
+        {
+            if (value.IsDefault())
+            {
+                return null;
+            }
+
+            return (T?)value;
+        }
     }
 }

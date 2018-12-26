@@ -1,5 +1,4 @@
-﻿using AdapterControllers.PlaybackAdapter;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.PlaybackAdapter;
 using ApiObjects.Response;
 using KLogMonitor;
@@ -231,17 +230,28 @@ namespace AdapterControllers
                     kalturaPlaybackContext.Sources = adapterResponse.PlaybackContext.Sources.Select(x =>
                         new ApiObjects.PlaybackAdapter.PlaybackSource()
                         {
-                            AdsParams = x.AdsParams,
-                            AdsPolicy = (ApiObjects.PlaybackAdapter.AdsPolicy)x.AdsPolicy,
-                            //TODO: anat add inheritance
-                            Drm = x.Drm == null ? null : x.Drm.Select(d =>
-                                   new ApiObjects.PlaybackAdapter.DrmPlaybackPluginData()
-                                   {
-                                       LicenseURL = d.LicenseURL,
-                                       Scheme = (ApiObjects.PlaybackAdapter.DrmSchemeName)d.Scheme
-                                   }).ToList(),
-                            DrmId = x.DrmId,
-                            FileExtention = x.FileExtention,
+                            AssetId = x.AssetId,
+                            Id = x.Id,
+                            TypeId = x.TypeId,
+                            Duration = x.Duration,
+                            AdditionalData = x.AdditionalData,
+                            AlternativeCdnAdapaterProfileId = x.AlternativeCdnAdapaterProfileId,
+                            AltExternalId = x.AltExternalId,
+                            AltStreamingCode = x.AltStreamingCode,
+                            CatalogEndDate = x.CatalogEndDate,
+                            CdnAdapaterProfileId = x.CdnAdapaterProfileId,
+                            EndDate = x.EndDate,
+                            ExternalId = x.ExternalId,
+                            ExternalStoreId = x.ExternalStoreId,
+                            FileSize = x.FileSize,
+                            IsDefaultLanguage = x.IsDefaultLanguage,
+                            Language = x.Language,
+                            OrderNum = x.OrderNum,
+                            OutputProtecationLevel = x.OutputProtecationLevel,
+                            StartDate = x.StartDate,
+                            Status = x.Status,
+                            Url = x.Url,
+                            Drm = x.Drm == null ? null : ParseDrm(x.Drm),
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols
@@ -250,6 +260,80 @@ namespace AdapterControllers
             }
 
             return kalturaPlaybackContext;
+        }
+
+        private static List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> ParseDrm(PlaybackAdapter.DrmPlaybackPluginData[] drms)
+        {
+            List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> drmPlaybackPluginDatas = new List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>();
+
+            ApiObjects.PlaybackAdapter.DrmPlaybackPluginData drm;
+            foreach (var item in drms)
+            {
+                if (item is PlaybackAdapter.FairPlayPlaybackPluginData)
+                {
+                    PlaybackAdapter.FairPlayPlaybackPluginData tmpDrm = item as PlaybackAdapter.FairPlayPlaybackPluginData;
+                    drm = new ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData()
+                    {
+                        Certificate = tmpDrm.Certificate,
+                    };
+                }
+                else if (item is PlaybackAdapter.CustomDrmPlaybackPluginData)
+                {
+                    PlaybackAdapter.CustomDrmPlaybackPluginData tmpDrm = item as PlaybackAdapter.CustomDrmPlaybackPluginData;
+                    drm = new ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData()
+                    {
+                        Data = tmpDrm.Data,
+                    };
+                }
+                else
+                {
+                    drm = new ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData();
+                }
+
+                drm.LicenseURL = item.LicenseURL;
+                drm.Scheme = (ApiObjects.PlaybackAdapter.DrmSchemeName)item.Scheme;
+
+                drmPlaybackPluginDatas.Add(drm);
+            }
+
+            return drmPlaybackPluginDatas;
+        }
+
+        private PlaybackAdapter.DrmPlaybackPluginData[] ParseDrm(List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> drms)
+        {
+            List<PlaybackAdapter.DrmPlaybackPluginData> drmPlaybackPluginDatas = new List<PlaybackAdapter.DrmPlaybackPluginData>();
+
+            PlaybackAdapter.DrmPlaybackPluginData drm;
+            foreach (var item in drms)
+            {
+                if (item is ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData)
+                {
+                    ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData tmpDrm = item as ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData;
+                    drm = new PlaybackAdapter.FairPlayPlaybackPluginData()
+                    {
+                        Certificate = tmpDrm.Certificate,
+                    };
+                }
+                else if (item is ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData)
+                {
+                    ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData tmpDrm = item as ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData;
+                    drm = new PlaybackAdapter.CustomDrmPlaybackPluginData()
+                    {
+                        Data = tmpDrm.Data,
+                    };
+                }
+                else
+                {
+                    drm = new PlaybackAdapter.CustomDrmPlaybackPluginData();
+                }
+
+                drm.LicenseURL = item.LicenseURL;
+                drm.Scheme = (PlaybackAdapter.DrmSchemeName)item.Scheme;
+
+                drmPlaybackPluginDatas.Add(drm);
+            }
+
+            return drmPlaybackPluginDatas.ToArray();
         }
 
         private PlaybackAdapter.AdapterPlaybackContext ParsePlaybackContextToAdapterContext(PlaybackContext kalturaPlaybackContext)
@@ -284,17 +368,7 @@ namespace AdapterControllers
                     playbackContext.Sources = kalturaPlaybackContext.Sources.Select(x =>
                         new PlaybackAdapter.PlaybackSource()
                         {
-                            AdsParams = x.AdsParams,
-                            AdsPolicy = (PlaybackAdapter.AdsPolicy)x.AdsPolicy,
-                            //TODO: anat add inheritance
-                            Drm = x.Drm == null ? null : x.Drm.Select(d =>
-                                new PlaybackAdapter.DrmPlaybackPluginData()
-                                {
-                                    LicenseURL = d.LicenseURL,
-                                    Scheme = (PlaybackAdapter.DrmSchemeName)d.Scheme
-                                }).ToArray(),
-                            DrmId = x.DrmId,
-                            FileExtention = x.FileExtention,
+                            Drm = x.Drm == null ? null : ParseDrm(x.Drm),
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols

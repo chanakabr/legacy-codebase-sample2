@@ -275,9 +275,14 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
-
-
-        /*Get all metas and tags for EPGs by groupID And it's mapping in the xml file*/
+        
+        /// <summary>
+        /// Get all metas and tags for EPGs by groupID And it's mapping in the xml file
+        /// </summary>
+        /// <param name="lSubTree"></param>
+        /// <param name="groupID"></param>
+        /// <param name="channelID"></param>
+        /// <returns></returns>
         public static DataSet GetEpgMappingFields(List<int> lSubTree, int groupID, int channelID = 0)
         {
             StoredProcedure sp = new StoredProcedure("GetEpgMappingFields");

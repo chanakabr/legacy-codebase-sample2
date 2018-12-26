@@ -797,6 +797,17 @@ namespace DAL
             return recordingLink;
         }
 
+        public static int GetProgramIdByExternalRecordingId(int groupId, string externalRecordingId, int domainId)
+        {
+            StoredProcedure sp = new StoredProcedure("GetProgramIdByExternalRecordingId");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@domainId", domainId);
+            sp.AddParameter("@externalRecordingId", externalRecordingId);
+
+            return sp.ExecuteReturnValue<int>();
+        }
+
         #region Couchbase
 
         public static RecordingCB GetRecordingByProgramId_CB(long programId)

@@ -1818,6 +1818,28 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
+        public static bool UpdateEpgAssetStructMetas(int groupId, List<KeyValuePair<long, string>> epgMetaIdsToValue, long userId)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateEpgAssetStructMetas");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddKeyValueListParameter<long, string>("@epgMetaIdsToValue", epgMetaIdsToValue, "key", "value");
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool UpdateEpgAssetStructTags(int groupId, List<KeyValuePair<long, string>> epgTagIdsToValue, long userId)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateEpgAssetStructTags");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddKeyValueListParameter<long, string>("@epgTagIdsToValue", epgTagIdsToValue, "key", "value");
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
         public static Dictionary<int, int[]> Get_MediaStatistics(DateTime? startDate, DateTime? endDate, int parentGroupID, List<int> mediaIDs)
         {
             Dictionary<int, int[]> mediaToViewsCountMapping = null;
@@ -1867,7 +1889,7 @@ namespace Tvinci.Core.DAL
 
             return mediaToViewsCountMapping;
         }
-
+        
         public static bool Get_MediaMarkHitInitialData(int mediaID, int mediaFileID, long ipVal, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID,
             ref int billingTypeID, ref int fileDuration)

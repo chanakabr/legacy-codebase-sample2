@@ -334,6 +334,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("GroupRatios_groupId_{0}", groupId);
         }
 
+        public static string GetPPVModuleKey(long ppvModule, bool shouldShrink = false)
+        {
+            return string.Format("PPVModule_{0}_shouldShrink_{1}", ppvModule, shouldShrink);
+        }
+
+        public static string GetGroupPPVModuleIdsKey(int groupId)
+        {
+            return string.Format("PPVModules_groupId_{0}", groupId);
+        }
+
         public static string GetGroupMediaFileTypesKey(int groupId)
         {
             return string.Format("GroupMediaFileTypes_groupId_{0}", groupId);
@@ -536,6 +546,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupWatchPermissionRulesKey(int groupId)
         {
             return string.Format("GroupWatchPermissionRules_{0}", groupId);
+        }
+
+        public static string GetGroupPlaybackProfileKey(int groupId)
+        {
+            return string.Format("GroupPlaybackProfile_{0}", groupId);
         }
 
         #endregion
@@ -922,11 +937,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_GroupFeatures_{0}", groupId);
         }
 
-        public static string GetAllPpvsInvalidationKey(int groupId)
-        {
-            return string.Format("invalidationKey_all_ppv_groupId_{0}", groupId);
-        }
-
         public static string GetAllBusinessModuleRulesGroupInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_all_business_module_rules_groupId_{0}", groupId);
@@ -977,6 +987,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_GroupWatchPermissionRules_{0}", groupId);
         }
 
+        public static string GetGroupPlaybackProfilesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupPlaybackProfiles_{0}", groupId);
+        }
         #endregion
 
         #region Domains
