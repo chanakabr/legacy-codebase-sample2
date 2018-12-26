@@ -461,6 +461,18 @@ namespace WebAPI.Controllers
                 {
                     try
                     {
+                        HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = false;
+
+                        if (!string.IsNullOrEmpty(request[i].Action))
+                        {
+                            bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(request[i].Action);
+                            HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = isReadAction;
+                            if (!string.IsNullOrEmpty(request[i].Service))
+                            {
+                                HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}", request[i].Service, request[i].Action);
+                            }
+                        }
+
                         BadRequestException badRequest;
                         if (!ValidateSkipCondition(request[i].SkipCondition, isAnyErrorOccurred, lastFaildIndex, isPreviousErrorOccurred, i, responses, out badRequest))
                         {

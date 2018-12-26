@@ -177,6 +177,7 @@ namespace WebAPI.App_Start
                             {
                                 service = MUTLIREQUEST;
                                 action = MUTLIREQUEST;
+                                HttpContext.Current.Items[Constants.MULTIREQUEST] = "1";
                             }
 
                             // add action to log
