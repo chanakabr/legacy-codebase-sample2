@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using ApiObjects.SearchObjects;
 using ConfigurationManager;
+using KLogMonitor;
 
 namespace ElasticSearch.Searcher
 {
     public class ESUnifiedQueryBuilder
     {
         #region Consts and readonlys 
+
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected static readonly List<string> DEFAULT_RETURN_FIELDS = new List<string>(7) { 
                 "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"name\"", "\"cache_date\"",  "\"update_date\""};
@@ -248,6 +252,7 @@ namespace ElasticSearch.Searcher
 
             if (fromIndex + pageSize > ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue)
             {
+                log.WarnFormat("changing page size and index to 0 because size*index + size > max results configured, sent size: {0}, sent index: {1}", PageSize, PageIndex);
                 fromIndex = 0;
                 pageSize = 0;
             }
