@@ -272,6 +272,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Deprecated, please use recording.update instead
         /// Protects an existing recording from the cleanup process for the defined protection period
         /// </summary>
         /// <param name="id">Recording identifier</param>
@@ -289,7 +290,6 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.ExceededProtectionQuota)]
         [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
-        [Obsolete]
         static public KalturaRecording Protect(long id)
         {
             KalturaRecording response = null;
@@ -317,6 +317,15 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("update")]
         [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.ExceededProtectionQuota)]
+        [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
         public static KalturaRecording Update(long id, KalturaRecording recording)
         {
             KalturaRecording response = null;

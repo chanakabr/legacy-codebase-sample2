@@ -2210,6 +2210,7 @@
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.Protect(System.Int64)">
             <summary>
+            Deprecated, please use recording.update instead
             Protects an existing recording from the cleanup process for the defined protection period
             </summary>
             <param name="id">Recording identifier</param>
