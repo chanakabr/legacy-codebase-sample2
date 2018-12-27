@@ -473,31 +473,34 @@ namespace WebAPI.Controllers
                             }
                         }
 
-                        BadRequestException badRequest;
-                        if (!ValidateSkipCondition(request[i].SkipCondition, isAnyErrorOccurred, lastFaildIndex, isPreviousErrorOccurred, i, responses, out badRequest))
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
                         {
-                            response = badRequest;
-                            isPreviousErrorOccurred = false;
-                        }
-                        else
-                        {
-                            isPreviousErrorOccurred = false;
-                            Type controller = executingAssembly.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
-                            if (controller == null)
+                            BadRequestException badRequest;
+                            if (!ValidateSkipCondition(request[i].SkipCondition, isAnyErrorOccurred, lastFaildIndex, isPreviousErrorOccurred, i, responses, out badRequest))
                             {
-                                throw new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
+                                response = badRequest;
+                                isPreviousErrorOccurred = false;
                             }
+                            else
+                            {
+                                isPreviousErrorOccurred = false;
+                                Type controller = executingAssembly.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
+                                if (controller == null)
+                                {
+                                    throw new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
+                                }
 
-                            Dictionary<string, object> parameters = request[i].Parameters;
-                            if (i > 0)
-                            {
-                                Type propertyType;
-                                parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses, out propertyType);
+                                Dictionary<string, object> parameters = request[i].Parameters;
+                                if (i > 0)
+                                {
+                                    Type propertyType;
+                                    parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses, out propertyType);
+                                }
+                                RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
+                                Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
+                                List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
+                                response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                             }
-                            RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
-                            Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
-                            List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
-                            response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                         }
                     }
                     catch (ApiException e)
