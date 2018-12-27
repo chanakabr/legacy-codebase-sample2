@@ -229,6 +229,7 @@ namespace WebAPI.Controllers
                             if (!string.IsNullOrEmpty(request[i].Service))
                             {
                                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}", request[i].Service, request[i].Action);
+                                HttpContext.Current.Items[Constants.MULTIREQUEST] = "1";
                             }
                         }
 
