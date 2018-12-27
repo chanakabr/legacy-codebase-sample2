@@ -20,7 +20,9 @@ namespace KLogMonitor
             EVENT_SPHINX,
             EVENT_CONNTOOK,
             EVENT_DUMPFILE,
-            EVENT_WS
+            EVENT_WS,
+            EVENT_MULTIREQUEST_START,
+            EVENT_MULTIREQUEST_END
         }
 
         internal static string GetEventString(eEvent eventMonitor)
@@ -51,6 +53,10 @@ namespace KLogMonitor
                     return Constants.EVENT_DUMPFILE;
                 case eEvent.EVENT_WS:
                     return Constants.EVENT_WS;
+                case eEvent.EVENT_MULTIREQUEST_START:
+                    return Constants.EVENT_MULTIREQUEST_START;
+                case eEvent.EVENT_MULTIREQUEST_END:
+                    return Constants.EVENT_MULTIREQUEST_END;
                 default:
                     break;
             }
