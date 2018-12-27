@@ -10559,32 +10559,7 @@ namespace Core.ConditionalAccess
 
             return status;
         }
-
-        private bool TryGetFileUrlLinks(int groupId, int mediaFileID, string userIP, string siteGuid, ref string mainUrl, ref string altUrl,
-            ref int mainStreamingCoID, ref int altStreamingCoID, ref int mediaID, ref string fileCoGuid)
-
-        {
-            bool res = false;
-
-            string key = LayeredCacheKeys.GetFileCdnDataKey(mediaFileID);
-            DataTable dt = null;
-            // try to get from cache            
-            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, Utils.GetFileUrlLinks, new Dictionary<string, object>() { { "mediaFileId", mediaFileID } }, groupId, LayeredCacheConfigNames.FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME);
-            if (cacheResult && dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                DataRow dr = dt.Rows[0];
-
-                mainUrl = ODBCWrapper.Utils.GetSafeStr(dr, "mainUrl");
-                altUrl = ODBCWrapper.Utils.GetSafeStr(dr, "altUrl");
-                mainStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "CdnID");
-                altStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "AltCdnID");
-                mediaID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
-                fileCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "CO_GUID");
-                res = true;
-            }
-            return res;
-        }
-
+        
         public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode,
                                                              string languageCode, string deviceName, string couponCode)
         {
@@ -10673,8 +10648,8 @@ namespace Core.ConditionalAccess
                     }
 
                     // validate file parameters
-                    if (!TryGetFileUrlLinks(m_nGroupID, mediaFileId, ip, userId, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoId, 
-                                            ref fileAltStreamingCoID, ref nMediaID, ref fileCoGuid))
+                    if (!Utils.TryGetFileUrlLinks(m_nGroupID, mediaFileId, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoId, 
+                                                  ref fileAltStreamingCoID, ref nMediaID, ref fileCoGuid))
                     {
                         log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}", userId, mediaFileId, basicLink));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidFileData.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -10698,7 +10673,8 @@ namespace Core.ConditionalAccess
                     if (eLinkType == eObjectType.Media)
                     {
                         AssetRule blockingRule;
-                        var networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.MEDIA, m_nGroupID, mediaId, ip, out blockingRule);
+                        List<SlimAsset> assetsToCheck = AssetRuleManager.GetAssetsForValidation(eAssetTypes.MEDIA, m_nGroupID, mediaId);
+                        var networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetsToCheck, m_nGroupID, ip, out blockingRule);
                         if (!networkRulesStatus.IsOkStatusCode())
                         {
                             response.Status = networkRulesStatus;

@@ -571,33 +571,29 @@ namespace Core.ConditionalAccess
                 string fileType = string.Empty;
                 int drmId = 0;
                 string fileCoGuid = string.Empty;
-                
                 int programId = -1;
                 int.TryParse(sProgramId, out programId);
-
+                
+                List<SlimAsset> assetsToCheck;
                 if (eformat == eEPGFormatType.NPVR)
                 {
                     // get program from recording by externalId
-                    programId = RecordingsManager.GetProgramIdByExternalRecordingId(m_nGroupID, sProgramId, domainId);
+                    long recordingEpgId = RecordingsManager.GetProgramIdByExternalRecordingId(m_nGroupID, sProgramId, domainId);
+                    assetsToCheck = AssetRuleManager.GetNpvrAssetsForValidation(m_nGroupID, recordingEpgId, 0, nMediaFileID);
+                }
+                else
+                {
+                    assetsToCheck = AssetRuleManager.GetAssetsForValidation(eAssetTypes.EPG, m_nGroupID, programId);
                 }
 
-                if (programId > 0)
+                AssetRule blockingRule;
+                var networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetsToCheck, m_nGroupID, sUserIP, out blockingRule);
+                if (!networkRulesStatus.IsOkStatusCode())
                 {
-                    AssetRule blockingRule;
-                    var networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.EPG, m_nGroupID, programId, sUserIP, out blockingRule);
-                    if (!networkRulesStatus.IsOkStatusCode())
-                    {
-                        response.Status = networkRulesStatus;
-                        return response;
-                    }
+                    response.Status = networkRulesStatus;
+                    return response;
                 }
 
-                if (eformat == eEPGFormatType.NPVR)
-                {
-                    programId = -1;
-                    int.TryParse(sProgramId, out programId);
-                }
-                
                 LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, 
                                                                              sCouponCode, eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, 
                                                                              ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid, programId);

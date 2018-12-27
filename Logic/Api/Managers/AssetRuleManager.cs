@@ -4,6 +4,7 @@ using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
+using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog.Request;
@@ -627,9 +628,12 @@ namespace Core.Api.Managers
             return response;
         }
 
-        internal static Status CheckNetworkRules(eAssetTypes assetType, int groupId, long assetId, string ip, out AssetRule blockingRule)
+        internal static List<SlimAsset> GetAssetsForValidation(eAssetTypes assetType, int groupId, long assetId)
         {
-            blockingRule = null;
+            if (assetId <= 0 && (assetType != eAssetTypes.MEDIA && assetType != eAssetTypes.EPG))
+            {
+                return null;
+            }
 
             List<SlimAsset> assetsToCheck = new List<SlimAsset>()
             {
@@ -652,6 +656,59 @@ namespace Core.Api.Managers
                 {
                     assetsToCheck.Add(new SlimAsset(linearMediaId, eAssetTypes.MEDIA));
                 }
+            }
+
+            return assetsToCheck;
+        }
+
+        internal static List<SlimAsset> GetNpvrAssetsForValidation(int groupId, long epgId, long epgChannelId = 0, int mediaFileId = 0)
+        {
+            if (epgId == 0)
+            {
+                return null;
+            }
+
+            List<SlimAsset> assetsToCheck = new List<SlimAsset>()
+            {
+                new SlimAsset(epgId, eAssetTypes.NPVR)
+            };
+
+            int linearMediaId = 0;
+            if (epgChannelId != 0)
+            {
+                var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, epgChannelId);
+                if (linearChannelSettings != null)
+                {
+                    linearMediaId = (int)linearChannelSettings.linearMediaId;
+                }
+            }
+            else if (mediaFileId != 0)
+            {
+                string mainUrl = string.Empty;
+                string altUrl = string.Empty;
+                int mainStreamingCoID = 0;
+                int altStreamingCoID = 0;
+                string fileCoGuid = string.Empty;
+
+                ConditionalAccess.Utils.TryGetFileUrlLinks(groupId, mediaFileId, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID, 
+                                                           ref linearMediaId, ref fileCoGuid);
+            }
+            
+            if (linearMediaId != 0)
+            {
+                assetsToCheck.Add(new SlimAsset(linearMediaId, eAssetTypes.MEDIA));
+            }
+
+            return assetsToCheck;
+        }
+
+        internal static Status CheckNetworkRules(List<SlimAsset> assetsToCheck, int groupId, string ip, out AssetRule blockingRule)
+        {
+            blockingRule = null;
+
+            if (assetsToCheck == null || assetsToCheck.Count == 0)
+            {
+                return new Status((int)eResponseStatus.OK);
             }
 
             long convertedIp;
@@ -809,11 +866,15 @@ namespace Core.Api.Managers
                                 
                                 if (eAssetTypes.EPG == slimAsset.Type)
                                 {
-                                    ksqlFilter.AppendFormat(string.Format("(and epg_id = '{0}' (or", slimAsset.Id));
+                                    ksqlFilter.AppendFormat(string.Format("(and asset_type='epg' epg_id = '{0}' (or", slimAsset.Id));
                                 }
                                 else if (eAssetTypes.MEDIA == slimAsset.Type)
                                 {
-                                    ksqlFilter.AppendFormat(string.Format("(and media_id = '{0}' (or", slimAsset.Id));
+                                    ksqlFilter.AppendFormat(string.Format("(and asset_type='media' media_id = '{0}' (or", slimAsset.Id));
+                                }
+                                else if (eAssetTypes.NPVR == slimAsset.Type)
+                                {
+                                    ksqlFilter.AppendFormat(string.Format("(and asset_type='recording' epg_id = '{0}' (or", slimAsset.Id));
                                 }
 
                                 foreach (var condition in currAssetRuleWithKsql.Conditions)

@@ -7703,7 +7703,38 @@ namespace Core.ConditionalAccess
             return new Tuple<DomainEntitlements, bool>(domainEntitlements, res);
         }
 
-        internal static Tuple<DataTable, bool> GetFileUrlLinks(Dictionary<string, object> funcParams)
+        internal static bool TryGetFileUrlLinks(int groupId, int mediaFileID, ref string mainUrl, ref string altUrl, ref int mainStreamingCoID,
+                                         ref int altStreamingCoID, ref int mediaID, ref string fileCoGuid)
+
+        {
+            bool res = false;
+
+            string key = LayeredCacheKeys.GetFileCdnDataKey(mediaFileID);
+            DataTable dt = null;
+            // try to get from cache            
+            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key,
+                                                                    ref dt,
+                                                                    Utils.GetFileUrlLinks,
+                                                                    new Dictionary<string, object>() { { "mediaFileId", mediaFileID } },
+                                                                    groupId,
+                                                                    LayeredCacheConfigNames.FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME);
+            if (cacheResult && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                DataRow dr = dt.Rows[0];
+
+                mainUrl = ODBCWrapper.Utils.GetSafeStr(dr, "mainUrl");
+                altUrl = ODBCWrapper.Utils.GetSafeStr(dr, "altUrl");
+                mainStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "CdnID");
+                altStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "AltCdnID");
+                mediaID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
+                fileCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "CO_GUID");
+                res = true;
+            }
+            return res;
+        }
+
+
+        private static Tuple<DataTable, bool> GetFileUrlLinks(Dictionary<string, object> funcParams)
         {
             bool res = false;
             DataTable dt = null;

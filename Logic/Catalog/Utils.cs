@@ -1613,7 +1613,8 @@ namespace Core.Catalog
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    List <KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Select(x => new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
+                    List <KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Where(x => x.AssetType != eAssetTypes.NPVR).Select(x => 
+                                                                            new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
                     List<BaseObject> npvrs = assets.Where(x => x.AssetType == eAssetTypes.NPVR).ToList();
                     List<long> epgIdsFromRecording = GetEpgIdsFromNpvrObject(npvrs);
                     if (epgIdsFromRecording != null && epgIdsFromRecording.Count > 0)
@@ -1640,7 +1641,7 @@ namespace Core.Catalog
                             string epgId = GetEpgIdFromNpvrObject(baseAsset, ref scheduledRecordingType);
                             if (!string.IsNullOrEmpty(epgId))
                             {
-                                key = string.Format(keyFormat, eAssetTypes.EPG.ToString(), baseAsset.AssetId);
+                                key = string.Format(keyFormat, eAssetTypes.EPG.ToString(), epgId);
                             }
                         }
                         else
@@ -1713,7 +1714,7 @@ namespace Core.Catalog
 
         private static List<long> GetEpgIdsFromNpvrObject(List<BaseObject> npvrs)
         {
-            List<long> result = null;
+            List<long> result = new List<long>();
             try
             {
                 if (npvrs != null && npvrs.Count > 0)
