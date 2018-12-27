@@ -522,10 +522,6 @@ namespace WebAPI.Controllers
                         {
                             response = e.InnerException;
                         }
-                        else if (e is ClientException)
-                        {
-                            response = new ApiException(e as ClientException);
-                        }
                         else
                         {
                             response = new ApiException(ErrorUtils.GetClientException(e));
