@@ -23,7 +23,7 @@ namespace KLogMonitor
         public static KLogEnums.AppType AppType { get; set; }
         private bool disposed = false;
 
-        private const string MUTLIREQUEST = "multirequest";
+        private const string MUTLIREQUEST_ACTION = "multirequest";
 
         SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
 
@@ -132,7 +132,7 @@ namespace KLogMonitor
                     this.ClientTag = clientTag;
 
                 // In case this is a start event, we fire it first, and on dispose, we will fire the END 
-                if (eventName == Events.eEvent.EVENT_API_START || eventName == Events.eEvent.EVENT_CLIENT_API_START)
+                if (eventName == Events.eEvent.EVENT_API_START || eventName == Events.eEvent.EVENT_CLIENT_API_START || eventName == Events.eEvent.EVENT_MULTIREQUEST_START)
                     logger.Monitor(this.ToString());
             }
             catch (Exception logException)
@@ -328,10 +328,6 @@ namespace KLogMonitor
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
                     // check if data from context was updated (needed to add action to end_api log)
                     UpdateMonitorData();
-                    if (this.IsMultiRequest == "1")
-                    {
-                        this.Action = string.Format("{0}.{1}", MUTLIREQUEST, MUTLIREQUEST);
-                    }
                 }
 
                 if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
@@ -340,10 +336,15 @@ namespace KLogMonitor
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
                     // check if data from context was updated (needed to add action to end_api log)
                     UpdateMonitorData();
-                    if (this.IsMultiRequest == "1")
-                    {
-                        this.Action = string.Format("{0}.{1}", MUTLIREQUEST, MUTLIREQUEST);
-                    }
+                }
+
+                if (this.Event == Events.GetEventString(Events.eEvent.EVENT_MULTIREQUEST_START))
+                {
+                    /* We are firing the END event, so we just overriding the START */
+                    this.Event = Events.GetEventString(Events.eEvent.EVENT_MULTIREQUEST_END);
+                    // check if data from context was updated (needed to add action to end_api log)
+                    UpdateMonitorData();
+                    this.Action = MUTLIREQUEST_ACTION;
                 }
 
                 logger.Monitor(this.ToString());
