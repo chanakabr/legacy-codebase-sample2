@@ -37,5 +37,7 @@ namespace KLogMonitor
         public const string EVENT_CONNTOOK = "conn";
         public const string EVENT_DUMPFILE = "file";
         public const string EVENT_WS = "ws";
+        public const string EVENT_MULTIREQUEST_START = "start_multirequest";
+        public const string EVENT_MULTIREQUEST_END = "end_multirequest";
     }
 }
