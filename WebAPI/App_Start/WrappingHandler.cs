@@ -68,7 +68,7 @@ namespace WebAPI.App_Start
     public class WrappingHandler : DelegatingHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private const string MUTLIREQUEST = "multirequest";
+        private const string MUTLIREQUEST_ACTION = "multirequest";
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -84,15 +84,20 @@ namespace WebAPI.App_Start
                             request.RequestUri.OriginalString,            // 0
                             Encoding.UTF8.GetString(requestBody));   // 1 
 
-            ExtractActionToLog(request.RequestUri);
+            ExtractActionToLog(request.RequestUri);            
+            Events.eEvent eventType = Events.eEvent.EVENT_CLIENT_API_START;
+            if (HttpContext.Current.Items[Constants.ACTION] != null && HttpContext.Current.Items[Constants.ACTION].ToString() == MUTLIREQUEST_ACTION)
+            {
+                eventType = Events.eEvent.EVENT_MULTIREQUEST_START;
+            }
 
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
+            using (KMonitor km = new KMonitor(eventType))
             {
                 //let other handlers process the request
                 var response = await base.SendAsync(request, cancellationToken);
                 var wrappedResponse = await BuildApiResponse(request, response, float.Parse(km.ExecutionTime));
                 return wrappedResponse;
-            }
+            }            
         }
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response, float executionTime)
@@ -172,19 +177,20 @@ namespace WebAPI.App_Start
                                 action = segments[i + 3].Replace("/", string.Empty);
                                 bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(action);
                                 HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = isReadAction;
+
+                                // add action to log
+                                HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
+                                    string.IsNullOrEmpty(service) ? "null" : service,
+                                    string.IsNullOrEmpty(action) ? "null" : action);
+                                isActionExtracted = true;
                             }
                             else
                             {
-                                service = MUTLIREQUEST;
-                                action = MUTLIREQUEST;
+                                HttpContext.Current.Items[Constants.ACTION] = MUTLIREQUEST_ACTION;
                                 HttpContext.Current.Items[Constants.MULTIREQUEST] = "1";
+                                isActionExtracted = true;
                             }
-
-                            // add action to log
-                            HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
-                                string.IsNullOrEmpty(service) ? "null" : service,
-                                string.IsNullOrEmpty(action) ? "null" : action);
-                            isActionExtracted = true;
+                            
                             break;
                         }
                     }
