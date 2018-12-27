@@ -217,6 +217,7 @@ namespace EpgIngest
 
                     if (fieldTypes == FieldTypes.Meta)
                     {
+                        // TODO SHIR - DO THE SAME IM OPC
                         item.isProtectFromUpdates = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_protect_from_updates") == 0 ? false : true;
                     }
                 }

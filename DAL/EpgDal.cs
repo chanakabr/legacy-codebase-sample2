@@ -878,6 +878,12 @@ namespace Tvinci.Core.DAL
             return resultEpgs;
         }
 
+        public static EpgCB GetEpgCBRecording(long epgId)
+        {
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.RECORDINGS);
+            return UtilsDal.GetObjectFromCB<EpgCB>(eCouchbaseBucket.RECORDINGS, epgId.ToString());
+        }
+
         public static long InsertEpgToDB(EpgCB epgCbToAdd, long userId, DateTime publishDate, Dictionary<long, List<string>> epgMetaIdToValues,
                                          int languageId, List<int> epgTagsIds)
         {
