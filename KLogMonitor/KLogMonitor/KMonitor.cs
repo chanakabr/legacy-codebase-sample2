@@ -23,7 +23,7 @@ namespace KLogMonitor
         public static KLogEnums.AppType AppType { get; set; }
         private bool disposed = false;
 
-        private const string MUTLIREQUEST = "multirequest";
+        private const string MUTLIREQUEST_ACTION = "multirequest";
 
         SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
 
@@ -328,10 +328,6 @@ namespace KLogMonitor
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
                     // check if data from context was updated (needed to add action to end_api log)
                     UpdateMonitorData();
-                    if (this.IsMultiRequest == "1")
-                    {
-                        this.Action = string.Format("{0}.{1}", MUTLIREQUEST, MUTLIREQUEST);
-                    }
                 }
 
                 if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
@@ -340,10 +336,6 @@ namespace KLogMonitor
                     this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
                     // check if data from context was updated (needed to add action to end_api log)
                     UpdateMonitorData();
-                    if (this.IsMultiRequest == "1")
-                    {
-                        this.Action = string.Format("{0}.{1}", MUTLIREQUEST, MUTLIREQUEST);
-                    }
                 }
 
                 logger.Monitor(this.ToString());
