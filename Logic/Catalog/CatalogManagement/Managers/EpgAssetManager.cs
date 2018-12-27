@@ -2,6 +2,7 @@
 using ApiObjects;
 using ApiObjects.Epg;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using Core.Catalog.Cache;
 using KLogMonitor;
 using System;
@@ -54,45 +55,43 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        // TODO SHIR - PUT GetEpgAssetsFromCache IN CACHE
         internal static List<EpgAsset> GetEpgAssetsFromCache(List<long> epgIds, int groupId, List<string> languageCodes = null)
         {
-            List<EpgAsset> epgAssets = new List<EpgAsset>();
+            Dictionary<string, EpgAsset> epgAssets = new Dictionary<string, EpgAsset>();
 
             if (epgIds == null || epgIds.Count == 0)
             {
-                return epgAssets;
+                return epgAssets.Values.ToList();
             }
 
             try
             {
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                eAssetTypes assetType = eAssetTypes.EPG;
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), epgIds);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), epgIds);
+
+                if (!LayeredCache.Instance.GetValues<EpgAsset>(keyToOriginalValueMap,
+                                                               ref epgAssets,
+                                                               GetEpgAssets,
+                                                               new Dictionary<string, object>()
+                                                               {
+                                                                  { "groupId", groupId },
+                                                                  { "epgIds", epgIds },
+                                                                  { "languageCodes", languageCodes }
+                                                               },
+                                                               groupId,
+                                                               LayeredCacheConfigNames.GET_EPG_ASSETS_CACHE_CONFIG_NAME,
+                                                               invalidationKeysMap))
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgAssetsFromCache", groupId);
-                    return null;
-                }
-
-                List<LanguageObj> languages = GetLanguagesObj(languageCodes, catalogGroupCache);
-                
-                var ratios = ImageManager.GetRatios(groupId);
-
-                foreach (var epgId in epgIds)
-                {
-                    List<EpgCB> epgCbList = EpgDal.GetEpgCBList(epgId, languages);
-
-                    if (epgCbList != null && epgCbList.Count > 0)
-                    {
-                        epgAssets.Add(new EpgAsset(epgCbList, catalogGroupCache.DefaultLanguage.Code, ratios.Objects, groupId));
-                    }
+                    log.ErrorFormat("Failed getting GetEpgAssetsFromCache from LayeredCache, groupId: {0}, epgIds: {1}", groupId, string.Join(",", epgIds));
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetEpgAssetsFromCache with groupId: {0}, ids: {1}", groupId, epgIds != null ? string.Join(",", epgIds) : string.Empty), ex);
+                log.Error(string.Format("Failed GetEpgAssetsFromCache with groupId: {0}, epgIds: {1}", groupId, string.Join(",", epgIds)), ex);
             }
 
-            return epgAssets;
+            return epgAssets.Values.ToList();
         }
 
         internal static GenericResponse<Asset> AddEpgAsset(int groupId, EpgAsset epgAssetToAdd, long userId, CatalogGroupCache catalogGroupCache)
@@ -406,6 +405,57 @@ namespace Core.Catalog.CatalogManagement
         #endregion
 
         #region Private Methods
+
+        private static Tuple<Dictionary<string, EpgAsset>, bool> GetEpgAssets(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, EpgAsset> epgAssets = new Dictionary<string, EpgAsset>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("epgIds") && funcParams.ContainsKey("languageCodes"))
+                {
+                    string key = string.Empty;
+                    int? groupId = funcParams["groupId"] as int?;
+                    List<long> epgIds = funcParams["epgIds"] as List<long>;
+                    List<string> languageCodes = funcParams["languageCodes"] as List<string>;
+                    
+                    if (groupId.HasValue && epgIds != null && epgIds.Count > 0)
+                    {
+                        CatalogGroupCache catalogGroupCache;
+                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgAssets", groupId);
+                            return null;
+                        }
+
+                        List<LanguageObj> languages = GetLanguagesObj(languageCodes, catalogGroupCache);
+
+                        var ratios = ImageManager.GetRatios(groupId.Value);
+
+                        foreach (var epgId in epgIds)
+                        {
+                            List<EpgCB> epgCbList = EpgDal.GetEpgCBList(epgId, languages);
+
+                            if (epgCbList != null && epgCbList.Count > 0)
+                            {
+                                EpgAsset epgAsset = new EpgAsset(epgCbList, catalogGroupCache.DefaultLanguage.Code, ratios.Objects, groupId.Value);
+                                string epgAssetKey = LayeredCacheKeys.GetAssetKey(eAssetTypes.EPG.ToString(), epgAsset.Id);
+                                epgAssets.Add(epgAssetKey, epgAsset);
+                            }
+                        }
+
+                        res = epgAssets.Count == epgIds.Count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetEpgAssets failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, EpgAsset>, bool>(epgAssets, res);
+        }
+
         private static void SaveEpgCbToCB(EpgCB epgCB, string defaultLanguageCode,
                                           Dictionary<string, string> allNames,
                                           Dictionary<string, string> allDescriptions,

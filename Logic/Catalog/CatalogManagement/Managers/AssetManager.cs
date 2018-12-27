@@ -691,9 +691,18 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), ids);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids);
 
-                if (!LayeredCache.Instance.GetValues<JObject>(keyToOriginalValueMap, ref mediaAssetMap, GetMediaAssets, new Dictionary<string, object>() { { "groupId", groupId }, { "ids", ids },
-                                                                { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets } }, groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME,
-                                                                invalidationKeysMap))
+                if (!LayeredCache.Instance.GetValues<JObject>(keyToOriginalValueMap, 
+                                                              ref mediaAssetMap, 
+                                                              GetMediaAssets, 
+                                                              new Dictionary<string, object>()
+                                                              {
+                                                                  { "groupId", groupId },
+                                                                  { "ids", ids },
+                                                                    { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets }
+                                                              }, 
+                                                              groupId, 
+                                                              LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME,
+                                                              invalidationKeysMap))
                 {
                     log.ErrorFormat("Failed getting GetMediaAssetsFromCache from LayeredCache, groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty, assetType.ToString());
                 }
