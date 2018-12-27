@@ -5614,7 +5614,8 @@ namespace Core.Api
                     }
 
                     AssetRule blockingRule;
-                    Status networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.MEDIA, groupId, mediaId, ip, out blockingRule);
+                    var assetsToCheck = AssetRuleManager.GetAssetsForValidation(eAssetTypes.MEDIA, groupId, mediaId);
+                    Status networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetsToCheck, groupId, ip, out blockingRule);
                     if (!networkRulesStatus.IsOkStatusCode())
                     {
                         response.Rules.Add(new GenericRule()
@@ -5865,7 +5866,8 @@ namespace Core.Api
                         }
 
                         AssetRule blockingRule;
-                        Status networkRulesStatus = AssetRuleManager.CheckNetworkRules(eAssetTypes.EPG, groupId, epgId, ip, out blockingRule);
+                        var assetsToCheck = AssetRuleManager.GetAssetsForValidation(eAssetTypes.EPG, groupId, epgId);
+                        Status networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetsToCheck, groupId, ip, out blockingRule);
                         if (!networkRulesStatus.IsOkStatusCode())
                         {
                             response.Rules.Add(new GenericRule()

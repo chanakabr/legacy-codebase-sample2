@@ -105,6 +105,8 @@ namespace Core.ConditionalAccess
                 }
                 
                 MediaObj epgChannelLinearMedia = null;
+                List<SlimAsset> assetsToCheck = null;
+
                 // Recording
                 if (assetType == eAssetTypes.NPVR)
                 {
@@ -129,10 +131,19 @@ namespace Core.ConditionalAccess
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
                         return response;
                     }
+
+                    if (recording != null)
+                    {
+                        assetsToCheck = AssetRuleManager.GetNpvrAssetsForValidation(groupId, recording.EpgId, recording.ChannelId);
+                    }
+                }
+                else
+                {
+                    assetsToCheck = AssetRuleManager.GetAssetsForValidation(assetType, groupId, long.Parse(assetId));
                 }
 
                 AssetRule blockingRule;
-                var networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetType, groupId, long.Parse(assetId), ip, out blockingRule);
+                var networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetsToCheck, groupId, ip, out blockingRule);
                 if (!networkRulesStatus.IsOkStatusCode())
                 {
                     response.Status = networkRulesStatus;
