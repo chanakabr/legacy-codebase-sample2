@@ -232,15 +232,18 @@ namespace WebAPI.Controllers
                             }
                         }
 
-                        Dictionary<string, object> parameters = request[i].Parameters;
-                        if (i > 0)
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
                         {
-                            parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses);
+                            Dictionary<string, object> parameters = request[i].Parameters;
+                            if (i > 0)
+                            {
+                                parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses);
+                            }
+                            RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
+                            Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
+                            List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
+                            response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                         }
-                        RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
-                        Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
-                        List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
-                        response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                     }
                     catch (ApiException e)
                     {
