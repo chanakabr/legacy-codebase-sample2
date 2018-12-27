@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiObjects", "..\Core\ApiObjects\ApiObjects.csproj", "{6E476AD6-433C-4345-A26D-0E34BC03D9A9}"
 EndProject
@@ -93,6 +93,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventManager", "EventManager\EventManager.csproj", "{1168121B-FB3F-48D8-89B9-7E0BE7E9C901}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelManager", "ExcelManager\ExcelManager.csproj", "{B244D457-C486-48A4-8BB2-7ECD008D4054}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseWrapper", "CouchbaseWrapper\CouchbaseWrapper.csproj", "{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -618,8 +620,27 @@ Global
 		{B244D457-C486-48A4-8BB2-7ECD008D4054}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B244D457-C486-48A4-8BB2-7ECD008D4054}.Release|x86.ActiveCfg = Release|Any CPU
 		{B244D457-C486-48A4-8BB2-7ECD008D4054}.Release|x86.Build.0 = Release|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Basic|Any CPU.ActiveCfg = Local|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Basic|x86.ActiveCfg = Local|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Basic|x86.Build.0 = Local|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Debug|x86.Build.0 = Debug|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Local|Any CPU.ActiveCfg = Local|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Local|Any CPU.Build.0 = Local|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Local|x86.ActiveCfg = Local|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Local|x86.Build.0 = Local|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|x86.ActiveCfg = Release|Any CPU
+		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {75659886-BB1D-4A01-BF62-4B8BB0A9BF1A}
 	EndGlobalSection
 EndGlobal
