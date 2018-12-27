@@ -84,18 +84,24 @@ namespace WebAPI.App_Start
                             request.RequestUri.OriginalString,            // 0
                             Encoding.UTF8.GetString(requestBody));   // 1 
 
-            ExtractActionToLog(request.RequestUri);            
-            Events.eEvent eventType = Events.eEvent.EVENT_CLIENT_API_START;
+            ExtractActionToLog(request.RequestUri);
+            bool isMultirequest = false;
             if (HttpContext.Current.Items[Constants.ACTION] != null && HttpContext.Current.Items[Constants.ACTION].ToString() == MUTLIREQUEST_ACTION)
             {
-                eventType = Events.eEvent.EVENT_MULTIREQUEST_START;
+                isMultirequest = true;
             }
 
-            using (KMonitor km = new KMonitor(eventType))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {
                 //let other handlers process the request
                 var response = await base.SendAsync(request, cancellationToken);
                 var wrappedResponse = await BuildApiResponse(request, response, float.Parse(km.ExecutionTime));
+                if (isMultirequest)
+                {
+                    HttpContext.Current.Items[Constants.ACTION] = MUTLIREQUEST_ACTION;
+                    HttpContext.Current.Items[Constants.MULTIREQUEST] = "0";
+                }
+
                 return wrappedResponse;
             }            
         }
@@ -186,8 +192,7 @@ namespace WebAPI.App_Start
                             }
                             else
                             {
-                                HttpContext.Current.Items[Constants.ACTION] = MUTLIREQUEST_ACTION;
-                                HttpContext.Current.Items[Constants.MULTIREQUEST] = "1";
+                                HttpContext.Current.Items[Constants.ACTION] = MUTLIREQUEST_ACTION;                                
                                 isActionExtracted = true;
                             }
                             
