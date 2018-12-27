@@ -340,6 +340,7 @@ namespace Core.Users
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTRA_DATA", "=", m_sExtraData);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_CHANNEL", "=", m_is_channel);
                 updateQuery += "where";
