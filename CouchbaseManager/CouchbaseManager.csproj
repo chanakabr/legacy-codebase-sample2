@@ -56,9 +56,6 @@
     <Reference Include="Couchbase.NetClient, Version=2.2.6.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
       <HintPath>..\packages\CouchbaseNetClient.2.2.6\lib\net45\Couchbase.NetClient.dll</HintPath>
     </Reference>
-    <Reference Include="CouchBaseExtensions">
-      <HintPath>..\..\tvincicommon\External\4.5\CouchBaseExtensions.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -78,6 +75,10 @@
     <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
       <Project>{ad062f64-a52d-4abd-ac1f-6b263dad7b8b}</Project>
       <Name>TCMClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CouchBaseExtensions\CouchBaseExtensions.csproj">
+      <Project>{f5591a02-7c44-476f-b447-a63f39b2d731}</Project>
+      <Name>CouchBaseExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>

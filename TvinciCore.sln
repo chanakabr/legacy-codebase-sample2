@@ -102,6 +102,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "..\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCMClient", "..\Core\TCMClient\TCMClient.csproj", "{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchBaseExtensions", "CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -690,6 +692,22 @@ Global
 		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Release|x86.ActiveCfg = Release|Any CPU
 		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Release|x86.Build.0 = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Basic|x86.ActiveCfg = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Basic|x86.Build.0 = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Debug|x86.Build.0 = Debug|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Local|Any CPU.Build.0 = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Local|x86.ActiveCfg = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Local|x86.Build.0 = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Release|x86.ActiveCfg = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
