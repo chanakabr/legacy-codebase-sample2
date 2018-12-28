@@ -48,9 +48,6 @@
     <Reference Include="ImageResizer">
       <HintPath>..\External\ImageResizer.dll</HintPath>
     </Reference>
-    <Reference Include="Jil">
-      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -68,6 +65,9 @@
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
