@@ -54,10 +54,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
-      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
-      <Name>ApiObjects</Name>
-    </ProjectReference>
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
