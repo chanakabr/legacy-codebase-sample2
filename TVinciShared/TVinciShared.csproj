@@ -77,14 +77,12 @@
       <HintPath>..\packages\DeepCloner.0.10.2\lib\net40\DeepCloner.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.5.452, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\External\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Interop.CUWMAuthTickets, Version=35.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+    <Reference Include="Interop.CUWMAuthTickets">
       <HintPath>..\External\Interop.CUWMAuthTickets.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -105,6 +103,9 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="TCMClient">
+      <HintPath>..\External\TCMClient.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoolUtils.cs" />
