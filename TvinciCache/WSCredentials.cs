@@ -48,6 +48,11 @@ namespace TvinciCache
 
         public static int GetGroupID(eWSModules eMainWSModule, Credentials uc)
         {
+            return GetGroupID(eMainWSModule.ToString(), uc);
+        }
+
+        public static int GetGroupID(string eMainWSModule, Credentials uc)
+        {
             string key = string.Format("{0}_GetGroupID_{1}_{2}", eMainWSModule.ToString(), uc.m_sUsername, uc.m_sPassword);
 
             int nGroupID = 0;

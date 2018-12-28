@@ -33,9 +33,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Jil">
-      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -57,10 +54,6 @@
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TvinciCache\TvinciCache.csproj">
-      <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
-      <Name>TvinciCache</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

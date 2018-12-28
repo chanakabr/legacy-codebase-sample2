@@ -7,7 +7,6 @@ using System.ServiceModel.Channels;
 using System.Text;
 using System.Web;
 using System.Xml;
-using ApiObjects;
 using KLogMonitor;
 
 namespace KlogMonitorHelper
@@ -48,7 +47,7 @@ namespace KlogMonitorHelper
             return null;
         }
 
-        public static void InitMonitorLogsDataWS(eWSModules module, string requestString)
+        public static void InitMonitorLogsDataWS(string module, string requestString, int groupId)
         {
             KLogger.AppType = KLogEnums.AppType.WS;
             KMonitor.AppType = KLogEnums.AppType.WS;
@@ -82,27 +81,8 @@ namespace KlogMonitorHelper
                     XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
                     if (tempXmlNodeList.Count > 0)
                         HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
-
-                    // get group ID
-                    XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
-                    XmlNodeList xmlPassword = doc.GetElementsByTagName("sWSPassword");
-
-                    if (xmlUserName.Count > 0)
-                    {
-                        module = GetWsModuleByUserName(xmlUserName[0].InnerText);
-                    }
-                    else
-                    {
-                        log.ErrorFormat("sWSUserName was not found in XML request. Request: {0}", requestString);
-                    }
-
-                    if (xmlPassword.Count == 0)
-                    {
-                        log.ErrorFormat("sWSPassword was not found in XML request. Request: {0}", requestString);
-                    }
-
-                    if (xmlUserName.Count > 0 && xmlPassword.Count > 0)
-                        HttpContext.Current.Items[Constants.GROUP_ID] = GetGroupID(module, xmlUserName[0].InnerText, xmlPassword[0].InnerText);
+                    
+                    HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
                 }
                 catch (Exception)
                 {
@@ -113,9 +93,7 @@ namespace KlogMonitorHelper
                     try
                     {
                         var nameValueCollection = HttpUtility.ParseQueryString(requestString);
-                        string username = nameValueCollection["sWSUserName"];
-                        string password = nameValueCollection["sWSPassword"];
-                        HttpContext.Current.Items[Constants.GROUP_ID] = GetGroupID(module, username, password);
+                        HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
 
                         if (HttpContext.Current.Request.UrlReferrer != null &&
                             string.IsNullOrEmpty(HttpContext.Current.Request.UrlReferrer.Query))
@@ -139,21 +117,6 @@ namespace KlogMonitorHelper
                 else
                     log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
             }
-        }
-
-        private static eWSModules GetWsModuleByUserName(string userName)
-        {
-            string[] splitedUserName = userName.Split('_');
-            if (splitedUserName != null && splitedUserName.Length > 0 && !string.IsNullOrEmpty(splitedUserName[0]))
-            {
-                eWSModules module;
-                if (Enum.TryParse(splitedUserName[0].ToUpper(), out module))
-                {
-                    return module;
-                }
-            }
-
-            return eWSModules.USERS;
         }
 
         public static void InitMonitorLogsDataWCF(Message requestMessage)
@@ -253,20 +216,6 @@ namespace KlogMonitorHelper
                 // ignore error - this will happen when updating WCF reference - NO NEED TO LOG
                 //log.Error("Error while trying to dispose monitor object", ex);
             }
-        }
-
-        static private Int32 GetGroupID(eWSModules module, string sWSUserName, string sWSPassword)
-        {
-            try
-            {
-                Credentials wsc = new Credentials(sWSUserName, sWSPassword);
-                return TvinciCache.WSCredentials.GetGroupID(module, wsc);
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error while trying to get groupId", ex);
-            }
-            return 0;
         }
 
         public static void AddHeaderToWebService(HttpWebRequest request)
