@@ -77,9 +77,6 @@
     <Reference Include="Enyim.Caching">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.dll</HintPath>
     </Reference>
-    <Reference Include="Jil">
-      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
-    </Reference>
     <Reference Include="LinqToTwitter">
       <HintPath>..\..\tvmcore\External\LinqToTwitter.dll</HintPath>
     </Reference>
