@@ -36,10 +36,6 @@
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -94,6 +90,10 @@
     <ProjectReference Include="..\CachingHelpers\CachingHelpers.csproj">
       <Project>{c94f4aff-e892-4055-9d20-07586be88f3a}</Project>
       <Name>CachingHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Name>KLogMonitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Synchronizer\Synchronizer.csproj">
       <Project>{9b1d6676-614f-4f0d-9bfb-66422f8a5031}</Project>

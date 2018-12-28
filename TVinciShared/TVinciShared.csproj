@@ -91,10 +91,6 @@
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -114,9 +110,6 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="TCMClient">
-      <HintPath>..\External\TCMClient.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoolUtils.cs" />
@@ -181,6 +174,10 @@
       <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
+      <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
+      <Name>TCMClient</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
       <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
       <Name>AkamaiTokenGenerator</Name>
@@ -196,6 +193,10 @@
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Name>KLogMonitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj">
       <Project>{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}</Project>

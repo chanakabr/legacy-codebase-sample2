@@ -76,10 +76,6 @@
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -165,6 +161,10 @@
       <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
       <Name>KlogMonitorHelper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
@@ -249,7 +249,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="bin\Debug\TvinciImporter.dll.config" />
-    <None Include="bin\Release\Log4Net.config" />
     <None Include="obj\Debug\DesignTimeResolveAssemblyReferences.cache" />
     <None Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
     <None Include="obj\Debug\TvinciImporter.csprojResolveAssemblyReference.cache" />
@@ -581,7 +580,6 @@
     <Content Include="bin\Debug\Interop.CUWMAuthTickets.dll" />
     <Content Include="bin\Debug\LLNWMediaVault.dll" />
     <Content Include="bin\Debug\LLNWMediaVault.pdb" />
-    <Content Include="bin\Debug\log4net.dll" />
     <Content Include="bin\Debug\Logger.dll" />
     <Content Include="bin\Debug\Logger.pdb" />
     <Content Include="bin\Debug\ODBCWrapper.dll" />
@@ -604,7 +602,6 @@
     <Content Include="bin\Release\Interop.CUWMAuthTickets.dll" />
     <Content Include="bin\Release\LLNWMediaVault.dll" />
     <Content Include="bin\Release\LLNWMediaVault.pdb" />
-    <Content Include="bin\Release\log4net.dll" />
     <Content Include="bin\Release\Logger.dll" />
     <Content Include="bin\Release\Logger.XmlSerializers.dll" />
     <Content Include="bin\Release\ODBCWrapper.dll" />

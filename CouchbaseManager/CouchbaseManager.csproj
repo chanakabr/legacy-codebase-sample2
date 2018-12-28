@@ -53,33 +53,14 @@
     <Compile Include="ViewManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Common.Logging.dll</HintPath>
-    </Reference>
-    <Reference Include="Common.Logging.Core">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Common.Logging.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Couchbase.NetClient">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
+    <Reference Include="Couchbase.NetClient, Version=2.2.6.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <HintPath>..\packages\CouchbaseNetClient.2.2.6\lib\net45\Couchbase.NetClient.dll</HintPath>
     </Reference>
     <Reference Include="CouchBaseExtensions">
       <HintPath>..\..\tvincicommon\External\4.5\CouchBaseExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="Enyim.Caching">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.dll</HintPath>
-    </Reference>
-    <Reference Include="Enyim.Caching.Log4NetAdapter">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.Log4NetAdapter.dll</HintPath>
-    </Reference>
-    <Reference Include="Enyim.Caching.NLogAdapter">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.NLogAdapter.dll</HintPath>
-    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
-    </Reference>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -89,15 +70,22 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Core" />
-    <Reference Include="TCMClient">
-      <HintPath>..\External\TCMClient.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
+      <Project>{ad062f64-a52d-4abd-ac1f-6b263dad7b8b}</Project>
+      <Name>TCMClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
