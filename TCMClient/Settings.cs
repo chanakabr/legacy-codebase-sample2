@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Net;
 using Newtonsoft.Json;
@@ -55,7 +56,6 @@ namespace TCMClient
 
 #region Public Methods
 
-#if NET45
         /// <summary>
         /// Initializes settings with data from local / remote source according to config
         /// </summary>
@@ -69,7 +69,6 @@ namespace TCMClient
             }
             Init(config);
         }
-#endif
 
         /// <summary>
         /// Initializes settings with data from local / remote source according to config
