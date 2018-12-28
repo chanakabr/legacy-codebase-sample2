@@ -9,8 +9,5 @@ obj/
 *.log
 *.suo
 PrecompiledWeb/
-.vs/TVPProAPIs/DesignTimeBuild/.dtbcache
-.vs/TVPProAPIs/v15/Server/sqlite3/db.lock
-.vs/TVPProAPIs/v15/Server/sqlite3/storage.ide-wal
-.vs/TVPProAPIs/v15/Server/sqlite3/storage.ide-shm
-.vs/TVPProAPIs/v15/Server/sqlite3/storage.ide
+.vs
+packages
