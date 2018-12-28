@@ -76,12 +76,14 @@ namespace TCMClient
 #endif
         public string URL
         {
-            get =>
+            get
+            {
 #if NET45
-                m_URL != null ? m_URL : this["URL"] as string;
+                return m_URL != null ? m_URL : this["URL"] as string;
 #else
-                m_URL;
+                return m_URL;
 #endif
+            }
 
 
             set
@@ -95,12 +97,14 @@ namespace TCMClient
 #endif
         public string Application
         {
-            get =>
+            get
+            {
 #if NET45
-                m_Application != null ? m_Application : this["Application"] as string;
+                return m_Application != null ? m_Application : this["Application"] as string;
 #else
-                m_Application;
+                return m_Application;
 #endif
+            }
 
             set
             {
@@ -113,12 +117,15 @@ namespace TCMClient
 #endif
         public string Host
         {
-            get =>
+
+            get
+            {
 #if NET45
-                m_Host != null ? m_Host : this["Host"] as string;
+                return m_Host != null ? m_Host : this["Host"] as string;
 #else
-                m_Host;
+                return m_Host;
 #endif
+            }
 
             set
             {
@@ -131,12 +138,15 @@ namespace TCMClient
 #endif
         public string Environment
         {
-            get =>
+
+            get
+            {
 #if NET45
-                m_Environment != null ? m_Environment : this["Environment"] as string;
+                return m_Environment != null ? m_Environment : this["Environment"] as string;
 #else
-                m_Environment;
+                return m_Environment;
 #endif
+            }
 
             set
             {
@@ -149,12 +159,15 @@ namespace TCMClient
 #endif
         public string AppID
         {
-            get =>
+
+            get
+            {
 #if NET45
-                m_AppID != null ? m_AppID : this["AppID"] as string;
+                return m_AppID != null ? m_AppID : this["AppID"] as string;
 #else
-                m_AppID;
+                return m_AppID;
 #endif
+            }
 
             set
             {
@@ -167,12 +180,15 @@ namespace TCMClient
 #endif
         public string AppSecret
         {
-            get =>
+
+            get
+            {
 #if NET45
-               m_AppSecret != null ? m_AppSecret : this["AppSecret"] as string;
+                return m_AppSecret != null ? m_AppSecret : this["AppSecret"] as string;
 #else
-                m_AppSecret;
+                return m_AppSecret;
 #endif
+            }
 
             set
             {
@@ -185,12 +201,15 @@ namespace TCMClient
 #endif
         public bool VerifySSL
         {
-            get =>
+
+            get
+            {
 #if NET45
-                m_VerifySSL.HasValue ? m_VerifySSL.Value : (Boolean)this["VerifySSL"];
+                return m_VerifySSL.HasValue ? m_VerifySSL.Value : (Boolean)this["VerifySSL"];
 #else
-                m_VerifySSL.Value;
+                return m_VerifySSL.Value;
 #endif
+            }
 
             set
             {
@@ -203,12 +222,15 @@ namespace TCMClient
 #endif
         public Boolean FromLocal
         {
-            get =>
+
+            get
+            {
 #if NET45
-                m_FromLocal.HasValue ? m_FromLocal.Value : (Boolean)this["FromLocal"];
+                return m_FromLocal.HasValue ? m_FromLocal.Value : (Boolean)this["FromLocal"];
 #else
-                m_FromLocal.Value;
+                return m_FromLocal.Value;
 #endif
+            }
 
             set
             {
@@ -221,12 +243,15 @@ namespace TCMClient
 #endif
         public string LocalPath
         {
-            get =>
+
+            get
+            {
 #if NET45
-                m_LocalPath != null ? m_LocalPath : this["LocalPath"] as string;
+                return m_LocalPath != null ? m_LocalPath : this["LocalPath"] as string;
 #else
-                m_LocalPath;
+                return m_LocalPath;
 #endif
+            }
 
             set
             {
