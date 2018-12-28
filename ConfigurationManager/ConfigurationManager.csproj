@@ -99,7 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TCMClient\TCMClient.csproj">
-      <Project>{ad062f64-a52d-4abd-ac1f-6b263dad7b8b}</Project>
+      <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
       <Name>TCMClient</Name>
     </ProjectReference>
   </ItemGroup>

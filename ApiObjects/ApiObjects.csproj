@@ -601,10 +601,6 @@
       <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TCMClient\TCMClient.csproj">
-      <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
-      <Name>TCMClient</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
