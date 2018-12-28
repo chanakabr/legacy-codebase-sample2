@@ -80,10 +80,6 @@
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="LinqToTwitter">
       <HintPath>..\..\tvmcore\External\LinqToTwitter.dll</HintPath>
     </Reference>
@@ -127,10 +123,6 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TCMClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvmcore\External\TCMClient.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdaptersController.cs" />
@@ -821,6 +813,10 @@
       <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
       <Name>KlogMonitorHelper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">
       <Project>{d5dc1e20-5e10-4d3c-bc6f-6f596d890981}</Project>
       <Name>M1BL</Name>
@@ -888,6 +884,10 @@
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj">
       <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
       <Name>ConfigurationManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TCMClient\TCMClient.csproj">
+      <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
+      <Name>TCMClient</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
