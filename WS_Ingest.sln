@@ -96,7 +96,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLogMonitor", "..\tvmcore\K
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KlogMonitorHelper", "..\tvmcore\KlogMonitorHelper\KlogMonitorHelper.csproj", "{FA277E9A-4C82-4FF7-A6E7-60FEAEB363E2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCMClient", "..\Core\TCMClient\TCMClient.csproj", "{06BE4B0C-66DA-4FF9-B280-0C1748883C4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCMClient", "..\Core\TCMClient\TCMClient.csproj", "{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -426,14 +426,14 @@ Global
 		{FA277E9A-4C82-4FF7-A6E7-60FEAEB363E2}.Local|Any CPU.Build.0 = Release|Any CPU
 		{FA277E9A-4C82-4FF7-A6E7-60FEAEB363E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA277E9A-4C82-4FF7-A6E7-60FEAEB363E2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06BE4B0C-66DA-4FF9-B280-0C1748883C4F}.Basic|Any CPU.ActiveCfg = Release|Any CPU
-		{06BE4B0C-66DA-4FF9-B280-0C1748883C4F}.Basic|Any CPU.Build.0 = Release|Any CPU
-		{06BE4B0C-66DA-4FF9-B280-0C1748883C4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06BE4B0C-66DA-4FF9-B280-0C1748883C4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06BE4B0C-66DA-4FF9-B280-0C1748883C4F}.Local|Any CPU.ActiveCfg = Release|Any CPU
-		{06BE4B0C-66DA-4FF9-B280-0C1748883C4F}.Local|Any CPU.Build.0 = Release|Any CPU
-		{06BE4B0C-66DA-4FF9-B280-0C1748883C4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06BE4B0C-66DA-4FF9-B280-0C1748883C4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Local|Any CPU.Build.0 = Release|Any CPU
+		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -231,7 +231,7 @@
       <Name>ApiLogic</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
-      <Project>{06be4b0c-66da-4ff9-b280-0c1748883c4f}</Project>
+      <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
       <Name>TCMClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\ADIFeeder\ADIFeeder.csproj">
