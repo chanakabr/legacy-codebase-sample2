@@ -14,6 +14,8 @@ using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using ConfigurationManager;
+using System.Xml;
+using ApiObjects;
 
 namespace WebAPI
 {
@@ -79,6 +81,58 @@ namespace WebAPI
             KLogger.Configure("log4net.config", KLogEnums.AppType.WS);
         }
 
+        static private Int32 GetGroupID(string requestString)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(requestString);
+
+            // get action name
+            XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
+            if (tempXmlNodeList.Count > 0)
+                HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
+
+            // get group ID
+            XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
+            XmlNodeList xmlPassword = doc.GetElementsByTagName("sWSPassword");
+
+            string module = "USERS";
+            if (xmlUserName.Count > 0)
+            {
+                module = GetWsModuleByUserName(xmlUserName[0].InnerText);
+            }
+            else
+            {
+                log.ErrorFormat("sWSUserName was not found in XML request. Request: {0}", requestString);
+            }
+
+            if (xmlPassword.Count == 0)
+            {
+                log.ErrorFormat("sWSPassword was not found in XML request. Request: {0}", requestString);
+            }
+
+            try
+            {
+                Credentials wsc = new Credentials(xmlUserName[0].InnerText, xmlPassword[0].InnerText);
+                return TvinciCache.WSCredentials.GetGroupID(module, wsc);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get groupId", ex);
+            }
+            return 0;
+        }
+
+        private static string GetWsModuleByUserName(string userName)
+        {
+            string[] splitedUserName = userName.Split('_');
+            if (splitedUserName != null && splitedUserName.Length > 0 && !string.IsNullOrEmpty(splitedUserName[0]))
+            {
+                return splitedUserName[0];
+            }
+
+            return "USERS";
+        }
+
         protected void Application_BeginRequest()
         {
             if (!Request.AppRelativeCurrentExecutionFilePath.ToLower().Contains("/api_v"))
@@ -88,7 +142,8 @@ namespace WebAPI
                 if (!string.IsNullOrEmpty(requestString) && requestString.ToLower().Contains("<soap"))
                 {
                     // soap request
-                    MonitorLogsHelper.InitMonitorLogsDataWS(ApiObjects.eWSModules.USERS, requestString);
+                    int groupId = GetGroupID(requestString);
+                    MonitorLogsHelper.InitMonitorLogsDataWS("USERS", requestString, groupId);
                 }
             }
             else
