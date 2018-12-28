@@ -35,9 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KLogMonitor">
-      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -80,6 +77,10 @@
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
       <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
       <Name>ConfigurationManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Name>KLogMonitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\WebAPI\WebAPI.csproj">
       <Project>{223f9697-c15b-46e8-b71b-52ffbafbeba2}</Project>

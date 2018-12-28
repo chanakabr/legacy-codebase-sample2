@@ -294,6 +294,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "objects", "objects", "{355B
 		permissions\permission_items\objects\kalturasocialconfig.json = permissions\permission_items\objects\kalturasocialconfig.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLogMonitor", "..\tvmcore\KLogMonitor\KLogMonitor.csproj", "{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -686,6 +688,14 @@ Global
 		{62A8464C-C3A9-4566-A883-59A10E9856E3}.Local|Any CPU.Build.0 = Release|Any CPU
 		{62A8464C-C3A9-4566-A883-59A10E9856E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62A8464C-C3A9-4566-A883-59A10E9856E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}.Local|Any CPU.Build.0 = Release|Any CPU
+		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -744,9 +754,10 @@ Global
 		{2E601137-CDC9-425D-8ABF-4F26D02C4BBE} = {C7AD0933-797A-420E-8318-20AE061BC37F}
 		{2EBD6B97-D5A3-4075-AA40-5B9B7DD0AA39} = {2E601137-CDC9-425D-8ABF-4F26D02C4BBE}
 		{355BB1C1-8C4D-4B37-AB5B-7F1EF53EB6B6} = {2E601137-CDC9-425D-8ABF-4F26D02C4BBE}
+		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
