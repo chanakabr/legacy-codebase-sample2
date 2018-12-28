@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web.Services;
-using System.Web;
 using System.Web.Services.Protocols;
 using System.Threading;
-using System.ServiceModel.Web;
-
-using System.IO;
 using KLogMonitor;
 using System.Reflection;
-using System.ServiceModel;
 
 namespace ServiceExtensions
 {
