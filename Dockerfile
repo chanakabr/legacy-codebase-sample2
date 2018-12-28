@@ -28,7 +28,10 @@ RUN nuget restore RemoteTasks/RemoteTasksService.sln
 RUN nuget restore tvpapi_rest/TVPProAPIs.sln
 RUN nuget restore Core/Core.sln
 
-RUN msbuild /p:Configuration=Release RemoteTasks/RemoteTasksService.sln
+RUN msbuild /p:Configuration=Release tvpapi_rest/WebAPI/WebAPI.csproj
+RUN msbuild /t:WebPublish /p:Configuration=Release tvpapi_rest/WebAPI/WebAPI.csproj
+
+RUN msbuild /p:Configuration=Release RemoteTasks/RemoteTasksService/RemoteTasksService.csproj
 RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/RemoteTasksService RemoteTasks/RemoteTasksService/RemoteTasksService.csproj
 
 
