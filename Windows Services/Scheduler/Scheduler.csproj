@@ -104,7 +104,7 @@
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
     <Reference Include="TCMClient">
-      <HintPath>..\..\..\TvmCore\External\TCMClient.dll</HintPath>
+      <HintPath>..\..\..\tvincicommon\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

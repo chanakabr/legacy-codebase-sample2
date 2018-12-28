@@ -45,7 +45,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\..\TvmCore\External\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>..\..\..\tvincicommon\External\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\..\tvincicommon\External\Jil.dll</HintPath>
