@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using CachingProvider.LayeredCache;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_usage_modules : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
+
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     static public bool IsTvinciImpl()
     {
@@ -191,5 +196,16 @@ public partial class adm_usage_modules : System.Web.UI.Page
     public void GetHeader()
     {
         Response.Write(PageUtils.GetPreHeader() + ": Usage Modules");
+    }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        int groupId = LoginManager.GetLoginGroupID();
+
+        string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set pricing settings invalidation key after usage module status change, {0}, key = {1}", invalidationKey);
+        }
     }
 }

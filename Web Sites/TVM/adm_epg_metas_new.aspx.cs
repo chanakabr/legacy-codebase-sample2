@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -22,6 +23,8 @@ public partial class adm_epg_metas_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork();
+                LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID())) });
+
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(5, true, ref nMenuID);

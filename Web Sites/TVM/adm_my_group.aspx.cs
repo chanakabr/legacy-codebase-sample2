@@ -1,4 +1,6 @@
+using CachingProvider.LayeredCache;
 using System;
+using System.Collections.Generic;
 using TVinciShared;
 
 public partial class adm_my_group : System.Web.UI.Page
@@ -25,6 +27,8 @@ public partial class adm_my_group : System.Web.UI.Page
                 Int32 nGroupID = LoginManager.GetLoginGroupID();
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                 groupManager.UpdateGroup(nGroupID);
+
+                LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(nGroupID)) });
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using CachingProvider.LayeredCache;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -220,6 +221,12 @@ public partial class adm_ppv_modules : System.Web.UI.Page
             if (!ImporterImpl.UpdateFreeFileTypeOfModule(nGroupID, ppvModuleID))
             {
                 log.Error(string.Format("Failed updating index for ppvModule: {0}, groupID: {1}", ppvModuleID, nGroupID));
+            }
+
+            string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(nGroupID);
+            if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+            {
+                log.ErrorFormat("Failed to set pricing settings invalidation key for ppv module id {0}, key = {1}", ppvModuleID, invalidationKey);
             }
         }
     }

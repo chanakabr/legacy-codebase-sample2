@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using CachingProvider.LayeredCache;
 using KLogMonitor;
 using TVinciShared;
 
@@ -42,6 +43,9 @@ public partial class adm_epg_tags_new : System.Web.UI.Page
                 CachingManager.CachingManager.RemoveFromCache("SetValue_epg_tags_types" + "_");
                 m_sMenu = TVinciShared.Menu.GetMainMenu(5, true, ref nMenuID);
                 m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
+                
+                LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID())) });
+
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(5, true, ref nMenuID);

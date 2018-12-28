@@ -1,4 +1,5 @@
-﻿using ConfigurationManager;
+﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using System;
 using System.Reflection;
@@ -118,6 +119,13 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
                     insertQuery.Finish();
                     insertQuery = null;
                 }
+
+                string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(LoginManager.GetLoginGroupID());
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set pricing settings invalidation key for ppv module id {0}, key = {1}", nPPVModuleID, invalidationKey);
+                }
+
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);

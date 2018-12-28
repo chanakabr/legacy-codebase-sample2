@@ -1,3 +1,4 @@
+using CachingProvider.LayeredCache;
 using DAL;
 using System;
 using System.Collections.Generic;
@@ -47,6 +48,8 @@ public partial class adm_channels_new : System.Web.UI.Page
                     //Update channel at Lucene/ ES
 
                     result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { nId }, ApiObjects.eAction.Update);
+                    
+                    LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(loginGroupID)) });
                 }
                 return;
             }

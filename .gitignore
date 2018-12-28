@@ -14,3 +14,9 @@ Ankh.NoLoad
 PrecompiledWeb/
 packages/
 settings.json
+.vs/config/applicationhost.config
+.vs/TvmApps/v15/Server/sqlite3/storage.ide-wal
+.vs/TvmApps/v15/Server/sqlite3/storage.ide-shm
+.vs/TvmApps/v15/Server/sqlite3/storage.ide
+.vs/TvmApps/v15/Server/sqlite3/db.lock
+.vs/TvmApps/DesignTimeBuild/.dtbcache
