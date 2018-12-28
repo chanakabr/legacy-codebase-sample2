@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using SimpleInjector;
-using SimpleInjector.Extensions;
 using SimpleInjector.Integration.Wcf;
-using ApiObjects.SearchObjects;
-using Core.Catalog.Searchers;
 using KLogMonitor;
 using System.Reflection;
 namespace Core.Catalog
