@@ -36,13 +36,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Jil">
-      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
-    </Reference>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -53,9 +46,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TCMClient">
-      <HintPath>..\..\TvmCore\External\TCMClient.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DocsUpdateRequest.cs" />
@@ -72,9 +62,9 @@
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\Catalog\Catalog.csproj">
-      <Project>{1c524197-e2b6-437e-80de-7f307a9b36f1}</Project>
-      <Name>Catalog</Name>
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
+      <Name>ApiLogic</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
@@ -88,17 +78,13 @@
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
       <Name>GroupsCacheManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ElasticsearchHandlerCommon\ElasticsearchTasksCommon.csproj">
-      <Project>{ce5e20f3-9489-4875-8ea6-a966446a7073}</Project>
-      <Name>ElasticsearchTasksCommon</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj">
-      <Project>{680b9d3b-e9de-4d05-9280-f8e8b3128c48}</Project>
-      <Name>RemoteTasksCommon</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

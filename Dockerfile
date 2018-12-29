@@ -9,14 +9,12 @@ ARG GITHUB_TOKEN
 
 ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvmcore/get/${BRANCH}.zip TvmCore.zip
 ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvplibs/get/${BRANCH}.zip tvplibs.zip
-ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvincicommon/get/${BRANCH}.zip tvincicommon.zip
 ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/CDNTokenizers/get/${BRANCH}.zip CDNTokenizers.zip
 ADD https://api.github.com/repos/kaltura/Core/zipball/${BRANCH}?access_token=${GITHUB_TOKEN} Core.zip
 ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvpapi_rest/get/${BRANCH}.zip tvpapi_rest.zip
 
 RUN Expand-Archive TvmCore.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) TvmCore; rm tmp; rm TvmCore.zip
 RUN Expand-Archive tvplibs.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) tvplibs; rm tmp; rm tvplibs.zip
-RUN Expand-Archive tvincicommon.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) tvincicommon; rm tmp; rm tvincicommon.zip
 RUN Expand-Archive CDNTokenizers.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) CDNTokenizers; rm tmp; rm CDNTokenizers.zip
 RUN Expand-Archive Core.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) Core; rm tmp; rm Core.zip
 RUN Expand-Archive tvpapi_rest.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) tvpapi_rest; rm tmp; rm tvpapi_rest.zip
