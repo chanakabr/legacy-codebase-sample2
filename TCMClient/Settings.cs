@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-#if NET45
 using System.Configuration;
+#if NET45
 #endif
 
 namespace TCMClient

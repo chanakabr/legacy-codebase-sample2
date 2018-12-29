@@ -3,10 +3,10 @@ using System.Configuration;
 
 namespace TCMClient
 {
-#if NET45
     public class TCMConfiguration : ConfigurationSection
+#if NET45
 #else
-    public class TCMConfiguration
+    //public class TCMConfiguration
 #endif
     {
         private string m_URL = null;
@@ -71,17 +71,17 @@ namespace TCMClient
             }
         }
 
-#if NET45
         [ConfigurationProperty("URL", IsRequired = true)]
+#if NET45
 #endif
         public string URL
         {
             get
             {
-#if NET45
                 return m_URL != null ? m_URL : this["URL"] as string;
+#if NET45
 #else
-                return m_URL;
+                //return m_URL;
 #endif
             }
 
@@ -92,17 +92,17 @@ namespace TCMClient
             }
         }
 
-#if NET45
         [ConfigurationProperty("Application", IsRequired = true)]
+#if NET45
 #endif
         public string Application
         {
             get
             {
-#if NET45
                 return m_Application != null ? m_Application : this["Application"] as string;
+#if NET45
 #else
-                return m_Application;
+                //return m_Application;
 #endif
             }
 
@@ -112,18 +112,18 @@ namespace TCMClient
             }
         }
 
-#if NET45
         [ConfigurationProperty("Host", IsRequired = true)]
+#if NET45
 #endif
         public string Host
         {
 
             get
             {
-#if NET45
                 return m_Host != null ? m_Host : this["Host"] as string;
+#if NET45
 #else
-                return m_Host;
+                //return m_Host;
 #endif
             }
 
@@ -133,18 +133,18 @@ namespace TCMClient
             }
         }
 
-#if NET45
         [ConfigurationProperty("Environment", IsRequired = true)]
+#if NET45
 #endif
         public string Environment
         {
 
             get
             {
-#if NET45
                 return m_Environment != null ? m_Environment : this["Environment"] as string;
+#if NET45
 #else
-                return m_Environment;
+                //return m_Environment;
 #endif
             }
 
@@ -154,18 +154,18 @@ namespace TCMClient
             }
         }
 
-#if NET45
         [ConfigurationProperty("AppID", IsRequired = true)]
+#if NET45
 #endif
         public string AppID
         {
 
             get
             {
-#if NET45
                 return m_AppID != null ? m_AppID : this["AppID"] as string;
+#if NET45
 #else
-                return m_AppID;
+                //return m_AppID;
 #endif
             }
 
@@ -175,18 +175,18 @@ namespace TCMClient
             }
         }
 
-#if NET45
         [ConfigurationProperty("AppSecret", IsRequired = true)]
+#if NET45
 #endif
         public string AppSecret
         {
 
             get
             {
-#if NET45
                 return m_AppSecret != null ? m_AppSecret : this["AppSecret"] as string;
+#if NET45
 #else
-                return m_AppSecret;
+                //return m_AppSecret;
 #endif
             }
 
@@ -196,18 +196,18 @@ namespace TCMClient
             }
         }
 
-#if NET45
         [ConfigurationProperty("VerifySSL", DefaultValue = "false", IsRequired = false)]
+#if NET45
 #endif
         public bool VerifySSL
         {
 
             get
             {
-#if NET45
                 return m_VerifySSL.HasValue ? m_VerifySSL.Value : (Boolean)this["VerifySSL"];
+#if NET45
 #else
-                return m_VerifySSL.Value;
+                //return m_VerifySSL.Value;
 #endif
             }
 
@@ -217,18 +217,18 @@ namespace TCMClient
             }
         }
 
-#if NET45
         [ConfigurationProperty("FromLocal", DefaultValue = "false", IsRequired = false)]
+#if NET45
 #endif
         public Boolean FromLocal
         {
 
             get
             {
-#if NET45
                 return m_FromLocal.HasValue ? m_FromLocal.Value : (Boolean)this["FromLocal"];
+#if NET45
 #else
-                return m_FromLocal.Value;
+                //return m_FromLocal.Value;
 #endif
             }
 
@@ -238,18 +238,18 @@ namespace TCMClient
             }
         }
 
-#if NET45
         [ConfigurationProperty("LocalPath", IsRequired = false)]
+#if NET45
 #endif
         public string LocalPath
         {
 
             get
             {
-#if NET45
                 return m_LocalPath != null ? m_LocalPath : this["LocalPath"] as string;
+#if NET45
 #else
-                return m_LocalPath;
+                //return m_LocalPath;
 #endif
             }
 
