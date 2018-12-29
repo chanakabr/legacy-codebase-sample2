@@ -116,9 +116,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Couchbase.NetClient">
-      <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>

@@ -116,15 +116,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Jil">
-      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
-    </Reference>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\External\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Diagnostics.Tracing.EventSource, Version=1.1.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\cdntokenizers\packages\Microsoft.Diagnostics.Tracing.EventSource.Redist.1.1.28\lib\net40\Microsoft.Diagnostics.Tracing.EventSource.dll</HintPath>
@@ -150,9 +143,6 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
-    </Reference>
-    <Reference Include="TCMClient">
-      <HintPath>..\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -246,6 +236,16 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
+      <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
+      <Name>TCMClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

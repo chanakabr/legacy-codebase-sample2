@@ -30,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -53,7 +49,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
