@@ -164,8 +164,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mailer", "..\tvmcore\Mailer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageManager", "..\tvmcore\ImageManager\ImageManager.csproj", "{145E19BB-EA2E-430A-8CA6-707877D53D02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpiredRecordingsHandler", "ExpiredRecordingsHandler\ExpiredRecordingsHandler.csproj", "{31891544-6D09-4956-95AE-92536510EDD3}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
