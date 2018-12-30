@@ -794,31 +794,56 @@ namespace Core.Api
                     }
                 }
             }
+        }      
+
+        public static int GetMediaFileTypeID(int mediaFileId, int groupId)
+        {
+            int fileTypeId = 0;
+
+            string key = LayeredCacheKeys.GetMediaFileTypeByIdKey(groupId, mediaFileId);
+            string invalidationKey = LayeredCacheKeys.GetMediaFileTypeByIdInvalidationKey(groupId, mediaFileId);
+            if (!LayeredCache.Instance.Get<int>(key, ref fileTypeId, GetMediaFileTypeId, new Dictionary<string, object>() { { "groupId", groupId }, { "mediaFileId", mediaFileId } },
+                groupId, LayeredCacheConfigNames.API_GET_MEDIA_FILE_TYPE, null))
+            {
+                log.ErrorFormat("Failed getting file type by fileId from LayeredCache, key: {0}", key);
+            }
+
+            return fileTypeId;
         }
 
-        static public Int32 GetMediaFileTypeID(Int32 nMediaFileID, Int32 nGroupID)
+        private static Tuple<int, bool> GetMediaFileTypeId(Dictionary<string, object> funcParams)
         {
-            Int32 nMediaFileType = 0;
+            bool result = false;
+            int fileTypeId = 0;
 
-            //try to get from cache 
-            string key = string.Format("{0}_MediaFileTypeID_{1}", eWSModules.API.ToString(), nMediaFileID);
-            bool bInCache = ApiCache.GetItem<int>(key, out nMediaFileType);
-
-            if (!bInCache || nMediaFileType == 0)
+            try
             {
-                DataTable dt = DAL.ApiDAL.Get_MediaFileTypeID(nMediaFileID, nGroupID);
-                if (dt != null)
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaFileId"))
                 {
-                    if (dt.Rows != null && dt.Rows.Count > 0)
-                    {
-                        nMediaFileType = APILogic.Utils.GetIntSafeVal(dt.Rows[0], "virtual_name");
+                    int? groupId = funcParams["groupId"] as int?;
+                    int? mediaFileId = funcParams["mediaFileId"] as int?;
 
-                        ApiCache.AddItem(key, nMediaFileType);
+                    if (groupId.HasValue && mediaFileId.HasValue)
+                    {
+                        DataTable dt = DAL.ApiDAL.Get_MediaFileTypeID(mediaFileId.Value, groupId.Value);
+                        if (dt != null)
+                        {
+                            if (dt.Rows != null && dt.Rows.Count > 0)
+                            {
+                                fileTypeId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "virtual_name");
+                            }
+                        }
+                        
+                        result = true;
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaFileTypeId failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
 
-            return nMediaFileType;
+            return new Tuple<int, bool>(fileTypeId, result);
         }
 
         static public bool GetAdminTokenValues(string sIP, string sToken, Int32 nGroupID, ref string sCountryCd2, ref string sLanguageFullName, ref string sDeviceName, ref ApiObjects.UserStatus theUserStatus)
