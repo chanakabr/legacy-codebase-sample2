@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Segmentation
 {
@@ -266,9 +264,9 @@ namespace ApiObjects.Segmentation
             if (ids != null && ids.Count > 0)
             {
                 // ignore segmentation types that are not part of this group's segementation types
-                ids.RemoveAll(id => !groupSegmentationTypes.segmentationTypes.Exists(id2 => id == id2));
-
+                ids.RemoveAll(id => !groupSegmentationTypes.segmentationTypes.Exists(id2 => id == id2));                
                 keys = ids.Select(id => GetSegmentationTypeDocumentKey(groupId, id)).ToList();
+                totalCount = keys.Count;
             }
             else
             {
