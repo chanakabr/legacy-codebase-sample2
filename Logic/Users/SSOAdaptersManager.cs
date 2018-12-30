@@ -8,6 +8,7 @@ using ApiObjects.Response;
 using ApiObjects.SSOAdapter;
 using KLogMonitor;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 
 namespace APILogic.Users
 {
@@ -27,8 +28,23 @@ namespace APILogic.Users
             var response = new SSOAdaptersResponse();
             try
             {
-                response.SSOAdapters = DAL.UsersDal.GetSSOAdapters(groupId);
-                if (response.SSOAdapters == null || !response.SSOAdapters.Any())
+                IEnumerable<SSOAdapter> ssoAdapters = null;
+                var key = LayeredCacheKeys.GetSSOAdapaterByGroupKey(groupId);
+                var cacheResult = LayeredCache.Instance.Get(
+                    key,
+                    ref ssoAdapters,
+                    GetSSOAdapaterByGroupId,
+                    new Dictionary<string, object>() { { "groupId", groupId } },
+                    groupId,
+                    LayeredCacheConfigNames.GET_SSO_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME,
+                    new List<string>() { LayeredCacheKeys.GetSSOAdapaterInvalidationKey(groupId) });
+
+                response.SSOAdapters = ssoAdapters;
+                if (!cacheResult)
+                {
+                    response.RespStatus = new Status((int)eResponseStatus.Error, "Could not get sso adapters");
+                }
+                else if (response.SSOAdapters == null || !response.SSOAdapters.Any())
                 {
                     response.RespStatus = new Status((int)eResponseStatus.OK, "no sso adapters related to group");
                 }
@@ -43,6 +59,21 @@ namespace APILogic.Users
             }
 
             return response;
+        }
+
+        private static Tuple<IEnumerable<SSOAdapter>, bool> GetSSOAdapaterByGroupId(Dictionary<string, object> arg)
+        {
+            try
+            {
+                var groupId = (int)arg["groupId"];
+                var adapter = DAL.UsersDal.GetSSOAdapters(groupId);
+                return new Tuple<IEnumerable<SSOAdapter>, bool>(adapter, true);
+            }
+            catch (Exception ex)
+            {
+                _Logger.ErrorFormat("Failed to get SSO Adapter from DB group:[{0}], ex: {1}", arg["groupId"], ex);
+                return new Tuple<IEnumerable<SSOAdapter>, bool>(Enumerable.Empty<SSOAdapter>(), false);
+            }
         }
 
         public static SSOAdapterResponse InsertSSOAdapter(SSOAdapter adapterDetails, int updaterId)
