@@ -13,6 +13,7 @@ using KLogMonitor;
 using System.Reflection;
 using System.Collections.Generic;
 using TvinciImporter;
+using CachingProvider.LayeredCache;
 
 public partial class adm_media_files : System.Web.UI.Page
 {
@@ -223,6 +224,12 @@ public partial class adm_media_files : System.Web.UI.Page
                 if (!ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nGroupID, ApiObjects.eAction.Update))
                 {
                     log.Error(string.Format("Failed updating index for mediaID: {0}, groupID: {1}", nMediaID, nGroupID));
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetMediaFileTypeByIdInvalidationKey(nGroupID, mediaFileID);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for mediaFileID {0}, key = {1}", mediaFileID, invalidationKey);
                 }
             }
         }

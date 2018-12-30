@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using TvinciImporter;
 using KLogMonitor;
 using System.Reflection;
+using CachingProvider.LayeredCache;
+
 public partial class adm_media_files_new : System.Web.UI.Page
 {
     private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -81,6 +83,12 @@ public partial class adm_media_files_new : System.Web.UI.Page
                             {
                                 log.Error(string.Format("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", updatedEndDate.Value, nMediaID, nLoginGroupId));
                             }
+                        }
+
+                        string invalidationKey = LayeredCacheKeys.GetMediaFileTypeByIdInvalidationKey(nLoginGroupId, nMediaFileID);
+                        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key for mediaFileID {0}, key = {1}", nMediaFileID, invalidationKey);
                         }
                     }
 
