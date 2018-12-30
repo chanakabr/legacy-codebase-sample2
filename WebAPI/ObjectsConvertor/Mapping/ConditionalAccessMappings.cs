@@ -390,27 +390,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // KalturaExternalRecording to ExternalRecording
             cfg.CreateMap<KalturaExternalRecording, ExternalRecording>()
-               .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.RecordingStatus, opt => opt.ResolveUsing(src => ConvertKalturaRecordingStatus(src.Status)))
-               .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertKalturaRecordingType(src.Type)))
-               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
-               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
-               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)))
-               .ForMember(dest => dest.ExternalDomainRecordingId, opt => opt.MapFrom(src => src.ExternalId))
-               .ForMember(dest => dest.Status, opt => opt.Ignore());
+                .IncludeBase<KalturaRecording, Recording>()
+                .ForMember(dest => dest.ExternalDomainRecordingId, opt => opt.MapFrom(src => src.ExternalId));
 
             // ExternalRecording to KalturaExternalRecording
             cfg.CreateMap<ExternalRecording, KalturaExternalRecording>()
-               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
-               .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertRecordingType(src.Type)))
-               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => IsRecordingProtected(src.ProtectedUntilDate)))
-               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
-               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
-               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
-               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalDomainRecordingId));
+                .IncludeBase<Recording, KalturaRecording>()
+                .ForMember(dest => dest.ExternalId, opt=>opt.MapFrom(src=>src.ExternalDomainRecordingId));
 
             // KalturaSeriesRecording to SeriesRecording
             cfg.CreateMap<KalturaSeriesRecording, SeriesRecording>()
