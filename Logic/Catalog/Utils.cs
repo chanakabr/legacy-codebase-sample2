@@ -1654,7 +1654,7 @@ namespace Core.Catalog
                             {
                                 BaseObject obj = mappedAssets[key];
                                 long recordingId;
-                                if (long.TryParse(obj.AssetId, out recordingId) && recordingId > 0)
+                                if (obj != null && long.TryParse(baseAsset.AssetId, out recordingId) && recordingId > 0)
                                 {
                                     ProgramObj programObject = obj as ProgramObj;
                                     RecordingObj recordingObject = new RecordingObj()
