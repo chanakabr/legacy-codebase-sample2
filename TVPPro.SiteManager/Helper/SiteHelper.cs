@@ -5,12 +5,9 @@ using System.Text;
 using Tvinci.Helpers;
 using System.Data;
 using System.Configuration;
-using Tvinci.Data.TVMDataLoader.Protocols;
 using TVPPro.Configuration.Technical;
 using System.Drawing;
 using System.IO;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using System.Runtime.InteropServices;
 using TVPPro.SiteManager.Context;
 using Tvinci.Web.Controls.Gallery.Part;
 using System.Web;
@@ -21,12 +18,9 @@ using TVPPro.SiteManager.DataLoaders;
 using TVPPro.SiteManager.DataEntities;
 using System.Web.UI;
 using System.Xml;
-using TVPPro.Configuration.Online;
 using System.Net;
 using Tvinci.Localization;
 using System.Text.RegularExpressions;
-using KLogMonitor;
-using System.Reflection;
 
 namespace TVPPro.SiteManager.Helper
 {
@@ -34,8 +28,6 @@ namespace TVPPro.SiteManager.Helper
     {
         private const int FBMINSIZEX = 200;
         private const int FBMINSIZEY = 200;
-
-        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
         /// Returns the base URL.
@@ -1504,12 +1496,10 @@ namespace TVPPro.SiteManager.Helper
             if (!string.IsNullOrEmpty(retIp) && (ipRange = retIp.Split(',')) != null && ipRange.Length > 0)
             {
                 ip = ipRange[0];
-                logger.DebugFormat("GetClientIP: HTTP_X_FORWARDED_FOR - retIp:{0}, ip:{1}", retIp, ip);
             }
             else
             {
                 ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
-                logger.DebugFormat("GetClientIP: REMOTE_ADDR - ip:{0}", ip);
             }
 
 
