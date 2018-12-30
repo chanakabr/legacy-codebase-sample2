@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.ServiceModel;
 using System.Web;
+using AutoMapper;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
@@ -43,10 +44,19 @@ namespace WebAPI.Utils
             {
                 return new ClientException((int)StatusCode.Timeout, StatusCode.Timeout.ToString());
             }
-            
-            if (ex.InnerException is ClientException)
+
+            if (ex is ClientException)
             {
-                return ex.InnerException as ClientException;
+                return ex as ClientException;
+            }
+
+            Exception last = ex.InnerException;
+            while (last != null)
+            {
+                if (last is ClientException)
+                    return last as ClientException;
+                 
+                last = last.InnerException;
             }
 
             return new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());

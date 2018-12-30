@@ -570,6 +570,17 @@ namespace WebAPI.Clients
             return res;
         }
 
+        internal KalturaFavorite InsertUserFavorite(int groupId, string userId, int domainID, string deviceUDID, string mediaType, string mediaId, string extraData)
+        {
+            Func<GenericResponse<FavoritObject>> insertUserFavoriteFunc = () =>
+             Core.Users.Module.InsertUserFavorite(groupId, userId, domainID, deviceUDID, mediaType, mediaId, extraData);
+
+            KalturaFavorite result =
+                ClientUtils.GetResponseFromWS<KalturaFavorite, FavoritObject>(insertUserFavoriteFunc);
+
+            return result; ;
+        }
+
         public bool RemoveUserFavorite(int groupId, string userId, int domainID, int[] mediaIDs)
         {
 
