@@ -524,6 +524,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("GroupWatchPermissionRules_{0}", groupId);
         }
 
+        public static string GetSSOAdapaterByGroupKey(int groupId)
+        {
+            return string.Format("sso_adapter_by_group_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -936,6 +941,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupWatchPermissionRulesInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_GroupWatchPermissionRules_{0}", groupId);
+        }
+
+        public static string GetSSOAdapaterInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_sso_adapater_{0}", groupId);
         }
 
         #endregion
