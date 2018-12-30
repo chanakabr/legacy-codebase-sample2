@@ -32,6 +32,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         static public KalturaFavorite Add(KalturaFavorite favorite)
         {
+            KalturaFavorite response = null;
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -47,16 +48,15 @@ namespace WebAPI.Controllers
 
                 // call client
                 if (asset != null)
-                    ClientsManager.UsersClient().AddUserFavorite(groupId, userId, domainId, udid, asset.getType().ToString(), favorite.AssetId.ToString(), favorite.ExtraData);
+                {
+                    response = ClientsManager.UsersClient().InsertUserFavorite(groupId, userId, domainId, udid, asset.getType().ToString(), favorite.AssetId.ToString(), favorite.ExtraData);
+                }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
-
-            KalturaFavorite response = new KalturaFavorite();
-            response.AssetId = favorite.AssetId;
-            response.ExtraData = favorite.ExtraData;
+           
             return response;
         }
 

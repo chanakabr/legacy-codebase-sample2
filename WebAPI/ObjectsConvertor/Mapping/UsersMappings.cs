@@ -172,6 +172,12 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)));
 
+            cfg.CreateMap<KalturaFavorite , FavoritObject>()
+                .ForMember(dest => dest.m_sExtraData, opt => opt.MapFrom(src => src.ExtraData))
+                .ForMember(dest => dest.m_sItemCode, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.m_sItemCode, opt => opt.MapFrom(src => src.Asset))
+                .ForMember(dest => dest.m_dCreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)));
+
             // UserItemsList to KalturaUserAssetsList
             cfg.CreateMap<UserItemsList, KalturaUserAssetsList>()
                 .ForMember(dest => dest.List, opt => opt.MapFrom(src => src.ItemsList))
