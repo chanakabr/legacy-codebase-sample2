@@ -70,6 +70,7 @@ namespace Core.Users
             m_sExtraData = sExtraData;
             m_nID = nID;
             m_dUpdateDate = dUpdate;
+            m_dCreateDate = dUpdate;
             m_is_channel = 0;
         }
         public void Initialize(Int32 nID, string sUserGUID, int domainID, string sDeviceUDID, string sType, string sItemCode, string sExtraData, DateTime dUpdate, int groupID, int isChannel)

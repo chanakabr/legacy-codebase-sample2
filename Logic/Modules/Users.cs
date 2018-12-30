@@ -340,7 +340,31 @@ namespace Core.Users
             return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
         }
 
-        
+        public static GenericResponse<FavoritObject> InsertUserFavorite(int nGroupID, string sUserGUID, int domainID, string sDeviceUDID,
+            string sItemType, string sItemCode, string sExtraData)
+        {
+            GenericResponse<FavoritObject> response = new GenericResponse<FavoritObject>();
+
+            try
+            {
+                // add siteguid to logs/monitor
+                HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+
+                BaseUsers t = null;
+                Utils.GetBaseImpl(ref t, nGroupID);
+                if (t != null)
+                {
+                    return t.InsertUserFavorite(sUserGUID, domainID, sDeviceUDID, sItemType, sItemCode, sExtraData, nGroupID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("", ex);
+            }
+            return response;
+        }
+
+
         public static bool AddChannelMediaToFavorites(int nGroupID, string sUserGUID, int domainID, string sDeviceUDID,
             string sItemType, string sChannelID, string sExtraData)
         {

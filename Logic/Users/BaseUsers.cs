@@ -5,6 +5,7 @@ using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -212,6 +213,53 @@ namespace Core.Users
                 status.Message = "";
                 return status;
             }
+        }
+
+        public virtual GenericResponse<FavoritObject> InsertUserFavorite(string userId, int domainId, string udid, string itemType, string itemCode, string extraData, int groupId)
+        {
+            GenericResponse<FavoritObject> response = new GenericResponse<FavoritObject>();
+            FavoritObject f = new FavoritObject();
+
+            try
+            {
+                bool saveRes = false;
+                ApiObjects.Response.Status status = null;
+
+                if (!IsAddUserFavoriteParamValid(groupId, userId, itemType, itemCode, out status))
+                {
+                    response.SetStatus(status);
+                    return response;
+                }
+
+                f.Initialize(0, userId, domainId, udid, itemType, itemCode, extraData, DateTime.UtcNow, groupId);
+
+                saveRes = f.Save(groupId);
+
+                //insert favorites record to ES
+                //add channel favorites to ES
+                MediaView view = new MediaView()
+                {
+                    GroupID = groupId,
+                    MediaID = ODBCWrapper.Utils.GetIntSafeVal(itemCode),
+                    Location = 0,
+                    MediaType = itemType,
+                    Action = "favoraite",
+                    Date = DateTime.UtcNow
+                };
+
+                if (saveRes)
+                {
+                    response.Object = f;
+                    response.SetStatus(eResponseStatus.OK);
+                    WriteFavoriteToES(view); //saving to the ES only if save Succeeded  
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding new UserFavorite . groupId: {0}, UserFavorite: {1}, ex: {2}", groupId, JsonConvert.SerializeObject(f), ex);
+            }
+
+            return response;
         }
 
         private bool IsAddUserFavoriteParamValid(int nGroupID, string sUserGUID, string sItemType, string sItemCode, out ApiObjects.Response.Status status)
