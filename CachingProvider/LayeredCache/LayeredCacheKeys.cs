@@ -553,6 +553,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("GroupPlaybackProfile_{0}", groupId);
         }
 
+        public static string GetMediaFileTypeByIdKey(int groupId, int fileId)
+        {
+            return string.Format("MediaFileTypeID_{0}_group_{1}", fileId, groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -991,6 +996,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_GroupPlaybackProfiles_{0}", groupId);
         }
+
+        public static string GetMediaFileTypeByIdInvalidationKey(int groupId, int fileId)
+        {
+            return string.Format("invalidationKey_MediaFileTypeID_{0}_group_{1}", fileId, groupId);
+        }
+
         #endregion
 
         #region Domains
