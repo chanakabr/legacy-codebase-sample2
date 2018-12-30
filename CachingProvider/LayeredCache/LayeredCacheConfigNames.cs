@@ -94,8 +94,7 @@ namespace CachingProvider.LayeredCache
         public const string QUERY_CACHE_CONFIG_NAME = "QueryCache";
         public const string PROCEDURES_ROUTING_CONFIG_NAME = "ProceduresRouting";
         public const string QUERIES_ROUTING_CONFIG_NAME = "QueriesRouting";
-        public const string GROUP_WATCH_PERMISSION_RULES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPermittedWatchRules";
-        public const string GET_SSO_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME = "GetSSOAdapaterByGroupId";
+        public const string GROUP_WATCH_PERMISSION_RULES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPermittedWatchRules";        
         public const string API_GET_MEDIA_FILE_TYPE = "GetMediaFileTypeID";
 
         #endregion
