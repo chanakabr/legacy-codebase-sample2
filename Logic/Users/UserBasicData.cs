@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TVinciShared;
-using System.Xml;
-using System.Data;
-using DAL;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using DAL;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Text;
+using System.Xml;
+using TVinciShared;
 
 namespace Core.Users
 {
@@ -266,7 +266,12 @@ namespace Core.Users
                                                     m_ExternalToken);
                                                     //m_UserType
 
-            UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds);
+            if(UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds))
+            {
+                // add invalidation key for user roles cache
+                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());
+                LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+            }
             
             return saved;
         }

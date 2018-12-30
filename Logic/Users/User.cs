@@ -1228,7 +1228,8 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
                 {
-                    LayeredCacheKeys.GetUserInvalidationKey(siteGuid)
+                    LayeredCacheKeys.GetUserInvalidationKey(siteGuid),
+                    LayeredCacheKeys.GetUserRolesInvalidationKey(siteGuid)
                 };
 
             LayeredCache.Instance.SetReadingInvalidationKeys(invalidationKeys);
