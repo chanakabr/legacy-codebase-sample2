@@ -2488,9 +2488,11 @@ namespace Core.Api
 
             string debugString = string.Empty;
 
-            if (country == null)
+            if (country == null || country.Id <= 0)
             {
                 debugString = string.Format("No country found for ip {0}", ip);
+                // make sure country is null when ID is not valid
+                country = null;
             }
             else
             {
