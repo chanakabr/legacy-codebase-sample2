@@ -960,7 +960,6 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
-            // TODO: need to update epg object in CB
             if (epgIds != null && epgIds.Count > 0)
             {
                 // update epgs index

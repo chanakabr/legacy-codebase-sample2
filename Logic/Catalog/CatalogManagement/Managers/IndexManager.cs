@@ -630,9 +630,8 @@ namespace Core.Catalog.CatalogManagement
                                         {
                                             foreach (var invalidResult in invalidResults)
                                             {
-                                                log.Error("Error - " + string.Format(
-                                                    "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                                                    groupId, EPG, invalidResult.Key, invalidResult.Value));
+                                                log.Error("Error - " + string.Format("Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                                                                     groupId, EPG, invalidResult.Key, invalidResult.Value));
                                             }
 
                                             result = false;
@@ -641,6 +640,8 @@ namespace Core.Catalog.CatalogManagement
                                         else
                                         {
                                             temporaryResult &= true;
+                                            EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID));
+                                            
                                         }
 
                                         bulkRequests.Clear();
@@ -658,9 +659,8 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 foreach (var invalidResult in invalidResults)
                                 {
-                                    log.Error("Error - " + string.Format(
-                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                                        groupId, EPG, invalidResult.Key, invalidResult.Value));
+                                    log.Error("Error - " + string.Format("Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                                                         groupId, EPG, invalidResult.Key, invalidResult.Value));
                                 }
 
                                 result = false;
@@ -669,6 +669,7 @@ namespace Core.Catalog.CatalogManagement
                             else
                             {
                                 temporaryResult &= true;
+                                EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID));
                             }
 
                             result = temporaryResult;
@@ -685,7 +686,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static bool DeleteProgram(int groupId, List<int> epgIds)
+        public static bool DeleteProgram(int groupId, List<long> epgIds)
         {
             bool result = false;
             //result &= Core.Catalog.CatalogManagement.IndexManager.DeleteEpg(groupId, id);
@@ -737,6 +738,12 @@ namespace Core.Catalog.CatalogManagement
 
                 result = true;
             }
+            
+            // support for old invalidation keys
+            if (result)
+            {
+                EpgAssetManager.InvalidateEpgs(groupId, epgIds);
+            }
 
             return result;
         }
@@ -782,6 +789,7 @@ namespace Core.Catalog.CatalogManagement
 
             return searchObject;
         }
+        
         #endregion
 
         #region Private Methods

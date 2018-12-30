@@ -197,19 +197,6 @@ namespace Core.Catalog.CatalogManagement
                             AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)mediaAsset.Id);
                         }
 
-                        // TODO IRA - UpdateIndex for ingest
-                        // Update record in Catalog (see the flow inside Update Index
-                        //change eAction.Delete
-                        //if (ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update))
-                        //{
-                        //    log.DebugFormat("UpdateIndex: Succeeded. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
-                        //}
-                        //else
-                        //{
-                        //    log.ErrorFormat("UpdateIndex: Failed. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
-                        //    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.UpdateIndexFailed, Message = UPDATE_INDEX_FAILED });
-                        //}
-
                         //// update notification 
                         //if (mediaAsset.IsActive.HasValue && mediaAsset.IsActive.Value)
                         //{

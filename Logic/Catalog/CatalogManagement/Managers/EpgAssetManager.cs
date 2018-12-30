@@ -68,7 +68,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 eAssetTypes assetType = eAssetTypes.EPG;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), epgIds);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), epgIds);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetEpgInvalidationKeysMap(groupId, assetType.ToString(), epgIds);
 
                 if (!LayeredCache.Instance.GetValues<EpgAsset>(keyToOriginalValueMap,
                                                                ref epgAssets,
@@ -319,7 +319,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Delete Index
-                bool indexingResult = IndexManager.DeleteProgram(groupId, new List<int>() { (int)epgId });
+                bool indexingResult = IndexManager.DeleteProgram(groupId, new List<long>() { epgId });
                 if (!indexingResult)
                 {
                     log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
@@ -402,6 +402,22 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
+
+        internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
+        {
+            if (epgIds != null)
+            {
+                foreach (var currEpgId in epgIds)
+                {
+                    string invalidationKey = LayeredCacheKeys.GetEpgInvalidationKey(groupId, currEpgId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to invalidate epg with invalidationKey: {0} after {1}.", invalidationKey, callingMethod);
+                    }
+                }
+            }
+        }
+        
         #endregion
 
         #region Private Methods

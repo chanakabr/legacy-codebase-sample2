@@ -3239,6 +3239,7 @@ namespace Core.Catalog
         }
 
         #region UPDATE
+
         public static bool UpdateIndex(List<long> lMediaIds, int nGroupId, eAction eAction)
         {
             return Update(lMediaIds, nGroupId, eObjectType.Media, eAction);
@@ -3310,10 +3311,7 @@ namespace Core.Catalog
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
                         break;
                     case eObjectType.EPG:
-                        foreach (long id in ids)
-                        {
-                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetEpgInvalidationKey(groupId, id));
-                        }
+                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids);
                         break;
                     case eObjectType.EpgChannel:
                         break;
@@ -3358,8 +3356,9 @@ namespace Core.Catalog
                     {
                         var legacyQueue = new CatalogQueue(true);
                         ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
-
                         legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+
+                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids);
                     }
                 }
             }
