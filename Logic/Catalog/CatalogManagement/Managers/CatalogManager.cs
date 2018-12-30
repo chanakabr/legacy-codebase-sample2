@@ -1430,7 +1430,7 @@ namespace Core.Catalog.CatalogManagement
 
                 DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority,
                                                           assetStructToadd.IsPredefined, userId, assetStructToadd.GetCommaSeparatedFeatures(), assetStructToadd.ConnectingMetaId,
-                                                          assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId);
+                                                          assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId, isProgramStruct);
                 result = CreateAssetStructResponseFromDataSet(ds, metaIdsToPriority);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
