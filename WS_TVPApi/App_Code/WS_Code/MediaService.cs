@@ -2319,7 +2319,8 @@ namespace TVPApiServices
         {
             string sResponse = string.Empty;
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLink", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            string ip = SiteHelper.GetClientIP();
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetMediaLicenseLink", initObj.ApiUser, initObj.ApiPass, ip);
 
             if (groupId > 0)
             {
@@ -2327,7 +2328,7 @@ namespace TVPApiServices
                 {
 
                     IImplementation impl = WSUtils.GetImplementation(groupId, initObj);
-                    sResponse = impl.GetMediaLicenseLink(initObj, groupId, mediaFileID, baseLink, null);
+                    sResponse = impl.GetMediaLicenseLink(initObj, groupId, mediaFileID, baseLink, ip);
                 }
                 catch (Exception ex)
                 {
