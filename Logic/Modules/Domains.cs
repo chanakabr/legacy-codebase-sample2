@@ -13,7 +13,7 @@ namespace Core.Domains
     public class Module
     {
         
-        public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid)
+        public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, string coGuid = "")
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = nMasterUserGuid;
@@ -24,7 +24,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response.DomainResponse = t.AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID);
+                response.DomainResponse = t.AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, coGuid);
                 if (response.DomainResponse != null)
                 {
                     // convert response status
