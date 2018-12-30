@@ -543,6 +543,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("GroupWatchPermissionRules_{0}", groupId);
         }
 
+        public static string GetSSOAdapaterByGroupKey(int groupId)
+        {
+            return string.Format("sso_adapter_by_group_{0}", groupId);
+        }
+
+        public static string GetMediaFileTypeByIdKey(int groupId, int fileId)
+        {
+            return string.Format("MediaFileTypeID_{0}_group_{1}", fileId, groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -975,6 +985,16 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupWatchPermissionRulesInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_GroupWatchPermissionRules_{0}", groupId);
+        }
+
+        public static string GetSSOAdapaterInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_sso_adapater_{0}", groupId);
+        }
+
+        public static string GetMediaFileTypeByIdInvalidationKey(int groupId, int fileId)
+        {
+            return string.Format("invalidationKey_MediaFileTypeID_{0}_group_{1}", fileId, groupId);
         }
 
         #endregion
