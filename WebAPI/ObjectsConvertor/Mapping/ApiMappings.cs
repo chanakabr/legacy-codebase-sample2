@@ -969,8 +969,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<MediaConcurrencyRule, KalturaMediaConcurrencyRule>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RuleID))
             .ForMember(dest => dest.Limitation, opt => opt.MapFrom(src => src.Limitation))
-            // TODO SHIR - CHECK IF NEED THIS ENUM MAPPING
-            //.ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.ResolveUsing(src => ConvertConcurrencyLimitationType(src.RestrictionPolicy)))
             .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.MapFrom(src => src.RestrictionPolicy))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
@@ -2965,32 +2963,5 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return response;
         }
-
-        // TODO SHIR - CHECK IF NEED THIS ENUM MAPPING
-        //private static ConcurrencyRestrictionPolicy ConvertConcurrencyType(KalturaConcurrencyLimitationType concurrencyType)
-        //{
-        //    switch (concurrencyType)
-        //    {
-        //        case KalturaConcurrencyLimitationType.Single:
-        //            return ConcurrencyRestrictionPolicy.Single;
-        //        case KalturaConcurrencyLimitationType.Group:
-        //            return ConcurrencyRestrictionPolicy.Group;
-        //        default:
-        //            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown concurrencyType value : {0}", concurrencyType.ToString()));
-        //    }
-        //}
-
-        //private static KalturaConcurrencyLimitationType ConvertConcurrencyLimitationType(ConcurrencyRestrictionPolicy restrictionPolicy)
-        //{
-        //    switch (restrictionPolicy)
-        //    {
-        //        case ConcurrencyRestrictionPolicy.Group:
-        //            return KalturaConcurrencyLimitationType.Group;
-        //        case ConcurrencyRestrictionPolicy.Single:
-        //            return KalturaConcurrencyLimitationType.Single;
-        //        default:
-        //            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown restrictionPolicy value : {0}", restrictionPolicy.ToString()));
-        //    }
-        //}
     }
 }
