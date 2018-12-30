@@ -4508,7 +4508,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, 
                                                 List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId, string features,
-                                                long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId)
+                                                long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId, bool isProgramStruct)
         {
             StoredProcedure sp = new StoredProcedure("InsertAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4526,6 +4526,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ConnectedParentMetaId", connectedParentMetaId);
             sp.AddParameter("@PluralName", pluralName);
             sp.AddParameter("@ParentId", parentId);
+            sp.AddParameter("@IsProgramStruct", isPredefined.Value ? 1 : 0);
 
             return sp.ExecuteDataSet();
         }
