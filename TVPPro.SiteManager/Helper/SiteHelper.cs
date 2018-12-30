@@ -25,6 +25,8 @@ using TVPPro.Configuration.Online;
 using System.Net;
 using Tvinci.Localization;
 using System.Text.RegularExpressions;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVPPro.SiteManager.Helper
 {
@@ -32,6 +34,8 @@ namespace TVPPro.SiteManager.Helper
     {
         private const int FBMINSIZEX = 200;
         private const int FBMINSIZEY = 200;
+
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
         /// Returns the base URL.
@@ -1500,11 +1504,14 @@ namespace TVPPro.SiteManager.Helper
             if (!string.IsNullOrEmpty(retIp) && (ipRange = retIp.Split(',')) != null && ipRange.Length > 0)
             {
                 ip = ipRange[0];
+                logger.DebugFormat("GetClientIP: HTTP_X_FORWARDED_FOR - retIp:{0}, ip:{1}", retIp, ip);
             }
             else
             {
                 ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+                logger.DebugFormat("GetClientIP: REMOTE_ADDR - ip:{0}", ip);
             }
+
 
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
 
