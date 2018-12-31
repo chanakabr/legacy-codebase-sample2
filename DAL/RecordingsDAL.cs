@@ -797,7 +797,7 @@ namespace DAL
             return recordingLink;
         }
 
-        public static int GetProgramIdByExternalRecordingId(int groupId, string externalRecordingId, int domainId)
+        public static long GetProgramIdByExternalRecordingId(int groupId, string externalRecordingId, int domainId)
         {
             StoredProcedure sp = new StoredProcedure("GetProgramIdByExternalRecordingId");
             sp.SetConnectionKey(RECORDING_CONNECTION);
@@ -805,7 +805,7 @@ namespace DAL
             sp.AddParameter("@domainId", domainId);
             sp.AddParameter("@externalRecordingId", externalRecordingId);
 
-            return sp.ExecuteReturnValue<int>();
+            return sp.ExecuteReturnValue<long>();
         }
 
         #region Couchbase
