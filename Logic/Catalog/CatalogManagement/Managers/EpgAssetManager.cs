@@ -207,7 +207,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(validateStatus);
                     return result;
                 }
-
+                
                 // update Epg_channels_schedule table (basic data)
                 epgCBToUpdate = CreateEpgCbFromEpgAsset(epgAssetToUpdate, groupId, epgAssetToUpdate.CreateDate.Value, updateDate);
 
@@ -265,7 +265,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(allDescriptions.Status);
                     return result;
                 }
-
+                
                 // update epgCb in CB for all languages
                 SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags);
 

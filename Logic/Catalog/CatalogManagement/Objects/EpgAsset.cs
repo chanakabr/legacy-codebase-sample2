@@ -60,6 +60,7 @@ namespace Core.Catalog.CatalogManagement
                 this.LikeCounter = epgCBList[0].Statistics != null ? epgCBList[0].Statistics.Likes : 0;
                 this.RelatedMediaId = epgCBList[0].ExtraData != null ? epgCBList[0].ExtraData.MediaID : 0;
                 this.FaceBookObjectId = epgCBList[0].ExtraData != null ? epgCBList[0].ExtraData.FBObjectID : string.Empty;
+                this.CoGuid = epgCBList[0].EpgIdentifier;
 
                 var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, this.EpgChannelId);
                 if (linearChannelSettings != null)

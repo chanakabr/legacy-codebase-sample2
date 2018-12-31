@@ -34,7 +34,8 @@ namespace Core.Catalog.CatalogManagement
         private const string CATALOG_START_DATE_META_NAME = "Catalog Start Date";
         private const string EPG_EXTERNAL_ID_SYSTEM_META_NAME = "ExternalID";
         private const string EPG_EXTERNAL_ID_META_NAME = "External Asset ID";
-        private const string EPG_CRID_SYSTEM_META_NAME = "CRID";
+        private const string EPG_CRID_SYSTEM_META_NAME = "Crid";
+        private const string EPG_CRID_META_NAME = "CRID";
         private const string EPG_START_DATE_SYSTEM_META_NAME = "StartDate";
         private const string EPG_START_DATE_META_NAME = "Program Start";
         private const string EPG_END_DATE_SYSTEM_META_NAME = "EndDate";
@@ -55,11 +56,14 @@ namespace Core.Catalog.CatalogManagement
             new KeyValuePair<string, string>(AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_META_NAME)
         };
 
-        public static readonly List<KeyValuePair<string, string>> BasicProgramMetasSystemNameToName = new List<KeyValuePair<string, string>>()
+        public static readonly Dictionary<string, string> BasicProgramMetasSystemNameToName = new Dictionary<string, string>()
         {
-            new KeyValuePair<string, string>(EPG_TITLE_META_NAME, EPG_TITLE_META_NAME), new KeyValuePair<string, string>(EPG_DESCRIPTION_META_NAME, EPG_DESCRIPTION_META_NAME),
-            new KeyValuePair<string, string>(EPG_EXTERNAL_ID_SYSTEM_META_NAME, EPG_EXTERNAL_ID_META_NAME), new KeyValuePair<string, string>(EPG_CRID_SYSTEM_META_NAME, EPG_CRID_SYSTEM_META_NAME),
-            new KeyValuePair<string, string>(EPG_START_DATE_SYSTEM_META_NAME, EPG_START_DATE_META_NAME), new KeyValuePair<string, string>(EPG_END_DATE_SYSTEM_META_NAME, EPG_END_DATE_META_NAME)
+            { EPG_TITLE_META_NAME, EPG_TITLE_META_NAME },
+            { EPG_DESCRIPTION_META_NAME, EPG_DESCRIPTION_META_NAME },
+            { EPG_EXTERNAL_ID_SYSTEM_META_NAME, EPG_EXTERNAL_ID_META_NAME },
+            { EPG_CRID_SYSTEM_META_NAME, EPG_CRID_META_NAME },
+            { EPG_START_DATE_SYSTEM_META_NAME, EPG_START_DATE_META_NAME },
+            { EPG_END_DATE_SYSTEM_META_NAME, EPG_END_DATE_META_NAME }
         };
 
         #endregion
@@ -1547,7 +1551,7 @@ namespace Core.Catalog.CatalogManagement
                         if (isProgramStruct)
                         {
                             var topic = catalogGroupCache.TopicsMapById[metaId];
-                            if (!topic.IsPredefined.HasValue || !topic.IsPredefined.Value)
+                            if (!BasicProgramMetasSystemNameToName.ContainsKey(topic.SystemName))
                             {
                                 if (topic.Type == MetaType.Tag)
                                 {
@@ -1605,7 +1609,7 @@ namespace Core.Catalog.CatalogManagement
                                                           assetStructToUpdate.ParentId);
 
                 // For backward compatibility
-                if (shouldUpdateMetaIds && isProgramStruct)
+                if (isProgramStruct)
                 {
                     if (epgMetaIdsToValue.Count > 0 && !CatalogDAL.UpdateEpgAssetStructMetas(groupId, epgMetaIdsToValue, userId))
                     {
