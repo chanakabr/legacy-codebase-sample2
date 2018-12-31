@@ -736,6 +736,7 @@ namespace Core.Api.Managers
                             if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && condition.Evaluate(conditionScope))
                             {
                                 blockingRule = networkRule;
+                                log.DebugFormat("CheckNetworkRules the asset: {0} block because of NetworkRule: {1}.", asset.Id, networkRule.Id);
                                 return new Status((int)eResponseStatus.NetworkRuleBlock, "Network rule block");
                             }
                         }

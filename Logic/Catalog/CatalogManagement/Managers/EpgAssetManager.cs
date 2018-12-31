@@ -684,7 +684,7 @@ namespace Core.Catalog.CatalogManagement
                 oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName) &&
                                          catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId) &&
                                          catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.ContainsKey(catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id) &&
-                                         !oldTagsAsset.Contains(x, new TagsComparer())).ToList() : null;
+                                         !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList() : null;
 
             if (excluded != null && excluded.Count > 0)
             {
