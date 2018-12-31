@@ -133,11 +133,13 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username or password");
             }
+
+            Group group = GroupsManager.GetGroup(partnerId);
             try
             {
                 // call client
                 // add header. if key exists use extraParams
-                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, System.Web.HttpContext.Current.Request.Headers);
+                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, System.Web.HttpContext.Current.Request.Headers, group.ShouldSupportSingleLogin);
             }
             catch (ClientExternalException ex)
             {

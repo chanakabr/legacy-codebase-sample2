@@ -64,6 +64,7 @@ namespace WebAPI.ClientManagers
                                                             new List<string>() { LayeredCacheKeys.PhoenixGroupsManagerInvalidationKey(groupId) }))
             {
                 log.ErrorFormat("Failed building Phoenix group object for groupId: {0}", groupId);
+                throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
             }
 
             return group;
