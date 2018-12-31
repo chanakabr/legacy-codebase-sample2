@@ -1844,6 +1844,18 @@ namespace Core.Catalog.CatalogManagement
                         result.SetStatus(eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
                         return result;
                     }
+
+                    if (topicToAdd.ParentId.HasValue && topicToAdd.ParentId.Value.Equals(topicToAdd.Id))
+                    {
+                        result.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, eResponseStatus.ParentIdShouldNotPointToItself.ToString());
+                        return result;
+                    }
+
+                    if (topicToAdd.ParentId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(topicToAdd.ParentId.Value))
+                    {
+                        result.SetStatus(eResponseStatus.ParentIdNotExist, eResponseStatus.ParentIdNotExist.ToString());
+                        return result;
+                    }
                 }
 
                 List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
@@ -1892,6 +1904,18 @@ namespace Core.Catalog.CatalogManagement
                 if (!catalogGroupCache.TopicsMapById.ContainsKey(id))
                 {
                     result.SetStatus(eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                    return result;
+                }
+
+                if (topicToUpdate.ParentId.HasValue && topicToUpdate.ParentId.Value.Equals(topicToUpdate.Id))
+                {
+                    result.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, eResponseStatus.ParentIdShouldNotPointToItself.ToString());
+                    return result;
+                }
+
+                if (topicToUpdate.ParentId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(topicToUpdate.ParentId.Value))
+                {
+                    result.SetStatus(eResponseStatus.ParentIdNotExist, eResponseStatus.ParentIdNotExist.ToString());
                     return result;
                 }
 

@@ -108,6 +108,7 @@ namespace ApiObjects.Response
         SSOAdapterNotExist = 2056,
         NoSSOAdapaterToInsert = 2057,
         SSOAdapterIdRequired = 2058,
+        ParentIdNotExist = 2059,
 
         #endregion
 
