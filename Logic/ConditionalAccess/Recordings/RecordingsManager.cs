@@ -827,9 +827,9 @@ namespace Core.Recordings
             return status;
         }
 
-        public static int GetProgramIdByExternalRecordingId(int groupId, string externalRecordingId, int domainId)
+        public static long GetProgramIdByExternalRecordingId(int groupId, string externalRecordingId, int domainId)
         {
-            int programId = 0;
+            long programId = 0;
             
             try
             {
