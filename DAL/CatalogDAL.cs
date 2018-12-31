@@ -4526,7 +4526,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ConnectedParentMetaId", connectedParentMetaId);
             sp.AddParameter("@PluralName", pluralName);
             sp.AddParameter("@ParentId", parentId);
-            sp.AddParameter("@IsProgramStruct", isPredefined.Value ? 1 : 0);
+            sp.AddParameter("@IsProgramStruct", isProgramStruct ? 1 : 0);
 
             return sp.ExecuteDataSet();
         }
