@@ -821,7 +821,6 @@ namespace Core.Billing
                 #region Insert New Adyan Transaction
                 DateTime dtToWriteToDB = DateTime.UtcNow;
                 insertQuery = new ODBCWrapper.InsertQuery("adyen_transactions");
-                insertQuery.SetConnectionKey("BILLING_CONNECTION_STRING");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", sSiteGUID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LAST_FOUR_DIGITS", "=", sDigits);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
