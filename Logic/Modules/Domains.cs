@@ -12,8 +12,13 @@ namespace Core.Domains
 {
     public class Module
     {
-        
-        public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, string coGuid = "")
+
+        public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid)
+        {
+            return AddDomain(nGroupID, sDomainName, sDomainDescription, nMasterUserGuid, string.Empty);
+        }
+
+        public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, string coGuid)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = nMasterUserGuid;
