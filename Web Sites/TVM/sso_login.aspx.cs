@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Configuration;
@@ -17,8 +18,12 @@ using TVinciShared;
 
 public partial class clear_cache : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
+        log.Debug("Start sso login");
+
         string remoteHost = "";
         string httpRefferer = "";
         if (HttpContext.Current.Request.ServerVariables["REMOTE_HOST"] != null)
@@ -29,9 +34,14 @@ public partial class clear_cache : System.Web.UI.Page
         if (Request.QueryString["ks"] != null)
         {
             string ks = Request.QueryString["ks"];
+
+            log.DebugFormat("SSO login with ks {0}", ks);
+
             string username;
             int partnerId;
             GetUsernameAndPartnerId(ks, out username, out partnerId);
+
+            log.DebugFormat("SSO login. username = {0} group = {1} for ks {2}", username, partnerId, ks);
 
             if (!string.IsNullOrEmpty(username))
             {
@@ -41,6 +51,8 @@ public partial class clear_cache : System.Web.UI.Page
                 bool loginResult = LoginManager.LoginToSite(username, string.Empty, ref errorMessage, true);
 
                 HttpContext.Current.Session["LoginGroup"] = partnerId;
+
+                log.DebugFormat("username {0} login result {1}", username, loginResult);
 
                 if (loginResult)
                 {
