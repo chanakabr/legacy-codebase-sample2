@@ -333,7 +333,7 @@ namespace TVinciShared
             }
         }
 
-        static bool SetLoginValues(string sUserName, string sPassword, ref string sErrMessage, bool autopass = false)
+        static bool SetLoginValues(string sUserName, string sPassword, ref string sErrMessage)
         {
             bool bRet = false;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -363,28 +363,25 @@ namespace TVinciShared
                         nRHEntityID = int.Parse(oRHEntityID.ToString());
                     }
 
-                    if (sAccountPass == sPassword || autopass)
+                    if (sAccountPass == sPassword)
                     {
-                        if (!autopass)
+                        if (lastFail > DateTime.UtcNow.AddHours(-2))
                         {
-                            if (lastFail > DateTime.UtcNow.AddHours(-2))
+                            if (nFailCount >= 3)
                             {
-                                if (nFailCount >= 3)
-                                {
-                                    HttpContext.Current.Session["Login"] = "";
-                                    HttpContext.Current.Session["LoginGroup"] = "";
-                                    HttpContext.Current.Session["username"] = "";
-                                    HttpContext.Current.Session["groupname"] = "";
-                                    HttpContext.Current.Session.Remove("Login");
-                                    HttpContext.Current.Session.Remove("LoginGroup");
-                                    HttpContext.Current.Session.Remove("username");
-                                    HttpContext.Current.Session.Remove("groupname");
-                                    log.Debug("ACOUNT_LOCK - UN: " + sUserName + " || Pass: " + sPassword);
-                                    sErrMessage = "ACOUNT_LOCK";
-                                    selectQuery.Finish();
-                                    selectQuery = null;
-                                    return bRet;
-                                }
+                                HttpContext.Current.Session["Login"] = "";
+                                HttpContext.Current.Session["LoginGroup"] = "";
+                                HttpContext.Current.Session["username"] = "";
+                                HttpContext.Current.Session["groupname"] = "";
+                                HttpContext.Current.Session.Remove("Login");
+                                HttpContext.Current.Session.Remove("LoginGroup");
+                                HttpContext.Current.Session.Remove("username");
+                                HttpContext.Current.Session.Remove("groupname");
+                                log.Debug("ACOUNT_LOCK - UN: " + sUserName + " || Pass: " + sPassword);
+                                sErrMessage = "ACOUNT_LOCK";
+                                selectQuery.Finish();
+                                selectQuery = null;
+                                return bRet;
                             }
                         }
 
@@ -659,11 +656,11 @@ namespace TVinciShared
             }
         }
 
-        static public bool LoginToSite(string sUserName, string sPassword, ref string sErrMessage, bool autopass = false)
+        static public bool LoginToSite(string sUserName, string sPassword, ref string sErrMessage)
         {
             bool bOtherLogin = false;
             Int32 nAdminLoginID = 0;
-            bool bret = SetLoginValues(sUserName, sPassword, ref sErrMessage, autopass);
+            bool bret = SetLoginValues(sUserName, sPassword, ref sErrMessage);
             if (bret == false)
                 return false;
             Int32 nMaxID = GetMaxFromAdminLogin(false, true);
@@ -720,7 +717,7 @@ namespace TVinciShared
 
                 string sIP = PageUtils.GetCallerIP();
 
-                if (!autopass && !ApplicationConfiguration.TVMSkipLoginIPCheck.Value)
+                if (!ApplicationConfiguration.TVMSkipLoginIPCheck.Value)
                 {
                     bool bAllowedIP = false;
 
