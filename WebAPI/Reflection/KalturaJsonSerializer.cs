@@ -4490,6 +4490,10 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(AbortOnError != null)
+            {
+                ret.Add("abortOnError", "\"abortOnError\": " + "\"" + EscapeJson(AbortOnError) + "\"");
+            }
             if(ApiVersion != null)
             {
                 ret.Add("apiVersion", "\"apiVersion\": " + "\"" + EscapeJson(ApiVersion) + "\"");
@@ -4506,6 +4510,10 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(AbortOnError != null)
+            {
+                ret.Add("abortOnError", "<abortOnError>" + EscapeXml(AbortOnError) + "</abortOnError>");
+            }
             if(ApiVersion != null)
             {
                 ret.Add("apiVersion", "<apiVersion>" + EscapeXml(ApiVersion) + "</apiVersion>");
