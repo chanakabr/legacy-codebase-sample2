@@ -21,13 +21,20 @@ namespace Core.Users
         private static int nMaxFailCount = 3;
         private static int nLockMinutes = 3;
 
-        
+        private static void AddItemToContext(string key, string value)
+        {
+            if (HttpContext.Current != null && HttpContext.Current.Items != null)
+            {
+                HttpContext.Current.Items[key] = value ?? "null";
+            }
+        }
+
         public static UserResponseObject CheckUserPassword(int nGroupID, string sUserName, string sPassword, bool bPreventDoubleLogins)
         {
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
+                AddItemToContext(Constants.USER_ID, sUserName);
 
                 BaseUsers t = null;
                 Utils.GetBaseImpl(ref t, nGroupID);
@@ -49,7 +56,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
+                AddItemToContext(Constants.USER_ID, sUserName);
 
                 if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
@@ -83,7 +90,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
+                AddItemToContext(Constants.USER_ID, sUserName);
 
                 KalturaBaseUsers kUser = null;
 
@@ -151,7 +158,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
+                AddItemToContext(Constants.USER_ID, sUserName);
 
                 if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
@@ -200,7 +207,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
+                AddItemToContext(Constants.USER_ID, sUserName);
 
                 BaseUsers t = null;
                 Utils.GetBaseImpl(ref t, nGroupID);
@@ -226,7 +233,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+                AddItemToContext(Constants.USER_ID, sSiteGUID);
 
                 int nSiteGuid;
                 if (!Int32.TryParse(sSiteGUID, out nSiteGuid))
@@ -250,7 +257,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+                AddItemToContext(Constants.USER_ID, sSiteGUID);
 
                 int nSiteGuid;
                 if (!Int32.TryParse(sSiteGUID, out nSiteGuid))
@@ -291,7 +298,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+                AddItemToContext(Constants.USER_ID, sSiteGUID);
 
                 int nSiteGuid;
                 if (!Int32.TryParse(sSiteGUID, out nSiteGuid))
@@ -324,7 +331,7 @@ namespace Core.Users
                 ApiObjects.Response.Status response = new ApiObjects.Response.Status();
 
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+                AddItemToContext(Constants.USER_ID, sUserGUID);
 
                 BaseUsers t = null;
                 Utils.GetBaseImpl(ref t, nGroupID);
@@ -371,7 +378,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+                AddItemToContext(Constants.USER_ID, sUserGUID);
 
                 BaseUsers t = null;
                 Utils.GetBaseImpl(ref t, nGroupID);
@@ -392,7 +399,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+                AddItemToContext(Constants.USER_ID, sSiteGUID);
 
                 int nSiteGuid;
                 if (!Int32.TryParse(sSiteGUID, out nSiteGuid))
@@ -419,7 +426,7 @@ namespace Core.Users
         public static UserState GetUserInstanceState(int nGroupID, string sSiteGUID, string sessionID, string deviceID, string sIP)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGUID);
 
             int nSiteGuid;
             if (!Int32.TryParse(sSiteGUID, out nSiteGuid))
@@ -440,8 +447,7 @@ namespace Core.Users
         public static bool WriteLog(int nGroupID, string sUserGUID, string sLogMessage, string sWriter)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
-
+            AddItemToContext(Constants.USER_ID, sUserGUID);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -460,7 +466,7 @@ namespace Core.Users
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            AddItemToContext(Constants.USER_ID, sUserGUID);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -478,7 +484,7 @@ namespace Core.Users
         public static void RemoveChannelMediaUserFavorit(int nGroupID, string sUserGUID, int[] nChannelIDs)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            AddItemToContext(Constants.USER_ID, sUserGUID);
 
 
             BaseUsers t = null;
@@ -492,7 +498,7 @@ namespace Core.Users
         public static FavoriteResponse GetUserFavorites(int nGroupID, string sUserGUID, int domainID, string sDeviceUDID, string sItemType, FavoriteOrderBy orderBy)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+            AddItemToContext(Constants.USER_ID, sUserGUID);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -561,10 +567,7 @@ namespace Core.Users
         public static UserResponseObject GetUserData(int nGroupID, string sSiteGUID, string sUserIp)
         {
             // add siteguid to logs/monitor
-            if (HttpContext.Current != null && HttpContext.Current.Items != null)
-            {
-                HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
-            }
+            AddItemToContext(Constants.USER_ID, sSiteGUID);
 
             if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
@@ -604,16 +607,13 @@ namespace Core.Users
         {
             List<UserResponseObject> userResponseList = null;
             // add siteguid to logs/monitor
-            if (sSiteGUIDs != null && sSiteGUIDs.Length > 0)
+            if (sSiteGUIDs != null && sSiteGUIDs.Length > 0 && HttpContext.Current != null && HttpContext.Current.Items != null)
             {
                 StringBuilder sb = new StringBuilder();
                 foreach (var siteGuid in sSiteGUIDs)
                     sb.Append(String.Format("{0} ", siteGuid));
 
-                if (HttpContext.Current != null && HttpContext.Current.Items != null)
-                {
-                    HttpContext.Current.Items[Constants.USER_ID] = sb.ToString();
-                }
+                AddItemToContext(Constants.USER_ID, sb.ToString());
             }
 
             if (Utils.IsGroupIDContainedInConfig(nGroupID))
@@ -749,7 +749,7 @@ namespace Core.Users
         public static UserResponseObject SetUserData(int nGroupID, string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGUID);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -764,7 +764,7 @@ namespace Core.Users
         public static void Hit(int nGroupID, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGUID);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -777,7 +777,7 @@ namespace Core.Users
         public static void Logout(int nGroupID, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGUID);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -850,7 +850,7 @@ namespace Core.Users
         public static ResponseStatus SendChangedPinMail(int nGroupID, string sSiteGuid, int nUserRuleID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -988,7 +988,7 @@ namespace Core.Users
         public static string GetUserToken(int nGroupID, string sSiteGUID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGUID);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1066,7 +1066,7 @@ namespace Core.Users
         public static User[] GetUsersLikedMedia(int nGroupID, Int32 nUserGuid, Int32 nMediaID, Int32 nPlatform, bool bOnlyFriends, Int32 nStartIndex, Int32 nNumberOfItems)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = nUserGuid.ToString();
+            AddItemToContext(Constants.USER_ID, nUserGuid.ToString());
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1083,7 +1083,7 @@ namespace Core.Users
         public static ApiObjects.Response.Status IsUserActivated(int nGroupID, Int32 nUserID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = nUserID.ToString();
+            AddItemToContext(Constants.USER_ID, nUserID.ToString());
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             BaseUsers t = null;
@@ -1099,7 +1099,7 @@ namespace Core.Users
         public static UserOfflineObject[] GetAllUserOfflineAssets(int nGroupID, string sSiteGuid)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1116,7 +1116,7 @@ namespace Core.Users
         public static bool AddUserOfflineAsset(int nGroupID, string sSiteGuid, string sMediaID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1133,7 +1133,7 @@ namespace Core.Users
         public static bool RemoveUserOfflineAsset(int nGroupID, string sSiteGuid, string sMediaID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1150,7 +1150,7 @@ namespace Core.Users
         public static bool ClearUserOfflineAssets(int nGroupID, string sSiteGuid)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1168,7 +1168,7 @@ namespace Core.Users
         public static bool SetUserDynamicData(int nGroupID, string sSiteGuid, string sType, string sValue)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1197,7 +1197,7 @@ namespace Core.Users
         public static UserGroupRuleResponse ChangeParentalPInCodeByToken(int nGroupID, string sSiteGuid, int nUserRuleID, string sChangePinToken, string sCode)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGuid);
 
             UserGroupRuleResponse response = null;
             BaseUsers t = null;
@@ -1328,7 +1328,7 @@ namespace Core.Users
         public static ResponseStatus SetUserTypeByUserID(int nGroupID, string sSiteGuid, int nUserTypeID)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1346,7 +1346,7 @@ namespace Core.Users
         public static int GetUserType(int nGroupID, string sSiteGuid)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
+            AddItemToContext(Constants.USER_ID, sSiteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1364,7 +1364,7 @@ namespace Core.Users
         public static PinCodeResponse GenerateLoginPIN(int nGroupID, string siteGuid, string secret)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            AddItemToContext(Constants.USER_ID, siteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1457,7 +1457,7 @@ namespace Core.Users
         public static PinCodeResponse SetLoginPIN(int nGroupID, string siteGuid, string PIN, string secret)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            AddItemToContext(Constants.USER_ID, siteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1475,7 +1475,7 @@ namespace Core.Users
         public static ApiObjects.Response.Status ClearLoginPIN(int nGroupID, string siteGuid, string pin)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            AddItemToContext(Constants.USER_ID, siteGuid);
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1530,7 +1530,7 @@ namespace Core.Users
             // add username to logs/monitor
             if (oBasicData != null && !string.IsNullOrEmpty(oBasicData.m_sUserName))
             {
-                HttpContext.Current.Items[Constants.USER_ID] = oBasicData.m_sUserName;
+                AddItemToContext(Constants.USER_ID, oBasicData.m_sUserName);
             }
 
             response.user = AddNewUser(nGroupID, oBasicData, dynamicData, password, affiliateCode);
@@ -1633,10 +1633,7 @@ namespace Core.Users
                 foreach (var siteGuid in sSiteGUIDs)
                     sb.Append(String.Format("{0} ", siteGuid));
 
-                if (HttpContext.Current != null && HttpContext.Current.Items != null)
-                {
-                    HttpContext.Current.Items[Constants.USER_ID] = sb.ToString();
-                }
+                AddItemToContext(Constants.USER_ID, sb.ToString());
             }
 
             UsersResponse response = new UsersResponse();
@@ -1656,7 +1653,7 @@ namespace Core.Users
         public static UserResponse SetUser(int nGroupID, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
+            AddItemToContext(Constants.USER_ID, siteGUID);
 
 
             UserResponse response = new UserResponse();
@@ -1672,7 +1669,7 @@ namespace Core.Users
         public static FavoriteResponse FilterFavoriteMediaIds(int nGroupID, string userId, List<int> mediaIds, string udid, string mediaType, FavoriteOrderBy orderBy)
         {
             // add userId to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = userId != null ? userId : "null";
+            AddItemToContext(Constants.USER_ID, userId);
 
             FavoriteResponse response = new FavoriteResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1690,7 +1687,7 @@ namespace Core.Users
         public static LongIdsResponse GetUserRoleIds(int nGroupID, string userId)
         {
             // add userId to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = userId ?? "null";
+            AddItemToContext(Constants.USER_ID, userId);
 
             LongIdsResponse response = new LongIdsResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1707,7 +1704,7 @@ namespace Core.Users
         public static ApiObjects.Response.Status AddRoleToUser(int nGroupID, string userId, long roleId)
         {
             // add userId to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = userId != null ? userId : "null";
+            AddItemToContext(Constants.USER_ID, userId);
 
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1726,7 +1723,8 @@ namespace Core.Users
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             // add userId to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = userId != 0 ? userId : 0;
+            AddItemToContext(Constants.USER_ID, userId.ToString());
+
             if (!Utils.IsDeleteUserAllowedForGroup(nGroupID))
             {
                 return new ApiObjects.Response.Status((int)eResponseStatus.NotAllowedToDelete, eResponseStatus.NotAllowedToDelete.ToString());
@@ -1935,7 +1933,7 @@ namespace Core.Users
             try
             {
                 // add siteguid to logs/monitor
-                HttpContext.Current.Items[Constants.USER_ID] = userId;
+                AddItemToContext(Constants.USER_ID, userId.ToString());
 
                 if (Utils.IsGroupIDContainedInConfig(groupID))
                 {
