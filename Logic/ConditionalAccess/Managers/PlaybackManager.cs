@@ -145,10 +145,10 @@ namespace Core.ConditionalAccess
                         prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, string.Empty, true, string.Empty, string.Empty, ip, null, blockEntitlement);
                         if (prices != null && prices.Length > 0)
                         {
-                            AdsControlData adsData;
+                            AdsControlData defaultAdsData = GetDomainAdsControl(groupId, domainId);
                             foreach (MediaFileItemPricesContainer price in prices)
                             {
-                                adsData = null;
+                                AdsControlData adsData = null;
 
                                 // check permitted role 
                                 ApiObjects.ConditionalAccess.PriceReason priceReason = ApiObjects.ConditionalAccess.PriceReason.PPVPurchased;
@@ -171,12 +171,12 @@ namespace Core.ConditionalAccess
                                     }
                                     else
                                     {
-                                        assetFileIdsAds.Add(price.m_nMediaFileID, GetDomainAdsControl(groupId, domainId));
+                                        assetFileIdsAds.Add(price.m_nMediaFileID, defaultAdsData);
                                     }
                                 }
                                 if (Utils.IsFreeItem(price))
                                 {
-                                    assetFileIdsAds.Add(price.m_nMediaFileID, GetDomainAdsControl(groupId, domainId));
+                                    assetFileIdsAds.Add(price.m_nMediaFileID, defaultAdsData);
                                 }
 
                                 filePrice = price;
@@ -737,22 +737,22 @@ namespace Core.ConditionalAccess
                     if (prices != null && prices.Length > 0)
                     {
                         response.Sources = new List<AdsControlData>();
-                        AdsControlData adsData;
+                        AdsControlData defaultAdsData = GetDomainAdsControl(groupId, domainId);
 
                         foreach (MediaFileItemPricesContainer price in prices)
                         {
-                            adsData = null;
+                            AdsControlData adsData = null;
                             if (Utils.IsItemPurchased(price))
                             {
                                 adsData = GetFileAdsDataFromBusinessModule(groupId, price, udid);
                                 if (adsData == null)
                                 {
-                                    adsData = GetDomainAdsControl(groupId, domainId);
+                                    adsData = defaultAdsData;
                                 }
                             }
                             else if (Utils.IsFreeItem(price))
                             {
-                                adsData = GetDomainAdsControl(groupId, domainId);
+                                adsData = defaultAdsData;
                             }
 
                             if (adsData == null)
