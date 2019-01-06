@@ -50,10 +50,15 @@ namespace TvinciCache
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
-                {
+                {                    
                     int? groupId = funcParams["groupId"] as int?;
                     groupFeatures = UtilsDal.GetGroupFeatures(groupId.Value);
-                    res = groupFeatures != null;
+                    if (groupFeatures == null)
+                    {
+                        groupFeatures = new Dictionary<GroupFeature, bool>();
+                    }
+
+                    res = true;
                 }
             }
             catch (Exception ex)
