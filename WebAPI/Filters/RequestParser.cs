@@ -164,6 +164,10 @@ namespace WebAPI.Filters
             {
                 InitKS((string)HttpContext.Current.Items[REQUEST_GLOBAL_KS]);
             }
+            else if (requestParams.ContainsKey("partnerId") && requestParams["partnerId"] != null)           
+            {
+                HttpContext.Current.Items.Add(Constants.GROUP_ID, requestParams["partnerId"]);
+            }
 
             // impersonated user_id
             HttpContext.Current.Items.Remove(REQUEST_USER_ID);
