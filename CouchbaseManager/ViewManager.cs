@@ -404,37 +404,40 @@ namespace CouchbaseManager
                         idsAndKeys.Add(row.Id, (object)row.Key);
                     }
 
-                    IDictionary<string, IOperationResult<T>> getResults = null;
-
-                    cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", idsAndKeys.Keys.ToList()));
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                    if (idsAndKeys.Any())
                     {
-                        getResults = bucket.Get<T>(idsAndKeys.Keys.ToList());
-                    }
+                        IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    // Run on all Get results
-                    foreach (var getResult in getResults)
-                    {
-                        // If something went wrong - log it and throw exception (if there is one)
-                        if (!getResult.Value.Success)
+                        cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", idsAndKeys.Keys.ToList()));
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                         {
-                            log.ErrorFormat("Error while getting value from view. Status code = {0}; Status = {1}", (int)getResult.Value.Status, getResult.Value.Status.ToString());
-
-                            if (getResult.Value.Exception != null)
-                            {
-                                throw getResult.Value.Exception;
-                            }
+                            getResults = bucket.Get<T>(idsAndKeys.Keys.ToList());
                         }
-                        else
+
+                        // Run on all Get results
+                        foreach (var getResult in getResults)
                         {
-                            // If it is alright, add document to final list
-                            result.Add(
-                                new ViewRow<T>()
+                            // If something went wrong - log it and throw exception (if there is one)
+                            if (!getResult.Value.Success)
+                            {
+                                log.ErrorFormat("Error while getting value from view. Status code = {0}; Status = {1}", (int)getResult.Value.Status, getResult.Value.Status.ToString());
+
+                                if (getResult.Value.Exception != null)
                                 {
-                                    Id = getResult.Key,
-                                    Key = idsAndKeys[getResult.Key],
-                                    Value = getResult.Value.Value
-                                });
+                                    throw getResult.Value.Exception;
+                                }
+                            }
+                            else
+                            {
+                                // If it is alright, add document to final list
+                                result.Add(
+                                    new ViewRow<T>()
+                                    {
+                                        Id = getResult.Key,
+                                        Key = idsAndKeys[getResult.Key],
+                                        Value = getResult.Value.Value
+                                    });
+                            }
                         }
                     }
                 }
