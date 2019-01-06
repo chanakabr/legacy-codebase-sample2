@@ -35,6 +35,6 @@ namespace WebAPI.Models.General
         [DataMember(Name = "abortOnError")]
         [JsonProperty("abortOnError")]
         [XmlElement(ElementName = "abortOnError")]
-        public string AbortOnError { get; set; }
+        public bool AbortOnError { get; set; }
     }
 }

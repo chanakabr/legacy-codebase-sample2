@@ -5951,7 +5951,7 @@ namespace WebAPI.Models.General
                 }
                 if (parameters.ContainsKey("abortOnError") && parameters["abortOnError"] != null)
                 {
-                    AbortOnError = (String) Convert.ChangeType(parameters["abortOnError"], typeof(String));
+                    AbortOnError = (Boolean) Convert.ChangeType(parameters["abortOnError"], typeof(Boolean));
                 }
             }
         }
