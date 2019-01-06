@@ -17,12 +17,14 @@ namespace WebAPI.Managers.Scheme
         public bool InsertOnly { get; set; }
         public bool WriteOnly { get; set; }
         public int RequiresPermission { get; set; }
+        public bool IsNullable { get; set; }
 
         public SchemePropertyAttribute() : base()
         {
             ReadOnly = false;
             InsertOnly = false;
             WriteOnly = false;
+            IsNullable = false;
             RequiresPermission = 0;
         }
     }

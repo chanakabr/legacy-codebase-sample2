@@ -357,7 +357,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PpvModuleId, opt => opt.MapFrom(src => src.PpvModuleId))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToNullableDatetime(src.StartDate)))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToNullableDatetime(src.EndDate)))
+               .ForMember(dest => dest.NullableProperties, opt => opt.MapFrom(src => src.NullableProperties))
                ;
+
             #endregion
         }
 

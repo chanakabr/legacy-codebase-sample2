@@ -226,9 +226,9 @@ namespace Reflector
             SchemePropertyAttribute schemaProperty;
             IEnumerable<OldStandardPropertyAttribute> oldStandards;
 
-
             bool hasProperties = false;
             bool addIsOldVersion = false;
+
             foreach (PropertyInfo property in properties)
             {
                 if (property.CanWrite && property.DeclaringType == type)
@@ -251,7 +251,7 @@ namespace Reflector
                 }
             }
 
-            if(!hasProperties)
+            if (!hasProperties)
             {
                 return;
             }
@@ -261,9 +261,13 @@ namespace Reflector
 
             if (addIsOldVersion)
             {
-                file.WriteLine("                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();");
-                file.WriteLine("                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
+                file.WriteLine(
+                    "                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();");
+                file.WriteLine(
+                    "                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             }
+
+            var supportsNullable = type.IsSubclassOf(typeof(KalturaOTTObjectSupportNullable));
 
             foreach (PropertyInfo property in properties)
             {
@@ -273,17 +277,32 @@ namespace Reflector
                 }
 
                 string apiName = property.Name;
-                DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();                
+                DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
                 if (dataMember != null)
                 {
                     apiName = dataMember.Name;
                 }
+
                 if (typeof(KalturaMultilingualString).IsAssignableFrom(property.PropertyType))
                 {
                     apiName = KalturaMultilingualString.GetMultilingualName(apiName);
                 }
-                
-                file.WriteLine("                if (parameters.ContainsKey(\"" + apiName + "\") && parameters[\"" + apiName + "\"] != null)");
+
+                var ca = property.GetCustomAttributes<SchemePropertyAttribute>().FirstOrDefault();
+                if (supportsNullable && ca != null && ca.IsNullable)
+                {
+                    var nullableParam = $"__{apiName}";
+                    file.WriteLine("                if (parameters.ContainsKey(\"" + nullableParam + "\") && parameters[\"" +
+                                   nullableParam + "\"] != null)");
+                    file.WriteLine("                {");
+                    file.WriteLine("                    NullableProperties = createOrAddToList<string>(NullableProperties, \"" + apiName + "\");");
+                    file.WriteLine("                }");
+
+                }
+
+                file.WriteLine("                if (parameters.ContainsKey(\"" + apiName + "\") && parameters[\"" +
+                               apiName + "\"] != null)");
+
                 writeDeserializeTypeProperty(apiName, property);
                 oldStandards = property.GetCustomAttributes<OldStandardPropertyAttribute>();
                 foreach (OldStandardPropertyAttribute oldStandard in oldStandards)
@@ -296,15 +315,21 @@ namespace Reflector
 
                     if (oldStandard.sinceVersion == null)
                     {
-                        file.WriteLine("                if (parameters.ContainsKey(\"" + apiName + "\") && parameters[\"" + apiName + "\"] != null && isOldVersion)");
+                        file.WriteLine("                if (parameters.ContainsKey(\"" + apiName +
+                                       "\") && parameters[\"" + apiName + "\"] != null && isOldVersion)");
                     }
                     else
                     {
-                        file.WriteLine("                if (parameters.ContainsKey(\"" + apiName + "\") && parameters[\"" + apiName + "\"] != null && (isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandard.sinceVersion + "\")) < 0))");
+                        file.WriteLine("                if (parameters.ContainsKey(\"" + apiName +
+                                       "\") && parameters[\"" + apiName +
+                                       "\"] != null && (isOldVersion || currentVersion.CompareTo(new Version(\"" +
+                                       oldStandard.sinceVersion + "\")) < 0))");
                     }
+
                     writeDeserializeTypeProperty(apiName, property);
                 }
             }
+
             file.WriteLine("            }");
         }
 
