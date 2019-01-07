@@ -11452,10 +11452,10 @@ namespace Core.Api
                 // Create Shared secret 
                 adapter.SharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
 
-                DataTable dt = ApiDAL.AddPlaybackAdapter(groupId, userId, adapter);
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                long id = ApiDAL.AddPlaybackAdapter(groupId, userId, adapter);
+                if (id > 0)
                 {
-                    adapter.Id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                    adapter.Id = id;
 
                     response.Object = adapter;
                     response.SetStatus(eResponseStatus.OK, "New playback adapter was successfully inserted");
