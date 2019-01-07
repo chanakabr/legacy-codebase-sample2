@@ -67,13 +67,13 @@ namespace Core.Pricing
             return response;
         }
 
-        public static GenericResponse<AssetFilePpv> UpdateAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
+        public static GenericResponse<AssetFilePpv> UpdateAssetFilePPV(int groupId, AssetFilePpv request)
         {
             GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
                 // Validate mediaFileId && ppvModuleId
-                Status status = ValidateAssetFilePPV(groupId, mediaFileId, ppvModuleId);
+                Status status = ValidateAssetFilePPV(groupId, request.AssetFileId, request.PpvModuleId);
                 if (status != null && status.Code != (int)eResponseStatus.OK)
                 {
                     response.SetStatus(status.Code, status.Message);
@@ -81,19 +81,22 @@ namespace Core.Pricing
                 }
 
                 // validate ppvModuleId && mediaFileId not already exist
-                bool isExist = IsAssetFilePpvExist(groupId, mediaFileId, ppvModuleId);
+                bool isExist = IsAssetFilePpvExist(groupId, request.AssetFileId, request.PpvModuleId);
                 if (!isExist)
                 {
-                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", mediaFileId, ppvModuleId, groupId);
+                    log.ErrorFormat("Error. mediaFileId {0} && ppvModuleId {1} already exist for groupId: {2}", request.AssetFileId, request.PpvModuleId, groupId);
                     response.SetStatus(eResponseStatus.AssetFilePPVNotExist, ASSET_FILE_PPV_NOT_EXIST);
                     return response;
                 }
 
-                DataTable dt = PricingDAL.UpdateAssetFilePPV(groupId, mediaFileId, ppvModuleId, startDate, endDate);
+                var nullableStartDate = new NullableObj<DateTime?>(request.StartDate, request.IsNullablePropertyExists("StartDate"));
+                var nullableEndDate = new NullableObj<DateTime?>(request.EndDate, request.IsNullablePropertyExists("EndDate"));
+
+                DataTable dt = PricingDAL.UpdateAssetFilePPV(groupId, request.AssetFileId, request.PpvModuleId, nullableStartDate, nullableEndDate);
 
                 if (dt == null || dt.Rows.Count == 0)
                 {
-                    log.ErrorFormat("Error while UpdateAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}", groupId, mediaFileId, ppvModuleId);
+                    log.ErrorFormat("Error while UpdateAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}", groupId, request.AssetFileId, request.PpvModuleId);
                     return response;
                 }
 
@@ -103,7 +106,7 @@ namespace Core.Pricing
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed UpdateAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}", groupId, mediaFileId, ppvModuleId, ex);
+                log.ErrorFormat("Failed UpdateAssetFilePPV. groupId: {0}, mediaFileId: {1}, ppvModuleId: {2}. ex :{3}", groupId, request.AssetFileId, request.PpvModuleId, ex);
             }
 
             return response;

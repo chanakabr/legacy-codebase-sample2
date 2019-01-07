@@ -96,6 +96,7 @@
     <Compile Include="AssetLifeCycleRules\FriendlyAssetLifeCycleRuleResponse.cs" />
     <Compile Include="AssetLifeCycleRules\LifeCycleFileTypesAndPpvsTransitions.cs" />
     <Compile Include="AssetLifeCycleRules\LifeCycleTransitions.cs" />
+    <Compile Include="Base\BaseSupportsNullable.cs" />
     <Compile Include="Billing\TransactionUnifiedRenewalDetails.cs" />
     <Compile Include="Billing\TransactionUnifiedRenewalRequest.cs" />
     <Compile Include="Compensation.cs" />
