@@ -276,7 +276,7 @@ namespace WebAPI.Managers.Models
 
         internal void SaveOnRequest()
         {
-            HttpContext.Current.Items.Add(Constants.GROUP_ID, groupId);
+            HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
             HttpContext.Current.Items.Add(RequestParser.REQUEST_GROUP_ID, groupId);
             HttpContext.Current.Items.Add(RequestParser.REQUEST_KS, this);
         }
