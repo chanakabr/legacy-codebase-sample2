@@ -5314,9 +5314,8 @@ namespace DAL
             return res;
         }       
 
-        public static DataTable AddPlaybackAdapter(int groupId, string userId, PlaybackProfile adapter)
+        public static long AddPlaybackAdapter(int groupId, string userId, PlaybackProfile adapter)
         {
-            DataTable dt = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PlaybackAdapter");
@@ -5328,14 +5327,14 @@ namespace DAL
                 sp.AddParameter("@isActive", adapter.IsActive);                
                 sp.AddParameter("@settings", adapter.Settings);
                 sp.AddParameter("@updaterId", userId);
-                dt = sp.Execute();
+                return sp.ExecuteReturnValue<long>();
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while AddPlaybackAdapter in DB, groupId: {0}, name: {1}, ex:{2} ", groupId, adapter.Name, ex);
             }
 
-            return dt;
+            return 0;
         }
 
         public static bool SetPlaybackAdapterSharedSecret(int groupId, long adapterId, string sharedSecret)
