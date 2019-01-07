@@ -892,8 +892,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("isAllowedToViewInactiveAssets") && funcParams.ContainsKey("groupId"))
-                {
-                    string key = string.Empty;
+                {                    
                     List<long> ids;
                     int? groupId = funcParams["groupId"] as int?;
                     bool? isAllowedToViewInactiveAssets = funcParams["isAllowedToViewInactiveAssets"] as bool?;
@@ -956,7 +955,7 @@ namespace Core.Catalog.CatalogManagement
                                                                 { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets } }, groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME,
                                                                 invalidationKeysMap))
                 {
-                    log.ErrorFormat("Failed getting GetMediaAssetsFromCache from LayeredCache, groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty, assetType.ToString());
+                    log.ErrorFormat("Failed getting GetMediaAssetsFromCache from LayeredCache, groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty);
                 }
                 else if (mediaAssetMap != null)
                 {

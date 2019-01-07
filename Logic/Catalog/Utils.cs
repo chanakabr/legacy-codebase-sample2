@@ -1839,7 +1839,7 @@ namespace Core.Catalog
                                                                 { "filter", filter } }, groupId, LayeredCacheConfigNames.GET_ASSETS_WITH_LANGUAGE_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
                 {
                     log.ErrorFormat("Failed getting GetMediaObjectsFromCache from LayeredCache, groupId: {0}, ids: {1}, filter language: {2}",
-                                    groupId, ids != null ? string.Join(",", ids) : string.Empty, assetType.ToString(), filter != null ? filter.m_nLanguage.ToString() : "null filter");
+                                    groupId, ids != null ? string.Join(",", ids) : string.Empty, filter != null ? filter.m_nLanguage.ToString() : "null filter");
                 }
                 else if (mediaObjMap != null)
                 {
@@ -1923,7 +1923,7 @@ namespace Core.Catalog
                                                                 { "filter", filter } }, groupId, LayeredCacheConfigNames.GET_ASSETS_WITH_LANGUAGE_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
                 {
                     log.ErrorFormat("Failed getting GetProgramFromCache from LayeredCache, groupId: {0}, ids: {1}, filter language: {2}",
-                                    groupId, ids != null ? string.Join(",", ids) : string.Empty, assetType.ToString(), filter != null ? filter.m_nLanguage.ToString() : "null filter");
+                                    groupId, ids != null ? string.Join(",", ids) : string.Empty, filter != null ? filter.m_nLanguage.ToString() : "null filter");
                 }
                 else if (programsMap != null)
                 {
