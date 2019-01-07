@@ -1739,15 +1739,18 @@ namespace DAL
             return null;
         }
 
-        public static DataTable UpdateAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, DateTime? startDate, DateTime? endDate)
+        public static DataTable UpdateAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId, NullableObj<DateTime?> startDate, NullableObj<DateTime?> endDate)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdatePpvModulesMediaFiles");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@mediaFileId", mediaFileId);
             sp.AddParameter("@ppvModuleId", ppvModuleId);
-            sp.AddParameter("@startDate", startDate);
-            sp.AddParameter("@endDate", endDate);
+            sp.AddParameter("@startDate", startDate.Obj);
+            sp.AddParameter("@endDate", endDate.Obj);
+            sp.AddParameter("@nullableStartDate", startDate.IsNull);
+            sp.AddParameter("@nullableEndDate", endDate.IsNull);
+
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null)

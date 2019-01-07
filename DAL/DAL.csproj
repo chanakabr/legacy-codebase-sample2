@@ -67,6 +67,7 @@
     <Compile Include="enums.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="InterestDal.cs" />
+    <Compile Include="NullableObject.cs" />
     <Compile Include="ProtocolsFuncsDAL.cs" />
     <Compile Include="RecordingsDAL.cs" />
     <Compile Include="TvmDAL.cs" />
