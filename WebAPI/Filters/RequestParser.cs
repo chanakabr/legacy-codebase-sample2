@@ -166,7 +166,7 @@ namespace WebAPI.Filters
             }
             else if (requestParams.ContainsKey("partnerId") && requestParams["partnerId"] != null)           
             {
-                HttpContext.Current.Items.Add(Constants.GROUP_ID, requestParams["partnerId"]);
+                HttpContext.Current.Items[Constants.GROUP_ID] = requestParams["partnerId"];
             }
 
             // impersonated user_id
