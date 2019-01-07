@@ -17,11 +17,13 @@ namespace ApiObjects
             m_nMediaID = 0;
             m_sProductCode = string.Empty;
         }
-        public void Initialize(Int32 nMediaFileID, Int32 nMediaID, string productCode)
+
+        public MeidaMaper(int mediaFileId, int mediaId, string productCode)
         {
-            this.m_nMediaFileID = nMediaFileID;
-            this.m_nMediaID = nMediaID;
+            this.m_nMediaFileID = mediaFileId;
+            this.m_nMediaID = mediaId;
             this.m_sProductCode = productCode;
         }
+
     }
 }
