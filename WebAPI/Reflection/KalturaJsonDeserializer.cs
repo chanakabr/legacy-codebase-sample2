@@ -16120,7 +16120,7 @@ namespace WebAPI.Models.Pricing
                 {
                     PpvModuleId = (Int64) Convert.ChangeType(parameters["ppvModuleId"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("__startDate") && parameters["__startDate"] != null)
+                if (parameters.ContainsKey("startDate__null") && parameters["startDate__null"] != null)
                 {
                     AddNullableProperty("startDate");
                 }
@@ -16132,7 +16132,7 @@ namespace WebAPI.Models.Pricing
                     }
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("__endDate") && parameters["__endDate"] != null)
+                if (parameters.ContainsKey("endDate__null") && parameters["endDate__null"] != null)
                 {
                     AddNullableProperty("endDate");
                 }

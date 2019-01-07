@@ -291,7 +291,7 @@ namespace Reflector
                 var ca = property.GetCustomAttributes<SchemePropertyAttribute>().FirstOrDefault();
                 if (supportsNullable && ca != null && ca.IsNullable)
                 {
-                    var nullableParam = $"__{apiName}";
+                    var nullableParam = $"{apiName}__null";
                     file.WriteLine("                if (parameters.ContainsKey(\"" + nullableParam + "\") && parameters[\"" +
                                    nullableParam + "\"] != null)");
                     file.WriteLine("                {");
