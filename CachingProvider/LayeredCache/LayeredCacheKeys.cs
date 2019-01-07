@@ -399,6 +399,21 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public static Dictionary<string, string> GetMappedMediaFileKeys(int groupId, List<int> mediaFilesIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (mediaFilesIds != null && mediaFilesIds.Count > 0)
+            {
+                mediaFilesIds = mediaFilesIds.Distinct().ToList();
+                foreach (int mediaFileId in mediaFilesIds)
+                {
+                    result.Add(GetMappedMediaFileKey(groupId, mediaFileId), mediaFileId.ToString());
+                }
+            }
+
+            return result;
+        }
+
         public static string GetTstvAccountSettingsKey(int groupId)
         {
             return string.Format("TstvAccountSettings_groupId_{0}", groupId);
@@ -532,6 +547,11 @@ namespace CachingProvider.LayeredCache
         public static string GetMediaFileTypeByIdKey(int groupId, int fileId)
         {
             return string.Format("MediaFileTypeID_{0}_group_{1}", fileId, groupId);
+        }
+
+        public static string GetMappedMediaFileKey(int groupId, int fileId)
+        {
+            return string.Format("MapMediaFileId_{0}_group_{1}", fileId, groupId);
         }
 
         #endregion
