@@ -937,6 +937,9 @@ namespace WebAPI.Reflection
                 case "KalturaOTTCategory":
                     return new KalturaOTTCategory(parameters);
                     
+                case "KalturaOTTObjectSupportNullable":
+                    return new KalturaOTTObjectSupportNullable(parameters);
+                    
                 case "KalturaOTTUser":
                     return new KalturaOTTUser(parameters);
                     
@@ -1660,6 +1663,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1732,6 +1736,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1741,6 +1746,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1750,6 +1756,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1839,6 +1846,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1848,6 +1856,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1857,6 +1866,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1866,6 +1876,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1875,6 +1886,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1884,6 +1896,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1893,6 +1906,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1902,6 +1916,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1911,6 +1926,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1920,6 +1936,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1929,6 +1946,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1938,6 +1956,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1947,6 +1966,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1956,6 +1976,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1965,6 +1986,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -1974,6 +1996,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2259,6 +2282,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2268,6 +2292,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2381,6 +2406,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2390,6 +2416,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2399,6 +2426,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinFloat = 0,
@@ -2409,6 +2437,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinFloat = 0,
@@ -2419,6 +2448,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2523,6 +2553,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2532,6 +2563,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2541,6 +2573,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2550,6 +2583,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2559,6 +2593,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2568,6 +2603,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2577,6 +2613,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2586,6 +2623,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2595,6 +2633,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2604,6 +2643,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2613,6 +2653,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2622,6 +2663,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2631,6 +2673,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2640,6 +2683,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2649,6 +2693,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2658,6 +2703,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2667,6 +2713,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2676,6 +2723,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2685,6 +2733,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2694,6 +2743,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2703,6 +2753,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2712,6 +2763,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -2721,6 +2773,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3069,6 +3122,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3078,6 +3132,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3087,6 +3142,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3096,6 +3152,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3105,6 +3162,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3313,6 +3371,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = 255,
             MinLength = 1,
         };
@@ -3380,6 +3439,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3389,6 +3449,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3398,6 +3459,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3529,6 +3591,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3599,6 +3662,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -3690,6 +3754,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3699,6 +3764,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3751,6 +3817,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -3875,6 +3942,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinFloat = 0,
@@ -3885,6 +3953,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -3895,6 +3964,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 1024,
             MinLength = -1,
         };
@@ -3951,6 +4021,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -4001,6 +4072,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4010,6 +4082,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4019,6 +4092,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4028,6 +4102,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4037,6 +4112,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4046,6 +4122,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4055,6 +4132,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4200,6 +4278,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicType = typeof(KalturaRecordingStatus),
             MaxLength = -1,
             MinLength = -1,
@@ -4210,6 +4289,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 4096,
             MinLength = -1,
         };
@@ -4219,6 +4299,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 4096,
             MinLength = -1,
         };
@@ -4287,6 +4368,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4319,6 +4401,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4328,6 +4411,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4337,6 +4421,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4346,6 +4431,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4457,6 +4543,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4466,6 +4553,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4475,6 +4563,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4484,6 +4573,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4493,6 +4583,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -4503,6 +4594,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -4513,6 +4605,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4522,6 +4615,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4531,6 +4625,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4847,6 +4942,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4856,6 +4952,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4912,6 +5009,7 @@ namespace WebAPI.Models.Social
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4921,6 +5019,7 @@ namespace WebAPI.Models.Social
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4930,6 +5029,7 @@ namespace WebAPI.Models.Social
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -4939,6 +5039,7 @@ namespace WebAPI.Models.Social
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicType = typeof(KalturaSocialActionType),
             MaxLength = -1,
             MinLength = -1,
@@ -5039,6 +5140,7 @@ namespace WebAPI.Models.Social
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5048,6 +5150,7 @@ namespace WebAPI.Models.Social
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5057,6 +5160,7 @@ namespace WebAPI.Models.Social
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5129,6 +5233,7 @@ namespace WebAPI.Models.Social
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5138,6 +5243,7 @@ namespace WebAPI.Models.Social
             InsertOnly = false,
             WriteOnly = true,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5748,6 +5854,7 @@ namespace WebAPI.Models.General
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5757,6 +5864,7 @@ namespace WebAPI.Models.General
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5766,6 +5874,7 @@ namespace WebAPI.Models.General
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5775,6 +5884,7 @@ namespace WebAPI.Models.General
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5784,6 +5894,7 @@ namespace WebAPI.Models.General
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5793,6 +5904,7 @@ namespace WebAPI.Models.General
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5802,6 +5914,7 @@ namespace WebAPI.Models.General
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5811,6 +5924,7 @@ namespace WebAPI.Models.General
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -5820,6 +5934,7 @@ namespace WebAPI.Models.General
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6223,6 +6338,12 @@ namespace WebAPI.Models.General
             }
         }
     }
+    public partial class KalturaOTTObjectSupportNullable
+    {
+        public KalturaOTTObjectSupportNullable(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaPersistedFilter<KalturaT>
     {
         public KalturaPersistedFilter(Dictionary<string, object> parameters = null) : base(parameters)
@@ -6398,6 +6519,7 @@ namespace WebAPI.Models.Notifications
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6407,6 +6529,7 @@ namespace WebAPI.Models.Notifications
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6504,6 +6627,7 @@ namespace WebAPI.Models.Notifications
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6513,6 +6637,7 @@ namespace WebAPI.Models.Notifications
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6553,6 +6678,7 @@ namespace WebAPI.Models.Notifications
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
         };
@@ -6562,6 +6688,7 @@ namespace WebAPI.Models.Notifications
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -6691,6 +6818,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6700,6 +6828,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6764,6 +6893,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6811,6 +6941,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6900,6 +7031,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6936,6 +7068,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6945,6 +7078,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6954,6 +7088,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6963,6 +7098,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -6972,6 +7108,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7067,6 +7204,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -7122,6 +7260,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7131,6 +7270,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7140,6 +7280,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7375,6 +7516,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 24,
@@ -7386,6 +7528,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 24,
@@ -7397,6 +7540,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 90,
@@ -7408,6 +7552,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 3600,
@@ -7637,6 +7782,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
         };
@@ -7769,6 +7915,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7863,6 +8010,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7872,6 +8020,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7881,6 +8030,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7890,6 +8040,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7899,6 +8050,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -7908,6 +8060,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8127,6 +8280,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -8168,6 +8322,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -8325,6 +8480,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8334,6 +8490,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8343,6 +8500,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8352,6 +8510,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8361,6 +8520,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8370,6 +8530,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8868,6 +9029,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8877,6 +9039,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8886,6 +9049,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8895,6 +9059,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -8904,6 +9069,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -9000,6 +9166,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
@@ -9010,6 +9177,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -9071,6 +9239,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9080,6 +9249,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9089,6 +9259,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 255,
             MinLength = -1,
         };
@@ -9098,6 +9269,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 4000,
             MinLength = -1,
         };
@@ -9107,6 +9279,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9116,6 +9289,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9192,6 +9366,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -9202,6 +9377,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -9259,6 +9435,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9343,6 +9520,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9399,6 +9577,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9408,6 +9587,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9417,6 +9597,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9426,6 +9607,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9585,6 +9767,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -9670,6 +9853,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9679,6 +9863,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9688,6 +9873,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9697,6 +9883,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9706,6 +9893,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -9886,6 +10074,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -9896,6 +10085,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MaxFloat = 12,
@@ -9938,6 +10128,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -9999,6 +10190,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -10043,6 +10235,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -10053,6 +10246,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -10257,6 +10451,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10266,6 +10461,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10275,6 +10471,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -10285,6 +10482,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -10295,6 +10493,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10304,6 +10503,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10313,6 +10513,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10322,6 +10523,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10410,6 +10612,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -10471,6 +10674,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10480,6 +10684,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 128,
             MinLength = 1,
         };
@@ -10489,6 +10694,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 512,
             MinLength = 1,
         };
@@ -10498,6 +10704,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -10508,6 +10715,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 600,
             MinLength = -1,
         };
@@ -10517,6 +10725,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -10594,6 +10803,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -10604,6 +10814,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -10730,6 +10941,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 7,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10739,6 +10951,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 7,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10748,6 +10961,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 7,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10757,6 +10971,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 7,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
@@ -10767,6 +10982,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 7,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
@@ -10777,6 +10993,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 7,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10786,6 +11003,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 7,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10795,6 +11013,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 255,
             MinLength = 1,
         };
@@ -10804,6 +11023,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 255,
             MinLength = 1,
         };
@@ -10813,6 +11033,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10822,6 +11043,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10831,6 +11053,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10840,6 +11063,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10849,6 +11073,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10858,6 +11083,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -10867,6 +11093,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11032,6 +11259,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11041,6 +11269,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11050,6 +11279,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11059,6 +11289,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11068,6 +11299,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11160,6 +11392,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11169,6 +11402,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11178,6 +11412,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
@@ -11383,6 +11618,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11392,6 +11628,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 50,
             MinLength = 1,
         };
@@ -11401,6 +11638,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 50,
             MinLength = 1,
         };
@@ -11410,6 +11648,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11419,6 +11658,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11428,6 +11668,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11437,6 +11678,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11446,6 +11688,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = -1,
@@ -11456,6 +11699,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 100,
             MinLength = -1,
         };
@@ -11465,6 +11709,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 100,
             MinLength = -1,
         };
@@ -11593,6 +11838,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11649,6 +11895,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11875,6 +12122,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
@@ -11947,6 +12195,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11956,6 +12205,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -11965,6 +12215,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12033,6 +12284,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12042,6 +12294,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12051,6 +12304,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -12061,6 +12315,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -12071,6 +12326,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 100,
@@ -12170,6 +12426,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -12211,6 +12468,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -12248,6 +12506,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -12340,6 +12599,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12349,6 +12609,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12405,6 +12666,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12414,6 +12676,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -12462,6 +12725,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -12798,6 +13062,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12807,6 +13072,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12906,6 +13172,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12915,6 +13182,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -12998,6 +13266,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -13008,6 +13277,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -13140,6 +13410,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13172,6 +13443,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
@@ -13357,6 +13629,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13366,6 +13639,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13462,6 +13736,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -13594,6 +13869,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13908,6 +14184,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13917,6 +14194,7 @@ namespace WebAPI.Models.API
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13926,6 +14204,7 @@ namespace WebAPI.Models.API
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13935,6 +14214,7 @@ namespace WebAPI.Models.API
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13944,6 +14224,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 800,
             MinLength = -1,
         };
@@ -13953,6 +14234,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -13963,6 +14245,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13972,6 +14255,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14091,6 +14375,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -14101,6 +14386,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -14219,6 +14505,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14251,6 +14538,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14345,6 +14633,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14354,6 +14643,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 100,
             MinLength = 1,
         };
@@ -14363,6 +14653,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = 1024,
             MinLength = -1,
         };
@@ -14372,6 +14663,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14381,6 +14673,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14390,6 +14683,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14399,6 +14693,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14600,6 +14895,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14649,6 +14945,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14747,6 +15044,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14756,6 +15054,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14877,6 +15176,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -14886,6 +15186,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15115,6 +15416,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15164,6 +15466,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15173,6 +15476,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15182,6 +15486,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15191,6 +15496,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15200,6 +15506,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15209,6 +15516,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15218,6 +15526,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15227,6 +15536,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15337,6 +15647,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
@@ -15366,6 +15677,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
@@ -15376,6 +15688,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
@@ -15386,6 +15699,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -15396,6 +15710,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 100,
@@ -15407,6 +15722,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -15417,6 +15733,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -15427,6 +15744,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -15592,6 +15910,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15669,6 +15988,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15766,10 +16086,32 @@ namespace WebAPI.Models.Pricing
 {
     public partial class KalturaAssetFilePpv
     {
+        private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpv")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpv")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaAssetFilePpv(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("assetFileId") && parameters["assetFileId"] != null)
                 {
                     AssetFileId = (Int64) Convert.ChangeType(parameters["assetFileId"], typeof(Int64));
@@ -15778,12 +16120,28 @@ namespace WebAPI.Models.Pricing
                 {
                     PpvModuleId = (Int64) Convert.ChangeType(parameters["ppvModuleId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("startDate__null") && parameters["startDate__null"] != null)
+                {
+                    AddNullableProperty("startDate");
+                }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
+                    }
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("endDate__null") && parameters["endDate__null"] != null)
+                {
+                    AddNullableProperty("endDate");
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
+                    }
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
             }
@@ -15797,6 +16155,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -15807,6 +16166,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
@@ -15892,6 +16252,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -16025,6 +16386,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
         };
@@ -16083,6 +16445,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16092,6 +16455,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16101,6 +16465,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16110,6 +16475,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16190,6 +16556,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16199,6 +16566,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -16209,6 +16577,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -16219,6 +16588,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -16229,6 +16599,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -16239,6 +16610,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -16379,6 +16751,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16407,6 +16780,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16416,6 +16790,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16471,6 +16846,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -17038,6 +17414,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17086,6 +17463,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 1,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17130,6 +17508,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17139,6 +17518,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17148,6 +17528,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17221,6 +17602,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -17270,6 +17652,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17279,6 +17662,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17288,6 +17672,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17297,6 +17682,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17306,6 +17692,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
@@ -17399,6 +17786,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -17983,6 +18371,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -18012,6 +18401,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
@@ -18103,6 +18493,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18112,6 +18503,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18227,6 +18619,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18236,6 +18629,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18245,6 +18639,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18254,6 +18649,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18263,6 +18659,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18272,6 +18669,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18281,6 +18679,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18290,6 +18689,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18299,6 +18699,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18451,6 +18852,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18499,6 +18901,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18559,6 +18962,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18743,6 +19147,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18752,6 +19157,7 @@ namespace WebAPI.Models.Users
             InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18761,6 +19167,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 4,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18770,6 +19177,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18779,6 +19187,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18788,6 +19197,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18797,6 +19207,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18806,6 +19217,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18815,6 +19227,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18824,6 +19237,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19067,6 +19481,7 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19106,10 +19521,11 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserDynamicDataList")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19141,37 +19557,41 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UsernameEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
-            InsertOnly = false,
-            RequiresPermission = 1,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
-            InsertOnly = false,
-            RequiresPermission = 1,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
-            InsertOnly = false,
-            RequiresPermission = 1,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute RoleIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
-            InsertOnly = false,
-            RequiresPermission = 6,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19240,10 +19660,11 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserType")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19319,10 +19740,11 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSSOAdapterProfile")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19455,10 +19877,11 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserAssetsListItem")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19515,10 +19938,11 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserInterest")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19602,10 +20026,11 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserLoginPin")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19670,37 +20095,41 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute LengthSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute LengthTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute MultiplierSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19749,55 +20178,61 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute MinScoreSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxScoreSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ActionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19876,10 +20311,11 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentSource")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -19904,46 +20340,51 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute MinValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute OperatorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20000,28 +20441,31 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute OperatorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20062,10 +20506,11 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute NameFormatSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentAllValues")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20090,64 +20535,71 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ConditionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute VersionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20247,10 +20699,11 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute SegmentationTypesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationTypeListResponse")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20282,73 +20735,81 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute GreaterThanOrEqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute GreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute LessThanOrEqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute LessThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute EqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20429,19 +20890,21 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute SourceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRanges")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute RangesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRanges")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20494,37 +20957,41 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20573,19 +21040,21 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute SourceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValues")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValues")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20632,10 +21101,11 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSingleSegmentValue")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20660,19 +21130,21 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDataCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDataCondition")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20705,10 +21177,11 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDynamicDataSource")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20733,19 +21206,21 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute SegmentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = true,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20778,10 +21253,11 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute UserIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegmentFilter")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
         };
@@ -20806,10 +21282,11 @@ namespace WebAPI.Models.Segmentation
     {
         private static RuntimeSchemePropertyAttribute SegmentsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegmentListResponse")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -20959,37 +21436,41 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulk")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulk")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulk")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulk")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21071,46 +21552,51 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute FileSizeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21171,55 +21657,61 @@ namespace WebAPI.Models.DMS
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            InsertOnly = true,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute TagsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NumberOfDevicesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ConfigurationIdentifiersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21302,10 +21794,11 @@ namespace WebAPI.Models.DMS
     {
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroupDevice")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21391,10 +21884,11 @@ namespace WebAPI.Models.DMS
     {
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroupTag")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21477,19 +21971,21 @@ namespace WebAPI.Models.DMS
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21683,19 +22179,21 @@ namespace WebAPI.Models.Domains
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrand")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFamilyIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrand")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21752,10 +22250,11 @@ namespace WebAPI.Models.Domains
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceFamilyBase")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21826,10 +22325,11 @@ namespace WebAPI.Models.Domains
     {
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHomeNetwork")
         {
-            InsertOnly = true,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21898,118 +22398,131 @@ namespace WebAPI.Models.Domains
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdLimitationsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DevicesLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UsersLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ConcurrentLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute RegionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IsFrequencyEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute FrequencyNextDeviceActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute FrequencyNextUserActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute RestrictionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute RoleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -22309,55 +22822,61 @@ namespace WebAPI.Models.Domains
     {
         private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
-            InsertOnly = false,
-            RequiresPermission = 6,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UdidSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
-            InsertOnly = true,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFamilyIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DrmSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -22484,10 +23003,11 @@ namespace WebAPI.Models.Domains
     {
         private static RuntimeSchemePropertyAttribute HouseholdIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDeviceFilter")
         {
-            InsertOnly = false,
-            RequiresPermission = 1,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -22536,100 +23056,111 @@ namespace WebAPI.Models.Domains
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ConcurrentLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFrequencySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFrequencyDescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UserFrequencySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UserFrequencyDescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NpvrQuotaInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UsersLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFamiliesLimitationsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -22820,46 +23351,51 @@ namespace WebAPI.Models.Domains
     {
         private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUser")
         {
-            InsertOnly = false,
-            RequiresPermission = 6,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUser")
         {
-            InsertOnly = false,
-            RequiresPermission = 6,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 6,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdMasterUsernameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUser")
         {
-            InsertOnly = true,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUser")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUser")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -22920,10 +23456,11 @@ namespace WebAPI.Models.Domains
     {
         private static RuntimeSchemePropertyAttribute HouseholdIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUserFilter")
         {
-            InsertOnly = false,
-            RequiresPermission = 1,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -22985,10 +23522,11 @@ namespace WebAPI.Models.Billing
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentGateway")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -23045,28 +23583,31 @@ namespace WebAPI.Models.Billing
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentMethod")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentMethod")
         {
-            InsertOnly = true,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentMethod")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -23175,10 +23716,11 @@ namespace WebAPI.Models.Billing
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentGatewayBaseProfile")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -23464,10 +24006,11 @@ namespace WebAPI.Models.Billing
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentMethodProfile")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -23555,37 +24098,41 @@ namespace WebAPI.Models.Api
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute KsqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
-            InsertOnly = false,
-            RequiresPermission = 0,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
         };

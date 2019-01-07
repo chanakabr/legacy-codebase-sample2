@@ -1301,11 +1301,9 @@ namespace WebAPI.Clients
 
         internal KalturaAssetFilePpv UpdateAssetFilePpv(int groupId, KalturaAssetFilePpv kAssetFilePpv)
         {
-            // fire request                 
-            Func<GenericResponse<AssetFilePpv>> updateAssetFilePpvFunc = () => Core.Pricing.PriceManager.UpdateAssetFilePPV(groupId, kAssetFilePpv.AssetFileId,
-                kAssetFilePpv.PpvModuleId, SerializationUtils.ConvertToNullableDatetime(kAssetFilePpv.StartDate), SerializationUtils.ConvertToNullableDatetime(kAssetFilePpv.EndDate));
+            var request = AutoMapper.Mapper.Map<AssetFilePpv>(kAssetFilePpv);
+            Func<GenericResponse<AssetFilePpv>> updateAssetFilePpvFunc = () => Core.Pricing.PriceManager.UpdateAssetFilePPV(groupId, request);
             return ClientUtils.GetResponseFromWS<KalturaAssetFilePpv, AssetFilePpv>(updateAssetFilePpvFunc);
         }
-
     }
 }

@@ -13,7 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Asset file ppv
     /// </summary>
-    public partial class KalturaAssetFilePpv : KalturaOTTObject
+    public partial class KalturaAssetFilePpv : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         ///  Asset file identifier
@@ -37,6 +37,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "startDate")]
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -45,6 +46,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public long? EndDate { get; set; }        
     }
 }
