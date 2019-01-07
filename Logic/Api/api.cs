@@ -1147,94 +1147,171 @@ namespace Core.Api
             return bRet;
         }
 
-        static public MeidaMaper[] MapMediaFiles(Int32[] mediaFileIds, Int32 groupID)
-        {
-            List<MeidaMaper> result = new List<MeidaMaper>();
+        //static public MeidaMaper[] MapMediaFiles(Int32[] mediaFileIds, Int32 groupID)
+        //{
+        //    List<MeidaMaper> result = new List<MeidaMaper>();
 
-            if (mediaFileIds == null || mediaFileIds.Length == 0)
+        //    if (mediaFileIds == null || mediaFileIds.Length == 0)
+        //    {
+        //        return null;
+        //    }
+
+        //    //string.Format("api_MapMediaFiles_{1}", string.Empty);
+        //    string key = string.Empty;
+        //    List<string> cacheKeys = new List<string>();
+        //    Dictionary<string, int> keyToFileId = new Dictionary<string, int>();
+        //    List<int> mediaFilesToGet = new List<int>();
+
+        //    #region create list of keys
+
+        //    foreach (int fileId in mediaFileIds)
+        //    {
+        //        key = string.Format("{0}_MapMediaFiles_{1}", eWSModules.API.ToString(), fileId);
+
+        //        if (!keyToFileId.ContainsKey(key))
+        //        {
+        //            cacheKeys.Add(key);
+        //            keyToFileId.Add(key, fileId);
+        //        }
+        //    }
+
+        //    #endregion
+
+        //    // get values from cache
+        //    IDictionary<string, object> cacheMapper = ApiCache.GetValues(cacheKeys);
+
+        //    #region go over the results return from cache call
+
+        //    if (cacheMapper != null)
+        //    {
+        //        foreach (KeyValuePair<string, object> kvp in cacheMapper)
+        //        {
+        //            // build list of keys that not exists in cache
+        //            if (kvp.Value == null)
+        //            {
+        //                if (keyToFileId.ContainsKey(kvp.Key))
+        //                {
+        //                    mediaFilesToGet.Add(keyToFileId[kvp.Key]);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                MeidaMaper mediaMapper = (MeidaMaper)kvp.Value;
+        //                if (mediaMapper != null)
+        //                    result.Add(mediaMapper);
+        //            }
+        //        }
+        //    }
+        //    #endregion
+
+        //    #region  Get all values from DB , after that fill the MeidaMaper List and insert the values into cache !!
+
+        //    if (mediaFilesToGet != null && mediaFilesToGet.Count > 0)
+        //    {
+        //        DataTable dt = DAL.ApiDAL.Get_MapMediaFiles(mediaFilesToGet);
+
+        //        if (dt != null)
+        //        {
+        //            if (dt.Rows != null && dt.Rows.Count > 0)
+        //            {
+        //                for (int i = 0; i < dt.Rows.Count; i++)
+        //                {
+        //                    Int32 mediaFileId = APILogic.Utils.GetIntSafeVal(dt.Rows[i], "id");
+        //                    Int32 mediaId = APILogic.Utils.GetIntSafeVal(dt.Rows[i], "media_id");
+        //                    string productCode = APILogic.Utils.GetSafeStr(dt.Rows[i], "product_code");
+        //                    MeidaMaper mediaMapper = new MeidaMaper();
+        //                    mediaMapper.Initialize(mediaFileId, mediaId, productCode);
+        //                    result.Add(mediaMapper);
+
+        //                    // build key
+        //                    key = string.Format("{0}_MapMediaFiles_{1}", eWSModules.API.ToString(), mediaFileId);
+
+        //                    // add value to cache 
+        //                    ApiCache.AddItem(key, mediaMapper);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    #endregion
+
+        //    return result.ToArray();
+        //}
+
+        public static MeidaMaper[] MapMediaFiles(int[] mediaFilesIds, int groupId)
+        {
+            if (mediaFilesIds == null || mediaFilesIds.Length == 0)
             {
                 return null;
             }
 
-            //string.Format("api_MapMediaFiles_{1}", string.Empty);
-            string key = string.Empty;
-            List<string> cacheKeys = new List<string>();
-            Dictionary<string, int> keyToFileId = new Dictionary<string, int>();
-            List<int> mediaFilesToGet = new List<int>();
+            List<MeidaMaper> result = new List<MeidaMaper>();
+            Dictionary<string, MeidaMaper> mappedMediaFiles = null;
+            Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetMappedMediaFileKeys(groupId, mediaFilesIds.ToList());            
 
-            #region create list of keys
-
-            foreach (int fileId in mediaFileIds)
+            if (!LayeredCache.Instance.GetValues<MeidaMaper>(keyToOriginalValueMap, ref mappedMediaFiles, GetMappedMediaFiles,
+                                                             new Dictionary<string, object>() { { "groupId", groupId }, { "mediaFilesIds", mediaFilesIds.ToList() } },
+                                                             groupId, LayeredCacheConfigNames.API_GET_MAPPED_MEDIA_FILES))
             {
-                key = string.Format("{0}_MapMediaFiles_{1}", eWSModules.API.ToString(), fileId);
-
-                if (!keyToFileId.ContainsKey(key))
-                {
-                    cacheKeys.Add(key);
-                    keyToFileId.Add(key, fileId);
-                }
+                log.ErrorFormat("Failed getting GetMappedMediaFiles from LayeredCache, groupId: {0}, mediaFilesIds: {1}", groupId, mediaFilesIds != null ? string.Join(",", mediaFilesIds) : string.Empty);
+            }
+            else if (mappedMediaFiles != null)
+            {
+                result = mappedMediaFiles.Values.ToList();
             }
 
-            #endregion
+            return result.ToArray();
+        }
 
-            // get values from cache
-            IDictionary<string, object> cacheMapper = ApiCache.GetValues(cacheKeys);
-
-            #region go over the results return from cache call
-
-            if (cacheMapper != null)
+        private static Tuple<Dictionary<string, MeidaMaper>, bool> GetMappedMediaFiles(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, MeidaMaper> result = new Dictionary<string, MeidaMaper>();
+            try
             {
-                foreach (KeyValuePair<string, object> kvp in cacheMapper)
-                {
-                    // build list of keys that not exists in cache
-                    if (kvp.Value == null)
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaFilesIds"))
+                {                    
+                    List<int> mediaFileIds;
+                    int? groupId = funcParams["groupId"] as int?;                    
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        if (keyToFileId.ContainsKey(kvp.Key))
-                        {
-                            mediaFilesToGet.Add(keyToFileId[kvp.Key]);
-                        }
+                        mediaFileIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
                     }
                     else
                     {
-                        MeidaMaper mediaMapper = (MeidaMaper)kvp.Value;
-                        if (mediaMapper != null)
-                            result.Add(mediaMapper);
+                        mediaFileIds = funcParams["mediaFilesIds"] != null ? funcParams["mediaFilesIds"] as List<int> : null;
                     }
-                }
-            }
-            #endregion
 
-            #region  Get all values from DB , after that fill the MeidaMaper List and insert the values into cache !!
-
-            if (mediaFilesToGet != null && mediaFilesToGet.Count > 0)
-            {
-                DataTable dt = DAL.ApiDAL.Get_MapMediaFiles(mediaFilesToGet);
-
-                if (dt != null)
-                {
-                    if (dt.Rows != null && dt.Rows.Count > 0)
+                    List<MeidaMaper> mediaMappers = new List<MeidaMaper>();
+                    if (mediaFileIds != null && groupId.HasValue)
                     {
-                        for (int i = 0; i < dt.Rows.Count; i++)
+                        DataTable dt = DAL.ApiDAL.Get_MapMediaFiles(mediaFileIds);
+                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                         {
-                            Int32 mediaFileId = APILogic.Utils.GetIntSafeVal(dt.Rows[i], "id");
-                            Int32 mediaId = APILogic.Utils.GetIntSafeVal(dt.Rows[i], "media_id");
-                            string productCode = APILogic.Utils.GetSafeStr(dt.Rows[i], "product_code");
-                            MeidaMaper mediaMapper = new MeidaMaper();
-                            mediaMapper.Initialize(mediaFileId, mediaId, productCode);
-                            result.Add(mediaMapper);
-
-                            // build key
-                            key = string.Format("{0}_MapMediaFiles_{1}", eWSModules.API.ToString(), mediaFileId);
-
-                            // add value to cache 
-                            ApiCache.AddItem(key, mediaMapper);
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                int mediaFileId = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
+                                string productCode = ODBCWrapper.Utils.GetSafeStr(dr, "product_code");
+                                MeidaMaper mediaMapper = new MeidaMaper(mediaFileId, mediaId, productCode);                                
+                                mediaMappers.Add(mediaMapper);
+                            }
                         }
+                        
+                        res = mediaMappers.Count() == mediaFileIds.Count();
+                    }
+
+                    if (res)
+                    {
+                        result = mediaMappers.ToDictionary(x => LayeredCacheKeys.GetMappedMediaFileKey(groupId.Value, x.m_nMediaFileID), x => x);
                     }
                 }
             }
-            #endregion
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMappedMediaFiles failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
 
-            return result.ToArray();
+            return new Tuple<Dictionary<string, MeidaMaper>, bool>(result, res);
         }
 
         static public MeidaMaper[] MapMediaFilesST(string sSeperatedMediaFileIDs, Int32 nGroupID)
