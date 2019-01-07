@@ -98,6 +98,7 @@ namespace CachingProvider.LayeredCache
         public const string GROUP_PLAYBACK_PROFILES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPlaybackProfiles";
         public const string GET_EPG_ASSETS_CACHE_CONFIG_NAME = "GetEpgAssets";        
         public const string API_GET_MEDIA_FILE_TYPE = "GetMediaFileTypeID";
+        public const string API_GET_MAPPED_MEDIA_FILES = "GetMappedMediaFiles";
 
         #endregion
 
