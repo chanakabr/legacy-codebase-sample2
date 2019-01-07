@@ -16122,7 +16122,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("__startDate") && parameters["__startDate"] != null)
                 {
-                    NullableProperties = createOrAddToList<string>(NullableProperties, "startDate");
+                    AddNullableProperty("startDate");
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
@@ -16134,7 +16134,7 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("__endDate") && parameters["__endDate"] != null)
                 {
-                    NullableProperties = createOrAddToList<string>(NullableProperties, "endDate");
+                    AddNullableProperty("endDate");
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {

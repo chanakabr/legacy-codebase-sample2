@@ -295,7 +295,7 @@ namespace Reflector
                     file.WriteLine("                if (parameters.ContainsKey(\"" + nullableParam + "\") && parameters[\"" +
                                    nullableParam + "\"] != null)");
                     file.WriteLine("                {");
-                    file.WriteLine("                    NullableProperties = createOrAddToList<string>(NullableProperties, \"" + apiName + "\");");
+                    file.WriteLine("                    AddNullableProperty(\"" + apiName + "\");");
                     file.WriteLine("                }");
 
                 }

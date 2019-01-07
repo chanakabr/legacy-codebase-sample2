@@ -140,16 +140,6 @@ namespace WebAPI.Models.General
             return list;
         }
 
-        public List<T> createOrAddToList<T>(List<T> list, T item) 
-        {
-            if (list == null)
-                list = new List<T>();
-
-            list.Add(item);
-
-            return list;
-        }
-
         public List<T> buildList<T>(Type itemType, JArray array) where T : KalturaOTTObject
         {
             List<T> list = new List<T>();
@@ -311,6 +301,14 @@ namespace WebAPI.Models.General
 
     public partial class KalturaOTTObjectSupportNullable : KalturaOTTObject
     {
-        internal List<string> NullableProperties { get; set; }
+        internal HashSet<string> NullableProperties { get; private set; }
+
+        public void AddNullableProperty(string str)
+        {
+            if (NullableProperties == null)
+                NullableProperties = new HashSet<string>();
+
+            NullableProperties.Add(str.ToLower());
+        }
     }
 }
