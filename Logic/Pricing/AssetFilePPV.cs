@@ -1,8 +1,9 @@
 ﻿using System;
+using ApiObjects.Base;
 
 namespace Core.Pricing
 {
-    public class AssetFilePpv
+    public class AssetFilePpv : BaseSupportsNullable
     {
         public long AssetFileId { get; set; }
 
