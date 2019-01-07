@@ -96,6 +96,7 @@ namespace CachingProvider.LayeredCache
         public const string QUERIES_ROUTING_CONFIG_NAME = "QueriesRouting";
         public const string GROUP_WATCH_PERMISSION_RULES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPermittedWatchRules";        
         public const string API_GET_MEDIA_FILE_TYPE = "GetMediaFileTypeID";
+        public const string API_GET_MAPPED_MEDIA_FILES = "GetMappedMediaFiles";
 
         #endregion
 
