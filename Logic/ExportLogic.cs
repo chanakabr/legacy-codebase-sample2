@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using ApiObjects.Epg;
 using ConfigurationManager;
+using Core.Catalog.CatalogManagement;
 
 namespace APILogic
 {
@@ -104,7 +105,14 @@ namespace APILogic
                 // if there are updated assets - get the media objects from catalog and append them to the xml
                 if (updatedAssetsIds != null && updatedAssetsIds.Count > 0)
                 {
-                    RunExportTasks(groupId, updatedAssetsIds, taskId, exportVodFullPath, mainLang, DoExportUpdatedMediaJob);
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    {
+                        RunExportTasks(groupId, updatedAssetsIds, taskId, exportVodFullPath, mainLang, DoOpcExportUpdatedMediaJob);
+                    }
+                    else
+                    {
+                        RunExportTasks(groupId, updatedAssetsIds, taskId, exportVodFullPath, mainLang, DoExportUpdatedMediaJob);
+                    }
                 }
 
                 // if there are not active / deleted media - the build and append the xml
@@ -175,7 +183,14 @@ namespace APILogic
                 // if there are updated assets - get the media objects from catalog and append them to the xml
                 if (updatedAssetsIds != null && updatedAssetsIds.Count > 0)
                 {
-                    RunExportTasks(groupId, updatedAssetsIds, taskId, exportEpgFullPath, mainLang, DoExportUpdatedEpgJob);
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    {
+                        RunExportTasks(groupId, updatedAssetsIds, taskId, exportEpgFullPath, mainLang, DoOpcExportUpdatedEpgJob);
+                    }
+                    else
+                    {
+                        RunExportTasks(groupId, updatedAssetsIds, taskId, exportEpgFullPath, mainLang, DoExportUpdatedEpgJob);
+                    }
                 }
 
                 // if there are not active / deleted media - the build and append the xml
@@ -395,6 +410,69 @@ namespace APILogic
             return true;
         }
 
+        private static bool DoOpcExportUpdatedEpgJob(int groupId, long taskId, List<long> programIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0)
+        {
+            // calculate the start index of the media ids array 
+            int startIndex = loopStartIndex + (taskIndex * maxAssetsPerTask);
+
+            // calculate the number of ids to export 
+            int numberOfIds = startIndex + maxAssetsPerTask <= programIds.Count ? maxAssetsPerTask : programIds.Count - startIndex;
+
+            try
+            {
+                List<Asset> programs;
+                if (tasksCount == 1)
+                {
+                    programs = AssetManager.GetAssets(groupId, programIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.EPG, id)).ToList(), true); 
+                }
+                else
+                {
+                    var currentIdsRange = programIds.GetRange(startIndex, numberOfIds);
+
+                    // get programs from catalog by ids (only the calculated range of program ids)
+                    programs = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.EPG, id)).ToList(), true); 
+                }
+
+                // if no programs returned - retry / fail the current bulk and continue the export
+                if (programs == null || programs.Count == 0)
+                {
+                    throw new Exception(string.Format("failed to get media objects from catalog for task id = {0}, {1} medias from index = {2}", taskId, numberOfIds, startIndex));
+                }
+
+                // build the Programme list for all the retrieved programs
+                StringBuilder xml = new StringBuilder();
+                foreach (var program in programs)
+                {
+                    if (program != null)
+                    {
+                        xml.Append(BuildSingleProgramXml(program as EpgAsset, mainLang, taskId));
+                    }
+                }
+
+                // append the created xml to the export xml file
+                lock (lockObject)
+                {
+                    File.AppendAllText(exportFullPath, xml.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("error in DoExportUpdatedEpgJob. task id = {0}, retry number {1}", taskId, retrisCount), ex);
+
+                // if not exceeded retries limit - try again
+                if (retrisCount < innerTaskRetriesLimit)
+                {
+                    return DoOpcExportUpdatedEpgJob(groupId, taskId, programIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static bool DoExportUpdatedMediaJob(int groupId, long taskId, List<long> mediaIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0)
         {
             // calculate the start index of the media ids array 
@@ -450,6 +528,70 @@ namespace APILogic
                 if (retrisCount < innerTaskRetriesLimit)
                 {
                     return DoExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool DoOpcExportUpdatedMediaJob(int groupId, long taskId, List<long> mediaIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0)
+        {
+            // calculate the start index of the media ids array 
+            int startIndex = loopStartIndex + (taskIndex * maxAssetsPerTask);
+
+            // calculate the number of ids to export 
+            int numberOfIds = startIndex + maxAssetsPerTask <= mediaIds.Count ? maxAssetsPerTask : mediaIds.Count - startIndex;
+
+            try
+            {
+                List<Asset> assets;
+                if (tasksCount == 1)
+                {
+                    assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), false); 
+                }
+                else
+                {
+                    var currentIdsRange = mediaIds.GetRange(startIndex, numberOfIds);
+                    log.WarnFormat("start: {0}, numberOfIds, {1}, number of medias: {2}", startIndex, numberOfIds, currentIdsRange.Count);
+                    // get medias from catalog by ids (only the calculated range of media ids)
+                    assets = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), false); 
+                    log.WarnFormat("requested: {0}, returned: {1}", currentIdsRange.Count, assets.Count);
+                }
+
+                // if no medias returned - retry / fail the current bulk and continue the export
+                if (assets == null || assets.Count == 0)
+                {
+                    throw new Exception(string.Format("failed to get media objects from catalog for task id = {0}, {1} medias from index = {2}", taskId, numberOfIds, startIndex));
+                }
+
+                // build the xml for all the retrieved medias
+                StringBuilder xml = new StringBuilder();
+                foreach (var asset in assets)
+                {
+                    if (asset != null)
+                    {
+                        xml.Append(BuildSingleOpcMediaXml(asset as MediaAsset, mainLang, taskId));
+                    }
+                }
+
+                // append the created xml to the export xml file
+                lock (lockObject)
+                {
+                    File.AppendAllText(exportFullPath, xml.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("error in DoExportUpdatedMediaJob. task id = {0}, retry number {1}", taskId, retrisCount), ex);
+
+                // if not exceeded retries limit - try again
+                if (retrisCount < innerTaskRetriesLimit)
+                {
+                    return DoOpcExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
                 }
                 else
                 {
@@ -586,7 +728,134 @@ namespace APILogic
 
             return xml.ToString();
         }
-        
+
+        private static string BuildSingleOpcMediaXml(MediaAsset asset, string mainLang, long taskId)
+        {
+            StringBuilder xml = new StringBuilder();
+
+            try
+            {
+                xml.Append("<media ");
+
+                // attributes
+                xml.AppendFormat("co_guid=\"{0}\" entry_id=\"{1}\" action=\"{2}\" is_active=\"{3}\" erase=\"false\" media_id=\"{4}\">",
+                     TVinciShared.ProtocolsFuncs.XMLEncode(asset.CoGuid, true),                 // {0} - co guid
+                     TVinciShared.ProtocolsFuncs.XMLEncode(asset.EntryId, true),                // {1} - entryId
+                     TVinciShared.ProtocolsFuncs.XMLEncode("update", true),                     // {2} - action
+                     TVinciShared.ProtocolsFuncs.XMLEncode(asset.IsActive.ToString(), true),    // {3} - is active
+                     TVinciShared.ProtocolsFuncs.XMLEncode(asset.Id.ToString(), true)      // {4} - media id
+                     );
+
+                // basic data
+                xml.Append("<basic>");
+                xml.AppendFormat("<media_type>{0}</media_type><epg_identifier>{1}</epg_identifier><name><value lang=\"{2}\">{3}</value></name><description><value lang=\"{4}\">{5}</value></description>",
+                    TVinciShared.ProtocolsFuncs.XMLEncode(asset.MediaType != null ? asset.MediaType.m_sTypeName : string.Empty, true),          // {0} - media type 
+                    TVinciShared.ProtocolsFuncs.XMLEncode(asset.MediaAssetType == MediaAssetType.Linear ? (asset as LiveAsset).EpgChannelId.ToString() : string.Empty, true), // {1} - epg identifier 
+                    TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),                                                                      // {2} - main language
+                    TVinciShared.ProtocolsFuncs.XMLEncode(asset.Name, true),                                                                    // {3} - name   
+                    TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),                                                                      // {4} - main language
+                    TVinciShared.ProtocolsFuncs.XMLEncode(asset.Description, true)                                                              // {5} - description           
+                    );
+
+                // thumb + pics
+                xml.Append("<thumb url=\"\"/><pic_ratios></pic_ratios>");
+
+                // rules
+                xml.AppendFormat("<rules><watch_per_rule>{0}</watch_per_rule><geo_block_rule>{1}</geo_block_rule><players_rule>{2}</players_rule></rules>",
+                    TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty, true),      // {0} - watch rule  
+                    TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty, true),      // {1} - geo block   
+                    TVinciShared.ProtocolsFuncs.XMLEncode(string.Empty, true)       // {2} - players rule
+                );
+
+                // dates
+                xml.AppendFormat("<dates><catalog_start>{0}</catalog_start><start>{1}</start><catalog_end>{2}</catalog_end><final_end>{3}</final_end></dates>",
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.CatalogStartDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MinValue).ToString("dd/MM/yyyy hh:mm:ss") , true),    // {0} - catalog start date
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.StartDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MinValue).ToString("dd/MM/yyyy hh:mm:ss"), true),            // {1} - start date
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.EndDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true),              // {2} - catalog end date
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.FinalEndDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true)             // {3} - end date
+                    );
+
+                xml.Append("</basic>");
+
+                // metas
+                xml.Append("<structure>");
+
+                // strings
+                xml.Append("<strings>");
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(string).ToString()))
+                {
+                    xml.Append(GetStringMetaSection(meta, mainLang));
+                }
+                xml.Append("</strings>");
+
+                // doubles
+                xml.Append("<doubles>");
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(double).ToString()))
+                {
+                    xml.Append(GetMetaSection(meta));
+                }
+                xml.Append("</doubles>");
+
+                // booleans
+                xml.Append("<booleans>");
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(bool).ToString()))
+                {
+                    xml.Append(GetMetaSection(meta));
+                }
+                xml.Append("</booleans>");
+
+                // dates
+                xml.Append("<dates>");
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(DateTime).ToString()))
+                {
+                    xml.Append(GetDateMetaSection(meta));
+                }
+                xml.Append("</dates>");
+
+
+                // tags
+                xml.Append("<metas>");
+                foreach (var tag in asset.Tags)
+                {
+                    xml.Append(GetTagSection(tag, mainLang));
+                }
+
+                xml.Append("</metas>");
+                xml.Append("</structure>");
+
+                // files
+                xml.Append("<files>");
+                foreach (var file in asset.Files)
+                {
+                    xml.Append(GetFileSection(file));
+                }
+                xml.Append("</files>");
+
+                // images
+                if (asset.Images != null)
+                {
+                    xml.Append("<images>");
+                    foreach (var image in asset.Images)
+                    {
+                        if (image != null && !string.IsNullOrEmpty(image.Url))
+                        {
+                            xml.Append(GetImageSection(image));
+                        }
+                    }
+                    xml.Append("</images>");
+                }
+
+                xml.Append("</media>");
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("error in BuildSingleMediaXml. task id = {0}, media id = {1}", taskId, asset.Id), ex);
+                return string.Empty;
+            }
+
+            return xml.ToString();
+        }
+
         private static string BuildSingleProgramXml(ProgramObj program, string mainLang, long taskId)
         {
             StringBuilder xml = new StringBuilder();
@@ -684,7 +953,102 @@ namespace APILogic
             }
             return xml.ToString();
         }
-        
+
+        private static string BuildSingleProgramXml(EpgAsset program, string mainLang, long taskId)
+        {
+            StringBuilder xml = new StringBuilder();
+
+            // basic data
+            if (program == null)
+                return string.Empty;
+
+            try
+            {
+                // programme
+                xml.AppendFormat("<programme start=\"{0}\" stop=\"{1}\" channel=\"{2}\" external_id=\"{3}\" action=\"{4}\" id=\"{5}\">",
+                    TVinciShared.ProtocolsFuncs.XMLEncode((program.StartDate.HasValue ? program.StartDate.Value : DateTime.MinValue).ToString("dd/MM/yyyy hh:mm:ss"), true),         // {0} - start
+                    TVinciShared.ProtocolsFuncs.XMLEncode((program.EndDate.HasValue ? program.EndDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true),             // {1} - stop
+                    TVinciShared.ProtocolsFuncs.XMLEncode(program.EpgChannelId.ToString(), true),       // {2} - channel
+                    TVinciShared.ProtocolsFuncs.XMLEncode(program.EpgIdentifier, true),    // {3} - external_id
+                    TVinciShared.ProtocolsFuncs.XMLEncode("update", true),                 // {4} - action
+                    TVinciShared.ProtocolsFuncs.XMLEncode(program.Id.ToString(), true)     // {5} - id
+                );
+
+                // title
+                xml.AppendFormat("<title lang=\"{0}\">{1}</title>",
+                    TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),                  // {0} - lang
+                    TVinciShared.ProtocolsFuncs.XMLEncode(program.Name, true)               // {1} - title
+                );
+
+                // desc
+                xml.AppendFormat("<desc lang=\"{0}\">{1}</desc>",
+                    TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),                  // {0} - lang
+                    TVinciShared.ProtocolsFuncs.XMLEncode(program.Description, true)        // {1} - desc
+                );
+
+                // language
+                xml.AppendFormat("<lang lang=\"{0}\">{1}</lang>",
+                    TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),                  // {0} - lang
+                    TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true)                   // {1} - lang
+                );
+
+                // metas
+                if (program.Metas != null)
+                {
+                    foreach (var meta in program.Metas)
+                    {
+                        xml.AppendFormat("<metas><MetaType>{0}</MetaType><MetaValues lang=\"{1}\">{2}</MetaValues></metas>",
+                            TVinciShared.ProtocolsFuncs.XMLEncode(meta.m_oTagMeta.m_sName, true),                   // {0} - MetaType
+                            TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),                   // {1} - lang
+                            TVinciShared.ProtocolsFuncs.XMLEncode(meta.m_sValue, true)                  // {2} - MetaValues
+                        );
+                    }
+                }
+
+                // tags
+                if (program.Tags != null)
+                {
+                    foreach (var tag in program.Tags)
+                    {
+                        xml.AppendFormat("<tags><TagType>{0}</TagType>",
+                            TVinciShared.ProtocolsFuncs.XMLEncode(tag.m_oTagMeta.m_sName, true)                    // {0} - TagType
+                        );
+
+                        foreach (var tagVal in tag.m_lValues)
+                        {
+                            xml.AppendFormat("<TagValues lang=\"{0}\">{1}</TagValues>",
+                                TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),              // {0} - lang
+                                TVinciShared.ProtocolsFuncs.XMLEncode(tagVal, true)                 // {1} - TagValues
+                            );
+                            xml.Append("</tags>");
+                        }
+                    }
+                }
+
+                // images
+                if (program.Images != null)
+                {
+                    xml.Append("<images>");
+                    foreach (var image in program.Images)
+                    {
+                        if (image != null && !string.IsNullOrEmpty(image.Url))
+                        {
+                            xml.Append(GetImageSection(image));
+                        }
+                    }
+                    xml.Append("</images>");
+                }
+
+                xml.Append("</programme>");
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("error in BuildSingleProgramXml. task id = {0}, media id = {1}", taskId, program.Id), ex);
+                return string.Empty;
+            }
+            return xml.ToString();
+        }
+
         private static MediaObj[] GetMediaByIds(List<long> ids, int groupId)
         {
             MediaObj[] result = null;
@@ -751,7 +1115,8 @@ namespace APILogic
                     m_bOnlyActiveMedia = true
                 },
                 shouldIgnoreDeviceRuleID = true,
-                order = new ApiObjects.SearchObjects.OrderObj()
+                order = new ApiObjects.SearchObjects.OrderObj(),
+                isAllowedToViewInactiveAssets = false
             };
 
             Core.ConditionalAccess.Utils.FillCatalogSignature(request);
@@ -894,6 +1259,42 @@ namespace APILogic
             );
         }
 
+        private static string GetFileSection(AssetFile file)
+        {
+            return string.Format("<file co_guid=\"{0}\" handling_type=\"{1}\" assetDuration=\"{2}\" quality=\"{3}\" type=\"{4}\""
+            + " billing_type=\"{5}\" PPV_Module=\"{6}\" cdn_code=\"{7}\" cdn_id=\"{8}\" pre_rule=\"{9}\" post_rule=\"{10}\" break_rule=\"{11}\""
+            + " break_points=\"{12}\" overlay_rule=\"{13}\" overlay_points=\"{14}\" file_start_date=\"{15}\" file_end_date=\"{16}\" ads_enabled=\"{17}\""
+            + " contract_family=\"{18}\" lang=\"{19}\" default=\"{20}\" output_protection_level=\"{21}\" product_code=\"{22}\" alt_cdn_code=\"{23}\" alt_co_guid=\"{24}\" alt_cdn_id=\"{25}\" alt_cdn_name=\"{26}\"/>",
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.ExternalId, true),                            // {0} - co_guid      
+                TVinciShared.ProtocolsFuncs.XMLEncode("Clip", true),                                    // {1} - handling_type
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.Duration.ToString(), true),               // {2} - assetDuration    
+                TVinciShared.ProtocolsFuncs.XMLEncode("HIGH", true),                                    // {3} - quality     
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.GetTypeName(), true),                        // {4} - type     
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.BillingType.ToString(), true),                       // {5} - billing_type 
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {6} - billing_type 
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.Url, true),                               // {7} - cdn_code  
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.CdnAdapaterProfileId.ToString(), true),                  // {8} - cdn_id   
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {9} - pre_rule  
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {10} - post_rule  
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {11} - break_rule    
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                       // {12} - break_points    
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {13} - overlay_rule     
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                     // {14} - overlay_points
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {15} - file_start_date     
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {16} - file_end_date     
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {17} - ads_enabled    
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {18} - contract_family    
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.Language, true),                          // {19} - lang   
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.IsDefaultLanguage.ToString(), true),      // {20} - default   
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {21} - output_protection_level   
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {22} - product_code   
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {23} - alt_cdn_code   
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {24} - alt_co_guid   
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {25} - alt_cdn_id   
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true)                                         // {26} - alt_cdn_name   
+            );
+        }
+
         public static bool SendNotification(long taskId, string notificationUrl, bool success, string filename = null)
         {
             bool result = false;
@@ -943,6 +1344,17 @@ namespace APILogic
                 TVinciShared.ProtocolsFuncs.XMLEncode(image.ratio, true),               
                 TVinciShared.ProtocolsFuncs.XMLEncode(image.version.ToString(), true),  
                 TVinciShared.ProtocolsFuncs.XMLEncode(image.id, true)                  
+            );
+        }
+
+        private static string GetImageSection(Image image)
+        {
+            return string.Format("<image size=\"{0}\" url=\"{1}\" ratio=\"{2}\" version=\"{3}\" id=\"{4}\"/>",
+                TVinciShared.ProtocolsFuncs.XMLEncode(string.Format("{0}X{1}", image.Width, image.Height), true),
+                TVinciShared.ProtocolsFuncs.XMLEncode(image.Url, true),
+                TVinciShared.ProtocolsFuncs.XMLEncode(image.RatioName, true),
+                TVinciShared.ProtocolsFuncs.XMLEncode(image.Version.ToString(), true),
+                TVinciShared.ProtocolsFuncs.XMLEncode(image.Id.ToString(), true)
             );
         }
 
