@@ -71,7 +71,7 @@ namespace Core.Catalog.CatalogManagement
                     this.CatchUpEnabled = GetEnableData(epgCBList[0].EnableCatchUp, linearChannelSettings.EnableCatchUp);
                     this.TrickPlayEnabled = GetEnableData(epgCBList[0].EnableTrickPlay, linearChannelSettings.EnableTrickPlay);
                 }
-                
+
                 SetImages(epgCBList[0].pictures, ratios, groupId);
 
                 foreach (var epgCb in epgCBList)
@@ -96,8 +96,7 @@ namespace Core.Catalog.CatalogManagement
                 this.UpdateDate = DateTime.UtcNow;
             }
         }
-        
-        // TODO SHIR - ASK IRA IF TO UPDATE 510 LIKE THIS METHOD
+
         private void SetTags(EpgCB epgCb, bool IsDefaultLanguage)
         {
             if (this.Tags == null)
@@ -329,7 +328,7 @@ namespace Core.Catalog.CatalogManagement
 
             return needToUpdateBasicData;
         }
-        
+
         /// <summary>
         /// if epgEnable 2 return false else get value from LinearChannelSettings
         /// </summary>
