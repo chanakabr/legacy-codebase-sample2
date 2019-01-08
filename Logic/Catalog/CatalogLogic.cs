@@ -185,9 +185,15 @@ namespace Core.Catalog
             {
                 if (mediaIds != null && mediaIds.Count > 0)
                 {
+                    int endIndex = 0;
+                    if (nStartIndex == 0 && nEndIndex == 0 && mediaIds != null && mediaIds.Count > 0)
+                    {
+                        endIndex = mediaIds.Count;
+                    }
+
                     List<BaseObject> assetsToRetrieve = new List<BaseObject>();
                     // get only assets in requested page
-                    for (int i = nStartIndex; i < nEndIndex; i++)
+                    for (int i = nStartIndex; i < endIndex; i++)
                     {
                         assetsToRetrieve.Add(new BaseObject() { AssetId = mediaIds[i].ToString(), AssetType = eAssetTypes.MEDIA });
                     }
