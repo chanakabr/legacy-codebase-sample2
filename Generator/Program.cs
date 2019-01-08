@@ -16,7 +16,7 @@ namespace Generator
             SchemeManager.Generate(stream);
 
             Console.WriteLine("Press any key to exit");
-            Console.ReadKey();
+            Console.Read();
         }
     }
 }
