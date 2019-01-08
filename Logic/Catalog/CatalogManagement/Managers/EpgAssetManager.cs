@@ -84,6 +84,7 @@ namespace Core.Catalog.CatalogManagement
                                                                invalidationKeysMap))
                 {
                     log.ErrorFormat("Failed getting GetEpgAssetsFromCache from LayeredCache, groupId: {0}, epgIds: {1}", groupId, string.Join(",", epgIds));
+                    return null;
                 }
             }
             catch (Exception ex)
@@ -272,18 +273,15 @@ namespace Core.Catalog.CatalogManagement
                 // update epgCb in CB for all languages
                 SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags);
 
+                // update index
+                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)result.Object.Id });
+                if (!indexingResult)
+                {
+                    log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", result.Object.Id, groupId);
+                }
+
                 // get updated epgAsset
                 result = AssetManager.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
-
-                // update index
-                if (result.HasObject() && result.Object.Id > 0)
-                {
-                    bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)result.Object.Id });
-                    if (!indexingResult)
-                    {
-                        log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", result.Object.Id, groupId);
-                    }
-                }
             }
             catch (Exception ex)
             {

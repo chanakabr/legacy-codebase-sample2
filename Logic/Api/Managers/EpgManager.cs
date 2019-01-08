@@ -236,7 +236,7 @@ namespace APILogic.Api.Managers
             {
                 string strEpgChannelId = epgChannelId.Value.ToString();
                 Dictionary<string, LinearChannelSettings> linearChannelSettings =
-                            CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { strEpgChannelId });
+                    CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { strEpgChannelId });
 
                 if (linearChannelSettings != null && linearChannelSettings.Count > 0 && linearChannelSettings.ContainsKey(strEpgChannelId))
                 {
