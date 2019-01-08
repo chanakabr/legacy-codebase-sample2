@@ -5494,6 +5494,35 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
+        public static DataTable GetImages(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Images");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            return sp.Execute();
+        }
+
+        public static long InsertImage(int groupId, int tableReference, long tableReferenceId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Image");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@tableReference", tableReference);
+            sp.AddParameter("@tableReferenceId", tableReferenceId);
+
+            return sp.ExecuteReturnValue<long>();
+        }
+
+        public static long DeleteImage(int groupId, int id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_Image");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+
+            return sp.ExecuteReturnValue<long>();
+        }
         #endregion
 
     }
