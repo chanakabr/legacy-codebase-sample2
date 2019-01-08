@@ -36,16 +36,11 @@ namespace Core.Catalog.Request
         public MediaResponse GetMediasByIDs(MediasProtocolRequest mediaRequest)
         {
             MediaResponse mediaResponse = new MediaResponse();
-            List<MediaObj> lMediaObj = new List<MediaObj>();
-            MediaObj oMediaObj = new MediaObj();
 
             try
             {
-
                 CheckRequestValidness();
-
                 CheckSignature(this);
-
                 CatalogLogic.CompleteDetailsForMediaResponse(this, ref mediaResponse, m_nPageSize * m_nPageIndex, m_nPageSize * m_nPageIndex + m_nPageSize);
 
                 return mediaResponse;
