@@ -86,11 +86,40 @@ namespace Core.Catalog.Request
                 CheckRequestValidness();
                 CheckSignature(this);
 
-                response.epgList = CatalogLogic.GetEPGProgramInformation(epgIds, this.m_nGroupID, this.m_oFilter);
+                List<BaseObject> assetsToRetrieve = new List<BaseObject>();
+                if (epgIds != null && epgIds.Count > 0)
+                {
+                    foreach (long epgId in epgIds)
+                    {
+                        assetsToRetrieve.Add(new BaseObject() { AssetId = epgId.ToString(), AssetType = ApiObjects.eAssetTypes.EPG });
+                    }
+                }
 
                 if (mediaIds != null && mediaIds.Count > 0)
                 {
-                    response.mediaList = CatalogLogic.CompleteMediaDetails(mediaIds.Select(id => (int)id).ToList(), this.m_nGroupID, this.m_oFilter, this.ManagementData);
+                    foreach (long mediaId in mediaIds)
+                    {
+                        assetsToRetrieve.Add(new BaseObject() { AssetId = mediaId.ToString(), AssetType = ApiObjects.eAssetTypes.MEDIA });
+                    }
+                }
+
+                if (assetsToRetrieve.Count > 0)
+                {
+                    List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(m_nGroupID, assetsToRetrieve, this.m_oFilter, this.ManagementData);
+                    if (assets.Count > 0)
+                    {
+                        foreach (BaseObject asset in assets)
+                        {
+                            if (asset.AssetType == ApiObjects.eAssetTypes.MEDIA)
+                            {
+                                response.mediaList.Add(asset as MediaObj);
+                            }
+                            else if (asset.AssetType == ApiObjects.eAssetTypes.EPG)
+                            {
+                                response.epgList.Add(asset as ProgramObj);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)

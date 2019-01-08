@@ -168,12 +168,12 @@ namespace Core.Catalog
 
         private static int maxNGram = -1;
 
-        /*Get All Relevant Details About Media (by id) , 
-         Use Stored Procedure */
+        /* Get All Relevant Details About Media (by id), use LayeredCache */
         internal static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex, bool managementData = false)
         {
             List<MediaObj> lMediaObj = new List<MediaObj>();
-            int totalItems = 0;
+            mediaResponse.m_nTotalItems = 0;
+            mediaResponse.m_lObj = new List<BaseObject>();
             int groupId = mediaRequest.m_nGroupID;
             Filter filter = mediaRequest.m_oFilter;
             string siteGuid = mediaRequest.m_sSiteGuid;
@@ -181,17 +181,25 @@ namespace Core.Catalog
 
             try
             {
-                lMediaObj = CompleteMediaDetails(mediaIds, nStartIndex, ref nEndIndex, ref totalItems, groupId, filter, managementData);
+                if (mediaIds != null && mediaIds.Count > 0)
+                {
+                    List<BaseObject> assetsToRetrieve = new List<BaseObject>();
+                    // get only assets in requested page
+                    for (int i = nStartIndex; i < nEndIndex; i++)
+                    {
+                        assetsToRetrieve.Add(new BaseObject() { AssetId = mediaIds[i].ToString(), AssetType = eAssetTypes.MEDIA });
+                    }
 
-                mediaResponse.m_nTotalItems = totalItems;
-                mediaResponse.m_lObj = lMediaObj.Select(media => (BaseObject)media).ToList();
+                    mediaResponse.m_nTotalItems = mediaIds.Count;
+                    mediaResponse.m_lObj = Core.Catalog.Utils.GetOrderedAssets(groupId, assetsToRetrieve, filter, managementData);
+                }
 
                 return true;
             }
 
             catch (Exception ex)
             {
-                log.Error("faild to complete details", ex);
+                log.Error("failed to complete details", ex);
                 throw ex;
             }
         }
