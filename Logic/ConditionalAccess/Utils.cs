@@ -303,10 +303,10 @@ namespace Core.ConditionalAccess
             return sRet;
         }
 
-        internal static string GetSubscriptiopnPurchaseCoupon(Int32 nPurchaseID)
+        internal static string GetSubscriptiopnPurchaseCoupon(long purchaseId)
         {
             string sRet = string.Empty;
-            object oExistingCustomData = ODBCWrapper.Utils.GetTableSingleVal("subscriptions_purchases", "customdata", nPurchaseID, 0, "CA_CONNECTION_STRING");
+            object oExistingCustomData = ODBCWrapper.Utils.GetTableSingleVal("subscriptions_purchases", "customdata", purchaseId, 0, "CA_CONNECTION_STRING");
 
             if (oExistingCustomData != null)
             {
@@ -1250,27 +1250,36 @@ namespace Core.ConditionalAccess
                 (nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID, sCouponCode, nGroupID, subCode, out dtDiscountEnd, domainId);
         }
 
-        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
+        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription subscription,
                                                         string countryCode, string languageCode, string udid)
         {
+            string ip = string.Empty;
             UnifiedBillingCycle unifiedBillingCycle = null;
-            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, string.Empty, ref unifiedBillingCycle);
+            double couponRemainder = 0;
+
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip, 
+                                             ref unifiedBillingCycle, out couponRemainder);
         }
 
-        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
+        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription subscription,
                                                         string countryCode, string languageCode, string udid, string ip, string currencyCode = null, bool isSubscriptionSetModifySubscription = false)
         {
             UnifiedBillingCycle unifiedBillingCycle = null;
-            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, ip, ref unifiedBillingCycle, currencyCode, isSubscriptionSetModifySubscription);
+            double couponRemainder = 0;
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip, ref unifiedBillingCycle, 
+                                            out couponRemainder, currencyCode, isSubscriptionSetModifySubscription);
         }
         
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, ref string couponCode, ref PriceReason theReason, ref Subscription subscription,
-                                string countryCode, string languageCode, string udid, string ip, ref UnifiedBillingCycle unifiedBillingCycle, string currencyCode = null, bool isSubscriptionSetModifySubscription = false,
-                                BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
+                                                        string countryCode, string languageCode, string udid, string ip, ref UnifiedBillingCycle unifiedBillingCycle, 
+                                                        out double couponRemainder, string currencyCode = null, bool isSubscriptionSetModifySubscription = false, 
+                                                        BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
             //create web service pricing insatance
             Price price = null;
             unifiedBillingCycle = null;
+            couponRemainder = 0;
+
             try
             {
                 subscription = Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false);
@@ -1361,13 +1370,15 @@ namespace Core.ConditionalAccess
                     {
                         discountPrice = GetPriceAfterDiscount(price, externalDiscount, 1);
                     }
-
+                    
                     price = GetLowestPrice(groupId, price, domainId, discountPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode, ref couponCode,
                                            subscription.m_oCouponsGroup, subscription.CouponsGroups, null);
-                    
+
                     if (price != null && price.m_dPrice != 0)
                     {
-                        CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainId, !string.IsNullOrEmpty(couponCode));
+                        var lowestPrice = CopyPrice(price);
+                        price.m_dPrice = CalculatePriceByUnifiedBillingCycle(groupId, price.m_dPrice, ref unifiedBillingCycle, subscription, domainId);
+                        couponRemainder = lowestPrice.m_dPrice - price.m_dPrice;
                     }
                 }
             }
@@ -1537,38 +1548,37 @@ namespace Core.ConditionalAccess
             {    
                 DateTime minStartDate = DateTime.UtcNow;
                 List<RenewSubscriptionDetails> renewSubscriptionDetails = new List<RenewSubscriptionDetails>();
-                RenewSubscriptionDetails rsd;
                 int numOfPayments, paymentNumber;
 
                 foreach (DataRow dr in subscriptionPurchaseDt.Rows)
                 {
-                    rsd = new RenewSubscriptionDetails();
-                    rsd.ProductId = ODBCWrapper.Utils.ExtractString(dr, "subscription_code");
-                    rsd.PurchaseId = ODBCWrapper.Utils.ExtractInteger(dr, "id");
-                    rsd.CouponCode = ODBCWrapper.Utils.ExtractString(dr, "coupon_code");
-                    rsd.EndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "end_date");
-                    rsd.UserId = ODBCWrapper.Utils.ExtractString(dr, "site_user_guid");
-                    rsd.BillingGuid = ODBCWrapper.Utils.ExtractString(dr, "billing_guid");
-                    rsd.CustomData = ODBCWrapper.Utils.ExtractString(dr, "customdata");
+                    RenewSubscriptionDetails rsd = new RenewSubscriptionDetails
+                    {
+                        ProductId = ODBCWrapper.Utils.ExtractString(dr, "subscription_code"),
+                        PurchaseId = ODBCWrapper.Utils.ExtractInteger(dr, "id"),
+                        CouponCode = ODBCWrapper.Utils.ExtractString(dr, "coupon_code"),
+                        EndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "end_date"),
+                        UserId = ODBCWrapper.Utils.ExtractString(dr, "site_user_guid"),
+                        BillingGuid = ODBCWrapper.Utils.ExtractString(dr, "billing_guid"),
+                        CustomData = ODBCWrapper.Utils.ExtractString(dr, "customdata"),
+                        CountryName = ODBCWrapper.Utils.ExtractString(dr, "country_code"), // country code on db is really country name 
+                        Currency = ODBCWrapper.Utils.ExtractString(dr, "currency_cd"),
+                        PaymentMethodId = ODBCWrapper.Utils.ExtractInteger(dr, "payment_method_id"),
+                        ExternalTransactionId = ODBCWrapper.Utils.ExtractString(dr, "external_transaction_id"),
+                        TotalNumOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "total_number_of_payments"),
+                        SubscriptionStatus = (SubscriptionPurchaseStatus)ODBCWrapper.Utils.ExtractInteger(dr, "subscription_status")
+                    };
 
-                    rsd.CountryName = ODBCWrapper.Utils.ExtractString(dr, "country_code"); // country code on db is really country name 
                     rsd.CountryCode = Utils.GetCountryCodeByCountryName(groupId, rsd.CountryName);
-
-                    rsd.Currency = ODBCWrapper.Utils.ExtractString(dr, "currency_cd");
-                    rsd.PaymentMethodId = ODBCWrapper.Utils.ExtractInteger(dr, "payment_method_id");
-                    rsd.ExternalTransactionId = ODBCWrapper.Utils.ExtractString(dr, "external_transaction_id");
-                    rsd.TotalNumOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "total_number_of_payments");
-
-                    rsd.SubscriptionStatus = (SubscriptionPurchaseStatus)ODBCWrapper.Utils.ExtractInteger(dr, "subscription_status");
-
-                    numOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "number_of_payments");
-                    paymentNumber = ODBCWrapper.Utils.ExtractInteger(dr, "payment_number");
-
+                    
                     // get compensation data
                     rsd.Compensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(rsd.PurchaseId);
 
                     // check if purchased with preview module                    
                     rsd.IsPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(groupId, rsd.BillingGuid, (int)rsd.PurchaseId);
+
+                    numOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "number_of_payments");
+                    paymentNumber = ODBCWrapper.Utils.ExtractInteger(dr, "payment_number");
 
                     paymentNumber = Utils.CalcPaymentNumber(numOfPayments, paymentNumber, rsd.IsPurchasedWithPreviewModule);
                     if (numOfPayments > 0 && paymentNumber > numOfPayments)
@@ -1594,40 +1604,30 @@ namespace Core.ConditionalAccess
             {
                 log.ErrorFormat("BuildSubscriptionPurchaseDetails failed ex = {0}", ex);
             }
+
             return null;
         }
 
-        internal static void GetMultiSubscriptionUsageModule(List<RenewSubscriptionDetails> rsDetails, string userIp, List<Subscription> subscriptions, BaseConditionalAccess cas, ref UnifiedBillingCycle unifiedBillingCycle,
-            int householdId, int groupId, bool isRenew = true)
+        internal static void GetMultiSubscriptionUsageModule(List<RenewSubscriptionDetails> rsDetails, string userIp, List<Subscription> subscriptions, 
+                                                             BaseConditionalAccess cas, ref UnifiedBillingCycle unifiedBillingCycle, int householdId, int groupId, 
+                                                             bool isRenew = true)
         {
             try
             {
                 // get MPP
                 int recPeriods = 0;
                 bool isMPPRecurringInfinitely = false;
-                int maxVLCOfSelectedUsageModule = 0;
-                double price = 0;
-                string customData = string.Empty;
-                string currency = "n/a";
-                string couponCode = string.Empty;
                 string previousPurchaseCurrencyCode = string.Empty;
-                string previousPurchaseCountryCode = string.Empty;
-                string previousPurchaseCountryName = string.Empty;
                 List<RenewSubscriptionDetails> rsDetailsToRemove = new List<RenewSubscriptionDetails>();
 
                 Subscription subscription;
                 foreach (RenewSubscriptionDetails rsDetail in rsDetails)
                 {
                     previousPurchaseCurrencyCode = rsDetail.Currency;
-                    previousPurchaseCountryName = rsDetail.CountryName;
-                    previousPurchaseCountryCode = rsDetail.CountryCode;
-                    couponCode = rsDetail.CouponCode;
 
-                    subscription = subscriptions.Where(x => x.m_SubscriptionCode == rsDetail.ProductId).FirstOrDefault();
-                    if (!cas.GetMultiSubscriptionUsageModule(rsDetail.UserId, userIp, (int)rsDetail.PurchaseId, rsDetail.PaymentNumber, rsDetail.TotalNumOfPayments, rsDetail.NumOfPayments, rsDetail.IsPurchasedWithPreviewModule,
-                            ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                            ref couponCode, subscription, ref unifiedBillingCycle, rsDetail.Compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, rsDetail.EndDate, groupId,
-                            householdId, true, isRenew))
+                    subscription = subscriptions.FirstOrDefault(x => x.m_SubscriptionCode == rsDetail.ProductId);
+                    if (!cas.GetMultiSubscriptionUsageModule(rsDetail, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle, 
+                                                             previousPurchaseCurrencyCode, groupId, householdId, true, isRenew))
                     {
                         // "Error while trying to get Price plan
                         log.ErrorFormat("Error while trying to get Price plan to renew productId : {0}, purchaseId : {1}, householdId : {2}", rsDetail.ProductId, rsDetail.PurchaseId, householdId);
@@ -1636,10 +1636,6 @@ namespace Core.ConditionalAccess
                         continue;
                     }
 
-                    rsDetail.CouponCode = couponCode;
-                    rsDetail.Price = price;
-                    rsDetail.Currency = currency;
-                    rsDetail.MaxVLCOfSelectedUsageModule = maxVLCOfSelectedUsageModule;
                     rsDetail.GracePeriodMinutes = subscription.m_GracePeriodMinutes;
                 }
 
@@ -1659,8 +1655,9 @@ namespace Core.ConditionalAccess
         /// P = subscription price (original + discount)
         /// AD =  (billingCycle_date - purchase_date ). TotalDays  - Ceiling 
         /// partialPrice = AD * P/D (2 digit after .)      
-        internal static void CalculatePriceByUnifiedBillingCycle(int groupId, ref double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null, int domainId = 0, bool useCoupon = false)
+        internal static double CalculatePriceByUnifiedBillingCycle(int groupId, double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null, int domainId = 0)
         {
+            double unifiedBillingCyclePrice = price;
             long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
             if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
             {
@@ -1676,15 +1673,17 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                if (!useCoupon && unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
                     DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
                     int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
                     int numOfDaysByBillingCycle = (int)Math.Ceiling((ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
 
-                    price = Math.Round(numOfDaysByBillingCycle * (price / numOfDaysForSubscription), 2);
+                    unifiedBillingCyclePrice = Math.Round(numOfDaysByBillingCycle * (unifiedBillingCyclePrice / numOfDaysForSubscription), 2);
                 }
             }
+
+            return unifiedBillingCyclePrice;
         }
 
         internal static UnifiedBillingCycle TryGetHouseholdUnifiedBillingCycle(int domainId, long renewLifeCycle)
@@ -8352,7 +8351,7 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal static long GetSubscriptiopnPurchaseCoupon(ref string couponCode, int purchaseId, int groupId)
+        internal static long GetSubscriptiopnPurchaseCoupon(ref string couponCode, long purchaseId, int groupId)
         {
             long couponGroupId = 0;
             

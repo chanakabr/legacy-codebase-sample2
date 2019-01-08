@@ -38,7 +38,9 @@ namespace APILogic.ConditionalAccess.Modules
 
         // get total number of payments
         public int TotalNumOfPayments { get; set; }
+
         public int MaxVLCOfSelectedUsageModule { get; set; }
+
         public Compensation Compensation { get; set; }
 
         public bool IsPurchasedWithPreviewModule { get; set; }
@@ -60,5 +62,7 @@ namespace APILogic.ConditionalAccess.Modules
         public long BillingTransactionId { get; set; }
 
         public SubscriptionPurchaseStatus SubscriptionStatus { get; set; }
+
+        public bool IsUseCouponRemainder { get; set; }
     }
 }

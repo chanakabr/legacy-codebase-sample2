@@ -1060,10 +1060,10 @@ namespace Core.ConditionalAccess
 
                 bool isGiftCard = false;
                 Price priceResponse = null;
-
+                double couponRemainder = 0;
                 UnifiedBillingCycle unifiedBillingCycle = null; // there is a unified billingCycle for this subscription cycle
-                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, ref couponCode,
-                    ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, ref unifiedBillingCycle, currency, isSubscriptionSetModifySubscription);
+                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, ref couponCode, ref priceReason, ref subscription, country, string.Empty, 
+                                                                deviceName, userIp, ref unifiedBillingCycle, out couponRemainder, currency, isSubscriptionSetModifySubscription);
 
                 if (subscription == null)
                 {
@@ -1341,10 +1341,15 @@ namespace Core.ConditionalAccess
                                                     paymentGwId = paymentGateway.ID;
 
                                                     if (!paymentGateway.ExternalVerification && unifiedBillingCycle == null && subscription != null &&
-                                                     subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
-                                                     subscription.m_MultiSubscriptionUsageModule.Count() == 1)
+                                                        subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                                                        subscription.m_MultiSubscriptionUsageModule.Count() == 1)
                                                     {
                                                         Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, endDate.Value, !string.IsNullOrEmpty(couponCode));
+
+                                                        if (couponRemainder > 0)
+                                                        {
+                                                            ConditionalAccessDAL.SaveCouponRemainder(purchaseID, couponRemainder);
+                                                        }
                                                     }
                                                 }
 

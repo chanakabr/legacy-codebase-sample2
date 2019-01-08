@@ -1,6 +1,7 @@
 using AdapterControllers;
 using AdapterControllers.CDVR;
 using APILogic.ConditionalAccess.Managers;
+using APILogic.ConditionalAccess.Modules;
 using APILogic.ConditionalAccess.Response;
 using ApiObjects;
 using ApiObjects.Billing;
@@ -2564,14 +2565,12 @@ namespace Core.ConditionalAccess
             * returns true if user exists. false otherwise. throws exception if cannot deliver all data required for renewal
             * 
         */
-        protected bool GetBaseRenewMultiUsageSubscriptionData(string sSiteGUID, string sSubscriptionCode, string sUserIP,
-           Int32 nPurchaseID, Int32 nPaymentNumber, int nTotalPaymentsNumber, string sCountryCd, string sLANGUAGE_CODE,
-           string sDEVICE_NAME, int nNumOfPayments, bool bIsPurchasedWithPreviewModule, DateTime dtCurrentEndDate,
-           ref double dPrice, ref string sCustomData, ref string sCurrency, ref int nRecPeriods,
-           ref bool bIsMPPRecurringInfinitely, ref int nMaxVLCOfSelectedUsageModule)
+        protected bool GetBaseRenewMultiUsageSubscriptionData(string userId, string subscriptionCode, string userIP, Int32 nPurchaseID, Int32 nPaymentNumber, 
+                                                              int nTotalPaymentsNumber, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int nNumOfPayments, 
+                                                              bool bIsPurchasedWithPreviewModule, DateTime dtCurrentEndDate, ref double dPrice, ref string sCustomData, 
+                                                              ref string sCurrency, ref int nRecPeriods, ref bool bIsMPPRecurringInfinitely, ref int nMaxVLCOfSelectedUsageModule)
         {
-            string sCouponCode = string.Empty;
-            UserResponseObject ExistUser = Utils.GetExistUser(sSiteGUID, m_nGroupID);
+            UserResponseObject ExistUser = Utils.GetExistUser(userId, m_nGroupID);
 
             if (ExistUser != null && ExistUser.m_RespStatus == ResponseStatus.OK)
             {
@@ -2583,10 +2582,28 @@ namespace Core.ConditionalAccess
 
                     Subscription theSub = null;
 
-                    theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
-                    GetMultiSubscriptionUsageModule(sSiteGUID, sUserIP, nPurchaseID, nPaymentNumber, nTotalPaymentsNumber, nNumOfPayments, bIsPurchasedWithPreviewModule,
-                        ref dPrice, ref sCustomData, ref sCurrency, ref nRecPeriods, ref bIsMPPRecurringInfinitely, ref nMaxVLCOfSelectedUsageModule,
-                        ref sCouponCode, theSub);
+                    theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                    RenewSubscriptionDetails renewSubscriptionDetails = new RenewSubscriptionDetails()
+                    {
+                        UserId = userId,
+                        PurchaseId = nPurchaseID,
+                        PaymentNumber = nPaymentNumber,
+                        TotalNumOfPayments = nTotalPaymentsNumber,
+                        NumOfPayments = nNumOfPayments,
+                        IsPurchasedWithPreviewModule = bIsPurchasedWithPreviewModule,
+                        MaxVLCOfSelectedUsageModule = nMaxVLCOfSelectedUsageModule,
+                        Price = dPrice,
+                        CustomData = sCustomData,
+                        Currency = sCurrency,
+                        CouponCode = string.Empty
+                    };
+
+                    GetMultiSubscriptionUsageModule(renewSubscriptionDetails, userIP, ref nRecPeriods, ref bIsMPPRecurringInfinitely, theSub);
+
+                    nMaxVLCOfSelectedUsageModule = renewSubscriptionDetails.MaxVLCOfSelectedUsageModule;
+                    dPrice = renewSubscriptionDetails.Price;
+                    sCustomData = renewSubscriptionDetails.CustomData;
+                    sCurrency = renewSubscriptionDetails.Currency;
                 }
                 catch (Exception ex)
                 {
@@ -2601,19 +2618,40 @@ namespace Core.ConditionalAccess
             return true;
         }
 
-        protected internal bool GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
-        int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
-        ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription)
+        protected internal bool GetMultiSubscriptionUsageModule(RenewSubscriptionDetails renewSubscriptionDetails, string userIp, ref int nRecPeriods, 
+                                                                ref bool isMPPRecurringInfinitely, Subscription subscription)
         {
-            return GetMultiSubscriptionUsageModule(siteguid, userIp, purchaseId, paymentNumber, totalPaymentsNumber, numOfPayments, isPurchasedWithPreviewModule, ref priceValue,
-                ref customData, ref sCurrency, ref nRecPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule, ref couponCode, subscription);
+            UnifiedBillingCycle unifiedBillingCycle = null;
+            return GetMultiSubscriptionUsageModule(renewSubscriptionDetails, userIp, ref nRecPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle);
         }
 
-        protected internal bool GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
-                int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
-                ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, ref UnifiedBillingCycle unifiedBillingCycle,
-                Compensation compensation = null, string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null,
-                DateTime? endDate = null, int groupId = 0, long householdId = 0, bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
+        //protected internal bool GetMultiSubscriptionUsageModule(RenewSubscriptionDetails renewSubscriptionDetails, string userIp, ref int nRecPeriods, 
+        //                                                        ref bool isMPPRecurringInfinitely, Subscription subscription,
+        //                                                        ref UnifiedBillingCycle unifiedBillingCycle, 
+        //                                                        int groupId = 0, long householdId = 0,
+        //                                                        bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
+        //{
+        //    int maxVLCOfSelectedUsageModule = renewSubscriptionDetails.MaxVLCOfSelectedUsageModule;
+        //    double priceValue = renewSubscriptionDetails.Price;
+        //    string customData = renewSubscriptionDetails.CustomData;
+        //    string sCurrency = renewSubscriptionDetails.Currency;
+        //    string couponCode = renewSubscriptionDetails.CouponCode;
+        //    string previousPurchaseCountryName = renewSubscriptionDetails.CountryName;
+        //    string previousPurchaseCountryCode = renewSubscriptionDetails.CountryCode;
+        //    string previousPurchaseCurrencyCode = renewSubscriptionDetails.Currency;
+
+        //    return GetMultiSubscriptionUsageModule(renewSubscriptionDetails.UserId, userIp, renewSubscriptionDetails.PurchaseId, renewSubscriptionDetails.PaymentNumber,
+        //                                           renewSubscriptionDetails.TotalNumOfPayments, renewSubscriptionDetails.NumOfPayments,
+        //                                           renewSubscriptionDetails.IsPurchasedWithPreviewModule, ref priceValue, ref customData, ref sCurrency,
+        //                                                     ref nRecPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule, ref couponCode, subscription,
+        //                                                     ref unifiedBillingCycle, renewSubscriptionDetails.Compensation, previousPurchaseCountryName, previousPurchaseCountryCode,
+        //                                                     previousPurchaseCurrencyCode, renewSubscriptionDetails.EndDate, groupId, householdId, true, isRenew);
+        //}
+
+        protected internal bool GetMultiSubscriptionUsageModule(RenewSubscriptionDetails renewSubscriptionDetails, string userIp, ref int recPeriods, 
+                                                                ref bool isMPPRecurringInfinitely, Subscription subscription, ref UnifiedBillingCycle unifiedBillingCycle, 
+                                                                string previousPurchaseCurrencyCode = null, int groupId = 0, long householdId = 0, 
+                                                                bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
         {
             bool isSuccess = false;
 
@@ -2625,7 +2663,10 @@ namespace Core.ConditionalAccess
             // price data and discount code data
             try
             {
-                UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber, numOfPayments, isPurchasedWithPreviewModule, endDate);
+                UsageModule AppUsageModule = 
+                    GetAppropriateMultiSubscriptionUsageModule(subscription, renewSubscriptionDetails.PaymentNumber, renewSubscriptionDetails.PurchaseId, 
+                                                               renewSubscriptionDetails.TotalNumOfPayments, renewSubscriptionDetails.NumOfPayments,
+                                                               renewSubscriptionDetails.IsPurchasedWithPreviewModule, renewSubscriptionDetails.EndDate);
 
                 if (AppUsageModule == null)
                 {
@@ -2633,19 +2674,21 @@ namespace Core.ConditionalAccess
                     return isSuccess;
                 }
 
-                priceValue = 0;
+                renewSubscriptionDetails.Price = 0;
                 Currency oCurrency = null;
-                sCurrency = "n/a";
+                renewSubscriptionDetails.Currency = "n/a";
 
                 PriceCode price = null;
                 DiscountModule externalDisount = null;
-                if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
+                if (!string.IsNullOrEmpty(renewSubscriptionDetails.CountryCode) && 
+                    !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && 
+                    Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
                 {
-                    price = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                    price = Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, renewSubscriptionDetails.CountryCode, previousPurchaseCurrencyCode);
                     if (price != null && AppUsageModule.m_ext_discount_id > 0)
                     {
-                        DiscountModule externalDisountByCountryAndCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
-                        externalDisount = externalDisountByCountryAndCurrency != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>(externalDisountByCountryAndCurrency) : Core.Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
+                        DiscountModule externalDisountByCountryAndCurrency = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, renewSubscriptionDetails.CountryCode, previousPurchaseCurrencyCode);
+                        externalDisount = externalDisountByCountryAndCurrency != null ? ObjectCopier.Clone(externalDisountByCountryAndCurrency) : Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
                     }
                 }
                 else
@@ -2664,31 +2707,31 @@ namespace Core.ConditionalAccess
                 if (externalDisount != null)
                 {
                     Price priceAfterDiscount = Utils.GetPriceAfterDiscount(clonedPrice.m_oPrise, externalDisount, 1);
-                    priceValue = priceAfterDiscount.m_dPrice;
+                    renewSubscriptionDetails.Price = priceAfterDiscount.m_dPrice;
                     oCurrency = priceAfterDiscount.m_oCurrency;
-                    sCurrency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
+                    renewSubscriptionDetails.Currency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
 
                 }
                 else
                 {
-                    priceValue = clonedPrice.m_oPrise.m_dPrice;
+                    renewSubscriptionDetails.Price = clonedPrice.m_oPrise.m_dPrice;
                     oCurrency = clonedPrice.m_oPrise.m_oCurrency;
-                    sCurrency = clonedPrice.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                    renewSubscriptionDetails.Currency = clonedPrice.m_oPrise.m_oCurrency.m_sCurrencyCD3;
                 }
 
                 bool isCouponGiftCard = false;
                 bool recurringCouponFirstExceeded = false;
-                HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard, out recurringCouponFirstExceeded);
+                HandleRecurringCoupon(renewSubscriptionDetails, subscription, oCurrency, ref isCouponGiftCard, out recurringCouponFirstExceeded);                
 
-                if (compensation != null)
+                if (renewSubscriptionDetails.Compensation != null)
                 {
-                    switch (compensation.CompensationType)
+                    switch (renewSubscriptionDetails.Compensation.CompensationType)
                     {
                         case CompensationType.Percentage:
-                            priceValue = priceValue - (priceValue * compensation.Amount / 100);
+                            renewSubscriptionDetails.Price = renewSubscriptionDetails.Price - (renewSubscriptionDetails.Price * renewSubscriptionDetails.Compensation.Amount / 100);
                             break;
                         case CompensationType.FixedAmount:
-                            priceValue = Math.Max(priceValue - compensation.Amount, 0);
+                            renewSubscriptionDetails.Price = Math.Max(renewSubscriptionDetails.Price - renewSubscriptionDetails.Compensation.Amount, 0);
                             break;
                         default:
                             break;
@@ -2698,31 +2741,32 @@ namespace Core.ConditionalAccess
                 // if this is a renew after preview module / gift card - need to calculate partial price (if unified billing cycle)  
                 bool isPartialPrice = false;
 
-                if (!ignoreUnifiedBillingCycle && string.IsNullOrEmpty(couponCode))
+                if (!ignoreUnifiedBillingCycle && string.IsNullOrEmpty(renewSubscriptionDetails.CouponCode))
                 {
-                    if (groupId > 0 && householdId > 0 && endDate.HasValue 
-                        && (isCouponGiftCard || recurringCouponFirstExceeded || (paymentNumber == 1 && isPurchasedWithPreviewModule)))
+                    if (groupId > 0 && householdId > 0 && renewSubscriptionDetails.EndDate.HasValue 
+                        && (isCouponGiftCard || recurringCouponFirstExceeded || 
+                           (renewSubscriptionDetails.PaymentNumber == 1 && renewSubscriptionDetails.IsPurchasedWithPreviewModule)))
                     {
                         unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
 
                         // check that end date between next end date and unified billing cycle end date are different
                         if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                         {
-                            Utils.CalculatePriceByUnifiedBillingCycle(groupId, ref priceValue, ref unifiedBillingCycle);
+                            // TODO SHIR - ASK IRA ABOU THIS 
+                            renewSubscriptionDetails.Price = Utils.CalculatePriceByUnifiedBillingCycle(groupId, renewSubscriptionDetails.Price, ref unifiedBillingCycle);
                             isPartialPrice = true;
                         }
                     }
                 }
 
-                nRecPeriods = subscription.m_nNumberOfRecPeriods;
+                recPeriods = subscription.m_nNumberOfRecPeriods;
                 isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
-                maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
+                renewSubscriptionDetails.MaxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
                 if (isRenew)
                 {
-                    customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
-                    siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
-                    string.Empty, string.Empty, compensation, isPartialPrice);
+                    renewSubscriptionDetails.CustomData =
+                        GetCustomDataForMPPRenewal(renewSubscriptionDetails, subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode, userIp, isPartialPrice);
                 }
                 isSuccess = true;
             }
@@ -2733,8 +2777,7 @@ namespace Core.ConditionalAccess
 
             return isSuccess;
         }
-
-
+        
         /// <summary>
         /// Direct debit Renew Subscription
         /// </summary>
@@ -3141,17 +3184,17 @@ namespace Core.ConditionalAccess
             return ret;
         }
 
-        private UsageModule GetAppropriateMultiSubscriptionUsageModule(Subscription thesub, int nPaymentNumber, int nPurchaseID, int nTotalNumOfPayments,
-            int nNumOfPayments, bool bIsPurchasedWithPreviewModule, DateTime? endDate = null)
+        private UsageModule GetAppropriateMultiSubscriptionUsageModule(Subscription thesub, int nPaymentNumber, long purchaseId, int nTotalNumOfPayments, 
+                                                                       int nNumOfPayments, bool bIsPurchasedWithPreviewModule, DateTime? endDate = null)
         {
             UsageModule u = null;
 
             if (!endDate.HasValue)
             {
-                DataRow dr = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("subscriptions_purchases", "ID", nPurchaseID.ToString(), new List<string>() { "END_DATE" }, "CA_CONNECTION_STRING");
+                DataRow dr = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("subscriptions_purchases", "ID", purchaseId.ToString(), new List<string>() { "END_DATE" }, "CA_CONNECTION_STRING");
                 if (dr == null)
                 {
-                    log.ErrorFormat("Failed to get subscriptions_purchases end date. purchaseId = {0}", nPurchaseID);
+                    log.ErrorFormat("Failed to get subscriptions_purchases end date. purchaseId = {0}", purchaseId);
                     return null;
                 }
 
@@ -3327,20 +3370,22 @@ namespace Core.ConditionalAccess
             }
             return ret;
         }
+
         /// <summary>
         /// Checks if there is recurring coupon definition on the subscription and if yes 
         /// activate the discount of the coupon on the price and return the updated price and the coupon code. 
         /// if coupon is gift card return coupon card and isCouponGiftCard = true
         /// </summary> 
-        private void HandleRecurringCoupon(int nPurchaseID, Subscription theSub, int nTotalPaymentsNumber, Currency oCurrency, bool bIsPurchasedWithPreviewModule, ref double dPrice, ref string retCouponCode,
-            ref bool isCouponGiftCard, out bool firstExceeded)
+        private void HandleRecurringCoupon(RenewSubscriptionDetails renewSubscriptionDetails, Subscription theSub, Currency oCurrency, ref bool isCouponGiftCard, 
+                                           out bool firstExceeded)
         {
             firstExceeded = false;
+            double recurringCouponPrice = renewSubscriptionDetails.Price;
 
             try
             {
-                string couponCode = retCouponCode;
-                retCouponCode = string.Empty; // init for recurring coupon
+                string couponCode = renewSubscriptionDetails.CouponCode;
+                renewSubscriptionDetails.CouponCode = string.Empty; // init for recurring coupon
 
                 // get all SubscriptionsCouponGroup (with expiry date !!!!)
                 List<SubscriptionCouponGroup> allCoupons = Core.Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(theSub.m_SubscriptionCode), m_nGroupID, false);
@@ -3350,7 +3395,7 @@ namespace Core.ConditionalAccess
                 {
                     // check if coupon related to subscription the type is coupon gift card or coupon             
                                
-                    long couponGroupId = Utils.GetSubscriptiopnPurchaseCoupon(ref couponCode, nPurchaseID, m_nGroupID); // return only if valid .
+                    long couponGroupId = Utils.GetSubscriptiopnPurchaseCoupon(ref couponCode, renewSubscriptionDetails.PurchaseId, m_nGroupID); // return only if valid .
 
                     if (couponGroupId > 0 && ((theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString()) ||
                         (allCoupons != null && allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString()).Count() > 0)))
@@ -3365,14 +3410,30 @@ namespace Core.ConditionalAccess
                             }
                             else // this is not a gift card
                             {
-                                if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, cg.CouponsGroup.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber, out firstExceeded))
+                                if (IsCouponStillRedeemable(renewSubscriptionDetails.IsPurchasedWithPreviewModule, cg.CouponsGroup.m_nMaxRecurringUsesCountForCoupon,
+                                                            renewSubscriptionDetails.TotalNumOfPayments, out firstExceeded))
                                 {
-                                    Price priceBeforeCouponDiscount = new Price();
-                                    priceBeforeCouponDiscount.m_dPrice = dPrice;
-                                    priceBeforeCouponDiscount.m_oCurrency = oCurrency;
+                                    Price priceBeforeCouponDiscount = new Price
+                                    {
+                                        m_dPrice = recurringCouponPrice,
+                                        m_oCurrency = oCurrency
+                                    };
                                     Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.CouponsGroup.m_oDiscountCode, 0);
-                                    dPrice = priceResult.m_dPrice;
-                                    retCouponCode = couponCode;
+                                    recurringCouponPrice = priceResult.m_dPrice;
+                                    renewSubscriptionDetails.CouponCode = couponCode;
+                                }
+                                else if (firstExceeded)
+                                {
+                                    double couponRemainder = ConditionalAccessDAL.GetCouponRemainder(renewSubscriptionDetails.PurchaseId);
+                                    if (couponRemainder > 0)
+                                    {
+                                        renewSubscriptionDetails.IsUseCouponRemainder = true;
+                                        recurringCouponPrice -= couponRemainder;
+                                        if (recurringCouponPrice < 0)
+                                            recurringCouponPrice = 0;
+
+                                        renewSubscriptionDetails.CouponCode = couponCode;
+                                    }
                                 }
                             }
                         }
@@ -3381,7 +3442,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error("HandleRecurringCoupon error - , PurchaseID: " + nPurchaseID.ToString() + ",Exception:" + ex.ToString(), ex);
+                log.Error("HandleRecurringCoupon error - , PurchaseID: " + renewSubscriptionDetails.PurchaseId.ToString() + ",Exception:" + ex.ToString(), ex);
             }
         }
 
@@ -6296,9 +6357,10 @@ namespace Core.ConditionalAccess
                         PriceReason theReason = PriceReason.UnKnown;
 
                         Subscription s = null;
+                        double couponRemainder = 0;
                         UnifiedBillingCycle unifiedBillingCycle = null;
-                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, ref coupon, ref theReason, ref s, string.Empty, languageCode, udid, ip, ref unifiedBillingCycle,
-                            currencyCode, false, blockEntitlement);
+                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, ref coupon, ref theReason, ref s, string.Empty, languageCode, udid, ip, 
+                                                                      ref unifiedBillingCycle, out couponRemainder, currencyCode, false, blockEntitlement);
 
                         if (price != null)
                         {
@@ -9084,40 +9146,40 @@ namespace Core.ConditionalAccess
             return bIsRecurring || (Int64.TryParse(sPreviewModuleID, out lPreviewModuleID) && lPreviewModuleID > 0) ? "true" : "false";
         }
 
-        protected virtual string GetCustomDataForMPPRenewal(Subscription theSub, UsageModule theUsageModule,
-           PriceCode p, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency,
-           string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, Compensation compensation, bool isPartialPrice = false)
+        protected virtual string GetCustomDataForMPPRenewal(RenewSubscriptionDetails renewSubscriptionDetails, Subscription subscription, UsageModule usageModule, 
+                                                            PriceCode p, string subscriptionCode, string userIP, bool isPartialPrice = false, string languageCode = null, 
+                                                            string deviceName = null)
         {
 
-            bool bIsRecurring = theSub.m_bIsRecurring;
-            Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
+            bool bIsRecurring = subscription.m_bIsRecurring;
+            Int32 nRecPeriods = subscription.m_nNumberOfRecPeriods;
 
             StringBuilder sb = new StringBuilder();
             sb.Append("<customdata type=\"sp\">");
-            if (!String.IsNullOrEmpty(sCountryCd))
+            if (!String.IsNullOrEmpty(renewSubscriptionDetails.CountryName))
             {
-                sb.AppendFormat("<lcc>{0}</lcc>", sCountryCd);
+                sb.AppendFormat("<lcc>{0}</lcc>", renewSubscriptionDetails.CountryName);
             }
-            if (!String.IsNullOrEmpty(sLANGUAGE_CODE))
+            if (!String.IsNullOrEmpty(languageCode))
             {
-                sb.AppendFormat("<llc>{0}</llc>", sLANGUAGE_CODE);
+                sb.AppendFormat("<llc>{0}</llc>", languageCode);
             }
-            if (!String.IsNullOrEmpty(sDEVICE_NAME))
+            if (!String.IsNullOrEmpty(deviceName))
             {
-                sb.AppendFormat("<ldn>{0}</ldn>", sDEVICE_NAME);
+                sb.AppendFormat("<ldn>{0}</ldn>", deviceName);
             }
             sb.Append("<mnou>");
-            sb.Append(theUsageModule.m_nMaxNumberOfViews.ToString());
+            sb.Append(usageModule.m_nMaxNumberOfViews.ToString());
             sb.Append("</mnou>");
-            sb.AppendFormat("<u id=\"{0}\"/>", sSiteGUID);
-            sb.AppendFormat("<s>{0}</s>", sSubscriptionCode);
-            sb.AppendFormat("<cc>{0}</cc>", sCouponCode);
+            sb.AppendFormat("<u id=\"{0}\"/>", renewSubscriptionDetails.UserId);
+            sb.AppendFormat("<s>{0}</s>", subscriptionCode);
+            sb.AppendFormat("<cc>{0}</cc>", renewSubscriptionDetails.CouponCode);
             sb.AppendFormat("<p ir=\"{0}\" n=\"1\" o=\"{1}\"/>", bIsRecurring.ToString().ToLower(), nRecPeriods.ToString());
             sb.Append("<vlcs>");
-            sb.Append(theUsageModule.m_tsViewLifeCycle.ToString());
+            sb.Append(usageModule.m_tsViewLifeCycle.ToString());
             sb.Append("</vlcs>");
             sb.Append("<mumlc>");
-            sb.Append(theUsageModule.m_tsMaxUsageModuleLifeCycle.ToString());
+            sb.Append(usageModule.m_tsMaxUsageModuleLifeCycle.ToString());
             sb.Append("</mumlc>");
             sb.Append("<ppvm></ppvm>");
             sb.Append("<pm></pm>");
@@ -9125,16 +9187,19 @@ namespace Core.ConditionalAccess
             sb.Append(p.m_sCode);
             sb.Append("</pc>");
             sb.Append("<pri>");
-            sb.Append(dPrice.ToString());
+            sb.Append(renewSubscriptionDetails.Price.ToString());
             sb.Append("</pri>");
             sb.Append("<cu>");
-            sb.Append(sCurrency);
+            sb.Append(renewSubscriptionDetails.Currency);
             sb.Append("</cu>");
 
-            if (compensation != null)
+            if (renewSubscriptionDetails.Compensation != null)
             {
                 sb.AppendFormat("<compensation type=\"{0}\" amount=\"{1}\" totalRenewals=\"{2}\" renewalNumber=\"{3}\" />",
-                    compensation.CompensationType, compensation.Amount, compensation.TotalRenewals, compensation.Renewals + 1);
+                                 renewSubscriptionDetails.Compensation.CompensationType, 
+                                 renewSubscriptionDetails.Compensation.Amount, 
+                                 renewSubscriptionDetails.Compensation.TotalRenewals,
+                                 renewSubscriptionDetails.Compensation.Renewals + 1);
             }
 
             if (isPartialPrice) // add to custom data isPartial price - only if it is parcial 
@@ -9145,7 +9210,6 @@ namespace Core.ConditionalAccess
             sb.Append("</customdata>");
 
             return sb.ToString();
-
         }
 
         /// <summary>
