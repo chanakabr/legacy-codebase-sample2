@@ -3,6 +3,7 @@ using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog;
+using Core.Catalog.Cache;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using KLogMonitor;
@@ -224,6 +225,30 @@ namespace APILogic.Api.Managers
         {
             request.m_sSignString = Guid.NewGuid().ToString();
             request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, ApplicationConfiguration.CatalogSignatureKey.Value);
+        }
+
+        internal static LinearChannelSettings GetLinearChannelSettings(int groupId, long? epgChannelId)
+        {
+            LinearChannelSettings linearSettings = null;
+
+            if (epgChannelId.HasValue && epgChannelId.Value > 0)
+            {
+                string strEpgChannelId = epgChannelId.Value.ToString();
+                Dictionary<string, LinearChannelSettings> linearChannelSettings =
+                    CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { strEpgChannelId });
+
+                if (linearChannelSettings != null && linearChannelSettings.Count > 0 && linearChannelSettings.ContainsKey(strEpgChannelId))
+                {
+                    linearSettings = linearChannelSettings[strEpgChannelId];
+                }
+            }
+
+            if (linearSettings == null)
+            {
+                log.ErrorFormat("GetLinearChannelSettings - No LinearChannelSettings were found for groupId: {0} and epgChannelId: {1}.", groupId, epgChannelId);
+            }
+
+            return linearSettings;
         }
     }
 }

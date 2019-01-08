@@ -1,6 +1,10 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.Epg;
+using ConfigurationManager;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TVinciShared;
 
@@ -31,7 +35,7 @@ namespace Core.Catalog.CatalogManagement
             this.AssetType = eAssetTypes.EPG;
         }
 
-        public EpgAsset(List<EpgCB> epgCBList, string defaultLanguageCode)
+        public EpgAsset(List<EpgCB> epgCBList, string defaultLanguageCode, List<Ratio> ratios, int groupId)
             : base()
         {
             this.AssetType = eAssetTypes.EPG;
@@ -45,7 +49,8 @@ namespace Core.Catalog.CatalogManagement
                 this.CreateDate = epgCBList[0].CreateDate;
                 this.UpdateDate = epgCBList[0].UpdateDate;
                 this.GroupId = epgCBList[0].GroupID;
-                this.EpgChannelId = epgCBList[0].ChannelID;
+                EpgCB epgChannel = epgCBList.FirstOrDefault(x => x.ChannelID > 0);
+                this.EpgChannelId = epgChannel != null ? (long?)epgChannel.ChannelID : null;
                 this.StartDate = epgCBList[0].StartDate;
                 this.EndDate = epgCBList[0].EndDate;
                 this.CoGuid = epgCBList[0].CoGuid;
@@ -55,27 +60,19 @@ namespace Core.Catalog.CatalogManagement
                 this.LikeCounter = epgCBList[0].Statistics != null ? epgCBList[0].Statistics.Likes : 0;
                 this.RelatedMediaId = epgCBList[0].ExtraData != null ? epgCBList[0].ExtraData.MediaID : 0;
                 this.FaceBookObjectId = epgCBList[0].ExtraData != null ? epgCBList[0].ExtraData.FBObjectID : string.Empty;
-                this.LinearAssetId = epgCBList[0].LinearMediaId;
+                this.CoGuid = epgCBList[0].EpgIdentifier;
 
-                if (epgCBList[0].EnableCDVR != 2)
+                var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, this.EpgChannelId);
+                if (linearChannelSettings != null)
                 {
-                    this.CdvrEnabled = Convert.ToBoolean(epgCBList[0].EnableCDVR);
+                    this.LinearAssetId = linearChannelSettings.linearMediaId;
+                    this.CdvrEnabled = GetEnableData(epgCBList[0].EnableCDVR, linearChannelSettings.EnableCDVR);
+                    this.StartOverEnabled = GetEnableData(epgCBList[0].EnableStartOver, linearChannelSettings.EnableStartOver);
+                    this.CatchUpEnabled = GetEnableData(epgCBList[0].EnableCatchUp, linearChannelSettings.EnableCatchUp);
+                    this.TrickPlayEnabled = GetEnableData(epgCBList[0].EnableTrickPlay, linearChannelSettings.EnableTrickPlay);
                 }
 
-                if (epgCBList[0].EnableStartOver != 2)
-                {
-                    this.StartOverEnabled = Convert.ToBoolean(epgCBList[0].EnableStartOver);
-                }
-
-                if (epgCBList[0].EnableCatchUp != 2)
-                {
-                    this.CatchUpEnabled = Convert.ToBoolean(epgCBList[0].EnableCatchUp);
-                }
-
-                if (epgCBList[0].EnableTrickPlay != 2)
-                {
-                    this.TrickPlayEnabled = Convert.ToBoolean(epgCBList[0].EnableTrickPlay);
-                }
+                SetImages(epgCBList[0].pictures, ratios, groupId);
 
                 foreach (var epgCb in epgCBList)
                 {
@@ -92,8 +89,6 @@ namespace Core.Catalog.CatalogManagement
 
                     SetMetas(epgCb, IsDefaultLanguage);
                     SetTags(epgCb, IsDefaultLanguage);
-                    // TODO ANAT - SetImages                   
-                    //this.Images = epgCB.pictures;
                 }
             }
             else
@@ -102,7 +97,6 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        // TODO ANAT - CHECK WITH LIOR IF THIS METHOD IS CORRECT
         private void SetTags(EpgCB epgCb, bool IsDefaultLanguage)
         {
             if (this.Tags == null)
@@ -114,23 +108,32 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (var tag in epgCb.Tags)
                 {
+                    // check if Genre exist
                     int index = this.Tags.FindIndex(x => x.m_oTagMeta.m_sName.Equals(tag.Key));
                     if (index == -1)
                     {
+                        // not exist 
                         List<string> mainValues = IsDefaultLanguage ? tag.Value : null;
+                        List<LanguageContainer[]> languageContainers = new List<LanguageContainer[]>
+                            (tag.Value.Select(v => SetTagLanguageContainer(null, v, epgCb.Language, IsDefaultLanguage)));
 
-                        this.Tags.Add(new Tags(new TagMeta(tag.Key, MetaType.Tag.ToString()),
-                                               mainValues,
-                                               new List<LanguageContainer[]>() { GetLanguageContainer(null, tag.Value, epgCb.Language, IsDefaultLanguage) }));
+                        this.Tags.Add(new Tags(new TagMeta(tag.Key, MetaType.Tag.ToString()), mainValues, languageContainers));
                     }
                     else
                     {
+                        // exist 
                         if (IsDefaultLanguage)
                         {
                             this.Tags[index].m_lValues = tag.Value;
                         }
 
-                        this.Tags[index].Values.Add(GetLanguageContainer(null, tag.Value, epgCb.Language, IsDefaultLanguage));
+                        for (int i = 0; i < this.Tags[index].Values.Count; i++)
+                        {
+                            if (i < tag.Value.Count)
+                            {
+                                this.Tags[index].Values[i] = SetTagLanguageContainer(this.Tags[index].Values[i], tag.Value[i], epgCb.Language, IsDefaultLanguage);
+                            }
+                        }
                     }
                 }
             }
@@ -154,7 +157,7 @@ namespace Core.Catalog.CatalogManagement
 
                         this.Metas.Add(new Metas(new TagMeta(meta.Key, MetaType.MultilingualString.ToString()),
                                                  mainValue,
-                                                 GetLanguageContainer(null, meta.Value, epgCb.Language, IsDefaultLanguage)));
+                                                 SetMetaLanguageContainer(null, meta.Value, epgCb.Language, IsDefaultLanguage)));
                     }
                     else
                     {
@@ -163,13 +166,13 @@ namespace Core.Catalog.CatalogManagement
                             this.Metas[index].m_sValue = meta.Value[0];
                         }
 
-                        this.Metas[index].Value = GetLanguageContainer(this.Metas[index].Value, meta.Value, epgCb.Language, IsDefaultLanguage);
+                        this.Metas[index].Value = SetMetaLanguageContainer(this.Metas[index].Value, meta.Value, epgCb.Language, IsDefaultLanguage);
                     }
                 }
             }
         }
 
-        private LanguageContainer[] GetLanguageContainer(LanguageContainer[] sourceLanguageValues, List<string> newLanguageValues, string languageCode, bool IsDefault)
+        private LanguageContainer[] SetMetaLanguageContainer(LanguageContainer[] sourceLanguageValues, List<string> newLanguageValues, string languageCode, bool isDefault)
         {
             List<LanguageContainer> langContainers = new List<LanguageContainer>();
 
@@ -180,8 +183,22 @@ namespace Core.Catalog.CatalogManagement
 
             if (newLanguageValues != null && newLanguageValues.Count > 0)
             {
-                langContainers.AddRange(newLanguageValues.Select(x => new LanguageContainer(languageCode, x, IsDefault)));
+                langContainers.AddRange(newLanguageValues.Select(x => new LanguageContainer(languageCode, x, isDefault)));
             }
+
+            return langContainers.ToArray();
+        }
+
+        private LanguageContainer[] SetTagLanguageContainer(LanguageContainer[] sourceLanguageValues, string newLanguageValue, string languageCode, bool isDefault)
+        {
+            List<LanguageContainer> langContainers = new List<LanguageContainer>();
+
+            if (sourceLanguageValues != null && sourceLanguageValues.Length > 0)
+            {
+                langContainers.AddRange(sourceLanguageValues);
+            }
+
+            langContainers.Add(new LanguageContainer(languageCode, newLanguageValue, isDefault));
 
             return langContainers.ToArray();
         }
@@ -205,99 +222,61 @@ namespace Core.Catalog.CatalogManagement
             this.DescriptionsWithLanguages.Add(new LanguageContainer(epgCb.Language, epgCb.Description));
         }
 
-        // TODO ANAT - CHECK IF NEED THE METHOD MutateFullEpgPicURL FOR IMAGE HANDELING?
-        //private static void MutateFullEpgPicURL(List<EPGChannelProgrammeObject> epgList, Dictionary<int, List<EpgPicture>> pictures, int groupId)
-        //{
-        //    try
-        //    {
-        //        if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
-        //        {
-        //            // use old image server flow
-        //            MutateFullEpgPicURLOldImageServerFlow(epgList, pictures);
-        //        }
-        //        else
-        //        {
-        //            EpgPicture pictureItem;
-        //            List<EpgPicture> finalEpgPicture = null;
-        //            foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
-        //            {
-        //                int progGroup = int.Parse(oProgram.GROUP_ID);
+        private void SetImages(List<EpgPicture> epgPictures, List<Ratio> ratios, int groupId)
+        {
+            if (this.Images == null)
+            {
+                this.Images = new List<Image>();
+            }
 
-        //                finalEpgPicture = new List<EpgPicture>();
-        //                if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
-        //                {
-        //                    foreach (EpgPicture pict in oProgram.EPG_PICTURES)
-        //                    {
-        //                        // get picture base URL
-        //                        string picBaseName = Path.GetFileNameWithoutExtension(pict.Url);
+            if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            {
+                // TODO SHIR - ask ira about this
+                // use old image server flow
+                //MutateFullEpgPicURLOldImageServerFlow(epgList, pictures);
+            }
+            else
+            {
+                if (epgPictures != null && epgPictures.Count > 0)
+                {
+                    foreach (EpgPicture epgPicture in epgPictures)
+                    {
+                        // get picture base URL
+                        string picBaseName = Path.GetFileNameWithoutExtension(epgPicture.Url);
 
-        //                        if (pictures == null || !pictures.ContainsKey(progGroup))
-        //                        {
-        //                            pictureItem = new EpgPicture();
-        //                            pictureItem.Ratio = pict.Ratio;
-
-        //                            // build image URL. 
-        //                            // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
-        //                            // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
-        //                            pictureItem.Url = ImageUtils.BuildImageUrl(groupId, picBaseName, 0, 0, 0, 100, true);
-
-        //                            finalEpgPicture.Add(pictureItem);
-        //                        }
-        //                        else
-        //                        {
-        //                            if (!pictures.ContainsKey(progGroup))
-        //                                continue;
-
-        //                            List<EpgPicture> ratios = pictures[progGroup].Where(x => x.Ratio == pict.Ratio).ToList();
-
-        //                            foreach (EpgPicture ratioItem in ratios)
-        //                            {
-        //                                pictureItem = new EpgPicture();
-        //                                pictureItem.Ratio = pict.Ratio;
-        //                                pictureItem.PicHeight = ratioItem.PicHeight;
-        //                                pictureItem.PicWidth = ratioItem.PicWidth;
-        //                                pictureItem.Version = 0;
-        //                                pictureItem.Id = picBaseName;
-
-        //                                // build image URL. 
-        //                                // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
-        //                                // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
-        //                                pictureItem.Url = ImageUtils.BuildImageUrl(groupId, picBaseName, 0, ratioItem.PicWidth, ratioItem.PicHeight, 100);
-
-        //                                finalEpgPicture.Add(pictureItem);
-        //                            }
-        //                        }
-        //                    }
-        //                }
-
-        //                oProgram.EPG_PICTURES = finalEpgPicture; // Reassignment epg pictures
-
-        //                // complete the picURL for back support                
-        //                string baseEpgPicUrl = string.Empty;
-        //                if (oProgram != null &&
-        //                    !string.IsNullOrEmpty(oProgram.PIC_URL) &&
-        //                    pictures.ContainsKey(progGroup) &&
-        //                    pictures[progGroup] != null)
-        //                {
-        //                    EpgPicture pict = pictures[progGroup].First();
-        //                    if (pict != null && !string.IsNullOrEmpty(pict.Url))
-        //                    {
-        //                        baseEpgPicUrl = pict.Url;
-        //                        if (pict.PicHeight != 0 && pict.PicWidth != 0)
-        //                        {
-        //                            oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
-        //                        }
-        //                        oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error("MutateFullEpgPicURL - " + string.Format("Failed ex={0}", ex.Message), ex);
-        //    }
-        //}
+                        if (ratios == null || ratios.Count == 0)
+                        {
+                            this.Images.Add(new Image()
+                            {
+                                Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, 0, 0, 0, true),
+                                ContentId = picBaseName,
+                                RatioName = epgPicture.Ratio,
+                                Version = epgPicture.Version
+                            });
+                        }
+                        else
+                        {
+                            var filteredRatios = ratios.Where(x => x.Name.Equals(epgPicture.Ratio)).ToList();
+                            if (filteredRatios != null)
+                            {
+                                foreach (Ratio ratio in filteredRatios)
+                                {
+                                    this.Images.Add(new Image()
+                                    {
+                                        Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, ratio.Width, ratio.Height, 100),
+                                        ContentId = picBaseName,
+                                        RatioName = epgPicture.Ratio,
+                                        Height = ratio.Height,
+                                        Width = ratio.Width,
+                                        Version = epgPicture.Version
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Update all empty fields from given epgAsset
@@ -348,6 +327,22 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return needToUpdateBasicData;
+        }
+
+        /// <summary>
+        /// if epgEnable 2 return false else get value from LinearChannelSettings
+        /// </summary>
+        /// <param name="epgEnable"></param>
+        /// <param name="linearSettingsEnable"></param>
+        /// <returns></returns>
+        private bool GetEnableData(int epgEnable, bool linearSettingsEnable)
+        {
+            if (epgEnable != 2)
+            {
+                return linearSettingsEnable;
+            }
+
+            return false;
         }
     }
 }
