@@ -1395,7 +1395,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 foreach (Image image in images)
                 {
                     string ratioName = !string.IsNullOrEmpty(image.RatioName) ? image.RatioName :
-                        imageTypeIdToRatioNameMap != null && imageTypeIdToRatioNameMap.ContainsKey(image.ImageTypeId) ? 
+                        imageTypeIdToRatioNameMap != null && imageTypeIdToRatioNameMap.ContainsKey(image.ImageTypeId) ?
                             imageTypeIdToRatioNameMap[image.ImageTypeId] : string.Empty;
                     KalturaMediaImage convertedImage = ConvertImageToKalturaImage(image, ratioName);
                     if (convertedImage != null)

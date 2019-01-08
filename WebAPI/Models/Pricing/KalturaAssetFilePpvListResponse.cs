@@ -9,7 +9,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
-    // TODO - delete when not need talk with Tan Tan!!!
     /// <summary>
     /// Asset file ppv list
     /// </summary>
