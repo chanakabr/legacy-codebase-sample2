@@ -1,6 +1,10 @@
 ﻿namespace ApiObjects.PlaybackAdapter
 {
-    public class BumpersPlaybackPluginData
+    public class PlaybackPluginData
+    {
+    }
+
+    public class BumperPlaybackPluginData : PlaybackPluginData
     {
         public string URL { get; set; }
 
