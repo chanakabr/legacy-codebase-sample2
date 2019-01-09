@@ -257,6 +257,29 @@ namespace AdapterControllers
                             Protocols = x.Protocols
                         }).ToList();
                 }
+
+                if (adapterResponse.PlaybackContext.PlaybackBumpers != null)
+                {
+                    kalturaPlaybackContext.PlaybackBumpers = adapterResponse.PlaybackContext.PlaybackBumpers.Select(x =>
+                        new ApiObjects.PlaybackAdapter.BumpersPlaybackPluginData()
+                        {
+                            StreamerType = x.StreamerType,
+                            URL = x.URL
+                        }).ToList();
+                }
+
+
+                if (adapterResponse.PlaybackContext.PlaybackCaptions != null)
+                {
+                    kalturaPlaybackContext.PlaybackCaptions = adapterResponse.PlaybackContext.PlaybackCaptions.Select(x =>
+                        new ApiObjects.PlaybackAdapter.CaptionPlaybackPluginData()
+                        {
+                            URL = x.URL,
+                            Format = x.Format,
+                            Label = x.Label,
+                            Language = x.Language
+                        }).ToList();
+                }
             }
 
             return kalturaPlaybackContext;
@@ -394,6 +417,28 @@ namespace AdapterControllers
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols
                         }).ToArray();
+                }
+
+                if (kalturaPlaybackContext.PlaybackBumpers != null)
+                {
+                    playbackContext.PlaybackBumpers = kalturaPlaybackContext.PlaybackBumpers.Select(x =>
+                         new PlaybackAdapter.BumperPlaybackPluginData()
+                         {
+                             StreamerType = x.StreamerType,
+                             URL = x.URL
+                         }).ToArray();
+                }
+
+                if (kalturaPlaybackContext.PlaybackCaptions != null)
+                {
+                    playbackContext.PlaybackCaptions = kalturaPlaybackContext.PlaybackCaptions.Select(x =>
+                         new PlaybackAdapter.CaptionPlaybackPluginData()
+                         {
+                             URL = x.URL,
+                             Format = x.Format,
+                             Label = x.Label,
+                             Language = x.Language
+                         }).ToArray();
                 }
             }
 
