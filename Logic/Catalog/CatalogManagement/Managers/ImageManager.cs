@@ -397,6 +397,30 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        private static Image CreateEpgPicImageFromDataRow(int groupId, DataRow row, long id = 0)
+        {
+            Image image = null;
+            long imageId = id == 0 ? ODBCWrapper.Utils.GetLongSafeVal(row, "ID") : id;
+            if (imageId > 0)
+            {
+                image = new Image()
+                {
+                    Id = imageId,
+                    ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),
+                    ImageObjectId = ODBCWrapper.Utils.GetLongSafeVal(row, "ASSET_ID"), // TODO: IRA?
+                    ImageObjectType = eAssetImageType.Epg,
+                    Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
+                    Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
+                    ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"), // TODO: IRA
+                    IsDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT", 0) > 0 ? true : false // TODO: IRA
+                };
+
+                image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
+            }
+
+            return image;
+        }
+
         #endregion
 
         #region Internal
@@ -440,6 +464,49 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        internal static Dictionary<ImageReferenceTable, Dictionary<long, long>> CreateImageReferncesIdsFromDataTable(DataTable dt)
+        {
+            Dictionary<ImageReferenceTable, Dictionary<long, long>>  response = new Dictionary<ImageReferenceTable, Dictionary<long, long>>();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    ImageReferenceTable table = (ImageReferenceTable)ODBCWrapper.Utils.GetIntSafeVal(row, "TABLE_REFERENCE");
+                    if (!response.ContainsKey(table))
+                    {
+                        response.Add(table, new Dictionary<long, long>());
+                    }
+
+                    response[table].Add(ODBCWrapper.Utils.GetLongSafeVal(row, "TABLE_REFERENCE_ID"), ODBCWrapper.Utils.GetLongSafeVal(row, "ID"));
+                }
+
+            }
+            return response;
+        }
+
+        internal static GenericListResponse<Image> CreateEpgPicsListResponseFromDataTable(int groupId, DataTable dt)
+        {
+            GenericListResponse<Image> response = new GenericListResponse<Image>();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                response.Objects = new List<Image>();
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    Image image = CreateEpgPicImageFromDataRow(groupId, row);
+                    if (image != null)
+                    {
+                        response.Objects.Add(image);
+                    }
+                }
+
+                UpdateImagesForGroupWithPicSizes(groupId, ref response, false);
+            }
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            return response;
         }
 
         #endregion
@@ -705,15 +772,45 @@ namespace Core.Catalog.CatalogManagement
 
         public static GenericListResponse<Image> GetImagesByIds(int groupId, List<long> imageIds, bool? isDefault = null)
         {
+            // TODO: IRA - Do we care about the order? 
             GenericListResponse<Image> response = new GenericListResponse<Image>();
-            DataTable dt = CatalogDAL.GetImagesByIds(groupId, imageIds, isDefault);
-            response = CreateImageListResponseFromDataTable(groupId, dt);
+
+            DataTable dt = CatalogDAL.GetImages(groupId, imageIds);
+            Dictionary<ImageReferenceTable, Dictionary<long, long>> referncesIds = CreateImageReferncesIdsFromDataTable(dt);
+
+            GenericListResponse<Image> tempResponse = new GenericListResponse<Image>();
+
+            if (referncesIds.ContainsKey(ImageReferenceTable.Pics))
+            {
+                dt = CatalogDAL.GetImagesByIds(groupId, referncesIds[ImageReferenceTable.Pics].Keys.ToList(), isDefault);
+                tempResponse = CreateImageListResponseFromDataTable(groupId, dt);
+
+                if (tempResponse.HasObjects())
+                {
+                    // update IDs
+                    tempResponse.Objects.ForEach(i => i.Id = referncesIds[ImageReferenceTable.Pics][i.Id]);
+                    response = tempResponse;
+                }
+            }
+
+            if (referncesIds.ContainsKey(ImageReferenceTable.EpgPics))
+            {
+                dt = CatalogDAL.GetEpgPics(groupId, referncesIds[ImageReferenceTable.EpgPics].Keys.ToList());
+                tempResponse = CreateEpgPicsListResponseFromDataTable(groupId, dt);
+
+                if (tempResponse.HasObjects())
+                {
+                    // update IDs
+                    tempResponse.Objects.ForEach(i => i.Id = referncesIds[ImageReferenceTable.EpgPics][i.Id]);
+                    response.Objects.AddRange(tempResponse.Objects);
+                }
+            }
+
             if (response.HasObjects())
             {
                 // check if group uses pic sizes
                 UpdateImagesForGroupWithPicSizes(groupId, ref response);
             }
-
             return response;
         }
 
@@ -797,6 +894,18 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                             }
+                        }
+
+                        ImageReferenceTable table = GetImageReferenceTable(imageToAdd.ImageObjectType);
+                        id = CatalogDAL.InsertImage(groupId, (int)table, id);
+                        if (id > 0)
+                        {
+                            result.Object.Id = id;
+                        }
+                        else
+                        {
+                            result.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
+                            log.ErrorFormat("Failed AddImage to Reference table. Id = {0} groupId: {1}", result.Object.Id);
                         }
                     }
                     else
@@ -1043,6 +1152,11 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        private static ImageReferenceTable GetImageReferenceTable(eAssetImageType imageObjectType)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

@@ -318,7 +318,8 @@ namespace ApiObjects
         Category = 2,
         DefaultPic = 3,
         LogoPic = 4,
-        ImageType = 5
+        ImageType = 5,
+        Epg
     }
 
     [Serializable]
@@ -1115,6 +1116,12 @@ namespace ApiObjects
     {
         Enable = 0,
         Disable = 1
+    }
+
+    public enum ImageReferenceTable
+    {
+        Pics = 0,
+        EpgPics = 1
     }
 
 }
