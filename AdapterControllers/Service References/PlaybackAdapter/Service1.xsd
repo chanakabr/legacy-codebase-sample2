@@ -17,8 +17,8 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="Actions" nillable="true" type="tns:ArrayOfRuleAction" />
       <xs:element minOccurs="0" name="Messages" nillable="true" type="tns:ArrayOfAccessControlMessage" />
-      <xs:element minOccurs="0" name="PlaybackBumpers" nillable="true" type="tns:ArrayOfBumperPlaybackPluginData" />
       <xs:element minOccurs="0" name="PlaybackCaptions" nillable="true" type="tns:ArrayOfCaptionPlaybackPluginData" />
+      <xs:element minOccurs="0" name="Plugins" nillable="true" type="tns:ArrayOfPlaybackPluginData" />
       <xs:element minOccurs="0" name="Sources" nillable="true" type="tns:ArrayOfPlaybackSource" />
     </xs:sequence>
   </xs:complexType>
@@ -62,19 +62,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="AccessControlMessage" nillable="true" type="tns:AccessControlMessage" />
-  <xs:complexType name="ArrayOfBumperPlaybackPluginData">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="BumperPlaybackPluginData" nillable="true" type="tns:BumperPlaybackPluginData" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfBumperPlaybackPluginData" nillable="true" type="tns:ArrayOfBumperPlaybackPluginData" />
-  <xs:complexType name="BumperPlaybackPluginData">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="StreamerType" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="URL" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="BumperPlaybackPluginData" nillable="true" type="tns:BumperPlaybackPluginData" />
   <xs:complexType name="ArrayOfCaptionPlaybackPluginData">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="CaptionPlaybackPluginData" nillable="true" type="tns:CaptionPlaybackPluginData" />
@@ -90,6 +77,27 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="CaptionPlaybackPluginData" nillable="true" type="tns:CaptionPlaybackPluginData" />
+  <xs:complexType name="ArrayOfPlaybackPluginData">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PlaybackPluginData" nillable="true" type="tns:PlaybackPluginData" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPlaybackPluginData" nillable="true" type="tns:ArrayOfPlaybackPluginData" />
+  <xs:complexType name="PlaybackPluginData">
+    <xs:sequence />
+  </xs:complexType>
+  <xs:element name="PlaybackPluginData" nillable="true" type="tns:PlaybackPluginData" />
+  <xs:complexType name="BumperPlaybackPluginData">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:PlaybackPluginData">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="StreamerType" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="URL" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BumperPlaybackPluginData" nillable="true" type="tns:BumperPlaybackPluginData" />
   <xs:complexType name="ArrayOfPlaybackSource">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="PlaybackSource" nillable="true" type="tns:PlaybackSource" />
