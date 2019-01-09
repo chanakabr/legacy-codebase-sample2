@@ -44,5 +44,9 @@ namespace Core.Catalog.CatalogManagement
         public int Width { get; set; }
 
         public string RatioName { get; set; }
+
+        public ImageReferenceTable ReferenceTable { get; set; }
+
+        public long ReferenceId { get; set; }
     }
 }

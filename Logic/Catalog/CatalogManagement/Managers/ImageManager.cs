@@ -239,7 +239,9 @@ namespace Core.Catalog.CatalogManagement
                     Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
                     Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
                     ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
-                    IsDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT", 0) > 0 ? true : false
+                    IsDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT", 0) > 0 ? true : false,
+                    ReferenceTable = ImageReferenceTable.Pics,
+                    ReferenceId = imageId
                 };
 
                 image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
@@ -419,6 +421,23 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return image;
+        }
+
+        private static ImageReferenceTable GetImageReferenceTable(eAssetImageType imageObjectType)
+        {
+            switch (imageObjectType)
+            {
+                case eAssetImageType.Epg:
+                    return ImageReferenceTable.EpgPics;
+                case eAssetImageType.Media:
+                case eAssetImageType.Channel:
+                case eAssetImageType.Category:
+                case eAssetImageType.DefaultPic:
+                case eAssetImageType.LogoPic:
+                case eAssetImageType.ImageType:
+                default:
+                    return ImageReferenceTable.Pics;
+            }
         }
 
         #endregion
@@ -742,10 +761,16 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                if (CatalogDAL.DeletePic(groupId, id, userId))
+                if (CatalogDAL.DeleteImage(groupId, id))
                 {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     Image image = imagesResponse.Objects.First();
+                    if (!CatalogDAL.DeletePic(groupId, id, userId))
+                    {
+                        log.ErrorFormat("Failed to delete image from {0} table. Id = {1}", image.ReferenceTable, image.ReferenceId);
+                    }
+
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    
                     if (image != null)
                     {
                         if (image.IsDefault.HasValue && image.IsDefault.Value)
@@ -1153,12 +1178,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
-        private static ImageReferenceTable GetImageReferenceTable(eAssetImageType imageObjectType)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         #endregion
     }
 }
