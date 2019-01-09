@@ -65,7 +65,7 @@ namespace WS_Domains
 
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.AddDomain(nGroupID, sDomainName, sDomainDescription, nMasterUserGuid);
+                return Core.Domains.Module.AddDomain(nGroupID, sDomainName, sDomainDescription, nMasterUserGuid, sCoGuid);
             }
             else
             {

@@ -969,8 +969,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<MediaConcurrencyRule, KalturaMediaConcurrencyRule>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RuleID))
             .ForMember(dest => dest.Limitation, opt => opt.MapFrom(src => src.Limitation))
-            // TODO SHIR - CHECK IF NEED THIS ENUM MAPPING
-            //.ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.ResolveUsing(src => ConvertConcurrencyLimitationType(src.RestrictionPolicy)))
             .ForMember(dest => dest.ConcurrencyLimitationType, opt => opt.MapFrom(src => src.RestrictionPolicy))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
@@ -1295,12 +1293,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackContext, KalturaPlaybackContext>()
              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
-             .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources));
+             .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources))
+             .ForMember(dest => dest.Plugins, opt => opt.MapFrom(src => src.Plugins))
+             .ForMember(dest => dest.PlaybackCaptions, opt => opt.MapFrom(src => src.PlaybackCaptions));
 
             cfg.CreateMap<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>()
              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
-             .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources));
+             .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources))
+             .ForMember(dest => dest.Plugins, opt => opt.MapFrom(src => src.Plugins))
+             .ForMember(dest => dest.PlaybackCaptions, opt => opt.MapFrom(src => src.PlaybackCaptions));
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackSource, KalturaPlaybackSource>()
                 .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.Format))
@@ -1320,7 +1322,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
                 .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.FileExtention))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));           
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>();
 
@@ -1351,6 +1353,32 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaCustomDrmPlaybackPluginData, ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData>()
                 .IncludeBase<KalturaDrmPlaybackPluginData, ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>()
                 .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data));
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.CaptionPlaybackPluginData, KalturaCaptionPlaybackPluginData>()
+                .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.Format))
+                .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Label))
+                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL));
+
+            cfg.CreateMap<KalturaCaptionPlaybackPluginData, ApiObjects.PlaybackAdapter.CaptionPlaybackPluginData>()
+                .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.Format))
+                .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Label))
+                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL));
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackPluginData, KalturaPlaybackPluginData>();
+
+            cfg.CreateMap<KalturaPlaybackPluginData, ApiObjects.PlaybackAdapter.PlaybackPluginData>();
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.BumperPlaybackPluginData, KalturaBumpersPlaybackPluginData>()
+                .IncludeBase<ApiObjects.PlaybackAdapter.PlaybackPluginData, KalturaPlaybackPluginData>()
+                .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => src.StreamerType))
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL));
+
+            cfg.CreateMap<KalturaBumpersPlaybackPluginData, ApiObjects.PlaybackAdapter.BumperPlaybackPluginData>()
+                .IncludeBase<KalturaPlaybackPluginData, ApiObjects.PlaybackAdapter.PlaybackPluginData>()
+                .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => src.StreamerType))
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL));
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.AccessControlMessage, KalturaAccessControlMessage>()
             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
@@ -2965,32 +2993,5 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return response;
         }
-
-        // TODO SHIR - CHECK IF NEED THIS ENUM MAPPING
-        //private static ConcurrencyRestrictionPolicy ConvertConcurrencyType(KalturaConcurrencyLimitationType concurrencyType)
-        //{
-        //    switch (concurrencyType)
-        //    {
-        //        case KalturaConcurrencyLimitationType.Single:
-        //            return ConcurrencyRestrictionPolicy.Single;
-        //        case KalturaConcurrencyLimitationType.Group:
-        //            return ConcurrencyRestrictionPolicy.Group;
-        //        default:
-        //            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown concurrencyType value : {0}", concurrencyType.ToString()));
-        //    }
-        //}
-
-        //private static KalturaConcurrencyLimitationType ConvertConcurrencyLimitationType(ConcurrencyRestrictionPolicy restrictionPolicy)
-        //{
-        //    switch (restrictionPolicy)
-        //    {
-        //        case ConcurrencyRestrictionPolicy.Group:
-        //            return KalturaConcurrencyLimitationType.Group;
-        //        case ConcurrencyRestrictionPolicy.Single:
-        //            return KalturaConcurrencyLimitationType.Single;
-        //        default:
-        //            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown restrictionPolicy value : {0}", restrictionPolicy.ToString()));
-        //    }
-        //}
     }
 }

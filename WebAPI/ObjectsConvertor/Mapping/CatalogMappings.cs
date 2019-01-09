@@ -556,15 +556,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaProgramAsset, EpgAsset>()
                 .IncludeBase<KalturaAsset, Asset>()
                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => eAssetTypes.EPG))
-                .ForPath(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
-                .ForPath(dest => dest.EpgIdentifier, opt => opt.MapFrom(src => src.ExternalId))
-                .ForPath(dest => dest.RelatedMediaId, opt => opt.MapFrom(src => src.RelatedMediaId))
-                .ForPath(dest => dest.Crid, opt => opt.MapFrom(src => src.Crid))
-                .ForPath(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.LinearAssetId))
-                .ForPath(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
-                .ForPath(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
-                .ForPath(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
-                .ForPath(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
+                .ForMember(dest => dest.EpgIdentifier, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.RelatedMediaId, opt => opt.MapFrom(src => src.RelatedMediaId))
+                .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.Crid))
+                .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.LinearAssetId))
+                .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled))
+                .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
+                .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
 
             // Asset to KalturaAsset
             cfg.CreateMap<Asset, KalturaAsset>()
@@ -1395,7 +1395,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 foreach (Image image in images)
                 {
                     string ratioName = !string.IsNullOrEmpty(image.RatioName) ? image.RatioName :
-                        imageTypeIdToRatioNameMap != null && imageTypeIdToRatioNameMap.ContainsKey(image.ImageTypeId) ? 
+                        imageTypeIdToRatioNameMap != null && imageTypeIdToRatioNameMap.ContainsKey(image.ImageTypeId) ?
                             imageTypeIdToRatioNameMap[image.ImageTypeId] : string.Empty;
                     KalturaMediaImage convertedImage = ConvertImageToKalturaImage(image, ratioName);
                     if (convertedImage != null)

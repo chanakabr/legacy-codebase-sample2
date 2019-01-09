@@ -91,6 +91,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.ItemNotFound, "Item Not Found", "Unable to find the item you requested");
         public static ClientExceptionType EXTERNAL_ID_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ExternalIdAlreadyExists, "External ID already exists", "The external ID you are trying to add / update already exists");
         public static ApiExceptionType EXTERNAL_ERROR = new ApiExceptionType(StatusCode.ExternalError, "externalCode: [@externalCode@], externalMessage: [@externalMessage@]", "externalCode", "externalMessage");
+        public static ClientExceptionType PARENTID_SHOULD_NOT_POINT_TO_ITSELF = new ClientExceptionType(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself");
+        public static ClientExceptionType PARENTID_NOT_EXIST = new ClientExceptionType(eResponseStatus.ParentIdNotExist, "ParentId Not Exist");
 
         // CAS Section 3000 - 3999
         public static ClientExceptionType INVALID_PURCHASE = new ClientExceptionType(eResponseStatus.InvalidPurchase, "Invalid Purchase", "Unable to complete the purchase of the item requested");
@@ -231,7 +233,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHANNEL_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ChannelDoesNotExist, "Channel Does Not Exist");
         public static ClientExceptionType CHANNEL_META_ORDER_BY_IS_INVALID = new ClientExceptionType(eResponseStatus.ChannelMetaOrderByIsInvalid, "Channel Meta Order By Is Invalid");
         public static ClientExceptionType ACCOUNT_IS_NOT_OPC_SUPPORTED = new ClientExceptionType(eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
-        
+        public static ClientExceptionType CANNOT_DELETE_PARENT_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeleteParentAssetStruct, "Can Not Delete Parent Asset Struct");
+
         // Api 5000 - 5999
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");
         public static ClientExceptionType PIN_MISMATCH = new ClientExceptionType(eResponseStatus.PinMismatch, "Pin Mismatch", "The parental PIN provided doesn't match the user/household PIN");
@@ -259,6 +262,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NEGATIVE_BUFFER_SENT = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNegativeBufferSent, "Time Shifted Tv Partner Settings Negative Buffer Sent",
             "You've configured a negative buffer value in the TimeShiftedTvPartnerr settings");
         public static ClientExceptionType CDNPARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.CDNPartnerSettingsNotFound, "CDNPartner Settings Not Found", "The system didn't find any CDN partner -related settings for the group account");
+        public static ClientExceptionType PERMISSION_NAME_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PermissionNameNotExists, "Permission Name Not Exists");
+        public static ClientExceptionType ROLE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RoleDoesNotExists, "Role Does Not Exists");
 
         // Billing 6000 - 6999
         public static ClientExceptionType INCORRECT_PRICE = new ClientExceptionType(eResponseStatus.IncorrectPrice, "Incorrect Price", "The price shown for the item in the request is not the actual price.");

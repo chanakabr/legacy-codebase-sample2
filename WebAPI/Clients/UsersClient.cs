@@ -31,11 +31,10 @@ namespace WebAPI.Clients
         }
 
         public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId,
-            Dictionary<string, KalturaStringValue> extraParams)
+            Dictionary<string, KalturaStringValue> extraParams, bool shouldSupportSingleLogin)
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
-            UserResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            UserResponse response = null;            
 
             try
             {
@@ -47,7 +46,7 @@ namespace WebAPI.Clients
                         keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value.value }).ToList();
                     }
                     response = Core.Users.Module.LogIn(groupId, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId,
-                        group.ShouldSupportSingleLogin, keyValueList);
+                        shouldSupportSingleLogin, keyValueList);
                 }
             }
             catch (Exception ex)
@@ -83,9 +82,9 @@ namespace WebAPI.Clients
             return user;
         }
 
-        internal KalturaOTTUser Login(int partnerId, string userName, string password, string udid, SerializableDictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection)
+        internal KalturaOTTUser Login(int partnerId, string userName, string password, string udid, SerializableDictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection, bool shouldSupportSingleLogin)
         {
-            return Login(partnerId, userName, password, udid, GetMergedExtraParams(extraParams, nameValueCollection));
+            return Login(partnerId, userName, password, udid, GetMergedExtraParams(extraParams, nameValueCollection), shouldSupportSingleLogin);
         }
 
         private Dictionary<string, KalturaStringValue> GetMergedExtraParams(Dictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection)

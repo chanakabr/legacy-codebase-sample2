@@ -122,6 +122,11 @@ namespace WebAPI.Controllers
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
 
+            if (string.IsNullOrEmpty(pinCode))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pinCode");
+            }
+
             try
             {
                 // call client
