@@ -782,7 +782,7 @@ namespace APILogic
 
                 // strings
                 xml.Append("<strings>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(string).ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.String.ToString()))
                 {
                     xml.Append(GetStringMetaSection(meta, mainLang));
                 }
@@ -790,7 +790,7 @@ namespace APILogic
 
                 // doubles
                 xml.Append("<doubles>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(double).ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.Number.ToString()))
                 {
                     xml.Append(GetMetaSection(meta));
                 }
@@ -798,7 +798,7 @@ namespace APILogic
 
                 // booleans
                 xml.Append("<booleans>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(bool).ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.Bool.ToString()))
                 {
                     xml.Append(GetMetaSection(meta));
                 }
@@ -806,7 +806,7 @@ namespace APILogic
 
                 // dates
                 xml.Append("<dates>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(DateTime).ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.DateTime.ToString()))
                 {
                     xml.Append(GetDateMetaSection(meta));
                 }
