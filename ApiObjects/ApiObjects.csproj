@@ -134,6 +134,8 @@
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
     <Compile Include="PlaybackAdapter\AccessControlMessage.cs" />
     <Compile Include="PlaybackAdapter\AssetFile.cs" />
+    <Compile Include="PlaybackAdapter\BumpersPlaybackPluginData.cs" />
+    <Compile Include="PlaybackAdapter\CaptionPlaybackPluginData.cs" />
     <Compile Include="PlaybackAdapter\DrmPlaybackPluginData.cs" />
     <Compile Include="PlaybackAdapter\Enums.cs" />
     <Compile Include="PlaybackAdapter\MediaFile.cs" />
