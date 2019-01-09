@@ -12,6 +12,6 @@ namespace ApiObjects.PlaybackAdapter
 
         public List<CaptionPlaybackPluginData> PlaybackCaptions { get; set; }
 
-        public List<BumpersPlaybackPluginData> PlaybackBumpers { get; set; }
+        public List<PlaybackPluginData> Plugins { get; set; }
     }
 }
