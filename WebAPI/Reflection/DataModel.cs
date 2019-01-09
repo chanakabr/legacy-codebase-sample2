@@ -913,6 +913,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBumpersPlaybackPluginData":
+                    switch(property.Name)
+                    {
+                        case "StreamerType":
+                            return "streamertype";
+                        case "URL":
+                            return "url";
+                    }
+                    break;
+                    
                 case "KalturaBundleFilter":
                     switch(property.Name)
                     {
@@ -3924,6 +3934,10 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Messages":
                             return "messages";
+                        case "PlaybackBumpers":
+                            return "playbackBumpers";
+                        case "PlaybackCaptions":
+                            return "playbackCaptions";
                         case "Sources":
                             return "sources";
                     }

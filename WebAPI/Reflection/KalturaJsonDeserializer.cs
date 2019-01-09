@@ -301,6 +301,9 @@ namespace WebAPI.Reflection
                 case "KalturaBulkListResponse":
                     return new KalturaBulkListResponse(parameters);
                     
+                case "KalturaBumpersPlaybackPluginData":
+                    return new KalturaBumpersPlaybackPluginData(parameters);
+                    
                 case "KalturaBundleFilter":
                     return new KalturaBundleFilter(parameters);
                     
@@ -2274,6 +2277,23 @@ namespace WebAPI.Models.ConditionalAccess
         {
         }
     }
+    public partial class KalturaBumpersPlaybackPluginData
+    {
+        public KalturaBumpersPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("url") && parameters["url"] != null)
+                {
+                    URL = (String) Convert.ChangeType(parameters["url"], typeof(String));
+                }
+                if (parameters.ContainsKey("streamertype") && parameters["streamertype"] != null)
+                {
+                    StreamerType = (String) Convert.ChangeType(parameters["streamertype"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaCDVRAdapterProfile
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDVRAdapterProfile")
@@ -3649,6 +3669,28 @@ namespace WebAPI.Models.ConditionalAccess
                     else if (parameters["messages"] is IList)
                     {
                         Messages = buildList(typeof(KalturaAccessControlMessage), parameters["messages"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("playbackCaptions") && parameters["playbackCaptions"] != null)
+                {
+                    if (parameters["playbackCaptions"] is JArray)
+                    {
+                        PlaybackCaptions = buildNativeList<KalturaCaptionPlaybackPluginData>(typeof(KalturaCaptionPlaybackPluginData), (JArray) parameters["playbackCaptions"]);
+                    }
+                    else if (parameters["playbackCaptions"] is IList)
+                    {
+                        PlaybackCaptions = buildNativeList(typeof(KalturaCaptionPlaybackPluginData), parameters["playbackCaptions"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("playbackBumpers") && parameters["playbackBumpers"] != null)
+                {
+                    if (parameters["playbackBumpers"] is JArray)
+                    {
+                        PlaybackBumpers = buildList<KalturaBumpersPlaybackPluginData>(typeof(KalturaBumpersPlaybackPluginData), (JArray) parameters["playbackBumpers"]);
+                    }
+                    else if (parameters["playbackBumpers"] is IList)
+                    {
+                        PlaybackBumpers = buildList(typeof(KalturaBumpersPlaybackPluginData), parameters["playbackBumpers"] as object[]);
                     }
                 }
             }

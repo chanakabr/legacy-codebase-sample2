@@ -627,6 +627,40 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaBumpersPlaybackPluginData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(StreamerType != null)
+            {
+                ret.Add("streamertype", "\"streamertype\": " + "\"" + EscapeJson(StreamerType) + "\"");
+            }
+            if(URL != null)
+            {
+                ret.Add("url", "\"url\": " + "\"" + EscapeJson(URL) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(StreamerType != null)
+            {
+                ret.Add("streamertype", "<streamertype>" + EscapeXml(StreamerType) + "</streamertype>");
+            }
+            if(URL != null)
+            {
+                ret.Add("url", "<url>" + EscapeXml(URL) + "</url>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaCDVRAdapterProfile
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -1802,6 +1836,16 @@ namespace WebAPI.Models.ConditionalAccess
                 propertyValue = "[" + String.Join(", ", Messages.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("messages", "\"messages\": " + propertyValue);
             }
+            if(PlaybackBumpers != null)
+            {
+                propertyValue = "[" + String.Join(", ", PlaybackBumpers.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("playbackBumpers", "\"playbackBumpers\": " + propertyValue);
+            }
+            if(PlaybackCaptions != null)
+            {
+                propertyValue = "[" + String.Join(", ", PlaybackCaptions.Select(item => item.ToString())) + "]";
+                ret.Add("playbackCaptions", "\"playbackCaptions\": " + propertyValue);
+            }
             if(Sources != null)
             {
                 propertyValue = "[" + String.Join(", ", Sources.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -1824,6 +1868,16 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 propertyValue = Messages.Count > 0 ? "<item>" + String.Join("</item><item>", Messages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("messages", "<messages>" + propertyValue + "</messages>");
+            }
+            if(PlaybackBumpers != null)
+            {
+                propertyValue = PlaybackBumpers.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackBumpers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("playbackBumpers", "<playbackBumpers>" + propertyValue + "</playbackBumpers>");
+            }
+            if(PlaybackCaptions != null)
+            {
+                propertyValue = PlaybackCaptions.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackCaptions.Select(item => item.ToString())) + "</item>" : "";
+                ret.Add("playbackCaptions", "<playbackCaptions>" + propertyValue + "</playbackCaptions>");
             }
             if(Sources != null)
             {
