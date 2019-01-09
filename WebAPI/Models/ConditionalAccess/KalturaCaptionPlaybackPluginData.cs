@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public partial class KalturaCaptionPlaybackPluginData
+    public partial class KalturaCaptionPlaybackPluginData : KalturaOTTObject
     {
         /// <summary>
         /// url

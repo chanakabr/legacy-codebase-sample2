@@ -661,6 +661,56 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaCaptionPlaybackPluginData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Format != null)
+            {
+                ret.Add("format", "\"format\": " + "\"" + EscapeJson(Format) + "\"");
+            }
+            if(Label != null)
+            {
+                ret.Add("label", "\"label\": " + "\"" + EscapeJson(Label) + "\"");
+            }
+            if(Language != null)
+            {
+                ret.Add("language", "\"language\": " + "\"" + EscapeJson(Language) + "\"");
+            }
+            if(URL != null)
+            {
+                ret.Add("url", "\"url\": " + "\"" + EscapeJson(URL) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Format != null)
+            {
+                ret.Add("format", "<format>" + EscapeXml(Format) + "</format>");
+            }
+            if(Label != null)
+            {
+                ret.Add("label", "<label>" + EscapeXml(Label) + "</label>");
+            }
+            if(Language != null)
+            {
+                ret.Add("language", "<language>" + EscapeXml(Language) + "</language>");
+            }
+            if(URL != null)
+            {
+                ret.Add("url", "<url>" + EscapeXml(URL) + "</url>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaCDVRAdapterProfile
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -1843,7 +1893,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(PlaybackCaptions != null)
             {
-                propertyValue = "[" + String.Join(", ", PlaybackCaptions.Select(item => item.ToString())) + "]";
+                propertyValue = "[" + String.Join(", ", PlaybackCaptions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("playbackCaptions", "\"playbackCaptions\": " + propertyValue);
             }
             if(Sources != null)
@@ -1876,7 +1926,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             if(PlaybackCaptions != null)
             {
-                propertyValue = PlaybackCaptions.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackCaptions.Select(item => item.ToString())) + "</item>" : "";
+                propertyValue = PlaybackCaptions.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackCaptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("playbackCaptions", "<playbackCaptions>" + propertyValue + "</playbackCaptions>");
             }
             if(Sources != null)

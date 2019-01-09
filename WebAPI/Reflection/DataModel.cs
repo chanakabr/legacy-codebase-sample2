@@ -991,6 +991,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCaptionPlaybackPluginData":
+                    switch(property.Name)
+                    {
+                        case "Format":
+                            return "format";
+                        case "Label":
+                            return "label";
+                        case "Language":
+                            return "language";
+                        case "URL":
+                            return "url";
+                    }
+                    break;
+                    
                 case "KalturaCDNAdapterProfile":
                     switch(property.Name)
                     {
