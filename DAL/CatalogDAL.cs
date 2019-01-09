@@ -5494,12 +5494,12 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable GetImages(int groupId)
+        public static DataTable GetImages(int groupId, List<long>ids)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Images");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ImagesByIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-
+            sp.AddIDListParameter("@ids", ids, "ID");
             return sp.Execute();
         }
 
@@ -5523,7 +5523,16 @@ namespace Tvinci.Core.DAL
 
             return sp.ExecuteReturnValue<long>();
         }
-        #endregion
 
+        public static DataTable GetEpgPic(int groupId, int id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EpgPicsById");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+
+            return sp.Execute();
+        }
+        #endregion
     }
 }
