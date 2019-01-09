@@ -697,7 +697,7 @@ namespace Core.Catalog.CatalogManagement
                                                               {
                                                                   { "groupId", groupId },
                                                                   { "ids", ids },
-                                                                    { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets }
+                                                                  { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets }
                                                               }, 
                                                               groupId, 
                                                               LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME,
@@ -710,6 +710,7 @@ namespace Core.Catalog.CatalogManagement
                     mediaAssets = new List<MediaAsset>();
                     foreach (JObject jobject in mediaAssetMap.Values)
                     {
+                        // TODO SHIR - ask lior about jobject.ToObject<MediaAsset>() - why pic size does not return
                         MediaAsset mediaAsset = jobject.ToObject<MediaAsset>();
                         if (mediaAsset.MediaAssetType == MediaAssetType.Linear)
                         {

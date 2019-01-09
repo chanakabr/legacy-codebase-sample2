@@ -164,16 +164,13 @@ namespace Core.Catalog.CatalogManagement
                 // insert epgCb to CB in all languages
                 SaveEpgCbToCB(epgCbToAdd, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags);
 
-                result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
-
-                if (result.HasObject() && result.Object.Id > 0)
+                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)newEpgId });
+                if (!indexingResult)
                 {
-                    bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)result.Object.Id });
-                    if (!indexingResult)
-                    {
-                        log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", result.Object.Id, groupId);
-                    }
+                    log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after AddEpgAsset", newEpgId, groupId);
                 }
+
+                result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
             }
             catch (Exception ex)
             {
