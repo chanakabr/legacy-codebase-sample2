@@ -45,11 +45,11 @@ namespace WebAPI.Models.ConditionalAccess
         public List<KalturaCaptionPlaybackPluginData> PlaybackCaptions { get; set; }
 
         /// <summary>
-        /// Playback bumpers
+        /// Plugins
         /// </summary>
-        [DataMember(Name = "playbackBumpers")]
-        [JsonProperty("playbackBumpers")]
-        [XmlElement(ElementName = "playbackBumpers")]
-        public List<KalturaBumpersPlaybackPluginData> PlaybackBumpers { get; set; }
+        [DataMember(Name = "plugins")]
+        [JsonProperty("plugins")]
+        [XmlElement(ElementName = "plugins")]
+        public List<KalturaPlaybackPluginData> Plugins { get; set; }
     }
 }

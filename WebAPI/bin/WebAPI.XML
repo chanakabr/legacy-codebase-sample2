@@ -8939,9 +8939,9 @@
             Playback captions
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.PlaybackBumpers">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Plugins">
             <summary>
-            Playback bumpers
+            Plugins
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaProtocol">

@@ -1294,14 +1294,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
              .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources))
-             .ForMember(dest => dest.PlaybackBumpers, opt => opt.MapFrom(src => src.PlaybackBumpers))
+             .ForMember(dest => dest.Plugins, opt => opt.MapFrom(src => src.Plugins))
              .ForMember(dest => dest.PlaybackCaptions, opt => opt.MapFrom(src => src.PlaybackCaptions));
 
             cfg.CreateMap<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>()
              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
              .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources))
-             .ForMember(dest => dest.PlaybackBumpers, opt => opt.MapFrom(src => src.PlaybackBumpers))
+             .ForMember(dest => dest.Plugins, opt => opt.MapFrom(src => src.Plugins))
              .ForMember(dest => dest.PlaybackCaptions, opt => opt.MapFrom(src => src.PlaybackCaptions));
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackSource, KalturaPlaybackSource>()
@@ -1322,7 +1322,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
                 .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.FileExtention))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));           
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>();
 
@@ -1366,11 +1366,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
                 .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL));
 
-            cfg.CreateMap<ApiObjects.PlaybackAdapter.BumpersPlaybackPluginData, KalturaBumpersPlaybackPluginData>()
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackPluginData, KalturaPlaybackPluginData>();
+
+            cfg.CreateMap<KalturaPlaybackPluginData, ApiObjects.PlaybackAdapter.PlaybackPluginData>();
+
+            cfg.CreateMap<ApiObjects.PlaybackAdapter.BumperPlaybackPluginData, KalturaBumpersPlaybackPluginData>()
+                .IncludeBase<ApiObjects.PlaybackAdapter.PlaybackPluginData, KalturaPlaybackPluginData>()
                 .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => src.StreamerType))
                 .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL));
 
-            cfg.CreateMap<KalturaBumpersPlaybackPluginData, ApiObjects.PlaybackAdapter.BumpersPlaybackPluginData>()
+            cfg.CreateMap<KalturaBumpersPlaybackPluginData, ApiObjects.PlaybackAdapter.BumperPlaybackPluginData>()
+                .IncludeBase<KalturaPlaybackPluginData, ApiObjects.PlaybackAdapter.PlaybackPluginData>()
                 .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => src.StreamerType))
                 .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL));
 

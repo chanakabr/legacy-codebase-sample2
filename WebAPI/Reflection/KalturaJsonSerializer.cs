@@ -1886,15 +1886,15 @@ namespace WebAPI.Models.ConditionalAccess
                 propertyValue = "[" + String.Join(", ", Messages.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("messages", "\"messages\": " + propertyValue);
             }
-            if(PlaybackBumpers != null)
-            {
-                propertyValue = "[" + String.Join(", ", PlaybackBumpers.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("playbackBumpers", "\"playbackBumpers\": " + propertyValue);
-            }
             if(PlaybackCaptions != null)
             {
                 propertyValue = "[" + String.Join(", ", PlaybackCaptions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("playbackCaptions", "\"playbackCaptions\": " + propertyValue);
+            }
+            if(Plugins != null)
+            {
+                propertyValue = "[" + String.Join(", ", Plugins.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("plugins", "\"plugins\": " + propertyValue);
             }
             if(Sources != null)
             {
@@ -1919,15 +1919,15 @@ namespace WebAPI.Models.ConditionalAccess
                 propertyValue = Messages.Count > 0 ? "<item>" + String.Join("</item><item>", Messages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("messages", "<messages>" + propertyValue + "</messages>");
             }
-            if(PlaybackBumpers != null)
-            {
-                propertyValue = PlaybackBumpers.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackBumpers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("playbackBumpers", "<playbackBumpers>" + propertyValue + "</playbackBumpers>");
-            }
             if(PlaybackCaptions != null)
             {
                 propertyValue = PlaybackCaptions.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackCaptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("playbackCaptions", "<playbackCaptions>" + propertyValue + "</playbackCaptions>");
+            }
+            if(Plugins != null)
+            {
+                propertyValue = Plugins.Count > 0 ? "<item>" + String.Join("</item><item>", Plugins.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("plugins", "<plugins>" + propertyValue + "</plugins>");
             }
             if(Sources != null)
             {
@@ -1986,6 +1986,24 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("streamerType", "<streamerType>" + EscapeXml(StreamerType) + "</streamerType>");
             }
             ret.Add("urlType", "<urlType>" + "" + Enum.GetName(typeof(KalturaUrlType), UrlType) + "" + "</urlType>");
+            return ret;
+        }
+    }
+    public partial class KalturaPlaybackPluginData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
             return ret;
         }
     }

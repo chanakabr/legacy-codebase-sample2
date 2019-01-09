@@ -11,7 +11,12 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public partial class KalturaBumpersPlaybackPluginData : KalturaOTTObject
+    [XmlInclude(typeof(KalturaBumpersPlaybackPluginData))]
+    public partial class KalturaPlaybackPluginData : KalturaOTTObject
+    {
+    }
+
+    public partial class KalturaBumpersPlaybackPluginData : KalturaPlaybackPluginData
     {
         /// <summary>
         /// url

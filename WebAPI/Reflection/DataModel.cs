@@ -3948,10 +3948,10 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Messages":
                             return "messages";
-                        case "PlaybackBumpers":
-                            return "playbackBumpers";
                         case "PlaybackCaptions":
                             return "playbackCaptions";
+                        case "Plugins":
+                            return "plugins";
                         case "Sources":
                             return "sources";
                     }
