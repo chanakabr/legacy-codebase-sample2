@@ -314,7 +314,7 @@ namespace WebAPI.Controllers
 
         private static object GetConvertedValue(Type itemType, string propertyName, KalturaSkipOperators skipOperator, string valueToConvert, Type propertyType = null)
         {
-            if (propertyType != null || typesToPropertyInfosMap.ContainsKey(itemType) && typesToPropertyInfosMap[itemType].ContainsKey(propertyName))
+            if (propertyType != null || (typesToPropertyInfosMap.ContainsKey(itemType) && typesToPropertyInfosMap[itemType].ContainsKey(propertyName)))
             {
                 if (propertyType == null)
                 {
