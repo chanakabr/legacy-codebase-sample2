@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using AdapterControllers.PlaybackAdapter;
+using ApiObjects;
 using ApiObjects.PlaybackAdapter;
 using ApiObjects.Response;
 using KLogMonitor;
@@ -257,10 +258,27 @@ namespace AdapterControllers
                             Protocols = x.Protocols
                         }).ToList();
                 }
+
+                if (adapterResponse.PlaybackContext.Plugins != null)
+                {
+                    kalturaPlaybackContext.Plugins = ParsePlugins(adapterResponse.PlaybackContext.Plugins);
+                }
+
+                if (adapterResponse.PlaybackContext.PlaybackCaptions != null)
+                {
+                    kalturaPlaybackContext.PlaybackCaptions = adapterResponse.PlaybackContext.PlaybackCaptions.Select(x =>
+                        new ApiObjects.PlaybackAdapter.CaptionPlaybackPluginData()
+                        {
+                            URL = x.URL,
+                            Format = x.Format,
+                            Label = x.Label,
+                            Language = x.Language
+                        }).ToList();
+                }
             }
 
             return kalturaPlaybackContext;
-        }
+        }       
 
         private static List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> ParseDrm(PlaybackAdapter.DrmPlaybackPluginData[] drms)
         {
@@ -395,9 +413,80 @@ namespace AdapterControllers
                             Protocols = x.Protocols
                         }).ToArray();
                 }
+
+                if (kalturaPlaybackContext.Plugins != null)
+                {
+                    playbackContext.Plugins = ParsePlugins(kalturaPlaybackContext.Plugins);
+                }
+
+                if (kalturaPlaybackContext.PlaybackCaptions != null)
+                {
+                    playbackContext.PlaybackCaptions = kalturaPlaybackContext.PlaybackCaptions.Select(x =>
+                         new PlaybackAdapter.CaptionPlaybackPluginData()
+                         {
+                             URL = x.URL,
+                             Format = x.Format,
+                             Label = x.Label,
+                             Language = x.Language
+                         }).ToArray();
+                }
             }
 
             return playbackContext;
+        }
+
+        private PlaybackAdapter.PlaybackPluginData[] ParsePlugins(List<ApiObjects.PlaybackAdapter.PlaybackPluginData> plugins)
+        {
+            List<PlaybackAdapter.PlaybackPluginData> playbackPluginDatas = new List<PlaybackAdapter.PlaybackPluginData>();
+            PlaybackAdapter.PlaybackPluginData playbackPluginData;
+
+            foreach (var item in plugins)
+            {
+                if (item is ApiObjects.PlaybackAdapter.BumperPlaybackPluginData)
+                {
+                    ApiObjects.PlaybackAdapter.BumperPlaybackPluginData tmp = item as ApiObjects.PlaybackAdapter.BumperPlaybackPluginData;
+                    playbackPluginData = new PlaybackAdapter.BumperPlaybackPluginData()
+                    {
+                        StreamerType = tmp.StreamerType,
+                        URL = tmp.URL
+                    };
+                }                
+                else
+                {
+                    playbackPluginData = new PlaybackAdapter.PlaybackPluginData();
+                }
+
+                playbackPluginDatas.Add(playbackPluginData);
+            }
+
+            return playbackPluginDatas.ToArray();
+        }
+
+        private static List<ApiObjects.PlaybackAdapter.PlaybackPluginData> ParsePlugins(PlaybackAdapter.PlaybackPluginData[] plugins)
+        {
+            List<ApiObjects.PlaybackAdapter.PlaybackPluginData> playbackPluginDatas = new List<ApiObjects.PlaybackAdapter.PlaybackPluginData>();
+            ApiObjects.PlaybackAdapter.PlaybackPluginData playbackPluginData;
+
+            foreach (var item in plugins)
+            {
+                if (item is PlaybackAdapter.BumperPlaybackPluginData)
+                {
+                    PlaybackAdapter.BumperPlaybackPluginData tmp = item as PlaybackAdapter.BumperPlaybackPluginData;
+                    playbackPluginData = new ApiObjects.PlaybackAdapter.BumperPlaybackPluginData()
+                    {
+                        StreamerType = tmp.StreamerType,
+                        URL = tmp.URL
+                    };
+                }               
+                else
+                {
+                    playbackPluginData = new ApiObjects.PlaybackAdapter.BumperPlaybackPluginData();
+                }
+
+                playbackPluginDatas.Add(playbackPluginData);
+            }
+
+            return playbackPluginDatas;
         }
     }
 }
