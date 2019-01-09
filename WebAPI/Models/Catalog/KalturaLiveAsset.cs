@@ -170,8 +170,10 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "channelType")]        
         public KalturaLinearChannelType? ChannelType { get; set; }
 
-        internal void ValidateForInsert()
+        internal override void ValidateForInsert()
         {
+            base.ValidateForInsert();
+
             if (EnableCatchUpState == null)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableCatchUpState");

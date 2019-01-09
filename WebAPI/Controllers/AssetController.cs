@@ -1139,10 +1139,9 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
-            asset.ValidateForInsert();
-
             try
             {
+                asset.ValidateForInsert();
                 response = ClientsManager.CatalogClient().AddAsset(groupId, asset, userId);
             }
             catch (ClientException ex)
@@ -1205,10 +1204,9 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
-            asset.ValidateForUpdate();
-
             try
             {
+                asset.ValidateForUpdate();
                 response = ClientsManager.CatalogClient().UpdateAsset(groupId, id, asset, userId);
             }
             catch (ClientException ex)
