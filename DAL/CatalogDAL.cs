@@ -5514,14 +5514,14 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<long>();
         }
 
-        public static long DeleteImage(int groupId, int id)
+        public static bool DeleteImage(int groupId, long id)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_Image");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@id", id);
 
-            return sp.ExecuteReturnValue<long>();
+            return sp.ExecuteReturnValue<long>() > 0;
         }
 
         public static DataTable GetEpgPics(int groupId, List<long> ids)
@@ -5532,6 +5532,11 @@ namespace Tvinci.Core.DAL
             sp.AddIDListParameter("@ids", ids, "ID");
 
             return sp.Execute();
+        }
+
+        public static DataTable GetEpgPics(int groupId, List<long> ids)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }
