@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaImageListResponse List(KalturaImageFilter filter = null)
+        static public KalturaImageListResponse List(KalturaImageFilter filter)
         {
             KalturaImageListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
