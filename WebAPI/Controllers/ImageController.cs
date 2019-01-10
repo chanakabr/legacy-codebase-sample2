@@ -6,8 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -153,15 +155,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (content is KalturaUrlResource)
-                {
-                    KalturaUrlResource urlContent = (KalturaUrlResource)content;
-                    ClientsManager.CatalogClient().SetContent(groupId, userId, id, urlContent.Url);
-                }
-                else
-                {
+                var url = GetUrl(groupId, content);
+                if (url.IsNullOrEmptyOrWhiteSpace())
                     throw new BadRequestException();
-                }
+
+                ClientsManager.CatalogClient().SetContent(groupId, userId, id, url);
             }
             catch (ClientException ex)
             {
@@ -169,5 +167,20 @@ namespace WebAPI.Controllers
             }           
         }
 
+        private static string GetUrl(int groupId, KalturaContentResource content)
+        {
+            var resource1 = content as KalturaUrlResource;
+            if (resource1 != null)
+                return resource1.Url;
+
+            var resource2 = content as KalturaUploadedFileTokenResource;
+            if (resource2 != null)
+            {
+                var ut = UploadManager.GetUploadToken(resource2.Token, groupId);
+                return ut.FileUrl;
+            }
+
+            throw new BadRequestException();
+        }
     }
 }

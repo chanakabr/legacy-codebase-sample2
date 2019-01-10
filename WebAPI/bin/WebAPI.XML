@@ -14882,6 +14882,11 @@
             The id of the upload token
             </summary>
         </member>
+        <member name="P:WebAPI.Managers.Models.UploadToken.FileUrl">
+            <summary>
+            The id of the upload token
+            </summary>
+        </member>
         <member name="P:WebAPI.Managers.Models.UploadToken.PartnerId">
             <summary>
             Partner identifier
