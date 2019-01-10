@@ -5524,12 +5524,12 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<long>();
         }
 
-        public static DataTable GetEpgPic(int groupId, int id)
+        public static DataTable GetEpgPics(int groupId, List<long> ids)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EpgPicsById");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EpgPicsByIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@id", id);
+            sp.AddIDListParameter("@ids", ids, "ID");
 
             return sp.Execute();
         }
