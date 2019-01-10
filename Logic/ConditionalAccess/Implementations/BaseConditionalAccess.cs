@@ -3380,7 +3380,6 @@ namespace Core.ConditionalAccess
                                            out bool firstExceeded)
         {
             firstExceeded = false;
-            double recurringCouponPrice = renewSubscriptionDetails.Price;
 
             try
             {
@@ -3388,17 +3387,16 @@ namespace Core.ConditionalAccess
                 renewSubscriptionDetails.CouponCode = string.Empty; // init for recurring coupon
 
                 // get all SubscriptionsCouponGroup (with expiry date !!!!)
-                List<SubscriptionCouponGroup> allCoupons = Core.Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(theSub.m_SubscriptionCode), m_nGroupID, false);
+                List<SubscriptionCouponGroup> allCoupons = Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(theSub.m_SubscriptionCode), m_nGroupID, false);
 
                 if ((theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_oDiscountCode != null)
-                    || (allCoupons != null && allCoupons.Count > 0 && allCoupons.Where(x => x.m_oDiscountCode == null).Count() == 0))
+                    || (allCoupons != null && allCoupons.Count > 0 && allCoupons.Count(x => x.m_oDiscountCode == null) == 0))
                 {
-                    // check if coupon related to subscription the type is coupon gift card or coupon             
-                               
+                    // check if coupon related to subscription the type is coupon gift card or coupon                        
                     long couponGroupId = Utils.GetSubscriptiopnPurchaseCoupon(ref couponCode, renewSubscriptionDetails.PurchaseId, m_nGroupID); // return only if valid .
 
-                    if (couponGroupId > 0 && ((theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString()) ||
-                        (allCoupons != null && allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString()).Count() > 0)))
+                    if (couponGroupId > 0 && ((theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode.Equals(couponGroupId.ToString())) ||
+                        (allCoupons != null && allCoupons.Count(x => x.m_sGroupCode.Equals(couponGroupId.ToString())) > 0)))
                     {
                         // look if this coupon group id is a gift card in the subscription list 
                         CouponsGroupResponse cg = Pricing.Module.GetCouponsGroup(m_nGroupID, couponGroupId);
@@ -3415,11 +3413,11 @@ namespace Core.ConditionalAccess
                                 {
                                     Price priceBeforeCouponDiscount = new Price
                                     {
-                                        m_dPrice = recurringCouponPrice,
+                                        m_dPrice = renewSubscriptionDetails.Price,
                                         m_oCurrency = oCurrency
                                     };
                                     Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.CouponsGroup.m_oDiscountCode, 0);
-                                    recurringCouponPrice = priceResult.m_dPrice;
+                                    renewSubscriptionDetails.Price = priceResult.m_dPrice;
                                     renewSubscriptionDetails.CouponCode = couponCode;
                                 }
                                 else if (firstExceeded)
@@ -3428,9 +3426,9 @@ namespace Core.ConditionalAccess
                                     if (couponRemainder > 0)
                                     {
                                         renewSubscriptionDetails.IsUseCouponRemainder = true;
-                                        recurringCouponPrice -= couponRemainder;
-                                        if (recurringCouponPrice < 0)
-                                            recurringCouponPrice = 0;
+                                        renewSubscriptionDetails.Price -= couponRemainder;
+                                        if (renewSubscriptionDetails.Price < 0)
+                                            renewSubscriptionDetails.Price = 0;
 
                                         renewSubscriptionDetails.CouponCode = couponCode;
                                     }
