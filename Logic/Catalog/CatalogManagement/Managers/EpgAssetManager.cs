@@ -164,20 +164,17 @@ namespace Core.Catalog.CatalogManagement
                 // insert epgCb to CB in all languages
                 SaveEpgCbToCB(epgCbToAdd, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags);
 
-                result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
-
-                if (result.HasObject() && result.Object.Id > 0)
+                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)newEpgId });
+                if (!indexingResult)
                 {
-                    bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)result.Object.Id });
-                    if (!indexingResult)
-                    {
-                        log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", result.Object.Id, groupId);
-                    }
+                    log.ErrorFormat("Failed UpsertProgram index for epg ExternalId: {0}, groupId: {1} after AddEpgAsset", epgAssetToAdd.EpgIdentifier, groupId);
                 }
+
+                result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed AddEpgAsset for groupId: {0} and epgAsset.Id: {1}. ex: {2}", groupId, epgAssetToAdd.Id, ex);
+                log.Error(string.Format("Failed AddEpgAsset for groupId: {0}, epg ExternalId: {1}", groupId, epgAssetToAdd.EpgIdentifier), ex);
             }
 
             return result;
@@ -271,10 +268,10 @@ namespace Core.Catalog.CatalogManagement
                 SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags);
 
                 // update index
-                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)result.Object.Id });
+                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAssetToUpdate.Id });
                 if (!indexingResult)
                 {
-                    log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", result.Object.Id, groupId);
+                    log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", epgAssetToUpdate.Id, groupId);
                 }
 
                 // get updated epgAsset
@@ -300,7 +297,7 @@ namespace Core.Catalog.CatalogManagement
                 CatalogGroupCache catalogGroupCache;
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgAssetsFromCache", groupId);
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteEpgAsset", groupId);
                     return null;
                 }
 
@@ -384,18 +381,18 @@ namespace Core.Catalog.CatalogManagement
                         bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id });
                         if (!indexingResult)
                         {
-                            log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromMediaAsset", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+                            log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
                         }
                     }
                     else
                     {
-                        log.ErrorFormat("Failed to remove topics from asset with id: {0}, type: {1}, groupId: {2}", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+                        log.ErrorFormat("Failed to remove topics from program with id: {0}, type: {1}, groupId: {2}", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed RemoveTopicsFromProgram for groupId: {0} , id: {1} , assetType: {2}", groupId, asset.Id, eAssetTypes.EPG.ToString()), ex);
+                log.Error(string.Format("Failed RemoveTopicsFromProgram for groupId:{0}, id:{1}, assetType:{2}", groupId, asset.Id, eAssetTypes.EPG.ToString()), ex);
             }
 
             return result;
@@ -595,7 +592,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (!string.IsNullOrEmpty(epgAssetToUpdate.EpgIdentifier) && !epgAssetToUpdate.EpgIdentifier.Equals(oldEpgAsset.EpgIdentifier))
             {
-                return new Status((int)eResponseStatus.Error, "cannot update EPG_IDENTIFIER");
+                return new Status((int)eResponseStatus.Error, "cannot update EpgIdentifier");
             }
 
             updateBasicData = epgAssetToUpdate.UpdateFields(oldEpgAsset);
@@ -981,7 +978,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed GetMappingFields with groupId: {0}, exception: {1}", groupId, ex.ToString());
+                log.Error(string.Format("Failed GetMappingFields with groupId: {0}.", groupId), ex);
             }
 
             return allFieldTypeMapping;
@@ -1040,7 +1037,7 @@ namespace Core.Catalog.CatalogManagement
             }
             else
             {
-                log.ErrorFormat("Get_EPGTagValueIDs return empty response. gruop = {0}", groupID);
+                log.ErrorFormat("Get_EPGTagValueIDs return empty response. gruop={0}", groupID);
             }
 
             return dicTagTypeWithValues;
@@ -1419,7 +1416,7 @@ namespace Core.Catalog.CatalogManagement
             CatalogGroupCache catalogGroupCache;
             if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgAssetsFromCache", groupId);
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling RemoveTopicsFromProgramEpgCBs", groupId);
                 return;
             }
 
@@ -1462,12 +1459,12 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!EpgDal.SaveEpgCB(epgCB, true))
                 {
-                    log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0} in EpgAssetManager", epgCB.EpgID);
+                    log.ErrorFormat("RemoveTopicsFromProgramEpgCB - Failed to SaveEpgCB for epgId: {0}.", epgCB.EpgID);
                 }
             }
             catch (Exception exc)
             {
-                log.ErrorFormat("Exception at RemoveTopicsFromProgramEpgCB for epgId: {0} in EpgAssetManager", epgCB.EpgID, exc);
+                log.Error(string.Format("Exception at RemoveTopicsFromProgramEpgCB for epgId: {0}.", epgCB.EpgID), exc);
             }
         }
 
