@@ -1,16 +1,16 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using Tvinci.Core.DAL;
-using CachingProvider.LayeredCache;
-using ApiObjects;
-using Newtonsoft.Json;
-using System.Net;
-using System.IO;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -814,7 +814,10 @@ namespace Core.Catalog.CatalogManagement
                 {
                     // update IDs
                     tempResponse.Objects.ForEach(i => i.Id = referncesIds[ImageReferenceTable.Pics][i.Id]);
-                    response = tempResponse;
+                    // check if group uses pic sizes
+                    UpdateImagesForGroupWithPicSizes(groupId, ref tempResponse);
+
+                    response = tempResponse;                 
                 }
             }
 
@@ -831,33 +834,75 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
-            if (response.HasObjects())
-            {
-                // check if group uses pic sizes
-                UpdateImagesForGroupWithPicSizes(groupId, ref response);
-            }
             return response;
         }
 
         public static GenericListResponse<Image> GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
         {
             GenericListResponse<Image> response = new GenericListResponse<Image>();
+            DataTable imagesDT = null;
+            Dictionary<long, Image> pics = null;
+            Dictionary<ImageReferenceTable, Dictionary<long, long>> referncesIds = null;
 
-            DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
-            response = CreateImageListResponseFromDataTable(groupId, dt);
-            if (isDefault.HasValue && isDefault.Value)
+            if (imageObjectType == eAssetImageType.Epg)
             {
-                List<Image> groupDefualtImages = GetGroupDefaultImages(groupId);
-                HashSet<long> assetImageTypes = new HashSet<long>(response.Objects.Select(x => x.ImageTypeId).ToList());
-                response.Objects.AddRange(groupDefualtImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
-            }
+                EpgCB epgCB = EpgDal.GetEpgCB(imageObjectId);
+                if (epgCB != null && epgCB.pictures != null)
+                {
+                    pics = new Dictionary<long, Image>();
+                    Image image = null;
 
-            if (response.HasObjects())
+                    var ratioNamesToImageTypes = GetGroupRatioNamesToImageTypes(groupId);
+
+                    foreach (var pic in epgCB.pictures)
+                    {
+                        image = new Image()
+                        {
+                            Id = pic.PicID,
+                            ContentId = pic.Url,
+                            Version = pic.Version,
+                            IsDefault = false,
+                            ImageObjectId = imageObjectId,
+                            ImageObjectType = eAssetImageType.Epg,
+                            Status = eTableStatus.OK,
+                            ImageTypeId = ratioNamesToImageTypes.ContainsKey(pic.Ratio) ? ratioNamesToImageTypes[pic.Ratio].Id : 0
+                        };
+
+                        pics.Add(image.Id, image);
+                    }
+
+                    // update IDs
+                    imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.EpgPics, pics.Keys.ToList());
+                    referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
+
+                    response.Objects = pics.Values.ToList();
+                    response.Objects.ForEach(i => i.Id = referncesIds[ImageReferenceTable.EpgPics][i.Id]);
+                    
+                }
+            }
+            else
             {
-                // check if group uses pic sizes
-                UpdateImagesForGroupWithPicSizes(groupId, ref response);
-            }
+                DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
+                response = CreateImageListResponseFromDataTable(groupId, dt);
+                if (response.HasObjects())
+                {
+                    // update IDs
+                    imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.Pics, pics.Keys.ToList());
+                    referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
+                    response.Objects.ForEach(i => i.Id = referncesIds[ImageReferenceTable.EpgPics][i.Id]);
+                    
+                    //    // check if group uses pic sizes
+                    //    UpdateImagesForGroupWithPicSizes(groupId, ref response);
+                }
 
+                if (isDefault.HasValue && isDefault.Value)
+                {
+                    List<Image> groupDefualtImages = GetGroupDefaultImages(groupId);
+                    HashSet<long> assetImageTypes = new HashSet<long>(response.Objects.Select(x => x.ImageTypeId).ToList());
+                    response.Objects.AddRange(groupDefualtImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
+                }
+            }
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             return response;
         }
 
@@ -1178,7 +1223,34 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
+        public static Dictionary<string, ImageType> GetGroupRatioNamesToImageTypes(int groupId)
+        {
+            Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
+
+            GenericListResponse<ImageType> imageTypes = GetImageTypes(groupId, false, null);
+            if (imageTypes != null && imageTypes.HasObjects())
+            {
+                var groupRatios = GetRatios(groupId);
+
+                if (groupRatios != null && groupRatios.HasObjects())
+                {
+                    groupRatioNamesToImageTypes = new Dictionary<string, ImageType>();
+
+                    foreach (var imageType in imageTypes.Objects)
+                    {
+                        var currRatio = groupRatios.Objects.FirstOrDefault(x => imageType.RatioId.HasValue && imageType.RatioId.Value == x.Id);
+                        if (currRatio != null && !groupRatioNamesToImageTypes.ContainsKey(currRatio.Name))
+                        {
+                            groupRatioNamesToImageTypes.Add(currRatio.Name, imageType);
+                        }
+                    }
+                }
+            }
+
+            return groupRatioNamesToImageTypes;
+        }
+
         #endregion
     }
 }

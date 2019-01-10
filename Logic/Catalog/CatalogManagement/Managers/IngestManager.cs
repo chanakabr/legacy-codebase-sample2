@@ -94,7 +94,7 @@ namespace Core.Catalog.CatalogManagement
             // get data for group
             GenericListResponse<MediaFileType> mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
             string groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
-            Dictionary<string, ImageType> groupRatioNamesToImageTypes = GetGroupRatioNamesToImageTypes(groupId);
+            Dictionary<string, ImageType> groupRatioNamesToImageTypes = ImageManager.GetGroupRatioNamesToImageTypes(groupId);
             Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations = new Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>>();
 
             for (int i = 0; i < feed.Export.MediaList.Count; i++)
@@ -403,33 +403,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return null;
-        }
-
-        private static Dictionary<string, ImageType> GetGroupRatioNamesToImageTypes(int groupId)
-        {
-            Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
-
-            GenericListResponse<ImageType> imageTypes = ImageManager.GetImageTypes(groupId, false, null);
-            if (imageTypes != null && imageTypes.HasObjects())
-            {
-                var groupRatios = ImageManager.GetRatios(groupId);
-
-                if (groupRatios != null && groupRatios.HasObjects())
-                {
-                    groupRatioNamesToImageTypes = new Dictionary<string, ImageType>();
-
-                    foreach (var imageType in imageTypes.Objects)
-                    {
-                        var currRatio = groupRatios.Objects.FirstOrDefault(x => imageType.RatioId.HasValue && imageType.RatioId.Value == x.Id);
-                        if (currRatio != null && !groupRatioNamesToImageTypes.ContainsKey(currRatio.Name))
-                        {
-                            groupRatioNamesToImageTypes.Add(currRatio.Name, imageType);
-                        }
-                    }
-                }
-            }
-
-            return groupRatioNamesToImageTypes;
         }
 
         private static List<LanguageContainer> GetOtherLanguages(string mainLanguageCode, IngestMultilingual multilingual)
