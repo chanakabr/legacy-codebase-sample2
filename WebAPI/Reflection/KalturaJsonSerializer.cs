@@ -13248,7 +13248,7 @@ namespace WebAPI.Models.API
                     ret.Add("notification_url", "\"notification_url\": " + "\"" + EscapeJson(NotificationUrl) + "\"");
                 }
             }
-            if(VodTypes != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.1.2.0", currentVersion) && VodTypes != null)
             {
                 propertyValue = "[" + String.Join(", ", VodTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("vodTypes", "\"vodTypes\": " + propertyValue);
@@ -13311,7 +13311,7 @@ namespace WebAPI.Models.API
                 ret.Add("notification_url", "<notification_url>" + EscapeXml(NotificationUrl) + "</notification_url>");
                 }
             }
-            if(VodTypes != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.1.2.0", currentVersion) && VodTypes != null)
             {
                 propertyValue = VodTypes.Count > 0 ? "<item>" + String.Join("</item><item>", VodTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("vodTypes", "<vodTypes>" + propertyValue + "</vodTypes>");

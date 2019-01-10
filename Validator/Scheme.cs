@@ -872,6 +872,7 @@ namespace Validator.Managers.Scheme
                 writer.WriteAttributeString("readOnly", schemeProperty.ReadOnly ? "1" : "0");
                 writer.WriteAttributeString("insertOnly", schemeProperty.InsertOnly ? "1" : "0");
                 writer.WriteAttributeString("writeOnly", schemeProperty.WriteOnly ? "1" : "0");
+                writer.WriteAttributeString("nullable", schemeProperty.IsNullable ? "1" : "0");
 
                 if (schemeProperty.DynamicType != null)
                     writer.WriteAttributeString("valuesEnumType", schemeProperty.DynamicType.Name);

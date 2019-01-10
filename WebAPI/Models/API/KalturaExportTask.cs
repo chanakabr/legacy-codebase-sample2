@@ -93,6 +93,7 @@ namespace WebAPI.Models.API
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         [OldStandardProperty("vod_types")]
+        [Deprecated("5.1.2.0")]
         public List<KalturaIntegerValue> VodTypes { get; set; }
 
         /// <summary>
