@@ -596,7 +596,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (!string.IsNullOrEmpty(epgAssetToUpdate.EpgIdentifier) && !epgAssetToUpdate.EpgIdentifier.Equals(oldEpgAsset.EpgIdentifier))
             {
-                return new Status((int)eResponseStatus.Error, "cannot update EPG_IDENTIFIER");
+                return new Status((int)eResponseStatus.Error, "cannot update EpgIdentifier");
             }
 
             updateBasicData = epgAssetToUpdate.UpdateFields(oldEpgAsset);
