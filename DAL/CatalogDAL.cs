@@ -5532,12 +5532,7 @@ namespace Tvinci.Core.DAL
             sp.AddIDListParameter("@ids", ids, "ID");
 
             return sp.Execute();
-        }
-
-        public static DataTable GetEpgPics(int groupId, List<long> ids)
-        {
-            throw new NotImplementedException();
-        }
+        }        
         #endregion
     }
 }
