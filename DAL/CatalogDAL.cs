@@ -5532,7 +5532,17 @@ namespace Tvinci.Core.DAL
             sp.AddIDListParameter("@ids", ids, "ID");
 
             return sp.Execute();
-        }        
+        }
+
+        public static DataTable GetImagesByTableReferenceIds(int groupId, ImageReferenceTable referenceTable, List<long> tableReferenceIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ImagesByTableReferenceIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@tableReference", (int)referenceTable);
+            sp.AddIDListParameter("@tableReferenceIds", tableReferenceIds, "ID");
+            return sp.Execute();
+        }
         #endregion
     }
 }

@@ -275,7 +275,7 @@ namespace Tvinci.Core.DAL
                 return ds.Tables[0];
             return null;
         }
-        
+
         /// <summary>
         /// Get all metas and tags for EPGs by groupID And it's mapping in the xml file
         /// </summary>
@@ -1032,7 +1032,7 @@ namespace Tvinci.Core.DAL
 
             return result;
         }
-        
+
         private static string GetEpgCBKey(long epgId, string langCode = null)
         {
             if (string.IsNullOrEmpty(langCode))
@@ -1043,6 +1043,11 @@ namespace Tvinci.Core.DAL
             {
                 return string.Format("epg_{0}_lang_{1}", epgId, langCode.ToLower());
             }
+        }
+
+        public static EpgCB GetEpgCB(long epgId)
+        {
+            return UtilsDal.GetObjectFromCB<EpgCB>(eCouchbaseBucket.EPG, GetEpgCBKey(epgId), true);
         }
     }
 }
