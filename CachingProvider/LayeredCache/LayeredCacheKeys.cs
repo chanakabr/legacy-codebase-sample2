@@ -827,7 +827,7 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        public static Dictionary<string, List<string>> GetMediaInvalidationKeysMap(int groupId, string assetType, List<long> ids)
+        public static Dictionary<string, List<string>> GetMediaInvalidationKeysMap(int groupId, string assetType, List<long> ids, int languageId)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
             if (ids != null && ids.Count > 0)
@@ -835,14 +835,14 @@ namespace CachingProvider.LayeredCache
                 ids = ids.Distinct().ToList();
                 foreach (long id in ids)
                 {
-                    result.Add(GetAssetKey(assetType, id), new List<string>() { GetMediaInvalidationKey(groupId, id) });
+                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetMediaInvalidationKey(groupId, id) });
                 }
             }
 
             return result;
         }
 
-        public static Dictionary<string, List<string>> GetEpgInvalidationKeysMap(int groupId, string assetType, List<long> ids)
+        public static Dictionary<string, List<string>> GetEpgInvalidationKeysMap(int groupId, string assetType, List<long> ids, int languageId)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
             if (ids != null && ids.Count > 0)
@@ -850,7 +850,7 @@ namespace CachingProvider.LayeredCache
                 ids = ids.Distinct().ToList();
                 foreach (long id in ids)
                 {
-                    result.Add(GetAssetKey(assetType, id), new List<string>() { GetEpgInvalidationKey(groupId, id) });
+                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });
                 }
             }
 
