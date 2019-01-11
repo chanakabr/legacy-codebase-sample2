@@ -1833,7 +1833,7 @@ namespace Core.Catalog
                 Dictionary<string, MediaObj> mediaObjMap = null;
                 int languageId = filter != null ? filter.m_nLanguage : 0;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsWithLanguageKeyMap(assetType.ToString(), ids.Select(x => x.ToString()).ToList() , languageId);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetMediaInvalidationKeysMap(groupId, assetType.ToString(), ids.Select(x => (long)x).ToList());
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetMediaInvalidationKeysMap(groupId, assetType.ToString(), ids.Select(x => (long)x).ToList(), languageId);
 
                 if (!LayeredCache.Instance.GetValues<MediaObj>(keyToOriginalValueMap, ref mediaObjMap, GetMediaObjects, new Dictionary<string, object>() { { "groupId", groupId }, { "ids", ids },
                                                                 { "filter", filter } }, groupId, LayeredCacheConfigNames.GET_ASSETS_WITH_LANGUAGE_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
@@ -1917,7 +1917,7 @@ namespace Core.Catalog
                 Dictionary<string, ProgramObj> programsMap = null;
                 int languageId = filter != null ? filter.m_nLanguage : 0;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsWithLanguageKeyMap(assetType.ToString(), ids.Select(x => x.ToString()).ToList(), languageId);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetEpgInvalidationKeysMap(groupId, assetType.ToString(), ids);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetEpgInvalidationKeysMap(groupId, assetType.ToString(), ids, languageId);
 
                 if (!LayeredCache.Instance.GetValues<ProgramObj>(keyToOriginalValueMap, ref programsMap, GetPrograms, new Dictionary<string, object>() { { "groupId", groupId }, { "ids", ids },
                                                                 { "filter", filter } }, groupId, LayeredCacheConfigNames.GET_ASSETS_WITH_LANGUAGE_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
