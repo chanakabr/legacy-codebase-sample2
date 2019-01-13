@@ -1371,10 +1371,7 @@ namespace Core.ConditionalAccess
                         discountPrice = GetPriceAfterDiscount(finalPrice, externalDiscount, 1);
                     }
 
-                    // TODO SHIR - CALC 100%
-                    // 30$ - 100% | 50% (day 20/30)
                     var originalPrice = CopyPrice(finalPrice);
-                    // 0$ | 15$
                     finalPrice = GetLowestPrice(groupId, finalPrice, domainId, discountPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), 
                                                 countryCode, ref couponCode, subscription.m_oCouponsGroup, subscription.CouponsGroups, null);
 
@@ -1386,16 +1383,12 @@ namespace Core.ConditionalAccess
                         bool fullCouponDiscount = (!string.IsNullOrEmpty(couponCode) && originalPrice.m_dPrice > 0 && finalPrice.m_dPrice == 0);
                         if (fullCouponDiscount)
                         {
-                            // 10$
                             var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, originalPrice.m_dPrice, ref unifiedBillingCycle, subscription, domainId);
-                            // 20%
                             couponRemainder = originalPrice.m_dPrice - priceAfterUnified;
                         }
                         else
                         {
-                            // 5$
                             var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, finalPrice.m_dPrice, ref unifiedBillingCycle, subscription, domainId);
-                            // 10 $
                             couponRemainder = finalPrice.m_dPrice - priceAfterUnified;
                             finalPrice.m_dPrice = priceAfterUnified;
                         }
