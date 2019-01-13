@@ -320,10 +320,7 @@ namespace Core.ConditionalAccess
                 log.Error("Error while trying to get Price plan to renew");
                 return false;
             }
-
-            if (!string.IsNullOrEmpty(renewSubscriptionDetails.CouponCode))
-                ignoreUnifiedBillingCycle = true;
-
+            
             long unifiedProcessId = 0;
             if (!ignoreUnifiedBillingCycle && unifiedBillingCycle != null) //should be part of unified cycle 
             {
@@ -1233,10 +1230,10 @@ namespace Core.ConditionalAccess
             }
 
             // validate subscription
-            if (subscriptions == null || subscriptions.Count() == 0)
+            if (subscriptions == null || subscriptions.Count == 0)
             {
                 // subscription wasn't found
-                log.Error(string.Format("subscription wasn't found. productIds {0}, data: {1}", string.Join(",", renewSubscriptioDetails.Select(x => x.ProductId).ToList()), logString));
+                log.Error(string.Format("subscription wasn't found. productIds {0}, data: {1}", string.Join(",", renewSubscriptioDetails.Select(x => x.ProductId)), logString));
                 return false;
             }
 
@@ -1317,7 +1314,7 @@ namespace Core.ConditionalAccess
                         {
                             List<long> baseSetIds = baseSubscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
 
-                            if (baseSetIds.Where(x => addOnSetIds.Contains(x)).Count() > 0)
+                            if (baseSetIds.Count(x => addOnSetIds.Contains(x)) > 0)
                             {
                                 canPurchaseAddOn = true;
                             }
@@ -1712,7 +1709,10 @@ namespace Core.ConditionalAccess
 
                 if (renewUnifiedData.IsUseCouponRemainder)
                 {
-                    ConditionalAccessDAL.DeleteCouponRemainder(renewUnifiedData.PurchaseId);
+                    if (ConditionalAccessDAL.DeleteCouponRemainder(renewUnifiedData.PurchaseId))
+                    {
+                        log.DebugFormat("HandleRenewUnifiedSubscriptionSuccess - CouponRemainder has been deleted for PurchaseId:{0}", renewUnifiedData.PurchaseId);
+                    }
                 }
 
                 // message for PS use

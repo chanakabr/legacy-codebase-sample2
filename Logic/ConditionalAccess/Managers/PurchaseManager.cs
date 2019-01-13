@@ -1152,8 +1152,8 @@ namespace Core.ConditionalAccess
                 if (coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null &&
                     coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
                     ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) ||
-                     (subscription.CouponsGroups != null && subscription.CouponsGroups.Count() > 0 &&
-                     subscription.CouponsGroups.Where(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode).Count() > 0)))
+                     (subscription.CouponsGroups != null && subscription.CouponsGroups.Count > 0 &&
+                     subscription.CouponsGroups.Count(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) > 0)))
                 {
                     isGiftCard = true;
                     priceResponse = new Price()
@@ -1241,7 +1241,7 @@ namespace Core.ConditionalAccess
                                     endDate = CalculateGiftCardEndDate(cas, coupon, subscription, entitlementDate);
                                 }
 
-                                if (unifiedBillingCycle != null && !entitleToPreview && string.IsNullOrEmpty(couponCode))
+                                if (unifiedBillingCycle != null && !entitleToPreview)
                                 {
                                     // calculate end date by unified billing cycle
                                     endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
@@ -1263,11 +1263,10 @@ namespace Core.ConditionalAccess
                                         subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
                                          subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
                                          && groupUnifiedBillingCycle.HasValue
-                                         && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle
-                                        )
+                                         && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle )
                                     // group define with billing cycle
                                     {
-                                        if (unifiedBillingCycle == null || (!entitleToPreview && string.IsNullOrEmpty(couponCode)))
+                                        if (unifiedBillingCycle == null || !entitleToPreview)
                                         {
                                             processId = Utils.GetUnifiedProcessId(groupId, paymentGateway.ID, endDate.Value, householdId, out isNew);
                                         }
@@ -1305,6 +1304,11 @@ namespace Core.ConditionalAccess
                                     cas.WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
 
+                                    if (couponRemainder > 0)
+                                    {
+                                        ConditionalAccessDAL.SaveCouponRemainder(purchaseID, couponRemainder);
+                                    }
+
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0 && !IsDoublePurchase)
                                     {
@@ -1315,7 +1319,7 @@ namespace Core.ConditionalAccess
 
                                     if (endDate.HasValue)
                                     {
-                                        endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
+                                        endDateUnix = DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
                                     }
 
                                     // If the subscription if recurring, put a message for renewal and all that...
@@ -1345,11 +1349,6 @@ namespace Core.ConditionalAccess
                                                         subscription.m_MultiSubscriptionUsageModule.Count() == 1)
                                                     {
                                                         Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, endDate.Value, !string.IsNullOrEmpty(couponCode));
-
-                                                        if (couponRemainder > 0)
-                                                        {
-                                                            ConditionalAccessDAL.SaveCouponRemainder(purchaseID, couponRemainder);
-                                                        }
                                                     }
                                                 }
 

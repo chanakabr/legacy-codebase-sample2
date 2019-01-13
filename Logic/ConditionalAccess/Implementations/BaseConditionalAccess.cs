@@ -2741,7 +2741,7 @@ namespace Core.ConditionalAccess
                 // if this is a renew after preview module / gift card - need to calculate partial price (if unified billing cycle)  
                 bool isPartialPrice = false;
 
-                if (!ignoreUnifiedBillingCycle && string.IsNullOrEmpty(renewSubscriptionDetails.CouponCode))
+                if (!ignoreUnifiedBillingCycle)
                 {
                     if (groupId > 0 && householdId > 0 && renewSubscriptionDetails.EndDate.HasValue 
                         && (isCouponGiftCard || recurringCouponFirstExceeded || 
