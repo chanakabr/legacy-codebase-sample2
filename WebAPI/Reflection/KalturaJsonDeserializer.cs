@@ -6143,10 +6143,6 @@ namespace WebAPI.Models.General
                 {
                     ApiVersion = (String) Convert.ChangeType(parameters["apiVersion"], typeof(String));
                 }
-                if (parameters.ContainsKey("abortOnError") && parameters["abortOnError"] != null)
-                {
-                    AbortOnError = (Boolean) Convert.ChangeType(parameters["abortOnError"], typeof(Boolean));
-                }
             }
         }
     }
@@ -6504,6 +6500,10 @@ namespace WebAPI.Models.General
                     {
                         ResponseProfile = (KalturaBaseResponseProfile) Deserializer.deserialize(typeof(KalturaBaseResponseProfile), (Dictionary<string, object>) parameters["responseProfile"]);
                     }
+                }
+                if (parameters.ContainsKey("abortOnError") && parameters["abortOnError"] != null)
+                {
+                    AbortOnError = (Boolean) Convert.ChangeType(parameters["abortOnError"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("abortAllOnError") && parameters["abortAllOnError"] != null)
                 {
