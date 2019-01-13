@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http.Controllers;
+using ConfigurationManager;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -83,17 +84,12 @@ namespace WebAPI.Managers
 
             FileInfo fileInfo = new FileInfo(path);
             cbUploadToken.FileSize = fileInfo.Length;
-            
 
-            BaseUploader uploader = null;
             if (ShouldWriteToS3())
-                uploader = new S3Uploader(fileInfo);
+                cbUploadToken.FileUrl = S3Uploader.Instance.UploadFile(fileInfo, id);
             else
-                uploader = new FileSystemUploader(fileInfo);
+                cbUploadToken.FileUrl = FileSystemUploader.Instance.UploadFile(fileInfo, id);
 
-            var fileUrl = uploader.UploadFile(id);
-
-            cbUploadToken.FileUrl = fileUrl;
             cbUploadToken.Status = KalturaUploadTokenStatus.FULL_UPLOAD;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -124,57 +120,47 @@ namespace WebAPI.Managers
         internal static bool ShouldWriteToS3()
         {
             // get from TCM
-            return false;
+            return ApplicationConfiguration.UploadFilesToS3.Value;
         }
     }
 
     public abstract class BaseUploader
     {
         protected abstract void Initialize();
-        protected abstract string Upload(string id);
+        protected abstract string Upload(FileInfo fileInfo, string id);
 
-        protected FileInfo SourceFile { get; private set; }
-
-        protected string SourceFullPath
+        protected BaseUploader()
         {
-            get { return SourceFile.FullName; }
-        }
-
-        protected string FileExtension
-        {
-            get { return SourceFile.Extension; }
-        }
-
-        protected BaseUploader(FileInfo fileInfo)
-        {
-            SourceFile = fileInfo;
             Initialize();
         }
 
-        public string UploadFile(string id)
+        public string UploadFile(FileInfo fileInfo, string id)
         {
-            if (!SourceFile.Exists)
+            if (!fileInfo.Exists)
                 throw new InternalServerErrorException();
 
-            return Upload(id);
+            return Upload(fileInfo, id);
         }
     }
 
     public class S3Uploader : BaseUploader
     {
+        private static S3Uploader _instance;
+
         protected string DirectoryPath
         {
             get { return string.Empty; }
         }
 
-        public S3Uploader(FileInfo fileInfo)
-            : base(fileInfo)
+        private S3Uploader()
+            :base()
         {
+            
         }
 
-        public static string BuildPublicUrl(string resource2Token)
+        public static S3Uploader Instance
         {
-            throw new NotImplementedException();
+            get { return _instance ?? (_instance = new S3Uploader()); }
         }
 
         protected override void Initialize()
@@ -182,7 +168,7 @@ namespace WebAPI.Managers
             throw new NotImplementedException();
         }
 
-        protected override string Upload(string id)
+        protected override string Upload(FileInfo fileInfo, string id)
         {
             throw new NotImplementedException();
         }
@@ -190,26 +176,33 @@ namespace WebAPI.Managers
 
     public class FileSystemUploader : BaseUploader
     {
-        public static string Destination { get; set; }
-        public static string DestinationUrl { get; set; }
+        private static FileSystemUploader _instance;
 
-        public FileSystemUploader(FileInfo fileInfo)
-            : base(fileInfo)
+        public string Destination { get; set; }
+        public string PublicUrl { get; set; }
+
+        private FileSystemUploader()
+            : base()
         {
+        }
+
+        public static FileSystemUploader Instance
+        {
+            get { return _instance ?? (_instance = new FileSystemUploader()); }
         }
 
         protected override void Initialize()
         {
-            Destination = @"C:\temp\dest";
-            DestinationUrl = "http://localhost/pics/";
+            Destination = ApplicationConfiguration.FileSystemUploaderConfiguration.DestPath.Value;
+            PublicUrl = ApplicationConfiguration.FileSystemUploaderConfiguration.PublicUrl.Value;
         }
 
-        protected override string Upload(string id)
+        protected override string Upload(FileInfo fileInfo, string id)
         {
             if (!Directory.Exists(Destination))
                 throw new InternalServerErrorException();
 
-            var fileName = id + FileExtension;
+            var fileName = id + fileInfo.Extension;
             var destPath = Path.Combine(Destination, fileName);
 
             if (File.Exists(destPath))
@@ -217,14 +210,14 @@ namespace WebAPI.Managers
 
             try
             {
-                File.Copy(SourceFullPath, destPath);
+                File.Copy(fileInfo.FullName, destPath);
             }
             catch (Exception e)
             {
                 throw new InternalServerErrorException();
             }
 
-            return new Uri(new Uri(DestinationUrl), fileName).AbsoluteUri;
+            return new Uri(new Uri(PublicUrl), fileName).AbsoluteUri;
         }
     }
 }

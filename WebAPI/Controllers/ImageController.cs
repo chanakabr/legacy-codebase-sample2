@@ -155,7 +155,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                var url = GetUrl(groupId, content);
+                var url = content.GetUrl(groupId);
                 if (url.IsNullOrEmptyOrWhiteSpace())
                     throw new BadRequestException();
 
@@ -165,22 +165,6 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }           
-        }
-
-        private static string GetUrl(int groupId, KalturaContentResource content)
-        {
-            var resource1 = content as KalturaUrlResource;
-            if (resource1 != null)
-                return resource1.Url;
-
-            var resource2 = content as KalturaUploadedFileTokenResource;
-            if (resource2 != null)
-            {
-                var ut = UploadManager.GetUploadToken(resource2.Token, groupId);
-                return ut.FileUrl;
-            }
-
-            throw new BadRequestException();
         }
     }
 }
