@@ -68,7 +68,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 eAssetTypes assetType = eAssetTypes.EPG;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), epgIds);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), epgIds);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), epgIds);                
 
                 if (!LayeredCache.Instance.GetValues<EpgAsset>(keyToOriginalValueMap,
                                                                ref epgAssets,
@@ -402,13 +402,30 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="epgIds"></param>
+        /// <param name="doesGroupUsesTemplates"></param>
+        /// <param name="callingMethod"></param>
+        internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, bool doesGroupUsesTemplates, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
             if (epgIds != null)
             {
+                string assetType = eAssetTypes.EPG.ToString();
                 foreach (var currEpgId in epgIds)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetEpgInvalidationKey(groupId, currEpgId);
+                    string invalidationKey;
+                    if (doesGroupUsesTemplates)
+                    {
+                        invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType, currEpgId);
+                    }
+                    else
+                    {
+                        invalidationKey = LayeredCacheKeys.GetEpgInvalidationKey(groupId, currEpgId);
+                    }
+
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to invalidate epg with invalidationKey: {0} after {1}.", invalidationKey, callingMethod);
