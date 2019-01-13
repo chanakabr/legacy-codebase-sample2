@@ -68,7 +68,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 eAssetTypes assetType = eAssetTypes.EPG;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), epgIds);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetEpgInvalidationKeysMap(groupId, assetType.ToString(), epgIds);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), epgIds);
 
                 if (!LayeredCache.Instance.GetValues<EpgAsset>(keyToOriginalValueMap,
                                                                ref epgAssets,
