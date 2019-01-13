@@ -402,13 +402,6 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="epgIds"></param>
-        /// <param name="doesGroupUsesTemplates"></param>
-        /// <param name="callingMethod"></param>
         internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, bool doesGroupUsesTemplates, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
             if (epgIds != null)
@@ -433,7 +426,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-        
+
         #endregion
 
         #region Private Methods

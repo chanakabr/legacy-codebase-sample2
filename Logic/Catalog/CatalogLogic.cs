@@ -3325,7 +3325,7 @@ namespace Core.Catalog
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
                         break;
                     case eObjectType.EPG:
-                        // invalidate for OPC and NON-OPC accounts
+                        // invalidate epg's for OPC and NON-OPC accounts
                         CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
                         break;
                     case eObjectType.EpgChannel:
@@ -3373,6 +3373,7 @@ namespace Core.Catalog
                         var legacyQueue = new CatalogQueue(true);
                         ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
                         legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+
                         // invalidate epg's for OPC and NON-OPC accounts
                         CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
                     }
