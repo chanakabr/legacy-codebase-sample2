@@ -3325,7 +3325,8 @@ namespace Core.Catalog
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
                         break;
                     case eObjectType.EPG:
-                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids);
+                        // invalidate epg's for OPC and NON-OPC accounts
+                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
                         break;
                     case eObjectType.EpgChannel:
                         break;
@@ -3372,7 +3373,9 @@ namespace Core.Catalog
                         ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
                         legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
 
-                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids);
+                        // invalidate epg's for OPC and NON-OPC accounts
+                        bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
                     }
                 }
             }

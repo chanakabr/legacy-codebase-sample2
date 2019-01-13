@@ -398,13 +398,23 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
+        internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, bool doesGroupUsesTemplates, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
             if (epgIds != null)
             {
+                string assetType = eAssetTypes.EPG.ToString();
                 foreach (var currEpgId in epgIds)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetEpgInvalidationKey(groupId, currEpgId);
+                    string invalidationKey;
+                    if (doesGroupUsesTemplates)
+                    {
+                        invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType, currEpgId);
+                    }
+                    else
+                    {
+                        invalidationKey = LayeredCacheKeys.GetEpgInvalidationKey(groupId, currEpgId);
+                    }
+
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to invalidate epg with invalidationKey: {0} after {1}.", invalidationKey, callingMethod);
@@ -412,7 +422,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-        
+
         #endregion
 
         #region Private Methods

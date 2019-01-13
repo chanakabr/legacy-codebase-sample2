@@ -640,7 +640,7 @@ namespace Core.Catalog.CatalogManagement
                                         else
                                         {
                                             temporaryResult &= true;
-                                            EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID));
+                                            EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID), doesGroupUsesTemplates);
                                             
                                         }
 
@@ -669,7 +669,7 @@ namespace Core.Catalog.CatalogManagement
                             else
                             {
                                 temporaryResult &= true;
-                                EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID));
+                                EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID), doesGroupUsesTemplates);
                             }
 
                             result = temporaryResult;
@@ -690,10 +690,10 @@ namespace Core.Catalog.CatalogManagement
         {
             bool result = false;
             //result &= Core.Catalog.CatalogManagement.IndexManager.DeleteEpg(groupId, id);
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
 
             if (epgIds != null & epgIds.Count > 0)
-            {
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            {    
                 CatalogGroupCache catalogGroupCache = null;
                 Group group = null;
                 if (doesGroupUsesTemplates)
@@ -742,7 +742,7 @@ namespace Core.Catalog.CatalogManagement
             // support for old invalidation keys
             if (result)
             {
-                EpgAssetManager.InvalidateEpgs(groupId, epgIds);
+                EpgAssetManager.InvalidateEpgs(groupId, epgIds, doesGroupUsesTemplates);
             }
 
             return result;
