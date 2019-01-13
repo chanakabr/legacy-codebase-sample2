@@ -29,6 +29,7 @@ namespace Core.Catalog
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public const int DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC = 500; // half a second
+        public const string EMPTY_ASSET_ID = "0";
 
         public static string GetSignature(string sSigningString, Int32 nGroupID)
         {
@@ -1630,7 +1631,7 @@ namespace Core.Catalog
                     }
 
                     string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
-                    Dictionary<string, BaseObject> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.AssetId), x => x);
+                    Dictionary<string, BaseObject> mappedAssets = unOrderedAssets.Where(x => x.AssetId != EMPTY_ASSET_ID).ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.AssetId), x => x);                    
                     foreach (BaseObject baseAsset in assets)
                     {
                         string key = string.Empty;
@@ -1648,6 +1649,7 @@ namespace Core.Catalog
                         {
                             key = string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId);
                         }
+
                         if (mappedAssets.ContainsKey(key))
                         {
                             if (isNpvr)
@@ -1671,6 +1673,11 @@ namespace Core.Catalog
                             {
                                 result.Add(mappedAssets[key]);
                             }
+                        }
+                        // support for TVPAPI (returns empty object for assets that don't exist)
+                        else
+                        {
+                            result.Add(null);
                         }
                     }
                 }
@@ -1882,7 +1889,15 @@ namespace Core.Catalog
 
                     if (res)
                     {
-                        result = assets.Where(a => a != null).ToDictionary(x => LayeredCacheKeys.GetAssetWithLanguageKey(eAssetTypes.MEDIA.ToString(), x.AssetId, filter.m_nLanguage), x => x);
+                        result = assets.Where(x => x != null).ToDictionary(x => LayeredCacheKeys.GetAssetWithLanguageKey(eAssetTypes.MEDIA.ToString(), x.AssetId, filter.m_nLanguage), x => x);
+                        List<string> unvalidMediaIdsToAdd = ids.Select(x => x.ToString()).Except(assets.Where(x => x != null).Select(x => x.AssetId)).ToList();
+                        if (unvalidMediaIdsToAdd != null && unvalidMediaIdsToAdd.Count > 0)
+                        {
+                            foreach (string mediaId in unvalidMediaIdsToAdd)
+                            {
+                                result.Add(LayeredCacheKeys.GetAssetWithLanguageKey(eAssetTypes.MEDIA.ToString(), mediaId, filter.m_nLanguage), new MediaObj() { AssetId = "0" });
+                            }
+                        }
                     }
                     else
                     {
