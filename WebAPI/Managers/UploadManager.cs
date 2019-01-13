@@ -147,11 +147,6 @@ namespace WebAPI.Managers
     {
         private static S3Uploader _instance;
 
-        protected string DirectoryPath
-        {
-            get { return string.Empty; }
-        }
-
         private S3Uploader()
             :base()
         {
@@ -193,24 +188,25 @@ namespace WebAPI.Managers
 
         protected override void Initialize()
         {
-            Destination = ApplicationConfiguration.FileSystemUploaderConfiguration.DestPath.Value;
-            PublicUrl = ApplicationConfiguration.FileSystemUploaderConfiguration.PublicUrl.Value;
+            Destination = ApplicationConfiguration.FileSystemUploader.DestPath.Value;
+            PublicUrl = ApplicationConfiguration.FileSystemUploader.PublicUrl.Value;
         }
 
         protected override string Upload(FileInfo fileInfo, string id)
         {
-            if (!Directory.Exists(Destination))
-                throw new InternalServerErrorException();
+            var subDir = GetSubDir(id);
+            var destDir = Path.Combine(Destination, subDir);
+            CreateSubDir(destDir);
 
             var fileName = id + fileInfo.Extension;
-            var destPath = Path.Combine(Destination, fileName);
+            var destPath = Path.Combine(destDir, fileName);
 
             if (File.Exists(destPath))
                 throw new InternalServerErrorException();
 
             try
             {
-                File.Copy(fileInfo.FullName, destPath);
+                File.Move(fileInfo.FullName, destPath);
             }
             catch (Exception e)
             {
@@ -218,6 +214,29 @@ namespace WebAPI.Managers
             }
 
             return new Uri(new Uri(PublicUrl), fileName).AbsoluteUri;
+        }
+
+        private static void CreateSubDir(string destDir)
+        {
+            if (!Directory.Exists(destDir))
+                Directory.CreateDirectory(destDir);
+        }
+
+        private static string GetSubDir(string id)
+        {
+            const int CharacterNumber = 8;
+
+            if (id.Length < CharacterNumber)
+                throw new InternalServerErrorException();
+
+            var sb = new StringBuilder(CharacterNumber);
+
+            for (int i = 0; i < CharacterNumber; i = i + 2)
+            {
+                sb.Append(id.Substring(i, 2) + "\\");
+            }
+
+            return sb.ToString();
         }
     }
 }

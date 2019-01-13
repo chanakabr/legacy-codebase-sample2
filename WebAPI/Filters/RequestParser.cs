@@ -79,7 +79,8 @@ namespace WebAPI.Filters
         private const char PARAMS_PREFIX = ':';
         private const char PARAMS_NESTED_PREFIX = '.';
         private const string CB_SECTION_NAME = "tokens";
-        private const string UPLOAD_FOLDER = "C:\\tmp\\tvp-api\\"; // TODO take from configuration
+
+        private static string fileSystemUploaderSourcePath = ApplicationConfiguration.FileSystemUploader.SourcePath.Value;
 
         private static int accessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
         private static string accessTokenKeyFormat = ApplicationConfiguration.RequestParserConfiguration.AccessTokenKeyFormat.Value;
@@ -355,7 +356,7 @@ namespace WebAPI.Filters
             }
             else
             {
-                string filePath = String.Format("{0}\\{1}", UPLOAD_FOLDER, Path.GetRandomFileName());
+                string filePath = String.Format("{0}\\{1}", fileSystemUploaderSourcePath, Path.GetRandomFileName());
                 byte[] bytes = new byte[fieldBytes.Length - index - 2];  // \r\n
                 Array.Copy(fieldBytes, index, bytes, 0, bytes.Length);
                 File.WriteAllBytes(filePath, bytes);
@@ -370,9 +371,9 @@ namespace WebAPI.Filters
         {
             if (actionContext.Request.Content.IsMimeMultipartContent())
             {
-                if (!Directory.Exists(UPLOAD_FOLDER))
+                if (!Directory.Exists(fileSystemUploaderSourcePath))
                 {
-                    Directory.CreateDirectory(UPLOAD_FOLDER);
+                    Directory.CreateDirectory(fileSystemUploaderSourcePath);
                 }
 
                 Dictionary<string, object> ret = new Dictionary<string, object>();
