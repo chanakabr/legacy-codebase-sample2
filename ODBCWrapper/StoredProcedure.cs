@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
+using System.Text;
 
 namespace ODBCWrapper
 {
@@ -227,19 +228,18 @@ namespace ODBCWrapper
         {
             try
             {
-                string sXml = "<ROOT>";
-                string sNode = "<row " + colName + "=\"X\"/>";
+                StringBuilder sXml = new StringBuilder("<ROOT>");
+                string sNode = "<row {0}=\"{1}\"/>";
                 foreach (T id in ids)
                 {
-                    sXml = string.Format("{0}{1}", sXml, sNode.Replace("X", id.ToString()));
+                    sXml.AppendFormat(sNode, colName, id.ToString());
                 }
 
-                sXml = string.Format("{0}{1}", sXml, "</ROOT>");
-                return sXml;
+                sXml.Append("</ROOT>");
+                return sXml.ToString();
             }
             catch (Exception ex)
             {
-                log.Error("", ex);
                 return string.Empty;
             }
         }
