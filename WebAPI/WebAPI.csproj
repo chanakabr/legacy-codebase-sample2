@@ -757,9 +757,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Permissions\controllers\businessmodulerule.json" />
-    <Content Include="Dockerfile">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -1710,7 +1707,6 @@
     <Content Include="ssl-dev\cert.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="README.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1750,6 +1746,10 @@
     <ProjectReference Include="..\..\tvmcore\CachingProvider\CachingProvider.csproj">
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CouchBaseExtensions\CouchBaseExtensions.csproj">
+      <Project>{f5591a02-7c44-476f-b447-a63f39b2d731}</Project>
+      <Name>CouchBaseExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
