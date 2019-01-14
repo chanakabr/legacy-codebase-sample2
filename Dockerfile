@@ -82,5 +82,5 @@ RUN import-module webadministration; \
 EXPOSE 80
 EXPOSE 443
 
-RUN $env:VERSION = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("C:\WebAPI\bin\WebAPI.dll").FileVersion
+RUN $env:VERSION = [System.Diagnostics.FileVersionInfo]::GetVersionInfo('C:/WebAPI/bin/WebAPI.dll').FileVersion
 LABEL VERSION=${VERSION}
