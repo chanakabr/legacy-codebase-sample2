@@ -135,19 +135,19 @@ namespace WebAPI.Managers
         protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected abstract void Initialize();
-        protected abstract string Upload(FileInfo fileInfo, string id);
+        protected abstract string Upload(FileInfo fileInfo, string id, bool shouldDeleteSource);
 
         protected BaseUploader()
         {
             Initialize();
         }
 
-        public string UploadFile(FileInfo fileInfo, string id)
+        public string UploadFile(FileInfo fileInfo, string id, bool shouldDeleteSource = true)
         {
             if (!fileInfo.Exists)
                 throw new InternalServerErrorException();
 
-            return Upload(fileInfo, id);
+            return Upload(fileInfo, id, shouldDeleteSource);
         }
     }
 
@@ -184,7 +184,7 @@ namespace WebAPI.Managers
             Path = ApplicationConfiguration.S3FileUploader.Path.Value;
         }
 
-        protected override string Upload(FileInfo fileInfo, string id)
+        protected override string Upload(FileInfo fileInfo, string id, bool shouldDeleteSource)
         {
             for (int i = 0; i < NumberOfRetries; i++)
             {
@@ -204,7 +204,9 @@ namespace WebAPI.Managers
                         };
                         fileTransferUtility.Upload(fileTransferUtilityRequest);
 
-                        File.Delete(fileInfo.FullName);
+                        if (shouldDeleteSource)
+                            File.Delete(fileInfo.FullName);
+
                         return Path + fileName;
                     }
                     catch (Exception e)
@@ -241,7 +243,7 @@ namespace WebAPI.Managers
             PublicUrl = ApplicationConfiguration.FileSystemUploader.PublicUrl.Value;
         }
 
-        protected override string Upload(FileInfo fileInfo, string id)
+        protected override string Upload(FileInfo fileInfo, string id, bool shouldDeleteSource)
         {
             var subDir = GetSubDir(id);
             var destDir = Path.Combine(Destination, subDir);
@@ -255,7 +257,11 @@ namespace WebAPI.Managers
 
             try
             {
-                File.Move(fileInfo.FullName, destPath);
+                if (shouldDeleteSource)
+                    File.Move(fileInfo.FullName, destPath);
+                else
+                    File.Copy(fileInfo.FullName, destPath);
+
             }
             catch (Exception e)
             {
