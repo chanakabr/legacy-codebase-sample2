@@ -4,17 +4,23 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http.Controllers;
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.S3.Transfer;
 using ConfigurationManager;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Upload;
+using Exception = System.Exception;
 using UriBuilder = System.UriBuilder;
 
 namespace WebAPI.Managers
@@ -126,6 +132,8 @@ namespace WebAPI.Managers
 
     public abstract class BaseUploader
     {
+        protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected abstract void Initialize();
         protected abstract string Upload(FileInfo fileInfo, string id);
 
@@ -147,6 +155,14 @@ namespace WebAPI.Managers
     {
         private static S3Uploader _instance;
 
+        public int NumberOfRetries { get; private set; }
+
+        public string AccessKey { get; private set; }
+        public string SecretKey { get; private set; }
+        public string Region { get; private set; }
+        public string BucketName { get; private set; }
+        public string Path { get; private set; }
+
         private S3Uploader()
             :base()
         {
@@ -160,12 +176,45 @@ namespace WebAPI.Managers
 
         protected override void Initialize()
         {
-            throw new NotImplementedException();
+            AccessKey = ApplicationConfiguration.S3FileUploader.AccessKey.Value;
+            SecretKey = ApplicationConfiguration.S3FileUploader.SecretKey.Value;
+            Region = ApplicationConfiguration.S3FileUploader.Region.Value;
+            BucketName = ApplicationConfiguration.S3FileUploader.BucketName.Value;
+            NumberOfRetries = ApplicationConfiguration.S3FileUploader.NumberOfRetries.IntValue;
+            Path = ApplicationConfiguration.S3FileUploader.Path.Value;
         }
 
         protected override string Upload(FileInfo fileInfo, string id)
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < NumberOfRetries; i++)
+            {
+                using (var client =
+                    new AmazonS3Client(AccessKey, SecretKey, Amazon.RegionEndpoint.GetBySystemName(Region)))
+                {
+                    try
+                    {
+                        var fileTransferUtility = new TransferUtility(client);
+                        var fileName = id + fileInfo.Extension;
+
+                        var fileTransferUtilityRequest = new TransferUtilityUploadRequest
+                        {
+                            BucketName = BucketName,
+                            FilePath = fileInfo.FullName,
+                            Key = fileName
+                        };
+                        fileTransferUtility.Upload(fileTransferUtilityRequest);
+
+                        File.Delete(fileInfo.FullName);
+                        return Path + fileName;
+                    }
+                    catch (Exception e)
+                    {
+                        log.ErrorFormat("Upload: Failed to upload file to s3, attempt: {0}/{1}", i + 1, NumberOfRetries);
+                    }
+                }
+            }
+
+            throw new InternalServerErrorException(new ApiException.ApiExceptionType(StatusCode.Error, "can't upload file to s3"));
         }
     }
 
@@ -173,8 +222,8 @@ namespace WebAPI.Managers
     {
         private static FileSystemUploader _instance;
 
-        public string Destination { get; set; }
-        public string PublicUrl { get; set; }
+        public string Destination { get; private set; }
+        public string PublicUrl { get; private set; }
 
         private FileSystemUploader()
             : base()
@@ -202,7 +251,7 @@ namespace WebAPI.Managers
             var destPath = Path.Combine(destDir, fileName);
 
             if (File.Exists(destPath))
-                throw new InternalServerErrorException();
+                throw new InternalServerErrorException(new ApiException.ApiExceptionType(StatusCode.Error, "file already exists"));
 
             try
             {
@@ -210,7 +259,8 @@ namespace WebAPI.Managers
             }
             catch (Exception e)
             {
-                throw new InternalServerErrorException();
+                log.ErrorFormat("Upload: Failed to move file to dest directory");
+                throw new InternalServerErrorException(new ApiException.ApiExceptionType(StatusCode.Error, "can't upload file"));
             }
 
             return new Uri(new Uri(PublicUrl), fileName).AbsoluteUri;
@@ -227,7 +277,7 @@ namespace WebAPI.Managers
             const int CharacterNumber = 8;
 
             if (id.Length < CharacterNumber)
-                throw new InternalServerErrorException();
+                throw new InternalServerErrorException(new ApiException.ApiExceptionType(StatusCode.Error, "file id length is too short"));
 
             var sb = new StringBuilder(CharacterNumber);
 

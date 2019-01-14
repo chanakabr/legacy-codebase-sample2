@@ -80,7 +80,7 @@ namespace WebAPI.Filters
         private const char PARAMS_NESTED_PREFIX = '.';
         private const string CB_SECTION_NAME = "tokens";
 
-        private static string fileSystemUploaderSourcePath = ApplicationConfiguration.FileSystemUploader.SourcePath.Value;
+        private static readonly string fileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
 
         private static int accessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
         private static string accessTokenKeyFormat = ApplicationConfiguration.RequestParserConfiguration.AccessTokenKeyFormat.Value;
