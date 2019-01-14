@@ -437,7 +437,7 @@ namespace WebAPI.Reflection
                     return new KalturaContentActionCondition(parameters);
                     
                 case "KalturaContentResource":
-                    return new KalturaContentResource(parameters);
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaContentScoreCondition":
                     return new KalturaContentScoreCondition(parameters);
