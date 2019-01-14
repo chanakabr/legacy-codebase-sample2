@@ -11096,6 +11096,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = 255,
             MinLength = 1,
         };
+        private static RuntimeSchemePropertyAttribute ExternalCdvrIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = 255,
+            MinLength = 0,
+        };
         private static RuntimeSchemePropertyAttribute CdvrEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
             ReadOnly = true,
@@ -11238,6 +11248,10 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("externalCdvrId") && parameters["externalCdvrId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        ExternalCdvrIdSchemaProperty.Validate("externalCdvrId", parameters["externalCdvrId"]);
+                    }
                     ExternalCdvrId = (String) Convert.ChangeType(parameters["externalCdvrId"], typeof(String));
                 }
                 if (parameters.ContainsKey("enableCdvr") && parameters["enableCdvr"] != null)
