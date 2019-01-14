@@ -7083,7 +7083,7 @@ namespace WebAPI.Reflection
                                 return FavoriteController.DeleteOldStandard((List<KalturaIntegerValue>) methodParams[0]);
                             }
                             RolesManager.ValidateActionPermitted("favorite", "delete", false);
-                            return FavoriteController.Delete((int) methodParams[0]);
+                            return FavoriteController.Delete((long) methodParams[0]);
                             
                         case "deleteoldstandard":
                             RolesManager.ValidateActionPermitted("favorite", "deleteOldStandard", false);
@@ -12444,7 +12444,7 @@ namespace WebAPI.Reflection
                         case "delete":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(int),
+                                Type = typeof(long),
                             });
                             return ret;
                             

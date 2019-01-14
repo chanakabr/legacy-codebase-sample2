@@ -117,7 +117,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
-        static public bool Delete(int id)
+        static public bool Delete(long id)
         {
             bool res = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -128,7 +128,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
 
                 // call client
-                res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), new int[] {id});
+                res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), new long[] {id});
             }
             catch (ClientException ex)
             {
@@ -167,7 +167,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
 
                 // call client
-                res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), media_ids.Select(x => x.value).ToArray());
+                res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), media_ids.Select(x => (long)x.value).ToArray());
             }
             catch (ClientException ex)
             {

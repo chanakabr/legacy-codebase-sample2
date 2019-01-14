@@ -580,7 +580,7 @@ namespace WebAPI.Clients
             return result; ;
         }
 
-        public bool RemoveUserFavorite(int groupId, string userId, int domainID, int[] mediaIDs)
+        public bool RemoveUserFavorite(int groupId, string userId, int domainID, long[] mediaIDs)
         {
 
 
