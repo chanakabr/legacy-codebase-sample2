@@ -96,7 +96,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "externalCdvrId")]
         [JsonProperty(PropertyName = "externalCdvrId")]
         [XmlElement(ElementName = "externalCdvrId")]
-        [SchemeProperty(MinLength = 1, MaxLength = 255)]
         public string ExternalCdvrId { get; set; }
 
         /// <summary>
