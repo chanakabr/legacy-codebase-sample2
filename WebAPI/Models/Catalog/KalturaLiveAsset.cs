@@ -222,12 +222,7 @@ namespace WebAPI.Models.Catalog
             if (ExternalEpgIngestId != null && ExternalEpgIngestId == string.Empty)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalEpgIngestId");
-            }
-
-            if (ExternalCdvrId != null && ExternalCdvrId == string.Empty)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalCdvrId");
-            }
+            }                        
         }
     }
 

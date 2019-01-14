@@ -11935,11 +11935,6 @@
             API client version
             </summary>
         </member>
-        <member name="P:WebAPI.Models.General.KalturaClientConfiguration.AbortOnError">
-            <summary>
-            Abort the Multireuqset call if any error occurs in one of the requests
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.General.KalturaPersistedFilter`1.Name">
             <summary>
             Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
@@ -11995,9 +11990,14 @@
             Kaltura response profile object
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.AbortOnError">
+            <summary>
+            Abort the Multireuqset call if any error occurs in one of the requests
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.AbortAllOnError">
             <summary>
-            Abort all following requests if current request has an error
+            Abort all following requests in Multireuqset if current request has an error
             </summary>
         </member>
         <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.SkipCondition">

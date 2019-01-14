@@ -4612,7 +4612,6 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("abortOnError", "\"abortOnError\": " + AbortOnError.ToString().ToLower());
             if(ApiVersion != null)
             {
                 ret.Add("apiVersion", "\"apiVersion\": " + "\"" + EscapeJson(ApiVersion) + "\"");
@@ -4629,7 +4628,6 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("abortOnError", "<abortOnError>" + AbortOnError.ToString().ToLower() + "</abortOnError>");
             if(ApiVersion != null)
             {
                 ret.Add("apiVersion", "<apiVersion>" + EscapeXml(ApiVersion) + "</apiVersion>");
@@ -5223,6 +5221,7 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("abortAllOnError", "\"abortAllOnError\": " + AbortAllOnError.ToString().ToLower());
+            ret.Add("abortOnError", "\"abortOnError\": " + AbortOnError.ToString().ToLower());
             if(Currency != null)
             {
                 ret.Add("currency", "\"currency\": " + "\"" + EscapeJson(Currency) + "\"");
@@ -5262,6 +5261,7 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("abortAllOnError", "<abortAllOnError>" + AbortAllOnError.ToString().ToLower() + "</abortAllOnError>");
+            ret.Add("abortOnError", "<abortOnError>" + AbortOnError.ToString().ToLower() + "</abortOnError>");
             if(Currency != null)
             {
                 ret.Add("currency", "<currency>" + EscapeXml(Currency) + "</currency>");

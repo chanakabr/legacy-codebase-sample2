@@ -1196,8 +1196,6 @@ namespace WebAPI.Reflection
                 case "KalturaClientConfiguration":
                     switch(property.Name)
                     {
-                        case "AbortOnError":
-                            return "abortOnError";
                         case "ApiVersion":
                             return "apiVersion";
                         case "ClientTag":
@@ -4752,6 +4750,8 @@ namespace WebAPI.Reflection
                     {
                         case "AbortAllOnError":
                             return "abortAllOnError";
+                        case "AbortOnError":
+                            return "abortOnError";
                         case "Currency":
                             return "currency";
                         case "KS":
