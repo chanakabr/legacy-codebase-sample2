@@ -523,7 +523,7 @@ namespace Core.Notification
                     objNotification = new FollowUpTagNotification(lNotifications[0].ID, lNotifications[0].MessageType, lNotifications[0].TriggerType, lNotifications[0].GroupID, lNotifications[0].MessageText, lNotifications[0].SmsMessageText,
                         lNotifications[0].PullMessageText, lNotifications[0].Title, lNotifications[0].IsActive, lNotifications[0].Status, lNotifications[0].IsBroadcast, lNotifications[0].CreatedDate, lNotifications[0].Actions, string.Empty, null);
 
-                    log.Debug("BuildTagNotificationsRequest - " + string.Format("objNotification ID={0},MessageText={1},GroupID={2},CreatedDate={3}  ", objNotification.ID, objNotification.MessageText, objNotification.GroupID, objNotification.CreatedDate));
+                    //log.Debug("BuildTagNotificationsRequest - " + string.Format("objNotification ID={0},MessageText={1},GroupID={2},CreatedDate={3}  ", objNotification.ID, objNotification.MessageText, objNotification.GroupID, objNotification.CreatedDate));
 
                     #region build notification request dictionary
 
@@ -560,7 +560,7 @@ namespace Core.Notification
                     objRequest.oExtraParams.mediaID = lNotifications[0].notificationTag.mediaID;
                     objRequest.oExtraParams.notificationsID = lNotifications[0].notificationTag.notificationsID;
 
-                    log.Debug("BuildTagNotificationsRequest - " + string.Format(" MediaID={0}", objRequest.oExtraParams.mediaID));
+                    //log.Debug("BuildTagNotificationsRequest - " + string.Format(" MediaID={0}", objRequest.oExtraParams.mediaID));
 
                     #region get all sign in users to one of the notification ids
                     DataTable dtUsers = DAL.NotificationDal.GetUserNotification(null, notificationsIds);
@@ -568,11 +568,19 @@ namespace Core.Notification
                     {
                         long lUserID = 0;
                         objRequest.usersID = new List<long>();
+                        HashSet<long> userIds = new HashSet<long>();
                         for (int i = 0; i < dtUsers.DefaultView.Count; i++)
                         {
                             lUserID = ODBCWrapper.Utils.GetLongSafeVal(dtUsers.Rows[i]["user_id"]);
-                            if (!objRequest.usersID.Contains(lUserID))
-                                objRequest.usersID.Add(lUserID);
+                            if (!userIds.Contains(lUserID))
+                            {
+                                userIds.Add(lUserID);
+                            }
+                        }
+
+                        if (userIds.Count > 0)
+                        {
+                            objRequest.usersID = userIds.ToList();
                         }
                     }
                     #endregion
@@ -698,7 +706,7 @@ namespace Core.Notification
                                 {
                                     log.Error("", ex);
                                 }
-                                log.Debug("BuildTagNotificationsRequest - " + string.Format("insert user notification request user_id ={0}, extraParams={1}", previousUserId, sUserExtraParams));
+                                //log.Debug("BuildTagNotificationsRequest - " + string.Format("insert user notification request user_id ={0}, extraParams={1}", previousUserId, sUserExtraParams));
                             }
                         }
                     }
