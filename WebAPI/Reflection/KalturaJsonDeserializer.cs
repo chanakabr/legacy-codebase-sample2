@@ -437,7 +437,7 @@ namespace WebAPI.Reflection
                     return new KalturaContentActionCondition(parameters);
                     
                 case "KalturaContentResource":
-                    return new KalturaContentResource(parameters);
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaContentScoreCondition":
                     return new KalturaContentScoreCondition(parameters);
@@ -6143,10 +6143,6 @@ namespace WebAPI.Models.General
                 {
                     ApiVersion = (String) Convert.ChangeType(parameters["apiVersion"], typeof(String));
                 }
-                if (parameters.ContainsKey("abortOnError") && parameters["abortOnError"] != null)
-                {
-                    AbortOnError = (Boolean) Convert.ChangeType(parameters["abortOnError"], typeof(Boolean));
-                }
             }
         }
     }
@@ -6504,6 +6500,10 @@ namespace WebAPI.Models.General
                     {
                         ResponseProfile = (KalturaBaseResponseProfile) Deserializer.deserialize(typeof(KalturaBaseResponseProfile), (Dictionary<string, object>) parameters["responseProfile"]);
                     }
+                }
+                if (parameters.ContainsKey("abortOnError") && parameters["abortOnError"] != null)
+                {
+                    AbortOnError = (Boolean) Convert.ChangeType(parameters["abortOnError"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("abortAllOnError") && parameters["abortAllOnError"] != null)
                 {
@@ -10779,7 +10779,6 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute RatioIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10787,6 +10786,7 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         private static RuntimeSchemePropertyAttribute HelpTextSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
@@ -10800,7 +10800,6 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute DefaultImageIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10808,6 +10807,7 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         public KalturaImageType(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -11046,7 +11046,6 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute BufferCatchUpSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -11054,10 +11053,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute BufferTrickPlaySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -11065,6 +11064,7 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute EnableRecordingPlaybackNonEntitledChannelStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -11104,7 +11104,7 @@ namespace WebAPI.Models.Catalog
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = 255,
-            MinLength = 1,
+            MinLength = 0,
         };
         private static RuntimeSchemePropertyAttribute CdvrEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -11487,7 +11487,6 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute CdnAdapaterProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFile")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -11495,6 +11494,7 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         public KalturaMediaFile(Dictionary<string, object> parameters = null) : base(parameters)
         {

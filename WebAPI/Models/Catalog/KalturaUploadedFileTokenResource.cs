@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -19,5 +20,11 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "token")]
         [XmlElement(ElementName = "token")]
         public string Token { get; set; }
+
+        public override string GetUrl(int groupId)
+        {
+            var ut = UploadManager.GetUploadToken(Token, groupId);
+            return ut.FileUrl;
+        }
     }
 }

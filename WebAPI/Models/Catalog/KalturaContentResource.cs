@@ -10,8 +10,8 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public partial class KalturaContentResource : KalturaOTTObject
-    {
-        
+    public abstract partial class KalturaContentResource : KalturaOTTObject
+    { 
+        public abstract string GetUrl(int groupId);
     }
 }

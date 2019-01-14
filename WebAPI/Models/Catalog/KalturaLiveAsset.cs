@@ -95,8 +95,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "externalCdvrId")]
         [JsonProperty(PropertyName = "externalCdvrId")]
-        [XmlElement(ElementName = "externalCdvrId")]
-        [SchemeProperty(MinLength = 1, MaxLength = 255)]
+        [XmlElement(ElementName = "externalCdvrId", IsNullable = true)]
+        [SchemeProperty(MinLength = 0, MaxLength = 255)]
         public string ExternalCdvrId { get; set; }
 
         /// <summary>
@@ -222,12 +222,7 @@ namespace WebAPI.Models.Catalog
             if (ExternalEpgIngestId != null && ExternalEpgIngestId == string.Empty)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalEpgIngestId");
-            }
-
-            if (ExternalCdvrId != null && ExternalCdvrId == string.Empty)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalCdvrId");
-            }
+            }                        
         }
     }
 

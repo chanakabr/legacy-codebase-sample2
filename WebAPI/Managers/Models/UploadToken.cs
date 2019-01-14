@@ -22,6 +22,14 @@ namespace WebAPI.Managers.Models
         public string UploadTokenId { get; set; }
 
         /// <summary>
+        /// The id of the upload token
+        /// </summary>
+        [DataMember(Name = "fileUrl")]
+        [JsonProperty("fileUrl")]
+        [XmlElement(ElementName = "fileUrl")]
+        public string FileUrl { get; set; }
+
+        /// <summary>
         /// Partner identifier
         /// </summary>
         [DataMember(Name = "partnerId")]

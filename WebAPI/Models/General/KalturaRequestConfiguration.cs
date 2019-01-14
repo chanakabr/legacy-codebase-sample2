@@ -63,7 +63,15 @@ namespace WebAPI.Models.General
         public KalturaBaseResponseProfile ResponseProfile { get; set; }
 
         /// <summary>
-        /// Abort all following requests if current request has an error
+        /// Abort the Multireuqset call if any error occurs in one of the requests
+        /// </summary>
+        [DataMember(Name = "abortOnError")]
+        [JsonProperty("abortOnError")]
+        [XmlElement(ElementName = "abortOnError")]
+        public bool AbortOnError { get; set; }
+
+        /// <summary>
+        /// Abort all following requests in Multireuqset if current request has an error
         /// </summary>
         [DataMember(Name = "abortAllOnError")]
         [JsonProperty("abortAllOnError")]
@@ -77,10 +85,11 @@ namespace WebAPI.Models.General
         [JsonProperty("skipCondition")]
         [XmlElement(ElementName = "skipCondition")]
         public KalturaSkipCondition SkipCondition { get; set; }
-
+        
         public KalturaRequestConfiguration()
         {
             AbortAllOnError = false;
+            AbortOnError = false;
         }
     }
 }
