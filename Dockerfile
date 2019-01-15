@@ -82,4 +82,4 @@ RUN import-module webadministration; \
 EXPOSE 80
 EXPOSE 443
 
-RUN [Environment]::SetEnvironmentVariable('VERSION', [System.Diagnostics.FileVersionInfo]::GetVersionInfo('C:/WebAPI/bin/WebAPI.dll').FileVersion, [EnvironmentVariableTarget]::Machine)
+RUN Set-Content -Path VERSION -Value [System.Diagnostics.FileVersionInfo]::GetVersionInfo('C:/WebAPI/bin/WebAPI.dll').FileVersion
