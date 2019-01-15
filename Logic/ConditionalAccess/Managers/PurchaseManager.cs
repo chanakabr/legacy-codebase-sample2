@@ -1216,6 +1216,7 @@ namespace Core.ConditionalAccess
                             response = HandlePurchase(cas, groupId, siteguid, householdId, price, currency, userIp, customData, productId,
                                                       eTransactionType.Subscription, billingGuid, paymentGwId, 0, paymentMethodId, adapterData);
                         }
+
                         if (response != null && response.Status != null)
                         {
                             // Status OK + (State OK || State Pending) = grant entitlement
