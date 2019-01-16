@@ -56,7 +56,7 @@ namespace WebAPI.Managers
             string uploadTokenCbKey = string.Format(UploadTokenKeyFormat, cbUploadToken.UploadTokenId);
             if (!cbManager.Add(uploadTokenCbKey, cbUploadToken, (uint) UploadTokenExpirySeconds, true))
             {
-                log.ErrorFormat("AddUploadToken: Failed to store upload token");
+                log.Error("AddUploadToken: Failed to store upload token");
                 throw new InternalServerErrorException();
             }
 
@@ -116,7 +116,7 @@ namespace WebAPI.Managers
             string uploadTokenCbKey = string.Format(UploadTokenKeyFormat, cbUploadToken.UploadTokenId);
             if (!cbManager.Set(uploadTokenCbKey, cbUploadToken, (uint) UploadTokenExpirySeconds, true))
             {
-                log.ErrorFormat("UploadUploadToken: Failed to store upload token");
+                log.Error("UploadUploadToken: Failed to store upload token");
                 throw new InternalServerErrorException();
             }
 
@@ -211,7 +211,7 @@ namespace WebAPI.Managers
                     }
                     catch (Exception e)
                     {
-                        log.ErrorFormat(e, "Upload: Failed to upload file to s3, attempt: {0}/{1}", i + 1, NumberOfRetries);
+                        log.ErrorFormat(string.Format("Upload: Failed to upload file to s3, attempt: {0}/{1}", i + 1, NumberOfRetries), e);
                     }
                 }
             }
@@ -265,7 +265,7 @@ namespace WebAPI.Managers
             }
             catch (Exception e)
             {
-                log.ErrorFormat("Upload: Failed to move file to dest directory");
+                log.Error("Upload: Failed to move file to dest directory", e);
                 throw new InternalServerErrorException(new ApiException.ApiExceptionType(StatusCode.Error, "can't upload file"));
             }
 
