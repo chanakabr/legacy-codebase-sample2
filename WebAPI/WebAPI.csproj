@@ -791,7 +791,6 @@
     <Compile Include="App_Start\AssetXmlFormatter.cs" />
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
-    <Compile Include="App_Start\SimpleInjectorInitializer.cs" />
     <Compile Include="clear_cache.aspx.cs">
       <DependentUpon>clear_cache.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
