@@ -199,6 +199,9 @@
     <Reference Include="SimpleInjector, Version=2.3.6.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
       <HintPath>..\packages\SimpleInjector.2.3.6\lib\net40-client\SimpleInjector.dll</HintPath>
     </Reference>
+    <Reference Include="SimpleInjector.Integration.Wcf, Version=2.3.6.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleInjector.Integration.Wcf.2.3.6\lib\net40\SimpleInjector.Integration.Wcf.dll</HintPath>
+    </Reference>
     <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Swashbuckle.Core.5.2.1\lib\net40\Swashbuckle.Core.dll</HintPath>
@@ -281,6 +284,9 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebActivator, Version=1.4.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebActivator.1.4.4\lib\net40\WebActivator.dll</HintPath>
+    </Reference>
     <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
       <HintPath>..\packages\WebActivatorEx.2.0.6\lib\net40\WebActivatorEx.dll</HintPath>
       <Private>True</Private>
@@ -785,6 +791,7 @@
     <Compile Include="App_Start\AssetXmlFormatter.cs" />
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
+    <Compile Include="App_Start\SimpleInjectorInitializer.cs" />
     <Compile Include="clear_cache.aspx.cs">
       <DependentUpon>clear_cache.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
