@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CDNetworksVault")]
-[assembly: AssemblyDescription("2015-06-24 10:37:33 | Hostname:IRA-PC | Published by:Ira Yanai")]
+[assembly: AssemblyDescription("2019-01-16 14:30:27 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CDNetworksVault")]
-[assembly: AssemblyCopyright("Copyright ©  2010")]
+[assembly: AssemblyCopyright("Copyright �  2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("3.4.0.*")]
-[assembly: AssemblyVersion("3.4.0.*")]
-[assembly: AssemblyInformationalVersion("3.4-0-g95e8e6e-dirty")]
+// [assembly: AssemblyVersion("5.1.1.*")]
+[assembly: AssemblyVersion("5.1.1.*")]
+[assembly: AssemblyInformationalVersion("5.1-1-35-g0561d28a-dirty")]
