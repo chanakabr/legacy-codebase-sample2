@@ -37,6 +37,7 @@
     <DocumentationFile>bin\WebAPI.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <LangVersion>5</LangVersion>
+    <FilesToIncludeForPublish>AllFilesInTheProject</FilesToIncludeForPublish>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -278,9 +279,6 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="WebActivator, Version=1.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebActivator.1.4.4\lib\net40\WebActivator.dll</HintPath>
-    </Reference>
     <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
       <HintPath>..\packages\WebActivatorEx.2.0.6\lib\net40\WebActivatorEx.dll</HintPath>
       <Private>True</Private>
@@ -768,7 +766,10 @@
     </Content>
     <Content Include="Permissions\controllers\businessmodulerule.json" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\Phoenix-Nova%28Orion%29.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
+    <None Include="Properties\PublishProfiles\test.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -1733,10 +1734,6 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj">
-      <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
-      <Name>CDNTokenizers</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
@@ -1753,22 +1750,6 @@
       <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
       <Name>TCMClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\AdapterControllers\AdapterControllers.csproj">
-      <Project>{a1fbded5-52fe-4b67-9aab-e71cc366d5cd}</Project>
-      <Name>AdapterControllers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ADIFeeder\ADIFeeder.csproj">
-      <Project>{0b1d4349-8059-48f7-bf8b-31fb1e7a2260}</Project>
-      <Name>ADIFeeder</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
-      <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
-      <Name>AkamaiTokenGenerator</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\CachingHelpers\CachingHelpers.csproj">
-      <Project>{c94f4aff-e892-4055-9d20-07586be88f3a}</Project>
-      <Name>CachingHelpers</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\CachingManager\CachingManager.csproj">
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
@@ -1776,10 +1757,6 @@
     <ProjectReference Include="..\..\tvmcore\CachingProvider\CachingProvider.csproj">
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\CouchBaseExtensions\CouchBaseExtensions.csproj">
-      <Project>{f5591a02-7c44-476f-b447-a63f39b2d731}</Project>
-      <Name>CouchBaseExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
@@ -1841,6 +1818,16 @@
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'LocalRelease|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\WebAPI.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

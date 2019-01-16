@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("WebAPI")]
-[assembly: AssemblyDescription("2019-01-16 17:07:25 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
+[assembly: AssemblyDescription("2019-01-16 19:19:32 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("WebAPI")]
@@ -32,4 +32,4 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 [assembly: AssemblyVersion("5.1.1.*")]
-[assembly: AssemblyInformationalVersion("5.1-1-67-g0b9ecd6a-dirty")]
+[assembly: AssemblyInformationalVersion("5.1-1-72-g155b66bb-dirty")]
