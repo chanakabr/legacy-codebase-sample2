@@ -319,7 +319,8 @@ namespace ApiObjects
         DefaultPic = 3,
         LogoPic = 4,
         ImageType = 5,
-        Epg
+        Program = 6,
+        ProgramGroup = 7
     }
 
     [Serializable]

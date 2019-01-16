@@ -10,9 +10,7 @@ namespace ApiObjects.Epg
     [Serializable]
     [DataContract]
     public class EpgPicture
-    {
-       
-
+    {      
         [DataMember]
         public Int32 PicWidth { set; get; }
         [DataMember]
@@ -34,6 +32,12 @@ namespace ApiObjects.Epg
 
         [DataMember]
         public Int32 Version { set; get; }
+
+        [DataMember]
+        public bool IsProgramImage{ set; get; }
+
+        [DataMember]
+        public long ImageTypeId { set; get; }
 
         public EpgPicture()
         {

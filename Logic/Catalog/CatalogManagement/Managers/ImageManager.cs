@@ -1,4 +1,6 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
+using ApiObjects.Epg;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using KLogMonitor;
@@ -355,6 +357,11 @@ namespace Core.Catalog.CatalogManagement
             {
                 AssetManager.InvalidateAsset(eAssetTypes.MEDIA, id, callingMethod);
             }
+            // invalidate program
+            if (assetImageType == eAssetImageType.Program)
+            {
+                AssetManager.InvalidateAsset(eAssetTypes.EPG, id, callingMethod);
+            }
             // invalidate channel
             else if (assetImageType == eAssetImageType.Channel)
             {
@@ -408,13 +415,11 @@ namespace Core.Catalog.CatalogManagement
                 image = new Image()
                 {
                     Id = imageId,
-                    ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),
-                    ImageObjectId = ODBCWrapper.Utils.GetLongSafeVal(row, "ASSET_ID"), // TODO: IRA?
-                    ImageObjectType = eAssetImageType.Epg,
+                    ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),                    
+                    ImageObjectType = eAssetImageType.Program,
                     Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
                     Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
-                    ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"), // TODO: IRA
-                    IsDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT", 0) > 0 ? true : false // TODO: IRA
+                    ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
                 };
 
                 image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
@@ -427,7 +432,7 @@ namespace Core.Catalog.CatalogManagement
         {
             switch (imageObjectType)
             {
-                case eAssetImageType.Epg:
+                case eAssetImageType.ProgramGroup:                
                     return ImageReferenceTable.EpgPics;
                 case eAssetImageType.Media:
                 case eAssetImageType.Channel:
@@ -435,6 +440,7 @@ namespace Core.Catalog.CatalogManagement
                 case eAssetImageType.DefaultPic:
                 case eAssetImageType.LogoPic:
                 case eAssetImageType.ImageType:
+                case eAssetImageType.Program:
                 default:
                     return ImageReferenceTable.Pics;
             }
@@ -761,6 +767,13 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if (imagesResponse.Objects[0].ImageObjectType == eAssetImageType.ProgramGroup)
+                {
+                    log.ErrorFormat("Image cannot be deleted due to imageType. assetId = {0}, assetType = {1}", imagesResponse.Objects[0].ImageObjectId, imagesResponse.Objects[0].ImageObjectType);
+                    result.Set((int)eResponseStatus.Error, "Image cannot be deleted due to imageType");
+                    return result;
+                }
+
                 if (CatalogDAL.DeleteImage(groupId, id))
                 {
                     Image image = imagesResponse.Objects.First();
@@ -779,6 +792,24 @@ namespace Core.Catalog.CatalogManagement
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on DeleteImage key = {0}", invalidationKey);
+                            }
+                        }
+
+                        // in case of program, need to remove pic and update CB
+                        if( image.ImageObjectType == eAssetImageType.Program )
+                        {
+                            EpgCB program = EpgDal.GetEpgCB(image.ImageObjectId);
+                            if(program != null && program.pictures != null)
+                            {
+                                /// remove picture
+                                var pic = program.pictures.Where(x => x.IsProgramImage && x.PicID == image.ReferenceId).FirstOrDefault();
+                                if( pic != null && program.pictures.Remove(pic))
+                                {
+                                    if (!EpgDal.SaveEpgCB(program, true))
+                                    {
+                                        log.ErrorFormat("Error while update epgCB at DeleteImage. groupId: {0}, imageId:{1}, user: {2}", groupId, id, userId);                                        
+                                    }
+                                }                                
                             }
                         }
 
@@ -842,15 +873,17 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<Image> response = new GenericListResponse<Image>();
             DataTable imagesDT = null;
             Dictionary<long, Image> pics = null;
+            Dictionary<long, Image> epgPics = null;
+            Image image = null;
             Dictionary<ImageReferenceTable, Dictionary<long, long>> referncesIds = null;
 
-            if (imageObjectType == eAssetImageType.Epg)
+            if (imageObjectType == eAssetImageType.Program)
             {
                 EpgCB epgCB = EpgDal.GetEpgCB(imageObjectId);
                 if (epgCB != null && epgCB.pictures != null)
                 {
                     pics = new Dictionary<long, Image>();
-                    Image image = null;
+                    epgPics = new Dictionary<long, Image>();
 
                     var ratioNamesToImageTypes = GetGroupRatioNamesToImageTypes(groupId);
 
@@ -863,21 +896,59 @@ namespace Core.Catalog.CatalogManagement
                             Version = pic.Version,
                             IsDefault = false,
                             ImageObjectId = imageObjectId,
-                            ImageObjectType = eAssetImageType.Epg,
                             Status = eTableStatus.OK,
                             ImageTypeId = ratioNamesToImageTypes.ContainsKey(pic.Ratio) ? ratioNamesToImageTypes[pic.Ratio].Id : 0
                         };
 
-                        pics.Add(image.Id, image);
+                        if(pic.IsProgramImage)
+                        {
+                            image.ImageObjectType = eAssetImageType.Program;
+                            pics.Add(image.Id, image);
+                        }
+                        else
+                        {
+                            image.ImageObjectType = eAssetImageType.ProgramGroup;
+                            epgPics.Add(image.Id, image);
+                        }
                     }
 
-                    // update IDs
-                    imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.EpgPics, pics.Keys.ToList());
-                    referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
+                    // Get images for updating image.Id 
+                    // if not exist, create new row  and update id.
+                    if (pics != null && pics.Keys.Count > 0)
+                    {
+                        imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.Pics, pics.Keys.ToList());
+                        referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
 
-                    response.Objects = pics.Values.ToList();
-                    response.Objects.ForEach(i => i.Id = referncesIds[ImageReferenceTable.EpgPics][i.Id]);
-                    
+                        foreach (Image item in pics.Values)
+                        {
+                            if (referncesIds[ImageReferenceTable.Pics].ContainsKey(item.Id))
+                            {
+                                item.Id = referncesIds[ImageReferenceTable.Pics][item.Id];
+                            }
+                            else
+                            {
+                                item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.Pics, item.Id);
+                            }
+                        }
+                    }
+
+                    if (epgPics != null && epgPics.Keys.Count > 0)
+                    {
+                        imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.EpgPics, epgPics.Keys.ToList());
+                        referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
+
+                        foreach (Image item in epgPics.Values)
+                        {
+                            if (referncesIds[ImageReferenceTable.EpgPics].ContainsKey(item.Id))
+                            {
+                                item.Id = referncesIds[ImageReferenceTable.EpgPics][item.Id];
+                            }
+                            else
+                            {
+                                item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.EpgPics, item.Id);
+                            }
+                        }
+                    }
                 }
             }
             else
@@ -889,8 +960,20 @@ namespace Core.Catalog.CatalogManagement
                     // update IDs
                     imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.Pics, pics.Keys.ToList());
                     referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
-                    response.Objects.ForEach(i => i.Id = referncesIds[ImageReferenceTable.EpgPics][i.Id]);
-                    
+
+                    response.Objects = pics.Values.ToList();
+                    foreach (Image item in response.Objects)
+                    {
+                        if (referncesIds[ImageReferenceTable.EpgPics].ContainsKey(item.Id))
+                        {
+                            item.Id = referncesIds[ImageReferenceTable.Pics][item.Id];
+                        }
+                        else
+                        {
+                            item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.Pics, item.Id);
+                        }
+                    }
+
                     //    // check if group uses pic sizes
                     //    UpdateImagesForGroupWithPicSizes(groupId, ref response);
                 }
@@ -911,6 +994,13 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<Image> result = new GenericResponse<Image>();
             try
             {
+                if(imageToAdd.ImageObjectType  == eAssetImageType.ProgramGroup)
+                {
+                    log.ErrorFormat("ImageType is not addable. assetId = {0}, assetType = {1}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
+                    result.SetStatus(eResponseStatus.Error, "ImageType is not addable");
+                    return result;
+                }
+
                 if (imageToAdd.ImageObjectType == eAssetImageType.Media && imageToAdd.ImageObjectId > 0)
                 {
                     // isAllowedToViewInactiveAssets = true because only operator can add image
@@ -925,7 +1015,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (imageToAdd.ImageObjectType == eAssetImageType.Channel && imageToAdd.ImageObjectId > 0)
                 {
-                    //isAllowedToViewInactiveAssets = true becuase only operator can add image
+                    //isAllowedToViewInactiveAssets = true because only operator can add image
                     GenericResponse<GroupsCacheManager.Channel> channel = ChannelManager.GetChannel(groupId, (int)imageToAdd.ImageObjectId, true);
                     if (channel.Status.Code != (int)eResponseStatus.OK)
                     {
@@ -952,6 +1042,8 @@ namespace Core.Catalog.CatalogManagement
 
                         if (result.Object != null)
                         {
+                            result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
                             if (imageToAdd.ImageObjectType == eAssetImageType.ImageType)
                             {
                                 // update default image ID in image type
@@ -960,11 +1052,7 @@ namespace Core.Catalog.CatalogManagement
 
                                 result.SetStatus(imageTypeResult.Status);
                             }
-                            else
-                            {
-                                result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                            }
-                        }
+                       }
 
                         ImageReferenceTable table = GetImageReferenceTable(imageToAdd.ImageObjectType);
                         id = CatalogDAL.InsertImage(groupId, (int)table, id);
@@ -1005,6 +1093,13 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if (imagesResponse.Objects[0].ImageObjectType == eAssetImageType.ProgramGroup)
+                {
+                    log.ErrorFormat("Image cannot be updated due to imageType. assetId = {0}, assetType = {1}", imagesResponse.Objects[0].ImageObjectId, imagesResponse.Objects[0].ImageObjectType);
+                    result.Set((int)eResponseStatus.Error, "Image cannot be updated due to imageType");
+                    return result;
+                }
+
                 Image image = imagesResponse.Objects[0];
                 if (string.IsNullOrEmpty(image.ContentId))
                 {
@@ -1017,15 +1112,17 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate image ratio
+                Ratio ratio = null;
                 ImageType imageType = GetImageType(groupId, image.ImageTypeId);                
                 if (imageType == null)
                 {
                     result = new Status((int)eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
                     return result;
-                }                
-                else if (imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
+                }
+
+                if (imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
                 {
-                    Ratio ratio = GetRatioById(groupId, imageType.RatioId.Value);
+                    ratio = GetRatioById(groupId, imageType.RatioId.Value);
                     if (ratio != null && ratio.PrecisionPrecentage > 0)
                     {
                         try
@@ -1061,19 +1158,22 @@ namespace Core.Catalog.CatalogManagement
                 // check result
                 if (string.IsNullOrEmpty(res) || res.ToLower() != "true")
                 {
-                    log.ErrorFormat("POST to image server failed. imageId = {0}, contentId = {1}", image.Id, image.ContentId);
-                    TVinciShared.ImageUtils.UpdateImageState(groupId, image.Id, image.Version, eMediaType.VOD, eTableStatus.Failed, (int)userId);
+                    log.ErrorFormat("POST to image server failed. imageId = {0}, contentId = {1}", image.ReferenceId, image.ContentId);
+                    TVinciShared.ImageUtils.UpdateImageState(groupId, image.ReferenceId, image.Version, eMediaType.VOD, eTableStatus.Failed, (int)userId);
                     result = new Status((int)eResponseStatus.InvalidUrlForImage, eResponseStatus.InvalidUrlForImage.ToString());
                     return result;
                 }
                 else if (res.ToLower() == "true")
                 {
-                    log.DebugFormat("POST to image server successfully sent. imageId = {0}, contentId = {1}", image.Id, image.ContentId);
-                    TVinciShared.ImageUtils.UpdateImageState(groupId, image.Id, image.Version, eMediaType.VOD, eTableStatus.OK, (int)userId, image.ContentId);
+                    log.DebugFormat("POST to image server successfully sent. imageId = {0}, contentId = {1}", image.ReferenceId, image.ContentId);
+                    TVinciShared.ImageUtils.UpdateImageState(groupId, image.ReferenceId, image.Version, eMediaType.VOD, eTableStatus.OK, (int)userId, image.ContentId);
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    
+                    EpgAssetManager.UpdateEpgAssetPictures(image, ratio != null? ratio.Name: string.Empty, groupId, id, userId);                   
 
                     // invalidate asset with this image
                     InvalidateAsset(groupId, image.ImageObjectId, image.ImageObjectType);
+                    
                 }
             }
             catch (Exception ex)
@@ -1231,24 +1331,85 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<ImageType> imageTypes = GetImageTypes(groupId, false, null);
             if (imageTypes != null && imageTypes.HasObjects())
             {
-                var groupRatios = GetRatios(groupId);
-
-                if (groupRatios != null && groupRatios.HasObjects())
-                {
                     groupRatioNamesToImageTypes = new Dictionary<string, ImageType>();
 
                     foreach (var imageType in imageTypes.Objects)
                     {
-                        var currRatio = groupRatios.Objects.FirstOrDefault(x => imageType.RatioId.HasValue && imageType.RatioId.Value == x.Id);
-                        if (currRatio != null && !groupRatioNamesToImageTypes.ContainsKey(currRatio.Name))
+                        if (!groupRatioNamesToImageTypes.ContainsKey(imageType.SystemName))
                         {
-                            groupRatioNamesToImageTypes.Add(currRatio.Name, imageType);
+                            groupRatioNamesToImageTypes.Add(imageType.SystemName, imageType);
+                        }
+                    }
+            }
+
+            return groupRatioNamesToImageTypes;
+        }
+        
+        public static Dictionary<string, List<EpgPicture>> GetGroupEpgPicturesSizes(int groupId)
+        {
+            string allEpgPicturesKey = LayeredCacheKeys.GetAllEpgPicturesKey(groupId);
+            // map ratio name to ratios
+            Dictionary<string, List<EpgPicture>> epgPictures = null;
+
+            if (!LayeredCache.Instance.Get<Dictionary<string, List<EpgPicture>>>(allEpgPicturesKey,
+                                                                                ref epgPictures,
+                                                                                GetAllEpgPictures,
+                                                                                new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                                groupId,
+                                                                                LayeredCacheConfigNames.GET_ALL_EPG_PICTURES))
+            {
+                log.ErrorFormat("GetGroupEpgPicturesSizes - GetAllEpgPictures - Failed get data from cache. groupId: {0}", groupId);
+            }
+            
+            return epgPictures;
+        }
+
+        private static Tuple<Dictionary<string, List<EpgPicture>>, bool> GetAllEpgPictures(Dictionary<string, object> funcParams)
+        {
+            Dictionary<string, List<EpgPicture>> epgPictures = null;
+            bool res = false;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+
+                        if (groupId.HasValue)
+                        {
+                            List<ApiObjects.Ratio> epgRatios = new List<ApiObjects.Ratio>();
+                            Dictionary<int, List<EpgPicture>> groupsToPictures = CatalogDAL.GetGroupTreeMultiPicEpgUrl(groupId.Value, ref epgRatios);
+
+                            if (groupsToPictures != null && groupsToPictures.ContainsKey(groupId.Value))
+                            {
+                                epgPictures = new Dictionary<string, List<EpgPicture>>();
+                                res = true;
+                                var pictures = groupsToPictures[groupId.Value];
+
+                                foreach (EpgPicture epgPicture in pictures)
+                                {
+                                    if (epgPictures.ContainsKey(epgPicture.Ratio))
+                                    {
+                                        epgPictures[epgPicture.Ratio].Add(epgPicture);
+                                    }
+                                    else
+                                    {
+                                        epgPictures.Add(epgPicture.Ratio, new List<EpgPicture>() { epgPicture });
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                res = false;
+                log.Error(string.Format("GetAllEpgPictures faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
 
-            return groupRatioNamesToImageTypes;
+            return new Tuple<Dictionary<string, List<EpgPicture>>, bool>(epgPictures, res);
         }
 
         #endregion

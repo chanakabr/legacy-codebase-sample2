@@ -1055,13 +1055,15 @@ namespace Core.Catalog.CatalogManagement
                                 images = new Dictionary<long, Image>();
                             }
 
-                            if (images.ContainsKey(groupRatioNamesToImageTypes[ratio.RatioText].Id))
+                            long imageTypeId = groupRatioNamesToImageTypes[ratio.RatioText].Id;
+
+                            if (images.ContainsKey(imageTypeId))
                             {
-                                images[groupRatioNamesToImageTypes[ratio.RatioText].Id].Url = ratio.Thumb;
+                                images[imageTypeId].Url = ratio.Thumb;
                             }
                             else
                             {
-                                images.Add(groupRatioNamesToImageTypes[ratio.RatioText].Id, new Image() { ImageTypeId = groupRatioNamesToImageTypes[ratio.RatioText].Id, Url = ratio.Thumb });
+                                images.Add(imageTypeId, new Image() { ImageTypeId = imageTypeId, Url = ratio.Thumb });
                             }
                         }
                     }

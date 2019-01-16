@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
+using Core.Catalog.CatalogManagement;
 using KLogMonitor;
 using KlogMonitorHelper;
 using System;
@@ -90,8 +91,14 @@ namespace Core.Catalog.Controller
                                 
                                 bool isSucceeded = false;
                                 EpgIngest.Ingest ingest = new EpgIngest.Ingest();
-                                
-                                isSucceeded = ingest.Initialize(request.Data, groupID, out ingestResponse);
+
+                                Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
+                                if (CatalogManager.DoesGroupUsesTemplates(groupID))
+                                {
+                                    groupRatioNamesToImageTypes = ImageManager.GetGroupRatioNamesToImageTypes(groupID);
+                                }
+
+                                isSucceeded = ingest.Initialize(request.Data, groupID, CatalogManager.DoesGroupUsesTemplates(groupID), groupRatioNamesToImageTypes, out ingestResponse);
                                 if (isSucceeded)
                                 {
                                     response = ingest.SaveChannelPrograms(ref ingestResponse);

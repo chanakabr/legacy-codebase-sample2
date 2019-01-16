@@ -99,6 +99,7 @@
     <Compile Include="Base\BaseSupportsNullable.cs" />
     <Compile Include="Billing\TransactionUnifiedRenewalDetails.cs" />
     <Compile Include="Billing\TransactionUnifiedRenewalRequest.cs" />
+    <Compile Include="Catalog\ImageType.cs" />
     <Compile Include="Compensation.cs" />
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />

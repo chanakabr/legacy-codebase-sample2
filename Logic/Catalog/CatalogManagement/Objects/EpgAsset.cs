@@ -35,44 +35,48 @@ namespace Core.Catalog.CatalogManagement
             this.AssetType = eAssetTypes.EPG;
         }
 
-        public EpgAsset(List<EpgCB> epgCBList, string defaultLanguageCode, List<Ratio> ratios, int groupId)
+        public EpgAsset(List<EpgCB> epgCBList, string defaultLanguageCode, Dictionary<string, List<EpgPicture>> groupEpgPicturesSizes, int groupId)
             : base()
         {
             this.AssetType = eAssetTypes.EPG;
 
             if (epgCBList != null && epgCBList.Count > 0)
             {
-                this.Id = (long)epgCBList[0].EpgID;
-                this.EpgIdentifier = epgCBList[0].EpgIdentifier;
-                this.IsActive = epgCBList[0].IsActive;
-                this.Status = epgCBList[0].Status;
-                this.CreateDate = epgCBList[0].CreateDate;
-                this.UpdateDate = epgCBList[0].UpdateDate;
-                this.GroupId = epgCBList[0].GroupID;
-                EpgCB epgChannel = epgCBList.FirstOrDefault(x => x.ChannelID > 0);
-                this.EpgChannelId = epgChannel != null ? (long?)epgChannel.ChannelID : null;
-                this.StartDate = epgCBList[0].StartDate;
-                this.EndDate = epgCBList[0].EndDate;
-                this.CoGuid = epgCBList[0].CoGuid;
-                this.PicUrl = epgCBList[0].PicUrl;
-                this.PicId = epgCBList[0].PicID;
-                this.Crid = epgCBList[0].Crid;
-                this.LikeCounter = epgCBList[0].Statistics != null ? epgCBList[0].Statistics.Likes : 0;
-                this.RelatedMediaId = epgCBList[0].ExtraData != null ? epgCBList[0].ExtraData.MediaID : 0;
-                this.FaceBookObjectId = epgCBList[0].ExtraData != null ? epgCBList[0].ExtraData.FBObjectID : string.Empty;
-                this.CoGuid = epgCBList[0].EpgIdentifier;
-
-                var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, this.EpgChannelId);
-                if (linearChannelSettings != null)
+                var defaultEpgCB = epgCBList.FirstOrDefault(x => x.Language.Equals(defaultLanguageCode));
+                if (defaultEpgCB != null)
                 {
-                    this.LinearAssetId = linearChannelSettings.linearMediaId;
-                    this.CdvrEnabled = GetEnableData(epgCBList[0].EnableCDVR, linearChannelSettings.EnableCDVR);
-                    this.StartOverEnabled = GetEnableData(epgCBList[0].EnableStartOver, linearChannelSettings.EnableStartOver);
-                    this.CatchUpEnabled = GetEnableData(epgCBList[0].EnableCatchUp, linearChannelSettings.EnableCatchUp);
-                    this.TrickPlayEnabled = GetEnableData(epgCBList[0].EnableTrickPlay, linearChannelSettings.EnableTrickPlay);
+                    this.Id = (long)defaultEpgCB.EpgID;
+                    this.EpgIdentifier = defaultEpgCB.EpgIdentifier;
+                    this.IsActive = defaultEpgCB.IsActive;
+                    this.Status = defaultEpgCB.Status;
+                    this.CreateDate = defaultEpgCB.CreateDate;
+                    this.UpdateDate = defaultEpgCB.UpdateDate;
+                    this.GroupId = defaultEpgCB.GroupID;
+                    EpgCB epgChannel = epgCBList.FirstOrDefault(x => x.ChannelID > 0);
+                    this.EpgChannelId = epgChannel != null ? (long?)epgChannel.ChannelID : null;
+                    this.StartDate = defaultEpgCB.StartDate;
+                    this.EndDate = defaultEpgCB.EndDate;
+                    this.CoGuid = defaultEpgCB.CoGuid;
+                    this.PicUrl = defaultEpgCB.PicUrl;
+                    this.PicId = defaultEpgCB.PicID;
+                    this.Crid = defaultEpgCB.Crid;
+                    this.LikeCounter = defaultEpgCB.Statistics != null ? defaultEpgCB.Statistics.Likes : 0;
+                    this.RelatedMediaId = defaultEpgCB.ExtraData != null ? defaultEpgCB.ExtraData.MediaID : 0;
+                    this.FaceBookObjectId = defaultEpgCB.ExtraData != null ? defaultEpgCB.ExtraData.FBObjectID : string.Empty;
+                    this.CoGuid = defaultEpgCB.EpgIdentifier;
+
+                    var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, this.EpgChannelId);
+                    if (linearChannelSettings != null)
+                    {
+                        this.LinearAssetId = linearChannelSettings.linearMediaId;
+                        this.CdvrEnabled = GetEnableData(defaultEpgCB.EnableCDVR, linearChannelSettings.EnableCDVR);
+                        this.StartOverEnabled = GetEnableData(defaultEpgCB.EnableStartOver, linearChannelSettings.EnableStartOver);
+                        this.CatchUpEnabled = GetEnableData(defaultEpgCB.EnableCatchUp, linearChannelSettings.EnableCatchUp);
+                        this.TrickPlayEnabled = GetEnableData(defaultEpgCB.EnableTrickPlay, linearChannelSettings.EnableTrickPlay);
+                    }
+
+                    SetImages(defaultEpgCB.pictures, groupEpgPicturesSizes, groupId);
                 }
-                
-                SetImages(epgCBList[0].pictures, ratios, groupId);
 
                 foreach (var epgCb in epgCBList)
                 {
@@ -96,7 +100,7 @@ namespace Core.Catalog.CatalogManagement
                 this.UpdateDate = DateTime.UtcNow;
             }
         }
-        
+
         // TODO SHIR - ASK IRA IF TO UPDATE 510 LIKE THIS METHOD
         private void SetTags(EpgCB epgCb, bool IsDefaultLanguage)
         {
@@ -223,7 +227,7 @@ namespace Core.Catalog.CatalogManagement
             this.DescriptionsWithLanguages.Add(new LanguageContainer(epgCb.Language, epgCb.Description));
         }
 
-        private void SetImages(List<EpgPicture> epgPictures, List<Ratio> ratios, int groupId)
+        private void SetImages(List<EpgPicture> epgPictures, Dictionary<string, List<EpgPicture>> groupEpgPicturesSizes, int groupId)
         {
             if (this.Images == null)
             {
@@ -245,33 +249,38 @@ namespace Core.Catalog.CatalogManagement
                         // get picture base URL
                         string picBaseName = Path.GetFileNameWithoutExtension(epgPicture.Url);
 
-                        if (ratios == null || ratios.Count == 0)
+                        if (groupEpgPicturesSizes == null || groupEpgPicturesSizes.Count == 0 || !groupEpgPicturesSizes.ContainsKey(epgPicture.Ratio))
                         {
                             this.Images.Add(new Image()
                             {
                                 Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, 0, 0, 0, true),
                                 ContentId = picBaseName,
                                 RatioName = epgPicture.Ratio,
-                                Version = epgPicture.Version
+                                Version = epgPicture.Version,
+                                ImageObjectType = epgPicture.IsProgramImage ? eAssetImageType.Program : eAssetImageType.ProgramGroup,
+                                ImageObjectId = this.Id,
+                                ReferenceId = epgPicture.PicID,
+                                ImageTypeId = epgPicture.ImageTypeId
                             });
                         }
                         else
                         {
-                            var filteredRatios = ratios.Where(x => x.Name.Equals(epgPicture.Ratio)).ToList();
-                            if (filteredRatios != null)
+                            var filteredPicturesSizes = groupEpgPicturesSizes[epgPicture.Ratio];
+                            foreach (var size in filteredPicturesSizes)
                             {
-                                foreach (Ratio ratio in filteredRatios)
+                                this.Images.Add(new Image()
                                 {
-                                    this.Images.Add(new Image()
-                                    {
-                                        Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, ratio.Width, ratio.Height, 100),
-                                        ContentId = picBaseName,
-                                        RatioName = epgPicture.Ratio,
-                                        Height = ratio.Height,
-                                        Width = ratio.Width,
-                                        Version = epgPicture.Version
-                                    });
-                                }
+                                    Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, 0, 0, 100),
+                                    ContentId = picBaseName,
+                                    RatioName = epgPicture.Ratio,
+                                    Version = epgPicture.Version,
+                                    Height = size.PicHeight,
+                                    Width = size.PicWidth,
+                                    ImageObjectType = epgPicture.IsProgramImage ? eAssetImageType.Program : eAssetImageType.ProgramGroup,
+                                    ImageObjectId = this.Id,
+                                    ReferenceId = epgPicture.PicID,
+                                    ImageTypeId = epgPicture.ImageTypeId
+                                });
                             }
                         }
                     }
@@ -329,7 +338,7 @@ namespace Core.Catalog.CatalogManagement
 
             return needToUpdateBasicData;
         }
-        
+
         /// <summary>
         /// if epgEnable 2 return false else get value from LinearChannelSettings
         /// </summary>

@@ -446,7 +446,7 @@ namespace Core.Catalog.CatalogManagement
 
                         List<LanguageObj> languages = GetLanguagesObj(languageCodes, catalogGroupCache);
 
-                        var ratios = ImageManager.GetRatios(groupId.Value);
+                        var groupEpgPicturesSizes = ImageManager.GetGroupEpgPicturesSizes(groupId.Value);
 
                         foreach (var epgId in epgIds)
                         {
@@ -454,7 +454,7 @@ namespace Core.Catalog.CatalogManagement
 
                             if (epgCbList != null && epgCbList.Count > 0)
                             {
-                                EpgAsset epgAsset = new EpgAsset(epgCbList, catalogGroupCache.DefaultLanguage.Code, ratios.Objects, groupId.Value);
+                                EpgAsset epgAsset = new EpgAsset(epgCbList, catalogGroupCache.DefaultLanguage.Code, groupEpgPicturesSizes, groupId.Value);
                                 string epgAssetKey = LayeredCacheKeys.GetAssetKey(eAssetTypes.EPG.ToString(), epgAsset.Id);
                                 epgAssets.Add(epgAssetKey, epgAsset);
                             }
@@ -1174,7 +1174,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Status((int)eResponseStatus.OK);
-        }
+        }        
 
         private static Dictionary<string, Dictionary<string, List<string>>> GetEpgTags(List<Tags> tagsList, Dictionary<string, string> languageCodes, string mainCode)
         {
@@ -1473,6 +1473,53 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+
+        internal static void UpdateEpgAssetPictures(Image image, string ratioName, int groupId, long id, long userId)
+        {
+            if (image.ImageObjectType == eAssetImageType.Program)
+            {
+                EpgCB program = EpgDal.GetEpgCB(image.ImageObjectId);
+
+                if (program != null)
+                {
+                    if (image.Version > 0)
+                    {
+                        if (program.pictures != null)
+                        {
+                            var pic = program.pictures.FirstOrDefault(x => x.IsProgramImage && x.PicID == image.ReferenceId);
+                            if (pic != null)
+                            {
+                                pic.Version = image.Version;
+                                pic.ImageTypeId = image.ImageTypeId;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (program.pictures == null)
+                        {
+                            program.pictures = new List<EpgPicture>();
+                        }
+
+                        program.pictures.Add(new EpgPicture()
+                        {
+                            PicID = (int)image.ReferenceId,
+                            IsProgramImage = true,
+                            Url = image.ContentId,
+                            Version = 0,
+                            Ratio = ratioName,
+                            ImageTypeId = image.ImageTypeId
+                        });
+                    }
+
+                    if (!EpgDal.SaveEpgCB(program, true))
+                    {
+                        log.ErrorFormat("Error while update epgCB at SetContent. groupId: {0}, imageId:{1}, user: {2}", groupId, id, userId);
+
+                    }
+                }
+            }
+        }
         #endregion
     }
 }
