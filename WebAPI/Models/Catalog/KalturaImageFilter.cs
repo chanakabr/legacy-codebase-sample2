@@ -40,7 +40,7 @@ namespace WebAPI.Models.Catalog
         public KalturaImageObjectType? ImageObjectTypeEqual { get; set; }
 
         /// <summary>
-        /// Filter images that are default on atleast on image type or not default at any
+        /// Filter images that are default on at least on image type or not default at any
         /// </summary>
         [DataMember(Name = "isDefaultEqual")]
         [JsonProperty("isDefaultEqual")]

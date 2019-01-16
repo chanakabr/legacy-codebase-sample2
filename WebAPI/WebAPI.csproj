@@ -830,6 +830,7 @@
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\API\KalturaPlaybackProfileFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
+    <Compile Include="Models\Catalog\KalturaImageLink.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
     <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpv.cs" />

@@ -13,6 +13,7 @@ namespace WebAPI.Models.Catalog
         CHANNEL,
         CATEGORY,
         PARTNER,
-        IMAGE_TYPE
+        IMAGE_TYPE,        
+        PROGRAM_GROUP
     }
 }

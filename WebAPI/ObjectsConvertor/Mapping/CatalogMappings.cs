@@ -1292,6 +1292,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case eAssetImageType.ImageType:
                     return KalturaImageObjectType.IMAGE_TYPE;
                     break;
+                case eAssetImageType.ProgramGroup:
+                    return KalturaImageObjectType.PROGRAM_GROUP;
+                    break;                
                 case eAssetImageType.DefaultPic:
                 case eAssetImageType.LogoPic:
                 default:
@@ -1315,6 +1318,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaImageObjectType.IMAGE_TYPE:
                     return eAssetImageType.ImageType;
+                    break;
+                case KalturaImageObjectType.PROGRAM_GROUP:
+                    return eAssetImageType.ProgramGroup;
                     break;
                 case KalturaImageObjectType.PARTNER:
                 case KalturaImageObjectType.PROGRAM_ASSET:
