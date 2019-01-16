@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("LLNWMediaVault")]
-[assembly: AssemblyDescription("2019-01-16 16:01:03 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
+[assembly: AssemblyDescription("2019-01-16 16:11:52 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("LLNWMediaVault")]
@@ -33,4 +33,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("5.1.1.*")]
 [assembly: AssemblyVersion("5.1.1.*")]
-[assembly: AssemblyInformationalVersion("5.1-1-40-g6651f113-dirty")]
+[assembly: AssemblyInformationalVersion("5.1-1-41-g909e1569-dirty")]

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ServiceExtensions")]
-[assembly: AssemblyDescription("2019-01-16 16:00:51 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
+[assembly: AssemblyDescription("2019-01-16 16:11:33 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("ServiceExtensions")]
@@ -33,5 +33,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("5.1.1.*")]
 [assembly: AssemblyVersion("5.1.1.*")]
-[assembly: AssemblyFileVersion("5.1-1-40-g6651f113-dirty")]
-//[assembly: AssemblyInformationalVersion("5.1-1-40-g6651f113-dirty")]
+[assembly: AssemblyFileVersion("5.1-1-41-g909e1569-dirty")]
+//[assembly: AssemblyInformationalVersion("5.1-1-41-g909e1569-dirty")]
