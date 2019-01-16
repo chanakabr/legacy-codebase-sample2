@@ -37,7 +37,10 @@
     <DocumentationFile>bin\WebAPI.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <LangVersion>5</LangVersion>
-    <FilesToIncludeForPublish>AllFilesInTheProject</FilesToIncludeForPublish>
+    <FilesToIncludeForPublish>AllFilesInProjectFolder</FilesToIncludeForPublish>
+    <PublishDatabases>false</PublishDatabases>
+	<ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
+	<ExcludeFoldersFromDeployment>bin\ssl-dev;bin\bin</ExcludeFoldersFromDeployment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -47,6 +50,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\WebAPI.XML</DocumentationFile>
+    <FilesToIncludeForPublish>AllFilesInProjectFolder</FilesToIncludeForPublish>
+    <PublishDatabases>false</PublishDatabases>
+	<ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
+	<ExcludeFoldersFromDeployment>bin\ssl-dev;bin\bin</ExcludeFoldersFromDeployment>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper, Version=7.0.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
@@ -765,19 +772,13 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Permissions\controllers\businessmodulerule.json" />
-    <None Include="Properties\PublishProfiles\fdf.pubxml" />
-    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
-    <None Include="Properties\PublishProfiles\Phoenix-Nova%28Orion%29.pubxml" />
-    <None Include="Properties\PublishProfiles\rest.pubxml" />
-    <None Include="Properties\PublishProfiles\test.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <EmbeddedResource Include="Resource\index.html" />
-    <EmbeddedResource Include="Resource\screen.css">
-      <BrowseToURL>~/WebAPI/Resource/screen.css</BrowseToURL>
-    </EmbeddedResource>
     <Content Include="ws_domains_module.asmx" />
     <Content Include="ws_cas_module.asmx" />
     <Content Include="ws_billing_module.asmx" />
