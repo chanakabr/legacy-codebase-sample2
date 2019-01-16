@@ -1749,10 +1749,6 @@
       <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
       <Name>ApiLogic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\PermissionsManager\PermissionsManager.csproj">
-      <Project>{62a8464c-c3a9-4566-a883-59a10e9856e3}</Project>
-      <Name>PermissionsManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
       <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
       <Name>TCMClient</Name>
@@ -1781,10 +1777,6 @@
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\CDNetworksVault\CDNetworksVault.csproj">
-      <Project>{65f14e50-b281-4524-84c4-0aca05c71fbc}</Project>
-      <Name>CDNetworksVault</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\CouchBaseExtensions\CouchBaseExtensions.csproj">
       <Project>{f5591a02-7c44-476f-b447-a63f39b2d731}</Project>
       <Name>CouchBaseExtensions</Name>
@@ -1793,25 +1785,9 @@
       <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
       <Name>CouchbaseManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\DalCB\DalCB.csproj">
-      <Project>{cc97d8e8-cfcb-4a33-a8ae-34ebdb0812c3}</Project>
-      <Name>DalCB</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ElasticSearch\ElasticSearch.csproj">
-      <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
-      <Name>ElasticSearch</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\EpgBL\EpgBL.csproj">
-      <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
-      <Name>EpgBL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\EpgIngest\EpgIngest.csproj">
-      <Project>{13504508-227b-4099-9987-3df3d2f8e792}</Project>
-      <Name>EpgIngest</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
@@ -1820,10 +1796,6 @@
     <ProjectReference Include="..\..\tvmcore\ExcelManager\ExcelManager.csproj">
       <Project>{B244D457-C486-48A4-8BB2-7ECD008D4054}</Project>
       <Name>ExcelManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\FTPUploadQueue\UploadQueue.csproj">
-      <Project>{8e6be280-9dcc-42d2-84c2-1a56812ae704}</Project>
-      <Name>UploadQueue</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\GoogleAPI\GoogleAPI.csproj">
       <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>
@@ -1841,29 +1813,9 @@
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\LLNWMediaVault\LLNWMediaVault.csproj">
-      <Project>{e56da89e-efe0-4077-ab1b-fe00389d5a02}</Project>
-      <Name>LLNWMediaVault</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">
       <Project>{d5dc1e20-5e10-4d3c-bc6f-6f596d890981}</Project>
       <Name>M1BL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Mailer\Mailer.csproj">
-      <Project>{8c082dfd-81ee-4623-8be9-32d34ded6407}</Project>
-      <Name>Mailer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\MCGroupRules\MCGroupRules.csproj">
-      <Project>{7a9c7a82-02fa-4b2e-9391-175ca212012d}</Project>
-      <Name>MCGroupRules</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Notifiers\Notifiers.csproj">
-      <Project>{31a03896-6fd2-4591-ab2e-a4278c24f8db}</Project>
-      <Name>Notifiers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\NPVR\NPVR.csproj">
-      <Project>{ea7e6211-06bc-41ad-8e44-874e5660fbf1}</Project>
-      <Name>NPVR</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
@@ -1877,37 +1829,13 @@
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ServiceExtensions\ServiceExtensions.csproj">
-      <Project>{2e48dc40-a9ab-485d-a847-8e3662c69696}</Project>
-      <Name>ServiceExtensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\StaticticsBL\StaticticsBL.csproj">
-      <Project>{798abf79-9cc5-4d97-bac3-de1f9b016ec2}</Project>
-      <Name>StaticticsBL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\StreamingProvider\StreamingProvider.csproj">
-      <Project>{320c9ff3-da35-42ea-a872-65b1cfe681cb}</Project>
-      <Name>StreamingProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Synchronizer\Synchronizer.csproj">
-      <Project>{9b1d6676-614f-4f0d-9bfb-66422f8a5031}</Project>
-      <Name>Synchronizer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\TvinciImporter\TvinciImporter.csproj">
-      <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
-      <Name>TvinciImporter</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Uploader\Uploader.csproj">
-      <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>
-      <Name>Uploader</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
