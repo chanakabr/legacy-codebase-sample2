@@ -435,11 +435,6 @@ namespace KLogMonitor
             handleEvent(format, KLogger.LogEvent.LogLevel.ERROR, true, args, null);
         }
 
-        public void ErrorFormat(Exception e, string format, params object[] args)
-        {
-            handleEvent(format, KLogger.LogEvent.LogLevel.ERROR, true, args, e);
-        }
-
         public void DebugNoFlush(string sMessage, Exception ex = null)
         {
             handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, false, null, ex);
