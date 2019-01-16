@@ -211,7 +211,7 @@ namespace WebAPI.Managers
                     }
                     catch (Exception e)
                     {
-                        log.ErrorFormat(string.Format("Upload: Failed to upload file to s3, attempt: {0}/{1}", i + 1, NumberOfRetries), e);
+                        log.Error(string.Format("Upload: Failed to upload file to s3, attempt: {0}/{1}", i + 1, NumberOfRetries), e);
                     }
                 }
             }
