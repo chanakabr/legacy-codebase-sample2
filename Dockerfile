@@ -35,8 +35,7 @@ RUN nuget restore TvmCore/TvinciCore.sln
 RUN nuget restore Core/Core.sln
 
 RUN msbuild /p:Configuration=Release tvpapi_rest/TVPProAPIs.sln
-RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:BuildProjectReferences=True /p:PrecompileBeforePublish=False tvpapi_rest/WebAPI/WebAPI.csproj
-
+RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/WebAPI tvpapi_rest/WebAPI/WebAPI.csproj
 
 
 
