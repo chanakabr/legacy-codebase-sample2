@@ -183,9 +183,15 @@ namespace Core.Catalog
             {
                 if (mediaIds != null && mediaIds.Count > 0)
                 {
+                    int endIndex = 0;
+                    if (nStartIndex == 0 && nEndIndex == 0 && mediaIds != null && mediaIds.Count > 0)
+                    {
+                        endIndex = mediaIds.Count;
+                    }
+
                     List<BaseObject> assetsToRetrieve = new List<BaseObject>();
                     // get only assets in requested page
-                    for (int i = nStartIndex; i < nEndIndex; i++)
+                    for (int i = nStartIndex; i < endIndex; i++)
                     {
                         assetsToRetrieve.Add(new BaseObject() { AssetId = mediaIds[i].ToString(), AssetType = eAssetTypes.MEDIA });
                     }
@@ -3319,7 +3325,8 @@ namespace Core.Catalog
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
                         break;
                     case eObjectType.EPG:
-                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids);
+                        // invalidate epg's for OPC and NON-OPC accounts
+                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
                         break;
                     case eObjectType.EpgChannel:
                         break;
@@ -3345,6 +3352,7 @@ namespace Core.Catalog
                 int parentGroupID = catalogCache.GetParentGroup(groupId);
 
                 Group group = groupManager.GetGroup(parentGroupID);
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
 
                 if (group != null)
                 {
@@ -3366,7 +3374,8 @@ namespace Core.Catalog
                         ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
                         legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
 
-                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids);
+                        // invalidate epg's for OPC and NON-OPC accounts
+                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
                     }
                 }
             }

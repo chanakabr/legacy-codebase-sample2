@@ -70,6 +70,7 @@
     <Compile Include="Types\EventConsumersConfiguration.cs" />
     <Compile Include="Types\ExportConfiguration.cs" />
     <Compile Include="Types\FacebookConfiguration.cs" />
+    <Compile Include="Types\FileSystemUploaderConfiguration.cs" />
     <Compile Include="Types\GroupsManagerConfiguration.cs" />
     <Compile Include="Types\HarmonicProviderConfiguration.cs" />
     <Compile Include="Types\ImageResizerConfiguration.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Types\RabbitConfiguration.cs" />
     <Compile Include="Types\RequestParserConfiguration.cs" />
     <Compile Include="Types\RoleIdsConfiguration.cs" />
+    <Compile Include="Types\S3Configuration.cs" />
     <Compile Include="Types\SocialFeedConfiguration.cs" />
     <Compile Include="Types\SocialFeedQueueConfiguration.cs" />
     <Compile Include="Types\NotificationConfiguration.cs" />

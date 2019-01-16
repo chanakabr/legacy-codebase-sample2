@@ -9,6 +9,7 @@ namespace ConfigurationManager
     {
         public StringConfigurationValue AccessTokenKeyFormat;
         public NumericConfigurationValue AccessTokenLength;
+        public StringConfigurationValue TempUploadFolder;
 
         public RequestParserConfiguration(string key) : base(key)
         {
@@ -21,6 +22,10 @@ namespace ConfigurationManager
             {
                 DefaultValue = 32,
                 OriginalKey = "access_token_length"
+            };
+            TempUploadFolder = new StringConfigurationValue("tempUploadFolder", this)
+            {
+                OriginalKey = "TempUploadFolder"
             };
         }
     }

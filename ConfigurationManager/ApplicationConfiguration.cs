@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using ConfigurationManager.Types;
 
 namespace ConfigurationManager
 {
@@ -126,6 +127,9 @@ namespace ConfigurationManager
         public static NumericConfigurationValue UserSegmentTTL;
         public static NumericConfigurationValue EPGDeleteBulkSize;
         public static BooleanConfigurationValue AllowUnknownCountry;
+        public static S3Configuration S3FileUploader;
+        public static FileSystemUploaderConfiguration FileSystemUploader;
+        public static BooleanConfigurationValue UploadFilesToS3;
 
         #endregion
 
@@ -564,6 +568,13 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
+            UploadFilesToS3 = new BooleanConfigurationValue("UploadFilesToS3")
+            {
+                DefaultValue = true
+            };
+
+            FileSystemUploader = new FileSystemUploaderConfiguration("FileSystemUploader");
+            S3FileUploader = new S3Configuration("S3FileUploader");
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {

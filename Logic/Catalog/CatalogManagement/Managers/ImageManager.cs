@@ -226,7 +226,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }        
 
-        private static Image CreateImageFromDataRow(int groupId, DataRow row, long id = 0)
+        private static Image CreateImageFromDataRow(int groupId, DataRow row, Dictionary<long, string> imageTypeIdToRatioName, List<Ratio> ratios, long id = 0)
         {
             Image image = null;
             long imageId = id == 0 ? ODBCWrapper.Utils.GetLongSafeVal(row, "ID") : id;
@@ -245,6 +245,20 @@ namespace Core.Catalog.CatalogManagement
                     ReferenceTable = ImageReferenceTable.Pics,
                     ReferenceId = imageId
                 };
+
+                if (imageTypeIdToRatioName.ContainsKey(image.ImageTypeId))
+                {
+                    image.RatioName = imageTypeIdToRatioName[image.ImageTypeId];
+                    if (ratios != null && ratios.Count > 0)
+                    {
+                        var ratio = ratios.FirstOrDefault(x => x.Name.Equals(imageTypeIdToRatioName[image.ImageTypeId]));
+                        if (ratio != null)
+                        {
+                            image.Height = ratio.Height;
+                            image.Width = ratio.Width;
+                        }
+                    }
+                }
 
                 image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
             }
@@ -456,17 +470,17 @@ namespace Core.Catalog.CatalogManagement
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 response.Objects = new List<Image>();
+                var imageTypeIdToRatioName = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                var ratios = ImageManager.GetRatios(groupId);
 
                 foreach (DataRow row in dt.Rows)
                 {
-                    Image image = CreateImageFromDataRow(groupId, row);
+                    Image image = CreateImageFromDataRow(groupId, row, imageTypeIdToRatioName, ratios.Objects);
                     if (image != null)
                     {
                         response.Objects.Add(image);
                     }
                 }
-
-                UpdateImagesForGroupWithPicSizes(groupId, ref response, false);
             }
             response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
@@ -1038,7 +1052,9 @@ namespace Core.Catalog.CatalogManagement
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
                     if (id > 0)
                     {
-                        result.Object = CreateImageFromDataRow(groupId, dt.Rows[0], id);
+                        var imageTypeIdToRatioName = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                        var ratios = ImageManager.GetRatios(groupId);
+                        result.Object = CreateImageFromDataRow(groupId, dt.Rows[0], imageTypeIdToRatioName, ratios.Objects, id);
 
                         if (result.Object != null)
                         {

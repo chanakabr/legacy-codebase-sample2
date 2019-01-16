@@ -445,7 +445,7 @@ namespace APILogic
                 {
                     if (program != null)
                     {
-                        xml.Append(BuildSingleProgramXml(program as EpgAsset, mainLang, taskId));
+                        xml.Append(BuildSingleProgramXml(groupId, program as EpgAsset, mainLang, taskId));
                     }
                 }
 
@@ -574,7 +574,7 @@ namespace APILogic
                 {
                     if (asset != null)
                     {
-                        xml.Append(BuildSingleOpcMediaXml(asset as MediaAsset, mainLang, taskId));
+                        xml.Append(BuildSingleOpcMediaXml(groupId, asset as MediaAsset, mainLang, taskId));
                     }
                 }
 
@@ -729,7 +729,7 @@ namespace APILogic
             return xml.ToString();
         }
 
-        private static string BuildSingleOpcMediaXml(MediaAsset asset, string mainLang, long taskId)
+        private static string BuildSingleOpcMediaXml(int groupId, MediaAsset asset, string mainLang, long taskId)
         {
             StringBuilder xml = new StringBuilder();
 
@@ -782,7 +782,7 @@ namespace APILogic
 
                 // strings
                 xml.Append("<strings>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(string).ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.String.ToString()))
                 {
                     xml.Append(GetStringMetaSection(meta, mainLang));
                 }
@@ -790,7 +790,7 @@ namespace APILogic
 
                 // doubles
                 xml.Append("<doubles>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(double).ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.Number.ToString()))
                 {
                     xml.Append(GetMetaSection(meta));
                 }
@@ -798,7 +798,7 @@ namespace APILogic
 
                 // booleans
                 xml.Append("<booleans>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(bool).ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.Bool.ToString()))
                 {
                     xml.Append(GetMetaSection(meta));
                 }
@@ -806,7 +806,7 @@ namespace APILogic
 
                 // dates
                 xml.Append("<dates>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == typeof(DateTime).ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.DateTime.ToString()))
                 {
                     xml.Append(GetDateMetaSection(meta));
                 }
@@ -834,12 +834,14 @@ namespace APILogic
                 // images
                 if (asset.Images != null)
                 {
+                    Dictionary<long, string> ratiosMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+
                     xml.Append("<images>");
                     foreach (var image in asset.Images)
                     {
                         if (image != null && !string.IsNullOrEmpty(image.Url))
                         {
-                            xml.Append(GetImageSection(image));
+                            xml.Append(GetImageSection(image, ratiosMap));
                         }
                     }
                     xml.Append("</images>");
@@ -954,7 +956,7 @@ namespace APILogic
             return xml.ToString();
         }
 
-        private static string BuildSingleProgramXml(EpgAsset program, string mainLang, long taskId)
+        private static string BuildSingleProgramXml(int groupId, EpgAsset program, string mainLang, long taskId)
         {
             StringBuilder xml = new StringBuilder();
 
@@ -1028,12 +1030,14 @@ namespace APILogic
                 // images
                 if (program.Images != null)
                 {
+                    Dictionary<long, string> ratiosMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+
                     xml.Append("<images>");
                     foreach (var image in program.Images)
                     {
                         if (image != null && !string.IsNullOrEmpty(image.Url))
                         {
-                            xml.Append(GetImageSection(image));
+                            xml.Append(GetImageSection(image, ratiosMap));
                         }
                     }
                     xml.Append("</images>");
@@ -1347,12 +1351,16 @@ namespace APILogic
             );
         }
 
-        private static string GetImageSection(Image image)
+        private static string GetImageSection(Image image, Dictionary<long, string> imageTypeIdToRatioNameMap)
         {
+            string ratioName = !string.IsNullOrEmpty(image.RatioName) ? image.RatioName :
+                        imageTypeIdToRatioNameMap != null && imageTypeIdToRatioNameMap.ContainsKey(image.ImageTypeId) ?
+                            imageTypeIdToRatioNameMap[image.ImageTypeId] : string.Empty;
+
             return string.Format("<image size=\"{0}\" url=\"{1}\" ratio=\"{2}\" version=\"{3}\" id=\"{4}\"/>",
                 TVinciShared.ProtocolsFuncs.XMLEncode(string.Format("{0}X{1}", image.Width, image.Height), true),
                 TVinciShared.ProtocolsFuncs.XMLEncode(image.Url, true),
-                TVinciShared.ProtocolsFuncs.XMLEncode(image.RatioName, true),
+                TVinciShared.ProtocolsFuncs.XMLEncode(ratioName, true),
                 TVinciShared.ProtocolsFuncs.XMLEncode(image.Version.ToString(), true),
                 TVinciShared.ProtocolsFuncs.XMLEncode(image.Id.ToString(), true)
             );
