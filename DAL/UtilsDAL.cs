@@ -333,6 +333,11 @@ namespace DAL
             return string.Format("{0}_{1}", groupId, "DefaultQuotaSeconds");
         }
 
+        internal static string GetPurchaseCouponRemainderKey(long purchaseId)
+        {
+            return string.Format("purchase_coupon_remainder_{0}", purchaseId);
+        }
+
         #endregion
 
         private static void HandleException(Exception ex)
@@ -973,6 +978,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
+
         #endregion
 
         public static int Get_NPVRProviderID(long groupID, out bool synchronizeNpvrWithDomain, out int version)

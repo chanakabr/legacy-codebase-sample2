@@ -3348,8 +3348,7 @@ namespace DAL
                 return false;
             }
         }
-
-
+        
         public static DataTable GetSubscriptionPurchase(int groupId, long householdId)
         {   
             ODBCWrapper.StoredProcedure sp = new StoredProcedure("Get_SubscriptionPurchase");
@@ -3443,6 +3442,24 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static bool SaveCouponRemainder(long purchaseId, double couponRemainder)
+        {
+            string key = UtilsDal.GetPurchaseCouponRemainderKey(purchaseId);
+            return UtilsDal.SaveObjectInCB<double>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key, couponRemainder);
+        }
+
+        public static double GetCouponRemainder(long purchaseId)
+        {
+            string key = UtilsDal.GetPurchaseCouponRemainderKey(purchaseId);
+            return UtilsDal.GetObjectFromCB<double>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool DeleteCouponRemainder(long purchaseId)
+        {
+            string key = UtilsDal.GetPurchaseCouponRemainderKey(purchaseId);
+            return UtilsDal.DeleteObjectFromCB(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
         }
     }
 }

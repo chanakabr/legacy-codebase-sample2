@@ -231,6 +231,12 @@ namespace AdapterControllers.PlaybackAdapter {
         private AdapterControllers.PlaybackAdapter.AccessControlMessage[] MessagesField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private AdapterControllers.PlaybackAdapter.CaptionPlaybackPluginData[] PlaybackCaptionsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private AdapterControllers.PlaybackAdapter.PlaybackPluginData[] PluginsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private AdapterControllers.PlaybackAdapter.PlaybackSource[] SourcesField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
@@ -265,6 +271,32 @@ namespace AdapterControllers.PlaybackAdapter {
                 if ((object.ReferenceEquals(this.MessagesField, value) != true)) {
                     this.MessagesField = value;
                     this.RaisePropertyChanged("Messages");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public AdapterControllers.PlaybackAdapter.CaptionPlaybackPluginData[] PlaybackCaptions {
+            get {
+                return this.PlaybackCaptionsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.PlaybackCaptionsField, value) != true)) {
+                    this.PlaybackCaptionsField = value;
+                    this.RaisePropertyChanged("PlaybackCaptions");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public AdapterControllers.PlaybackAdapter.PlaybackPluginData[] Plugins {
+            get {
+                return this.PluginsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.PluginsField, value) != true)) {
+                    this.PluginsField = value;
+                    this.RaisePropertyChanged("Plugins");
                 }
             }
         }
@@ -416,6 +448,129 @@ namespace AdapterControllers.PlaybackAdapter {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="CaptionPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.SerializableAttribute()]
+    public partial class CaptionPlaybackPluginData : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string FormatField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string LabelField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string LanguageField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string URLField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Format {
+            get {
+                return this.FormatField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FormatField, value) != true)) {
+                    this.FormatField = value;
+                    this.RaisePropertyChanged("Format");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Label {
+            get {
+                return this.LabelField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.LabelField, value) != true)) {
+                    this.LabelField = value;
+                    this.RaisePropertyChanged("Label");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Language {
+            get {
+                return this.LanguageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.LanguageField, value) != true)) {
+                    this.LanguageField = value;
+                    this.RaisePropertyChanged("Language");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string URL {
+            get {
+                return this.URLField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.URLField, value) != true)) {
+                    this.URLField = value;
+                    this.RaisePropertyChanged("URL");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.BumperPlaybackPluginData))]
+    public partial class PlaybackPluginData : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="PlaybackSource", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     [System.SerializableAttribute()]
     public partial class PlaybackSource : AdapterControllers.PlaybackAdapter.MediaFile {
@@ -512,6 +667,45 @@ namespace AdapterControllers.PlaybackAdapter {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         APPLY_PLAYBACK_ADAPTER = 7,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BumperPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.SerializableAttribute()]
+    public partial class BumperPlaybackPluginData : AdapterControllers.PlaybackAdapter.PlaybackPluginData {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string StreamerTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string URLField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string StreamerType {
+            get {
+                return this.StreamerTypeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StreamerTypeField, value) != true)) {
+                    this.StreamerTypeField = value;
+                    this.RaisePropertyChanged("StreamerType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string URL {
+            get {
+                return this.URLField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.URLField, value) != true)) {
+                    this.URLField = value;
+                    this.RaisePropertyChanged("URL");
+                }
+            }
+        }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
