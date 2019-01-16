@@ -3925,7 +3925,7 @@ namespace Tvinci.Core.DAL
             return picId;
         }
 
-        public static int InsertEPGPic(int groupId, string name, string description, string baseUrl)
+        public static int InsertEPGPic(int groupId, string name, string description, string baseUrl, long imageTypeId)
         {
             int picId = 0;
 
@@ -3937,6 +3937,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@Name", name);
                 sp.AddParameter("@Description", description);
                 sp.AddParameter("@BaseUrl", baseUrl);
+                sp.AddParameter("@ImageTypeId", imageTypeId);
 
                 DataSet ds = sp.ExecuteDataSet();
 

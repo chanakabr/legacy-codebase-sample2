@@ -2082,7 +2082,7 @@ namespace TvinciImporter
             return nRet;
         }
 
-        static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0)
+        static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0, long imageTypeId = 0)
         {
             int picId = 0;
 
@@ -2109,7 +2109,7 @@ namespace TvinciImporter
             else
             {
                 // use new image server
-                picId = DownloadEPGPicToImageServer(sThumb, sName, nGroupID, nChannelID, ratioID);
+                picId = DownloadEPGPicToImageServer(sThumb, sName, nGroupID, nChannelID, ratioID, imageTypeId);
             }
 
             if (picId == 0)
@@ -2248,7 +2248,8 @@ namespace TvinciImporter
             return picId;
         }
 
-        public static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int channelID, int ratioID, bool isAsync = true, int? updaterId = null, string epgIdentifier = null)
+        public static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int channelID, int ratioID, long imageTypeId,  bool isAsync = true, 
+            int? updaterId = null, string epgIdentifier = null)
         {
             int version = 0;
             string picName = string.Empty;
@@ -2280,7 +2281,7 @@ namespace TvinciImporter
             {
                 string sPicNewName = TVinciShared.ImageUtils.GetDateImageName();
 
-                picId = CatalogDAL.InsertEPGPic(groupID, name, picName, sPicNewName);
+                picId = CatalogDAL.InsertEPGPic(groupID, name, picName, sPicNewName, imageTypeId);
 
                 if (picId > 0)
                 {

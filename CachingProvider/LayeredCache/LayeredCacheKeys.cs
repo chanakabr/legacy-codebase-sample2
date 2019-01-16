@@ -1022,6 +1022,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_MediaFileTypeID_{0}_group_{1}", fileId, groupId);
         }
 
+        public static string GetAllEpgPicturesKey(int groupId)
+        {
+            return string.Format("all_epg_pictures_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Domains

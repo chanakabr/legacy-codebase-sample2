@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects.Catalog;
+using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
 using KLogMonitor;

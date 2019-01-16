@@ -13,13 +13,11 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.ServiceModel;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
 using TvinciImporter;
-using TVinciShared;
 
 namespace EpgIngest
 {
@@ -34,27 +32,28 @@ namespace EpgIngest
 
 
         #region Member
-        EpgChannels m_Channels;
-        BaseEpgBL oEpgBL;
-        List<LanguageObj> lLanguage = new List<LanguageObj>();
-        List<FieldTypeEntity> FieldEntityMapping = new List<FieldTypeEntity>();
-        Dictionary<int, string> ratios;
-        int nCountPackage;
-        bool isTstvSettings = false;
-
+        private EpgChannels m_Channels;
+        private BaseEpgBL oEpgBL;
+        private List<LanguageObj> lLanguage = new List<LanguageObj>();
+        private List<FieldTypeEntity> FieldEntityMapping = new List<FieldTypeEntity>();
+        private Dictionary<int, string> ratios;
+        private int nCountPackage;
+        private bool isTstvSettings = false;
+        private bool isOpcAccount = false;
+        private Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
         #endregion
 
         public Ingest()
         {
         }
 
-        public bool Initialize(string data, int groupId)
-        {
-            IngestResponse ingestResponse = null;
-            return Initialize(data, groupId, out  ingestResponse);
-        }
+        //public bool Initialize(string data, int groupId)
+        //{
+        //    IngestResponse ingestResponse = null;
+        //    return Initialize(data, groupId, out  ingestResponse);
+        //}
 
-        public bool Initialize(string Data, int groupId, out IngestResponse ingestResponse)
+        public bool Initialize(string Data, int groupId, bool doesGroupUsesTemplates, Dictionary<string, ImageType> ratioNamesToImageTypes,  out IngestResponse ingestResponse)
         {
             ingestResponse = new IngestResponse()
             {
@@ -79,15 +78,19 @@ namespace EpgIngest
 
             // get mapping between ratio_id and ratio 
             Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
+            
+            isOpcAccount = doesGroupUsesTemplates;
+            groupRatioNamesToImageTypes = ratioNamesToImageTypes;
+
             ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
 
             bool getTstvSuccess = false;
             DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(m_Channels.parentgroupid, out getTstvSuccess);
 
-             if (dr != null && getTstvSuccess)
-             {
-                 isTstvSettings = true;
-             }
+            if (dr != null && getTstvSuccess)
+            {
+                isTstvSettings = true;
+            }
 
             return true;
         }
@@ -215,7 +218,7 @@ namespace EpgIngest
             IngestAssetStatus ingestAssetStatus = null;
 
             #region each program  create CB objects
-             
+
             foreach (programme prog in programs)
             {
                 ingestAssetStatus = new IngestAssetStatus()
@@ -331,10 +334,17 @@ namespace EpgIngest
                             string imgurl = icon.src; // TO BE ABLE TO WORK WITH MORE THEN ONE PIC 
                             // get the ratioid by ratio
                             int ratio = ODBCWrapper.Utils.GetIntSafeVal(ratios.FirstOrDefault(x => x.Value == icon.ratio).Key);
+                            // OPC Get ImageTypeId by ratioName
+                            long imageTypeId = 0;
+                            if (isOpcAccount)
+                            {
+                                imageTypeId = groupRatioNamesToImageTypes.ContainsKey(icon.ratio) ? groupRatioNamesToImageTypes[icon.ratio].Id : 0;
+                            }
+
                             epgPicture = new EpgPicture();
                             if (!string.IsNullOrEmpty(imgurl))
                             {
-                                int nPicID = ImporterImpl.DownloadEPGPic(imgurl, picName, m_Channels.groupid, 0, kalturaChannelID, ratio);
+                                int nPicID = ImporterImpl.DownloadEPGPic(imgurl, picName, m_Channels.groupid, 0, kalturaChannelID, ratio, imageTypeId);
 
                                 if (nPicID != 0)
                                 {
@@ -354,11 +364,12 @@ namespace EpgIngest
                                         newEpgItem.PicUrl = sPicUrl;
                                     }
 
-                                    if (newEpgItem.pictures.Count(x => x.PicID == nPicID && x.Ratio == icon.ratio) == 0) // this ratio not exsits yet in the list
+                                    if (newEpgItem.pictures.Count(x => x.PicID == nPicID && x.Ratio == icon.ratio) == 0) // this ratio not exists yet in the list
                                     {
                                         epgPicture.Url = sPicUrl;
                                         epgPicture.PicID = nPicID;
                                         epgPicture.Ratio = icon.ratio;
+                                        epgPicture.ImageTypeId = imageTypeId;
                                         newEpgItem.pictures.Add(epgPicture);
                                     }
                                 }
@@ -529,7 +540,7 @@ namespace EpgIngest
 
             success = true;
             return success;
-        }       
+        }
 
         private void GetProtectedEpgMetas(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> dEpg, List<EpgCB> lResCB, List<string> protectedMetaName)
         {
@@ -597,7 +608,7 @@ namespace EpgIngest
                         rgx = null;
 
                         // get the regex expression to alias 
-                        metaMapping = FieldEntityMapping.FirstOrDefault(x => x.FieldType == FieldTypes.Meta && x.Name.ToLower() == meta.MetaType);                        
+                        metaMapping = FieldEntityMapping.FirstOrDefault(x => x.FieldType == FieldTypes.Meta && x.Name.ToLower() == meta.MetaType);
                         if (metaMapping != null && !string.IsNullOrEmpty(metaMapping.RegexExpression))
                         {
                             checkReg = true;
@@ -605,7 +616,7 @@ namespace EpgIngest
                         }
 
                         // get all relevant language 
-                        List<MetaValues> metaValues = meta.MetaValues.Where(x => x.lang.ToLower() == language).ToList();                        
+                        List<MetaValues> metaValues = meta.MetaValues.Where(x => x.lang.ToLower() == language).ToList();
 
                         foreach (MetaValues value in metaValues)
                         {
@@ -699,7 +710,7 @@ namespace EpgIngest
             ref List<EpgCB> currentEpgCB)
         {
             try
-            {                
+            {
                 List<int> epgIdsToUpdate = new List<int>();
                 List<string> epgGuid = epgDic.Keys.ToList();
                 List<string> epgIds = new List<string>(); // list of all exsits epg programs ids 
@@ -864,7 +875,7 @@ namespace EpgIngest
             }
         }
 
-        private void InsertEpgs(int groupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, 
+        private void InsertEpgs(int groupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping,
             Dictionary<int, List<string>> tagsAndValuesOfEPGs, DateTime publishDate, int channelID, Dictionary<int, string> ratios)
         {
             try
@@ -880,12 +891,12 @@ namespace EpgIngest
 
                 string sConn = "MAIN_CONNECTION_STRING";
 
-                List<FieldTypeEntity> FieldEntityMappingMetas = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Meta).ToList();                
+                List<FieldTypeEntity> FieldEntityMappingMetas = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Meta).ToList();
                 List<FieldTypeEntity> FieldEntityMappingTags = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Tag).ToList();
 
                 Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs = new Dictionary<KeyValuePair<string, int>, List<string>>();// new tag values and the EPGs that have them
                 //return relevant tag value ID, if they exist in the DB
-                Dictionary<int, List<KeyValuePair<string, int>>> tagTypeIdWithValueFromDB = getTagTypeWithRelevantValues(groupID, FieldEntityMappingTags, tagsAndValuesOfEPGs);                
+                Dictionary<int, List<KeyValuePair<string, int>>> tagTypeIdWithValueFromDB = getTagTypeWithRelevantValues(groupID, FieldEntityMappingTags, tagsAndValuesOfEPGs);
 
                 //update all values that already exsits in table
                 UpdateEPG_Channels_sched(ref epgDic, publishDate, channelID);
@@ -914,9 +925,9 @@ namespace EpgIngest
 
                 InsertNewTagValues(epgDic, dtEpgTagsValues, ref dtEpgTags, newTagValueEpgs, groupID, nUpdaterID);
 
-                
+
                 // delete all values per tag and meta for programIDS that exsits 
-                List<int> protectedMetas = FieldEntityMappingMetas.Where(x => x.isProtectFromUpdates.HasValue && x.isProtectFromUpdates.Value).Select(x => x.ID).ToList();               
+                List<int> protectedMetas = FieldEntityMappingMetas.Where(x => x.isProtectFromUpdates.HasValue && x.isProtectFromUpdates.Value).Select(x => x.ID).ToList();
                 bool bDelete = EpgDal.DeleteEpgProgramDetails(epgIDs, protectedMetas);
                 bool bDeletePictures = EpgDal.DeleteEpgProgramPicturess(epgIDs, groupID, channelID);
 
