@@ -177,7 +177,6 @@ namespace Core.ConditionalAccess
             bool shouldSwitchToMasterUser = false;
 
             // check if we need to set shouldSwitchToMasterUser = true so we will update subscription details to master user instead of user where needed
-
             #region shouldSwitchToMasterUser
 
             if (userValidStatus == ResponseStatus.UserDoesNotExist)
@@ -278,13 +277,8 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            // get payment number
             renewSubscriptionDetails.PaymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER");
-
-            // get number of payments
             renewSubscriptionDetails.NumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "number_of_payments");
-
-            // get total number of payments
             renewSubscriptionDetails.TotalNumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "total_number_of_payments");
 
             // check if purchased with preview module
@@ -312,9 +306,9 @@ namespace Core.ConditionalAccess
             int recPeriods = 0;
             bool isMPPRecurringInfinitely = false;
             UnifiedBillingCycle unifiedBillingCycle = null;
-            
             if (!cas.GetMultiSubscriptionUsageModule(renewSubscriptionDetails, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, 
-                                                     ref unifiedBillingCycle, previousPurchaseCurrencyCode, groupId, householdId, ignoreUnifiedBillingCycle))
+                                                     ref unifiedBillingCycle, previousPurchaseCurrencyCode, groupId, householdId, 
+                                                     ignoreUnifiedBillingCycle))
             {
                 // "Error while trying to get Price plan
                 log.Error("Error while trying to get Price plan to renew");
@@ -345,8 +339,7 @@ namespace Core.ConditionalAccess
 
             log.DebugFormat("Renew transaction returned from billing. data: {0}", logString);
 
-            if (transactionResponse == null ||
-                transactionResponse.Status == null)
+            if (transactionResponse == null || transactionResponse.Status == null)
             {
                 // PG returned error
                 log.Error("Received error from Billing");
@@ -362,9 +355,8 @@ namespace Core.ConditionalAccess
                     transactionResponse.Status.Code == (int)eResponseStatus.PaymentGatewayNotExist)
                 {
                     // renew subscription failed! pass 0 as failReasonCode since we don't get it on the transactionResponse
-                    return HandleRenewSubscriptionFailed(cas, groupId,
-                        siteguid, purchaseId, logString, productId, subscription, householdId, 0, transactionResponse.Status.Message,
-                        billingGuid, endDateUnix);
+                    return HandleRenewSubscriptionFailed(cas, groupId, siteguid, purchaseId, logString, productId, subscription, householdId, 0, 
+                                                         transactionResponse.Status.Message, billingGuid, endDateUnix);
                 }
                 else if (transactionResponse.Status.Code == (int)eResponseStatus.PaymentGatewaySuspended)
                 {
@@ -372,12 +364,11 @@ namespace Core.ConditionalAccess
                     {
                         log.ErrorFormat("Failed to suspend purchase id  entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, householdId);
                     }
+
                     return true;// don't retry
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             bool res = false;
@@ -394,6 +385,11 @@ namespace Core.ConditionalAccess
 
                         if (res)
                         {
+                            if (renewSubscriptionDetails.CouponRemainder > 0)
+                            {
+                                ConditionalAccessDAL.SaveCouponRemainder(renewSubscriptionDetails.PurchaseId, renewSubscriptionDetails.CouponRemainder);
+                            }
+
                             string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
@@ -1125,6 +1121,7 @@ namespace Core.ConditionalAccess
             }
 
             #region validate domain
+
             Domain domain = null;
             // validate household
             if (householdId <= 0)
@@ -1293,6 +1290,7 @@ namespace Core.ConditionalAccess
             #endregion
 
             #region check addon subscriptions
+
             List<string> removeSubscriptionCodes = new List<string>();
             List<Subscription> baseSubscriptions = subscriptions.Where(x => x.Type == SubscriptionType.Base).ToList();
             foreach (Subscription subscription in (subscriptions.Where(x => x.Type == SubscriptionType.AddOn).ToList()))
@@ -1347,10 +1345,12 @@ namespace Core.ConditionalAccess
                 log.DebugFormat("stop renew process due to no subs to renew");
                 return true;
             }
+
             if (removeSubscriptionCodes.Count > 0) // remove all not relevant subscriptions
             {
                 subscriptions.RemoveAll(x => removeSubscriptionCodes.Contains(x.m_SubscriptionCode));
             }
+
             #endregion
 
             Utils.GetMultiSubscriptionUsageModule(renewSubscriptioDetails, userIp, subscriptions, cas, ref unifiedBillingCycle, (int)householdId, groupId);
@@ -1714,6 +1714,10 @@ namespace Core.ConditionalAccess
                         log.DebugFormat("HandleRenewUnifiedSubscriptionSuccess - CouponRemainder has been deleted for PurchaseId:{0}", renewUnifiedData.PurchaseId);
                     }
                 }
+                else if (renewUnifiedData.CouponRemainder > 0)
+                {
+                    ConditionalAccessDAL.SaveCouponRemainder(renewUnifiedData.PurchaseId, renewUnifiedData.CouponRemainder);
+                }
 
                 // message for PS use
                 Dictionary<string, object> psMessage = new Dictionary<string, object>()
@@ -1884,7 +1888,9 @@ namespace Core.ConditionalAccess
             string previousPurchaseCountryName = string.Empty;
             
             string customData = null;
+
             #region Dummy
+
             try
             {
                 customData = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "CUSTOMDATA"); // AKA subscription ID/CODE
@@ -2010,7 +2016,8 @@ namespace Core.ConditionalAccess
                 EndDate = endDate
             };
 
-            if (!cas.GetMultiSubscriptionUsageModule(renewSubscriptionDetails, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle, previousPurchaseCurrencyCode, groupId, householdId, ignoreUnifiedBillingCycle, false))
+            if (!cas.GetMultiSubscriptionUsageModule(renewSubscriptionDetails, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, 
+                                                     ref unifiedBillingCycle, previousPurchaseCurrencyCode, groupId, householdId, ignoreUnifiedBillingCycle, false))
             {
                 log.Error("Error while trying to get Price plan to renew");
                 return response;

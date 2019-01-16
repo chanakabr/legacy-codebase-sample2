@@ -1092,20 +1092,20 @@ namespace Core.ConditionalAccess
             return ret;
         }
 
-        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup oCouponsGroup, ref string sCouponCode, int nGroupID, long domainId)
+        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup couponsGroup, ref string couponCode, int groupID, long domainId)
         {
             Price price = CopyPrice(pModule);
-            if (!string.IsNullOrEmpty(sCouponCode))
+            if (!string.IsNullOrEmpty(couponCode))
             {
-                CouponDataResponse theCouponData = Pricing.Module.GetCouponStatus(nGroupID, sCouponCode, domainId);
+                CouponDataResponse theCouponData = Pricing.Module.GetCouponStatus(groupID, couponCode, domainId);
                 
-                if (oCouponsGroup != null &&
+                if (couponsGroup != null &&
                     theCouponData != null &&
                     theCouponData.Status != null &&
                     theCouponData.Status.Code == (int)eResponseStatus.OK &&
                     theCouponData.Coupon != null &&
                     theCouponData.Coupon.m_CouponStatus == CouponsStatus.Valid &&
-                    theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
+                    theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == couponsGroup.m_sGroupCode)
                 {
                     // if it is a valid gift card, set price to be 0
                     if (theCouponData.Coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard)
@@ -1115,13 +1115,13 @@ namespace Core.ConditionalAccess
                     else
                     {
                         //Coupon discount should take place
-                        DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
+                        DiscountModule dCouponDiscount = couponsGroup.m_oDiscountCode;
                         price = GetPriceAfterDiscount(price, dCouponDiscount, 0);
                     }
                 }
                 else //the coupon is not valid
                 {
-                    sCouponCode = string.Empty;
+                    couponCode = string.Empty;
                 }
             }
 
@@ -1349,16 +1349,13 @@ namespace Core.ConditionalAccess
                         long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
                         if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
                         {
-                            if (unifiedBillingCycle == null)
+                            //chcek that subscription contain this group billing cycle and subscription is renew                                             
+                            if (subscription != null && subscription.m_bIsRecurring
+                                && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
+                                && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
                             {
-                                //chcek that subscription contain this group billing cycle and subscription is renew                                             
-                                if (subscription != null && subscription.m_bIsRecurring
-                                    && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
-                                    && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
-                                {
-                                    //get key from CB household_renewBillingCycle
-                                    unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, groupUnifiedBillingCycle.Value);
-                                }
+                                //get key from CB household_renewBillingCycle
+                                unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, groupUnifiedBillingCycle.Value);
                             }
                         }
 
@@ -1377,24 +1374,9 @@ namespace Core.ConditionalAccess
 
                     if (finalPrice != null && originalPrice != null)
                     {
-                        log.DebugFormat("GetSubscriptionFinalPrice - subscription code: {0}, original Price: {1}.", subCode, originalPrice.m_dPrice);
-                        log.DebugFormat("GetSubscriptionFinalPrice - subscription code: {0}, price after discount and coupon: {1}.", subCode, finalPrice.m_dPrice);
-
-                        bool fullCouponDiscount = (!string.IsNullOrEmpty(couponCode) && originalPrice.m_dPrice > 0 && finalPrice.m_dPrice == 0);
-                        if (fullCouponDiscount)
-                        {
-                            var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, originalPrice.m_dPrice, ref unifiedBillingCycle, subscription, domainId);
-                            couponRemainder = originalPrice.m_dPrice - priceAfterUnified;
-                        }
-                        else
-                        {
-                            var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, finalPrice.m_dPrice, ref unifiedBillingCycle, subscription, domainId);
-                            couponRemainder = finalPrice.m_dPrice - priceAfterUnified;
-                            finalPrice.m_dPrice = priceAfterUnified;
-                        }
-
-                        log.DebugFormat("GetSubscriptionFinalPrice - subscription code: {0}, price after unified: {1}.", subCode, finalPrice.m_dPrice);
-                        log.DebugFormat("GetSubscriptionFinalPrice - subscription code: {0}, coupon remainder: {1}.", subCode, couponRemainder);
+                        var finalPriceAndCouponRemainder = CalcPartialPriceByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, ref unifiedBillingCycle, finalPrice.m_dPrice, groupId, subscription, domainId);
+                        finalPrice.m_dPrice = finalPriceAndCouponRemainder.Item1;
+                        couponRemainder = finalPriceAndCouponRemainder.Item2;
                     }
                 }
             }
@@ -1405,6 +1387,44 @@ namespace Core.ConditionalAccess
             }
 
             return finalPrice;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="originalPrice"></param>
+        /// <param name="couponCode"></param>
+        /// <param name="unifiedBillingCycle"></param>
+        /// <param name="finalPrice"></param>
+        /// <param name="couponRemainder"></param>
+        /// <param name="groupId"></param>
+        /// <param name="subscription"></param>
+        /// <param name="domainId"></param>
+        /// <returns>item1 = finalPrice, item2 = couponRemainder</returns>
+        internal static Tuple<double, double> CalcPartialPriceByUnifiedBillingCycle(double originalPrice, string couponCode, ref UnifiedBillingCycle unifiedBillingCycle, 
+            double finalPrice, int groupId, Subscription subscription = null, int domainId = 0)
+        {
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - subscription code: {0}, original Price: {1}.", subscription.m_SubscriptionCode, originalPrice);
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - subscription code: {0}, price after discount and coupon: {1}.", subscription.m_SubscriptionCode, finalPrice);
+
+            double couponRemainder = 0;
+            bool fullCouponDiscount = (!string.IsNullOrEmpty(couponCode) && originalPrice > 0 && finalPrice == 0);
+            if (fullCouponDiscount)
+            {
+                var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, originalPrice, ref unifiedBillingCycle, subscription, domainId);
+                couponRemainder = originalPrice - priceAfterUnified;
+            }
+            else
+            {
+                var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, finalPrice, ref unifiedBillingCycle, subscription, domainId);
+                couponRemainder = finalPrice - priceAfterUnified;
+                finalPrice = priceAfterUnified;
+            }
+
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - subscription code: {0}, price after unified: {1}.", subscription.m_SubscriptionCode, finalPrice);
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - subscription code: {0}, coupon remainder: {1}.", subscription.m_SubscriptionCode, couponRemainder);
+
+            return new Tuple<double, double>(finalPrice, couponRemainder);
         }
 
         private static Price HandlePriceCodeAndExternalDiscount(bool isBlockEntitlementType, ref PriceReason theReason, int groupId, ref string currencyCode, string ip, string userId, 
@@ -1694,6 +1714,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
+                // check that end date between next end date and unified billing cycle end date are different
                 if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
                     DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);

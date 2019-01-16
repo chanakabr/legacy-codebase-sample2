@@ -64,5 +64,7 @@ namespace APILogic.ConditionalAccess.Modules
         public SubscriptionPurchaseStatus SubscriptionStatus { get; set; }
 
         public bool IsUseCouponRemainder { get; set; }
+
+        public double CouponRemainder { get; set; }
     }
 }
