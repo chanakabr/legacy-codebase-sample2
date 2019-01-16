@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ApiObjects")]
-[assembly: AssemblyDescription("2017-09-27 11:09:42 | Hostname:IL-LIORFA-RND | Published by:")]
+[assembly: AssemblyDescription("2019-01-16 14:29:46 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("ApiObjects")]
-[assembly: AssemblyCopyright("Copyright ©  2009")]
+[assembly: AssemblyCopyright("Copyright �  2009")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("4.5.64.*")]
-[assembly: AssemblyVersion("4.5.64.*")]
-[assembly: AssemblyInformationalVersion("4.5-64-gfefa744-dirty")]
+// [assembly: AssemblyVersion("5.1.1.*")]
+[assembly: AssemblyVersion("5.1.1.*")]
+[assembly: AssemblyInformationalVersion("5.1-1-69-g66480676-dirty")]
