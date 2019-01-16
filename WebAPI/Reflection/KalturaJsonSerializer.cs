@@ -627,6 +627,90 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaBumpersPlaybackPluginData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(StreamerType != null)
+            {
+                ret.Add("streamertype", "\"streamertype\": " + "\"" + EscapeJson(StreamerType) + "\"");
+            }
+            if(URL != null)
+            {
+                ret.Add("url", "\"url\": " + "\"" + EscapeJson(URL) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(StreamerType != null)
+            {
+                ret.Add("streamertype", "<streamertype>" + EscapeXml(StreamerType) + "</streamertype>");
+            }
+            if(URL != null)
+            {
+                ret.Add("url", "<url>" + EscapeXml(URL) + "</url>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCaptionPlaybackPluginData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Format != null)
+            {
+                ret.Add("format", "\"format\": " + "\"" + EscapeJson(Format) + "\"");
+            }
+            if(Label != null)
+            {
+                ret.Add("label", "\"label\": " + "\"" + EscapeJson(Label) + "\"");
+            }
+            if(Language != null)
+            {
+                ret.Add("language", "\"language\": " + "\"" + EscapeJson(Language) + "\"");
+            }
+            if(URL != null)
+            {
+                ret.Add("url", "\"url\": " + "\"" + EscapeJson(URL) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Format != null)
+            {
+                ret.Add("format", "<format>" + EscapeXml(Format) + "</format>");
+            }
+            if(Label != null)
+            {
+                ret.Add("label", "<label>" + EscapeXml(Label) + "</label>");
+            }
+            if(Language != null)
+            {
+                ret.Add("language", "<language>" + EscapeXml(Language) + "</language>");
+            }
+            if(URL != null)
+            {
+                ret.Add("url", "<url>" + EscapeXml(URL) + "</url>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaCDVRAdapterProfile
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -1802,6 +1886,16 @@ namespace WebAPI.Models.ConditionalAccess
                 propertyValue = "[" + String.Join(", ", Messages.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("messages", "\"messages\": " + propertyValue);
             }
+            if(PlaybackCaptions != null)
+            {
+                propertyValue = "[" + String.Join(", ", PlaybackCaptions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("playbackCaptions", "\"playbackCaptions\": " + propertyValue);
+            }
+            if(Plugins != null)
+            {
+                propertyValue = "[" + String.Join(", ", Plugins.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("plugins", "\"plugins\": " + propertyValue);
+            }
             if(Sources != null)
             {
                 propertyValue = "[" + String.Join(", ", Sources.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -1824,6 +1918,16 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 propertyValue = Messages.Count > 0 ? "<item>" + String.Join("</item><item>", Messages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("messages", "<messages>" + propertyValue + "</messages>");
+            }
+            if(PlaybackCaptions != null)
+            {
+                propertyValue = PlaybackCaptions.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackCaptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("playbackCaptions", "<playbackCaptions>" + propertyValue + "</playbackCaptions>");
+            }
+            if(Plugins != null)
+            {
+                propertyValue = Plugins.Count > 0 ? "<item>" + String.Join("</item><item>", Plugins.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("plugins", "<plugins>" + propertyValue + "</plugins>");
             }
             if(Sources != null)
             {
@@ -1882,6 +1986,24 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("streamerType", "<streamerType>" + EscapeXml(StreamerType) + "</streamerType>");
             }
             ret.Add("urlType", "<urlType>" + "" + Enum.GetName(typeof(KalturaUrlType), UrlType) + "" + "</urlType>");
+            return ret;
+        }
+    }
+    public partial class KalturaPlaybackPluginData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
             return ret;
         }
     }
@@ -4490,7 +4612,6 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("abortOnError", "\"abortOnError\": " + AbortOnError.ToString().ToLower());
             if(ApiVersion != null)
             {
                 ret.Add("apiVersion", "\"apiVersion\": " + "\"" + EscapeJson(ApiVersion) + "\"");
@@ -4507,7 +4628,6 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("abortOnError", "<abortOnError>" + AbortOnError.ToString().ToLower() + "</abortOnError>");
             if(ApiVersion != null)
             {
                 ret.Add("apiVersion", "<apiVersion>" + EscapeXml(ApiVersion) + "</apiVersion>");
@@ -5101,6 +5221,7 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("abortAllOnError", "\"abortAllOnError\": " + AbortAllOnError.ToString().ToLower());
+            ret.Add("abortOnError", "\"abortOnError\": " + AbortOnError.ToString().ToLower());
             if(Currency != null)
             {
                 ret.Add("currency", "\"currency\": " + "\"" + EscapeJson(Currency) + "\"");
@@ -5140,6 +5261,7 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("abortAllOnError", "<abortAllOnError>" + AbortAllOnError.ToString().ToLower() + "</abortAllOnError>");
+            ret.Add("abortOnError", "<abortOnError>" + AbortOnError.ToString().ToLower() + "</abortOnError>");
             if(Currency != null)
             {
                 ret.Add("currency", "<currency>" + EscapeXml(Currency) + "</currency>");
@@ -13126,7 +13248,7 @@ namespace WebAPI.Models.API
                     ret.Add("notification_url", "\"notification_url\": " + "\"" + EscapeJson(NotificationUrl) + "\"");
                 }
             }
-            if(VodTypes != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.1.2.0", currentVersion) && VodTypes != null)
             {
                 propertyValue = "[" + String.Join(", ", VodTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("vodTypes", "\"vodTypes\": " + propertyValue);
@@ -13189,7 +13311,7 @@ namespace WebAPI.Models.API
                 ret.Add("notification_url", "<notification_url>" + EscapeXml(NotificationUrl) + "</notification_url>");
                 }
             }
-            if(VodTypes != null)
+            if(!DeprecatedAttribute.IsDeprecated("5.1.2.0", currentVersion) && VodTypes != null)
             {
                 propertyValue = VodTypes.Count > 0 ? "<item>" + String.Join("</item><item>", VodTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("vodTypes", "<vodTypes>" + propertyValue + "</vodTypes>");

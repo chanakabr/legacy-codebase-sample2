@@ -35,5 +35,21 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("messages")]
         [XmlElement(ElementName = "messages")]
         public List<KalturaAccessControlMessage> Messages { get; set; }
+
+        /// <summary>
+        /// Playback captions
+        /// </summary>
+        [DataMember(Name = "playbackCaptions")]
+        [JsonProperty("playbackCaptions")]
+        [XmlElement(ElementName = "playbackCaptions")]
+        public List<KalturaCaptionPlaybackPluginData> PlaybackCaptions { get; set; }
+
+        /// <summary>
+        /// Plugins
+        /// </summary>
+        [DataMember(Name = "plugins")]
+        [JsonProperty("plugins")]
+        [XmlElement(ElementName = "plugins")]
+        public List<KalturaPlaybackPluginData> Plugins { get; set; }
     }
 }

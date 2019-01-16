@@ -52,6 +52,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version));
 
+            cfg.CreateMap<Image, KalturaMediaImage>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ContentId))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
+                .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.RatioName))
+                .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height.ToNullable()))
+                .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width.ToNullable()));
+
             #endregion
 
             #region FileMedia, KalturaMediaFile
@@ -577,8 +586,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.Metas)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.Tags)))
-                // goes to ConvertImageListToKalturaMediaImageList instead
-                .ForMember(dest => dest.Images, opt => opt.Ignore())
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid));
 
             //MediaAsset to KalturaMediaAsset
@@ -1401,9 +1409,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 foreach (Image image in images)
                 {
                     string ratioName = !string.IsNullOrEmpty(image.RatioName) ? image.RatioName :
-                        imageTypeIdToRatioNameMap != null && imageTypeIdToRatioNameMap.ContainsKey(image.ImageTypeId) ? 
+                        imageTypeIdToRatioNameMap != null && imageTypeIdToRatioNameMap.ContainsKey(image.ImageTypeId) ?
                             imageTypeIdToRatioNameMap[image.ImageTypeId] : string.Empty;
-                    KalturaMediaImage convertedImage = ConvertImageToKalturaImage(image, ratioName);
+
+                    image.RatioName = ratioName;
+                    KalturaMediaImage convertedImage = Mapper.Map<KalturaMediaImage>(image);
+                    
                     if (convertedImage != null)
                     {
                         result.Add(convertedImage);
@@ -1413,27 +1424,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
-
-        private static KalturaMediaImage ConvertImageToKalturaImage(Image image, string ratioName)
-        {
-            KalturaMediaImage result = null;
-            if (image != null)
-            {
-                result = new KalturaMediaImage()
-                {
-                    Id = image.ContentId,
-                    IsDefault = image.IsDefault,
-                    Url = image.Url,
-                    Version = image.Version,
-                    Ratio = ratioName,
-                    Width = image.Width.ToNullable(),
-                    Height = image.Height.ToNullable()
-                };
-            }
-
-            return result;
-        }
-
+        
         private static string ConvertAssetGroupByToGroupBy(KalturaAssetGroupBy groupBy)
         {
             if (groupBy == null)

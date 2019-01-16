@@ -19,5 +19,10 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "url")]
         [XmlElement(ElementName = "url")]
         public string Url { get; set; }
+
+        public override string GetUrl(int groupId)
+        {
+            return Url;
+        }
     }
 }

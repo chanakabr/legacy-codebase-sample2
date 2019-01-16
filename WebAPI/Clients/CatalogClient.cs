@@ -241,45 +241,11 @@ namespace WebAPI.Clients
 
         public KalturaAsset AddAsset(int groupId, KalturaAsset asset, long userId)
         {
-            KalturaAsset result = null;
-            GenericResponse<Asset> response = null;
-            Asset assetToAdd = null;
+            Func<Asset, GenericResponse<Asset>> addAssetFunc = (Asset assetToAdd) =>
+                AssetManager.AddAsset(groupId, assetToAdd, userId);
 
-            try
-            {
-                // in case asset is linear media
-                if ((asset is KalturaLiveAsset) || (asset is KalturaMediaAsset) || (asset is KalturaProgramAsset))
-                {
-                    assetToAdd = AutoMapper.Mapper.Map<Asset>(asset);
-                }
-                else
-                {
-                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
-                }
-
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Catalog.CatalogManagement.AssetManager.AddAsset(groupId, assetToAdd, userId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            result = Mapper.Map<KalturaAsset>(response.Object);
-            result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            KalturaAsset result =
+                ClientUtils.GetResponseFromWS<KalturaAsset, Asset>(asset, addAssetFunc);
 
             return result;
         }
@@ -307,7 +273,7 @@ namespace WebAPI.Clients
                     if (DoesGroupUsesTemplates(groupId))
                     {
                         eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                        response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
+                        response = AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
                     }
                     else
                     {
@@ -355,44 +321,11 @@ namespace WebAPI.Clients
 
         public KalturaAsset UpdateAsset(int groupId, long id, KalturaAsset asset, long userId)
         {
-            KalturaAsset result = null;
-            GenericResponse<Asset> response = null;
-            
-            try
-            {
-                Asset assetToUpdate = null;
-                if ((asset is KalturaLiveAsset) || (asset is KalturaMediaAsset) || (asset is KalturaProgramAsset))
-                {
-                    assetToUpdate = AutoMapper.Mapper.Map<Asset>(asset);
-                }
-                else
-                {
-                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
-                }
+            Func<Asset, GenericResponse<Asset>> updateAssetFunc = (Asset assetToUpdate) =>
+                Core.Catalog.CatalogManagement.AssetManager.UpdateAsset(groupId, id, assetToUpdate, userId);
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Catalog.CatalogManagement.AssetManager.UpdateAsset(groupId, id, assetToUpdate, userId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            result = Mapper.Map<KalturaAsset>(response.Object);
-            result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            KalturaAsset result =
+                ClientUtils.GetResponseFromWS<KalturaAsset, Asset>(asset, updateAssetFunc);
 
             return result;
         }

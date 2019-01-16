@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -189,6 +190,11 @@ namespace WebAPI.Models.Catalog
 
         internal virtual void ValidateForInsert()
         {
+            if (!(this is KalturaLiveAsset) && !(this is KalturaMediaAsset) && !(this is KalturaProgramAsset))
+            {
+                throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+            }
+
             if (this.Name == null || this.Name.Values == null || this.Name.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
@@ -221,6 +227,11 @@ namespace WebAPI.Models.Catalog
 
         internal virtual void ValidateForUpdate()
         {
+            if (!(this is KalturaLiveAsset) && !(this is KalturaMediaAsset) && !(this is KalturaProgramAsset))
+            {
+                throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+            }
+
             if (this.Name != null)
             {
                 if ((this.Name.Values == null || this.Name.Values.Count == 0))

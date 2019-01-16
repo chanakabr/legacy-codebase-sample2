@@ -301,6 +301,9 @@ namespace WebAPI.Reflection
                 case "KalturaBulkListResponse":
                     return new KalturaBulkListResponse(parameters);
                     
+                case "KalturaBumpersPlaybackPluginData":
+                    return new KalturaBumpersPlaybackPluginData(parameters);
+                    
                 case "KalturaBundleFilter":
                     return new KalturaBundleFilter(parameters);
                     
@@ -318,6 +321,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBuzzScore":
                     return new KalturaBuzzScore(parameters);
+                    
+                case "KalturaCaptionPlaybackPluginData":
+                    return new KalturaCaptionPlaybackPluginData(parameters);
                     
                 case "KalturaCatalogWithHolder":
                     return new KalturaCatalogWithHolder(parameters);
@@ -431,7 +437,7 @@ namespace WebAPI.Reflection
                     return new KalturaContentActionCondition(parameters);
                     
                 case "KalturaContentResource":
-                    return new KalturaContentResource(parameters);
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaContentScoreCondition":
                     return new KalturaContentScoreCondition(parameters);
@@ -1077,6 +1083,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPlaybackContextOptions":
                     return new KalturaPlaybackContextOptions(parameters);
+                    
+                case "KalturaPlaybackPluginData":
+                    return new KalturaPlaybackPluginData(parameters);
                     
                 case "KalturaPlaybackProfile":
                     return new KalturaPlaybackProfile(parameters);
@@ -2272,6 +2281,48 @@ namespace WebAPI.Models.ConditionalAccess
     {
         public KalturaBlockPlaybackAction(Dictionary<string, object> parameters = null) : base(parameters)
         {
+        }
+    }
+    public partial class KalturaBumpersPlaybackPluginData
+    {
+        public KalturaBumpersPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("url") && parameters["url"] != null)
+                {
+                    URL = (String) Convert.ChangeType(parameters["url"], typeof(String));
+                }
+                if (parameters.ContainsKey("streamertype") && parameters["streamertype"] != null)
+                {
+                    StreamerType = (String) Convert.ChangeType(parameters["streamertype"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaCaptionPlaybackPluginData
+    {
+        public KalturaCaptionPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("url") && parameters["url"] != null)
+                {
+                    URL = (String) Convert.ChangeType(parameters["url"], typeof(String));
+                }
+                if (parameters.ContainsKey("language") && parameters["language"] != null)
+                {
+                    Language = (String) Convert.ChangeType(parameters["language"], typeof(String));
+                }
+                if (parameters.ContainsKey("label") && parameters["label"] != null)
+                {
+                    Label = (String) Convert.ChangeType(parameters["label"], typeof(String));
+                }
+                if (parameters.ContainsKey("format") && parameters["format"] != null)
+                {
+                    Format = (String) Convert.ChangeType(parameters["format"], typeof(String));
+                }
+            }
         }
     }
     public partial class KalturaCDVRAdapterProfile
@@ -3651,6 +3702,28 @@ namespace WebAPI.Models.ConditionalAccess
                         Messages = buildList(typeof(KalturaAccessControlMessage), parameters["messages"] as object[]);
                     }
                 }
+                if (parameters.ContainsKey("playbackCaptions") && parameters["playbackCaptions"] != null)
+                {
+                    if (parameters["playbackCaptions"] is JArray)
+                    {
+                        PlaybackCaptions = buildList<KalturaCaptionPlaybackPluginData>(typeof(KalturaCaptionPlaybackPluginData), (JArray) parameters["playbackCaptions"]);
+                    }
+                    else if (parameters["playbackCaptions"] is IList)
+                    {
+                        PlaybackCaptions = buildList(typeof(KalturaCaptionPlaybackPluginData), parameters["playbackCaptions"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("plugins") && parameters["plugins"] != null)
+                {
+                    if (parameters["plugins"] is JArray)
+                    {
+                        Plugins = buildList<KalturaPlaybackPluginData>(typeof(KalturaPlaybackPluginData), (JArray) parameters["plugins"]);
+                    }
+                    else if (parameters["plugins"] is IList)
+                    {
+                        Plugins = buildList(typeof(KalturaPlaybackPluginData), parameters["plugins"] as object[]);
+                    }
+                }
             }
         }
     }
@@ -3698,6 +3771,12 @@ namespace WebAPI.Models.ConditionalAccess
                     UrlType = (KalturaUrlType) Enum.Parse(typeof(KalturaUrlType), parameters["urlType"].ToString(), true);
                 }
             }
+        }
+    }
+    public partial class KalturaPlaybackPluginData
+    {
+        public KalturaPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaPlaybackSource
@@ -6064,10 +6143,6 @@ namespace WebAPI.Models.General
                 {
                     ApiVersion = (String) Convert.ChangeType(parameters["apiVersion"], typeof(String));
                 }
-                if (parameters.ContainsKey("abortOnError") && parameters["abortOnError"] != null)
-                {
-                    AbortOnError = (Boolean) Convert.ChangeType(parameters["abortOnError"], typeof(Boolean));
-                }
             }
         }
     }
@@ -6425,6 +6500,10 @@ namespace WebAPI.Models.General
                     {
                         ResponseProfile = (KalturaBaseResponseProfile) Deserializer.deserialize(typeof(KalturaBaseResponseProfile), (Dictionary<string, object>) parameters["responseProfile"]);
                     }
+                }
+                if (parameters.ContainsKey("abortOnError") && parameters["abortOnError"] != null)
+                {
+                    AbortOnError = (Boolean) Convert.ChangeType(parameters["abortOnError"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("abortAllOnError") && parameters["abortAllOnError"] != null)
                 {
@@ -11025,7 +11104,7 @@ namespace WebAPI.Models.Catalog
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = 255,
-            MinLength = 1,
+            MinLength = 0,
         };
         private static RuntimeSchemePropertyAttribute CdvrEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {

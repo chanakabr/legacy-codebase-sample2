@@ -298,6 +298,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLogMonitor", "..\tvmcore\K
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCMClient", "..\Core\TCMClient\TCMClient.csproj", "{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchBaseExtensions", "..\tvmcore\CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -706,6 +708,14 @@ Global
 		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Local|Any CPU.Build.0 = Release|Any CPU
 		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Local|Any CPU.Build.0 = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5591A02-7C44-476F-B447-A63F39B2D731}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -766,9 +776,10 @@ Global
 		{355BB1C1-8C4D-4B37-AB5B-7F1EF53EB6B6} = {2E601137-CDC9-425D-8ABF-4F26D02C4BBE}
 		{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 		{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472} = {3525F102-000F-42CC-A5D7-45A817294093}
+		{F5591A02-7C44-476F-B447-A63F39B2D731} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal

@@ -913,6 +913,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBumpersPlaybackPluginData":
+                    switch(property.Name)
+                    {
+                        case "StreamerType":
+                            return "streamertype";
+                        case "URL":
+                            return "url";
+                    }
+                    break;
+                    
                 case "KalturaBundleFilter":
                     switch(property.Name)
                     {
@@ -978,6 +988,20 @@ namespace WebAPI.Reflection
                             return "normalizedAvgScore";
                         case "UpdateDate":
                             return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaCaptionPlaybackPluginData":
+                    switch(property.Name)
+                    {
+                        case "Format":
+                            return "format";
+                        case "Label":
+                            return "label";
+                        case "Language":
+                            return "language";
+                        case "URL":
+                            return "url";
                     }
                     break;
                     
@@ -1172,8 +1196,6 @@ namespace WebAPI.Reflection
                 case "KalturaClientConfiguration":
                     switch(property.Name)
                     {
-                        case "AbortOnError":
-                            return "abortOnError";
                         case "ApiVersion":
                             return "apiVersion";
                         case "ClientTag":
@@ -3924,6 +3946,10 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Messages":
                             return "messages";
+                        case "PlaybackCaptions":
+                            return "playbackCaptions";
+                        case "Plugins":
+                            return "plugins";
                         case "Sources":
                             return "sources";
                     }
@@ -4724,6 +4750,8 @@ namespace WebAPI.Reflection
                     {
                         case "AbortAllOnError":
                             return "abortAllOnError";
+                        case "AbortOnError":
+                            return "abortOnError";
                         case "Currency":
                             return "currency";
                         case "KS":
