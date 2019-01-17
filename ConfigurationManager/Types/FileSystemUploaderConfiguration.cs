@@ -10,6 +10,7 @@ namespace ConfigurationManager.Types
     {
         public StringConfigurationValue DestPath;
         public StringConfigurationValue PublicUrl;
+        public BooleanConfigurationValue ShouldDeleteSourceFile;
 
         public FileSystemUploaderConfiguration(string key) : base(key)
         {
@@ -22,6 +23,11 @@ namespace ConfigurationManager.Types
             {
                 DefaultValue = string.Empty,
                 OriginalKey = "FileSystemUploader.PublicUrl"
+            };
+            ShouldDeleteSourceFile = new BooleanConfigurationValue("shouldDeleteSourceFile", this)
+            {
+                DefaultValue = false,
+                OriginalKey = "FileSystemUploader.ShouldDeleteSourceFile"
             };
         }
     }
