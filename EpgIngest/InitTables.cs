@@ -245,6 +245,12 @@ namespace EpgIngest
             {
                 foreach (EpgPicture epgPicture in epg.pictures)
                 {
+
+                    if (epgPicture.IsProgramImage)
+                    {
+                        continue;
+                    }
+
                     DataRow row = dtEpgPictures.NewRow();
                     row["channel_id"] = epg.ChannelID;
                     row["epg_identifier"] = epg.EpgIdentifier;

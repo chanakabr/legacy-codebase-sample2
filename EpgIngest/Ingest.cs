@@ -761,6 +761,30 @@ namespace EpgIngest
                                 // comper object 
                                 foreach (KeyValuePair<string, EpgCB> item in epgDic[cbEpg.EpgIdentifier])
                                 {
+                                    if(cbEpg.pictures != null) // item.Key == m_Channels.mainlang.ToLower() &
+                                    {
+                                        foreach (var pic in cbEpg.pictures)
+                                        {
+                                            if (pic.IsProgramImage)
+                                            {
+                                                if (item.Value.pictures == null )
+                                                {
+                                                    item.Value.pictures = new List<EpgPicture>();
+                                                }
+
+                                                var itemPic = item.Value.pictures.FirstOrDefault(x => x.Ratio == pic.Ratio);
+                                                if (itemPic != null)
+                                                {
+                                                    itemPic = pic;
+                                                }
+                                                else
+                                                {
+                                                    item.Value.pictures.Add(pic);
+                                                }
+                                            }
+                                        }                                        
+                                    }
+
                                     bool bEquals = cbEpg.Equals(item.Value, fieldEntityMapping);
                                     if (bEquals)
                                     {
