@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CouchbaseManager")]
-[assembly: AssemblyDescription("2016-03-15 07:59:33 | Hostname:IL-SUNNYS-RND | Published by:Sunny Simantov")]
+[assembly: AssemblyDescription("2019-01-16 16:11:25 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CouchbaseManager")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright �  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -29,5 +29,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("3.4.118.*")]
-[assembly: AssemblyInformationalVersion("3.4-118-g5c1f9c4-dirty")]
+[assembly: AssemblyVersion("5.1.1.*")]
+[assembly: AssemblyInformationalVersion("5.1-1-41-g909e1569-dirty")]

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ServiceExtensions")]
-[assembly: AssemblyDescription("2016-07-10 15:23:24 | Hostname:IL-AMISHAIG-RND | Published by:Amishai Guilburd")]
+[assembly: AssemblyDescription("2019-01-16 16:11:33 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("ServiceExtensions")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2013")]
+[assembly: AssemblyCopyright("Copyright � Microsoft 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,7 +31,7 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("4.0.307.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
-//[assembly: AssemblyInformationalVersion("1.0.0.0")]
+// [assembly: AssemblyVersion("5.1.1.*")]
+[assembly: AssemblyVersion("5.1.1.*")]
+[assembly: AssemblyFileVersion("5.1-1-41-g909e1569-dirty")]
+//[assembly: AssemblyInformationalVersion("5.1-1-41-g909e1569-dirty")]
