@@ -9,6 +9,8 @@ namespace ApiObjects.Notification
     {
         public NotificationTag notificationTag { get; set; }
 
+        public Dictionary<long, long> notificationParameterToValueMap { get; set; }
+
         public FollowUpTagNotification()
             : base()
         {
@@ -18,6 +20,7 @@ namespace ApiObjects.Notification
             : base(id, messageType, triggerType, groupID, messageText, smsMessageText, pullMessageText, title, isActive, status, isBroadCast, createdDate, actions, sKey)
         {
             notificationTag = oNotificationTag;
+            notificationParameterToValueMap = new Dictionary<long, long>();
         }
 
 
@@ -25,6 +28,7 @@ namespace ApiObjects.Notification
             : base((Notification)followUpNotification)
         {
             notificationTag = followUpNotification.notificationTag;
+            notificationParameterToValueMap = new Dictionary<long, long>();
         }
 
     }
