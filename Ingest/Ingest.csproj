@@ -47,6 +47,9 @@
     <Reference Include="Common.Logging.Core, Version=3.3.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\packages\Common.Logging.Core.3.3.1\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
+    <Reference Include="CookComputing.XmlRpcV2, Version=2.5.0.0, Culture=neutral, PublicKeyToken=a7d6e17aa302004d, processorArchitecture=MSIL">
+      <HintPath>..\packages\CookComputing.XmlRPCv2.2.5.0\lib\CookComputing.XmlRpcV2.dll</HintPath>
+    </Reference>
     <Reference Include="Couchbase.NetClient, Version=2.2.6.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
       <HintPath>..\packages\CouchbaseNetClient.2.2.6\lib\net45\Couchbase.NetClient.dll</HintPath>
     </Reference>
@@ -108,11 +111,7 @@
     </Content>
     <Content Include="Service References\Catalog\Service.wsdl" />
     <Content Include="packages.config" />
-    <Content Include="Dockerfile">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="Properties\PublishProfiles\ingest.pubxml" />
-    <Content Include="README.md" />
     <None Include="Service References\Catalog\Service.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -270,6 +269,10 @@
     <ProjectReference Include="..\..\tvmcore\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ServiceExtensions\ServiceExtensions.csproj">
+      <Project>{2e48dc40-a9ab-485d-a847-8e3662c69696}</Project>
+      <Name>ServiceExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
