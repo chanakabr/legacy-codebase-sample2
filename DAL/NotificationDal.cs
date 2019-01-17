@@ -306,6 +306,34 @@ namespace DAL
             return null;
         }
 
+        public static DataTable GetNotifictaionsByGroupId(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetNotifictaionsByGroupId");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+
+            return sp.Execute();
+        }
+
+        public static DataTable GetNotifictaionsByTags_new(List<long> notificationIds, List<int> tagValueIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetNotifictaionsByTags_new");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddIDListParameter("@NotificationIds", notificationIds, "id");
+            sp.AddIDListParameter("@TagValuesIDs", tagValueIds, "id");
+
+            return sp.Execute();
+        }
+
+        public static DataTable GetUserNotificationByNotifiactionParameterId(List<long> notificationParameterIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUserNotificationByNotifiactionParameterId");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddIDListParameter("@NotificationParameterIds", notificationParameterIds, "id");
+
+            return sp.Execute();
+        }
+
         public static DataTable GetTagsIDsByName(int groupID, Dictionary<string, List<string>> tags)
         {
             ODBCWrapper.StoredProcedure spGetTagsNameByValues = new ODBCWrapper.StoredProcedure("GetTagsIDsByName");
