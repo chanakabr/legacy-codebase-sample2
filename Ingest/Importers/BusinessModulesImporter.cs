@@ -40,9 +40,24 @@ namespace Ingest.Importers
         private static DateTime DEFAULT_END_DATE = DateTime.MaxValue;
 
         private static object lockObject = new object();
-        private static string reportLogPath = TCMClient.Settings.Instance.GetValue<string>("business_modules_report_log_path"); 
+        private static string reportLogPath = GetReportLogPath();
 
         private delegate BusinessModuleResponse CallPricingIngest<T>(int groupId, T module) where T : IngestModule;
+
+        public static string GetReportLogPath()
+        {
+            string path = System.Environment.GetEnvironmentVariable("INGEST_LOG_DIR");
+            if (path != null)
+            {
+                path = System.Environment.ExpandEnvironmentVariables(path) + "\\reports";
+            }
+            else
+            {
+                path = TCMClient.Settings.Instance.GetValue<string>("business_modules_report_log_path");
+            }
+
+            return path;
+        }
 
         public static BusinessModuleIngestResponse Ingest(int groupId, string xml)
         {
