@@ -1086,12 +1086,20 @@ namespace Core.Catalog.CatalogManagement
 
                     if (epgIds != null && epgIds.Count > 0)
                     {
-                        result.AddRange(EpgAssetManager.GetEpgAssetsFromCache(epgIds, groupId, new List<string>() { "*" }));
+                        var epgAssetsFromCache = EpgAssetManager.GetEpgAssetsFromCache(epgIds, groupId, new List<string>() { "*" });
+                        if (epgAssetsFromCache != null && epgAssetsFromCache.Count > 0)
+                        {
+                            result.AddRange(epgAssetsFromCache);
+                        }
                     }
 
                     if (npvrIds != null && npvrIds.Count > 0)
                     {
-                        result.AddRange(GetNpvrAssetsFromCache(groupId, npvrIds));
+                        var npvrAssetsFromCache = GetNpvrAssetsFromCache(groupId, npvrIds);
+                        if (npvrAssetsFromCache != null)
+                        {
+                            result.AddRange(npvrAssetsFromCache);
+                        }
                     }
                 }
             }
