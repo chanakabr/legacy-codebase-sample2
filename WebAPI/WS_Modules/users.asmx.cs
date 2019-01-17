@@ -436,7 +436,7 @@ namespace WS_Users
 
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(ApiObjects.Response.Status))]
-        public virtual ApiObjects.Response.Status RemoveUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, int[] nMediaIDs)
+        public virtual ApiObjects.Response.Status RemoveUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, long[] nMediaIDs)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             // add siteguid to logs/monitor

@@ -3744,7 +3744,7 @@
             <param name="extra_data">Extra data</param>        
             <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.FavoriteController.Delete(System.Int32)">
+        <member name="M:WebAPI.Controllers.FavoriteController.Delete(System.Int64)">
             <summary>
             Remove media from user's favorite list
             </summary>        
