@@ -135,19 +135,21 @@ namespace WebAPI.Managers
         protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected abstract void Initialize();
-        protected abstract string Upload(FileInfo fileInfo, string id, bool shouldDeleteSource);
+        protected abstract string Upload(FileInfo fileInfo, string id);
+
+        public bool ShouldDeleteSourceFile { get; protected set; }
 
         protected BaseUploader()
         {
             Initialize();
         }
 
-        public string UploadFile(FileInfo fileInfo, string id, bool shouldDeleteSource = true)
+        public string UploadFile(FileInfo fileInfo, string id)
         {
             if (!fileInfo.Exists)
                 throw new InternalServerErrorException();
 
-            return Upload(fileInfo, id, shouldDeleteSource);
+            return Upload(fileInfo, id);
         }
     }
 
@@ -182,9 +184,10 @@ namespace WebAPI.Managers
             BucketName = ApplicationConfiguration.S3FileUploader.BucketName.Value;
             NumberOfRetries = ApplicationConfiguration.S3FileUploader.NumberOfRetries.IntValue;
             Path = ApplicationConfiguration.S3FileUploader.Path.Value;
+            ShouldDeleteSourceFile = ApplicationConfiguration.S3FileUploader.ShouldDeleteSourceFile.Value;
         }
 
-        protected override string Upload(FileInfo fileInfo, string id, bool shouldDeleteSource)
+        protected override string Upload(FileInfo fileInfo, string id)
         {
             for (int i = 0; i < NumberOfRetries; i++)
             {
@@ -204,7 +207,7 @@ namespace WebAPI.Managers
                         };
                         fileTransferUtility.Upload(fileTransferUtilityRequest);
 
-                        if (shouldDeleteSource)
+                        if (ShouldDeleteSourceFile)
                             File.Delete(fileInfo.FullName);
 
                         return Path + fileName;
@@ -241,9 +244,10 @@ namespace WebAPI.Managers
         {
             Destination = ApplicationConfiguration.FileSystemUploader.DestPath.Value;
             PublicUrl = ApplicationConfiguration.FileSystemUploader.PublicUrl.Value;
+            ShouldDeleteSourceFile = ApplicationConfiguration.FileSystemUploader.ShouldDeleteSourceFile.Value;
         }
 
-        protected override string Upload(FileInfo fileInfo, string id, bool shouldDeleteSource)
+        protected override string Upload(FileInfo fileInfo, string id)
         {
             var subDir = GetSubDir(id);
             var destDir = Path.Combine(Destination, subDir);
@@ -257,7 +261,7 @@ namespace WebAPI.Managers
 
             try
             {
-                if (shouldDeleteSource)
+                if (ShouldDeleteSourceFile)
                     File.Move(fileInfo.FullName, destPath);
                 else
                     File.Copy(fileInfo.FullName, destPath);
