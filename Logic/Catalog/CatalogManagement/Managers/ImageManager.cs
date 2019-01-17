@@ -1141,6 +1141,8 @@ namespace Core.Catalog.CatalogManagement
                     ratio = GetRatioById(groupId, imageType.RatioId.Value);
                     if (ratio != null && ratio.PrecisionPrecentage > 0)
                     {
+                        image.RatioName = ratio.Name;
+
                         try
                         {
                             using (WebClient webClient = new WebClient())
@@ -1184,8 +1186,11 @@ namespace Core.Catalog.CatalogManagement
                     log.DebugFormat("POST to image server successfully sent. imageId = {0}, contentId = {1}", image.ReferenceId, image.ContentId);
                     TVinciShared.ImageUtils.UpdateImageState(groupId, image.ReferenceId, image.Version, eMediaType.VOD, eTableStatus.OK, (int)userId, image.ContentId);
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    
-                    EpgAssetManager.UpdateEpgAssetPictures(image, ratio != null? ratio.Name: string.Empty, groupId, id, userId);                   
+
+                    if (image.ImageObjectType == eAssetImageType.Program)
+                    {
+                        EpgAssetManager.UpdateProgramAssetPictures(image);
+                    }
 
                     // invalidate asset with this image
                     InvalidateAsset(groupId, image.ImageObjectId, image.ImageObjectType);
