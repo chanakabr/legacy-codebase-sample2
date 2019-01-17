@@ -36,7 +36,7 @@ RUN nuget restore Core/Core.sln
 
 RUN msbuild /p:Configuration=Release tvpapi_rest/TVPProAPIs.sln
 RUN tvpapi_rest\Generator\bin\Release\Generator.exe
-ADD mv KalturaClient.xml tvpapi_rest\WebAPI\clientlibs\KalturaClient.xml
+RUN mv KalturaClient.xml tvpapi_rest\WebAPI\clientlibs\KalturaClient.xml
 RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/WebAPI /p:Profile=FolderProfile tvpapi_rest/WebAPI/WebAPI.csproj
 
 
