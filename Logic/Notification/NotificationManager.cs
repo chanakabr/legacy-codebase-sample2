@@ -156,23 +156,19 @@ namespace Core.Notification
         /// <param name="nMediaID"></param>
         /// <returns></returns>
         /// 
-        public List<FollowUpTagNotification> GetNotifications(int nGroupID, NotificationTriggerType notificationTriggerType, int nMediaID)
+        public List<FollowUpTagNotification> GetNotifications(int groupId, NotificationTriggerType notificationTriggerType, int mediaId)
         {
+            List<FollowUpTagNotification> notifications = new List<FollowUpTagNotification>();
+
             try
             {
-                DataTable dtNotification = null;
-                List<FollowUpTagNotification> lNotifications = new List<FollowUpTagNotification>();
-                Dictionary<long, FollowUpTagNotification> dNotifications = new Dictionary<long, FollowUpTagNotification>();
-                FollowUpTagNotification objNotification = null;
-
-                log.Debug("GetNotifications - " + string.Format("Notification Follow Up, groupID:{0} , mediaID:{1}", nGroupID, nMediaID));
+                log.Debug("GetNotifications - " + string.Format("Notification Follow Up, groupID:{0} , mediaID:{1}", groupId, mediaId));
 
                 # region Get All Tags+Tag Values Related To media
 
-                DataTable dtMediaTags = DAL.NotificationDal.GetTagsNotificationByMedia(nMediaID, 1);    // get tags+tag values from TVinciDB (that their updatedate >= yesterday)
+                DataTable dtMediaTags = DAL.NotificationDal.GetTagsNotificationByMedia(mediaId, 1);    // get tags+tag values from TVinciDB (that their updatedate >= yesterday)
                 Dictionary<int, List<int>> tagMediaDict = null;
-                Dictionary<string, List<TagIDValue>> tempMediaTagsDict = null;//get the ID+ text values
-                Dictionary<string, List<TagIDValue>> tagsDict = null;//get the ID+ text values
+                Dictionary<string, List<TagIDValue>> tempMediaTagsDict = null;//get the ID+ text values                
                 TagIDValue tagsDictValue = null;
 
                 if (dtMediaTags != null && dtMediaTags.DefaultView.Count > 0) //Run of all Media Tags
@@ -210,134 +206,87 @@ namespace Core.Notification
                     }
                 }
 
-                if (tagMediaDict == null) // there was no notification to add
-                    return null;
+                // there was no notification to add
+                if (tagMediaDict == null || tagMediaDict.Count == 0)
+                {
+                    return notifications;
+                }
                 #endregion
 
                 #region Build List of FollowUpByTag notifications
 
-                dtNotification = NotificationDal.GetNotifictaionsByTags(nGroupID, (int)notificationTriggerType, tagMediaDict); // get all notifications that related to one tag (at least) from the dictionary above
-
-                var oNotificationIds = from row in dtNotification.AsEnumerable()
-                                       select row.Field<long>("notification_id");
-                var oListNotificationIds = oNotificationIds.ToList();
-                List<long> lNotificationIds = new List<long>();
-                foreach (var vNId in oListNotificationIds)
+                Dictionary<long, FollowUpTagNotification> notificationsMap = new Dictionary<long, FollowUpTagNotification>();
+                DataTable notificationDt = NotificationDal.GetNotifictaionsByGroupId(groupId);
+                if (notificationDt != null && notificationDt.Rows != null && notificationDt.Rows.Count > 0)
                 {
-                    long nId = ODBCWrapper.Utils.GetIntSafeVal(vNId);
-                    if (!lNotificationIds.Contains(nId))
-                        lNotificationIds.Add(nId);
-                }
-
-                if (dtNotification != null && dtNotification.DefaultView.Count > 0) //Run of all notifications (that include tag/s from media)
-                {
-                    for (int i = 0; i < dtNotification.DefaultView.Count; i++)
+                    foreach (DataRow dr in notificationDt.Rows)
                     {
-                        long notification_id = ODBCWrapper.Utils.GetLongSafeVal(dtNotification.Rows[i]["notification_id"]);
-                        if (!dNotifications.Keys.Contains<long>(notification_id))
+                        long notificationId = ODBCWrapper.Utils.GetLongSafeVal(dr, "notification_id");
+                        if (!notificationsMap.Keys.Contains(notificationId))
                         {
-                            int notification_type = ODBCWrapper.Utils.GetIntSafeVal(dtNotification.Rows[i]["notification_type"]);
-                            string message_text = ODBCWrapper.Utils.GetSafeStr(dtNotification.Rows[i]["message_text"]);
-                            string sms_message_text = ODBCWrapper.Utils.GetSafeStr(dtNotification.Rows[i]["sms_message_text"]);
-                            string pull_message_text = ODBCWrapper.Utils.GetSafeStr(dtNotification.Rows[i]["pull_message_text"]);
-                            string title = ODBCWrapper.Utils.GetSafeStr(dtNotification.Rows[i]["title"]);
-                            int status = ODBCWrapper.Utils.GetIntSafeVal(dtNotification.Rows[i]["status"]);
-                            int is_broadcast = ODBCWrapper.Utils.GetIntSafeVal(dtNotification.Rows[i]["is_broadcast"]);
+                            int notification_type = ODBCWrapper.Utils.GetIntSafeVal(dr, "notification_type");
+                            string message_text = ODBCWrapper.Utils.GetSafeStr(dr, "message_text");
+                            string sms_message_text = ODBCWrapper.Utils.GetSafeStr(dr, "sms_message_text");
+                            string pull_message_text = ODBCWrapper.Utils.GetSafeStr(dr, "pull_message_text");
+                            string title = ODBCWrapper.Utils.GetSafeStr(dr, "title");
+                            int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
+                            int is_broadcast = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_broadcast");
                             bool bIs_broadcast = false;
                             if (is_broadcast != 0)
                                 bIs_broadcast = true;
 
-                            DateTime create_date = ODBCWrapper.Utils.GetDateSafeVal(dtNotification.Rows[i]["create_date"]);
-                            string sKey = ODBCWrapper.Utils.GetSafeStr(dtNotification.Rows[i]["sKey"]); // == tag_type_id
-                            int nKey = ODBCWrapper.Utils.GetIntSafeVal(dtNotification.Rows[i]["sKey"]); // == tag_type_id
-                            long group_id = ODBCWrapper.Utils.GetLongSafeVal(dtNotification.Rows[i]["group_id"]);
-
-                            List<int> lValues = null;
-                            bool addAllMediaValues = false;
-                            //If column is null - take the tag values from the MEDIA !! 
-                            //If column is NOT null - take value only if exsits both media and notification 
-                            //if (ODBCWrapper.Utils.GetIntSafeVal(dtNotification.Rows[i]["value"]) != 0)
-                            // {
-                            DataRow[] drValues = dtNotification.Select("notification_id = " + notification_id.ToString());
-                            lValues = new List<int>();
-                            tagsDict = new Dictionary<string, List<TagIDValue>>();
-                            if (drValues != null && drValues.Count() > 0)
+                            DateTime create_date = ODBCWrapper.Utils.GetDateSafeVal(dr, "create_date");
+                            string sKey = ODBCWrapper.Utils.GetSafeStr(dr, "sKey"); // == tag_type_id
+                            Dictionary<string, List<TagIDValue>> tagValueDict = new Dictionary<string, List<TagIDValue>>();
+                            List<int> tagValues = new List<int>();
+                            if (tempMediaTagsDict != null && tempMediaTagsDict.ContainsKey(sKey))
                             {
-                                foreach (DataRow item in drValues) // all tag values per tag
+                                tagValueDict.Add(sKey, new List<TagIDValue>(tempMediaTagsDict[sKey]));
+                                tagValues = new List<int>(tempMediaTagsDict[sKey].Select(x => x.tagValueId));
+                            }
+
+                            long group_id = ODBCWrapper.Utils.GetLongSafeVal(dr, "group_id");
+                            NotificationTag oNotificationTag = new NotificationTag(mediaId, tagValues, tagValueDict, notificationId);
+                            FollowUpTagNotification objNotification = new FollowUpTagNotification(notificationId, (NotificationMessageType)notification_type, (int)NotificationTriggerType.FollowUpByTag,
+                                                                      group_id, message_text, sms_message_text, pull_message_text, title, true, status, bIs_broadcast,
+                                                                      create_date, null, sKey, oNotificationTag);
+                            notificationsMap.Add(notificationId, objNotification);
+                        }
+                    }
+                }
+
+                if (notificationsMap.Keys.Count > 0)
+                {
+                    DataTable dt = NotificationDal.GetNotifictaionsByTags_new(notificationsMap.Keys.ToList(), tagMediaDict.Values.SelectMany(x => x).ToList());
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            long notificationId = ODBCWrapper.Utils.GetLongSafeVal(dr, "notification_id");
+                            long parameterId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
+                            long parameterValue = ODBCWrapper.Utils.GetLongSafeVal(dr, "value");
+                            if (notificationsMap.ContainsKey(notificationId))
+                            {
+                                if (!notificationsMap[notificationId].notificationParameterToValueMap.ContainsKey(parameterId))
                                 {
-                                    //Check if tagType+TagValue equel to media tag values
-                                    int nTagValue = ODBCWrapper.Utils.GetIntSafeVal(item["value"]);
-                                    if (nTagValue == 0)
-                                    {
-                                        // add at the end of loop - all values of media !!!!
-                                        addAllMediaValues = true;
-                                        tagsDict = GetAllTagsFromMedia(tagMediaDict, tempMediaTagsDict, tagsDict, sKey, nKey, lValues);
-                                    }
-                                    if (!addAllMediaValues)
-                                    {
-                                        if (tagMediaDict.ContainsKey(nKey) && tagMediaDict[nKey].Contains(nTagValue)) //exect match 
-                                        {
-                                            if (!lValues.Contains(nTagValue))
-                                                lValues.Add(nTagValue);
-                                        }
-
-                                        List<TagIDValue> lDicValue = tempMediaTagsDict[sKey]; // get all values by key forom media tags Dictionary
-                                        List<TagIDValue> lTagIDValue = new List<TagIDValue>();
-                                        foreach (TagIDValue tagIDValue in lDicValue)
-                                        {
-                                            if (tagIDValue.tagValueId == ODBCWrapper.Utils.GetIntSafeVal(item["value"])) // exect match 
-                                            {
-                                                TagIDValue tagIDValueFind = lTagIDValue.Find(delegate(TagIDValue t)
-                                                {
-                                                    return (t.tagValueId == tagIDValue.tagValueId && t.tagTypeName == tagIDValue.tagTypeName && t.tagValueName == tagIDValue.tagValueName);
-                                                }
-                                                      );
-                                                if (tagIDValueFind == null)
-                                                    lTagIDValue.Add(tagIDValue);
-                                            }
-                                        }
-
-                                        if (tagsDict == null)
-                                            tagsDict = new Dictionary<string, List<TagIDValue>>();
-
-                                        if (!tagsDict.ContainsKey(sKey))
-                                        {
-                                            tagsDict.Add(sKey, lTagIDValue);
-                                        }
-                                    }
+                                    notificationsMap[notificationId].notificationParameterToValueMap.Add(parameterId, parameterValue);
                                 }
-                            }
-                            if (drValues == null || drValues.Count() == 0) // take the tag values from the MEDIA !! 
-                            {
-                                tagsDict = GetAllTagsFromMedia(tagMediaDict, tempMediaTagsDict, tagsDict, sKey, nKey, lValues);
-                            }
-                            // }
-                            //Add notification to list only if necessary
-                            if (lValues != null && lValues.Count > 0 && tagsDict != null && tagsDict.Count > 0)
-                            {
-                                NotificationTag oNotificationTag = new NotificationTag(nMediaID, lValues, tagsDict);
-                                oNotificationTag.notificationsID = lNotificationIds;
-                                objNotification = new FollowUpTagNotification(notification_id, (NotificationMessageType)notification_type, (int)NotificationTriggerType.FollowUpByTag, group_id, message_text, sms_message_text, pull_message_text, title, true, status, bIs_broadcast, create_date, null, sKey, oNotificationTag);
-                                dNotifications.Add(notification_id, objNotification);
-                                log.Debug("GetNotifications - " + string.Format("Notification Insert Media to tempTable , groupID:{0} , mediaID:{1}", nGroupID, nMediaID));
                             }
                         }
                     }
-                    lNotifications = dNotifications.Values.ToList<FollowUpTagNotification>();
-                }
-                else
-                {
-                    lNotifications = null;
-                }
-                #endregion
 
-                return lNotifications;
+                    notifications = notificationsMap.Values.ToList();
+                }
+
+                #endregion                
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed create List<FollowUpTagNotification>  at GetNotifications , Exception ={0}, groupID={1}, triggerType={2}, mediaID={3}", ex.Message, nGroupID, notificationTriggerType, nMediaID));
+                log.Error(string.Format("Failed create List<FollowUpTagNotification>  at GetNotifications , Exception ={0}, groupID={1}, triggerType={2}, mediaID={3}", ex.Message, groupId, notificationTriggerType, mediaId));
                 return null;
             }
+
+            return notifications;
         }
 
         private static Dictionary<string, List<TagIDValue>> GetAllTagsFromMedia(Dictionary<int, List<int>> tagMediaDict, Dictionary<string, List<TagIDValue>> tempMediaTagsDict, Dictionary<string, List<TagIDValue>> tagsDict, string sKey, int nKey, List<int> lValues)
@@ -501,226 +450,166 @@ namespace Core.Notification
         /// 
         public DataTable BuildTagNotificationsRequest(List<FollowUpTagNotification> lNotifications)
         {
+            DataTable dtNotification = null;
+
             try
             {
-                DataTable dtNotification = null;
-                NotificationTagRequest objRequest = null;
-                FollowUpTagNotification objNotification = null;
-                Dictionary<string, List<int>> dict = new Dictionary<string, List<int>>();
-                Dictionary<string, List<TagIDValue>> dictfull = new Dictionary<string, List<TagIDValue>>();
-                List<long> notificationsIds = new List<long>();
-                #region userPArameters
-                ExtraParams userExtraParams = null;
-                Dictionary<string, List<TagIDValue>> userDictFull = null;
-                Dictionary<string, List<int>> userDict = null;
-                List<long> userNotificationsIds = null;
-                #endregion
                 if (lNotifications != null && lNotifications.Count > 0)
                 {
                     log.Debug("BuildTagNotificationsRequest - Start");
 
                     //Build basic  notification request 
-                    objNotification = new FollowUpTagNotification(lNotifications[0].ID, lNotifications[0].MessageType, lNotifications[0].TriggerType, lNotifications[0].GroupID, lNotifications[0].MessageText, lNotifications[0].SmsMessageText,
+                    FollowUpTagNotification objNotification = new FollowUpTagNotification(lNotifications[0].ID, lNotifications[0].MessageType, lNotifications[0].TriggerType, lNotifications[0].GroupID, lNotifications[0].MessageText, lNotifications[0].SmsMessageText,
                         lNotifications[0].PullMessageText, lNotifications[0].Title, lNotifications[0].IsActive, lNotifications[0].Status, lNotifications[0].IsBroadcast, lNotifications[0].CreatedDate, lNotifications[0].Actions, string.Empty, null);
 
                     //log.Debug("BuildTagNotificationsRequest - " + string.Format("objNotification ID={0},MessageText={1},GroupID={2},CreatedDate={3}  ", objNotification.ID, objNotification.MessageText, objNotification.GroupID, objNotification.CreatedDate));
 
                     #region build notification request dictionary
-
-                    foreach (FollowUpTagNotification objN in lNotifications)
+                    Dictionary<long, string> notificationIdToKeyMap = new Dictionary<long, string>();
+                    Dictionary<string, List<int>> dict = new Dictionary<string, List<int>>();
+                    Dictionary<string, List<TagIDValue>> dictfull = new Dictionary<string, List<TagIDValue>>();
+                    Dictionary<long, long> notificationParameterIdToTagValueMap = new Dictionary<long, long>();
+                    foreach (FollowUpTagNotification notification in lNotifications)
                     {
-                        notificationsIds.Add(objN.ID);
-                        if (objN.notificationTag != null)
+                        if (notification.notificationTag != null)
                         {
-                            string sKey = ODBCWrapper.Utils.GetSafeStr(objN.key);
-                            if (dict.ContainsKey(sKey))
+                            string key = ODBCWrapper.Utils.GetSafeStr(notification.key);
+                            if (!string.IsNullOrEmpty(key))
                             {
-                                dict[sKey] = objN.notificationTag.tagValues;
-                                if (objN.notificationTag.tagValueDict != null && objN.notificationTag.tagValueDict[sKey] != null)
-                                    dictfull[sKey] = objN.notificationTag.tagValueDict[sKey];
-                                else
-                                    dictfull[sKey] = null;
-                            }
-                            else
-                            {
-                                dict.Add(sKey, null);
-                                dict[sKey] = objN.notificationTag.tagValues;
-                                dictfull.Add(sKey, null);
-                                if (objN.notificationTag.tagValueDict != null)
-                                    dictfull[sKey] = objN.notificationTag.tagValueDict[sKey];
-                            }
-                        }
-                    }
-                    #endregion
-
-                    objRequest = new NotificationTagRequest(objNotification);
-                    objRequest.oExtraParams = new ExtraParams();
-                    objRequest.oExtraParams.TagDict = dict;
-                    objRequest.oExtraParams.dTagDict = dictfull;
-                    objRequest.oExtraParams.mediaID = lNotifications[0].notificationTag.mediaID;
-                    objRequest.oExtraParams.notificationsID = lNotifications[0].notificationTag.notificationsID;
-
-                    //log.Debug("BuildTagNotificationsRequest - " + string.Format(" MediaID={0}", objRequest.oExtraParams.mediaID));
-
-                    #region get all sign in users to one of the notification ids
-                    DataTable dtUsers = DAL.NotificationDal.GetUserNotification(null, notificationsIds);
-                    if (dtUsers != null && dtUsers.DefaultView.Count > 0)
-                    {
-                        long lUserID = 0;
-                        objRequest.usersID = new List<long>();
-                        HashSet<long> userIds = new HashSet<long>();
-                        for (int i = 0; i < dtUsers.DefaultView.Count; i++)
-                        {
-                            lUserID = ODBCWrapper.Utils.GetLongSafeVal(dtUsers.Rows[i]["user_id"]);
-                            if (!userIds.Contains(lUserID))
-                            {
-                                userIds.Add(lUserID);
-                            }
-                        }
-
-                        if (userIds.Count > 0)
-                        {
-                            objRequest.usersID = userIds.ToList();
-                        }
-                    }
-                    #endregion
-
-                    #region Create specific notification per user
-                    //get to each User the specific notification that he subscribe to it ([GetUserNotification])
-                    DataTable userSubscribe = DAL.NotificationDal.GetUserNotification(objRequest.usersID);
-                    //create specific NotificationTagRequest to each user
-                    dtNotification = GetNotificationTagRequestTable();
-
-                    int previousUserId = 0;
-                    foreach (DataRow drUserSubscribe in userSubscribe.Rows)
-                    {
-                        if (previousUserId != ODBCWrapper.Utils.GetIntSafeVal(drUserSubscribe["user_id"]))
-                        {
-                            log.Debug("BuildTagNotificationsRequest - " + string.Format(" UserID={0}", previousUserId));
-                            userDictFull = new Dictionary<string, List<TagIDValue>>();
-                            userDict = new Dictionary<string, List<int>>();
-                            userNotificationsIds = new List<long>();
-
-                            previousUserId = ODBCWrapper.Utils.GetIntSafeVal(drUserSubscribe["user_id"]);
-                            DataRow[] drSubscibes = userSubscribe.Select("user_id=" + previousUserId);
-                            //need to find the user subscribe that match the media tags 
-                            foreach (DataRow subscribe in drSubscibes)
-                            {
-                                string sKey = ODBCWrapper.Utils.GetSafeStr(subscribe["sKey"]);
-                                int nUserTagValue = 0;
-                                string sUserTagValue = string.Empty;
-                                int nNotificationID = 0;
-                                List<TagIDValue> tagIDValueList = null;
-                                if (objRequest.oExtraParams.dTagDict.ContainsKey(sKey)) //key must be contains in dictFull (which created before)
+                                if (dict.ContainsKey(key))
                                 {
-                                    tagIDValueList = dictfull[sKey];
-                                    if (tagIDValueList != null)
+                                    dict[key] = notification.notificationTag.tagValues;
+                                    if (notification.notificationTag.tagValueDict != null && notification.notificationTag.tagValueDict[key] != null)
+                                        dictfull[key] = notification.notificationTag.tagValueDict[key];
+                                    else
+                                        dictfull[key] = null;
+                                }
+                                else
+                                {
+                                    dict.Add(key, null);
+                                    dict[key] = notification.notificationTag.tagValues;
+                                    dictfull.Add(key, null);
+                                    if (notification.notificationTag.tagValueDict != null && notification.notificationTag.tagValueDict.ContainsKey(key))
+                                        dictfull[key] = notification.notificationTag.tagValueDict[key];
+                                }
+
+                                if (!notificationIdToKeyMap.ContainsKey(notification.ID))
+                                {
+                                    notificationIdToKeyMap.Add(notification.ID, key);
+                                }
+
+                                if (notification.notificationParameterToValueMap != null && notification.notificationParameterToValueMap.Count > 0)
+                                {
+                                    foreach (KeyValuePair<long, long> pair in notification.notificationParameterToValueMap)
                                     {
-                                        foreach (TagIDValue tagIDValue in tagIDValueList)
+                                        if (!notificationParameterIdToTagValueMap.ContainsKey(pair.Key))
                                         {
-                                            nUserTagValue = ODBCWrapper.Utils.GetIntSafeVal(subscribe["value"]);
-                                            sUserTagValue = ODBCWrapper.Utils.GetSafeStr(subscribe["value"]);
-                                            nNotificationID = ODBCWrapper.Utils.GetIntSafeVal(subscribe["notification_id"]);
-                                            if (tagIDValue.tagValueId == nUserTagValue)
-                                            {
-                                                if (objRequest.oExtraParams.TagDict.ContainsKey(sKey) && objRequest.oExtraParams.TagDict[sKey].Contains(nUserTagValue)) //match !
-                                                {
-
-                                                    if (!userDict.ContainsKey(sKey))
-                                                    {
-                                                        userDict.Add(sKey, new List<int> { nUserTagValue });
-                                                        userNotificationsIds.Add(nNotificationID);
-                                                    }
-                                                    else if (!userDict[sKey].Contains(nUserTagValue))
-                                                        userDict[sKey].Add(nUserTagValue);
-
-
-                                                    if (!userDictFull.ContainsKey(sKey))
-                                                    {
-                                                        userDictFull.Add(sKey, objRequest.oExtraParams.dTagDict[sKey]);
-                                                    }
-                                                    else
-                                                    {
-                                                        //get all tagValues that user subscribe to 
-                                                        TagIDValue tagIDValueFind = userDictFull[sKey].Find(delegate(TagIDValue t)
-                                                        {
-                                                            return (t.tagValueId == tagIDValue.tagValueId && t.tagTypeName == tagIDValue.tagTypeName && t.tagValueName == tagIDValue.tagValueName);
-                                                        }
-                                                              );
-                                                        if (tagIDValueFind == null)
-                                                            userDictFull[sKey].Add(tagIDValue);
-                                                    }
-                                                }
-                                            }
-                                            else if (nUserTagValue == 0) //User subscribe to all values 
-                                            {
-                                                if (!userDict.ContainsKey(sKey)) //notification parameter to ALL 
-                                                {
-                                                    userDict.Add(sKey, objRequest.oExtraParams.TagDict[sKey]);
-                                                    userNotificationsIds.Add(nNotificationID);
-                                                }
-                                                else
-                                                {
-                                                    foreach (int value in objRequest.oExtraParams.TagDict[sKey])
-                                                    {
-                                                        if (!userDict[sKey].Contains(value))
-                                                            userDict[sKey].Add(value);
-                                                    }
-                                                }
-
-                                                if (!userDictFull.ContainsKey(sKey))
-                                                {
-                                                    userDictFull.Add(sKey, objRequest.oExtraParams.dTagDict[sKey]);
-                                                }
-                                                else
-                                                {
-                                                    TagIDValue tagIDValueFind = userDictFull[sKey].Find(delegate(TagIDValue t)
-                                                    {
-                                                        return (t.tagValueId == tagIDValue.tagValueId && t.tagTypeName == tagIDValue.tagTypeName && t.tagValueName == tagIDValue.tagValueName);
-                                                    }
-                                                              );
-                                                    if (tagIDValueFind == null)
-                                                        userDictFull[sKey].Add(tagIDValue);
-                                                }
-                                            }
+                                            notificationParameterIdToTagValueMap.Add(pair.Key, pair.Value);
                                         }
                                     }
                                 }
                             }
+                        }
+                    }
+                    #endregion
 
-                            if (userNotificationsIds != null && userNotificationsIds.Count > 0)
+                    if (notificationParameterIdToTagValueMap.Count == 0)
+                    {
+                        return dtNotification;
+                    }
+
+                    NotificationTagRequest objRequest = new NotificationTagRequest(objNotification);
+                    objRequest.oExtraParams = new ExtraParams();
+                    objRequest.oExtraParams.TagDict = dict;
+                    objRequest.oExtraParams.dTagDict = dictfull;
+                    objRequest.oExtraParams.mediaID = lNotifications[0].notificationTag.mediaID;
+                    objRequest.oExtraParams.notificationsID = lNotifications.Select(x => x.ID).ToList();
+
+                    //log.Debug("BuildTagNotificationsRequest - " + string.Format(" MediaID={0}", objRequest.oExtraParams.mediaID));
+
+                    #region Get all users and create specific notification per user
+
+                    DataTable dt = DAL.NotificationDal.GetUserNotificationByNotifiactionParameterId(notificationParameterIdToTagValueMap.Keys.ToList());
+                    //create specific NotificationTagRequest to each user  
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        dtNotification = GetNotificationTagRequestTable();
+                        Dictionary<int, ExtraParams> userNotifications = new Dictionary<int, ExtraParams>();
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            int userId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_id");
+                            int notificationId = ODBCWrapper.Utils.GetIntSafeVal(dr, "notification_id");
+                            int notificationParameterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "notification_parameter_id");
+                            if (notificationParameterIdToTagValueMap.ContainsKey(notificationParameterId))
                             {
-                                userExtraParams = new ExtraParams();
-                                userExtraParams.TagDict = userDict;
-                                userExtraParams.dTagDict = userDictFull;
-                                userExtraParams.mediaID = lNotifications[0].notificationTag.mediaID;
-                                userExtraParams.notificationsID = userNotificationsIds;
+                                int tagId = (int)notificationParameterIdToTagValueMap[notificationParameterId];
+                                string key = notificationIdToKeyMap.ContainsKey(notificationId) ? notificationIdToKeyMap[notificationId] : string.Empty;
+                                List<int> tagIds = new List<int>() { tagId };
+                                List<TagIDValue> tagIdsValue = new List<TagIDValue>();
+                                if (dictfull.ContainsKey(key) && dictfull[key].Any(x => x.tagValueId == tagId))
+                                {
+                                    tagIdsValue.Add(dictfull[key].First(x => x.tagValueId == tagId));
+                                }
+
+                                if (userNotifications.ContainsKey(userId))
+                                {
+                                    if (userNotifications[userId].TagDict.ContainsKey(key))
+                                    {
+                                        userNotifications[userId].TagDict[key].Union(tagIds);
+                                    }
+                                    else
+                                    {
+                                        userNotifications[userId].TagDict.Add(key, tagIds);
+                                    }
+
+                                    if (userNotifications[userId].dTagDict.ContainsKey(key))
+                                    {
+                                        userNotifications[userId].dTagDict[key].Union(tagIdsValue);
+                                    }
+                                    else
+                                    {
+                                        userNotifications[userId].dTagDict.Add(key, tagIdsValue);
+                                    }
+
+                                    if (!userNotifications[userId].notificationsID.Contains(notificationId))
+                                    {
+                                        userNotifications[userId].notificationsID.Add(notificationId);
+                                    }
+                                }
+                                else
+                                {
+                                    ExtraParams userExtraParams = new ExtraParams();
+                                    userExtraParams.TagDict = new Dictionary<string, List<int>>() { { key, tagIds } };
+                                    userExtraParams.dTagDict = new Dictionary<string, List<TagIDValue>>() { { key, tagIdsValue } };
+                                    userExtraParams.mediaID = lNotifications[0].notificationTag.mediaID;
+                                    userExtraParams.notificationsID = new List<long>() { notificationId };
+                                    userNotifications.Add(userId, userExtraParams);
+                                }
+                            }
+                        }
+
+                        if (userNotifications != null && userNotifications.Count > 0)
+                        {
+                            foreach (KeyValuePair<int, ExtraParams> pair in userNotifications)
+                            {
                                 //insert this media to notification 
-                                FillNotificationDataTable(objNotification, userExtraParams, dtNotification, previousUserId);
-                                string sUserExtraParams = string.Empty;
-                                try
-                                {
-                                    sUserExtraParams = TVinciShared.JSONUtils.ToJSON(userExtraParams);
-                                }
-                                catch (Exception ex)
-                                {
-                                    log.Error("", ex);
-                                }
-                                //log.Debug("BuildTagNotificationsRequest - " + string.Format("insert user notification request user_id ={0}, extraParams={1}", previousUserId, sUserExtraParams));
+                                FillNotificationDataTable(objNotification, pair.Value, dtNotification, pair.Key);
                             }
                         }
                     }
                     #endregion
                 }
-                // return objRequest;
-                return dtNotification;
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("failed BuildTagNotificationsRequest Exception={0}", ex.Message));
                 return null;
             }
+
+            // return objRequest;
+            return dtNotification;
         }
+
         private static void FillNotificationDataTable(FollowUpTagNotification objNotification, ExtraParams userExtraParams, DataTable dtNotification, int previousUserId)
         {
             DataRow userRow = dtNotification.NewRow();

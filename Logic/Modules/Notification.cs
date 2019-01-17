@@ -76,7 +76,11 @@ namespace Core.Notification
                         if (lNotifications != null) //Indication if notification(s) exist for this 
                         {
                             DataTable request = NotificationManager.Instance.BuildTagNotificationsRequest(lNotifications);
-                            NotificationManager.Instance.InsertNotificationTagRequest(request);
+                            if (request != null && request.Rows != null && request.Rows.Count > 0)
+                            {
+                                NotificationManager.Instance.InsertNotificationTagRequest(request);
+                            }
+
                             return true;
                         }
                         else
