@@ -1406,8 +1406,7 @@ namespace Core.ConditionalAccess
             double finalPrice, int groupId, Subscription subscription, int domainId)
         {
             log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - {0}", subscription != null ? subscription.ToString() : "Subscription:null");
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - original Price: {0}.", originalPrice);
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - price after discount and coupon: {0}.", finalPrice);
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - original Price:{0}, price after discount and coupon:{1}.", originalPrice, finalPrice);
 
             double couponRemainder = 0;
             bool fullCouponDiscount = (!string.IsNullOrEmpty(couponCode) && originalPrice > 0 && finalPrice == 0);
@@ -1423,8 +1422,7 @@ namespace Core.ConditionalAccess
                 finalPrice = priceAfterUnified;
             }
 
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - price after unified: {0}.", finalPrice);
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - coupon remainder: {0}.", couponRemainder);
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - price after unified:{0}, coupon remainder:{1}", finalPrice, couponRemainder);
 
             return new Tuple<double, double>(finalPrice, couponRemainder);
         }
@@ -1700,6 +1698,7 @@ namespace Core.ConditionalAccess
         /// partialPrice = AD * P/D (2 digit after .)      
         internal static double CalculatePriceByUnifiedBillingCycle(int groupId, double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null, int domainId = 0)
         {
+            log.DebugFormat("CalculatePriceByUnifiedBillingCycle - price before unified: {0}.", price);
             double unifiedBillingCyclePrice = price;
             long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
             if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
@@ -1724,6 +1723,8 @@ namespace Core.ConditionalAccess
                     int numOfDaysByBillingCycle = (int)Math.Ceiling((ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
 
                     unifiedBillingCyclePrice = Math.Round(numOfDaysByBillingCycle * (unifiedBillingCyclePrice / numOfDaysForSubscription), 2);
+                    log.DebugFormat("CalculatePriceByUnifiedBillingCycle - [nextRenewDate:{0}, numOfDaysForSubscription:{1}], [unifiedBillingCycle.endDate:{2}, numOfDaysByBillingCycle:{3}]",
+                                    nextRenew.ToLongDateString(), numOfDaysForSubscription, unifiedBillingCycle.endDate, numOfDaysByBillingCycle);
                 }
             }
 
