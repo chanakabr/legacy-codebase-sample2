@@ -1374,7 +1374,8 @@ namespace Core.ConditionalAccess
 
                     if (finalPrice != null && originalPrice != null)
                     {
-                        var finalPriceAndCouponRemainder = CalcPartialPriceByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, ref unifiedBillingCycle, finalPrice.m_dPrice, groupId, subscription, domainId);
+                        var finalPriceAndCouponRemainder = CalcPartialPriceByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, ref unifiedBillingCycle, 
+                                                                                                 finalPrice.m_dPrice, groupId, subscription, domainId);
                         finalPrice.m_dPrice = finalPriceAndCouponRemainder.Item1;
                         couponRemainder = finalPriceAndCouponRemainder.Item2;
                     }
@@ -1402,10 +1403,11 @@ namespace Core.ConditionalAccess
         /// <param name="domainId"></param>
         /// <returns>item1 = finalPrice, item2 = couponRemainder</returns>
         internal static Tuple<double, double> CalcPartialPriceByUnifiedBillingCycle(double originalPrice, string couponCode, ref UnifiedBillingCycle unifiedBillingCycle, 
-            double finalPrice, int groupId, Subscription subscription = null, int domainId = 0)
+            double finalPrice, int groupId, Subscription subscription, int domainId)
         {
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - subscription code: {0}, original Price: {1}.", subscription.m_SubscriptionCode, originalPrice);
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - subscription code: {0}, price after discount and coupon: {1}.", subscription.m_SubscriptionCode, finalPrice);
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - {0}", subscription != null ? subscription.ToString() : "Subscription:null");
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - original Price: {0}.", originalPrice);
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - price after discount and coupon: {0}.", finalPrice);
 
             double couponRemainder = 0;
             bool fullCouponDiscount = (!string.IsNullOrEmpty(couponCode) && originalPrice > 0 && finalPrice == 0);
@@ -1421,8 +1423,8 @@ namespace Core.ConditionalAccess
                 finalPrice = priceAfterUnified;
             }
 
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - subscription code: {0}, price after unified: {1}.", subscription.m_SubscriptionCode, finalPrice);
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - subscription code: {0}, coupon remainder: {1}.", subscription.m_SubscriptionCode, couponRemainder);
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - price after unified: {0}.", finalPrice);
+            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - coupon remainder: {0}.", couponRemainder);
 
             return new Tuple<double, double>(finalPrice, couponRemainder);
         }

@@ -49,7 +49,8 @@ namespace Core.ConditionalAccess
                                  ref bool shouldUpdateTaskStatus)
         {
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}", siteguid, purchaseId, billingGuid, nextEndDate);
+            string logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}, billingGuid {2}, nextEndDate {3}", 
+                                             siteguid, purchaseId, billingGuid, nextEndDate);
             log.DebugFormat("Starting renewal process. data: {0}", logString);
 
             RenewSubscriptionDetails renewSubscriptionDetails = new RenewSubscriptionDetails()
@@ -79,7 +80,7 @@ namespace Core.ConditionalAccess
             if (subscriptionPurchaseRow == null)
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("problem getting the subscription purchase. Purchase ID: {0}, data: {1}", purchaseId, logString);
+                log.ErrorFormat("problem getting the subscription purchase. Data: {0}", logString);
                 shouldUpdateTaskStatus = false;
                 return false;
             }
@@ -98,14 +99,16 @@ namespace Core.ConditionalAccess
             ApiObjects.Response.Status statusVerifications = Billing.Module.GetPaymentGatewayVerificationStatus(groupId, billingGuid, ref pd);            
             bool ignoreUnifiedBillingCycle = statusVerifications.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
 
-            if (statusVerifications.Code != (int)eResponseStatus.PaymentGatewayNotValid && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.RENEW_SUBSCRIPTION))
+            if (statusVerifications.Code != (int)eResponseStatus.PaymentGatewayNotValid && 
+                !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.RENEW_SUBSCRIPTION))
             {
                 // mark this subscription in special status 
                 if (!ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(new List<int>() { (int)purchaseId }, (int)SubscriptionPurchaseStatus.Suspended))
                 {
-                    log.ErrorFormat("Failed to suspend purchase id  entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, householdId);
+                    log.ErrorFormat("Failed to suspend purchase id entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, householdId);
                 }
-                log.ErrorFormat("domain is not permitted to renew process . details : {0}", logString);
+
+                log.ErrorFormat("domain is not permitted to renew process. Data:{0}", logString);
                 return true;
             }
                         
@@ -117,15 +120,14 @@ namespace Core.ConditionalAccess
             // get end date
             renewSubscriptionDetails.EndDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
             DateTime startDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "START_DATE");
-
             long endDateUnix = DateUtils.DateTimeToUnixTimestamp(renewSubscriptionDetails.EndDate.Value);
 
             // validate renewal did not already happened
             if (Math.Abs(endDateUnix - nextEndDate) > 60)
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling renew task. Purchase ID: {0}, sub end_date: {1}, data: {2}",
-                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(renewSubscriptionDetails.EndDate.Value), logString);
+                log.ErrorFormat("Canceling renew task because subscription purchase:{0} last_end_date:{1} is not the same as the next_end_date:{2}. data:{3}",
+                                 purchaseId, endDateUnix, nextEndDate, logString);
                 return true;
             }
 
@@ -156,7 +158,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception exc)
             {
-                log.ErrorFormat("Renew: Error while getting data from xml, data: {0}, error: {1}", logString, exc);
+                log.ErrorFormat("Renew: Error while getting data from xml, data: {0}, error: {1}", logString, exc.ToString());
                 return false;
             }
 
@@ -272,7 +274,8 @@ namespace Core.ConditionalAccess
                     bool handleNonRenew = HandleRenewSubscriptionFailed(cas, groupId, siteguid, purchaseId, logString, productId, subscription, householdId, 0, 
                                                                         "AddOn with no BaseSubscription valid", billingGuid, endDateUnix);
 
-                    log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
+                    log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", 
+                                    subscription.m_SubscriptionCode, status.Code, status.Message);
                     return true;
                 }
             }

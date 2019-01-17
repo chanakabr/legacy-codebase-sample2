@@ -2745,12 +2745,13 @@ namespace Core.ConditionalAccess
                     if (groupId > 0 && householdId > 0 && renewSubscriptionDetails.EndDate.HasValue && !renewSubscriptionDetails.IsUseCouponRemainder &&
                         (isCouponGiftCard || recurringCouponFirstExceeded || isFirstTimePreviewModuleEnd))
                     {
-                        unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
+                        int domainId = (int)householdId;
+                        unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle(domainId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
                         if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                         {
                             var finalPriceAndCouponRemainder = 
                                 Utils.CalcPartialPriceByUnifiedBillingCycle(originalPrice, renewSubscriptionDetails.CouponCode, ref unifiedBillingCycle,
-                                                                            renewSubscriptionDetails.Price, groupId);
+                                                                            renewSubscriptionDetails.Price, groupId, subscription, domainId);
                             renewSubscriptionDetails.Price = finalPriceAndCouponRemainder.Item1;
                             renewSubscriptionDetails.CouponRemainder = finalPriceAndCouponRemainder.Item2;
                             isPartialPrice = true;
@@ -2771,7 +2772,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Empty, ex);
+                log.Error("Exception at GetMultiSubscriptionUsageModule", ex);
             }
 
             return isSuccess;
