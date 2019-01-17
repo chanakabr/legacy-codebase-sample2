@@ -89,6 +89,11 @@ namespace DAL
         
         public static List<T> GetObjectListFromCB<T>(eCouchbaseBucket couchbaseBucket, List<string> keys, bool serializeToString = false)
         {
+            if (keys == null || keys.Count == 0)
+            {
+                return null;
+            }
+
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
             int numOfTries = 0;
             JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
