@@ -20,6 +20,15 @@ namespace ApiObjects.Notification
 
         #endregion;
 
+        public NotificationTag(int mediaId, List<int> tagValues, Dictionary<string, List<TagIDValue>> tagValuesDic, long notificationId)
+        {
+            mediaID = mediaId;
+            this.tagValues = tagValues;
+            tagValueDict = tagValuesDic;
+            notificationsID = new List<long>() { notificationId };
+        }
+
+
         public NotificationTag(int nMediaID, List<int> dTagValues)
         {
             mediaID = nMediaID;
