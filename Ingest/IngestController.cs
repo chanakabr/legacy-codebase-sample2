@@ -71,12 +71,12 @@ namespace Ingest
                         case eIngestType.Tvinci:
                             {
                                 OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "VOD Ingest";
-                                
+
                                 if (CatalogManager.DoesGroupUsesTemplates(groupID))
                                 {
                                     ingestResponse = IngestManager.HandleMediaIngest(groupID, request.Data);
                                 }
-                                else if(TvinciImporter.ImporterImpl.DoTheWorkInner(request.Data, groupID, string.Empty, ref response, false, out ingestResponse))
+                                else if (TvinciImporter.ImporterImpl.DoTheWorkInner(request.Data, groupID, string.Empty, ref response, false, out ingestResponse))
                                 {
                                     HandleMediaIngestResponse(response, request.Data, ingestResponse);
                                 }
@@ -99,8 +99,13 @@ namespace Ingest
 
                                 bool isSucceeded = false;
                                 EpgIngest.Ingest ingest = new EpgIngest.Ingest();
-                                
-                                isSucceeded = ingest.Initialize(request.Data, groupID, out ingestResponse);
+
+                                Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
+                                if (CatalogManager.DoesGroupUsesTemplates(groupID))
+                                {
+                                    groupRatioNamesToImageTypes = ImageManager.GetGroupRatioNamesToImageTypes(groupID);
+                                }
+                                isSucceeded = ingest.Initialize(request.Data, groupID, CatalogManager.DoesGroupUsesTemplates(groupID), groupRatioNamesToImageTypes, out ingestResponse);
                                 if (isSucceeded)
                                 {
                                     response = ingest.SaveChannelPrograms(ref ingestResponse);
