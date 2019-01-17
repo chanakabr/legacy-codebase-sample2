@@ -216,7 +216,7 @@ namespace Core.Users
             return response;
         }
 
-        static public void RemoveFavorit(string sSiteGUID, Int32 nGroupID, Int32 nID)
+        static public void RemoveFavorit(string sSiteGUID, Int32 nGroupID, long nID)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
             updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -236,7 +236,7 @@ namespace Core.Users
             updateQuery = null;
         }
 
-        static public void RemoveFavorit(string sSiteGUID, int nGroupID, int[] nMediaIDs)
+        static public void RemoveFavorit(string sSiteGUID, int nGroupID, long[] nMediaIDs)
         {
             if (nMediaIDs != null)
             {

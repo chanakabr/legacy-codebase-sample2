@@ -287,7 +287,7 @@ namespace Core.Users
             return true;
         }
 
-        private bool IsARemoveUserFavoriteParamValid(int nGroupID, string sUserGUID, int[] mediaIDs, out ApiObjects.Response.Status status)
+        private bool IsARemoveUserFavoriteParamValid(int nGroupID, string sUserGUID, long[] mediaIDs, out ApiObjects.Response.Status status)
         {
             //check if userID exist
             if (!IsUserValid(nGroupID, sUserGUID, out status))
@@ -349,12 +349,12 @@ namespace Core.Users
             return f.Save(nGroupID);
         }
 
-        public virtual void RemoveUserFavorit(Int32 nFavoritID, string sUserGUID, Int32 nGroupID)
+        public virtual void RemoveUserFavorit(long nFavoritID, string sUserGUID, Int32 nGroupID)
         {
             FavoritObject.RemoveFavorit(sUserGUID, nGroupID, nFavoritID);
         }
 
-        public virtual ApiObjects.Response.Status RemoveUserFavorit(int[] nMediaIDs, string sUserGUID, int nGroupID)
+        public virtual ApiObjects.Response.Status RemoveUserFavorit(long[] nMediaIDs, string sUserGUID, int nGroupID)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 

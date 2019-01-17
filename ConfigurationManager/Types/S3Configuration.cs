@@ -14,6 +14,7 @@ namespace ConfigurationManager.Types
         public StringConfigurationValue BucketName;
         public StringConfigurationValue Path;
         public NumericConfigurationValue NumberOfRetries;
+        public BooleanConfigurationValue ShouldDeleteSourceFile;
 
         public S3Configuration(string key) : base(key)
         {
@@ -46,6 +47,11 @@ namespace ConfigurationManager.Types
             {
                 DefaultValue = 1,
                 OriginalKey = "S3.NumberOfRetries"
+            };
+            ShouldDeleteSourceFile = new BooleanConfigurationValue("shouldDeleteSourceFile", this)
+            {
+                DefaultValue = false,
+                OriginalKey = "S3.ShouldDeleteSourceFile"
             };
         }
     }

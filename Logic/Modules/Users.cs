@@ -462,7 +462,7 @@ namespace Core.Users
         }
 
         
-        public static ApiObjects.Response.Status RemoveUserFavorit(int nGroupID, string sUserGUID, int[] nMediaIDs)
+        public static ApiObjects.Response.Status RemoveUserFavorit(int nGroupID, string sUserGUID, long[] nMediaIDs)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             // add siteguid to logs/monitor
