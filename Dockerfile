@@ -24,9 +24,9 @@ ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvmcore/get/${BRANCH}.zi
 ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/CDNTokenizers/get/${BRANCH}.zip CDNTokenizers.zip
 ADD https://api.github.com/repos/kaltura/Core/zipball/${BRANCH}?access_token=${GITHUB_TOKEN} Core.zip
 
-RUN Expand-Archive TvmCore.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) TvmCore; rm tmp; rm TvmCore.zip
-RUN Expand-Archive CDNTokenizers.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) CDNTokenizers; rm tmp; rm CDNTokenizers.zip
-RUN Expand-Archive Core.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) Core; rm tmp; rm Core.zip
+RUN Expand-Archive TvmCore.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) TvmCore; rm tmp
+RUN Expand-Archive CDNTokenizers.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) CDNTokenizers; rm tmp
+RUN Expand-Archive Core.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) Core; rm tmp
 
 ADD . tvpapi_rest
 
@@ -35,7 +35,9 @@ RUN nuget restore TvmCore/TvinciCore.sln
 RUN nuget restore Core/Core.sln
 
 RUN msbuild /p:Configuration=Release tvpapi_rest/TVPProAPIs.sln
-RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/WebAPI tvpapi_rest/WebAPI/WebAPI.csproj
+RUN tvpapi_rest\Generator\bin\Release\Generator.exe
+RUN mv KalturaClient.xml tvpapi_rest\WebAPI\clientlibs\KalturaClient.xml
+RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/WebAPI /p:Profile=FolderProfile tvpapi_rest/WebAPI/WebAPI.csproj
 
 
 
