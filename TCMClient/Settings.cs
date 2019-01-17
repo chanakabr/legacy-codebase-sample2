@@ -318,11 +318,11 @@ namespace TCMClient
 
             if (string.IsNullOrEmpty(m_LocalPath))
             {
-                pathToLocalFile = Environment.CurrentDirectory + "/tcm.config";
+                pathToLocalFile = AppDomain.CurrentDomain.BaseDirectory + "settings.json";
             }
             else
             {
-                pathToLocalFile = m_LocalPath + "/tcm.config";
+                pathToLocalFile = m_LocalPath + "/settings.json";
             }
 
             return pathToLocalFile;
