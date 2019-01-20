@@ -4326,6 +4326,7 @@ namespace Core.Billing
                     // send remove account for the previous payment gateway
                     sendToAdapterStatus = SendRemoveAccountToAdapter(paymentGatewayIdToHouseholdChargeIdMap[pg.Key.ID], householdId, pg.Key, pg.Value);
                 }
+
                 if (allPayentMethodsToDelete.Count > 0)
                 {
                     int deleted = DAL.BillingDAL.DeleteHouseholdPaymentMethods(allPayentMethodsToDelete);

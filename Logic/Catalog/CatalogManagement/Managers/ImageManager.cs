@@ -903,6 +903,8 @@ namespace Core.Catalog.CatalogManagement
 
                     foreach (var pic in epgCB.pictures)
                     {
+                        long imageTypeId = pic.ImageTypeId > 0 ? pic.ImageTypeId : ratioNamesToImageTypes.ContainsKey(pic.Ratio) ? ratioNamesToImageTypes[pic.Ratio].Id : 0;
+
                         image = new Image()
                         {
                             Id = pic.PicID,
@@ -911,7 +913,7 @@ namespace Core.Catalog.CatalogManagement
                             IsDefault = false,
                             ImageObjectId = imageObjectId,
                             Status = eTableStatus.OK,
-                            ImageTypeId = ratioNamesToImageTypes.ContainsKey(pic.Ratio) ? ratioNamesToImageTypes[pic.Ratio].Id : 0
+                            ImageTypeId = imageTypeId
                         };
 
                         if(pic.IsProgramImage)
