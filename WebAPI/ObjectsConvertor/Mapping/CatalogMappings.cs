@@ -1290,24 +1290,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case eAssetImageType.Media:
                     return KalturaImageObjectType.MEDIA_ASSET;
-                    break;
+                case eAssetImageType.Program:
+                    return KalturaImageObjectType.PROGRAM_ASSET;
                 case eAssetImageType.Channel:
                     return KalturaImageObjectType.CHANNEL;
-                    break;
                 case eAssetImageType.Category:
                     return KalturaImageObjectType.CATEGORY;
-                    break;
                 case eAssetImageType.ImageType:
                     return KalturaImageObjectType.IMAGE_TYPE;
-                    break;
                 case eAssetImageType.ProgramGroup:
                     return KalturaImageObjectType.PROGRAM_GROUP;
-                    break;                
                 case eAssetImageType.DefaultPic:
                 case eAssetImageType.LogoPic:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown image object type");
-                    break;
             }
         }
 
@@ -1316,27 +1312,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (imageObjectType)
             {
                 case KalturaImageObjectType.MEDIA_ASSET:
-                    return eAssetImageType.Media;
-                    break;
+                    return eAssetImageType.Media;                    
+                case KalturaImageObjectType.PROGRAM_ASSET:
+                    return eAssetImageType.Program;
                 case KalturaImageObjectType.CHANNEL:
                     return eAssetImageType.Channel;
-                    break;
                 case KalturaImageObjectType.CATEGORY:
                     return eAssetImageType.Category;
-                    break;
                 case KalturaImageObjectType.IMAGE_TYPE:
                     return eAssetImageType.ImageType;
-                    break;
                 case KalturaImageObjectType.PROGRAM_GROUP:
                     return eAssetImageType.ProgramGroup;
-                    break;
                 case KalturaImageObjectType.PARTNER:
-                case KalturaImageObjectType.PROGRAM_ASSET:
                     throw new ClientException((int)StatusCode.Error, "Not implemented yet");
-                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown image object type");
-                    break;
             }
         }
 
