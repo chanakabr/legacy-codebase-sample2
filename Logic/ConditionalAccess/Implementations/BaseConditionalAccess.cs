@@ -2749,9 +2749,9 @@ namespace Core.ConditionalAccess
                         unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle(domainId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
                         if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                         {
-                            var finalPriceAndCouponRemainder = 
-                                Utils.CalcPartialPriceByUnifiedBillingCycle(originalPrice, renewSubscriptionDetails.CouponCode, ref unifiedBillingCycle,
-                                                                            renewSubscriptionDetails.Price, groupId, subscription, domainId, isFirstTimePreviewModuleEnd);
+                            var finalPriceAndCouponRemainder =
+                                Utils.CalcPriceAndCouponRemainderByUnifiedBillingCycle(originalPrice, renewSubscriptionDetails.CouponCode, renewSubscriptionDetails.Price,
+                                                                                       ref unifiedBillingCycle,groupId, subscription, isFirstTimePreviewModuleEnd, domainId);
                             renewSubscriptionDetails.Price = finalPriceAndCouponRemainder.Item1;
                             renewSubscriptionDetails.CouponRemainder = finalPriceAndCouponRemainder.Item2;
                             isPartialPrice = true;

@@ -1374,8 +1374,9 @@ namespace Core.ConditionalAccess
 
                     if (finalPrice != null && originalPrice != null)
                     {
-                        var finalPriceAndCouponRemainder = CalcPartialPriceByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, ref unifiedBillingCycle, 
-                                                                                                 finalPrice.m_dPrice, groupId, subscription, domainId, false);
+                        var finalPriceAndCouponRemainder = 
+                            CalcPriceAndCouponRemainderByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, finalPrice.m_dPrice, ref unifiedBillingCycle,
+                                                                             groupId, subscription, false, domainId);
                         finalPrice.m_dPrice = finalPriceAndCouponRemainder.Item1;
                         couponRemainder = finalPriceAndCouponRemainder.Item2;
                     }
@@ -1389,43 +1390,92 @@ namespace Core.ConditionalAccess
 
             return finalPrice;
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
         /// <param name="originalPrice"></param>
         /// <param name="couponCode"></param>
-        /// <param name="unifiedBillingCycle"></param>
         /// <param name="finalPrice"></param>
-        /// <param name="couponRemainder"></param>
+        /// <param name="unifiedBillingCycle"></param>
         /// <param name="groupId"></param>
         /// <param name="subscription"></param>
+        /// <param name="isFirstTimePreviewModuleEnd"></param>
         /// <param name="domainId"></param>
-        /// <returns>item1 = finalPrice, item2 = couponRemainder</returns>
-        internal static Tuple<double, double> CalcPartialPriceByUnifiedBillingCycle(double originalPrice, string couponCode, ref UnifiedBillingCycle unifiedBillingCycle, 
-            double finalPrice, int groupId, Subscription subscription, int domainId, bool isFirstTimePreviewModuleEnd)
+        /// <returns>item1 = priceAfterUnified, item2 = couponRemainder</returns>
+        internal static Tuple<double, double> CalcPriceAndCouponRemainderByUnifiedBillingCycle(double originalPrice, string couponCode, double finalPrice, 
+            ref UnifiedBillingCycle unifiedBillingCycle, int groupId, Subscription subscription, bool isFirstTimePreviewModuleEnd, int domainId)
         {
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - {0}", subscription != null ? subscription.ToString() : "Subscription:null");
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - original Price:{0}, price after discount and coupon:{1}.", originalPrice, finalPrice);
+            log.DebugFormat("CalcPriceAndCouponRemainderByUnifiedBillingCycle - {0}, original Price:{1}, price after discount and coupon:{2}.", 
+                            subscription != null ? subscription.ToString() : "Subscription:null", originalPrice, finalPrice);
 
             double couponRemainder = 0;
             bool fullCouponDiscount = (!string.IsNullOrEmpty(couponCode) && originalPrice > 0 && finalPrice == 0);
+            double priceBeforeUnified;
             if (fullCouponDiscount)
             {
-                var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, originalPrice, ref unifiedBillingCycle, subscription, domainId, isFirstTimePreviewModuleEnd);
-                couponRemainder = priceAfterUnified.Item2;
+                priceBeforeUnified = originalPrice;
             }
             else
             {
-                var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, finalPrice, ref unifiedBillingCycle, subscription, domainId, isFirstTimePreviewModuleEnd);
-                couponRemainder = priceAfterUnified.Item2;
-                finalPrice = priceAfterUnified.Item2;
+                priceBeforeUnified = finalPrice;
             }
 
-            log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - price after unified:{0}, coupon remainder:{1}", finalPrice, couponRemainder);
+            double priceAfterUnified = priceBeforeUnified;
 
-            return new Tuple<double, double>(finalPrice, couponRemainder);
+            long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
+            if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
+            {
+                if (unifiedBillingCycle == null)
+                {
+                    //chcek that subscription contain this group billing cycle and subscription is renew                                             
+                    if (subscription != null && subscription.m_bIsRecurring
+                        && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
+                        && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
+                    {
+                        //get key from CB household_renewBillingCycle
+                        unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, groupUnifiedBillingCycle.Value);
+                    }
+                }
+
+                // check that end date between next end date and unified billing cycle end date are different
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                {
+                    DateTime nextRenew = Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
+                    int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
+                    int numOfDaysByBillingCycle = (int)Math.Ceiling((ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
+
+                    priceAfterUnified = Math.Round(numOfDaysByBillingCycle * (priceBeforeUnified / numOfDaysForSubscription), 2);
+
+                    // check if need to calc couponRemainder by PreviewModule
+                    if (isFirstTimePreviewModuleEnd && subscription != null && subscription.m_oPreviewModule != null)
+                    {
+                        var totalRemainDays = numOfDaysForSubscription - numOfDaysByBillingCycle;
+                        if (totalRemainDays > 0)
+                        {
+                            var daysWithPreviewModel = subscription.m_oPreviewModule.m_tsNonRenewPeriod / 60 / 24;
+                            couponRemainder = Math.Round((priceBeforeUnified - priceAfterUnified) / totalRemainDays * daysWithPreviewModel, 2);
+                        }
+                    }
+                    else
+                    {
+                        couponRemainder = priceBeforeUnified - priceAfterUnified;
+                    }
+
+                    log.DebugFormat("CalcPriceAndCouponRemainderByUnifiedBillingCycle - [nextRenewDate:{0}, numOfDaysForSubscription:{1}], [unifiedBillingCycle.endDate:{2}, numOfDaysByBillingCycle:{3}]",
+                                    nextRenew.ToLongDateString(), numOfDaysForSubscription, unifiedBillingCycle.endDate, numOfDaysByBillingCycle);
+                }
+            }
+
+            if (fullCouponDiscount)
+            {
+                priceAfterUnified = finalPrice; // set to 0 because full Coupon Discount
+            }
+
+            log.DebugFormat("CalcPriceAndCouponRemainderByUnifiedBillingCycle - price after unified:{0}, coupon remainder:{1}", priceAfterUnified, couponRemainder);
+            return new Tuple<double, double>(priceAfterUnified, couponRemainder);
         }
+
 
         private static Price HandlePriceCodeAndExternalDiscount(bool isBlockEntitlementType, ref PriceReason theReason, int groupId, ref string currencyCode, string ip, string userId, 
                                                                 ref string countryCode, DiscountModule externalDiscountModule, out DiscountModule externalDiscount, ref PriceCode priceCode)
@@ -1688,64 +1738,7 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("GetMultiSubscriptionUsageModule failed ex = {0}", ex);
             }
         }
-
-
-
-        /// calculate relative price by the time period that left until end of this cycle
-        /// d =  subscription number of days 
-        /// P = subscription price (original + discount)
-        /// AD =  (billingCycle_date - purchase_date ). TotalDays  - Ceiling 
-        /// partialPrice = AD * P/D (2 digit after .)      
-        internal static Tuple<double, double> CalculatePriceByUnifiedBillingCycle(int groupId, double price, ref UnifiedBillingCycle unifiedBillingCycle, 
-            Subscription subscription, int domainId, bool isFirstTimePreviewModuleEnd)
-        {
-            log.DebugFormat("CalculatePriceByUnifiedBillingCycle - price before unified: {0}.", price);
-            double unifiedBillingCyclePrice = price;
-            double couponRemainder = 0;
-
-            long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
-            if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
-            {
-                if (unifiedBillingCycle == null)
-                {
-                    //chcek that subscription contain this group billing cycle and subscription is renew                                             
-                    if (subscription != null && subscription.m_bIsRecurring
-                        && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
-                        && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
-                    {
-                        //get key from CB household_renewBillingCycle
-                        unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, groupUnifiedBillingCycle.Value);
-                    }
-                }
-
-                // check that end date between next end date and unified billing cycle end date are different
-                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
-                {
-                    DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
-                    int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
-                    int numOfDaysByBillingCycle = (int)Math.Ceiling((ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
-
-                    unifiedBillingCyclePrice = Math.Round(numOfDaysByBillingCycle * (unifiedBillingCyclePrice / numOfDaysForSubscription), 2);
-
-                    if (isFirstTimePreviewModuleEnd && subscription != null && subscription.m_oPreviewModule != null)
-                    {
-                        var totalRemainDays = numOfDaysForSubscription - numOfDaysByBillingCycle;
-                        var previewModelDays = subscription.m_oPreviewModule.m_tsNonRenewPeriod / 60 / 24;
-                        couponRemainder = Math.Round((price - unifiedBillingCyclePrice) / totalRemainDays * previewModelDays, 2);
-                    }
-                    else
-                    {
-                        couponRemainder = price - unifiedBillingCyclePrice;
-                    }
-
-                    log.DebugFormat("CalculatePriceByUnifiedBillingCycle - [nextRenewDate:{0}, numOfDaysForSubscription:{1}], [unifiedBillingCycle.endDate:{2}, numOfDaysByBillingCycle:{3}]",
-                                    nextRenew.ToLongDateString(), numOfDaysForSubscription, unifiedBillingCycle.endDate, numOfDaysByBillingCycle);
-                }
-            }
-
-            return new Tuple<double, double>(unifiedBillingCyclePrice, couponRemainder);
-        }
-
+        
         internal static UnifiedBillingCycle TryGetHouseholdUnifiedBillingCycle(int domainId, long renewLifeCycle)
         {
             UnifiedBillingCycle unifiedBillingCycle = null;
