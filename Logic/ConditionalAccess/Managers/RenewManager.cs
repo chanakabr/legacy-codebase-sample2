@@ -120,7 +120,7 @@ namespace Core.ConditionalAccess
             // get end date
             renewSubscriptionDetails.EndDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
             DateTime startDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "START_DATE");
-            long endDateUnix = DateUtils.DateTimeToUnixTimestamp(renewSubscriptionDetails.EndDate.Value);
+            var endDateUnix = renewSubscriptionDetails.EndDate.Value.ToUnixTimestamp();
 
             // validate renewal did not already happened
             if (Math.Abs(endDateUnix - nextEndDate) > 60)
@@ -467,6 +467,7 @@ namespace Core.ConditionalAccess
 
                     if (processId > 0)
                     {
+                        // TODO SHIR - WHAT TO DO WITH THAT?
                         // update subscription Purchase
                         DAL.ConditionalAccessDAL.UpdateMPPRenewalProcessId(new List<int>() { (int)purchaseId }, processId);
                     }
@@ -664,7 +665,8 @@ namespace Core.ConditionalAccess
 
                     if (unifiedBillingCycle != null)
                     {
-                        if (unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(endDate))
+                        if (unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(endDate) && 
+                            unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(DateTime.UtcNow))
                         {
                             // update unified billing by endDate or paymentGatewatId                  
                             bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(endDate));

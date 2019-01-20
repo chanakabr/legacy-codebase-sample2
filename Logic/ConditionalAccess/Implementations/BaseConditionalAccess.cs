@@ -2751,7 +2751,7 @@ namespace Core.ConditionalAccess
                         {
                             var finalPriceAndCouponRemainder = 
                                 Utils.CalcPartialPriceByUnifiedBillingCycle(originalPrice, renewSubscriptionDetails.CouponCode, ref unifiedBillingCycle,
-                                                                            renewSubscriptionDetails.Price, groupId, subscription, domainId);
+                                                                            renewSubscriptionDetails.Price, groupId, subscription, domainId, isFirstTimePreviewModuleEnd);
                             renewSubscriptionDetails.Price = finalPriceAndCouponRemainder.Item1;
                             renewSubscriptionDetails.CouponRemainder = finalPriceAndCouponRemainder.Item2;
                             isPartialPrice = true;

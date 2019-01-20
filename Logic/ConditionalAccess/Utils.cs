@@ -1375,7 +1375,7 @@ namespace Core.ConditionalAccess
                     if (finalPrice != null && originalPrice != null)
                     {
                         var finalPriceAndCouponRemainder = CalcPartialPriceByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, ref unifiedBillingCycle, 
-                                                                                                 finalPrice.m_dPrice, groupId, subscription, domainId);
+                                                                                                 finalPrice.m_dPrice, groupId, subscription, domainId, false);
                         finalPrice.m_dPrice = finalPriceAndCouponRemainder.Item1;
                         couponRemainder = finalPriceAndCouponRemainder.Item2;
                     }
@@ -1403,7 +1403,7 @@ namespace Core.ConditionalAccess
         /// <param name="domainId"></param>
         /// <returns>item1 = finalPrice, item2 = couponRemainder</returns>
         internal static Tuple<double, double> CalcPartialPriceByUnifiedBillingCycle(double originalPrice, string couponCode, ref UnifiedBillingCycle unifiedBillingCycle, 
-            double finalPrice, int groupId, Subscription subscription, int domainId)
+            double finalPrice, int groupId, Subscription subscription, int domainId, bool isFirstTimePreviewModuleEnd)
         {
             log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - {0}", subscription != null ? subscription.ToString() : "Subscription:null");
             log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - original Price:{0}, price after discount and coupon:{1}.", originalPrice, finalPrice);
@@ -1412,14 +1412,14 @@ namespace Core.ConditionalAccess
             bool fullCouponDiscount = (!string.IsNullOrEmpty(couponCode) && originalPrice > 0 && finalPrice == 0);
             if (fullCouponDiscount)
             {
-                var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, originalPrice, ref unifiedBillingCycle, subscription, domainId);
-                couponRemainder = originalPrice - priceAfterUnified;
+                var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, originalPrice, ref unifiedBillingCycle, subscription, domainId, isFirstTimePreviewModuleEnd);
+                couponRemainder = priceAfterUnified.Item2;
             }
             else
             {
-                var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, finalPrice, ref unifiedBillingCycle, subscription, domainId);
-                couponRemainder = finalPrice - priceAfterUnified;
-                finalPrice = priceAfterUnified;
+                var priceAfterUnified = CalculatePriceByUnifiedBillingCycle(groupId, finalPrice, ref unifiedBillingCycle, subscription, domainId, isFirstTimePreviewModuleEnd);
+                couponRemainder = priceAfterUnified.Item2;
+                finalPrice = priceAfterUnified.Item2;
             }
 
             log.DebugFormat("CalcPartialPriceByUnifiedBillingCycle - price after unified:{0}, coupon remainder:{1}", finalPrice, couponRemainder);
@@ -1696,10 +1696,13 @@ namespace Core.ConditionalAccess
         /// P = subscription price (original + discount)
         /// AD =  (billingCycle_date - purchase_date ). TotalDays  - Ceiling 
         /// partialPrice = AD * P/D (2 digit after .)      
-        internal static double CalculatePriceByUnifiedBillingCycle(int groupId, double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null, int domainId = 0)
+        internal static Tuple<double, double> CalculatePriceByUnifiedBillingCycle(int groupId, double price, ref UnifiedBillingCycle unifiedBillingCycle, 
+            Subscription subscription, int domainId, bool isFirstTimePreviewModuleEnd)
         {
             log.DebugFormat("CalculatePriceByUnifiedBillingCycle - price before unified: {0}.", price);
             double unifiedBillingCyclePrice = price;
+            double couponRemainder = 0;
+
             long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
             if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
             {
@@ -1723,12 +1726,24 @@ namespace Core.ConditionalAccess
                     int numOfDaysByBillingCycle = (int)Math.Ceiling((ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
 
                     unifiedBillingCyclePrice = Math.Round(numOfDaysByBillingCycle * (unifiedBillingCyclePrice / numOfDaysForSubscription), 2);
+
+                    if (isFirstTimePreviewModuleEnd && subscription != null && subscription.m_oPreviewModule != null)
+                    {
+                        var totalRemainDays = numOfDaysForSubscription - numOfDaysByBillingCycle;
+                        var previewModelDays = subscription.m_oPreviewModule.m_tsNonRenewPeriod / 60 / 24;
+                        couponRemainder = Math.Round((price - unifiedBillingCyclePrice) / totalRemainDays * previewModelDays, 2);
+                    }
+                    else
+                    {
+                        couponRemainder = price - unifiedBillingCyclePrice;
+                    }
+
                     log.DebugFormat("CalculatePriceByUnifiedBillingCycle - [nextRenewDate:{0}, numOfDaysForSubscription:{1}], [unifiedBillingCycle.endDate:{2}, numOfDaysByBillingCycle:{3}]",
                                     nextRenew.ToLongDateString(), numOfDaysForSubscription, unifiedBillingCycle.endDate, numOfDaysByBillingCycle);
                 }
             }
 
-            return unifiedBillingCyclePrice;
+            return new Tuple<double, double>(unifiedBillingCyclePrice, couponRemainder);
         }
 
         internal static UnifiedBillingCycle TryGetHouseholdUnifiedBillingCycle(int domainId, long renewLifeCycle)
