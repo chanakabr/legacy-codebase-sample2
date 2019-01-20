@@ -6,7 +6,7 @@ FROM kaltura/phoenix-build:${BUILD_TAG} AS builder
 FROM mcr.microsoft.com/windows/servercore:${WINDOWS_TAG}
 SHELL ["powershell"]
 
-COPY --from=builder ConfigurationValidator\bin\Release\ConfigurationValidator.exe ConfigurationValidator.exe
+COPY --from=builder tvpapi_rest/ConfigurationValidator/bin/Release/ConfigurationValidator.exe ConfigurationValidator.exe
 
 CMD ConfigurationValidator.exe
 	
