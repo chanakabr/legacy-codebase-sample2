@@ -53,7 +53,7 @@ namespace EpgIngest
         //    return Initialize(data, groupId, out  ingestResponse);
         //}
 
-        public bool Initialize(string Data, int groupId, bool doesGroupUsesTemplates, Dictionary<string, ImageType> ratioNamesToImageTypes,  out IngestResponse ingestResponse)
+        public bool Initialize(string Data, int groupId, bool doesGroupUsesTemplates, Dictionary<string, ImageType> ratioNamesToImageTypes, out IngestResponse ingestResponse)
         {
             ingestResponse = new IngestResponse()
             {
@@ -78,7 +78,7 @@ namespace EpgIngest
 
             // get mapping between ratio_id and ratio 
             Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
-            
+
             isOpcAccount = doesGroupUsesTemplates;
             groupRatioNamesToImageTypes = ratioNamesToImageTypes;
 
@@ -333,12 +333,25 @@ namespace EpgIngest
                         {
                             string imgurl = icon.src; // TO BE ABLE TO WORK WITH MORE THEN ONE PIC 
                             // get the ratioid by ratio
-                            int ratio = ODBCWrapper.Utils.GetIntSafeVal(ratios.FirstOrDefault(x => x.Value == icon.ratio).Key);
+                            int ratio = 0;
                             // OPC Get ImageTypeId by ratioName
                             long imageTypeId = 0;
                             if (isOpcAccount)
                             {
-                                imageTypeId = groupRatioNamesToImageTypes.ContainsKey(icon.ratio) ? groupRatioNamesToImageTypes[icon.ratio].Id : 0;
+                                if (groupRatioNamesToImageTypes.ContainsKey(icon.ratio))
+                                {
+                                    imageTypeId = groupRatioNamesToImageTypes[icon.ratio].Id;
+                                    ratio = (int)groupRatioNamesToImageTypes[icon.ratio].RatioId.Value;
+                                }
+                            }
+                            else
+                            {
+                                ratio = ODBCWrapper.Utils.GetIntSafeVal(ratios.FirstOrDefault(x => x.Value == icon.ratio).Key);
+                            }
+
+                            if (ratio == 0)
+                            {
+                                continue;
                             }
 
                             epgPicture = new EpgPicture();
@@ -761,13 +774,13 @@ namespace EpgIngest
                                 // comper object 
                                 foreach (KeyValuePair<string, EpgCB> item in epgDic[cbEpg.EpgIdentifier])
                                 {
-                                    if(cbEpg.pictures != null) // item.Key == m_Channels.mainlang.ToLower() &
+                                    if (cbEpg.pictures != null) // item.Key == m_Channels.mainlang.ToLower() &
                                     {
                                         foreach (var pic in cbEpg.pictures)
                                         {
                                             if (pic.IsProgramImage)
                                             {
-                                                if (item.Value.pictures == null )
+                                                if (item.Value.pictures == null)
                                                 {
                                                     item.Value.pictures = new List<EpgPicture>();
                                                 }
@@ -782,7 +795,7 @@ namespace EpgIngest
                                                     item.Value.pictures.Add(pic);
                                                 }
                                             }
-                                        }                                        
+                                        }
                                     }
 
                                     bool bEquals = cbEpg.Equals(item.Value, fieldEntityMapping);
