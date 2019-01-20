@@ -321,12 +321,17 @@ namespace TVinciShared
 
         public static long DateTimeToUnixTimestamp(DateTime dateTime)
         {
-            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+            return dateTime.ToUnixTimestamp();
         }
-        
+
+        public static long ToUnixTimestamp(this DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+        }
+
         public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
         {
-            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalMilliseconds;
+            return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
         }
 
         public static long UnixTimeStampNow()
@@ -339,11 +344,6 @@ namespace TVinciShared
         {
             DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             return origin.AddSeconds(timestamp);
-        }
-
-        public static long ToUnixTimestamp(this DateTime dateTime)
-        {
-            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
         }
     }
 }
