@@ -101,7 +101,6 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        // TODO SHIR - ASK IRA IF TO UPDATE 510 LIKE THIS METHOD
         private void SetTags(EpgCB epgCb, bool IsDefaultLanguage)
         {
             if (this.Tags == null)

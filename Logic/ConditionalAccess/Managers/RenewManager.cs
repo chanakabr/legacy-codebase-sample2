@@ -467,7 +467,6 @@ namespace Core.ConditionalAccess
 
                     if (processId > 0)
                     {
-                        // TODO SHIR - WHAT TO DO WITH THAT?
                         // update subscription Purchase
                         DAL.ConditionalAccessDAL.UpdateMPPRenewalProcessId(new List<int>() { (int)purchaseId }, processId);
                     }
