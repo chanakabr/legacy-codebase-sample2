@@ -16,42 +16,47 @@ namespace ConfigurationManager.Types
         public NumericConfigurationValue NumberOfRetries;
         public BooleanConfigurationValue ShouldDeleteSourceFile;
 
-        public S3Configuration(string key) : base(key)
+        public S3Configuration(string key) 
+            : base(key)
+        {
+            Initialize();
+        }
+
+        public S3Configuration(string key, ConfigurationValue parent) 
+            : base(key, parent)
+        {
+            Initialize();
+        }
+
+        protected void Initialize()
         {
             Region = new StringConfigurationValue("region", this)
             {
                 DefaultValue = string.Empty,
-                OriginalKey = "S3.Region"
             };
             AccessKey = new StringConfigurationValue("accessKey", this)
             {
                 DefaultValue = string.Empty,
-                OriginalKey = "S3.AccessKey"
             };
             SecretKey = new StringConfigurationValue("secretKey", this)
             {
                 DefaultValue = string.Empty,
-                OriginalKey = "S3.SecretKey"
             };
             BucketName = new StringConfigurationValue("bucketName", this)
             {
                 DefaultValue = string.Empty,
-                OriginalKey = "S3.BucketName"
             };
             Path = new StringConfigurationValue("path", this)
             {
                 DefaultValue = string.Empty,
-                OriginalKey = "S3.Path"
             };
             NumberOfRetries = new NumericConfigurationValue("numberOfRetries", this)
             {
                 DefaultValue = 1,
-                OriginalKey = "S3.NumberOfRetries"
             };
             ShouldDeleteSourceFile = new BooleanConfigurationValue("shouldDeleteSourceFile", this)
             {
                 DefaultValue = false,
-                OriginalKey = "S3.ShouldDeleteSourceFile"
             };
         }
     }

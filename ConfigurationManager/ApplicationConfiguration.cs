@@ -127,9 +127,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue UserSegmentTTL;
         public static NumericConfigurationValue EPGDeleteBulkSize;
         public static BooleanConfigurationValue AllowUnknownCountry;
-        public static S3Configuration S3FileUploader;
-        public static FileSystemUploaderConfiguration FileSystemUploader;
-        public static BooleanConfigurationValue UploadFilesToS3;
+        public static FileUploadConfiguration FileUpload;
 
         #endregion
 
@@ -557,7 +555,6 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = 10
             };
-
             EPGDeleteBulkSize = new NumericConfigurationValue("epg_delete_bulk_size")
             {
                 ShouldAllowEmpty = true,
@@ -568,13 +565,7 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
-            UploadFilesToS3 = new BooleanConfigurationValue("UploadFilesToS3")
-            {
-                DefaultValue = true
-            };
-
-            FileSystemUploader = new FileSystemUploaderConfiguration("FileSystemUploader");
-            S3FileUploader = new S3Configuration("S3FileUploader");
+            FileUpload = new FileUploadConfiguration("fileUpload");
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {

@@ -25,7 +25,7 @@ namespace ConfigurationManager
             };
             TempUploadFolder = new StringConfigurationValue("tempUploadFolder", this)
             {
-                OriginalKey = "TempUploadFolder"
+                ShouldAllowEmpty = false
             };
         }
     }

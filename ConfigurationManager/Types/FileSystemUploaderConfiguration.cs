@@ -6,28 +6,32 @@ using System.Threading.Tasks;
 
 namespace ConfigurationManager.Types
 {
-    public class FileSystemUploaderConfiguration : ConfigurationValue
+    public class FileSystemConfiguration : ConfigurationValue
     {
         public StringConfigurationValue DestPath;
         public StringConfigurationValue PublicUrl;
-        public BooleanConfigurationValue ShouldDeleteSourceFile;
 
-        public FileSystemUploaderConfiguration(string key) : base(key)
+        public FileSystemConfiguration(string key) 
+            : base(key)
+        {
+            Initialize();
+        }
+
+        public FileSystemConfiguration(string key, ConfigurationValue parent) 
+            : base(key, parent)
+        {
+            Initialize();
+        }
+
+        protected void Initialize()
         {
             DestPath = new StringConfigurationValue("destPath", this)
             {
                 DefaultValue = string.Empty,
-                OriginalKey = "FileSystemUploader.DestPath"
             };
             PublicUrl = new StringConfigurationValue("publicUrl", this)
             {
                 DefaultValue = string.Empty,
-                OriginalKey = "FileSystemUploader.PublicUrl"
-            };
-            ShouldDeleteSourceFile = new BooleanConfigurationValue("shouldDeleteSourceFile", this)
-            {
-                DefaultValue = false,
-                OriginalKey = "FileSystemUploader.ShouldDeleteSourceFile"
             };
         }
     }

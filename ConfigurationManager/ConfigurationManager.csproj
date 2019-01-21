@@ -71,6 +71,7 @@
     <Compile Include="Types\ExportConfiguration.cs" />
     <Compile Include="Types\FacebookConfiguration.cs" />
     <Compile Include="Types\FileSystemUploaderConfiguration.cs" />
+    <Compile Include="Types\FileUploadConfiguration.cs" />
     <Compile Include="Types\GroupsManagerConfiguration.cs" />
     <Compile Include="Types\HarmonicProviderConfiguration.cs" />
     <Compile Include="Types\ImageResizerConfiguration.cs" />
