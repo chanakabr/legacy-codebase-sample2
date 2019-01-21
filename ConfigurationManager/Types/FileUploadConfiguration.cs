@@ -35,7 +35,10 @@ namespace ConfigurationManager.Types
         public FileUploadConfiguration(string key) 
             : base(key)
         {
-            S3 = new S3Configuration("S3", this);
+            S3 = new S3Configuration("S3", this)
+            {
+                ShouldAllowEmpty = true
+            };
             FileSystem = new FileSystemConfiguration("FileSystem", this);
 
             Type = new StringConfigurationValue("type", this)

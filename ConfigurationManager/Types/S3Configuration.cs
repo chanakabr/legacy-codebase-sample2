@@ -14,7 +14,6 @@ namespace ConfigurationManager.Types
         public StringConfigurationValue BucketName;
         public StringConfigurationValue Path;
         public NumericConfigurationValue NumberOfRetries;
-        public BooleanConfigurationValue ShouldDeleteSourceFile;
 
         public S3Configuration(string key) 
             : base(key)
@@ -32,31 +31,27 @@ namespace ConfigurationManager.Types
         {
             Region = new StringConfigurationValue("region", this)
             {
-                DefaultValue = string.Empty,
+                ShouldAllowEmpty = false
             };
             AccessKey = new StringConfigurationValue("accessKey", this)
             {
-                DefaultValue = string.Empty,
+                ShouldAllowEmpty = false
             };
             SecretKey = new StringConfigurationValue("secretKey", this)
             {
-                DefaultValue = string.Empty,
+                ShouldAllowEmpty = false
             };
             BucketName = new StringConfigurationValue("bucketName", this)
             {
-                DefaultValue = string.Empty,
+                ShouldAllowEmpty = false
             };
             Path = new StringConfigurationValue("path", this)
             {
-                DefaultValue = string.Empty,
+                ShouldAllowEmpty = false
             };
             NumberOfRetries = new NumericConfigurationValue("numberOfRetries", this)
             {
                 DefaultValue = 1,
-            };
-            ShouldDeleteSourceFile = new BooleanConfigurationValue("shouldDeleteSourceFile", this)
-            {
-                DefaultValue = false,
             };
         }
     }
