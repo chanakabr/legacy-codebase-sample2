@@ -8123,13 +8123,7 @@ namespace Core.Catalog
             definitions.shouldDateSearchesApplyToAllTypes = request.isAllowedToViewInactiveAssets;
             definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
             definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
-
-            if (definitions.isAllowedToViewInactiveAssets)
-            {
-                definitions.shouldAddIsActiveTerm = false;
-                definitions.shouldIgnoreDeviceRuleID = true;
-            }
-
+            
             #endregion
 
             #region Device Rules
@@ -8142,8 +8136,15 @@ namespace Core.Catalog
             }
 
             definitions.deviceRuleId = deviceRules;
-
+            
             definitions.shouldIgnoreDeviceRuleID = request.m_bIgnoreDeviceRuleID;
+
+            if (definitions.isAllowedToViewInactiveAssets)
+            {
+                definitions.shouldAddIsActiveTerm = false;
+                definitions.shouldIgnoreDeviceRuleID = true;
+            }
+
             #endregion
 
             #region Media Types, Permitted Watch Rules, Language
@@ -8221,9 +8222,10 @@ namespace Core.Catalog
                 if ((definitions.mediaTypes == null || definitions.mediaTypes.Count == 0) ||
                     (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Remove(0)))
                 {
+
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
-                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
+                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 }
 
                 // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
@@ -8233,7 +8235,7 @@ namespace Core.Catalog
                 if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
                 {
                     definitions.shouldSearchEpg = true;
-                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
+                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 }
 
                 // If there are items left in media types after removing 0, we are searching for media
