@@ -18,7 +18,8 @@ namespace ConfigurationManager.Types
         {
             get
             {
-                if (Enum.TryParse(Type.Value, true, out eFileUploadType ret))
+                eFileUploadType ret;
+                if (Enum.TryParse(Type.Value, true, out ret))
                     return ret;
 
                 return eFileUploadType.None;
