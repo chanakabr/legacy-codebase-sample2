@@ -3279,7 +3279,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling catalog service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3309,7 +3309,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3346,7 +3346,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3513,7 +3513,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling SearchChannels. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3644,7 +3644,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling catalog service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3693,7 +3693,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling catalog service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3889,7 +3889,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling SearchChannels. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
