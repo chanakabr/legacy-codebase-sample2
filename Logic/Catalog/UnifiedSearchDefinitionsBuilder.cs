@@ -147,7 +147,17 @@ namespace Core.Catalog
                 {
                     definitions.shouldSearchEpg = true;
                 }
-                
+
+                if (definitions.ksqlAssetTypes.Contains("epg"))
+                {
+                    definitions.shouldSearchEpg = true;
+                }
+
+                if (definitions.ksqlAssetTypes.Contains("recording"))
+                {
+                    definitions.shouldSearchRecordings = true;
+                }
+
                 // 1 - hard coded for recording
                 if (definitions.mediaTypes.Remove(UnifiedSearchDefinitions.RECORDING_ASSET_TYPE))
                 {
@@ -288,47 +298,49 @@ namespace Core.Catalog
                 // we should go to CAS if we DON'T have predefined recordings
                 definitions.shouldGetDomainsRecordings = !request.hasPredefinedRecordings;
 
-                if (definitions.shouldGetDomainsRecordings && definitions.shouldSearchRecordings && request.domainId > 0)
+                if (definitions.shouldSearchRecordings)
                 {
-                    List<string> recordings = GetUserRecordings(definitions, request.m_sSiteGuid, request.m_nGroupID, (long)request.domainId);
+                    definitions.extraReturnFields.Add("epg_id");
 
-                    if (definitions.specificAssets == null)
+                    if (definitions.shouldGetDomainsRecordings)
                     {
-                        definitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
-                    }
+                        List<string> recordings = new List<string>();
 
-                    // If user has at least one recording
-                    if (recordings != null && recordings.Count > 0)
-                    {
-                        // If there are previous specific assets - we narrow down the list to contain only the user's recordings
-                        if (definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
+                        if (request.domainId > 0)
                         {
-                            var currentRecordings = definitions.specificAssets[eAssetTypes.NPVR];
-
-                            var newRecordings = currentRecordings.Intersect(recordings).ToList();
-
-                            definitions.specificAssets[eAssetTypes.NPVR] = newRecordings;
+                            recordings = GetUserRecordings(definitions, request.m_sSiteGuid, request.m_nGroupID, (long)request.domainId);
                         }
-                        // Otherwise we are happy with the list we got from conditional access
+
+                        if (definitions.specificAssets == null)
+                        {
+                            definitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
+                        }
+
+                        // If user has at least one recording
+                        if (recordings != null && recordings.Count > 0)
+                        {
+                            // If there are previous specific assets - we narrow down the list to contain only the user's recordings
+                            if (definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
+                            {
+                                var currentRecordings = definitions.specificAssets[eAssetTypes.NPVR];
+
+                                var newRecordings = currentRecordings.Intersect(recordings).ToList();
+
+                                definitions.specificAssets[eAssetTypes.NPVR] = newRecordings;
+                            }
+                            // Otherwise we are happy with the list we got from conditional access
+                            else
+                            {
+                                definitions.specificAssets.Add(eAssetTypes.NPVR, recordings);
+                            }
+                        }
                         else
                         {
-                            definitions.specificAssets.Add(eAssetTypes.NPVR, recordings);
+                            // if not, create a new list which symbols no assets at all.
+                            definitions.specificAssets[eAssetTypes.NPVR] = new List<string>() { "0" };
                         }
                     }
-                    else
-                    {
-                        // if not, create a new list which symbols no assets at all.
-                        definitions.specificAssets[eAssetTypes.NPVR] = new List<string>() { "0" };
-                    }
                 }
-                else
-                {
-                    if (!definitions.extraReturnFields.Contains("epg_id"))
-                    {
-                        definitions.extraReturnFields.Add("epg_id");
-                    }
-                }
-
                 #endregion
 
                 #region Excluded CRIDs

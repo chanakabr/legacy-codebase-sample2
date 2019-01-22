@@ -131,7 +131,8 @@ namespace Core.Catalog
             "media_id",
             "epg_id",
             STATUS,
-            "linear_media_id"
+            "linear_media_id",
+            "recording_id"
         };
 
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
@@ -7920,6 +7921,8 @@ namespace Core.Catalog
                         }
                         else
                         {
+                            definitions.ksqlAssetTypes.Add(loweredValue);
+
                             // I mock a "contains" operator so that the query builder will know it is a not-exact search
                             leaf.operand = ComparisonOperator.Contains;
                         }
