@@ -1413,9 +1413,6 @@ namespace WebAPI.Clients
 
             List<TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();
 
-            // get group configuration
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1446,23 +1443,7 @@ namespace WebAPI.Clients
             if (response.Recordings != null && response.Recordings.Count > 0)
             {
                 result.TotalCount = response.TotalItems;
-                // convert recordings
-                result.Objects = new List<KalturaRecording>();
-                foreach (Recording recording in response.Recordings)
-                {
-                    KalturaRecording kalturaRecording = null;
-                    if (recording.isExternalRecording)
-                    {
-                        ExternalRecording externalRecording = recording as ExternalRecording;
-                        kalturaRecording = Mapper.Map<KalturaExternalRecording>(externalRecording);
-                    }
-                    else
-                    {
-                        kalturaRecording = Mapper.Map<KalturaRecording>(recording);
-                    }
-
-                    result.Objects.Add(kalturaRecording);
-                }                
+                result.Objects = Mapper.Map<List<KalturaRecording>>(response.Recordings);
             }
 
             return result;
