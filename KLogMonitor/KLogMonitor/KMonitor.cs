@@ -235,6 +235,11 @@ namespace KLogMonitor
             Dispose(false);
         }
 
+        public static void SetAppType(KLogEnums.AppType appType)
+        {
+            AppType = appType;
+        }
+
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
             AppType = appType;
