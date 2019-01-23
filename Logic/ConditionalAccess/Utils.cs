@@ -5442,11 +5442,66 @@ namespace Core.ConditionalAccess
 
         internal static Dictionary<long, Recording> GetDomainRecordingIdsToRecordingsMap(int groupID, long domainID, List<long> domainRecordingIds)
         {
+            var ret = GetDomainRecordings(groupID, domainID);
+
+            return ret == null
+                ? ret
+                : ret.Where(x => domainRecordingIds.Contains(x.Key))
+                    .ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        internal static Dictionary<long, Recording> GetDomainRecordings(int groupId, long domainId)
+        {
+            Dictionary<long, Recording> domainRecordingIdToRecordingMap = null;
+            
+            try
+            {
+                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
+
+                LayeredCache.Instance.Get(
+                    LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap,
+                    GetDomainRecordingsFromDB, funcParams, groupId,
+                    LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
+                    new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)});
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed GetDomainRecordings, groupId: {0}, domainId: {1}", groupId, domainId), ex);
+            }
+            
+            return FilterViewableRecordingsOnly(domainRecordingIdToRecordingMap);
+        }
+
+        private static Dictionary<long, Recording> FilterViewableRecordingsOnly(Dictionary<long, Recording> domainRecordingIdToRecordingMap)
+        {
+            if (domainRecordingIdToRecordingMap == null||!domainRecordingIdToRecordingMap.Any())
+                return domainRecordingIdToRecordingMap;
+
+            return domainRecordingIdToRecordingMap
+                .Where(x => x.Value.ViewableUntilDate.HasValue &&
+                            x.Value.ViewableUntilDate.Value - DateTime.UtcNow.ToUnixTimestamp() > 0)
+                .ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        private static Tuple<Dictionary<long, Recording>, bool> GetDomainRecordingsFromDB(Dictionary<string, object> arg)
+        {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
-            DataTable dt = RecordingsDAL.GetDomainRecordingsByIds(groupID, domainID, domainRecordingIds);
+
+            int groupID = int.Parse(arg["groupId"].ToString());
+            long domainID = long.Parse(arg["domainId"].ToString());
+
+            var domainRecordingStatuses = new List<DomainRecordingStatus>()
+            {
+                DomainRecordingStatus.OK,
+                DomainRecordingStatus.Canceled,
+                DomainRecordingStatus.SeriesCancel,
+            };
+            DataTable dt = RecordingsDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x=>(int)x).ToList());
             if (dt != null && dt.Rows != null)
             {
                 DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
+
                 foreach (DataRow dr in dt.Rows)
                 {
                     long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
@@ -5463,34 +5518,19 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            return DomainRecordingIdToRecordingMap;
+            return new Tuple<Dictionary<long, Recording>, bool>(DomainRecordingIdToRecordingMap, dt != null);
         }
 
-        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, bool withUser = false)
+        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses)
         {
-            Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
-            List<DomainRecordingStatus> domainRecordingStatuses = ConvertToDomainRecordingStatus(recordingStatuses);
-            DataTable dt = RecordingsDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x => (int)x).ToList());
-            if (dt != null && dt.Rows != null)
+            Dictionary<long, Recording> DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
+
+            var domainRecordings = GetDomainRecordings(groupID, domainID);
+            foreach (var record in domainRecordings)
             {
-                DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
-                foreach (DataRow dr in dt.Rows)
+                if (recordingStatuses.Contains(record.Value.RecordingStatus))
                 {
-                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                    if (domainRecordingID > 0)
-                    {
-                        Recording domainRecording = BuildDomainRecordingFromDataRow(dr);
-                        // add domain recording if its valid and doesn't already exist in dictionary
-                        if (domainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK
-                            && !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID) && recordingStatuses.Contains(domainRecording.RecordingStatus))
-                        {
-                            if (withUser)
-                            {
-                                domainRecording = new UserRecording(domainRecording, ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"));
-                            }
-                            DomainRecordingIdToRecordingMap.Add(domainRecordingID, domainRecording);
-                        }
-                    }
+                    DomainRecordingIdToRecordingMap.Add(record.Key, record.Value);
                 }
             }
 
@@ -5655,6 +5695,7 @@ namespace Core.ConditionalAccess
             if (recordingID > 0)
             {
                 long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID");
+                string userId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID");
                 long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
                 DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
                 DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
@@ -5705,6 +5746,7 @@ namespace Core.ConditionalAccess
                     recording = new Recording()
                     {
                         Id = recordingID,
+                        UserId = userId,
                         EpgId = epgId,
                         ChannelId = epgChannelId,
                         EpgStartDate = epgStartDate,
@@ -5724,6 +5766,7 @@ namespace Core.ConditionalAccess
                     recording = new ExternalRecording()
                     {
                         Id = recordingID,
+                        UserId = userId,
                         EpgId = epgId,
                         ChannelId = epgChannelId,
                         EpgStartDate = epgStartDate,
@@ -6966,11 +7009,11 @@ namespace Core.ConditionalAccess
         public static bool UpdateScheduledRecordingsUserToMaster(int groupId, int domainId, string userId, string masterUserId)
         {
             bool result = false;
-            var domainScheduledRecordings = GetDomainRecordingsByTstvRecordingStatuses(groupId, domainId, new List<TstvRecordingStatus> { TstvRecordingStatus.Scheduled }, true);
+            var domainScheduledRecordings = GetDomainRecordingsByTstvRecordingStatuses(groupId, domainId, new List<TstvRecordingStatus> { TstvRecordingStatus.Scheduled });
 
             if (domainScheduledRecordings != null && domainScheduledRecordings.Count > 0)
             {
-                List<long> domainSceduledIdsToUpdate = domainScheduledRecordings.Where(r => ((UserRecording)r.Value).UserId == userId).Select(r => r.Key).ToList();
+                List<long> domainSceduledIdsToUpdate = domainScheduledRecordings.Where(r => r.Value.UserId == userId).Select(r => r.Key).ToList();
                 if (domainSceduledIdsToUpdate != null)
                 {
                     result = RecordingsDAL.UpdateDomainScheduledRecordingsUserId(groupId, domainSceduledIdsToUpdate, masterUserId);
