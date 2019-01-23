@@ -35,6 +35,9 @@ namespace WebAPI
 
         private static void InitializeLogging()
         {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+            string apiVersion = string.Format("{0}_{1}_{2}", fvi.FileMajorPart, fvi.FileMinorPart, fvi.FileBuildPart);
             string logDir = System.Environment.GetEnvironmentVariable("API_LOG_DIR");
             if(logDir != null)
             {
@@ -44,7 +47,9 @@ namespace WebAPI
             {
                 logDir = "C:\\log\\RestfulApi";
             }
+
             log4net.GlobalContext.Properties["LogDir"] = logDir;
+            log4net.GlobalContext.Properties["ApiVersion"] = apiVersion;
 
             // build log4net partial file name
             string partialLogName = string.Empty;
@@ -80,8 +85,17 @@ namespace WebAPI
 
         protected void Application_BeginRequest()
         {
+            KMonitor.SetAppType(KLogEnums.AppType.WS);
+            KLogger.SetAppType(KLogEnums.AppType.WS);
             if (!Request.AppRelativeCurrentExecutionFilePath.ToLower().Contains("/api_v"))
             {
+                // set appType to WCF only if we know its a WCF service
+                if (Request.AppRelativeCurrentExecutionFilePath.ToLower().Contains(".svc"))
+                {
+                    KMonitor.SetAppType(KLogEnums.AppType.WCF);
+                    KLogger.SetAppType(KLogEnums.AppType.WCF);
+                }
+
                 // initialize monitor and logs parameters
                 string requestString = MonitorLogsHelper.GetWebServiceRequestString();
                 if (!string.IsNullOrEmpty(requestString) && requestString.ToLower().Contains("<soap"))
