@@ -253,8 +253,7 @@ namespace WebAPI.Managers
 
         protected override string Upload(FileInfo fileInfo, string id)
         {
-            var subDir = GetSubDir(id);
-            var destDir = Path.Combine(Destination, subDir);
+            var destDir = Path.Combine(Destination, GetSubDir(id));
             CreateSubDir(destDir);
 
             var fileName = id + fileInfo.Extension;
@@ -277,7 +276,7 @@ namespace WebAPI.Managers
                 throw new InternalServerErrorException(new ApiException.ApiExceptionType(StatusCode.Error, "can't upload file"));
             }
 
-            return new Uri(new Uri(PublicUrl), fileName).AbsoluteUri;
+            return string.Format("{0}{1}{2}", PublicUrl, GetSubUrl(id), fileName);
         }
 
         private static void CreateSubDir(string destDir)
@@ -290,7 +289,7 @@ namespace WebAPI.Managers
         {
             const int CharacterNumber = 8;
 
-            if (id.Length < CharacterNumber)
+            if (id.Length <= CharacterNumber)
                 throw new InternalServerErrorException(new ApiException.ApiExceptionType(StatusCode.Error, "file id length is too short"));
 
             var sb = new StringBuilder(CharacterNumber);
@@ -301,6 +300,11 @@ namespace WebAPI.Managers
             }
 
             return sb.ToString();
+        }
+
+        private static string GetSubUrl(string id)
+        {
+            return GetSubDir(id).Replace("\\", "/");
         }
     }
 }
