@@ -18,6 +18,7 @@ using System.Xml.Serialization;
 using ApiObjects.Epg;
 using ConfigurationManager;
 using Core.Catalog.CatalogManagement;
+using TVinciShared;
 
 namespace APILogic
 {
@@ -1182,7 +1183,7 @@ namespace APILogic
 
         private static string AppendUpdateDateToFilter(string filter, DateTime? since)
         {
-            return string.Format("(and update_date >= '{0}' {1})", ODBCWrapper.Utils.DateTimeToUnixTimestamp(since.Value), filter);
+            return string.Format("(and update_date >= '{0}' {1})", DateUtils.DateTimeToUtcUnixTimestampSeconds(since.Value), filter);
         }
 
         private static string GetStringMetaSection(Metas meta, string mainLang)
@@ -1306,7 +1307,7 @@ namespace APILogic
             // build notification full url
             StringBuilder fullNotificationUrl = new StringBuilder();
 
-            long timestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             fullNotificationUrl.AppendFormat("{0}?task_id={1}&timestamp={2}", notificationUrl, taskId, timestamp);
 

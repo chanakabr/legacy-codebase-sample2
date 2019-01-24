@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TVinciShared;
 
 namespace APILogic.Api.Managers
 {
@@ -66,10 +67,10 @@ namespace APILogic.Api.Managers
             try
             {
                 businessModuleRule.GroupId = groupId;
-                businessModuleRule.UpdateDate = ODBCWrapper.Utils.UnixTimeStampNow();
+                businessModuleRule.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
 
-                if (!ApiDAL.UpdateBusinessModuleRule(groupId, businessModuleRule.Id, businessModuleRule.Name, businessModuleRule.Description, 
-                    ODBCWrapper.Utils.UnixTimestampToDateTime(businessModuleRule.UpdateDate))) 
+                if (!ApiDAL.UpdateBusinessModuleRule(groupId, businessModuleRule.Id, businessModuleRule.Name, businessModuleRule.Description,
+                    DateUtils.UtcUnixTimestampSecondsToDateTime(businessModuleRule.UpdateDate))) 
                 {
                     response.SetStatus(eResponseStatus.Error, BUSINESS_MODULE_RULE_FAILED_UPDATE);
                     return response;
@@ -128,7 +129,7 @@ namespace APILogic.Api.Managers
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     businessModuleRuleToAdd.Id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
-                    businessModuleRuleToAdd.CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestamp(ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE"));
+                    businessModuleRuleToAdd.CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE"));
                     businessModuleRuleToAdd.UpdateDate = businessModuleRuleToAdd.CreateDate;
 
                     if (!ApiDAL.SaveBusinessModuleRuleCB(groupId, businessModuleRuleToAdd))

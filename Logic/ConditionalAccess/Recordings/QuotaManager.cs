@@ -12,6 +12,7 @@ using System.Reflection;
 using Synchronizer;
 using Core.ConditionalAccess;
 using System.Threading;
+using TVinciShared;
 
 namespace Core.Recordings
 {
@@ -319,7 +320,7 @@ namespace Core.Recordings
                     // build list of domain recordings id - Least as needed   
                     int tempQuotaOverage = 0;
                     int recordingDuration = 0;
-                    long currentUtcTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                    long currentUtcTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                     foreach (KeyValuePair<long, Recording> recording in recordings)
                     {
                         // check if record is protected - ignore it 

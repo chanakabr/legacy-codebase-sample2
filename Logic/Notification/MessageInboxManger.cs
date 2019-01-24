@@ -98,8 +98,8 @@ namespace Core.Notification
                         log.DebugFormat("from date was updated to user creation date. GID: {0}, UID: {1}, requested date: {2}, new date: {3}",
                             groupId,
                             userId,
-                            TVinciShared.DateUtils.UnixTimeStampToDateTime(CreatedAtGreaterThanOrEqual),
-                            TVinciShared.DateUtils.UnixTimeStampToDateTime(userNotification.CreateDateSec));
+                            TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(CreatedAtGreaterThanOrEqual),
+                            TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(userNotification.CreateDateSec));
 
                         fromSystemAnnouncementDate = userNotification.CreateDateSec;
                     }

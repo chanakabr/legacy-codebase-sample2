@@ -202,7 +202,7 @@ namespace ApiObjects.Rules
                 return true;
             }
 
-            long now = ODBCWrapper.Utils.UnixTimeStampNow();
+            long now = ODBCWrapper.Utils.GetUtcUnixTimestampNow();
             bool res = (!StartDate.HasValue || StartDate.Value < now) && (!EndDate.HasValue || now < EndDate.Value);
             if (Not)
             {

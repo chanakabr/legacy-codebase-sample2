@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Notification
 {
@@ -188,7 +189,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static GetUserFollowsResponse Get_UserFollows(int groupId, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)
+        public static GetUserFollowsResponse Get_UserFollows(int groupId, int userId, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderDir order, bool isFollowTvSeriesRequest = false)
         {
             GetUserFollowsResponse userFollowResponse = new GetUserFollowsResponse();
             userFollowResponse.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -260,7 +261,7 @@ namespace Core.Notification
             if (userFollowResponse.Follows != null && userFollowResponse.Follows.Count > 0)
             {
                 // set result order
-                if (order == OrderDir.DESC)
+                if (order == ApiObjects.SearchObjects.OrderDir.DESC)
                     userFollowResponse.Follows.Reverse();
 
                 // update total results
@@ -390,7 +391,7 @@ namespace Core.Notification
 
             if (mediaObj != null && mediaObj.m_lTags != null && mediaObj.m_lTags.FirstOrDefault() != null)
             {
-                catalogStartDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(mediaObj.m_dCatalogStartDate);
+                catalogStartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(mediaObj.m_dCatalogStartDate);
 
                 // validate the media type ID is a series
                 if (mediaObj.m_oMediaType != null &&
@@ -561,7 +562,7 @@ namespace Core.Notification
         {
             IdsResponse response = new IdsResponse(new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()), new List<int>());
 
-            var userFollows = Get_UserFollows(groupId, userId, 1000, 0, OrderDir.ASC);
+            var userFollows = Get_UserFollows(groupId, userId, 1000, 0, ApiObjects.SearchObjects.OrderDir.ASC);
             if (userFollows == null ||
                 userFollows.Status == null ||
                 userFollows.Status.Code != (int)eResponseStatus.OK ||
@@ -1001,7 +1002,7 @@ namespace Core.Notification
                 }
 
                 // create added time
-                long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
+                long addedSecs = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 if (userNotificationData.Settings.EnableMail.HasValue &&
                     userNotificationData.Settings.EnableMail.Value &&
@@ -1306,7 +1307,7 @@ namespace Core.Notification
                 throw new Exception("TCM value [PersonalizedFeedTTLDays] isn't valid");
             }
 
-            return TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow.AddDays(-personalizedFeedTtlDay));
+            return TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-personalizedFeedTtlDay));
         }
 
         #endregion

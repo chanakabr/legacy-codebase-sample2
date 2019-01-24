@@ -10,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -223,8 +224,8 @@ namespace Core.Catalog.CatalogManagement
                         SystemName = systemName,
                         IsPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC"),
                         ParentId = parentId.HasValue && parentId.Value == 0 ? null : parentId,
-                        CreateDate = createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
-                        UpdateDate = updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0,
+                        CreateDate = createDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate.Value) : 0,
+                        UpdateDate = updateDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(updateDate.Value) : 0,
                         Features = features,
                         ConnectingMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTING_META_ID"),
                         ConnectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID"),
@@ -430,8 +431,8 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     result = new Topic(id, name, namesInOtherLanguages, systemName, (MetaType)topicType, features, isPredefined, helpText, parentId,
-                                        createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
-                                        updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
+                                        createDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate.Value) : 0,
+                                        updateDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(updateDate.Value) : 0);
                 }
             }
 
@@ -598,8 +599,8 @@ namespace Core.Catalog.CatalogManagement
                     tagId = id,
                     topicId = topicId,
                     TagsInOtherLanguages = tagsInOtherLanguages,
-                    createDate = createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
-                    updateDate = updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0
+                    createDate = createDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate.Value) : 0,
+                    updateDate = updateDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(updateDate.Value) : 0
                 };
             }
 
@@ -744,8 +745,8 @@ namespace Core.Catalog.CatalogManagement
                 IngestReferencePath = ODBCWrapper.Utils.GetSafeStr(dr, "INGEST_REFERENCE_PATH"),
                 ProtectFromIngest = ODBCWrapper.Utils.ExtractBoolean(dr, "PROTECT_FROM_INGEST"),
                 DefaultIngestValue = ODBCWrapper.Utils.GetSafeStr(dr, "DEFAULT_INGEST_VALUE"),
-                CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
-                UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
+                CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
+                UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
                 IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1
             };
             return assetStructMeta;
@@ -2206,11 +2207,11 @@ namespace Core.Catalog.CatalogManagement
 
                         result.Add(new ApiObjects.SearchObjects.TagValue()
                         {
-                            createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate),
+                            createDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate),
                             languageId = defaultLanguage,
                             tagId = tagId,
                             topicId = topicId,
-                            updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate),
+                            updateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(updateDate),
                             value = tagValue
                         });
                     }
@@ -2236,11 +2237,11 @@ namespace Core.Catalog.CatalogManagement
 
                         result.Add(new ApiObjects.SearchObjects.TagValue()
                         {
-                            createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate),
+                            createDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate),
                             languageId = languageId,
                             tagId = tagId,
                             topicId = topicId,
-                            updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate),
+                            updateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(updateDate),
                             value = tagValue
                         });
                     }

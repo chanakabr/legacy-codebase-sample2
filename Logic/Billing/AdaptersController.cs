@@ -11,6 +11,7 @@ using CouchbaseManager;
 using Enyim.Caching.Memcached;
 using System.Threading;
 using Synchronizer;
+using TVinciShared;
 
 namespace Core.Billing
 {
@@ -112,7 +113,7 @@ namespace Core.Billing
             }
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature
             string signature = string.Concat(this.paymentGatewayId, request.siteGuid, request.chargeId, request.price, request.currency,
@@ -197,7 +198,7 @@ namespace Core.Billing
             }
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature
             string signature = string.Concat(this.paymentGatewayId, request.siteGuid, request.productId, request.productCode, request.ExternalTransactionId,
@@ -266,7 +267,7 @@ namespace Core.Billing
             }
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature
             string signature = string.Concat(this.paymentGatewayId, chargeId, unixTimestamp, paymentMethodExternalId);
@@ -367,7 +368,7 @@ namespace Core.Billing
             }
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature
             string signature = string.Concat(paymentGatewayId, request.pendingExternalTransactionId, unixTimestamp);
@@ -490,7 +491,7 @@ namespace Core.Billing
             if (paymentGateway != null && !string.IsNullOrEmpty(paymentGateway.AdapterUrl))
             {
                 //set unixTimestamp
-                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(this.paymentGatewayId, paymentGateway.TransactUrl, paymentGateway.StatusUrl, paymentGateway.RenewUrl,
@@ -550,7 +551,7 @@ namespace Core.Billing
                     }
 
                     //set unixTimestamp
-                    long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                    long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                     //set signature
                     string signature = string.Concat(paymentGateway.ID, unixTimestamp, intent, paymentGateway.Settings != null ?
@@ -659,7 +660,7 @@ namespace Core.Billing
             }
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature
             string signature = string.Concat(this.paymentGatewayId, request.siteGuid, request.userIP, request.productId.ToString(), request.productCode,
@@ -747,7 +748,7 @@ namespace Core.Billing
             }
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature
             string signature = string.Concat(this.paymentGatewayId, chargeId, unixTimestamp, paymentMethodExternalIds != null ? string.Concat(paymentMethodExternalIds) : string.Empty);
@@ -823,7 +824,7 @@ namespace Core.Billing
 
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature           
 

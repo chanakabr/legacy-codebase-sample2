@@ -37,7 +37,7 @@ namespace Core.Social.SocialFeed.SocialFeedJsonTemplates
                         Body = status.text,
                         CreatorName = status.user.name,
                         CreatorImageUrl = status.user.profile_image_url,
-                        CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(status.created_at),
+                        CreateDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(status.created_at),
                         PopularityCounter = status.favorite_count
                     });
             }

@@ -130,7 +130,7 @@ namespace Core.ConditionalAccess
                     ppvEntitlement = ppvEntitlementsToInsert.Where(p => p.ProductId == ppv.ppvCode && p.ContentId == ppv.purchasedAsMediaFileID.ToString()).FirstOrDefault();
                     if (ppvEntitlement != null)
                     {
-                        if (DateUtils.UnixTimeStampToDateTime(ppvEntitlement.EndDateSeconds) != ppv.endDate || DateUtils.UnixTimeStampToDateTime(ppvEntitlement.StartDateSeconds) != ppv.startDate)
+                        if (DateUtils.UtcUnixTimestampSecondsToDateTime(ppvEntitlement.EndDateSeconds) != ppv.endDate || DateUtils.UtcUnixTimestampSecondsToDateTime(ppvEntitlement.StartDateSeconds) != ppv.startDate)
                         {
                             ppvEntitlement.PurchaseId = ppv.ID;
 
@@ -212,7 +212,7 @@ namespace Core.ConditionalAccess
             if (ppvToUpdate != null)
             {
                 DateTime startDate, endDate;
-                startDate = ppvToUpdate.StartDateSeconds != 0 ? DateUtils.UnixTimeStampToDateTime(ppvToUpdate.StartDateSeconds) : DateTime.UtcNow;
+                startDate = ppvToUpdate.StartDateSeconds != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(ppvToUpdate.StartDateSeconds) : DateTime.UtcNow;
 
                 if (ppvToUpdate.EndDateSeconds == 0)
                 {
@@ -230,7 +230,7 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
-                    endDate = DateUtils.UnixTimeStampToDateTime(ppvToUpdate.EndDateSeconds);
+                    endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(ppvToUpdate.EndDateSeconds);
                 }
 
                 if (!ConditionalAccessDAL.Update_PPVPurchaseDates(ppvToUpdate.PurchaseId, startDate, endDate))
@@ -254,11 +254,11 @@ namespace Core.ConditionalAccess
                     {
                         DateTime? startDate = null;
                         if (ppv.StartDateSeconds != 0)
-                            startDate = DateUtils.UnixTimeStampToDateTime(ppv.StartDateSeconds);
+                            startDate = DateUtils.UtcUnixTimestampSecondsToDateTime(ppv.StartDateSeconds);
 
                         DateTime? endDate = null;
                         if (ppv.EndDateSeconds != 0)
-                            endDate = DateUtils.UnixTimeStampToDateTime(ppv.EndDateSeconds);
+                            endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(ppv.EndDateSeconds);
 
                         var res = GrantManager.GrantPPV(cas, groupId, userId, householdId, contentId, (int)ppv.ProductId, string.Empty, string.Empty, false, startDate, endDate);
                         string logString = string.Format("userId = {0}, ppv productCode = {1}, ppv contentId = {2}", userId, ppv.ProductCode, ppv.ContentId);
@@ -303,7 +303,7 @@ namespace Core.ConditionalAccess
                             startDate = ODBCWrapper.Utils.GetDateSafeVal(dr["START_DATE"]);
                             endDate = ODBCWrapper.Utils.GetDateSafeVal(dr["END_DATE"]);
 
-                            if (DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds) != endDate || DateUtils.UnixTimeStampToDateTime(subscription.StartDateSeconds) != startDate)
+                            if (DateUtils.UtcUnixTimestampSecondsToDateTime(subscription.EndDateSeconds) != endDate || DateUtils.UtcUnixTimestampSecondsToDateTime(subscription.StartDateSeconds) != startDate)
                             {
                                 // update subscription
                                 UpdateReconciledSubscriptionEntitlement(householdId, subscription, subscriptionsDictionary);
@@ -330,7 +330,7 @@ namespace Core.ConditionalAccess
             if (subscriptionEntitlementToUpdate != null)
             {
                 DateTime startDate, endDate;
-                startDate = subscriptionEntitlementToUpdate.StartDateSeconds != 0 ? DateUtils.UnixTimeStampToDateTime(subscriptionEntitlementToUpdate.StartDateSeconds) : DateTime.UtcNow;
+                startDate = subscriptionEntitlementToUpdate.StartDateSeconds != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(subscriptionEntitlementToUpdate.StartDateSeconds) : DateTime.UtcNow;
 
                 if (subscriptionEntitlementToUpdate.EndDateSeconds == 0)
                 {
@@ -348,7 +348,7 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
-                    endDate = DateUtils.UnixTimeStampToDateTime(subscriptionEntitlementToUpdate.EndDateSeconds);
+                    endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(subscriptionEntitlementToUpdate.EndDateSeconds);
                 }
 
                 if (!ConditionalAccessDAL.Update_SubscriptionPurchaseDates(subscriptionEntitlementToUpdate.PurchaseId, startDate, endDate))
@@ -423,11 +423,11 @@ namespace Core.ConditionalAccess
                     {
                         DateTime? startDate = null;
                         if (subscription.StartDateSeconds != 0)
-                            startDate = DateUtils.UnixTimeStampToDateTime(subscription.StartDateSeconds);
+                            startDate = DateUtils.UtcUnixTimestampSecondsToDateTime(subscription.StartDateSeconds);
 
                         DateTime? endDate = null;
                         if (subscription.EndDateSeconds != 0)
-                            endDate = DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds);
+                            endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(subscription.EndDateSeconds);
                         var res = GrantManager.GrantSubscription(cas, groupId, userId, householdId, (int)subscription.ProductId, string.Empty, string.Empty, false, 0, startDate, endDate, GrantContext.Grant);
                         string logString = string.Format("userId = {0}, subscriptionId = {1}, subscriptionproductCode = {2}", userId, subscription.ProductId, subscription.ProductCode);
                         if (res.Code != (int)eResponseStatus.OK)

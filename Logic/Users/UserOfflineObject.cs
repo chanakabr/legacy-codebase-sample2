@@ -186,7 +186,7 @@ namespace Core.Users
                         //define update 
                         ODBCWrapper.UpdateQuery updatequery = new ODBCWrapper.UpdateQuery("users_offline_items");
                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Status", "=", "1");
-                        updatequery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.Now);
+                        updatequery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.UtcNow);
                         updatequery += " where ";
                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", nGroupID);
                         updatequery += " and ";
@@ -257,7 +257,7 @@ namespace Core.Users
                         //update 
                         ODBCWrapper.UpdateQuery updatequery = new ODBCWrapper.UpdateQuery("users_offline_items");
                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Status", "=", "2");
-                        updatequery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.Now);
+                        updatequery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.UtcNow);
                         updatequery += " where ";
                         updatequery += ODBCWrapper.Parameter.NEW_PARAM("Group_ID", "=", nGroupID);
                         updatequery += " and ";
@@ -293,7 +293,7 @@ namespace Core.Users
                 //remove all media id for SiteGuid 
                 ODBCWrapper.UpdateQuery updatequery = new ODBCWrapper.UpdateQuery("users_offline_items");
                 updatequery += ODBCWrapper.Parameter.NEW_PARAM("Status", "=", "2");
-                updatequery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.Now);
+                updatequery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.UtcNow);
                 updatequery += " where ";
                 updatequery += ODBCWrapper.Parameter.NEW_PARAM("Site_User_Guid", "=", sSiteGuid);
 

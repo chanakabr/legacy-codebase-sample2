@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
@@ -209,11 +210,11 @@ namespace Core.Catalog.CatalogManagement
                         DateTime tagUpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "update_date");
                         ApiObjects.SearchObjects.TagValue tag = new ApiObjects.SearchObjects.TagValue()
                         {
-                            createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagCreateDate),
+                            createDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(tagCreateDate),
                             languageId = languageId,
                             tagId = tagId,
                             topicId = topicId,
-                            updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagUpdateDate),
+                            updateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(tagUpdateDate),
                             value = translation
                         };
 
@@ -448,7 +449,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // validate geoblock rule id
-            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value <= 0 || !CatalogLogic.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
+            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value <= 0 || !TvmRuleManager.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
             {
                 result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
                 return result;
@@ -506,7 +507,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // validate geoblock rule id
-            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value <= 0 || !CatalogLogic.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
+            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value <= 0 || !TvmRuleManager.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
             {
                 result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
                 return result;
@@ -710,7 +711,6 @@ namespace Core.Catalog.CatalogManagement
                     mediaAssets = new List<MediaAsset>();
                     foreach (JObject jobject in mediaAssetMap.Values)
                     {
-                        // TODO SHIR - ask lior about jobject.ToObject<MediaAsset>() - why pic size does not return
                         MediaAsset mediaAsset = jobject.ToObject<MediaAsset>();
                         if (mediaAsset.MediaAssetType == MediaAssetType.Linear)
                         {
@@ -2044,14 +2044,14 @@ namespace Core.Catalog.CatalogManagement
                     List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets);
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {
-                        result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        result.SetStatus(eResponseStatus.OK);
                         return result;
                     }
                     else if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
                     {
                         log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
                                         assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty);
-                        result.SetStatus(eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
+                        result.SetStatus(eResponseStatus.ElasticSearchReturnedDeleteItem);
                         return result;
                     }
 
@@ -2071,7 +2071,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    result.SetStatus(eResponseStatus.OK);
                 }
             }
             catch (Exception ex)

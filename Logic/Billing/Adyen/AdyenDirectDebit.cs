@@ -195,7 +195,7 @@ namespace Core.Billing
                 string sUN = string.Empty;
                 string sPass = string.Empty;
 
-                log.Info("AdyenDirectDebit ChargeUser start at " + DateTime.Now.ToString());
+                log.Info("AdyenDirectDebit ChargeUser start at " + DateTime.UtcNow.ToString());
                 AdyenUtils.GetWSCredentials(m_nGroupID, ref sUN, ref sPass, ref merchAcc, ref merchPurchesAccount, 3);
                 RecurringDetailsResult recRes = GetAdyenConract(merchAcc, sSiteGUID, sUN, sPass);
                 log.Info(string.Format("WSCredentials : GroupID={0}, sUN={1}, sPass={2},merchAcc={3},merchPurchesAccount={4},PurchesType={5}", m_nGroupID, sUN, sPass, merchAcc, merchPurchesAccount, 3));

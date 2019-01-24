@@ -71,7 +71,7 @@ namespace Core.Catalog.Request
 
             if (IsReportingMode)
             {
-                currDevicePlayData = new DevicePlayData(this.m_sUDID, mediaId, userId, 0, playType, action, deviceFamilyId, DateTime.UtcNow.ToUnixTimestamp(),
+                currDevicePlayData = new DevicePlayData(this.m_sUDID, mediaId, userId, 0, playType, action, deviceFamilyId, DateTime.UtcNow.ToUtcUnixTimestampSeconds(),
                                                                                 this.ProgramId, npvrId, domainId, null, null, null);
                 currDevicePlayData.PlayCycleKey = Guid.NewGuid().ToString();
             }

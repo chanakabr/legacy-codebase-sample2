@@ -111,7 +111,7 @@ namespace Core.Notification
                         response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
-                    dbReminder.SendTime = DateUtils.DateTimeToUnixTimestamp(newEpgSendDate);
+                    dbReminder.SendTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(newEpgSendDate);
 
                     // update name
                     if (string.IsNullOrEmpty(epgProgram.m_oProgram.NAME))
@@ -130,10 +130,10 @@ namespace Core.Notification
                 }
 
                 // validate future asset
-                var utcNow = DateUtils.UnixTimeStampNow();
+                var utcNow = DateUtils.GetUtcUnixTimestampNow();
                 if (dbReminder.SendTime < utcNow)
                 {
-                    log.ErrorFormat("Program passed. AssetId: {0}, SendTime: {1}, UtcNow: {2}", dbReminder.Reference, DateUtils.UnixTimeStampToDateTime(dbReminder.SendTime), DateUtils.UnixTimeStampToDateTime(utcNow));
+                    log.ErrorFormat("Program passed. AssetId: {0}, SendTime: {1}, UtcNow: {2}", dbReminder.Reference, DateUtils.UtcUnixTimestampSecondsToDateTime(dbReminder.SendTime), DateUtils.UtcUnixTimestampSecondsToDateTime(utcNow));
                     response.Status = new Status((int)eResponseStatus.PassedAsset, "Program passed");
                     return response;
                 }
@@ -196,7 +196,7 @@ namespace Core.Notification
                 }
 
                 // update user notification object
-                long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
+                long addedSecs = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 userNotificationData.Reminders.Add(new Announcement()
                 {
                     AnnouncementId = dbReminder.ID,
@@ -390,7 +390,7 @@ namespace Core.Notification
                 }
 
                 // update user notification object
-                long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
+                long addedSecs = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 userNotificationData.SeriesReminders.Add(new Announcement()
                 {
                     AnnouncementId = dbSeriesReminder.ID,
@@ -1133,8 +1133,8 @@ namespace Core.Notification
             {
                 log.ErrorFormat("Message sending time is not the same as DB reminder send date. program ID: {0}, message send date: {1}, DB send date: {2}",
                     reminderId,
-                    DateUtils.UnixTimeStampToDateTime(Convert.ToInt64(startTime)),
-                    DateUtils.UnixTimeStampToDateTime(reminder.SendTime));
+                    DateUtils.UtcUnixTimestampSecondsToDateTime(Convert.ToInt64(startTime)),
+                    DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime));
                 return false;
             }
 
@@ -1475,7 +1475,7 @@ namespace Core.Notification
                 foreach (var reminder in reminders)
                 {
                     // check if reminder expiration passed (over 24 hours ago)
-                    if (reminder.SendTime < TVinciShared.DateUtils.DateTimeToUnixTimestamp(currentTime.AddDays(-1)))
+                    if (reminder.SendTime < TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(currentTime.AddDays(-1)))
                     {
                         Status deleteAnnouncementResp = DeletePartnerReminder(partnerSettings.PartnerId, reminder);
                         if (deleteAnnouncementResp != null && deleteAnnouncementResp.Code != (int)eResponseStatus.OK)
@@ -1483,7 +1483,7 @@ namespace Core.Notification
                             log.ErrorFormat("Error while trying to delete old reminder topic. GID: {0}, reminder ID: {1}, reminder send date: {2}",
                                 partnerSettings.PartnerId,
                                 reminder.ID,
-                                TVinciShared.DateUtils.UnixTimeStampToDateTime(reminder.SendTime).ToString());
+                                TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime).ToString());
                         }
                         else
                         {
@@ -1491,7 +1491,7 @@ namespace Core.Notification
                             log.DebugFormat("successfully deleted old reminder. GID: {0}, Reminder ID: {1}, topic expiration duration in days: {2}",
                                 partnerSettings.PartnerId,
                                 reminder.ID,
-                                TVinciShared.DateUtils.UnixTimeStampToDateTime(reminder.SendTime).ToString());
+                                TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime).ToString());
                         }
                     }
                 }
@@ -1552,7 +1552,7 @@ namespace Core.Notification
             MessageReminderQueue que = new MessageReminderQueue();
             MessageReminderData messageReminderData = new MessageReminderData(groupId, reminder.SendTime, reminder.ID)
             {
-                ETA = ODBCWrapper.Utils.UnixTimestampToDateTime(reminder.SendTime)
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime)
             };
 
             bool res = que.Enqueue(messageReminderData, ROUTING_KEY_REMINDERS_MESSAGES);
@@ -1691,7 +1691,7 @@ namespace Core.Notification
                 else
                 {
                     // reminder found
-                    DateTime oldEpgSendDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(dbReminder.SendTime);
+                    DateTime oldEpgSendDate = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(dbReminder.SendTime);
 
                     // check if should update time
                     bool shouldUpdateReminder = false;
@@ -1710,7 +1710,7 @@ namespace Core.Notification
                     if (shouldUpdateReminder)
                     {
                         // update DB
-                        dbReminder.SendTime = TVinciShared.DateUtils.DateTimeToUnixTimestamp(newEpgSendDate);
+                        dbReminder.SendTime = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(newEpgSendDate);
                         if (NotificationDal.SetReminder(dbReminder) == 0)
                         {
                             log.ErrorFormat("Error while trying to update reminder time in table. reminder: {0}", JsonConvert.SerializeObject(dbReminder));

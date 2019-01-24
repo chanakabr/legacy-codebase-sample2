@@ -679,8 +679,8 @@ namespace Core.ConditionalAccess
                     {
                         nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalIntervalMinutes);
                     }
-
-                    Utils.RenewUnifiedTransactionMessageInQueue(groupId, domainId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processId);
+                    
+                    Utils.RenewUnifiedTransactionMessageInQueue(groupId, domainId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate), nextRenewalDate, processId);
                 }
 
                 if (processId > 0) // already have message to queue so update subscription purchase row
@@ -1439,11 +1439,11 @@ namespace Core.ConditionalAccess
                 }
 
                 // check that end date between next end date and unified billing cycle end date are different
-                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
                 {
                     DateTime nextRenew = Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
                     int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
-                    int numOfDaysByBillingCycle = (int)Math.Ceiling((ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
+                    int numOfDaysByBillingCycle = (int)Math.Ceiling((DateUtils.UtcUnixTimestampMillisecondsToDateTime(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
 
                     priceAfterUnified = Math.Round(numOfDaysByBillingCycle * (priceBeforeUnified / numOfDaysForSubscription), 2);
 
@@ -3146,13 +3146,13 @@ namespace Core.ConditionalAccess
 
                         Subscription sp = Pricing.Module.GetSubscriptionData(nGroupID, sSubscriptionCode, sCountryCd, sLanguageCode, sDeviceName, false);
 
-                        DateTime nextdate = GetEndDateTime(DateTime.Now, sp.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                        DateTime nextdate = GetEndDateTime(DateTime.UtcNow, sp.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
                         string fequencey = "";
-                        if (nextdate.Month > DateTime.Now.Month)
+                        if (nextdate.Month > DateTime.UtcNow.Month)
                         {
                             fequencey = "monthly";
                         }
-                        else if (nextdate.Year > DateTime.Now.Year)
+                        else if (nextdate.Year > DateTime.UtcNow.Year)
                         {
                             fequencey = "yearly";
                         }
@@ -3189,18 +3189,7 @@ namespace Core.ConditionalAccess
         {
             return (startDate.CompareTo(endDate) < 0); // If true, then startDate is earlier than endDate
         }
-
-        internal static long ConvertDateToEpochTimeInMilliseconds(DateTime dateTime)
-        {
-            return long.Parse((Math.Floor(dateTime.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds).ToString()));
-        }
-
-        internal static DateTime ConvertEpochTimeToDate(long timestamp)
-        {
-            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            return origin.AddSeconds(timestamp);
-        }
-
+        
         internal static void ReplaceSubStr(ref string url, Dictionary<string, object> oValuesToReplace)
         {
             if (oValuesToReplace.Count > 0)
@@ -5412,7 +5401,7 @@ namespace Core.ConditionalAccess
         internal static Dictionary<long, Recording> GetDomainProtectedRecordings(int groupID, long domainID)
         {
             Dictionary<long, Recording> domainProtectedRecordings = null;
-            DataTable dt = RecordingsDAL.GetDomainProtectedRecordings(groupID, domainID, TVinciShared.DateUtils.UnixTimeStampNow());
+            DataTable dt = RecordingsDAL.GetDomainProtectedRecordings(groupID, domainID, TVinciShared.DateUtils.GetUtcUnixTimestampNow());
             if (dt != null && dt.Rows != null)
             {
                 domainProtectedRecordings = new Dictionary<long, Recording>();
@@ -5754,7 +5743,7 @@ namespace Core.ConditionalAccess
                         }
                     }
 
-                    long currentUtcEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
+                    long currentUtcEpoch = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
                     // modify recordings status to Deleted if it's currently not viewable
                     if (recording.ViewableUntilDate.Value < currentUtcEpoch)
                     {
@@ -5837,7 +5826,7 @@ namespace Core.ConditionalAccess
                 if (seasonNumber > 0)
                     ksql.AppendFormat("season_number = '{0}'", seasonNumber);
 
-                ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(startDate));
+                ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate));
                 ksql.AppendFormat("epg_channel_id = '{0}')", epgChannelId);
 
                 ExtendedSearchRequest request = new ExtendedSearchRequest()
@@ -6404,7 +6393,7 @@ namespace Core.ConditionalAccess
             if (recordingLifetime.HasValue)
             {
                 viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
-                recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate.Value);
+                recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
             }
             return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
         }
@@ -6460,7 +6449,7 @@ namespace Core.ConditionalAccess
             if (recordingLifetime.HasValue)
             {
                 viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
-                recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate.Value);
+                recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
             }
 
             DataTable dt = RecordingsDAL.InsertRecording(recording, groupId, status, viewableUntilDate);
@@ -8797,7 +8786,7 @@ namespace Core.ConditionalAccess
 
                 if (groupUnifiedBillingCycle.HasValue && (int)groupUnifiedBillingCycle.Value == maxUsageModuleLifeCycle) // group define with billing cycle
                 {
-                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
+                    long nextEndDate = DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate);
                     if (unifiedBillingCycle == null || (unifiedBillingCycle != null && !useCoupon && unifiedBillingCycle.endDate != nextEndDate))
                     {
                         // update unified billing by endDate or paymentGatewatId                  

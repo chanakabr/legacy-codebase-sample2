@@ -6,6 +6,7 @@ using ApiObjects.Pricing;
 using ApiObjects.Response;
 using ApiObjects.SubscriptionSet;
 using CachingProvider.LayeredCache;
+using Core.Api.Managers;
 using Core.Pricing;
 using DAL;
 using KLogMonitor;
@@ -366,7 +367,7 @@ namespace Core.ConditionalAccess
                             // update entitlement date
                             DateTime entitlementDate = DateTime.UtcNow;
                             DateTime? endDate = null;
-                            transactionResponse.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+                            transactionResponse.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                             if (isGiftCard)
                             {
@@ -398,7 +399,7 @@ namespace Core.ConditionalAccess
 
                                     if (endDate != null && endDate.HasValue)
                                     {
-                                        endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
+                                        endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate);
                                     }
 
                                     DateTime nextRenewalDate = endDate.Value;
@@ -943,7 +944,7 @@ namespace Core.ConditionalAccess
                             {
                                 // purchase passed, update entitlement date
                                 DateTime entitlementDate = DateTime.UtcNow;
-                                response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+                                response.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                                 // grant entitlement
                                 long purchaseID = 0;
@@ -1095,7 +1096,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // if unified billing cycle is in the "history" ignore it in purchase ! 
-                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
                 {
                     unifiedBillingCycle = null;
                 }
@@ -1196,7 +1197,7 @@ namespace Core.ConditionalAccess
                         (paymentGateway != null && paymentGateway.ExternalVerification))
                     {
                         // price is validated, create custom data
-                        bool partialPrice = unifiedBillingCycle != null && unifiedBillingCycle.endDate > 0 && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow);
+                        bool partialPrice = unifiedBillingCycle != null && unifiedBillingCycle.endDate > 0 && unifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow);
                         string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, price, currency,
                                                                          couponCode, userIp, country, string.Empty, deviceName, string.Empty,
                                                                          entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
@@ -1235,7 +1236,7 @@ namespace Core.ConditionalAccess
                                 // update entitlement date
                                 DateTime entitlementDate = DateTime.UtcNow;
                                 DateTime? endDate = null;
-                                response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+                                response.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                                 if (isGiftCard)
                                 {
@@ -1245,7 +1246,7 @@ namespace Core.ConditionalAccess
                                 if (unifiedBillingCycle != null && !entitleToPreview)
                                 {
                                     // calculate end date by unified billing cycle
-                                    endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                                    endDate = DateUtils.UtcUnixTimestampMillisecondsToDateTime(unifiedBillingCycle.endDate);
                                 }
 
                                 //try get from db process_purchases_id - if not exists - create one - only if pare of billing cycle
@@ -1285,12 +1286,12 @@ namespace Core.ConditionalAccess
                                         log.ErrorFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", groupId, householdId);
                                     }
 
-                                    var userBundlePurchase = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Where(x => x.Key == productId.ToString()).Select(y => y.Value).FirstOrDefault();
+                                    var userBundlePurchase = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.FirstOrDefault(x => x.Key == productId.ToString()).Value;
                                     if (userBundlePurchase != null)
                                     {
-                                        response.StartDateSeconds = DateUtils.DateTimeToUnixTimestamp(userBundlePurchase.dtEndDate);
+                                        response.StartDateSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(userBundlePurchase.dtEndDate);
                                         endDate = Utils.CalcSubscriptionEndDate(subscription, entitleToPreview, userBundlePurchase.dtEndDate);
-                                        response.EndDateSeconds = DateUtils.DateTimeToUnixTimestamp(endDate.Value);
+                                        response.EndDateSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value);
                                     }
                                 }
 
@@ -1320,7 +1321,7 @@ namespace Core.ConditionalAccess
 
                                     if (endDate.HasValue)
                                     {
-                                        endDateUnix = DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
+                                        endDateUnix = DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate);
                                     }
 
                                     // If the subscription if recurring, put a message for renewal and all that...
@@ -1375,7 +1376,7 @@ namespace Core.ConditionalAccess
                                         if (isNew) // need to insert new unified billing message to queue
                                         {
                                             Utils.RenewUnifiedTransactionMessageInQueue(groupId, householdId,
-                                                ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
+                                                DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
                                         else if (unifiedBillingCycle == null || ((entitleToPreview || !string.IsNullOrEmpty(couponCode)) && !isNew))
                                         {
@@ -1638,7 +1639,7 @@ namespace Core.ConditionalAccess
 
                 if (groupUnifiedBillingCycle.HasValue) // group define with billing cycle
                 {
-                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
+                    long nextEndDate = DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate);
                     if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != nextEndDate)
                     {
                         // update unified billing by endDate or paymentGatewatId                  
@@ -1765,7 +1766,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                List<ApiObjects.Rules.AssetUserRule> rules = Core.Api.api.GetMediaAssetUserRulesToUser(groupId, long.Parse(siteguid), mediaID);
+                var rules = AssetUserRuleManager.GetMediaAssetUserRulesToUser(groupId, long.Parse(siteguid), mediaID);
                 if (rules != null && rules.Count > 0)
                 {
                     response.Status.Message = "Asset is blocked for user";
@@ -1870,7 +1871,7 @@ namespace Core.ConditionalAccess
 
                                 // update entitlement date
                                 DateTime entitlementDate = DateTime.UtcNow;
-                                response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+                                response.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                                 // grant entitlement
                                 bool handleBillingPassed = cas.HandlePPVBillingSuccess(ref response, siteguid, householdId, relevantSub, price, currency, couponCode, userIp,

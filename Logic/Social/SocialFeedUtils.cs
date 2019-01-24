@@ -126,7 +126,7 @@ namespace Core.Social
                 {
                     Body = s.Text,
                     CreatorName = s.User.Name,
-                    CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(s.CreatedAt),
+                    CreateDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(s.CreatedAt),
                     CreatorImageUrl = s.User.ProfileImageUrl,
                     PopularityCounter = s.FavoriteCount.HasValue ? s.FavoriteCount.Value : 0,
                 }).ToList()).SingleOrDefault();
@@ -151,7 +151,7 @@ namespace Core.Social
                 {
                     Body = s.Text,
                     CreatorName = s.User.Name,
-                    CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(s.CreatedAt),
+                    CreateDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(s.CreatedAt),
                     CreatorImageUrl = s.User.ProfileImageUrl,
                     PopularityCounter = s.FavoriteCount.HasValue ? s.FavoriteCount.Value : 0,
 

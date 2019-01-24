@@ -431,7 +431,7 @@ namespace APILogic.Notification
             }
 
             // update user notification object
-            long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
+            long addedSecs = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             if (userNotificationData.UserInterests.FirstOrDefault(x => x.AnnouncementId == interestNotification.Id) != null)
                 log.DebugFormat("User is already registered to topic.group: {0}, user id: {1}, interest ID: {2}", partnerId, userId, interestNotification.Id);
@@ -1077,7 +1077,7 @@ namespace APILogic.Notification
         public static bool AddInterestToQueue(int groupId, InterestNotificationMessage interestNotificationMessage)
         {
             MessageInterestQueue que = new MessageInterestQueue();
-            MessageInterestData messageReminderData = new MessageInterestData(groupId, DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime), interestNotificationMessage.Id)
+            MessageInterestData messageReminderData = new MessageInterestData(groupId, DateUtils.DateTimeToUtcUnixTimestampSeconds(interestNotificationMessage.SendTime), interestNotificationMessage.Id)
             {
                 ETA = interestNotificationMessage.SendTime
             };
@@ -1210,11 +1210,11 @@ namespace APILogic.Notification
             }
 
             // validate send time is same as send time in DB
-            if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime) - startTime) > 5)
+            if (Math.Abs(DateUtils.DateTimeToUtcUnixTimestampSeconds(interestNotificationMessage.SendTime) - startTime) > 5)
             {
                 log.ErrorFormat("Message sending time is not the same as DB reminder send date. program ID: {0}, message send date: {1}, DB send date: {2}",
                     interestNotificationMessage.Id,
-                    DateUtils.UnixTimeStampToDateTime(Convert.ToInt64(startTime)),
+                    DateUtils.UtcUnixTimestampSecondsToDateTime(Convert.ToInt64(startTime)),
                     interestNotificationMessage.SendTime);
                 return false;
             }
@@ -1348,11 +1348,11 @@ namespace APILogic.Notification
             DateTime currentDate = DateTime.UtcNow;
 
             // validate send time is same as send time in DB
-            if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime) - startTime) > 5)
+            if (Math.Abs(DateUtils.DateTimeToUtcUnixTimestampSeconds(interestNotificationMessage.SendTime) - startTime) > 5)
             {
                 log.ErrorFormat("Message sending time is not the same as DB interest send date. asset ID: {0}, message send date: {1}, DB send date: {2}",
                     interestNotificationMessage.Id,
-                    DateUtils.UnixTimeStampToDateTime(Convert.ToInt64(startTime)),
+                    DateUtils.UtcUnixTimestampSecondsToDateTime(Convert.ToInt64(startTime)),
                     interestNotificationMessage.SendTime);
                 return false;
             }
@@ -1474,11 +1474,11 @@ namespace APILogic.Notification
                         InboxMessage inboxMessage = new InboxMessage()
                         {
                             Category = eMessageCategory.Interest,
-                            CreatedAtSec = DateUtils.DateTimeToUnixTimestamp(currentDate),
+                            CreatedAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(currentDate),
                             Id = Guid.NewGuid().ToString(),
                             Message = messageData.Alert,
                             State = eMessageState.Unread,
-                            UpdatedAtSec = DateUtils.DateTimeToUnixTimestamp(currentDate),
+                            UpdatedAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(currentDate),
                             Url = messageData.Url,
                             UserId = userId
                         };

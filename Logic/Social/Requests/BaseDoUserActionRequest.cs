@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TVinciShared;
 
 namespace Core.Social.Requests
 {
@@ -378,7 +379,7 @@ namespace Core.Social.Requests
                                                 m_eAssetType = m_eAssetType,
                                                 m_eSocialPlatform = SocialPlatform.FACEBOOK,
                                                 m_nAssetID = m_nAssetID,
-                                                m_eType = eRequestType.SET
+                                                m_eType = ApiObjects.Social.eRequestType.SET
                                             };
                 objRequest.m_oKeyValue.Add(urlKvp);
 
@@ -444,7 +445,7 @@ namespace Core.Social.Requests
                         doc = CreateSocialActivityDoc(oUser, ref sFBObjectID, ref sFBActionID);
                         m_oSocialBL.IncrementAssetLikeCounter(m_nAssetID, m_eAssetType);
                         eInternalResponse = m_oSocialBL.InsertUserSocialAction(doc, out sDbRecordId) ? SocialActionResponseStatus.OK : SocialActionResponseStatus.ERROR;
-                        DateTime date = Utils.UnixTimeStampToDateTime(doc.CreateDate);
+                        DateTime date = DateUtils.UtcUnixTimestampSecondsToDateTime(doc.CreateDate);
                         WriteActionToES(0, date);
                     }
                     #endregion
@@ -456,7 +457,7 @@ namespace Core.Social.Requests
                     // only if already was a doc we can unactive it 
                     if (doc != null) 
                     {
-                        DateTime date = Utils.UnixTimeStampToDateTime(doc.CreateDate);
+                        DateTime date = DateUtils.UtcUnixTimestampSecondsToDateTime(doc.CreateDate);
                         DeleteActionFromES(0, date);
                         //WriteActionToES();
                     }

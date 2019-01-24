@@ -34,7 +34,7 @@ namespace Core.Billing
                 string sUN = string.Empty;
                 string sPass = string.Empty;
 
-                log.Info("AdyenCreditCard ChargeUser start at " + DateTime.Now.ToString());
+                log.Info("AdyenCreditCard ChargeUser start at " + DateTime.UtcNow.ToString());
                 AdyenUtils.GetWSCredentials(m_nGroupID, ref sUN, ref sPass, ref merchAcc, ref merchPurchesAccount, 2);
                 RecurringDetailsResult recRes = GetAdyenContract(merchAcc, sSiteGUID, sUN, sPass);
 

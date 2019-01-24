@@ -25,7 +25,7 @@ namespace Core.Social
                         Title = item.m_sHeader,
                         Body = item.m_sContentText,
                         CreatorName = item.m_sWriter,
-                        CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(item.m_dCreateDate),
+                        CreateDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(item.m_dCreateDate),
                         CreatorImageUrl = item.m_sUserPicURL
                     });
                 }

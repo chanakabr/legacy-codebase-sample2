@@ -1089,7 +1089,7 @@ namespace Core.Notification
                 log.ErrorFormat("Exception while trying to send engagement. Partner ID: {0}, Engagement ID: {1}, startTime: {2}, Ex: {3}",
                     partnerId,
                     engagementId,
-                    TVinciShared.DateUtils.UnixTimeStampToDateTime(startTime),
+                    TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(startTime),
                     ex);
                 return false;
             }
@@ -1107,7 +1107,7 @@ namespace Core.Notification
                     partnerId,
                     engagementId,
                     engagementId,
-                    TVinciShared.DateUtils.UnixTimeStampToDateTime(startTime),
+                    TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(startTime),
                     ex);
                 return false;
             }

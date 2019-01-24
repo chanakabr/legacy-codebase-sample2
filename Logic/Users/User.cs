@@ -1045,7 +1045,7 @@ namespace Core.Users
             if (!string.IsNullOrEmpty(sUN) && !string.IsNullOrEmpty(sPass))
             {
                 int nFailCount = 0;
-                DateTime dNow = DateTime.Now;
+                DateTime dNow = DateTime.UtcNow;
                 DateTime dLastFailDate = new DateTime(2020, 1, 1);
                 DateTime dLastHitDate = new DateTime(2020, 1, 1);
 

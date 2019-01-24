@@ -112,7 +112,7 @@ namespace ApiObjects.MediaMarks
                 AssetID = this.AssetId,
                 UserID = this.UserId,
                 Location = location,
-                CreatedAt = Utils.UnixTimestampToDateTime(this.CreatedAt),
+                CreatedAt = Utils.UtcUnixTimestampSecondsToDateTime(this.CreatedAt),
                 NpvrID = this.NpvrId,
                 playType = this.playType,
                 FileDuration = fileDuration,

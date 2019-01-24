@@ -116,7 +116,7 @@ namespace ApiLogic
                 }
 
                 //set unixTimestamp
-                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(request.HouseholdId, request.UserIP, unixTimestamp);
@@ -244,7 +244,7 @@ namespace ApiLogic
                 APILogic.OSSAdapterService.ServiceClient client = new APILogic.OSSAdapterService.ServiceClient(string.Empty, ossAdapter.AdapterUrl);
 
                 //set unixTimestamp
-                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(ossAdapter.ID, ossAdapter.Settings != null ?
@@ -318,7 +318,7 @@ namespace ApiLogic
                 }
 
                 //set unixTimestamp
-                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(userId, unixTimestamp);

@@ -1838,7 +1838,7 @@ namespace Core.ConditionalAccess
                                 }
 
                                 // Enqueue event for when subscription will eventually end, for notification
-                                long endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp(dtServiceEndDate);
+                                long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(dtServiceEndDate);
 
                                 RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, sPurchasingSiteGuid, purchaseID, endDateUnix);
                             }
@@ -2747,7 +2747,7 @@ namespace Core.ConditionalAccess
                     {
                         int domainId = (int)householdId;
                         unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle(domainId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
-                        if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                        if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
                         {
                             var finalPriceAndCouponRemainder =
                                 Utils.CalcPriceAndCouponRemainderByUnifiedBillingCycle(originalPrice, renewSubscriptionDetails.CouponCode, renewSubscriptionDetails.Price,
@@ -6651,13 +6651,13 @@ namespace Core.ConditionalAccess
                     {
                         long lUserId = long.Parse(userId);
 
-                        GenericListResponse<AssetUserRule> assetUserRulesToUser = Core.Api.Module.GetAssetUserRuleList(m_nGroupID, lUserId);
+                        GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.GetAssetUserRuleList(m_nGroupID, lUserId);
 
                         if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
                         {
                             for (int i = 0; i < mapper.Length; i++)
                             {
-                                List<AssetUserRule> assetUserRules = Core.Api.api.GetMediaAssetUserRulesToUser(m_nGroupID, lUserId, mapper[i].m_nMediaID, assetUserRulesToUser);
+                                var assetUserRules = AssetUserRuleManager.GetMediaAssetUserRulesToUser(m_nGroupID, lUserId, mapper[i].m_nMediaID, assetUserRulesToUser);
 
                                 if (assetUserRules != null && assetUserRules.Count > 0)
                                 {
@@ -8260,7 +8260,7 @@ namespace Core.ConditionalAccess
 
                                                 updateQuery = new ODBCWrapper.UpdateQuery("ppv_purchases");
                                                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", nRelPrePaidID);
-                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
                                                 updateQuery += "where";
                                                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPurchaseID);
                                                 updateQuery.Execute();
@@ -8580,7 +8580,7 @@ namespace Core.ConditionalAccess
 
                                                 updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                                                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", nRelPrePaidID);
-                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                                                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
                                                 updateQuery += "where";
                                                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPurchaseID);
                                                 updateQuery.Execute();
@@ -8689,7 +8689,7 @@ namespace Core.ConditionalAccess
             {
                 updateQuery = new ODBCWrapper.UpdateQuery("pre_paid_purchases");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("amount_used", "=", nUsed + nAmount);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
                 updateQuery += "where";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPPPurchaseID);
                 updateQuery.Execute();
@@ -11629,7 +11629,7 @@ namespace Core.ConditionalAccess
 
                             // update entitlement date
                             DateTime entitlementDate = DateTime.UtcNow;
-                            response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+                            response.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                             // grant entitlement
                             bool handleBillingPassed = HandlePPVBillingSuccess(ref response, siteguid, householdId, relevantSub, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
@@ -11759,12 +11759,12 @@ namespace Core.ConditionalAccess
 
                                 // update entitlement date
                                 DateTime entitlementDate = DateTime.UtcNow;
-                                response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+                                response.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                                 DateTime? subscriptionEndDate = null;
                                 if (response.EndDateSeconds > 0)
                                 {
-                                    subscriptionEndDate = DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
+                                    subscriptionEndDate = DateUtils.UtcUnixTimestampSecondsToDateTime(response.EndDateSeconds);
                                 }
 
                                 bool isRecurring = subscription.m_bIsRecurring && response.AutoRenewing;
@@ -11806,7 +11806,7 @@ namespace Core.ConditionalAccess
                                             // enqueue renew transaction
                                             RenewTransactionsQueue queue = new RenewTransactionsQueue();
                                             RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid, 
-                                                TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)subscriptionEndDate), nextRenewalDate);
+                                                TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)subscriptionEndDate), nextRenewalDate);
 
                                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                                             if (!enqueueSuccessful)
@@ -11945,7 +11945,7 @@ namespace Core.ConditionalAccess
 
                             // update entitlement date
                             DateTime entitlementDate = DateTime.UtcNow;
-                            response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+                            response.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                             // grant entitlement
                             bool handleBillingPassed = HandleCollectionBillingSuccess(ref response, siteguid, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
@@ -12098,7 +12098,7 @@ namespace Core.ConditionalAccess
 
                                 if (isUpdated)
                                 {
-                                    long endDateUnix = DateUtils.UnixTimeStampNow();
+                                    long endDateUnix = DateUtils.GetUtcUnixTimestampNow();
                                     RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, string.Empty, purchaseId, endDateUnix);
                                 }
 
@@ -12202,7 +12202,7 @@ namespace Core.ConditionalAccess
 
                                 if (isUpdated)
                                 {
-                                    long endDateUnix = DateUtils.UnixTimeStampNow();
+                                    long endDateUnix = DateUtils.GetUtcUnixTimestampNow();
                                     RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, siteGuid, purchaseId, endDateUnix);
                                 }
 
@@ -12782,7 +12782,7 @@ namespace Core.ConditionalAccess
                             // update entitlement date
                             DateTime entitlementDate = DateTime.UtcNow;
                             DateTime? endDate = null;
-                            transactionResponse.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+                            transactionResponse.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                             // grant entitlement
                             bool handleBillingPassed = HandleSubscriptionBillingSuccess(ref transactionResponse, userId, householdId, subscription, price, currency, coupon, userIP,
@@ -12822,7 +12822,7 @@ namespace Core.ConditionalAccess
                                         // enqueue renew transaction
                                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
                                         RenewTransactionData data = new RenewTransactionData(m_nGroupID, userId, purchaseID, billingGuid,
-                                            TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
+                                            TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate), nextRenewalDate);
                                         bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                                         if (!enqueueSuccessful)
                                         {
@@ -12989,7 +12989,7 @@ namespace Core.ConditionalAccess
 
                             // update entitlement date
                             DateTime entitlementDate = DateTime.UtcNow;
-                            transactionResponse.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+                            transactionResponse.CreatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlementDate);
 
                             // grant entitlement
                             bool handleBillingPassed = HandlePPVBillingSuccess(ref transactionResponse, userId, householdId, relevantSub, price, currency, coupon, userIP,
@@ -14567,7 +14567,7 @@ namespace Core.ConditionalAccess
                     if (recordingToUpdate.IsProtected)
                     {
                         protectedUntilDate = DateTime.UtcNow.AddYears(100);
-                        protectedUntilEpoch = DateUtils.DateTimeToUnixTimestamp(protectedUntilDate.Value);
+                        protectedUntilEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate.Value);
                     }
 
                     if (RecordingsDAL.UpdateRecordingProtected(recording.Id, protectedUntilDate,
@@ -14681,7 +14681,7 @@ namespace Core.ConditionalAccess
                         }
 
                         protectedUntilDate = DateTime.UtcNow.AddDays(accountSettings.ProtectionPeriod.Value);
-                        protectedUntilEpoch = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate.Value);
+                        protectedUntilEpoch = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate.Value);
                         //if protectedUntilDate > recording.visuable until 
                         if (accountSettings.ProtectionPolicy == ProtectionPolicy.LimitedByRecordingLifetime &&
                             protectedUntilEpoch > recording.ViewableUntilDate.Value)
@@ -14913,7 +14913,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // get current utc epoch
-                long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
+                long utcNowEpoch = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
                 // get first batch
                 int totalRecordingsExpired = RecordingsDAL.InsertExpiredRecordingsTasks(utcNowEpoch);
 
@@ -15147,7 +15147,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // get current utc epoch
-                long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
+                long utcNowEpoch = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
                 // get first batch
                 Dictionary<long, HandleDomainQuataByRecordingTask> expiredRecordingsToSchedule = Utils.UpdateAndGetExpiredRecordingsTasks(utcNowEpoch);
                 // update successful run date
@@ -15316,7 +15316,7 @@ namespace Core.ConditionalAccess
                     // add recording schedule task for next min protected date
                     if (minProtectionEpoch > 0)
                     {
-                        if (!RecordingsDAL.InsertExpiredRecordingNextTask(task.RecordingId, task.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UnixTimeStampToDateTime(minProtectionEpoch)))
+                        if (!RecordingsDAL.InsertExpiredRecordingNextTask(task.RecordingId, task.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(minProtectionEpoch)))
                         {
                             log.ErrorFormat("failed InsertExpiredRecordingNextTask for recordingId: {0}, minProtectionDate {1}", task.RecordingId, minProtectionEpoch);
                         }
@@ -16476,7 +16476,7 @@ namespace Core.ConditionalAccess
                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
 
                         RenewTransactionData data = new RenewTransactionData(groupId, siteGuid, purchaseId, billingGuid,
-                                                        TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate.Value), nextRenewalDate);
+                                                        TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value), nextRenewalDate);
                         bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
                         if (enqueueSuccessful)
                         {
@@ -16906,7 +16906,7 @@ namespace Core.ConditionalAccess
                     }
 
                     DateTime viewableUntilDate = DateTime.UtcNow.AddYears(100);
-                    externalRecording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
+                    externalRecording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
                     DateTime? protectedUntilDate = null;
                     if (isProtected)
                     {

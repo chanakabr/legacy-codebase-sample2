@@ -8,6 +8,7 @@ using APILogic.EngagementAdapterService;
 using ApiObjects.Notification;
 using KLogMonitor;
 using Newtonsoft.Json;
+using TVinciShared;
 
 namespace APILogic.Notification.Adapters
 {
@@ -28,7 +29,7 @@ namespace APILogic.Notification.Adapters
                 }
 
                 //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(engagementAdapter.ID, engagementAdapter.ProviderUrl, engagementAdapter.Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.Key, s.Value))) : string.Empty,
@@ -80,7 +81,7 @@ namespace APILogic.Notification.Adapters
                     return null;
                 }
 
-                long unixTimeNow = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimeNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 // set signature
                 string signature = System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(string.Concat(engagementAdapter.ID, adapterDynamicData, unixTimeNow))));

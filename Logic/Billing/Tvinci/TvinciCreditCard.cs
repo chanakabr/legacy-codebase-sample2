@@ -320,7 +320,7 @@ namespace Core.Billing
             }
             string nExpYearStr = string.Format("20{0}", nExpY);
             int expYear = int.Parse(nExpYearStr);
-            if (expYear < DateTime.Now.Year || (expYear == DateTime.Now.Year && nExpM < DateTime.Now.Month))
+            if (expYear < DateTime.UtcNow.Year || (expYear == DateTime.UtcNow.Year && nExpM < DateTime.UtcNow.Month))
             {
                 ret = new BillingResponse();
                 ret.m_oStatus = BillingResponseStatus.ExpiredCard;

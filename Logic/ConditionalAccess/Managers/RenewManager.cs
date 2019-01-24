@@ -120,7 +120,7 @@ namespace Core.ConditionalAccess
             // get end date
             renewSubscriptionDetails.EndDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
             DateTime startDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "START_DATE");
-            var endDateUnix = renewSubscriptionDetails.EndDate.Value.ToUnixTimestamp();
+            var endDateUnix = renewSubscriptionDetails.EndDate.Value.ToUtcUnixTimestampSeconds();
 
             // validate renewal did not already happened
             if (Math.Abs(endDateUnix - nextEndDate) > 60)
@@ -461,7 +461,7 @@ namespace Core.ConditionalAccess
 
                     if (processId == 0) // need to create new process id 
                     {
-                        processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate), 
+                        processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, DateUtils.UtcUnixTimestampMillisecondsToDateTime(unifiedBillingCycle.endDate), 
                                                                                 householdId, (int)ProcessUnifiedState.Renew);                        
                     }
 
@@ -538,7 +538,7 @@ namespace Core.ConditionalAccess
         {
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
 
-            DateTime endDate = DateUtils.UnixTimeStampToDateTime(endDateUnix);
+            DateTime endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(endDateUnix);
 
             RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, string.Empty,
                             endDateUnix, endDate, eSubscriptionRenewRequestType.SubscriptionEnds);
@@ -583,7 +583,7 @@ namespace Core.ConditionalAccess
 
                 // enqueue renew transaction
                 RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), nextRenewalDate);
                 bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
                 if (!enqueueSuccessful)
                 {
@@ -648,7 +648,7 @@ namespace Core.ConditionalAccess
             if (transactionResponse.EndDateSeconds > 0)
             {
                 // end-date returned: EndDate = PG_End_Date + Configured_PG_Start_Renew_Time
-                endDate = transactionResponse.EndDateSeconds.UnixTimestampToDateTime();
+                endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(transactionResponse.EndDateSeconds);
                 log.DebugFormat("New end-date was updated according to PG. EndDate={0}", endDate);
             }
             // update unified billing cycle for domian with next end date
@@ -664,15 +664,15 @@ namespace Core.ConditionalAccess
 
                     if (unifiedBillingCycle != null)
                     {
-                        if (unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(endDate) && 
-                            unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(DateTime.UtcNow))
+                        if (unifiedBillingCycle.endDate < DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate) && 
+                            unifiedBillingCycle.endDate < DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
                         {
                             // update unified billing by endDate or paymentGatewatId                  
-                            bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(endDate));
+                            bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate));
                         }
                         else
                         {
-                            endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                            endDate = DateUtils.UtcUnixTimestampMillisecondsToDateTime(unifiedBillingCycle.endDate);
                         }
 
                         log.DebugFormat("New end-date was updated according to UnifiedBillingCycle. EndDate={0}", endDate);
@@ -729,7 +729,7 @@ namespace Core.ConditionalAccess
                     nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
                 }
                 RenewTransactionData data = 
-                    new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+                    new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), nextRenewalDate);
                 bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
                 if (!enqueueSuccessful)
                 {
@@ -825,12 +825,12 @@ namespace Core.ConditionalAccess
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
 
             // validate renewal did not already happened
-            if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
+            if (Math.Abs(TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate) - nextEndDate) > 60)
             {
                 // subscription purchase wasn't found
                 log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling GiftCardReminder task." +
                     "Purchase ID: {0}, sub end_date: {1}, data: {2}",
-                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
+                    purchaseId, TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), logString);
                 return true;
             }
 
@@ -982,7 +982,7 @@ namespace Core.ConditionalAccess
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
             DateTime nextRenewalDate = endDate.AddMinutes(0);
 
-            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), nextRenewalDate);
             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
             if (!enqueueSuccessful)
             {
@@ -1169,7 +1169,7 @@ namespace Core.ConditionalAccess
 
             if (UpdateProcessDetailsForRenewal(processId, ref paymentgatewayId, ref processState, ref processEndDate, out processCreateDate))
             {
-                long processEndDateUnix = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(processEndDate.Value);
+                long processEndDateUnix = DateUtils.DateTimeToUtcUnixTimestampMilliseconds(processEndDate.Value);
                 // validate that this is the right message                              
                 if (Math.Abs(processEndDateUnix - nextEndDate) > 60000)
                 {
@@ -1471,12 +1471,12 @@ namespace Core.ConditionalAccess
 
                 if (successTransactions.Count > 0)
                 {
-                    successTransactionsEndDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                    successTransactionsEndDate = DateUtils.UtcUnixTimestampMillisecondsToDateTime(unifiedBillingCycle.endDate);
                 }
 
                 if (pendingTransactions.Count > 0)
                 {
-                    pendingTransactionsEndDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(nextEndDate);
+                    pendingTransactionsEndDate = DateUtils.UtcUnixTimestampMillisecondsToDateTime(nextEndDate);
                 }
 
                 UpdateNextUnifiedCycle(groupId, householdId, paymentGateway, processId, processState, successTransactions, pendingTransactions, renewUnifiedDict, successTransactionsEndDate, pendingTransactionsEndDate);
@@ -1513,7 +1513,7 @@ namespace Core.ConditionalAccess
                             if (successTransactions.Count > 0)// some success
                             {
                                 // update the success ones
-                                UpdateSuccessTransactions(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(successTransactionsEndDate.Value), paymentGateway, processId, successTransactionsEndDate.Value);
+                                UpdateSuccessTransactions(groupId, householdId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(successTransactionsEndDate.Value), paymentGateway, processId, successTransactionsEndDate.Value);
 
                                 // update the pandings 
                                 if (pendingTransactions.Count > 0) // some are pending this renew process
@@ -1566,7 +1566,7 @@ namespace Core.ConditionalAccess
 
                                         if (isNew)
                                         {
-                                            UpdateSuccessTransactions(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(successTransactionsEndDate.Value), paymentGateway, processId, successTransactionsEndDate.Value, false);
+                                            UpdateSuccessTransactions(groupId, householdId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(successTransactionsEndDate.Value), paymentGateway, processId, successTransactionsEndDate.Value, false);
                                         }
                                     }
                                 }
@@ -1589,7 +1589,7 @@ namespace Core.ConditionalAccess
                                 }
                                 else // sucess process not exsits (use pendding process exsits in DB)
                                 {
-                                    UpdateSuccessTransactions(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(successTransactionsEndDate.Value), paymentGateway, processId, successTransactionsEndDate.Value);
+                                    UpdateSuccessTransactions(groupId, householdId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(successTransactionsEndDate.Value), paymentGateway, processId, successTransactionsEndDate.Value);
                                 }
                             }
                         }
@@ -1663,7 +1663,7 @@ namespace Core.ConditionalAccess
                         }
                     }
                     
-                    DateTime ubcDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                    DateTime ubcDate = DateUtils.UtcUnixTimestampMillisecondsToDateTime(unifiedBillingCycle.endDate);
 
                     if (ubcDate < endDate)
                     {
@@ -1673,7 +1673,7 @@ namespace Core.ConditionalAccess
                         long? groupBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
                         if (groupBillingCycle.HasValue)
                         {
-                            long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value);
+                            long nextEndDate = DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate.Value);
 
                             if (unifiedBillingCycle.endDate < nextEndDate)
                             {
@@ -1804,7 +1804,7 @@ namespace Core.ConditionalAccess
                 DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(renewalIntervalMinutes);
 
                 // enqueue unified renew transaction
-                Utils.RenewUnifiedTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processID);
+                Utils.RenewUnifiedTransactionMessageInQueue(groupId, householdId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate), nextRenewalDate, processID);
             }
             catch (Exception ex)
             {
@@ -1834,7 +1834,7 @@ namespace Core.ConditionalAccess
                 DateTime nextRenewalDate = DateTime.UtcNow;
                 // enqueue renew transaction
                 RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), nextRenewalDate);
                 bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
                 if (!enqueueSuccessful)
                 {
@@ -2150,7 +2150,7 @@ namespace Core.ConditionalAccess
                         {
                             // change is recurring to false and call event handle- this renew subscription failed!                        
 
-                            long nextEndDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(processEndDate.Value);
+                            long nextEndDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(processEndDate.Value);
 
                             RenewSubscriptionDetails rsDetail = renewSubscriptioDetails.Where(x => x.ProductId == subscription.m_SubscriptionCode).FirstOrDefault();
                             if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, rsDetail, 0, "AddOn with no BaseSubscription valid",
@@ -2198,7 +2198,7 @@ namespace Core.ConditionalAccess
 
             response.UnifiedPaymentRenewal = new UnifiedPaymentRenewal()
             {
-                Date = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate),
+                Date = DateUtils.UtcUnixTimestampMillisecondsToDateTime(unifiedBillingCycle.endDate),
                 UnifiedPaymentId = unifiedPaymentId,
                 Entitlements = new List<EntitlementRenewalBase>(),
                 Price = new Price()
@@ -2276,12 +2276,12 @@ namespace Core.ConditionalAccess
             DateTime endDate = renewalResponse.EntitlementRenewal.Date.ToUniversalTime();
 
             // validate renewal did not already happen
-            if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
+            if (Math.Abs(DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate) - nextEndDate) > 60)
             {
                 // subscription purchase wasn't found
                 log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling RenewalReminder task." +
                     "Purchase ID: {0}, sub end_date: {1}, data: {2}",
-                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
+                    purchaseId, DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), logString);
                 return true;
             }
 
