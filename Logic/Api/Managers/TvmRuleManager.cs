@@ -488,8 +488,7 @@ namespace APILogic.Api.Managers
                                     DeviceBrandIds = new HashSet<int>()
                                 };
 
-                                // TODO SHIR - FINISH GetGroupDeviceRules
-                                var deviceBrandId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUNTRY_ID");
+                                var deviceBrandId = ODBCWrapper.Utils.GetIntSafeVal(dr, "BRAND_ID");
 
                                 if (!result.ContainsKey(deviceRule.Id))
                                 {
@@ -569,8 +568,10 @@ namespace APILogic.Api.Managers
                                     Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
                                     CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
                                     OnlyOrBut = ODBCWrapper.Utils.GetIntSafeVal(dr, "ONLY_OR_BUT") == 0 ? false : true,
-                                    ProxyRule = ODBCWrapper.Utils.GetIntSafeVal(dr, "PROXY_RULE"),
-                                    ProxyLevel = ODBCWrapper.Utils.GetIntSafeVal(dr, "PROXY_LEVEL"),
+                                    ProxyRuleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "PROXY_RULE"),
+                                    ProxyRuleName = ODBCWrapper.Utils.GetSafeStr(dr, "PROXY_RULE_NAME"),
+                                    ProxyLevelId = ODBCWrapper.Utils.GetIntSafeVal(dr, "PROXY_LEVEL"),
+                                    ProxyLevelName = ODBCWrapper.Utils.GetSafeStr(dr, "PROXY_LEVEL_NAME"),
                                     CountryIds = new HashSet<int>()
                                 };
 

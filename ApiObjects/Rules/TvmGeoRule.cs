@@ -16,13 +16,17 @@ namespace ApiObjects.Rules
         [JsonProperty("CountryIds")]
         public HashSet<int> CountryIds { get; set; }
 
-        // TODO SHIR - DONT FORGET TO UPDATE TYPE AND MAPPING
-        [JsonProperty("ProxyRule")]
-        public int ProxyRule { get; set; }
+        [JsonProperty("ProxyRuleId")]
+        public int ProxyRuleId { get; set; }
+        
+        [JsonProperty("ProxyRuleName")]
+        public string ProxyRuleName { get; set; }
 
-        // TODO SHIR - DONT FORGET TO UPDATE TYPE AND MAPPING
-        [JsonProperty("ProxyLevel")]
-        public int ProxyLevel { get; set; }
+        [JsonProperty("ProxyLevelId")]
+        public int ProxyLevelId { get; set; }
+
+        [JsonProperty("ProxyLevelName")]
+        public string ProxyLevelName { get; set; }
 
         public TvmGeoRule()
         {
