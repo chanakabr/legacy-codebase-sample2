@@ -108,7 +108,7 @@ namespace Core.Notification
         private static void EnforceAllowedStartTime(int groupId, MessageAnnouncement announcement)
         {
             var settings = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
-            DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
+            DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
 
             log.DebugFormat("EnforceAllowedStartTime: checking allowed time for: group: {0}, announcement name: {1}, announcement start time: {2}, start time: {3}, settings: {4}",
                 groupId, announcement.Name, announcement.StartTime, announcementStartTime.ToString(), JsonConvert.SerializeObject(settings));
@@ -139,7 +139,7 @@ namespace Core.Notification
 
                     announcementStartTime = newStartTime;
 
-                    announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(announcementStartTime);
+                    announcement.StartTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(announcementStartTime);
 
                     log.DebugFormat("Message start time was not in allowed interval, updated to {0}", newStartTime);
                 }
@@ -188,14 +188,14 @@ namespace Core.Notification
             }
 
             int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-            DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
+            DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
 
             DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(id, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
                 announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject);
             announcement = Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
 
             // add a new message to queue when new time updated
-            if (ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime) != startTime)
+            if (DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime) != startTime)
             {
                 if (!AddMessageAnnouncementToQueue(groupId, announcement))
                 {
@@ -337,7 +337,7 @@ namespace Core.Notification
                 if (mediaObj.m_lTags != null && mediaObj.m_lTags.Count > 0 && mediaObj.m_lTags.First() != null)
                 {
                     catalogStartDateStr = mediaObj.m_dCatalogStartDate;
-                    catalogStartDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(mediaObj.m_dCatalogStartDate);
+                    catalogStartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(mediaObj.m_dCatalogStartDate);
                     startDate = mediaObj.m_dStartDate;
                     mediaName = mediaObj.m_sName;
 
@@ -364,7 +364,7 @@ namespace Core.Notification
             }
             #endregion
 
-            long utcNow = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
+            long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             // get message announcements of announcement.
             DataRowCollection drs = DAL.NotificationDal.Get_MessageAnnouncementByAnnouncementId(announcementId);
@@ -456,7 +456,7 @@ namespace Core.Notification
                     string timezone = ODBCWrapper.Utils.GetSafeStr(row, "timezone");
 
                     DateTime convertedTime = ODBCWrapper.Utils.ConvertFromUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "start_time"), timezone);
-                    long startTime = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(convertedTime);
+                    long startTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(convertedTime);
                     ApiObjects.eAnnouncementRecipientsType recipients = ApiObjects.eAnnouncementRecipientsType.Other;
                     int dbRecipients = ODBCWrapper.Utils.GetIntSafeVal(row, "recipients");
                     if (Enum.IsDefined(typeof(ApiObjects.eAnnouncementRecipientsType), dbRecipients))
@@ -499,7 +499,7 @@ namespace Core.Notification
         {
             try
             {
-                DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
+                DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
                 DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message,
                     announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.MessageReference, null,
                     announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.AnnouncementId);
@@ -517,7 +517,7 @@ namespace Core.Notification
             MessageAnnouncementQueue que = new MessageAnnouncementQueue();
             MessageAnnouncementData messageAnnouncementData = new MessageAnnouncementData(groupId, announcement.StartTime, announcement.MessageAnnouncementId)
             {
-                ETA = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime)
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
             };
 
             bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_CHECK_PENDING_TRANSACTION);
@@ -534,9 +534,9 @@ namespace Core.Notification
         {
             try
             {
-                DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
+                DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
                 DateTime convertedTime = ODBCWrapper.Utils.ConvertToUtc(announcementStartTime, announcement.Timezone);
-                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(convertedTime);
+                announcement.StartTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(convertedTime);
                 return true;
             }
             catch (Exception ex)
@@ -678,12 +678,12 @@ namespace Core.Notification
             }
 
             // validate start time is same as DB start time
-            if (ODBCWrapper.Utils.GetDateSafeVal(messageAnnouncementDataRow, "start_time") != ODBCWrapper.Utils.UnixTimestampToDateTime(startTime))
+            if (ODBCWrapper.Utils.GetDateSafeVal(messageAnnouncementDataRow, "start_time") != DateUtils.UtcUnixTimestampSecondsToDateTime(startTime))
             {
                 DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
                 log.DebugFormat("Announcement start time is different than DB start time. DB start time: {0}, announcement start time: {1} group: {2} Id: {3}",
                     ODBCWrapper.Utils.GetDateSafeVal(messageAnnouncementDataRow, "start_time"),
-                    ODBCWrapper.Utils.UnixTimestampToDateTime(startTime),
+                    DateUtils.UtcUnixTimestampSecondsToDateTime(startTime),
                     groupId,
                     messageId);
                 return false;
@@ -698,7 +698,7 @@ namespace Core.Notification
                 return false;
             }
 
-            long currentTimeSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long currentTimeSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
             string singleTopicExternalId = string.Empty;
             string singleQueueName = string.Empty;
             List<string> topicExternalIds = new List<string>();
@@ -1174,7 +1174,7 @@ namespace Core.Notification
                     // check if topic expiration passed
                     if (announcement.RecipientsType == eAnnouncementRecipientsType.Other &&
                         announcement.LastMessageSentDateSec > 0 &&
-                        TimeSpan.FromSeconds(TVinciShared.DateUtils.UnixTimeStampNow() - announcement.LastMessageSentDateSec).TotalDays > partnerSettings.TopicExpirationDurationDays)
+                        TimeSpan.FromSeconds(TVinciShared.DateUtils.GetUtcUnixTimestampNow() - announcement.LastMessageSentDateSec).TotalDays > partnerSettings.TopicExpirationDurationDays)
                     {
                         Status deleteAnnouncementResp = DeleteAnnouncement(partnerSettings.PartnerId, announcement.ID);
                         if (deleteAnnouncementResp != null && deleteAnnouncementResp.Code != (int)eResponseStatus.OK)
@@ -1182,7 +1182,7 @@ namespace Core.Notification
                             log.ErrorFormat("Error while trying to delete old topic. GID: {0}, Announcement ID: {1}, Announcement updated at: {2}, topic expiration duration in days: {3}",
                                 partnerSettings.PartnerId,
                                 announcement.ID,
-                                TVinciShared.DateUtils.UnixTimeStampToDateTime(announcement.LastMessageSentDateSec).ToString(),
+                                TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.LastMessageSentDateSec).ToString(),
                                 partnerSettings.TopicExpirationDurationDays);
                         }
                         else
@@ -1191,7 +1191,7 @@ namespace Core.Notification
                             log.DebugFormat("successfully deleted old topic. GID: {0}, Announcement ID: {1}, Announcement updated at: {2}, topic expiration duration in days: {3}",
                                 partnerSettings.PartnerId,
                                 announcement.ID,
-                                TVinciShared.DateUtils.UnixTimeStampToDateTime(announcement.LastMessageSentDateSec).ToString(),
+                                TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.LastMessageSentDateSec).ToString(),
                                 partnerSettings.TopicExpirationDurationDays);
                         }
                     }

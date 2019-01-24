@@ -65,8 +65,8 @@ namespace Core.Social
             eSocialActionPrivacy eInternalPrivacy = GetUserInternalActionShare(oSocialDoc.DocOwnerSiteGuid, (ApiObjects.SocialPlatform)oSocialDoc.SocialPlatform, (eUserAction)oSocialDoc.ActivityVerb.ActionType);
             string id = Utils.CreateSocialActionId(oSocialDoc.DocOwnerSiteGuid, oSocialDoc.SocialPlatform, oSocialDoc.ActivityVerb.ActionType, oSocialDoc.ActivityObject.AssetID, (int)oSocialDoc.ActivityObject.AssetType);
             oSocialDoc.id = id;
-            oSocialDoc.CreateDate = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-            oSocialDoc.LastUpdate = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            oSocialDoc.CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+            oSocialDoc.LastUpdate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
             oSocialDoc.PermitSharing = (eInternalPrivacy == eSocialActionPrivacy.DONT_ALLOW) ? false : true;
 
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(oSocialDoc);
@@ -936,8 +936,8 @@ namespace Core.Social
                     SiteGuid = ODBCWrapper.Utils.GetSafeStr(umm, "user_site_guid"),
                     GroupID = ODBCWrapper.Utils.GetIntSafeVal(umm, "group_id"),
                     SocialPlatform = ODBCWrapper.Utils.GetIntSafeVal(umm, "social_platform"),
-                    CreateDate = DateUtils.DateTimeToUnixTimestamp(ODBCWrapper.Utils.GetDateSafeVal(umm, "create_date")),
-                    LastUpdate = DateUtils.DateTimeToUnixTimestamp(ODBCWrapper.Utils.GetDateSafeVal(umm, "update_date")),
+                    CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(umm, "create_date")),
+                    LastUpdate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(umm, "update_date")),
                     MediaID = ODBCWrapper.Utils.GetIntSafeVal(umm, "media_id"),
                     AssetType = (eAssetType)ODBCWrapper.Utils.GetIntSafeVal(umm, "asset_type"),
                     nProgramID = ODBCWrapper.Utils.GetIntSafeVal(umm, "program_id"),
@@ -1363,8 +1363,8 @@ namespace Core.Social
             #region Couchbase
             string id = Utils.CreateSocialActionId(oSocialDoc.DocOwnerSiteGuid, oSocialDoc.SocialPlatform, oSocialDoc.ActivityVerb.ActionType, oSocialDoc.ActivityObject.AssetID, (int)oSocialDoc.ActivityObject.AssetType);
             oSocialDoc.id = id;
-            oSocialDoc.CreateDate = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-            oSocialDoc.LastUpdate = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            oSocialDoc.CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+            oSocialDoc.LastUpdate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
             eSocialActionPrivacy socialActionPrivacy = privacySettings.InternalPrivacy.Where(x => (int)x.Action == oSocialDoc.ActivityVerb.ActionType).Select(x => x.Privacy).FirstOrDefault();
             oSocialDoc.PermitSharing = (socialActionPrivacy == eSocialActionPrivacy.DONT_ALLOW) ? false : true;
 

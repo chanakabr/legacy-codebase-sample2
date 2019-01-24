@@ -13,6 +13,7 @@ using System.Web;
 using ApiLogic;
 using APILogic.ConditionalAccess.Modules;
 using System.Xml;
+using TVinciShared;
 
 namespace Core.Billing
 {
@@ -2666,7 +2667,7 @@ namespace Core.Billing
                 }
 
                 //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(paymentGateway.ID, paymentGateway.TransactUrl, paymentGateway.StatusUrl, paymentGateway.RenewUrl,

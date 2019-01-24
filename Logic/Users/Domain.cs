@@ -2686,8 +2686,8 @@ namespace Core.Users
                     if (devicePlayDataList != null)
                     {
                         int mediaConcurrencyCount = devicePlayDataList.Count(c => 
-                            c.NpvrId == npvr && 
-                            c.TimeStamp.UnixTimestampToDateTime().AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                            c.NpvrId == npvr &&
+                            DateUtils.UtcUnixTimestampSecondsToDateTime(c.TimeStamp).AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
                         if (mediaConcurrencyCount >= npvrConcurrencyLimit)
                         {
                             return DomainResponseStatus.MediaConcurrencyLimitation;

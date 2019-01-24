@@ -28,7 +28,7 @@ namespace Core.Billing
 
             try
             {
-                log.Info("M1CellularCreditCard ChargeUser start at " + DateTime.Now.ToString());
+                log.Info("M1CellularCreditCard ChargeUser start at " + DateTime.UtcNow.ToString());
 
                 string sChargedMobileNumber = string.Empty;
                 string sCustomerServiceID = string.Empty;

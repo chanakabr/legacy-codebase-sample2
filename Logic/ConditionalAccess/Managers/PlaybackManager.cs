@@ -581,7 +581,7 @@ namespace Core.ConditionalAccess
 
                     // main url
                     var link = CDNAdapterController.GetInstance().GetEpgLink(groupId, adapterResponse.Adapter.ID, userId, file.Url, file.Type, (int)program.EPG_ID, 
-                                                                            (int)file.MediaId, (int)file.Id, programStartTime.ToUnixTimestamp(), actionType, ip);
+                                                                            (int)file.MediaId, (int)file.Id, programStartTime.ToUtcUnixTimestampSeconds(), actionType, ip);
                     response.Url = link != null ? link.Url : null;
                 }
                 else

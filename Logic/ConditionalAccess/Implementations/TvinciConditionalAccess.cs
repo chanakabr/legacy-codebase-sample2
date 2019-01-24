@@ -701,7 +701,7 @@ namespace Core.ConditionalAccess
 
                     // main url
                     var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, fileType, programId, mediaId, nMediaFileID,
-                        TVinciShared.DateUtils.DateTimeToUnixTimestamp(scheduling.StartDate), actionType, sUserIP);
+                        TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(scheduling.StartDate), actionType, sUserIP);
 
                     if (link != null)
                     {
@@ -779,7 +779,7 @@ namespace Core.ConditionalAccess
                 if (response != null && response.StartDateSeconds > 0)
                 {
                     // received start date form transaction - calculate end date accordingly
-                    startDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(response.StartDateSeconds);
+                    startDate = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(response.StartDateSeconds);
                 }
 
                 if (isPPVUsageModuleExists)
@@ -891,7 +891,7 @@ namespace Core.ConditionalAccess
                     else
                     {
                         // update start date by transaction start date
-                        transactionStartDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(response.StartDateSeconds);
+                        transactionStartDate = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(response.StartDateSeconds);
                     }
 
                     response.AutoRenewing = isRecurring;
@@ -974,7 +974,7 @@ namespace Core.ConditionalAccess
                 {
                     if (response.EndDateSeconds > 0)
                     {
-                        collectionEndDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
+                        collectionEndDate = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(response.EndDateSeconds);
                     }
                     else
                     {

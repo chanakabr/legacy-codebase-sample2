@@ -167,7 +167,7 @@ namespace Core.Notification
 
         private static UserNotification CreateUserNotification(int groupId, int userId, UserNotificationSettings settings)
         {
-            UserNotification userNotificationData = new UserNotification(userId) { CreateDateSec = DateUtils.UnixTimeStampNow() };
+            UserNotification userNotificationData = new UserNotification(userId) { CreateDateSec = DateUtils.GetUtcUnixTimestampNow() };
 
             if (settings.EnableInbox.HasValue)
             {
@@ -437,8 +437,8 @@ namespace Core.Notification
                 partnerSettingsResponse.settings.PushStartHour.HasValue &&
                 partnerSettingsResponse.settings.PushEndHour.HasValue)
             {
-                DateTime startTime = DateUtils.UnixTimeStampToDateTime(partnerSettingsResponse.settings.PushStartHour.Value);
-                DateTime endTime = DateUtils.UnixTimeStampToDateTime(partnerSettingsResponse.settings.PushEndHour.Value);
+                DateTime startTime = DateUtils.UtcUnixTimestampSecondsToDateTime(partnerSettingsResponse.settings.PushStartHour.Value);
+                DateTime endTime = DateUtils.UtcUnixTimestampSecondsToDateTime(partnerSettingsResponse.settings.PushEndHour.Value);
 
                 TimeSpan allowedStart = startTime.TimeOfDay;
                 TimeSpan allowedEnd = endTime.TimeOfDay;

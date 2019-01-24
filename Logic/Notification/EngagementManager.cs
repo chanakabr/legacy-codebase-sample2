@@ -392,7 +392,7 @@ namespace Core.Notification
                 }
 
                 // create rabbit message
-                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(engagement.SendTime), response.Engagement.Id))
+                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUtcUnixTimestampSeconds(engagement.SendTime), response.Engagement.Id))
                 {
                     log.ErrorFormat("Error while trying to create engagement rabbit message. Engagement data: {0}", JsonConvert.SerializeObject(engagement));
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ERROR_INSERTING_ENGAGEMENT);
@@ -570,7 +570,7 @@ namespace Core.Notification
             EngagementQueue queue = new EngagementQueue();
             EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
             {
-                ETA = ODBCWrapper.Utils.UnixTimestampToDateTime(startTime)
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(startTime)
             };
 
             bool res = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
@@ -682,12 +682,12 @@ namespace Core.Notification
             }
 
             // validate engagement time is the same as message time 
-            if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(engagementToBeSent.SendTime) - startTime) > 30)
+            if (Math.Abs(DateUtils.DateTimeToUtcUnixTimestampSeconds(engagementToBeSent.SendTime) - startTime) > 30)
             {
                 log.ErrorFormat("Engagement time was changed (to more than 30 seconds). Engagement ID: {0}, engagement time: {1}, message time: {2}",
                     engagementId,
                     engagementToBeSent.SendTime,
-                    DateUtils.UnixTimeStampToDateTime(startTime));
+                    DateUtils.UtcUnixTimestampSecondsToDateTime(startTime));
 
                 // return true - do not retry
                 return true;
@@ -812,7 +812,7 @@ namespace Core.Notification
                     }
 
                     // create rabbit message
-                    if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(utcNow), engagementToBeSent.Id, insertedBulkMessage.Id))
+                    if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUtcUnixTimestampSeconds(utcNow), engagementToBeSent.Id, insertedBulkMessage.Id))
                         log.ErrorFormat("Error while trying to create bulk engagement rabbit message. engagement data: {0}", JsonConvert.SerializeObject(insertedBulkMessage));
                 }
             });
@@ -869,7 +869,7 @@ namespace Core.Notification
             futureEngagement = tempInsertedFutureEngagement;
 
             // create engagement Rabbit message
-            if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(futureEngagement.SendTime), futureEngagement.Id))
+            if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUtcUnixTimestampSeconds(futureEngagement.SendTime), futureEngagement.Id))
             {
                 log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
 
@@ -1327,7 +1327,7 @@ namespace Core.Notification
                     throw new Exception("Unknown Engagement Type");
             }
 
-            long currentTimeSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long currentTimeSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             InboxMessage inboxMessage = new InboxMessage()
             {
@@ -1411,7 +1411,7 @@ namespace Core.Notification
             foreach (var bulk in bulkEngagements)
             {
                 // create rabbit message
-                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow), engagement.Id, bulk.Id))
+                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow), engagement.Id, bulk.Id))
                     log.ErrorFormat("Error while trying to create bulk engagement rabbit message. engagement data: {0}", JsonConvert.SerializeObject(bulk));
             }
 

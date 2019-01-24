@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using TVinciShared;
 
 namespace Core.Notification
 {
@@ -51,7 +52,7 @@ namespace Core.Notification
                 }
 
                 //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(adapter.Id, adapter.Settings, groupId, unixTimestamp);
@@ -103,7 +104,7 @@ namespace Core.Notification
             try
             {
                 //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(adapter.Id, announcementName, unixTimestamp);
@@ -185,7 +186,7 @@ namespace Core.Notification
             try
             {
                 //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(adapter.Id, externalAnnouncementId, unixTimestamp);
@@ -273,7 +274,7 @@ namespace Core.Notification
                 }
 
                 //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(adapter.Id, userData.FirstName, userData.LastName, userData.Email, token,
@@ -356,7 +357,7 @@ namespace Core.Notification
             try
             {
                 //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(adapter.Id, userData.Email, announcementExternalIds != null ? string.Join("", announcementExternalIds) : string.Empty, unixTimestamp);
@@ -438,7 +439,7 @@ namespace Core.Notification
             try
             {
                 //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(adapter.Id, externalAnnouncementId, templateId, subject,
@@ -532,7 +533,7 @@ namespace Core.Notification
             try
             {
                 //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Concat(adapter.Id, userId, oldUserData.Email, NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, token,

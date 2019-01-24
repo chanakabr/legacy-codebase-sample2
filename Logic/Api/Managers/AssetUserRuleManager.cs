@@ -441,6 +441,70 @@ namespace Core.Api.Managers
             return response;
         }
 
+        public static List<AssetUserRule> GetMediaAssetUserRulesToUser(int groupId, long userId, long mediaId, GenericListResponse<AssetUserRule> userToAssetUserRules = null)
+        {
+            List<AssetUserRule> rules = new List<AssetUserRule>();
+
+            if (userId > 0)
+            {
+                try
+                {
+                    // check that have AssetUserRule for the group in general and return it
+                    var assetUserRuleList = GetAssetUserRuleList(groupId, null);
+
+                    if (assetUserRuleList == null || !assetUserRuleList.HasObjects())
+                    {
+                        return null;
+                    }
+
+                    List<long> mediaAssetUserRuleIds = null;
+                    string mediaAssetUserRulesKey = LayeredCacheKeys.GetMediaAssetUserRulesKey(groupId, mediaId);
+
+                    //Get mediaAssetUserRuleIds from cache
+                    if (!LayeredCache.Instance.Get<List<long>>(mediaAssetUserRulesKey,
+                                                               ref mediaAssetUserRuleIds,
+                                                               GetMediaAssetUserRules,
+                                                               new Dictionary<string, object>()
+                                                               {
+                                                                   { "groupId", groupId },
+                                                                   { "mediaId", mediaId },
+                                                                   { "assetUserRules", assetUserRuleList.Objects }
+                                                               },
+                                                               groupId,
+                                                               LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
+                                                               new List<string>() { LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId) }))
+                    {
+                        log.Error(string.Format("GetMediaAssetUserRulesToUser - GetMediaAssetUserRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
+                    }
+
+                    if (mediaAssetUserRuleIds == null || mediaAssetUserRuleIds.Count == 0)
+                    {
+                        return rules;
+                    }
+
+                    if (userToAssetUserRules == null)
+                    {
+                        userToAssetUserRules = GetAssetUserRuleList(groupId, userId);
+                    }
+
+                    // if user has at least one rule applied on him
+                    if (userToAssetUserRules == null || !userToAssetUserRules.HasObjects())
+                    {
+                        return rules;
+                    }
+
+                    // union userRules with the mediaRules 
+                    rules = userToAssetUserRules.Objects.Where(assetUserRule => mediaAssetUserRuleIds.Contains(assetUserRule.Id)).ToList();
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Error in GetMediaAssetUserRulesToUser: group={0}, user={1}, media={2}", groupId, userId), ex);
+                }
+            }
+
+            return rules;
+        }
+
         #endregion
 
         #region Private Methods
@@ -575,8 +639,57 @@ namespace Core.Api.Managers
 
             return true;
         }
+        
+        private static Tuple<List<long>, bool> GetMediaAssetUserRules(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<long> ruleIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("assetUserRules"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        long? mediaId = funcParams["mediaId"] as long?;
+                        List<AssetUserRule> mediaAssetUserRules = funcParams["assetUserRules"] as List<AssetUserRule>;
+
+                        UnifiedSearchResult[] medias;
+                        string filter = string.Empty;
+
+                        if (groupId.HasValue && mediaId.HasValue && mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+                        {
+                            // find all asset ids that match the tag + tag value ==> if so save the rule id
+                            //build search for each tag and tag values
+                            Parallel.ForEach(mediaAssetUserRules, (rule) =>
+                            {
+                                if (rule.Conditions != null && rule.Conditions.Count > 0)
+                                {
+                                    filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);
+                                    medias = api.SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+
+                                    if (medias != null && medias.Count() > 0)// there is a match 
+                                    {
+                                        ruleIds.Add(rule.Id);
+                                    }
+                                }
+                            });
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaAssetUserRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
+        }
 
         #endregion
-        
+
     }
 }

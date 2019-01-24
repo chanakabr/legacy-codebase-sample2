@@ -13,6 +13,7 @@ using System.Linq;
 using ApiObjects.Catalog;
 using TVinciShared;
 using Core.Catalog.Cache;
+using APILogic.Api.Managers;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -162,7 +163,7 @@ namespace Core.Catalog.CatalogManagement
                                 CatalogStartDate = GetDateTimeFromString(media.Basic.Dates.CatalogStart, startDate),
                                 EndDate = endDate,
                                 FinalEndDate = GetDateTimeFromString(media.Basic.Dates.End, endDate),
-                                GeoBlockRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
+                                GeoBlockRuleId = TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
                                 DeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
                                 Metas = GetMetasList(media.Structure, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache),
                                 Tags = GetTagsList(tagNameToTranslations, catalogGroupCache.DefaultLanguage.Code, ref tagsTranslations)
@@ -548,7 +549,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!string.IsNullOrEmpty(media.Basic.Rules.GeoBlockRule))
                 {
-                    int? geoBlockRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule);
+                    int? geoBlockRuleId = TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule);
                     if (!geoBlockRuleId.HasValue || geoBlockRuleId.Value == 0)
                     {
                         ingestResponse.AddError(GEO_BLOCK_RULE_NOT_RECOGNIZED);
@@ -764,7 +765,7 @@ namespace Core.Catalog.CatalogManagement
                     sTime = timeHour[1];
                 }
                 else
-                    return DateTime.Now;
+                    return DateTime.UtcNow;
                 string[] splited = date.Split('/');
 
                 Int32 nYear = 1;
@@ -788,7 +789,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch
             {
-                return DateTime.Now;
+                return DateTime.UtcNow;
             }
         }
 

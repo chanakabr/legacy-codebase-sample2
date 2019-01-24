@@ -538,7 +538,7 @@ namespace Core.ConditionalAccess
                             FileCreditUsedDetails fileCreditUsedDetails = filteredFilesCreditUsedDetails.OrderByDescending(x => x.DateUsed).First();
                             if (fileCreditUsedDetails != null)
                             {
-                                lastUseWithCredit = TVinciShared.DateUtils.UnixTimeStampToDateTime(fileCreditUsedDetails.DateUsed);
+                                lastUseWithCredit = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(fileCreditUsedDetails.DateUsed);
                             }
                         }
                     }
@@ -609,7 +609,7 @@ namespace Core.ConditionalAccess
 
                                     if (id > 0 && !string.IsNullOrEmpty(productCode) && lastDateUsed.HasValue)
                                     {
-                                        filesCreditUsedDetails.Add(new FileCreditUsedDetails() { Id = id, ProductCode = productCode, DateUsed = TVinciShared.DateUtils.DateTimeToUnixTimestamp(lastDateUsed.Value) });
+                                        filesCreditUsedDetails.Add(new FileCreditUsedDetails() { Id = id, ProductCode = productCode, DateUsed = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(lastDateUsed.Value) });
                                     }
                                 }
 

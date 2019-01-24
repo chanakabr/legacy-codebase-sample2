@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Core.Catalog;
 using ConfigurationManager;
+using TVinciShared;
 
 namespace Core.Notification
 {
@@ -48,7 +49,7 @@ namespace Core.Notification
             string timezone = ODBCWrapper.Utils.GetSafeStr(row, "timezone");
 
             DateTime convertedTime = ODBCWrapper.Utils.ConvertFromUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "start_time"), timezone);
-            long startTime = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(convertedTime);
+            long startTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(convertedTime);
             ApiObjects.eAnnouncementRecipientsType recipients = ApiObjects.eAnnouncementRecipientsType.Other;
             int dbRecipients = ODBCWrapper.Utils.GetIntSafeVal(row, "recipients");
             if (Enum.IsDefined(typeof(ApiObjects.eAnnouncementRecipientsType), dbRecipients))
@@ -405,7 +406,7 @@ namespace Core.Notification
                     log.DebugFormat("user announcement data wasn't found - going to create a new one. GID: {0}, UID: {1}", groupId, userId);
 
                     // create user notification object
-                    userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.UnixTimeStampNow() };
+                    userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.GetUtcUnixTimestampNow() };
 
                     //update user settings according to partner settings configuration                    
                     userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
@@ -494,7 +495,7 @@ namespace Core.Notification
             token = string.Empty;
             try
             {
-                string userIdStr = string.Format("{0}|{1}|{2}", userId.ToString(), groupId, TVinciShared.DateUtils.UnixTimeStampNow());
+                string userIdStr = string.Format("{0}|{1}|{2}", userId.ToString(), groupId, TVinciShared.DateUtils.GetUtcUnixTimestampNow());
                 byte[] input = new byte[userIdStr.Length];
                 Array.Copy(Encoding.ASCII.GetBytes(userIdStr), 0, input, 0, input.Length);
 
@@ -553,7 +554,7 @@ namespace Core.Notification
                     log.DebugFormat("user sms data wasn't found - going to create a new one. GID: {0}, USERID: {1}", groupId, userId);
 
                     // create user notification object
-                    userSmsNotificationData = new SmsNotificationData(userId) { UpdatedAt = TVinciShared.DateUtils.UnixTimeStampNow() };
+                    userSmsNotificationData = new SmsNotificationData(userId) { UpdatedAt = TVinciShared.DateUtils.GetUtcUnixTimestampNow() };
                 }
             }
 

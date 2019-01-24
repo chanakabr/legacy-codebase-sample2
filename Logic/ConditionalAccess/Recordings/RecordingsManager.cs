@@ -481,7 +481,7 @@ namespace Core.Recordings
                         // Call Adapter to update recording,
 
                         // Initialize parameters for adapter controller
-                        long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
+                        long startTimeSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate);
                         long durationSeconds = (long)(endDate - startDate).TotalSeconds;
                         string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, recording.ChannelId);
 
@@ -1101,7 +1101,7 @@ namespace Core.Recordings
             var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();            
 
             // Initialize parameters for adapter controller
-            long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
+            long startTimeSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate);
             long durationSeconds = (long)(endDate - startDate).TotalSeconds;
             string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
 

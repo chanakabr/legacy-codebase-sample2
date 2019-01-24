@@ -786,9 +786,15 @@ namespace Core.Catalog.CatalogManagement
                     slidingWindowPeriod = channelToUpdate.m_OrderObject.lu_min_period_id;
                 }
 
+                int? updatedChannelType = null;
+                if (isForMigration)
+                {
+                    updatedChannelType = channelToUpdate.m_nChannelTypeID;
+                }
+
                 DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
                                                         orderByDir, orderByValue, isSlidingWindow, slidingWindowPeriod, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
-                                                        mediaIdsToOrderNum, userId, channelToUpdate.SupportSegmentBasedOrdering);
+                                                        mediaIdsToOrderNum, userId, channelToUpdate.SupportSegmentBasedOrdering, updatedChannelType);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {

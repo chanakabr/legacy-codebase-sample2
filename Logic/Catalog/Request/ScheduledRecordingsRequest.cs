@@ -290,7 +290,7 @@ namespace Core.Catalog.Request
 
             if (startDate.HasValue)
             {
-                ksql.AppendFormat(") start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(startDate.Value));
+                ksql.AppendFormat(") start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate.Value));
             }
             else
             {
@@ -299,7 +299,7 @@ namespace Core.Catalog.Request
 
             if (endDate.HasValue)
             {
-                ksql.AppendFormat(" end_date < '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate.Value));
+                ksql.AppendFormat(" end_date < '{0}'", TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value));
             }
 
             ksql.Append(")");

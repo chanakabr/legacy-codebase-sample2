@@ -772,7 +772,7 @@ namespace Core.Notification
                 {
                     IsLoggedIn = true,
                     UserId = userId,
-                    UpdatedAt = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                    UpdatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                     SubscribedAnnouncements = new List<NotificationSubscription>()
                 };
             }
@@ -781,7 +781,7 @@ namespace Core.Notification
                 deviceData.IsLoggedIn = true;
                 deviceData.Udid = pushData.Udid;
                 deviceData.UserId = userId;
-                deviceData.UpdatedAt = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                deviceData.UpdatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 if (deviceData.SubscribedAnnouncements == null)
                     deviceData.SubscribedAnnouncements = new List<NotificationSubscription>();
             }
@@ -858,7 +858,7 @@ namespace Core.Notification
                 {
                     IsLoggedIn = isLogin,
                     UserId = isLogin ? userId : 0,
-                    UpdatedAt = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                    UpdatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                     SubscribedAnnouncements = new List<NotificationSubscription>()
                 };
             }
@@ -867,7 +867,7 @@ namespace Core.Notification
                 deviceData.IsLoggedIn = isLogin;
                 deviceData.Udid = pushData.Udid;
                 deviceData.UserId = isLogin ? userId : 0;
-                deviceData.UpdatedAt = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                deviceData.UpdatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 if (deviceData.SubscribedAnnouncements == null)
                     deviceData.SubscribedAnnouncements = new List<NotificationSubscription>();
                 if (deviceData.SubscribedReminders == null)
@@ -960,7 +960,7 @@ namespace Core.Notification
                                 {
                                     deviceData.SubscribedAnnouncements.Add(new NotificationSubscription()
                                     {
-                                        SubscribedAtSec = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                        SubscribedAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                                         ExternalId = subscription.SubscriptionArnResult,
                                         Id = subscription.ExternalId
                                     });
@@ -973,7 +973,7 @@ namespace Core.Notification
                                     {
                                         deviceData.SubscribedReminders.Add(new NotificationSubscription()
                                         {
-                                            SubscribedAtSec = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                            SubscribedAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                                             ExternalId = subscription.SubscriptionArnResult,
                                             Id = subscription.ExternalId
                                         });
@@ -1016,7 +1016,7 @@ namespace Core.Notification
             // update user notification object
             if (userNotificationData == null)
             {
-                userNotificationData = new UserNotification(userId) { CreateDateSec = DateUtils.UnixTimeStampNow() };
+                userNotificationData = new UserNotification(userId) { CreateDateSec = DateUtils.GetUtcUnixTimestampNow() };
 
                 //update user settings according to partner settings configuration                    
                 userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
@@ -1062,7 +1062,7 @@ namespace Core.Notification
                 // add new device
                 userNotificationData.devices.Add(new UserDevice()
                 {
-                    SignInAtSec = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                    SignInAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                     Udid = pushData.Udid
                 });
             }
@@ -1374,7 +1374,7 @@ namespace Core.Notification
 
                     userNotificationData.Announcements.Add(new Announcement()
                     {
-                        AddedDateSec = DateUtils.UnixTimeStampNow(),
+                        AddedDateSec = DateUtils.GetUtcUnixTimestampNow(),
                         AnnouncementId = mailAnnouncement.ID,
                         AnnouncementName = mailAnnouncement.Name
                     });
@@ -1736,14 +1736,14 @@ namespace Core.Notification
             {
                 smsNotificationData = new SmsNotificationData(userId)
                 {
-                    UpdatedAt = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                    UpdatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                     SubscribedAnnouncements = new List<NotificationSubscription>(),
                 };
             }
             else
             {
                 smsNotificationData.UserId = userId;
-                smsNotificationData.UpdatedAt = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                smsNotificationData.UpdatedAt = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 if (smsNotificationData.SubscribedAnnouncements == null)
                     smsNotificationData.SubscribedAnnouncements = new List<NotificationSubscription>();
             }
@@ -1837,7 +1837,7 @@ namespace Core.Notification
                             {
                                 smsNotificationData.SubscribedAnnouncements.Add(new NotificationSubscription()
                                 {
-                                    SubscribedAtSec = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                    SubscribedAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                                     ExternalId = subscription.SubscriptionArnResult,
                                     Id = subscription.ExternalId
                                 });
@@ -1850,7 +1850,7 @@ namespace Core.Notification
                                 {
                                     smsNotificationData.SubscribedReminders.Add(new NotificationSubscription()
                                     {
-                                        SubscribedAtSec = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                        SubscribedAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                                         ExternalId = subscription.SubscriptionArnResult,
                                         Id = subscription.ExternalId
                                     });
@@ -1901,7 +1901,7 @@ namespace Core.Notification
                     {
                         smsNotificationData.SubscribedAnnouncements.Add(new NotificationSubscription()
                         {
-                            SubscribedAtSec = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                            SubscribedAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                             ExternalId = subscription.SubscriptionArnResult,
                             Id = subscription.ExternalId
                         });
@@ -1914,7 +1914,7 @@ namespace Core.Notification
                         {
                             smsNotificationData.SubscribedReminders.Add(new NotificationSubscription()
                             {
-                                SubscribedAtSec = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                SubscribedAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
                                 ExternalId = subscription.SubscriptionArnResult,
                                 Id = subscription.ExternalId
                             });

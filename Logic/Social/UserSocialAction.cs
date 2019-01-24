@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using TVinciShared;
 
 namespace Core.Social
 {
@@ -84,7 +85,7 @@ namespace Core.Social
                                 SocialBL.IncrementAssetLikeCounter(actionRequest.AssetID, actionRequest.AssetType);
 
                                 InternalStatus = SocialBL.InsertUserSocialAction(doc, userPrivacySettings, out dbRecordId);
-                                DateTime date = Utils.UnixTimeStampToDateTime(doc.CreateDate);
+                                DateTime date = DateUtils.UtcUnixTimestampSecondsToDateTime(doc.CreateDate);
                                 WriteActionToES(actionRequest, groupID, 0, date);
                             }
                             #endregion
@@ -96,7 +97,7 @@ namespace Core.Social
                             // only if already was a doc we can unactive it 
                             if (doc != null)
                             {
-                                DateTime date = Utils.UnixTimeStampToDateTime(doc.CreateDate);
+                                DateTime date = DateUtils.UtcUnixTimestampSecondsToDateTime(doc.CreateDate);
                                 DeleteActionFromES(actionRequest, groupID, 0, date);
                             }
                             #endregion

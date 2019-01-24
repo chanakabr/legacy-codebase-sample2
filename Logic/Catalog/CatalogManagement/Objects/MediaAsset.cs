@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -116,7 +117,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (!string.IsNullOrEmpty(mediaObj.GeoblockRule))
             {
-                this.GeoBlockRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, mediaObj.GeoblockRule);
+                this.GeoBlockRuleId = TvmRuleManager.GetGeoBlockRuleId(groupId, mediaObj.GeoblockRule);
             }
 
             this.Files = new List<AssetFile>();

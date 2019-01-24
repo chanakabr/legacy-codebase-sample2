@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DAL;
 using CouchbaseManager;
+using TVinciShared;
 
 namespace APILogic.Api.Managers
 {
@@ -26,7 +27,7 @@ namespace APILogic.Api.Managers
             {
                 UserPersonalList userPersonalList = GetUserPersonalListCB(userId);
                 int itemId = 0;
-                personalListItem.Timestamp = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
+                personalListItem.Timestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 if (userPersonalList == null)
                 {

@@ -25,14 +25,14 @@ namespace Core.Social.SocialFeed.SocialFeedJsonTemplates
                         {
                             Body = post.message,
                             CreatorName = post.from.name,
-                            CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(post.created_time),
+                            CreateDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(post.created_time),
                             CreatorImageUrl = string.Format(@"http://graph.facebook.com/{0}/picture?type=square", post.from.id),
                             FeedItemLink = post.link ?? post.picture,
                             PopularityCounter = post.likes != null ? post.likes.summary.total_count : 0,
                             Comments = post.comments != null ? post.comments.data.Select(comment => new SocialFeedItemComment()
                             {
                                 Body = comment.message,
-                                CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(comment.created_time),
+                                CreateDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(comment.created_time),
                                 CreatorImageUrl = comment.from != null ? string.Format(@"http://graph.facebook.com/{0}/picture?type=square", comment.from.id) : null,
                                 CreatorName = comment.from != null ? comment.from.name : null,
                                 PopularityCounter = comment.like_count

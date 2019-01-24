@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.PlaybackAdapter;
@@ -479,14 +480,12 @@ namespace Core.Api
         public static string CheckGeoBlockMedia(int groupId, Int32 nMediaID, string sIP)
         {
             string ruleName;
-            if (Core.Api.api.CheckGeoBlockMedia(groupId, nMediaID, sIP, out ruleName))
+            if (TvmRuleManager.CheckGeoBlockMedia(groupId, nMediaID, sIP, out ruleName))
             {
                 return "Geo";
             }
-            else
-            {
-                return "OK";
-            }
+
+            return "OK";
         }
 
         /// <summary>
@@ -759,7 +758,7 @@ namespace Core.Api
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGuid;
 
-            return Core.Api.api.GetGroupMediaRules(nMediaID, sIP, siteGuid.ToString(), groupId, deviceUdid);
+            return TvmRuleManager.GetGroupMediaRules(nMediaID, sIP, siteGuid.ToString(), groupId, deviceUdid);
         }
 
         public static List<GroupRule> GetEPGProgramRules(int groupId, int nMediaId, int nProgramId, int siteGuid, string sIP, string deviceUdid)
@@ -767,7 +766,7 @@ namespace Core.Api
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGuid;
 
-            return Core.Api.api.GetEPGProgramRules(nProgramId, nMediaId, siteGuid.ToString(), sIP, groupId, deviceUdid);
+            return TvmRuleManager.GetEPGProgramRules(nProgramId, nMediaId, siteGuid.ToString(), sIP, groupId, deviceUdid);
         }
 
         public static List<GroupRule> GetNpvrRules(int groupId, RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string sIP, string deviceUdid)
@@ -775,7 +774,7 @@ namespace Core.Api
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGuid;
 
-            return Core.Api.api.GetNpvrRules(recordedProgram, siteGuid, sIP, groupId, deviceUdid);
+            return TvmRuleManager.GetNpvrRules(recordedProgram, siteGuid, sIP, groupId, deviceUdid);
         }
 
         public static List<int> ChannelsContainingMedia(int groupId, List<int> lChannels, int nMediaID, int nMediaFileID)
@@ -1184,7 +1183,7 @@ namespace Core.Api
         /// <returns></returns>
         public static GenericRuleResponse GetMediaRules(int groupId, string siteGuid, long mediaId, long domainId, string ip, string udid, GenericRuleOrderBy orderBy)
         {
-            return Core.Api.api.GetMediaRules(groupId, siteGuid, mediaId, domainId, ip, udid, orderBy);
+            return api.GetMediaRules(groupId, siteGuid, mediaId, domainId, ip, udid, orderBy);
         }
 
         /// <summary>
@@ -1199,7 +1198,7 @@ namespace Core.Api
         /// <returns></returns>
         public static GenericRuleResponse GetEpgRules(int groupId, string siteGuid, long epgId, long channelMediaId, long domainId, string ip, GenericRuleOrderBy orderBy)
         {
-            return Core.Api.api.GetEpgRules(groupId, siteGuid, epgId, channelMediaId, domainId, ip, orderBy);
+            return api.GetEpgRules(groupId, siteGuid, epgId, channelMediaId, domainId, ip, orderBy);
         }
 
         public static ParentalRulesTagsResponse GetUserParentalRuleTags(int groupId, string siteGuid, long domainId)

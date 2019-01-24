@@ -1,4 +1,5 @@
 ﻿using AdapterControllers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
@@ -90,7 +91,7 @@ namespace Core.Catalog
         internal const string STAT_ACTION_RATES = "rates";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
         internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
-        private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
+        private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUtcUnixTimestampSeconds(new DateTime(1980, 1, 1, 0, 0, 0));
 
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
@@ -131,7 +132,8 @@ namespace Core.Catalog
             "media_id",
             "epg_id",
             STATUS,
-            "linear_media_id"
+            "linear_media_id",
+            "recording_id"
         };
 
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
@@ -1099,7 +1101,7 @@ namespace Core.Catalog
 
                             if (Utils.GetIntSafeVal(dtMedia.Rows[0], "BLOCK_TEMPLATE_ID") > 0)
                             {
-                                oMediaObj.GeoblockRule = GetGeoBlockRuleName(assetGroupId, Utils.GetIntSafeVal(dtMedia.Rows[0], "BLOCK_TEMPLATE_ID"));
+                                oMediaObj.GeoblockRule = TvmRuleManager.GetGeoBlockRuleName(assetGroupId, Utils.GetIntSafeVal(dtMedia.Rows[0], "BLOCK_TEMPLATE_ID"));
                             }
                         }
                     }
@@ -1172,62 +1174,7 @@ namespace Core.Catalog
             }
             return langContainers;
         }
-
-        internal static bool ValidateGeoBlockRuleExists(int groupId, int geoBlockRuleId)
-        {
-            bool res = false;
-            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
-            if (geoblockRules != null)
-            {
-                res = geoblockRules.ContainsKey(geoBlockRuleId);
-            }
-
-            return res;
-        }
-
-        internal static string GetGeoBlockRuleName(int groupId, int geoblockRuleId)
-        {
-            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
-            if (geoblockRules == null || geoblockRules.Count == 0)
-            {
-                log.ErrorFormat("group geoblockRules were not found. groupId: {0}", groupId);
-                return string.Empty;
-            }
-
-            if (geoblockRules.ContainsKey(geoblockRuleId))
-                return geoblockRules[geoblockRuleId];
-            else
-            {
-                log.ErrorFormat("group geoblockRule {0} was not found. groupId: {1}", geoblockRuleId, groupId);
-                return string.Empty;
-            }
-        }
-
-        // TODO - UPDATE PREFORMENCE GetGeoBlockRuleId
-        internal static int? GetGeoBlockRuleId(int groupId, string geoBlockRuleName)
-        {
-            if (geoBlockRuleName.IsNullOrEmptyOrWhiteSpace())
-            {
-                return null;
-            }
-
-            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
-            if (geoblockRules == null || geoblockRules.Count == 0)
-            {
-                log.ErrorFormat("group geoblockRules were not found. groupId: {0}", groupId);
-                return null;
-            }
-
-            var geoblockRule = geoblockRules.FirstOrDefault(x => x.Value.ToLower().Equals(geoBlockRuleName.ToLower()));
-            if (!geoblockRule.IsDefault())
-            {
-                return geoblockRule.Key;
-            }
-
-            log.ErrorFormat("group geoblockRule {0} was not found. groupId: {1}", geoBlockRuleName, groupId);
-            return null;
-        }
-
+        
         internal static bool ValidateDeviceRuleExists(int groupId, int deviceRuleId)
         {
             bool res = false;
@@ -2790,7 +2737,7 @@ namespace Core.Catalog
                 if (playType == ePlayType.MEDIA || playType == ePlayType.NPVR || playType == ePlayType.EPG)
                 {
                     devicePlayData.AssetAction = action.ToString();
-                    devicePlayData.TimeStamp = DateTime.UtcNow.ToUnixTimestamp();
+                    devicePlayData.TimeStamp = DateTime.UtcNow.ToUtcUnixTimestampSeconds();
                     devicePlayData.CreatedAt = isFirstPlay ? devicePlayData.TimeStamp : devicePlayData.CreatedAt;
 
                     if (action == MediaPlayActions.STOP || action == MediaPlayActions.FINISH)
@@ -7920,6 +7867,8 @@ namespace Core.Catalog
                         }
                         else
                         {
+                            definitions.ksqlAssetTypes.Add(loweredValue);
+
                             // I mock a "contains" operator so that the query builder will know it is a not-exact search
                             leaf.operand = ComparisonOperator.Contains;
                         }
@@ -8085,7 +8034,7 @@ namespace Core.Catalog
             // if the epoch time is greater then 1980 - it's a date, otherwise it's relative (to now) time in seconds
             if (epoch > UNIX_TIME_1980)
             {
-                leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                leaf.value = DateUtils.UtcUnixTimestampSecondsToDateTime(epoch);
             }
             else
             {
@@ -8123,13 +8072,7 @@ namespace Core.Catalog
             definitions.shouldDateSearchesApplyToAllTypes = request.isAllowedToViewInactiveAssets;
             definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
             definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
-
-            if (definitions.isAllowedToViewInactiveAssets)
-            {
-                definitions.shouldAddIsActiveTerm = false;
-                definitions.shouldIgnoreDeviceRuleID = true;
-            }
-
+            
             #endregion
 
             #region Device Rules
@@ -8142,8 +8085,15 @@ namespace Core.Catalog
             }
 
             definitions.deviceRuleId = deviceRules;
-
+            
             definitions.shouldIgnoreDeviceRuleID = request.m_bIgnoreDeviceRuleID;
+
+            if (definitions.isAllowedToViewInactiveAssets)
+            {
+                definitions.shouldAddIsActiveTerm = false;
+                definitions.shouldIgnoreDeviceRuleID = true;
+            }
+
             #endregion
 
             #region Media Types, Permitted Watch Rules, Language
@@ -8221,9 +8171,10 @@ namespace Core.Catalog
                 if ((definitions.mediaTypes == null || definitions.mediaTypes.Count == 0) ||
                     (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Remove(0)))
                 {
+
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
-                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
+                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 }
 
                 // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
@@ -8233,7 +8184,7 @@ namespace Core.Catalog
                 if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
                 {
                     definitions.shouldSearchEpg = true;
-                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
+                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 }
 
                 // If there are items left in media types after removing 0, we are searching for media
@@ -9013,8 +8964,8 @@ namespace Core.Catalog
             totalItems = 0;
 
             // build date filter
-            long minFilterdate = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow.AddDays(-numOfDays));
-            long maxFilterDate = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long minFilterdate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-numOfDays));
+            long maxFilterDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             try
             {

@@ -242,7 +242,7 @@ namespace Core.Billing
                                     }
                                 }
 
-                                long epochMS = TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(DateTime.UtcNow);
+                                long epochMS = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow);
                                 if (endMS < epochMS)
                                 {
                                     status = InAppTransactionStatus.SubscriptionExpired;

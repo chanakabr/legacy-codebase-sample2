@@ -148,6 +148,11 @@ namespace ApiObjects.SearchObjects
         public List<int> mediaTypes;
 
         /// <summary>
+        /// Which asset types were included when running over kSql
+        /// </summary>
+        public List<string> ksqlAssetTypes;
+
+        /// <summary>
         /// Are EPGs relevant to this search or not
         /// </summary>
         [JsonProperty()]
@@ -433,6 +438,7 @@ namespace ApiObjects.SearchObjects
             order = new OrderObj();
 
             mediaTypes = new List<int>();
+            ksqlAssetTypes = new List<string>();
             extraReturnFields = new List<string>();
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();

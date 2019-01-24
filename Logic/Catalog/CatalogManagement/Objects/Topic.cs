@@ -70,10 +70,10 @@ namespace Core.Catalog.CatalogManagement
         {
             this.Id = topicToCopy.Id;
             this.Name = string.Copy(topicToCopy.SystemName);
-            this.NamesInOtherLanguages = new List<LanguageContainer>(topicToCopy.NamesInOtherLanguages);
+            this.NamesInOtherLanguages = topicToCopy.NamesInOtherLanguages != null ? new List<LanguageContainer>(topicToCopy.NamesInOtherLanguages) : new List<LanguageContainer>();
             this.SystemName = string.Copy(topicToCopy.SystemName);
             this.Type = topicToCopy.Type;
-            this.Features = new HashSet<string>(topicToCopy.Features, StringComparer.OrdinalIgnoreCase);
+            this.Features = topicToCopy.Features != null ? new HashSet<string>(topicToCopy.Features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             this.IsPredefined = topicToCopy.IsPredefined;
             this.SearchRelated = topicToCopy.SearchRelated;
             this.HelpText = topicToCopy.HelpText;
