@@ -98,8 +98,8 @@ namespace CachingManager
             sValue.m_nUseCounter = 1;
             System.Web.Caching.CacheItemRemovedCallback onRemove = null;
             onRemove = new System.Web.Caching.CacheItemRemovedCallback(CachingManager.CachedRemoved);
-            System.Web.HttpRuntime.Cache.Add(sName, sValue, null, DateTime.Now.AddSeconds(nHours), System.Web.Caching.Cache.NoSlidingExpiration, oPriority, onRemove);
-            //cacheKeyList[sName] = DateTime.Now; 
+            System.Web.HttpRuntime.Cache.Add(sName, sValue, null, DateTime.UtcNow.AddSeconds(nHours), System.Web.Caching.Cache.NoSlidingExpiration, oPriority, onRemove);
+            //cacheKeyList[sName] = DateTime.UtcNow; 
         }
 
 
@@ -111,8 +111,8 @@ namespace CachingManager
             System.Web.Caching.CacheItemRemovedCallback onRemove = null;
             onRemove = new System.Web.Caching.CacheItemRemovedCallback(CachingManager.CachedRemoved);
             CachingData theDate = new CachingData(sValue, nMediaID, bToRenew, nSeconds, oPriority);
-            System.Web.HttpRuntime.Cache.Add(sName, theDate, null, DateTime.Now.AddSeconds(nSeconds), System.Web.Caching.Cache.NoSlidingExpiration, oPriority, onRemove);
-            //cacheKeyList[sName] = DateTime.Now; 
+            System.Web.HttpRuntime.Cache.Add(sName, theDate, null, DateTime.UtcNow.AddSeconds(nSeconds), System.Web.Caching.Cache.NoSlidingExpiration, oPriority, onRemove);
+            //cacheKeyList[sName] = DateTime.UtcNow; 
         }
         
         static public void RemoveFromCache(string sKey)
@@ -146,15 +146,15 @@ namespace CachingManager
                     {
                         Int32 nMediaID = 0;
                         bool bRenew = false;
-                        DateTime dStart = DateTime.Now.AddHours(-48);
-                        DateTime dLastUsed = DateTime.Now.AddHours(-48);
+                        DateTime dStart = DateTime.UtcNow.AddHours(-48);
+                        DateTime dLastUsed = DateTime.UtcNow.AddHours(-48);
                         Int32 nCounter = 0;
                         Int32 nCacheSec = 0;
                         System.Web.Caching.CacheItemPriority priority = System.Web.Caching.CacheItemPriority.Default;
                         ((CachingData)(value)).GetValues(ref nMediaID, ref bRenew, ref dStart, ref dLastUsed, ref nCounter, ref nCacheSec, ref priority);
                         if (bRenew == true || nCacheSec <= 10800)
                         {
-                            DateTime dNow = DateTime.Now;
+                            DateTime dNow = DateTime.UtcNow;
                             Int32 nSecs = (Int32)((dNow - dStart).TotalSeconds);
                             if (nCounter > 5 || (nCacheSec < 1800 && nCounter > 1))
                             {

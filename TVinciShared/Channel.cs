@@ -8,13 +8,6 @@ using System.Xml;
 
 namespace TVinciShared
 {
-
-    public enum OrderDir
-    {
-        ASC = 1,
-        DESC = 2
-    }
-
     public class Channel
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -165,17 +158,7 @@ namespace TVinciShared
             m_bIsLangMain = bIsLangMain;
             m_nDeviceID = nDeviceID;
         }
-
-        public OrderDir GetChannelOrderDir()
-        {
-            OrderDir retVal = OrderDir.DESC;
-            if (m_nOrderDir > 0)
-            {
-                retVal = (OrderDir)m_nOrderDir;
-            }
-            return retVal;
-        }
-
+        
         public string GetOrderByStr()
         {
             string retVal = string.Empty;

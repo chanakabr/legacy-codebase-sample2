@@ -46,7 +46,7 @@ namespace TVinciShared
 
         static public void GetCurrentDate()
         {
-            HttpContext.Current.Response.Write(DateUtils.GetStrFromDate(DateTime.Now));
+            HttpContext.Current.Response.Write(DateUtils.GetStrFromDate(DateTime.UtcNow));
         }
 
         static public void GetUserName()

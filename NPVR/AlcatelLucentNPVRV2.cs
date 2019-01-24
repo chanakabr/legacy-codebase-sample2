@@ -299,7 +299,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(args.StartDate).ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUtcUnixTimestampMilliseconds(args.StartDate).ToString()));
 
                     string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
 
@@ -623,7 +623,7 @@ namespace NPVR
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.EpgProgramIDs, false)));
                                 break;
                             case SearchByField.byStartTime:
-                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(args.StartDate).ToString()));
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), TVinciShared.DateUtils.DateTimeToUtcUnixTimestampMilliseconds(args.StartDate).ToString()));
                                 break;
                             case SearchByField.byStatus:
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.RecordingStatus, true)));
@@ -1744,7 +1744,7 @@ namespace NPVR
             var jsonField = entry["endTime"];
             if (jsonField != null && Int64.TryParse(jsonField.ToString(), out unixTime))
             {
-                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
+                return TVinciShared.DateUtils.UtcUnixTimestampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
             }
 
             var duration = GetIntValueFromJson(entry, ALU_DURATION);
@@ -1752,7 +1752,7 @@ namespace NPVR
 
             if (duration > 0 && startTime != null && Int64.TryParse(startTime.ToString(), out unixTime))
             {
-                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).AddSeconds(duration).ToString(DATE_FORMAT);
+                return TVinciShared.DateUtils.UtcUnixTimestampMillisecondsToDateTime(unixTime).AddSeconds(duration).ToString(DATE_FORMAT);
             }
 
             return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
@@ -1765,7 +1765,7 @@ namespace NPVR
             var jsonField = entry[ALU_START_TIME_URL_PARAM];
             if (jsonField != null && Int64.TryParse(jsonField.ToString(), out unixTime))
             {
-                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
+                return TVinciShared.DateUtils.UtcUnixTimestampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
             }
             else
             {
@@ -1778,7 +1778,7 @@ namespace NPVR
             long unixTime;
             if (long.TryParse(value, out unixTime))
             {
-                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
+                return TVinciShared.DateUtils.UtcUnixTimestampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
             }
             else
             {

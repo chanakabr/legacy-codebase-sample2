@@ -82,7 +82,7 @@ namespace TVinciShared
             try
             {
                 HttpCookie objCookie = new HttpCookie(cookiename, cookievalue);
-                DateTime dtExpiry = DateTime.Now.AddDays(iMinToExpire);
+                DateTime dtExpiry = DateTime.UtcNow.AddDays(iMinToExpire);
                 objCookie.Expires = dtExpiry;
                 objCookie.Domain = ".tvinci.com";
                 HttpContext.Current.Response.Cookies.Add(objCookie);

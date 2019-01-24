@@ -1730,8 +1730,8 @@ namespace DAL
             int isActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE", -1);
             // isActive == -1 is for backward compatibility in case is_active column isn't returned at all, then it must be only active
             newRule.isActive = isActive == -1 || isActive == 1 ? true : false;
-            newRule.CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE"));
-            newRule.UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "UPDATE_DATE"));
+            newRule.CreateDate = Utils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE"));
+            newRule.UpdateDate = Utils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(row, "UPDATE_DATE"));
 
             return newRule;
         }
@@ -3014,7 +3014,7 @@ namespace DAL
                     messageQueues.AddRange(cbManager.View<MessageQueue>(new ViewManager(CB_MESSAGE_QUEUE_DESGIN, "queue_messages")
                     {
                         startKey = new object[] { messageDataType.ToLower(), baseDateSec },
-                        endKey = new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) },
+                        endKey = new object[] { messageDataType.ToLower(), Utils.DateTimeToUtcUnixTimestampSeconds(DateTime.MaxValue) },
                         staleState = ViewStaleState.False
                     }));
                 }
@@ -3026,12 +3026,7 @@ namespace DAL
 
             return messageQueues;
         }
-
-        public static long DateTimeToUnixTimestamp(DateTime dateTime)
-        {
-            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
-        }
-
+        
         public static List<Role> GetRoles(int groupId, List<long> roleIds)
         {
             List<Role> roles = new List<Role>();

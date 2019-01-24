@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.ComponentModel.DataAnnotations;
+using TVinciShared;
 
 namespace Tvinic.GoogleAPI
 {
@@ -239,7 +240,7 @@ namespace Tvinic.GoogleAPI
 
             if (!string.IsNullOrEmpty(name50) && isNumeric(Init_price, System.Globalization.NumberStyles.Currency) && !string.IsNullOrEmpty(Init_isoCurrency3) && !string.IsNullOrEmpty(sellerId) && isNumeric(Rec_price, System.Globalization.NumberStyles.Currency) && !string.IsNullOrEmpty(Rec_isoCurrency3) )
             {
-                this._iat = ToUnixTime(DateTime.Now) - 60;
+                this._iat = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) - 60;
                 this.request = new InAppItemRequestObject();
                 this.request.name = name50.Length > 50? name50.Substring(0, 50): name50;
 
@@ -306,7 +307,7 @@ namespace Tvinic.GoogleAPI
                 }
                 else
                 {
-                    this._iat = ToUnixTime(DateTime.Now) - 60;
+                    this._iat = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) - 60;
                 }
             }
             else
@@ -352,11 +353,5 @@ namespace Tvinic.GoogleAPI
             return Double.TryParse(val, NumberStyle,
                 System.Globalization.CultureInfo.CurrentCulture, out result);
         }
-        public long ToUnixTime(DateTime date)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return Convert.ToInt64((date.ToUniversalTime() - epoch).TotalSeconds);
-        }
-       
     }
 }

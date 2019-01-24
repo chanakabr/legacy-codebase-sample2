@@ -58,7 +58,7 @@ namespace AdapterControllers
                 PlaybackAdapter.ServiceClient client = new PlaybackAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
 
                 //set unixTimestamp
-                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Empty;
@@ -107,7 +107,7 @@ namespace AdapterControllers
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
             string signature = string.Concat(adapter.Id, groupId, userId, udid, ip, unixTimestamp);
 
             try

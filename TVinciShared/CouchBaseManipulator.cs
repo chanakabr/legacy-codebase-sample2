@@ -665,7 +665,7 @@ namespace TVinciShared
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("EPG_pics");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("BASE_URL", "=", sUrl);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", epg.Name);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DESCRIPTION", "=", epg.Description);
@@ -681,7 +681,7 @@ namespace TVinciShared
             {
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("EPG_pics");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BASE_URL", "=", sUrl);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);

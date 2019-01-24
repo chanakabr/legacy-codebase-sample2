@@ -113,10 +113,11 @@ namespace QueueWrapper
         {
             return string.Format("MessageRecovery_Group_{0}_Id_{1}", groupId, id);
         }
-
+        
         private long DateTimeToUnixTimestamp(DateTime dateTime)
         {
-            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+            DateTime truncDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return  (long)(dateTime - truncDateTimeUtc).TotalSeconds;
         }
 
         public virtual T Dequeue<T>(string sQueueName, out string sAckId)

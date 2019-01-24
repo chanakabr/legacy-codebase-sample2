@@ -4206,6 +4206,7 @@ namespace Tvinci.Core.DAL
         public static DataTable GetGroupGeoblockRules(int groupId)
         {
             DataTable dt = null;
+            // TODO SHIR - UPDATE SP TO RETURN ALL RELEVENT VALUES. 
             StoredProcedure sp = new StoredProcedure("Get_GeoBlockTypes");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -4443,7 +4444,7 @@ namespace Tvinci.Core.DAL
                     HashSet<string> playActions = new HashSet<string>() { MediaPlayActions.FINISH.ToString().ToUpper(), MediaPlayActions.STOP.ToString().ToUpper() };
 
                     return devicePlayDataList.Where(x => !x.UDID.Equals(udid) &&
-                                                         Utils.UnixTimestampToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
+                                                         Utils.UtcUnixTimestampSecondsToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
                                                          (playTypesString.Count == 0 || playTypesString.Contains(x.playType)) &&
                                                          !playActions.Contains(x.AssetAction.ToUpper())).ToList();
                 }
@@ -5323,7 +5324,7 @@ namespace Tvinci.Core.DAL
             int groupId, int id, string systemName, string name, string description, int isActive, int? orderBy, 
             int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy, 
             List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, 
-            List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering)
+            List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering, int? channelType = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5350,6 +5351,7 @@ namespace Tvinci.Core.DAL
             sp.AddKeyValueListParameter<long, int>("@MediaIdsToOrderNum", mediaIdsToOrderNum, "key", "value");
             sp.AddParameter("@UpdaterID", userId);
             sp.AddParameter("@supportSegmentBasedOrdering", supportSegmentBasedOrdering);
+            sp.AddParameter("@ChannelType", channelType);
 
             return sp.ExecuteDataSet();
         }

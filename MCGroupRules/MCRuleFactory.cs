@@ -48,11 +48,11 @@ namespace MCGroupRules
 
             foreach (DataRow ruleRow in dt.Rows)
             {
-                if (DateTime.Parse(ruleRow["start_date"].ToString()) < DateTime.Now)
+                if (DateTime.Parse(ruleRow["start_date"].ToString()) < DateTime.UtcNow)
                 {
                     DateTime endDate = DateTime.MaxValue;
                     DateTime.TryParse(ruleRow["end_date"].ToString(), out endDate);
-                    if (endDate > DateTime.Now)
+                    if (endDate > DateTime.UtcNow)
                     {
                         if (ruleRow["min_limit_id"] != DBNull.Value)
                         {

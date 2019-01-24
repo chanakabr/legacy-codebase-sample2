@@ -91,7 +91,7 @@ namespace CachingProvider.LayeredCache
                 if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null)
                 {
                     // set validation to now
-                    Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
+                    Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.GetUtcUnixTimestampNow());
                     Dictionary<string, string> keyMappings = GetVersionKeyToOriginalKeyMap(new List<string>() { key }, groupId);
                     if (keyMappings != null && keyMappings.Count > 0)
                     {
@@ -159,7 +159,7 @@ namespace CachingProvider.LayeredCache
                                     if (results.ContainsKey(key) && results[key] != null)
                                     {
                                         // set validation to now
-                                        Tuple<T, long> tupleToInsert = new Tuple<T, long>(results[key], Utils.UnixTimeStampNow());
+                                        Tuple<T, long> tupleToInsert = new Tuple<T, long>(results[key], Utils.GetUtcUnixTimestampNow());
                                         if (!TryInsert<T>(keyToVersionMappings[key], tupleToInsert, pair.Key))
                                         {
                                             log.ErrorFormat("GetValues<T> - Failed inserting key {0} to {1}", keyToVersionMappings[key], pair.Key.Type.ToString());
@@ -244,10 +244,10 @@ namespace CachingProvider.LayeredCache
                     HttpContext.Current.Response.Headers.Set("no-cache", "true");
                 }
 
-                long valueToUpdate = Utils.UnixTimeStampNow();
+                long valueToUpdate = Utils.GetUtcUnixTimestampNow();
                 if (updatedAt.HasValue)
                 {
-                    valueToUpdate = Utils.DateTimeToUnixTimestamp(updatedAt.Value);
+                    valueToUpdate = Utils.DateTimeToUtcUnixTimestampSeconds(updatedAt.Value);
                 }
 
                 res = TrySetInValidationKey(key, valueToUpdate);
@@ -277,11 +277,11 @@ namespace CachingProvider.LayeredCache
                     HttpContext.Current.Response.Headers.Set("no-cache", "true");
                 }
 
-                long valueToUpdate = Utils.UnixTimeStampNow();
+                long valueToUpdate = Utils.GetUtcUnixTimestampNow();
 
                 if (updatedAt.HasValue)
                 {
-                    valueToUpdate = Utils.DateTimeToUnixTimestamp(updatedAt.Value);
+                    valueToUpdate = Utils.DateTimeToUtcUnixTimestampSeconds(updatedAt.Value);
                 }
 
                 foreach (var key in keys)
@@ -623,7 +623,7 @@ namespace CachingProvider.LayeredCache
                     Tuple<T, bool> tuple = fillObjectMethod(funcParameters);
                     if (tuple != null)
                     {
-                        tupleResult = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
+                        tupleResult = new Tuple<T, long>(tuple.Item1, Utils.GetUtcUnixTimestampNow());
                         result = tuple.Item2;
                     }
 
@@ -743,7 +743,7 @@ namespace CachingProvider.LayeredCache
                         {
                             foreach (KeyValuePair<string, T> pair in tuple.Item1.Where(x => keysToGet.Contains(x.Key)))
                             {
-                                tupleResults.Add(pair.Key, new Tuple<T, long>(pair.Value, Utils.UnixTimeStampNow()));
+                                tupleResults.Add(pair.Key, new Tuple<T, long>(pair.Value, Utils.GetUtcUnixTimestampNow()));
                             }
                         }
                     }

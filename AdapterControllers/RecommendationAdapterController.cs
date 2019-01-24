@@ -103,7 +103,7 @@ namespace AdapterControllers
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature =
@@ -242,7 +242,7 @@ namespace AdapterControllers
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature =
@@ -365,7 +365,7 @@ namespace AdapterControllers
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature =
@@ -514,7 +514,7 @@ namespace AdapterControllers
             }
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature =
@@ -569,7 +569,7 @@ namespace AdapterControllers
                 RecommendationEngineAdapter.ServiceClient client = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
                 //set unixTimestamp
-                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Empty;

@@ -1711,7 +1711,7 @@ namespace TVinciShared
         protected string WriteFile(string sToWrite)
         {
 
-            string sFileName = "CSV/report_" + DateTime.Now.Ticks.ToString() + ".CSV";
+            string sFileName = "CSV/report_" + DateTime.UtcNow.Ticks.ToString() + ".CSV";
             string sLogFileName = HttpContext.Current.Server.MapPath("");
             sLogFileName += "/" + sFileName;
             if (File.Exists(sLogFileName))

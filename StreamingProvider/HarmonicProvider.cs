@@ -198,6 +198,7 @@ namespace StreamingProvider
             return streamType;
         }
 
+        // TODO SHIR - DELETE
         private long ConvertDateToEpochTimeInMilliseconds(DateTime dateTime)
         {
             return long.Parse((Math.Floor(dateTime.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds).ToString()));

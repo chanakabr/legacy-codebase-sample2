@@ -288,7 +288,7 @@ namespace TVinciShared
         {
             Int32 nAcctID = GetLoginID();
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("admin_login");
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("last_action_date", "=", DateTime.Now);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("last_action_date", "=", DateTime.UtcNow);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("logout", "=", 2);
             updateQuery += "where ";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("account_id", "=", nAcctID);
@@ -312,7 +312,7 @@ namespace TVinciShared
             {
                 Int32 nAcctID = GetLoginID();
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("admin_login");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("last_action_date", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("last_action_date", "=", DateTime.UtcNow);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("logout", "=", 1);
                 updateQuery += "where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("account_id", "=", nAcctID);
@@ -422,7 +422,7 @@ namespace TVinciShared
 
                         ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
                         directQuery += "update accounts set FAIL_COUNT=FAIL_COUNT+1,";
-                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("LAST_FAIL_DATE", "=", DateTime.Now);
+                        directQuery += ODBCWrapper.Parameter.NEW_PARAM("LAST_FAIL_DATE", "=", DateTime.UtcNow);
                         directQuery += "where fail_count<3 and ";
                         directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nCO);
                         directQuery.Execute();
@@ -664,8 +664,8 @@ namespace TVinciShared
             if (bret == false)
                 return false;
             Int32 nMaxID = GetMaxFromAdminLogin(false, true);
-            DateTime dLastLogin = DateTime.Now;
-            DateTime dCurrentTime = DateTime.Now;
+            DateTime dLastLogin = DateTime.UtcNow;
+            DateTime dCurrentTime = DateTime.UtcNow;
             ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
             selectQuery1 += "select GETDATE() as current_t,ID,LAST_ACTION_DATE from admin_login where ";
             selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMaxID);
@@ -745,7 +745,7 @@ namespace TVinciShared
                 }
 
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("admin_login");
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("last_action_date", "=", DateTime.Now);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("last_action_date", "=", DateTime.UtcNow);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "=", HttpContext.Current.Session.SessionID.ToString());
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("account_id", "=", nAcctID);
                 insertQuery.Execute();

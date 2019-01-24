@@ -88,7 +88,7 @@ namespace AdapterControllers
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(drmAdapterUrl);
 
                 //set unixTimestamp
-                long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 //set signature
                 string signature = string.Concat(adapter.Settings, partnerId, timeStamp);
 
@@ -134,7 +134,7 @@ namespace AdapterControllers
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             string signature = string.Concat(adapterId, groupId, userId, udid, deviceFamily, deviceBrandId, ip, unixTimestamp);
 
@@ -201,7 +201,7 @@ namespace AdapterControllers
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             string signature = string.Concat(adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid, contextType.ToString(), recordingId,  unixTimestamp);
 
