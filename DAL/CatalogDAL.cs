@@ -5324,7 +5324,7 @@ namespace Tvinci.Core.DAL
             int groupId, int id, string systemName, string name, string description, int isActive, int? orderBy, 
             int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy, 
             List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, 
-            List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering)
+            List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering, int? channelType = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5351,6 +5351,7 @@ namespace Tvinci.Core.DAL
             sp.AddKeyValueListParameter<long, int>("@MediaIdsToOrderNum", mediaIdsToOrderNum, "key", "value");
             sp.AddParameter("@UpdaterID", userId);
             sp.AddParameter("@supportSegmentBasedOrdering", supportSegmentBasedOrdering);
+            sp.AddParameter("@ChannelType", channelType);
 
             return sp.ExecuteDataSet();
         }
