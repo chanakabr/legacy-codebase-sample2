@@ -5713,6 +5713,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaTvmDeviceRule":
+                    switch(property.Name)
+                    {
+                        case "DeviceBrandIds":
+                            return "deviceBrandIds";
+                    }
+                    break;
+                    
                 case "KalturaTvmGeoRule":
                     switch(property.Name)
                     {

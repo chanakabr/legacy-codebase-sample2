@@ -1012,12 +1012,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CountryIds, opt => opt.MapFrom(src => src.CountryIds != null ? string.Join(",", src.CountryIds) : null))
                 .ForMember(dest => dest.ProxyRule, opt => opt.MapFrom(src => src.ProxyRule))
                 .ForMember(dest => dest.ProxyLevel, opt => opt.MapFrom(src => src.ProxyLevel));
-            
-        #endregion
 
-        #region AssetUserRule
+            cfg.CreateMap<KalturaTvmDeviceRule, TvmDeviceRule>()
+                .IncludeBase<KalturaTvmRule, TvmRule>()
+                .ForMember(dest => dest.DeviceBrandIds, opt => opt.MapFrom(src => src.GetDeviceBrandIds()));
 
-        cfg.CreateMap<AssetUserRule, KalturaAssetUserRule>()
+            cfg.CreateMap<TvmDeviceRule, KalturaTvmDeviceRule>()
+                .IncludeBase<TvmRule, KalturaTvmRule>()
+                .ForMember(dest => dest.DeviceBrandIds, opt => opt.MapFrom(src => src.DeviceBrandIds != null ? string.Join(",", src.DeviceBrandIds) : null));
+
+            #endregion
+
+            #region AssetUserRule
+
+            cfg.CreateMap<AssetUserRule, KalturaAssetUserRule>()
               .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))

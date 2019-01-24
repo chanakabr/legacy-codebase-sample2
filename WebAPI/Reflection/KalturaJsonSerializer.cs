@@ -15727,6 +15727,32 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaTvmDeviceRule
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(DeviceBrandIds != null)
+            {
+                ret.Add("deviceBrandIds", "\"deviceBrandIds\": " + "\"" + EscapeJson(DeviceBrandIds) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(DeviceBrandIds != null)
+            {
+                ret.Add("deviceBrandIds", "<deviceBrandIds>" + EscapeXml(DeviceBrandIds) + "</deviceBrandIds>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaTvmGeoRule
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)

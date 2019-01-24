@@ -830,6 +830,7 @@
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\UserSegmentController.cs" />
+    <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
     <Compile Include="Models\API\KalturaTvmGeoRule.cs" />
     <Compile Include="Models\API\KalturaTvmRuleFilter.cs" />
     <Compile Include="Models\API\KalturaTvmRuleListResponse.cs" />
@@ -1793,7 +1794,7 @@
       <Name>KlogMonitorHelper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
-      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+	  <Project>{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">
