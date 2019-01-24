@@ -110,6 +110,7 @@ namespace ImageUploadHandler
 
         private string HttpPost(string uri, string parameters, string contentType = null)
         {
+            string responseFromServer = null;
             try
             {
                 WebRequest request = WebRequest.Create(uri);
@@ -125,27 +126,35 @@ namespace ImageUploadHandler
 
                 request.ContentLength = byteArray.Length;
 
-                Stream dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-
-                WebResponse response = request.GetResponse();
-                dataStream = response.GetResponseStream();
-
-                StreamReader reader = new StreamReader(dataStream);
-                string responseFromServer = reader.ReadToEnd();
-
-                reader.Close();
-                dataStream.Close();
-                response.Close();
-
-                return responseFromServer;
+                using (Stream dataStream = request.GetRequestStream())
+                {
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                    using (WebResponse response = request.GetResponse())
+                    {
+                        using (Stream responseStream = response.GetResponseStream())
+                        {
+                            using (StreamReader reader = new StreamReader(responseStream))
+                            {
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error on post request. URL: {0}, Parameter: {1}. Error: {2}", uri, parameters, ex);
+                if (ex.InnerException != null)
+                {
+                    string innerMessage = !string.IsNullOrEmpty(ex.InnerException.Message) ? ex.InnerException.Message : string.Empty;
+                    log.ErrorFormat("Error on post request. URL: {0}, Parameter: {1}. InnerMessage, innerException: {2}", uri, parameters, innerMessage, ex.InnerException);
+                }
+                else
+                {
+                    log.ErrorFormat("Error on post request. URL: {0}, Parameter: {1}. Error: {2}", uri, parameters, ex);
+                }
             }
-            return null;
+
+            return responseFromServer;
         }
     }
 }
