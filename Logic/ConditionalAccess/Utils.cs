@@ -5469,7 +5469,7 @@ namespace Core.ConditionalAccess
 
             return domainRecordingIdToRecordingMap
                 .Where(x => x.Value.ViewableUntilDate.HasValue &&
-                            x.Value.ViewableUntilDate.Value - DateTime.UtcNow.ToUnixTimestamp() > 0)
+                            x.Value.ViewableUntilDate.Value - DateTime.UtcNow.ToUtcUnixTimestampSeconds() > 0)
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
