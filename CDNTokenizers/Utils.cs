@@ -10,7 +10,7 @@ namespace CDNTokenizers
     {
         public static long GetEpochUTCTimeNow()
         {
-            return (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
+            return (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
         }
 
         public static string GetMD5Hash(string hash)
