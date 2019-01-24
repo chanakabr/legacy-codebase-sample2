@@ -13569,7 +13569,11 @@ namespace Core.ConditionalAccess
                 if (QuotaManager.Instance.IncreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
                 {
                     recording.Type = recordingType;
-                    if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
+                    if (RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
+                    {
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
+                    }
+                    else
                     {
                         // increase the quota back to the user                               
                         if (!QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
@@ -13657,6 +13661,8 @@ namespace Core.ConditionalAccess
 
                 if (res)
                 {
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+
                     if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
                     {
                         recording.Status = RecordingsManager.Instance.DeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, recording.ExternalRecordingId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
@@ -14574,6 +14580,7 @@ namespace Core.ConditionalAccess
                         protectedUntilEpoch))
                     {
                         UpdateRecordingSuccessed(recording, protectedUntilEpoch);
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainRecordingId));
                     }
                     else
                     {
@@ -14693,6 +14700,7 @@ namespace Core.ConditionalAccess
                     // Try to Update protection details for domain recording and update recording status
                     if (RecordingsDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
                     {
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainRecordingId));
                         UpdateRecordingSuccessed(recording, protectedUntilEpoch);
                     }
                     else
@@ -16915,6 +16923,8 @@ namespace Core.ConditionalAccess
                     }
 
                     response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId);
+                    if (response.Status.IsOkStatusCode())
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
                 }
                 else
                 {                    

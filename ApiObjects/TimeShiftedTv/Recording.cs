@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.TimeShiftedTv
 {
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class Recording
     {
         
@@ -43,6 +46,8 @@ namespace ApiObjects.TimeShiftedTv
         public bool isExternalRecording { get; set; }
 
         public bool IsProtected { get; set; }
+
+        public string UserId { get; set; }
 
         public Recording()
         {
