@@ -132,7 +132,8 @@ namespace Core.Catalog
             "media_id",
             "epg_id",
             STATUS,
-            "linear_media_id"
+            "linear_media_id",
+            "recording_id"
         };
 
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
@@ -7866,6 +7867,8 @@ namespace Core.Catalog
                         }
                         else
                         {
+                            definitions.ksqlAssetTypes.Add(loweredValue);
+
                             // I mock a "contains" operator so that the query builder will know it is a not-exact search
                             leaf.operand = ComparisonOperator.Contains;
                         }
@@ -8069,13 +8072,7 @@ namespace Core.Catalog
             definitions.shouldDateSearchesApplyToAllTypes = request.isAllowedToViewInactiveAssets;
             definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
             definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
-
-            if (definitions.isAllowedToViewInactiveAssets)
-            {
-                definitions.shouldAddIsActiveTerm = false;
-                definitions.shouldIgnoreDeviceRuleID = true;
-            }
-
+            
             #endregion
 
             #region Device Rules
@@ -8088,8 +8085,15 @@ namespace Core.Catalog
             }
 
             definitions.deviceRuleId = deviceRules;
-
+            
             definitions.shouldIgnoreDeviceRuleID = request.m_bIgnoreDeviceRuleID;
+
+            if (definitions.isAllowedToViewInactiveAssets)
+            {
+                definitions.shouldAddIsActiveTerm = false;
+                definitions.shouldIgnoreDeviceRuleID = true;
+            }
+
             #endregion
 
             #region Media Types, Permitted Watch Rules, Language
@@ -8167,9 +8171,10 @@ namespace Core.Catalog
                 if ((definitions.mediaTypes == null || definitions.mediaTypes.Count == 0) ||
                     (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Remove(0)))
                 {
+
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
-                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
+                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 }
 
                 // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
@@ -8179,7 +8184,7 @@ namespace Core.Catalog
                 if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
                 {
                     definitions.shouldSearchEpg = true;
-                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
+                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 }
 
                 // If there are items left in media types after removing 0, we are searching for media

@@ -974,6 +974,13 @@ namespace Core.Catalog.CatalogManagement
                 response = CreateImageListResponseFromDataTable(groupId, dt);
                 if (response.HasObjects())
                 {
+                    pics = new Dictionary<long, Image>();
+
+                    foreach (var item in response.Objects)
+                    {
+                        pics.Add(item.Id, item);
+                    }
+
                     // update IDs
                     imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.Pics, pics.Keys.ToList());
                     referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
@@ -981,7 +988,7 @@ namespace Core.Catalog.CatalogManagement
                     response.Objects = pics.Values.ToList();
                     foreach (Image item in response.Objects)
                     {
-                        if (referncesIds[ImageReferenceTable.EpgPics].ContainsKey(item.Id))
+                        if (referncesIds.Keys.Count > 0 && referncesIds[ImageReferenceTable.Pics].ContainsKey(item.Id))
                         {
                             item.Id = referncesIds[ImageReferenceTable.Pics][item.Id];
                         }
