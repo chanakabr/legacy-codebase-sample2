@@ -196,7 +196,7 @@ namespace Core.Catalog.CatalogManagement
                 bool needToUpdateTags;
                 Dictionary<FieldTypes, Dictionary<string, int>> mappingFields = GetMappingFields(groupId);
 
-                // TODO SHIR - MERGE OLD TAGS AND METAS ONLY AFTER VALIDATION
+                // TODO - MERGE OLD TAGS AND METAS ONLY AFTER VALIDATION
                 // TAGS AND METAS IN DB CAN CONTAIN ONLY GOOD
                 // TAGS AND METAS IN CB CAN CONTAIN ALL
                 Status validateStatus = ValidateEpgAssetForUpdate(groupId, userId, epgAssetToUpdate, oldEpgAsset, catalogGroupCache, mappingFields, out needToUpdateBasicData,
