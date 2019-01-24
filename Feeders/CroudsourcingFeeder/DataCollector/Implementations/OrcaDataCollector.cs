@@ -86,7 +86,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                     URL = pic.m_sURL
                                 }).ToArray(),
                                 Order = item.Order,
-                                TimeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow)
+                                TimeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)
                             };
                             retDict.Add(mediaInfo.Key.ID, csItem);
                         }

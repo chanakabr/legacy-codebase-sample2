@@ -126,7 +126,7 @@ public partial class adm_export_tasks_vod_types : System.Web.UI.Page
     private void UpdateTaskVersion(long taskId)
     {
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("bulk_export_tasks");
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("version", "=", ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow));
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("version", "=", DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
         updateQuery += " where ";
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", taskId);
         updateQuery.Execute();

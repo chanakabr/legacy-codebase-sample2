@@ -66,7 +66,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                 Dictionary<int, BaseCrowdsourceItem> normalizedDictionary = null;
 
                 string catalogSignString = Guid.NewGuid().ToString();
-                long epochDateTime = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long epochDateTime = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 // Get channel info
                 ChannelObjResponse channelObjResponse = (ChannelObjResponse)CatalogClient.GetResponse(new ChannelObjRequest()
