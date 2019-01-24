@@ -82,6 +82,10 @@
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\TVinciShared\TVinciShared.csproj">
+      <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WebAPI\WebAPI.csproj">
       <Project>{223f9697-c15b-46e8-b71b-52ffbafbeba2}</Project>
       <Name>WebAPI</Name>

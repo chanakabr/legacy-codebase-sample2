@@ -82,7 +82,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildPPVModulesList(src.PPVModules)))
                  .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
                  .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
-                 .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CatalogEndDate)))
+                 .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CatalogEndDate)))
                  ;
 
             #endregion
@@ -91,7 +91,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //BuzzScore
             cfg.CreateMap<BuzzWeightedAverScore, KalturaBuzzScore>()
-                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
+                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                  .ForMember(dest => dest.NormalizedAvgScore, opt => opt.MapFrom(src => src.NormalizedWeightedAverageScore))
                  .ForMember(dest => dest.AvgScore, opt => opt.MapFrom(src => src.WeightedAverageScore));
 
@@ -117,8 +117,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.Name, src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.Description, src.m_sDescription)))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dStartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dEndDate)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
@@ -130,8 +130,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.ProgrammeName, src.NAME)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.ProgrammeDescription, src.DESCRIPTION)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.START_DATE)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.END_DATE)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.START_DATE)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.END_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)));
@@ -142,8 +142,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.m_oProgram.ProgrammeName, src.m_oProgram.NAME)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.m_oProgram.ProgrammeDescription, src.m_oProgram.DESCRIPTION)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_oProgram.START_DATE)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_oProgram.END_DATE)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.m_oProgram.START_DATE)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.m_oProgram.END_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_oProgram.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_oProgram.EPG_TAGS)))
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src.m_oProgram)))
@@ -155,8 +155,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.Program.m_oProgram.ProgrammeName, src.Program.m_oProgram.NAME)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.Program.m_oProgram.ProgrammeDescription, src.Program.m_oProgram.DESCRIPTION)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.Program.m_oProgram.START_DATE)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.Program.m_oProgram.END_DATE)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.Program.m_oProgram.START_DATE)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.Program.m_oProgram.END_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.Program.m_oProgram.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.Program.m_oProgram.EPG_TAGS)));
 
@@ -268,8 +268,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => Convert.ToBoolean(src.m_nIsActive)))
                 .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
                 .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                 .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering));
 
             //KalturaDynamicChannel to Channel (Catalog)  
@@ -302,8 +302,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => Convert.ToBoolean(src.m_nIsActive)))
                 .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
                 .ForMember(dest => dest.MediaIds, opt => opt.MapFrom(src => src.m_lManualMedias != null ? string.Join(",", src.m_lManualMedias.OrderBy(x => x.m_nOrderNum).Select(x => x.m_sMediaId)) : string.Empty))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                 .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
                 ;
 
@@ -373,10 +373,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EPG_ID)) //???
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.ProgrammeDescription)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CREATE_DATE)))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UPDATE_DATE)))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.START_DATE)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.END_DATE)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.CREATE_DATE)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.UPDATE_DATE)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.START_DATE)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.END_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.EPG_PICTURES))
@@ -397,16 +397,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //BaseObject to KalturaAsset
             cfg.CreateMap<BaseObject, KalturaAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dUpdateDate)));
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dUpdateDate)));
 
             //MediaObj to KalturaMediaAsset
             cfg.CreateMap<MediaObj, KalturaMediaAsset>()
                 .IncludeBase<BaseObject, KalturaAsset>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name.ToList(), src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description.ToList(), src.m_sDescription)))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreationDate)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dStartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dEndDate)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dCreationDate)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
@@ -426,12 +426,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //MediaObj to KalturaLiveAsset
             cfg.CreateMap<MediaObj, KalturaLiveAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dUpdateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dUpdateDate)))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name.ToList(), src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description.ToList(), src.m_sDescription)))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreationDate)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dStartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dEndDate)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dCreationDate)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
@@ -468,9 +468,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<BaseObject, KalturaAsset>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeDescription)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_oProgram.CREATE_DATE)))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_oProgram.START_DATE)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_oProgram.END_DATE)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.m_oProgram.CREATE_DATE)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.m_oProgram.START_DATE)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.m_oProgram.END_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_oProgram.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_oProgram.EPG_TAGS)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES))
@@ -493,8 +493,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Program.m_oProgram.ProgrammeName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Program.m_oProgram.ProgrammeDescription)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.Program.m_oProgram.START_DATE)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.Program.m_oProgram.END_DATE)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.Program.m_oProgram.START_DATE)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.Program.m_oProgram.END_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.Program.m_oProgram.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.Program.m_oProgram.EPG_TAGS)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Program.m_oProgram.EPG_PICTURES))
@@ -580,10 +580,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionsWithLanguages, src.Description)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.StartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.EndDate)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.Metas)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.Tags)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
@@ -645,7 +645,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nAssetID))
                 .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertToKalturaAssetType(src.AssetType)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dCreateDate)))
                 .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.m_sHeader))
                 .ForMember(dest => dest.SubHeader, opt => opt.MapFrom(src => src.m_sSubHeader))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.m_sContentText))
@@ -875,7 +875,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.BillingType))
                  .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
+                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.EndDate)))
                  .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                  .ForMember(dest => dest.ExternalStoreId, opt => opt.MapFrom(src => src.ExternalStoreId))
                  .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
@@ -884,13 +884,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
                  .ForMember(dest => dest.OrderNum, opt => opt.MapFrom(src => src.OrderNum))
                  .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))
-                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
+                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.StartDate)))
                  .ForMember(dest => dest.CdnAdapaterProfileId, opt => opt.MapFrom(src => src.CdnAdapaterProfileId))
                  .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.GetTypeName()))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
-                 .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CatalogEndDate)))
+                 .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CatalogEndDate)))
                  ;
 
             //File 
@@ -1217,7 +1217,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     KalturaLongValue metaValue = meta.Value as KalturaLongValue;
                     metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.DateTime.ToString();
-                    metaToAdd.m_sValue = SerializationUtils.ConvertFromUnixTimestamp(metaValue.value).ToString();
+                    metaToAdd.m_sValue = DateUtils.UtcUnixTimestampSecondsToDateTime(metaValue.value).ToString();
                 }
                 else if (metaType == typeof(KalturaIntegerValue))
                 {
@@ -1278,7 +1278,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             DateTime? response = null;
             if (date.HasValue)
             {
-                response = SerializationUtils.ConvertFromUnixTimestamp(date.Value);
+                response = DateUtils.UtcUnixTimestampSecondsToDateTime(date.Value);
             }
 
             return response;
@@ -2133,8 +2133,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             Dictionary<string, KalturaStringValue> extraParams = new Dictionary<string, KalturaStringValue>();
 
-            extraParams.Add("sys_start_date", new KalturaStringValue() { value = SerializationUtils.ConvertToUnixTimestamp(media.m_dStartDate).ToString() });
-            extraParams.Add("sys_final_date", new KalturaStringValue() { value = SerializationUtils.ConvertToUnixTimestamp(media.m_dFinalDate).ToString() });
+            extraParams.Add("sys_start_date", new KalturaStringValue() { value = DateUtils.DateTimeToUtcUnixTimestampSeconds(media.m_dStartDate).ToString() });
+            extraParams.Add("sys_final_date", new KalturaStringValue() { value = DateUtils.DateTimeToUtcUnixTimestampSeconds(media.m_dFinalDate).ToString() });
             extraParams.Add("external_ids", new KalturaStringValue() { value = media.m_ExternalIDs });
 
             extraParams.Add("enable_cdvr", new KalturaStringValue() { value = media.EnableCDVR.ToString() });
@@ -2216,7 +2216,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         DateTime parsedDate;
                         if (DateTime.TryParse(meta.m_sValue, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
                         {
-                            value = new KalturaLongValue() { value = SerializationUtils.ConvertToUnixTimestamp(parsedDate) };
+                            value = new KalturaLongValue() { value = DateUtils.DateTimeToUtcUnixTimestampSeconds(parsedDate) };
                         }
                         else
                         {

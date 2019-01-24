@@ -622,8 +622,8 @@ Global
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Local|Any CPU.ActiveCfg = Release|Any CPU
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Local|Any CPU.Build.0 = Release|Any CPU
-		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.LocalRelease|Any CPU.ActiveCfg = LocalRelease|Any CPU
-		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.LocalRelease|Any CPU.Build.0 = LocalRelease|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{65F14E50-B281-4524-84C4-0ACA05C71FBC}.Basic|Any CPU.ActiveCfg = Local|Any CPU
@@ -878,7 +878,7 @@ Global
 		{F5591A02-7C44-476F-B447-A63F39B2D731} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal

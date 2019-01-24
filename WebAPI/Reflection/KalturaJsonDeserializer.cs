@@ -1525,6 +1525,18 @@ namespace WebAPI.Reflection
                 case "KalturaTranslationToken":
                     return new KalturaTranslationToken(parameters);
                     
+                case "KalturaTvmGeoRule":
+                    return new KalturaTvmGeoRule(parameters);
+                    
+                case "KalturaTvmRule":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaTvmRuleFilter":
+                    return new KalturaTvmRuleFilter(parameters);
+                    
+                case "KalturaTvmRuleListResponse":
+                    return new KalturaTvmRuleListResponse(parameters);
+                    
                 case "KalturaTwitterTwit":
                     return new KalturaTwitterTwit(parameters);
                     
@@ -4018,13 +4030,13 @@ namespace WebAPI.Models.ConditionalAccess
         private static RuntimeSchemePropertyAttribute PriceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPurchase")
         {
             ReadOnly = false,
+            MinFloat = 0,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinFloat = 0,
         };
         private static RuntimeSchemePropertyAttribute PaymentMethodIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPurchase")
         {
@@ -15977,6 +15989,115 @@ namespace WebAPI.Models.API
                         RecoveryGracePeriodSchemaProperty.Validate("recoveryGracePeriod", parameters["recoveryGracePeriod"]);
                     }
                     RecoveryGracePeriod = (Int32) Convert.ChangeType(parameters["recoveryGracePeriod"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaTvmGeoRule
+    {
+        public KalturaTvmGeoRule(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("onlyOrBut") && parameters["onlyOrBut"] != null)
+                {
+                    OnlyOrBut = (Boolean) Convert.ChangeType(parameters["onlyOrBut"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("countryIds") && parameters["countryIds"] != null)
+                {
+                    CountryIds = (String) Convert.ChangeType(parameters["countryIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("proxyRule") && parameters["proxyRule"] != null)
+                {
+                    ProxyRule = (Int32) Convert.ChangeType(parameters["proxyRule"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("proxyLevel") && parameters["proxyLevel"] != null)
+                {
+                    ProxyLevel = (Int32) Convert.ChangeType(parameters["proxyLevel"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaTvmRule
+    {
+        private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTvmRule")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute RuleTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTvmRule")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaTvmRule(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
+                    }
+                    CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ruleType") && parameters["ruleType"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        RuleTypeSchemaProperty.Validate("ruleType", parameters["ruleType"]);
+                    }
+                    RuleType = (KalturaRuleType) Enum.Parse(typeof(KalturaRuleType), parameters["ruleType"].ToString(), true);
+                }
+            }
+        }
+    }
+    public partial class KalturaTvmRuleFilter
+    {
+        public KalturaTvmRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("ruleTypeEqual") && parameters["ruleTypeEqual"] != null)
+                {
+                    RuleTypeEqual = (KalturaRuleType) Enum.Parse(typeof(KalturaRuleType), parameters["ruleTypeEqual"].ToString(), true);
+                }
+                if (parameters.ContainsKey("nameEqual") && parameters["nameEqual"] != null)
+                {
+                    NameEqual = (String) Convert.ChangeType(parameters["nameEqual"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaTvmRuleListResponse
+    {
+        public KalturaTvmRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaTvmRule>(typeof(KalturaTvmRule), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaTvmRule), parameters["objects"] as object[]);
+                    }
                 }
             }
         }

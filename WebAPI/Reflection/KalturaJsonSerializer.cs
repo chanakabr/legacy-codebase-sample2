@@ -15727,6 +15727,122 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaTvmGeoRule
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(CountryIds != null)
+            {
+                ret.Add("countryIds", "\"countryIds\": " + "\"" + EscapeJson(CountryIds) + "\"");
+            }
+            ret.Add("onlyOrBut", "\"onlyOrBut\": " + OnlyOrBut.ToString().ToLower());
+            ret.Add("proxyLevel", "\"proxyLevel\": " + ProxyLevel);
+            ret.Add("proxyRule", "\"proxyRule\": " + ProxyRule);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(CountryIds != null)
+            {
+                ret.Add("countryIds", "<countryIds>" + EscapeXml(CountryIds) + "</countryIds>");
+            }
+            ret.Add("onlyOrBut", "<onlyOrBut>" + OnlyOrBut.ToString().ToLower() + "</onlyOrBut>");
+            ret.Add("proxyLevel", "<proxyLevel>" + ProxyLevel + "</proxyLevel>");
+            ret.Add("proxyRule", "<proxyRule>" + ProxyRule + "</proxyRule>");
+            return ret;
+        }
+    }
+    public partial class KalturaTvmRule
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("createDate", "\"createDate\": " + CreateDate);
+            ret.Add("ruleType", "\"ruleType\": " + "\"" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "\"");
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            ret.Add("ruleType", "<ruleType>" + "" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "" + "</ruleType>");
+            return ret;
+        }
+    }
+    public partial class KalturaTvmRuleFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(NameEqual != null)
+            {
+                ret.Add("nameEqual", "\"nameEqual\": " + "\"" + EscapeJson(NameEqual) + "\"");
+            }
+            if(RuleTypeEqual.HasValue)
+            {
+                ret.Add("ruleTypeEqual", "\"ruleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaRuleType), RuleTypeEqual) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(NameEqual != null)
+            {
+                ret.Add("nameEqual", "<nameEqual>" + EscapeXml(NameEqual) + "</nameEqual>");
+            }
+            if(RuleTypeEqual.HasValue)
+            {
+                ret.Add("ruleTypeEqual", "<ruleTypeEqual>" + "" + Enum.GetName(typeof(KalturaRuleType), RuleTypeEqual) + "" + "</ruleTypeEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaTvmRuleListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaUserAssetRule
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)

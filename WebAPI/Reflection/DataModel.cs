@@ -5713,6 +5713,48 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaTvmGeoRule":
+                    switch(property.Name)
+                    {
+                        case "CountryIds":
+                            return "countryIds";
+                        case "OnlyOrBut":
+                            return "onlyOrBut";
+                        case "ProxyLevel":
+                            return "proxyLevel";
+                        case "ProxyRule":
+                            return "proxyRule";
+                    }
+                    break;
+                    
+                case "KalturaTvmRule":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "RuleType":
+                            return "ruleType";
+                    }
+                    break;
+                    
+                case "KalturaTvmRuleFilter":
+                    switch(property.Name)
+                    {
+                        case "NameEqual":
+                            return "nameEqual";
+                        case "RuleTypeEqual":
+                            return "ruleTypeEqual";
+                    }
+                    break;
+                    
+                case "KalturaTvmRuleListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaUnifiedPaymentRenewal":
                     switch(property.Name)
                     {
@@ -9170,6 +9212,16 @@ namespace WebAPI.Reflection
                         case "listoldstandard":
                             RolesManager.ValidateActionPermitted("transactionHistory", "listOldStandard", false);
                             return TransactionHistoryController.ListOldStandard((KalturaTransactionsFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "tvmrule":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("tvmRule", "list", false);
+                            return TvmRuleController.List((KalturaTvmRuleFilter) methodParams[0]);
                             
                     }
                     break;
@@ -16806,6 +16858,22 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTransactionsFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "tvmrule":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTvmRuleFilter),
                             });
                             return ret;
                             

@@ -352,7 +352,7 @@ namespace WebAPI.Filters
 
             if (fileName == null)
             {
-                return new KeyValuePair<string, object>(name, Encoding.UTF8.GetString(fieldBytes, index, fieldBytes.Length - index));
+                return new KeyValuePair<string, object>(name, Encoding.UTF8.GetString(fieldBytes, index, fieldBytes.Length - index - 2));
             }
             else
             {

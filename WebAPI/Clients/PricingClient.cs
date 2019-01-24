@@ -9,6 +9,7 @@ using System.Net;
 using System.Reflection;
 using System.ServiceModel;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -1059,8 +1060,8 @@ namespace WebAPI.Clients
                 {
                     // fire request                        
                     response = Core.Pricing.Module.UpdateCouponsGroup(groupId, id, kCouponsGroup.Name,
-                        kCouponsGroup.StartDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value) : new DateTime?(),
-                        kCouponsGroup.EndDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.EndDate.Value) : new DateTime?(),
+                        kCouponsGroup.StartDate.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(kCouponsGroup.StartDate.Value) : new DateTime?(),
+                        kCouponsGroup.EndDate.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(kCouponsGroup.EndDate.Value) : new DateTime?(),
                         kCouponsGroup.MaxUsesNumber, kCouponsGroup.MaxUsesNumberOnRenewableSub, kCouponsGroup.MaxHouseholdUses,
                         PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType),
                         kCouponsGroup.DiscountId.HasValue ? kCouponsGroup.DiscountId : kCouponsGroup.DiscountCode);
@@ -1133,12 +1134,12 @@ namespace WebAPI.Clients
 
                     if (kCouponsGroup.StartDate.HasValue)
                     {
-                        startDate = SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value);
+                        startDate = DateUtils.UtcUnixTimestampSecondsToDateTime(kCouponsGroup.StartDate.Value);
                     }
 
                     if (kCouponsGroup.EndDate.HasValue)
                     {
-                        endDate = SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.EndDate.Value);
+                        endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(kCouponsGroup.EndDate.Value);
                     }
 
                     response = Core.Pricing.Module.AddCouponsGroup(groupId, kCouponsGroup.Name, startDate, endDate,
@@ -1261,7 +1262,7 @@ namespace WebAPI.Clients
         {
             // fire request                 
             Func<GenericResponse<AssetFilePpv>> addAssetFilePpvFunc = () => Core.Pricing.PriceManager.AddAssetFilePPV(groupId, kAssetFilePpv.AssetFileId,
-                kAssetFilePpv.PpvModuleId, SerializationUtils.ConvertToNullableDatetime(kAssetFilePpv.StartDate), SerializationUtils.ConvertToNullableDatetime(kAssetFilePpv.EndDate));
+                kAssetFilePpv.PpvModuleId, DateUtils.UtcUnixTimestampSecondsToDateTime(kAssetFilePpv.StartDate), DateUtils.UtcUnixTimestampSecondsToDateTime(kAssetFilePpv.EndDate));
             return ClientUtils.GetResponseFromWS<KalturaAssetFilePpv, AssetFilePpv>(addAssetFilePpvFunc);
 
         }

@@ -28,10 +28,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // CouponsGroup
             cfg.CreateMap<CouponsGroup, KalturaCouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dEndDate)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sGroupCode))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sGroupName))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dStartDate)))
                .ForMember(dest => dest.MaxUsesNumber, opt => opt.MapFrom(src => src.m_nMaxUseCountForCoupon))
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
                .ForMember(dest => dest.CouponGroupType, opt => opt.ResolveUsing(src => ConvertCouponGroupType(src.couponGroupType)))
@@ -42,11 +42,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<SubscriptionCouponGroup, KalturaCouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => (!src.endDate.HasValue || src.m_dEndDate < src.endDate.Value) ?
-                   SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate) : SerializationUtils.ConvertToUnixTimestamp(src.endDate.Value)))
+                   DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dEndDate) : DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate.Value)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sGroupCode))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sGroupName))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => (!src.endDate.HasValue || src.m_dEndDate < src.endDate.Value) ?
-                   SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate) : SerializationUtils.ConvertToUnixTimestamp(src.startDate.HasValue ? src.startDate.Value : src.m_dStartDate)))
+                   DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dStartDate) : DateUtils.DateTimeToUtcUnixTimestampSeconds(src.startDate.HasValue ? src.startDate.Value : src.m_dStartDate)))
                .ForMember(dest => dest.MaxUsesNumber, opt => opt.MapFrom(src => src.m_nMaxUseCountForCoupon))
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
                .ForMember(dest => dest.CouponGroupType, opt => opt.ResolveUsing(src => ConvertCouponGroupType(src.couponGroupType)))
@@ -77,9 +77,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // DiscountModule
             cfg.CreateMap<DiscountModule, KalturaDiscountModule>()
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dEndDate)))
                .ForMember(dest => dest.Percent, opt => opt.MapFrom(src => src.m_dPercent))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)));
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dStartDate)));
 
             // UsageModule
             cfg.CreateMap<UsageModule, KalturaUsageModule>()
@@ -139,8 +139,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<Subscription, KalturaSubscription>()
                .ForMember(dest => dest.IsInfiniteRenewal, opt => opt.MapFrom(src => src.m_bIsInfiniteRecurring))
                .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.m_bIsRecurring))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dStartDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dEndDate)))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.m_fictivicMediaID))
                //.ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => src.m_lServices))
                .ForMember(dest => dest.PremiumServices, opt => opt.ResolveUsing(src => ConvertServices(src.m_lServices)))
@@ -198,8 +198,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // ItemPriceContainer to PPVItemPriceDetails
             cfg.CreateMap<ItemPriceContainer, KalturaPPVItemPriceDetails>()
                .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate.Value) : 0))
-               .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtDiscountEndDate.Value) : 0))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtEndDate.Value) : 0))
+               .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.m_dtDiscountEndDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtDiscountEndDate.Value) : 0))
                .ForMember(dest => dest.FirstDeviceName, opt => opt.MapFrom(src => src.m_sFirstDeviceNameFound))
                .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.m_oFullPrice))
                .ForMember(dest => dest.IsInCancelationPeriod, opt => opt.MapFrom(src => src.m_bCancelWindow))
@@ -212,7 +212,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PurchaseStatus, opt => opt.ResolveUsing(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.PurchaseUserId, opt => opt.MapFrom(src => src.m_sPurchasedBySiteGuid))
                .ForMember(dest => dest.RelatedMediaFileIds, opt => opt.MapFrom(src => src.m_lRelatedMediaFileIDs))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dtStartDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate.Value) : 0))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dtStartDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtStartDate.Value) : 0))
                .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.m_relevantSub.m_sObjectCode))
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode));
 
@@ -248,8 +248,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<ItemPriceContainer, KalturaPpvPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sProductCode))
                .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate.Value) : 0))
-               .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtDiscountEndDate.Value) : 0))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtEndDate.Value) : 0))
+               .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.m_dtDiscountEndDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtDiscountEndDate.Value) : 0))
                .ForMember(dest => dest.FirstDeviceName, opt => opt.MapFrom(src => src.m_sFirstDeviceNameFound))
                .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.m_oFullPrice))
                .ForMember(dest => dest.IsInCancelationPeriod, opt => opt.MapFrom(src => src.m_bCancelWindow))
@@ -262,7 +262,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PurchaseStatus, opt => opt.ResolveUsing(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.PurchaseUserId, opt => opt.MapFrom(src => src.m_sPurchasedBySiteGuid))
                .ForMember(dest => dest.RelatedMediaFileIds, opt => opt.MapFrom(src => src.m_lRelatedMediaFileIDs))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dtStartDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate.Value) : 0))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dtStartDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtStartDate.Value) : 0))
                .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.m_relevantSub.m_sObjectCode))
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode));
 
@@ -312,8 +312,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // Collection
             cfg.CreateMap<Collection, KalturaCollection>()
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dStartDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dEndDate)))
                .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oDiscountModule))
                .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_sCodes))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
@@ -330,8 +330,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<DiscountDetails, KalturaDiscountDetails>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
-               .ForMember(dest => dest.EndtDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.StartDate)))
+               .ForMember(dest => dest.EndtDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.EndDate)))
                .ForMember(dest => dest.MultiCurrencyDiscount, opt => opt.MapFrom(src => src.MultiCurrencyDiscounts))
                ;
 
@@ -348,15 +348,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<AssetFilePpv, KalturaAssetFilePpv>()
                .ForMember(dest => dest.AssetFileId, opt => opt.MapFrom(src => src.AssetFileId))
                .ForMember(dest => dest.PpvModuleId, opt => opt.MapFrom(src => src.PpvModuleId))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.StartDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.EndDate)))
                ;
 
             cfg.CreateMap<KalturaAssetFilePpv, AssetFilePpv>()
                .ForMember(dest => dest.AssetFileId, opt => opt.MapFrom(src => src.AssetFileId))
                .ForMember(dest => dest.PpvModuleId, opt => opt.MapFrom(src => src.PpvModuleId))
-               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToNullableDatetime(src.StartDate)))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToNullableDatetime(src.EndDate)))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.StartDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.EndDate)))
                .ForMember(dest => dest.NullableProperties, opt => opt.MapFrom(src => src.NullableProperties))
                ;
 
@@ -620,8 +620,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             prices.Add(new KalturaPpvPrice()
                             {
                                 CollectionId = ppvPrice.m_relevantCol != null ? ppvPrice.m_relevantCol.m_CollectionCode : null,
-                                DiscountEndDate = ppvPrice.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtDiscountEndDate.Value) : 0,
-                                EndDate = ppvPrice.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtEndDate.Value) : 0,
+                                DiscountEndDate = ppvPrice.m_dtDiscountEndDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(ppvPrice.m_dtDiscountEndDate.Value) : 0,
+                                EndDate = ppvPrice.m_dtEndDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(ppvPrice.m_dtEndDate.Value) : 0,
                                 FileId = item.m_nMediaFileID,
                                 FirstDeviceName = ppvPrice.m_sFirstDeviceNameFound,
                                 FullPrice = AutoMapper.Mapper.Map<KalturaPrice>(ppvPrice.m_oFullPrice),
@@ -638,7 +638,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                                 PurchaseStatus = ConvertPriceReasonToPurchaseStatus(ppvPrice.m_PriceReason),
                                 PurchaseUserId = ppvPrice.m_sPurchasedBySiteGuid,
                                 RelatedMediaFileIds = AutoMapper.Mapper.Map<List<KalturaIntegerValue>>(ppvPrice.m_lRelatedMediaFileIDs),
-                                StartDate = ppvPrice.m_dtStartDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtStartDate.Value) : 0,
+                                StartDate = ppvPrice.m_dtStartDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(ppvPrice.m_dtStartDate.Value) : 0,
                                 SubscriptionId = ppvPrice.m_relevantSub != null ? ppvPrice.m_relevantSub.m_sObjectCode : null
                             });
                         }

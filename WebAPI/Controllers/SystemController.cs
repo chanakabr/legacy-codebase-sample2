@@ -14,6 +14,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 using KLogMonitor;
+using TVinciShared;
 
 namespace WebAPI.Controllers
 {
@@ -78,7 +79,7 @@ namespace WebAPI.Controllers
         static public long GetTime()
         {
             DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestParser.REQUEST_TIME];
-            return Utils.Utils.DateTimeToUnixTimestamp(serverTime, false);
+            return DateUtils.DateTimeToUtcUnixTimestampSeconds(serverTime);
         }
 
         /// <summary>

@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -1155,8 +1156,8 @@ namespace WebAPI.Clients
                 m_nGroupID = groupID,
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nAssetIDs = assetIds,
-                m_dStartDate = startTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(startTime) : DateTime.MinValue,
-                m_dEndDate = endTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(endTime) : DateTime.MaxValue,
+                m_dStartDate = startTime != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(startTime) : DateTime.MinValue,
+                m_dEndDate = endTime != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(endTime) : DateTime.MaxValue,
                 m_type = CatalogMappings.ConvertAssetType(assetType)
             };
 
@@ -2973,8 +2974,8 @@ namespace WebAPI.Clients
                 m_dServerTime = getServerTime(),
                 channelIds = channelIdsToFilter,
                 scheduledRecordingAssetType = CatalogMappings.ConvertKalturaScheduledRecordingAssetType(scheduledRecordingType),
-                startDate = startDateToFilter.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(startDateToFilter.Value) : new DateTime?(),
-                endDate = endDateToFilter.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(endDateToFilter.Value) : new DateTime?()
+                startDate = startDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(startDateToFilter.Value) : new DateTime?(),
+                endDate = endDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(endDateToFilter.Value) : new DateTime?()
 
             };
 

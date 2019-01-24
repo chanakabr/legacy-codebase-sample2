@@ -30,6 +30,7 @@ using WebAPI.Models.Pricing;
 using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using TVinciShared;
 
 namespace WebAPI.Clients
 {
@@ -1007,7 +1008,7 @@ namespace WebAPI.Clients
 
             try
             {
-                DateTime startTime = Utils.SerializationUtils.ConvertFromUnixTimestamp(startDate);
+                DateTime startTime = DateUtils.UtcUnixTimestampSecondsToDateTime(startDate);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
