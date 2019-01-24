@@ -578,6 +578,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("MapMediaFileId_{0}_group_{1}", fileId, groupId);
         }
 
+        public static string GetDomainRecordingsKey(long domainId)
+        {
+            return string.Format("DomainRecordings_domainId_{0}", domainId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1025,6 +1030,11 @@ namespace CachingProvider.LayeredCache
         public static string GetAllEpgPicturesKey(int groupId)
         {
             return string.Format("all_epg_pictures_groupId_{0}", groupId);
+        }
+
+        public static string GetDomainRecordingsInvalidationKeys(long domainId)
+        {
+            return string.Format("invalidationKey_{0}", GetDomainRecordingsKey(domainId));
         }
 
         #endregion
