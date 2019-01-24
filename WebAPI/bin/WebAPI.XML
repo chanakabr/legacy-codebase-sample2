@@ -4815,7 +4815,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.OnlyOrBut">
             <summary>
-            Indicates if the rule is relevent ONLY for the country ids or except country ids here.
+            Indicates if the rule is relevent ONLY for the country ids or except country ids here. - is that true?
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.CountryIds">
@@ -4823,14 +4823,24 @@
             Comma separated list of country Ids.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.ProxyRule">
+        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.ProxyRuleId">
             <summary>
-            proxyRule - what is that?
+            proxyRuleId - what is that?
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.ProxyLevel">
+        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.ProxyRuleName">
             <summary>
-            proxyLevel - what is that?
+            proxyRuleName - what is that?
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.ProxyLevelId">
+            <summary>
+            proxyLevelId - what is that?
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.ProxyLevelName">
+            <summary>
+            proxyLevelName - what is that?
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaTvmRuleFilter">

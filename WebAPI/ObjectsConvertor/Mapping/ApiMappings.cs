@@ -1003,15 +1003,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<KalturaTvmRule, TvmRule>()
                 .ForMember(dest => dest.OnlyOrBut, opt => opt.MapFrom(src => src.OnlyOrBut))
                 .ForMember(dest => dest.CountryIds, opt => opt.MapFrom(src => src.GetCountryIds()))
-                .ForMember(dest => dest.ProxyRule, opt => opt.MapFrom(src => src.ProxyRule))
-                .ForMember(dest => dest.ProxyLevel, opt => opt.MapFrom(src => src.ProxyLevel)); 
+                .ForMember(dest => dest.ProxyRuleId, opt => opt.MapFrom(src => src.ProxyRuleId))
+                .ForMember(dest => dest.ProxyRuleName, opt => opt.MapFrom(src => src.ProxyRuleName))
+                .ForMember(dest => dest.ProxyLevelId, opt => opt.MapFrom(src => src.ProxyLevelId))
+                .ForMember(dest => dest.ProxyLevelName, opt => opt.MapFrom(src => src.ProxyLevelName)); 
 
             cfg.CreateMap<TvmGeoRule, KalturaTvmGeoRule>()
                 .IncludeBase<TvmRule, KalturaTvmRule>()
                 .ForMember(dest => dest.OnlyOrBut, opt => opt.MapFrom(src => src.OnlyOrBut))
                 .ForMember(dest => dest.CountryIds, opt => opt.MapFrom(src => src.CountryIds != null ? string.Join(",", src.CountryIds) : null))
-                .ForMember(dest => dest.ProxyRule, opt => opt.MapFrom(src => src.ProxyRule))
-                .ForMember(dest => dest.ProxyLevel, opt => opt.MapFrom(src => src.ProxyLevel));
+                .ForMember(dest => dest.ProxyRuleId, opt => opt.MapFrom(src => src.ProxyRuleId))
+                .ForMember(dest => dest.ProxyRuleName, opt => opt.MapFrom(src => src.ProxyRuleName))
+                .ForMember(dest => dest.ProxyLevelId, opt => opt.MapFrom(src => src.ProxyLevelId))
+                .ForMember(dest => dest.ProxyLevelName, opt => opt.MapFrom(src => src.ProxyLevelName));
 
             cfg.CreateMap<KalturaTvmDeviceRule, TvmDeviceRule>()
                 .IncludeBase<KalturaTvmRule, TvmRule>()

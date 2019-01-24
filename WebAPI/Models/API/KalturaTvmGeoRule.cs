@@ -18,9 +18,8 @@ namespace WebAPI.Models.API
     [Serializable]
     public partial class KalturaTvmGeoRule : KalturaTvmRule
     {
-        // TODO SHIR - DONT FORGET TO UPDATE DESCRIPTION
         /// <summary>
-        /// Indicates if the rule is relevent ONLY for the country ids or except country ids here.
+        /// Indicates if the rule is relevent ONLY for the country ids or except country ids here. - is that true?
         /// </summary>
         [DataMember(Name = "onlyOrBut")]
         [JsonProperty("onlyOrBut")]
@@ -35,23 +34,37 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "countryIds")]
         public string CountryIds { get; set; }
 
-        // TODO SHIR - DONT FORGET TO UPDATE TYPE, MAPPING, DESCRIPTION
         /// <summary>
-        /// proxyRule - what is that?
+        /// proxyRuleId - what is that?
         /// </summary>
-        [DataMember(Name = "proxyRule")]
-        [JsonProperty("proxyRule")]
-        [XmlElement(ElementName = "proxyRule")]
-        public int ProxyRule { get; set; }
+        [DataMember(Name = "proxyRuleId")]
+        [JsonProperty("proxyRuleId")]
+        [XmlElement(ElementName = "proxyRuleId")]
+        public int ProxyRuleId { get; set; }
 
-        // TODO SHIR - DONT FORGET TO UPDATE TYPE, MAPPING, DESCRIPTION
         /// <summary>
-        /// proxyLevel - what is that?
+        /// proxyRuleName - what is that?
         /// </summary>
-        [DataMember(Name = "proxyLevel")]
-        [JsonProperty("proxyLevel")]
-        [XmlElement(ElementName = "proxyLevel")]
-        public int ProxyLevel { get; set; }
+        [DataMember(Name = "proxyRuleName")]
+        [JsonProperty("proxyRuleName")]
+        [XmlElement(ElementName = "proxyRuleName")]
+        public string ProxyRuleName { get; set; }
+
+        /// <summary>
+        /// proxyLevelId - what is that?
+        /// </summary>
+        [DataMember(Name = "proxyLevelId")]
+        [JsonProperty("proxyLevelId")]
+        [XmlElement(ElementName = "proxyLevelId")]
+        public int ProxyLevelId { get; set; }
+
+        /// <summary>
+        /// proxyLevelName - what is that?
+        /// </summary>
+        [DataMember(Name = "proxyLevelName")]
+        [JsonProperty("proxyLevelName")]
+        [XmlElement(ElementName = "proxyLevelName")]
+        public string ProxyLevelName { get; set; }
 
         protected override void Init()
         {

@@ -5728,10 +5728,14 @@ namespace WebAPI.Reflection
                             return "countryIds";
                         case "OnlyOrBut":
                             return "onlyOrBut";
-                        case "ProxyLevel":
-                            return "proxyLevel";
-                        case "ProxyRule":
-                            return "proxyRule";
+                        case "ProxyLevelId":
+                            return "proxyLevelId";
+                        case "ProxyLevelName":
+                            return "proxyLevelName";
+                        case "ProxyRuleId":
+                            return "proxyRuleId";
+                        case "ProxyRuleName":
+                            return "proxyRuleName";
                     }
                     break;
                     

@@ -15765,8 +15765,16 @@ namespace WebAPI.Models.API
                 ret.Add("countryIds", "\"countryIds\": " + "\"" + EscapeJson(CountryIds) + "\"");
             }
             ret.Add("onlyOrBut", "\"onlyOrBut\": " + OnlyOrBut.ToString().ToLower());
-            ret.Add("proxyLevel", "\"proxyLevel\": " + ProxyLevel);
-            ret.Add("proxyRule", "\"proxyRule\": " + ProxyRule);
+            ret.Add("proxyLevelId", "\"proxyLevelId\": " + ProxyLevelId);
+            if(ProxyLevelName != null)
+            {
+                ret.Add("proxyLevelName", "\"proxyLevelName\": " + "\"" + EscapeJson(ProxyLevelName) + "\"");
+            }
+            ret.Add("proxyRuleId", "\"proxyRuleId\": " + ProxyRuleId);
+            if(ProxyRuleName != null)
+            {
+                ret.Add("proxyRuleName", "\"proxyRuleName\": " + "\"" + EscapeJson(ProxyRuleName) + "\"");
+            }
             return ret;
         }
         
@@ -15780,8 +15788,16 @@ namespace WebAPI.Models.API
                 ret.Add("countryIds", "<countryIds>" + EscapeXml(CountryIds) + "</countryIds>");
             }
             ret.Add("onlyOrBut", "<onlyOrBut>" + OnlyOrBut.ToString().ToLower() + "</onlyOrBut>");
-            ret.Add("proxyLevel", "<proxyLevel>" + ProxyLevel + "</proxyLevel>");
-            ret.Add("proxyRule", "<proxyRule>" + ProxyRule + "</proxyRule>");
+            ret.Add("proxyLevelId", "<proxyLevelId>" + ProxyLevelId + "</proxyLevelId>");
+            if(ProxyLevelName != null)
+            {
+                ret.Add("proxyLevelName", "<proxyLevelName>" + EscapeXml(ProxyLevelName) + "</proxyLevelName>");
+            }
+            ret.Add("proxyRuleId", "<proxyRuleId>" + ProxyRuleId + "</proxyRuleId>");
+            if(ProxyRuleName != null)
+            {
+                ret.Add("proxyRuleName", "<proxyRuleName>" + EscapeXml(ProxyRuleName) + "</proxyRuleName>");
+            }
             return ret;
         }
     }
