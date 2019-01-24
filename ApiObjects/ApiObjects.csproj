@@ -164,6 +164,7 @@
     <Compile Include="Response\StringResponse.cs" />
     <Compile Include="Rules\BusinessModuleRule.cs" />
     <Compile Include="Rules\ConditionScope.cs" />
+    <Compile Include="Rules\TvmDeviceRule.cs" />
     <Compile Include="Rules\TvmGeoRule.cs" />
     <Compile Include="Rules\TvmRule.cs" />
     <Compile Include="Rules\RuleCondition.cs" />

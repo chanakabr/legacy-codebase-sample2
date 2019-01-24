@@ -239,9 +239,9 @@ namespace APILogic.Api.Managers
             return groupRules;
         }
 
-        internal static Dictionary<int, TvmGeoRule> GetTvmGeoRuleFromCache(int groupId)
+        internal static Dictionary<long, TvmGeoRule> GetTvmGeoRulesFromCache(int groupId)
         {
-            Dictionary<int, TvmGeoRule> result = null;
+            Dictionary<long, TvmGeoRule> result = null;
 
             try
             {
@@ -268,7 +268,7 @@ namespace APILogic.Api.Managers
         internal static bool ValidateGeoBlockRuleExists(int groupId, int geoBlockRuleId)
         {
             bool res = false;
-            var geoblockRules = GetTvmGeoRuleFromCache(groupId);
+            var geoblockRules = GetTvmGeoRulesFromCache(groupId);
             if (geoblockRules != null)
             {
                 res = geoblockRules.ContainsKey(geoBlockRuleId);
@@ -279,7 +279,7 @@ namespace APILogic.Api.Managers
 
         internal static string GetGeoBlockRuleName(int groupId, int geoblockRuleId)
         {
-            var geoblockRules = GetTvmGeoRuleFromCache(groupId);
+            var geoblockRules = GetTvmGeoRulesFromCache(groupId);
             if (geoblockRules == null || geoblockRules.Count == 0)
             {
                 log.ErrorFormat("group geoblockRules were not found. groupId: {0}", groupId);
@@ -295,14 +295,14 @@ namespace APILogic.Api.Managers
             }
         }
 
-        internal static int? GetGeoBlockRuleId(int groupId, string geoBlockRuleName)
+        internal static long? GetGeoBlockRuleId(int groupId, string geoBlockRuleName)
         {
             if (geoBlockRuleName.IsNullOrEmptyOrWhiteSpace())
             {
                 return null;
             }
 
-            var geoblockRules = GetTvmGeoRuleFromCache(groupId);
+            var geoblockRules = GetTvmGeoRulesFromCache(groupId);
             if (geoblockRules == null || geoblockRules.Count == 0)
             {
                 log.ErrorFormat("group geoblockRules were not found. groupId: {0}", groupId);
@@ -325,9 +325,10 @@ namespace APILogic.Api.Managers
 
             try
             {
+                // get geo rules
                 if (!ruleTypeEqual.HasValue || ruleTypeEqual.Value == RuleType.Geo)
                 {
-                    var tvmGeoRules = GetTvmGeoRuleFromCache(groupId);
+                    var tvmGeoRules = GetTvmGeoRulesFromCache(groupId);
                     if (tvmGeoRules != null && tvmGeoRules.Count > 0)
                     {
                         if (string.IsNullOrEmpty(nameEqual))
@@ -336,20 +337,34 @@ namespace APILogic.Api.Managers
                         }
                         else
                         {
-                            var geoRule = tvmGeoRules.Values.FirstOrDefault(x => x.Name.ToLower().Equals(nameEqual.ToLower()));
-                            if (geoRule != null)
+                            var geoRule = tvmGeoRules.FirstOrDefault(x => x.Value.Name.ToLower().Equals(nameEqual.ToLower()));
+                            if (!geoRule.IsDefault())
                             {
-                                tvmRules.Objects.Add(geoRule);
+                                tvmRules.Objects.Add(geoRule.Value);
                             }
                         }
                     }
-
                 }
 
+                // get device rules
                 if (!ruleTypeEqual.HasValue || ruleTypeEqual.Value == RuleType.Device)
                 {
-                    // TODO - GET DEVICE RULES FROM CACHE AND ADD THEM TO RESPONSE like geo
-
+                    var tvmDeviceRules = GetTvmDeviceRulesFromCache(groupId);
+                    if (tvmDeviceRules != null && tvmDeviceRules.Count > 0)
+                    {
+                        if (string.IsNullOrEmpty(nameEqual))
+                        {
+                            tvmRules.Objects.AddRange(tvmDeviceRules.Values);
+                        }
+                        else
+                        {
+                            var deviceRule = tvmDeviceRules.FirstOrDefault(x => x.Value.Name.ToLower().Equals(nameEqual.ToLower()));
+                            if (!deviceRule.IsDefault())
+                            {
+                                tvmRules.Objects.Add(deviceRule.Value);
+                            }
+                        }
+                    }
                 }
 
                 tvmRules.SetStatus(eResponseStatus.OK);
@@ -363,9 +378,146 @@ namespace APILogic.Api.Managers
             return tvmRules;
         }
 
+        internal static Dictionary<long, TvmDeviceRule> GetTvmDeviceRulesFromCache(int groupId)
+        {
+            Dictionary<long, TvmDeviceRule> result = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupDeviceRulesKey(groupId);
+                if (!LayeredCache.Instance.Get(key, 
+                                               ref result, 
+                                               GetGroupDeviceRules, 
+                                               new Dictionary<string, object>() { { "groupId", groupId } }, 
+                                               groupId,
+                                               LayeredCacheConfigNames.GET_GROUP_DEVICE_RULES_CACHE_CONFIG_NAME, 
+                                               new List<string>() { LayeredCacheKeys.GetGroupDeviceRulesInvalidationKey(groupId) }))
+                {
+                    log.ErrorFormat("Failed getting GetGroupDeviceRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetTvmDeviceRulesFromCache for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        internal static bool ValidateDeviceRuleExists(int groupId, long deviceRuleId)
+        {
+            bool res = false;
+            var deviceRules = GetTvmDeviceRulesFromCache(groupId);
+            if (deviceRules != null)
+            {
+                res = deviceRules.ContainsKey(deviceRuleId);
+            }
+
+            return res;
+        }
+
+        internal static string GetDeviceRuleName(int groupId, long deviceRuleId)
+        {
+            var deviceRules = GetTvmDeviceRulesFromCache(groupId);
+            if (deviceRules == null || deviceRules.Count == 0)
+            {
+                log.ErrorFormat("group deviceRules were not found. groupId: {0}", groupId);
+                return string.Empty;
+            }
+
+            if (deviceRules.ContainsKey(deviceRuleId))
+                return deviceRules[deviceRuleId].Name;
+            else
+            {
+                log.ErrorFormat("group deviceRule {0} was not found. groupId: {1}", deviceRuleId, groupId);
+                return string.Empty;
+            }
+        }
+
+        internal static long? GetDeviceRuleId(int groupId, string deviceRuleName)
+        {
+            if (deviceRuleName.IsNullOrEmptyOrWhiteSpace())
+            {
+                return null;
+            }
+
+            var deviceRules = GetTvmDeviceRulesFromCache(groupId);
+            if (deviceRules == null || deviceRules.Count == 0)
+            {
+                log.ErrorFormat("group deviceRules were not found. groupId: {0}", groupId);
+                return null;
+            }
+
+            var deviceRule = deviceRules.FirstOrDefault(x => x.Value.Name.ToLower().Equals(deviceRuleName.ToLower()));
+
+            if (!deviceRule.IsDefault())
+            {
+                return deviceRule.Key;
+            }
+            
+            log.ErrorFormat("group deviceRule {0} was not found. groupId: {1}", deviceRuleName, groupId);
+            return null;
+        }
+
         #endregion
 
         #region Private Methods 
+
+        private static Tuple<Dictionary<long, TvmDeviceRule>, bool> GetGroupDeviceRules(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<long, TvmDeviceRule> result = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetGroupDeviceRules(groupId.Value);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            result = new Dictionary<long, TvmDeviceRule>();
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                var deviceRule = new TvmDeviceRule()
+                                {
+                                    Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0),
+                                    GroupId = groupId.Value,
+                                    Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
+                                    CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
+                                    DeviceBrandIds = new HashSet<int>()
+                                };
+
+                                // TODO SHIR - FINISH GetGroupDeviceRules
+                                var deviceBrandId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUNTRY_ID");
+
+                                if (!result.ContainsKey(deviceRule.Id))
+                                {
+                                    if (deviceBrandId > 0)
+                                    {
+                                        deviceRule.DeviceBrandIds.Add(deviceBrandId);
+                                    }
+
+                                    result.Add(deviceRule.Id, deviceRule);
+                                }
+                                else if (deviceBrandId > 0 && !result[deviceRule.Id].DeviceBrandIds.Contains(deviceBrandId))
+                                {
+                                    result[deviceRule.Id].DeviceBrandIds.Add(deviceBrandId);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                res = result != null;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupDeviceRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<long, TvmDeviceRule>, bool>(result, res);
+        }
 
         private static Tuple<DataTable, bool> Get_GeoBlockPerMedia(Dictionary<string, object> funcParams)
         {
@@ -393,10 +545,10 @@ namespace APILogic.Api.Managers
             return new Tuple<DataTable, bool>(dt, res);
         }
 
-        private static Tuple<Dictionary<int, TvmGeoRule>, bool> GetGroupGeoblockRules(Dictionary<string, object> funcParams)
+        private static Tuple<Dictionary<long, TvmGeoRule>, bool> GetGroupGeoblockRules(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            Dictionary<int, TvmGeoRule> result = null;
+            Dictionary<long, TvmGeoRule> result = null;
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -407,14 +559,12 @@ namespace APILogic.Api.Managers
                         DataTable dt = CatalogDAL.GetGroupGeoblockRules(groupId.Value);
                         if (dt != null && dt.Rows != null)
                         {
-                            result = new Dictionary<int, TvmGeoRule>();
+                            result = new Dictionary<long, TvmGeoRule>();
                             foreach (DataRow dr in dt.Rows)
                             {
-                                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
-
                                 var geoRule = new TvmGeoRule()
                                 {
-                                    Id = id,
+                                    Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0),
                                     GroupId = groupId.Value,
                                     Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
                                     CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
@@ -426,34 +576,32 @@ namespace APILogic.Api.Managers
 
                                 var countryId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUNTRY_ID");
 
-                                if (!result.ContainsKey(id))
+                                if (!result.ContainsKey(geoRule.Id))
                                 {
                                     if (countryId > 0)
                                     {
                                         geoRule.CountryIds.Add(countryId);
                                     }
 
-                                    result.Add(id, geoRule);
+                                    result.Add(geoRule.Id, geoRule);
                                 }
-                                else if (countryId > 0 && !result[id].CountryIds.Contains(countryId))
+                                else if (countryId > 0 && !result[geoRule.Id].CountryIds.Contains(countryId))
                                 {
-                                    result[id].CountryIds.Add(countryId);
+                                    result[geoRule.Id].CountryIds.Add(countryId);
                                 }
                             }
-
                         }
                     }
                 }
 
                 res = result != null;
-
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("GetGroupGeoblockRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<int, TvmGeoRule>, bool>(result, res);
+            return new Tuple<Dictionary<long, TvmGeoRule>, bool>(result, res);
         }
 
         private static List<AssetRule> GetAssetRulesByIp(int groupId, string ip)

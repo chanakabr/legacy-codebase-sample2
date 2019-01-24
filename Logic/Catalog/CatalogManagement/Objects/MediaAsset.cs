@@ -112,12 +112,12 @@ namespace Core.Catalog.CatalogManagement
             this.EntryId = mediaObj.EntryId;
             if (!string.IsNullOrEmpty(mediaObj.DeviceRule))
             {
-                this.DeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, mediaObj.DeviceRule);
+                this.DeviceRuleId = (int?)TvmRuleManager.GetDeviceRuleId(groupId, mediaObj.DeviceRule);
             }
 
             if (!string.IsNullOrEmpty(mediaObj.GeoblockRule))
             {
-                this.GeoBlockRuleId = TvmRuleManager.GetGeoBlockRuleId(groupId, mediaObj.GeoblockRule);
+                this.GeoBlockRuleId = (int?)TvmRuleManager.GetGeoBlockRuleId(groupId, mediaObj.GeoblockRule);
             }
 
             this.Files = new List<AssetFile>();

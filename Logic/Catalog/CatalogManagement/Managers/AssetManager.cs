@@ -442,7 +442,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // validate device rule id
-            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !CatalogLogic.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
+            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !TvmRuleManager.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
             {
                 result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
                 return result;
@@ -500,7 +500,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // validate device rule id
-            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !CatalogLogic.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
+            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !TvmRuleManager.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
             {
                 result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
                 return result;

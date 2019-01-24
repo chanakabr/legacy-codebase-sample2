@@ -126,7 +126,7 @@ namespace Core.Catalog.Response
             m_lMetas = new List<Metas>(mediaAsset.Metas);
             m_lTags = new List<Tags>(mediaAsset.Tags);
             GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? TvmRuleManager.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
-            DeviceRule = mediaAsset.DeviceRuleId.HasValue ? Core.Catalog.CatalogLogic.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
+            DeviceRule = mediaAsset.DeviceRuleId.HasValue ? TvmRuleManager.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
             m_lFiles = FileManager.ConvertFiles(mediaAsset.Files, groupId);
             m_lPicture = ImageManager.ConvertImagesToPictures(mediaAsset.Images, groupId);
         }

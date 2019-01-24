@@ -437,26 +437,6 @@ namespace Core.Catalog.Cache
             return watchPermissionsTypes;
         }
         
-        internal Dictionary<int, string> GetGroupDeviceRulesFromLayeredCache(int groupId)
-        {
-            Dictionary<int, string> result = null;
-            try
-            {
-                string key = LayeredCacheKeys.GetGroupDeviceRulesKey(groupId);
-                if (!LayeredCache.Instance.Get<Dictionary<int, string>>(key, ref result, Utils.GetGroupDeviceRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                            LayeredCacheConfigNames.GET_GROUP_DEVICE_RULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDeviceRulesInvalidationKey(groupId) }))
-                {
-                    log.ErrorFormat("Failed getting GroupDeviceRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetGroupDeviceRulesFromLayeredCache for groupId: {0}", groupId), ex);
-            }
-
-            return result;
-        }
-
         internal Dictionary<int, string> GetMediaQualities()
         {
             Dictionary<int, string> mediaQualities = null;

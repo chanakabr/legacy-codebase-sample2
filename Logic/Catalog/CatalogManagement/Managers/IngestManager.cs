@@ -163,8 +163,8 @@ namespace Core.Catalog.CatalogManagement
                                 CatalogStartDate = GetDateTimeFromString(media.Basic.Dates.CatalogStart, startDate),
                                 EndDate = endDate,
                                 FinalEndDate = GetDateTimeFromString(media.Basic.Dates.End, endDate),
-                                GeoBlockRuleId = TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
-                                DeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
+                                GeoBlockRuleId = (int?)TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
+                                DeviceRuleId = (int?)TvmRuleManager.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
                                 Metas = GetMetasList(media.Structure, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache),
                                 Tags = GetTagsList(tagNameToTranslations, catalogGroupCache.DefaultLanguage.Code, ref tagsTranslations)
                             };
@@ -549,7 +549,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!string.IsNullOrEmpty(media.Basic.Rules.GeoBlockRule))
                 {
-                    int? geoBlockRuleId = TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule);
+                    var geoBlockRuleId = TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule);
                     if (!geoBlockRuleId.HasValue || geoBlockRuleId.Value == 0)
                     {
                         ingestResponse.AddError(GEO_BLOCK_RULE_NOT_RECOGNIZED);
@@ -560,7 +560,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!string.IsNullOrEmpty(media.Basic.Rules.DeviceRule))
                 {
-                    int? deviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule);
+                    var deviceRuleId = TvmRuleManager.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule);
                     if (!deviceRuleId.HasValue || deviceRuleId.Value == 0)
                     {
                         ingestResponse.AddError(DEVICE_RULE_NOT_RECOGNIZED);

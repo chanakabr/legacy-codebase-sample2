@@ -1091,7 +1091,7 @@ namespace Core.Catalog
                         {
                             if (Utils.GetIntSafeVal(dtMedia.Rows[0], "device_rule_id") > 0)
                             {
-                                oMediaObj.DeviceRule = GetDeviceRuleName(assetGroupId, Utils.GetIntSafeVal(dtMedia.Rows[0], "device_rule_id"));
+                                oMediaObj.DeviceRule = TvmRuleManager.GetDeviceRuleName(assetGroupId, Utils.GetIntSafeVal(dtMedia.Rows[0], "device_rule_id"));
                             }
 
                             if (Utils.GetIntSafeVal(dtMedia.Rows[0], "WATCH_PERMISSION_TYPE_ID") > 0)
@@ -1175,61 +1175,6 @@ namespace Core.Catalog
             return langContainers;
         }
         
-        internal static bool ValidateDeviceRuleExists(int groupId, int deviceRuleId)
-        {
-            bool res = false;
-            Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
-            if (deviceRules != null)
-            {
-                res = deviceRules.ContainsKey(deviceRuleId);
-            }
-
-            return res;
-        }
-
-        internal static string GetDeviceRuleName(int groupId, int deviceRuleId)
-        {
-            Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
-            if (deviceRules == null || deviceRules.Count == 0)
-            {
-                log.ErrorFormat("group deviceRules were not found. groupId: {0}", groupId);
-                return string.Empty;
-            }
-
-            if (deviceRules.ContainsKey(deviceRuleId))
-                return deviceRules[deviceRuleId];
-            else
-            {
-                log.ErrorFormat("group deviceRule {0} was not found. groupId: {1}", deviceRuleId, groupId);
-                return string.Empty;
-            }
-        }
-
-        // TODO - UPDATE PREFORMENCE GetDeviceRuleId
-        internal static int? GetDeviceRuleId(int groupId, string deviceRuleName)
-        {
-            if (deviceRuleName.IsNullOrEmptyOrWhiteSpace())
-            {
-                return null;
-            }
-
-            Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
-            if (deviceRules == null || deviceRules.Count == 0)
-            {
-                log.ErrorFormat("group deviceRules were not found. groupId: {0}", groupId);
-                return null;
-            }
-
-            var deviceRule = deviceRules.FirstOrDefault(x => x.Value.ToLower().Equals(deviceRuleName.ToLower()));
-            if (!deviceRule.IsDefault())
-            {
-                return deviceRule.Key;
-            }
-
-            log.ErrorFormat("group deviceRule {0} was not found. groupId: {1}", deviceRuleName, groupId);
-            return null;
-        }
-
         private static string GetWatchPermissionTypeName(int assetGroupId, int watchPermissionRuleId)
         {
             Dictionary<int, string> watchPermissionsTypes = CatalogCache.Instance().GetGroupWatchPermissionsTypes(assetGroupId);
