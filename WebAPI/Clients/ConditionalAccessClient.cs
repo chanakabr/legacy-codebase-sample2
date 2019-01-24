@@ -1400,7 +1400,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.m_eOrderBy = OrderBy.START_DATE;
-                order.m_eOrderDir = OrderDir.DESC;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
             }
             else
             {
@@ -1756,7 +1756,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.OrderBy = SeriesOrderBy.ID;
-                order.OrderDir = OrderDir.ASC;
+                order.OrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
             }
             else
             {

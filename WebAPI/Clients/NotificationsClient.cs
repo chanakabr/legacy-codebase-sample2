@@ -567,9 +567,9 @@ namespace WebAPI.Clients
             GetUserFollowsResponse response = null;
 
             // create order object
-            OrderDir order = OrderDir.DESC;
+            var order = ApiObjects.SearchObjects.OrderDir.DESC;
             if (orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
-                order = OrderDir.ASC;
+                order = ApiObjects.SearchObjects.OrderDir.ASC;
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -609,9 +609,9 @@ namespace WebAPI.Clients
             KalturaListFollowDataTvSeriesResponse ret;
 
             // create order object
-            OrderDir order = OrderDir.DESC;
+            var order = ApiObjects.SearchObjects.OrderDir.DESC;
             if (orderBy != null && orderBy.Value == KalturaOrder.oldest_first)
-                order = OrderDir.ASC;
+                order = ApiObjects.SearchObjects.OrderDir.ASC;
 
 
             int userId = 0;

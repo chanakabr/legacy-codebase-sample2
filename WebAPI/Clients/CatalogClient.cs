@@ -481,7 +481,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.m_eOrderBy = OrderBy.RELATED;
-                order.m_eOrderDir = OrderDir.DESC;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
             }
             else
             {
@@ -907,7 +907,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.m_eOrderBy = OrderBy.RELATED;
-                order.m_eOrderDir = OrderDir.DESC;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
             }
             else
             {
@@ -1007,7 +1007,7 @@ namespace WebAPI.Clients
                 AssetTypes = assetTypes,
                 FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
-                OrderDir = OrderDir.DESC,
+                OrderDir = ApiObjects.SearchObjects.OrderDir.DESC,
                 AssetIds = assetIds
             };
 
@@ -1095,7 +1095,7 @@ namespace WebAPI.Clients
                 AssetIds = assetIds,
                 FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
-                OrderDir = OrderDir.DESC
+                OrderDir = ApiObjects.SearchObjects.OrderDir.DESC
             };
 
             // fire history watched request
@@ -3467,38 +3467,38 @@ namespace WebAPI.Clients
 
             List<GroupsCacheManager.Channel> channels = null;
             ChannelOrderBy orderBy = ChannelOrderBy.Id;
-            OrderDir orderDirection = OrderDir.NONE;
+            var orderDirection = ApiObjects.SearchObjects.OrderDir.NONE;
 
             switch (channelOrderBy)
             {
                 case KalturaChannelsOrderBy.NONE:
                     {
                         orderBy = ChannelOrderBy.Id;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_ASC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = OrderDir.ASC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_DESC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_ASC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = OrderDir.ASC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 default:
@@ -3843,38 +3843,38 @@ namespace WebAPI.Clients
 
             List<GroupsCacheManager.Channel> channels = null;
             ChannelOrderBy orderBy = ChannelOrderBy.Id;
-            OrderDir orderDirection = OrderDir.NONE;
+            var orderDirection = ApiObjects.SearchObjects.OrderDir.NONE;
 
             switch (channelOrderBy)
             {
                 case KalturaChannelsOrderBy.NONE:
                     {
                         orderBy = ChannelOrderBy.Id;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_ASC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = OrderDir.ASC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_DESC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_ASC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = OrderDir.ASC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 default:

@@ -653,35 +653,35 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case Models.Catalog.KalturaOrder.a_to_z:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case Models.Catalog.KalturaOrder.z_to_a:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case Models.Catalog.KalturaOrder.views:
                     result.m_eOrderBy = OrderBy.VIEWS;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case Models.Catalog.KalturaOrder.ratings:
                     result.m_eOrderBy = OrderBy.RATING;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case Models.Catalog.KalturaOrder.votes:
                     result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case Models.Catalog.KalturaOrder.newest:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case Models.Catalog.KalturaOrder.relevancy:
                     result.m_eOrderBy = OrderBy.RELATED;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case Models.Catalog.KalturaOrder.oldest_first:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
             }
             return result;
@@ -695,35 +695,35 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case KalturaPersonalFeedOrderBy.NAME_ASC:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaPersonalFeedOrderBy.NAME_DESC:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaPersonalFeedOrderBy.VIEWS_DESC:
                     result.m_eOrderBy = OrderBy.VIEWS;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaPersonalFeedOrderBy.RATINGS_DESC:
                     result.m_eOrderBy = OrderBy.RATING;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaPersonalFeedOrderBy.VOTES_DESC:
                     result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaPersonalFeedOrderBy.START_DATE_DESC:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaPersonalFeedOrderBy.RELEVANCY_DESC:
                     result.m_eOrderBy = OrderBy.RELATED;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaPersonalFeedOrderBy.START_DATE_ASC:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
             }
             return result;
@@ -789,47 +789,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case KalturaAssetOrderBy.NAME_ASC:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaAssetOrderBy.NAME_DESC:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetOrderBy.VIEWS_DESC:
                     result.m_eOrderBy = OrderBy.VIEWS;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetOrderBy.RATINGS_DESC:
                     result.m_eOrderBy = OrderBy.RATING;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetOrderBy.VOTES_DESC:
                     result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetOrderBy.START_DATE_DESC:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetOrderBy.RELEVANCY_DESC:
                     result.m_eOrderBy = OrderBy.RELATED;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetOrderBy.START_DATE_ASC:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaAssetOrderBy.CREATE_DATE_ASC:
                     result.m_eOrderBy = OrderBy.CREATE_DATE;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaAssetOrderBy.CREATE_DATE_DESC:
                     result.m_eOrderBy = OrderBy.CREATE_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetOrderBy.LIKES_DESC:
                     result.m_eOrderBy = OrderBy.LIKE_COUNTER;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
             }
             return result;
@@ -843,27 +843,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case KalturaAssetReminderOrderBy.NAME_ASC:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaAssetReminderOrderBy.NAME_DESC:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetReminderOrderBy.VIEWS_DESC:
                     result.m_eOrderBy = OrderBy.VIEWS;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetReminderOrderBy.RATINGS_DESC:
                     result.m_eOrderBy = OrderBy.RATING;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetReminderOrderBy.VOTES_DESC:
                     result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetReminderOrderBy.START_DATE_DESC:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetReminderOrderBy.RELEVANCY_DESC:
                     result.m_eOrderBy = OrderBy.RELATED;
@@ -871,11 +871,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaAssetReminderOrderBy.START_DATE_ASC:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaAssetReminderOrderBy.LIKES_DESC:
                     result.m_eOrderBy = OrderBy.LIKE_COUNTER;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
             }
             return result;
