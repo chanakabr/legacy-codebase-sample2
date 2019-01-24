@@ -4215,12 +4215,10 @@ namespace Tvinci.Core.DAL
 
         public static DataTable GetGroupDeviceRules(int groupId)
         {
-            DataTable dt = null;
-            // TODO SHIR - UPDATE SP Get_DeviceRules
             StoredProcedure sp = new StoredProcedure("Get_DeviceRules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-            dt = sp.Execute();
+            DataTable dt = sp.Execute();
 
             return dt;
         }
