@@ -518,10 +518,14 @@ namespace Core.Catalog.CatalogManagement
                         response.Add(table, new Dictionary<long, long>());
                     }
 
-                    response[table].Add(ODBCWrapper.Utils.GetLongSafeVal(row, "TABLE_REFERENCE_ID"), ODBCWrapper.Utils.GetLongSafeVal(row, "ID"));
+                    var tableReferenceId = ODBCWrapper.Utils.GetLongSafeVal(row, "TABLE_REFERENCE_ID");
+                    if (!response[table].ContainsKey(tableReferenceId))
+                    {
+                        response[table].Add(tableReferenceId, ODBCWrapper.Utils.GetLongSafeVal(row, "ID"));
+                    }
                 }
-
             }
+
             return response;
         }
 
