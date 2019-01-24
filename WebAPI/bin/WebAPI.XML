@@ -62,6 +62,13 @@
             <param name="ppvModuleId">Ppv module id</param>        
             <param name="assetFilePpv">assetFilePpv</param>        
         </member>
+        <member name="M:WebAPI.Controllers.TvmRuleController.List(WebAPI.Models.API.KalturaTvmRuleFilter)">
+            <summary>
+             Get the list of tvm rules for the partner
+            </summary>
+            <param name="filter">TvmRuleFilter Filter</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.BusinessModuleRuleController.List(WebAPI.Models.API.KalturaBusinessModuleRuleFilter)">
             <summary>
              Get the list of business module rules for the partner
@@ -4791,6 +4798,66 @@
             <param name="userId">User identifier</param>
             <returns></returns>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaTvmGeoRule">
+            <summary>
+            TVM geo rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.OnlyOrBut">
+            <summary>
+            Indicates if the rule is relevent ONLY for the country ids or except country ids here.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.CountryIds">
+            <summary>
+            Comma separated list of country Ids.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.ProxyRule">
+            <summary>
+            proxyRule - what is that?
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmGeoRule.ProxyLevel">
+            <summary>
+            proxyLevel - what is that?
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaTvmRuleFilter">
+            <summary>
+            Asset user rule filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmRuleFilter.RuleTypeEqual">
+            <summary>
+            Indicates which tvm rule list to return by their type.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmRuleFilter.NameEqual">
+            <summary>
+            Indicates which tvm rule list to return by their name.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmRuleListResponse.Objects">
+            <summary>
+            tvm rules
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaTvmRule">
+            <summary>
+            TVM rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmRule.CreateDate">
+            <summary>
+            Specifies when was the tvm rule was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTvmRule.RuleType">
+            <summary>
+            Specifies the tvm rule type.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaBusinessModuleRuleFilter">
             <summary>
             Business module rule filter
@@ -5654,27 +5721,27 @@
             A list of generic rules
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaGenericRule">
+        <member name="T:WebAPI.Models.API.KalturaUserAssetRule">
             <summary>
-            Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
+            User asset rule - representing different type of rules on an asset(Parental, Geo, User Type, Device)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.Id">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Id">
             <summary>
             Unique rule identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.RuleType">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.RuleType">
             <summary>
             Rule type - possible values: Rule type – Parental, Geo, UserType, Device
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.Name">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Name">
             <summary>
             Rule display name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.Description">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Description">
             <summary>
             Additional description for the specific rule
             </summary>
@@ -5900,27 +5967,27 @@
             Enrichments
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaUserAssetRule">
+        <member name="T:WebAPI.Models.API.KalturaGenericRule">
             <summary>
-            User asset rule - representing different type of rules on an asset(Parental, Geo, User Type, Device)
+            Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Id">
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.Id">
             <summary>
             Unique rule identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.RuleType">
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.RuleType">
             <summary>
             Rule type - possible values: Rule type – Parental, Geo, UserType, Device
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Name">
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.Name">
             <summary>
             Rule display name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Description">
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.Description">
             <summary>
             Additional description for the specific rule
             </summary>
@@ -15014,13 +15081,6 @@
             <param name="argument">Argument name</param>
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
-        </member>
-        <member name="M:WebAPI.Utils.SerializationUtils.ConvertToUnixTimestamp(System.String)">
-            <summary>
-            convert string to dateTime in format dd/MM/yyyy HH:mm:ss
-            </summary>
-            <param name="date"></param>
-            <returns></returns>
         </member>
         <member name="M:ObjectsConvertor.Mapping.UsersMappings.ConvertUserAssetsListType(Core.Users.ListType)">
             <summary>

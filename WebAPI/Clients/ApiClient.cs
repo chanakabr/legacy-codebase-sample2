@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
@@ -4147,6 +4148,23 @@ namespace WebAPI.Clients
 
             KalturaPlaybackContext result =
                 ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
+
+            return result;
+        }
+
+        internal KalturaTvmRuleListResponse GetTvmRules(int groupId, KalturaRuleType? ruleTypeEqual, string nameEqual)
+        {
+            KalturaTvmRuleListResponse result = new KalturaTvmRuleListResponse();
+            var ruleType = AutoMapper.Mapper.Map<RuleType?>(ruleTypeEqual);
+
+            Func<GenericListResponse<TvmRule>> getTvmRulesFunc = () =>
+                TvmRuleManager.GetTvmRules(groupId, ruleType, nameEqual);
+
+            KalturaGenericListResponse<KalturaTvmRule> response =
+                ClientUtils.GetResponseListFromWS<KalturaTvmRule, TvmRule>(getTvmRulesFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
 
             return result;
         }

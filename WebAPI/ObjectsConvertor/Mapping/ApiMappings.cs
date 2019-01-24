@@ -506,6 +506,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region AssetRule
 
+            cfg.CreateMap<KalturaRule, Rule>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<Rule, KalturaRule>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
             cfg.CreateMap<AssetRule, KalturaAssetRule>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
@@ -943,12 +953,71 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<EndDateOffsetRuleAction, KalturaEndDateOffsetRuleAction>()
                 .IncludeBase<TimeOffsetRuleAction, KalturaTimeOffsetRuleAction>();
+            
+            cfg.CreateMap<KalturaRuleType?, RuleType?>()
+                .ConvertUsing(kalturaRuleType =>
+                {
+                    if (!kalturaRuleType.HasValue)
+                    {
+                        return null;
+                    }
+                    
+                    switch (kalturaRuleType)
+                    {
+                        case KalturaRuleType.parental:
+                            return RuleType.Parental;
+                            break;
+                        case KalturaRuleType.geo:
+                            return RuleType.Geo;
+                            break;
+                        case KalturaRuleType.user_type:
+                            return RuleType.UserType;
+                            break;
+                        case KalturaRuleType.device:
+                            return RuleType.Device;
+                            break;
+                        case KalturaRuleType.assetUser:
+                            return RuleType.AssetUser;
+                            break;
+                        case KalturaRuleType.network:
+                            return RuleType.Network;
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, 
+                                string.Format("Unknown KalturaRuleType value : {0}", kalturaRuleType.ToString()));
+                            break;
+                    }
+                });
 
-            #endregion
+            cfg.CreateMap<KalturaTvmRule, TvmRule>()
+                .IncludeBase<KalturaRule, Rule>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.TvmRuleType, opt => opt.MapFrom(src => src.RuleType));
 
-            #region AssetUserRule
+            cfg.CreateMap<TvmRule, KalturaTvmRule>()
+                .IncludeBase<Rule, KalturaRule>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => src.TvmRuleType));
 
-            cfg.CreateMap<AssetUserRule, KalturaAssetUserRule>()
+            cfg.CreateMap<KalturaTvmGeoRule, TvmGeoRule>()
+                .IncludeBase<KalturaTvmRule, TvmRule>()
+                .ForMember(dest => dest.OnlyOrBut, opt => opt.MapFrom(src => src.OnlyOrBut))
+                .ForMember(dest => dest.CountryIds, opt => opt.MapFrom(src => src.GetCountryIds()))
+                .ForMember(dest => dest.ProxyRule, opt => opt.MapFrom(src => src.ProxyRule))
+                .ForMember(dest => dest.ProxyLevel, opt => opt.MapFrom(src => src.ProxyLevel)); 
+
+            cfg.CreateMap<TvmGeoRule, KalturaTvmGeoRule>()
+                .IncludeBase<TvmRule, KalturaTvmRule>()
+                .ForMember(dest => dest.OnlyOrBut, opt => opt.MapFrom(src => src.OnlyOrBut))
+                .ForMember(dest => dest.CountryIds, opt => opt.MapFrom(src => src.CountryIds != null ? string.Join(",", src.CountryIds) : null))
+                .ForMember(dest => dest.ProxyRule, opt => opt.MapFrom(src => src.ProxyRule))
+                .ForMember(dest => dest.ProxyLevel, opt => opt.MapFrom(src => src.ProxyLevel));
+            
+        #endregion
+
+        #region AssetUserRule
+
+        cfg.CreateMap<AssetUserRule, KalturaAssetUserRule>()
               .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
               .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
