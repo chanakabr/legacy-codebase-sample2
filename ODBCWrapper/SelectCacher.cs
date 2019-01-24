@@ -18,7 +18,7 @@ namespace ODBCWrapper
         {
             m_sQueryStr = "";
             m_dDataTable = null;
-            m_dUpdateDate = DateTime.Now;
+            m_dUpdateDate = DateTime.UtcNow;
         }
     }
 
@@ -114,7 +114,7 @@ namespace ODBCWrapper
                 }
 
                 CachingManager.CachingManager.SetCachedData(sCachStr, dDataTable.Copy(), cacheSec, System.Web.Caching.CacheItemPriority.Default, 0, true);
-                //HttpRuntime.Cache.Add(sCachStr, dDataTable.Copy(), null, DateTime.Now.AddHours(nCacheSec), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                //HttpRuntime.Cache.Add(sCachStr, dDataTable.Copy(), null, DateTime.UtcNow.AddHours(nCacheSec), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
             }
             catch
             {

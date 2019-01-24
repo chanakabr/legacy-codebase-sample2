@@ -4206,6 +4206,7 @@ namespace Tvinci.Core.DAL
         public static DataTable GetGroupGeoblockRules(int groupId)
         {
             DataTable dt = null;
+            // TODO SHIR - UPDATE SP TO RETURN ALL RELEVENT VALUES. 
             StoredProcedure sp = new StoredProcedure("Get_GeoBlockTypes");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -4443,7 +4444,7 @@ namespace Tvinci.Core.DAL
                     HashSet<string> playActions = new HashSet<string>() { MediaPlayActions.FINISH.ToString().ToUpper(), MediaPlayActions.STOP.ToString().ToUpper() };
 
                     return devicePlayDataList.Where(x => !x.UDID.Equals(udid) &&
-                                                         Utils.UnixTimestampToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
+                                                         Utils.UtcUnixTimestampSecondsToDateTime(x.TimeStamp).AddMilliseconds(ttl) > DateTime.UtcNow &&
                                                          (playTypesString.Count == 0 || playTypesString.Contains(x.playType)) &&
                                                          !playActions.Contains(x.AssetAction.ToUpper())).ToList();
                 }

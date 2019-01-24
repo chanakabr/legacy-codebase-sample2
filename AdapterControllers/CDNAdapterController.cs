@@ -67,7 +67,7 @@ namespace AdapterControllers
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
                 //set unixTimestamp
-                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 //set signature
                 string signature = string.Empty;
@@ -148,7 +148,7 @@ namespace AdapterControllers
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             string signature =
                 string.Concat(adapterId, userId, url, fileType, assetId, contentId, ip, unixTimestamp);
@@ -210,7 +210,7 @@ namespace AdapterControllers
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             string signature = string.Concat(adapterId, userId, url, fileType, recordingId, ip, unixTimestamp);
 
@@ -271,7 +271,7 @@ namespace AdapterControllers
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             string signature =
                 string.Concat(adapterId, userId, url, fileType, programId, assetId, contentId, ip, unixTimestamp);

@@ -472,7 +472,7 @@ namespace TvinciImporter
                     sTime = timeHour[1];
                 }
                 else
-                    return DateTime.Now;
+                    return DateTime.UtcNow;
                 string[] splited = sDate.Split('/');
 
                 Int32 nYear = 1;
@@ -496,7 +496,7 @@ namespace TvinciImporter
             }
             catch
             {
-                return DateTime.Now;
+                return DateTime.UtcNow;
             }
         }
 
@@ -3546,7 +3546,7 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DURATION", "=", nDuration);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_PRE_ID", "=", nPreAdCompany);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COMMERCIAL_TYPE_POST_ID", "=", nPostAdCompany);
@@ -3796,7 +3796,7 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REF_ID", "=", nPicID);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
                 updateQuery += "where";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaFileID);
@@ -5510,7 +5510,7 @@ namespace TvinciImporter
                 announcement.Message = message;
                 announcement.Name = name;
                 announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
-                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
+                announcement.StartTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(date);
                 announcement.Timezone = timezone;
                 announcement.Enabled = Enabled;
                 announcement.ImageUrl = imageUrl;
@@ -5551,7 +5551,7 @@ namespace TvinciImporter
                 announcement.Message = message;
                 announcement.Name = name;
                 announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
-                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
+                announcement.StartTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(date);
                 announcement.Timezone = timezone;
                 announcement.MessageAnnouncementId = id;
                 announcement.Enabled = Enabled;

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using TVinciShared;
 
 namespace DalCB
 {
@@ -41,7 +42,7 @@ namespace DalCB
                         staleState = parsedStaleState;
                 }
 
-                long epochTime = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long epochTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 object[] startKey = new object[] { sSiteGuid, epochTime };
                 object[] endKey = new object[] { sSiteGuid, 0 };
 
@@ -195,7 +196,7 @@ namespace DalCB
             lUserActivities = new List<SocialActivityDoc>();
             try
             {
-                long epochTime = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long epochTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 object[] startKey = new object[] { sSiteGuid, epochTime };
                 object[] endKey = new object[] { sSiteGuid, 0 };
 
@@ -334,8 +335,8 @@ namespace DalCB
             int res = 0;
             try
             {
-                object[] startKey = new object[4] { assetId, assetType.ToString(), (int)actionType, Utils.DateTimeToUnixTimestamp(startDate) };
-                object[] endKey = new object[4] { assetId, assetType.ToString(), (int)actionType, Utils.DateTimeToUnixTimestamp(endDate) };
+                object[] startKey = new object[4] { assetId, assetType.ToString(), (int)actionType, DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate) };
+                object[] endKey = new object[4] { assetId, assetType.ToString(), (int)actionType, DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate) };
                 var view = cbManager.View<int>(new ViewManager(CB_FEED_DESGIN, "AssetStats")
                 {
                     startKey = startKey,
@@ -373,8 +374,8 @@ namespace DalCB
             double res = 0d;
             try
             {
-                object[] startKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, Utils.DateTimeToUnixTimestamp(startDate) };
-                object endKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, Utils.DateTimeToUnixTimestamp(endDate) };
+                object[] startKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate) };
+                object endKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate) };
                 var view = cbManager.View<double>(new ViewManager(CB_FEED_DESGIN, "AssetStatsRateSum")
                 {
                     startKey = startKey,

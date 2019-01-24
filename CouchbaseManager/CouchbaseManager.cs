@@ -443,15 +443,11 @@ namespace CouchbaseManager
             if (expiration > monthInSeconds)
             {
                 DateTime expirationDate = DateTime.UtcNow.AddSeconds(expiration);
-                result = DateTimeToUnixTimestamp(expirationDate);
+                DateTime truncDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                result = (uint)(expirationDate - truncDateTimeUtc).TotalSeconds;
             }
 
             return result;
-        }
-
-        private static uint DateTimeToUnixTimestamp(DateTime dateTime)
-        {
-            return (uint)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
         }
 
         #endregion

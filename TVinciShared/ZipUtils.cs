@@ -16,7 +16,7 @@ namespace TVinciShared
             zosCompressed.SetLevel(9);
             byte[] bytesBuffer = Encoding.UTF8.GetBytes(text);
             ZipEntry entry = new ZipEntry("api.xml");
-            entry.DateTime = DateTime.Now;
+            entry.DateTime = DateTime.UtcNow;
             entry.Size = bytesBuffer.Length; 
 
             zosCompressed.PutNextEntry(entry);
@@ -34,7 +34,7 @@ namespace TVinciShared
             foreach (KeyValuePair<string, byte[]> file in files)
             {
                 ZipEntry entry = new ZipEntry(file.Key);
-                entry.DateTime = DateTime.Now;
+                entry.DateTime = DateTime.UtcNow;
                 entry.Size = file.Value.Length;
                 zosCompressed.PutNextEntry(entry);
                 zosCompressed.Write(file.Value, 0, file.Value.Length);

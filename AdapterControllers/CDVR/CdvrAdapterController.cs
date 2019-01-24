@@ -92,7 +92,7 @@ namespace AdapterControllers.CDVR
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);            
                 
                 //set unixTimestamp
-                long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 //set signature
                 string signature = string.Concat(adapter.ID, adapter.Settings != null ? string.Concat(adapter.Settings.Select(kv => string.Concat(kv.key, kv.value))) : string.Empty, 
                     partnerId, timeStamp);
@@ -149,7 +149,7 @@ namespace AdapterControllers.CDVR
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
-            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature = string.Concat(startTimeSeconds, durationSeconds, channelId, adapterId, timeStamp);
@@ -256,7 +256,7 @@ namespace AdapterControllers.CDVR
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
-            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature = string.Concat(recordingId, channelId, adapterId, timeStamp);
@@ -361,7 +361,7 @@ namespace AdapterControllers.CDVR
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
-            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature = string.Concat(recordingId, channelId, adapterId, startDateSeconds, durationSeconds, timeStamp);
@@ -477,7 +477,7 @@ namespace AdapterControllers.CDVR
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
-            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature = string.Concat(recordingId, channelId, adapterId, timeStamp);
@@ -583,7 +583,7 @@ namespace AdapterControllers.CDVR
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
-            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature = string.Concat(recordingId, channelId, adapterId, timeStamp);
@@ -689,7 +689,7 @@ namespace AdapterControllers.CDVR
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
-            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
             string signature = string.Concat(recordingId, channelId, adapterId, timeStamp);

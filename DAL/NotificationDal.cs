@@ -1227,7 +1227,7 @@ namespace DAL
                         DateTime? lastMessageSentDate = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "last_message_sent_date_sec");
                         long lastMessageSentDateSec = 0;
                         if (lastMessageSentDate != null)
-                            lastMessageSentDateSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp((DateTime)lastMessageSentDate);
+                            lastMessageSentDateSec = ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds((DateTime)lastMessageSentDate);
 
                         dbAnnouncement = new DbAnnouncement()
                         {
@@ -2237,7 +2237,7 @@ namespace DAL
                 sp.AddParameter("@queueId", dbReminder.QueueId);
                 sp.AddParameter("@routeName", dbReminder.RouteName);
                 sp.AddParameter("@reference", dbReminder.Reference);
-                sp.AddParameter("@sendTime", ODBCWrapper.Utils.UnixTimestampToDateTime(dbReminder.SendTime));
+                sp.AddParameter("@sendTime", ODBCWrapper.Utils.UtcUnixTimestampSecondsToDateTime(dbReminder.SendTime));
                 sp.AddParameter("@externalId", dbReminder.ExternalPushId);
                 sp.AddParameter("@externalResult", dbReminder.ExternalResult);
                 sp.AddParameter("@message", dbReminder.Message);
@@ -2303,7 +2303,7 @@ namespace DAL
             DateTime? sentDate = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "send_time");
             long sentDateSec = 0;
             if (sentDate != null)
-                sentDateSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp((DateTime)sentDate);
+                sentDateSec = ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds((DateTime)sentDate);
 
             DbReminder result = new DbReminder()
             {

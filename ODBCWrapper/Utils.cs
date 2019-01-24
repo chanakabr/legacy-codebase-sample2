@@ -765,48 +765,7 @@ namespace ODBCWrapper
 
             return (oResult);
         }
-
-        public static long DateTimeToUnixTimestamp(DateTime dateTime)
-        {
-            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
-        }
-
-        public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
-        {
-            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalMilliseconds;
-        }
-
-        public static DateTime UnixTimestampToDateTime(long timestamp)
-        {
-            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            return origin.AddSeconds(timestamp);
-        }
         
-        public static long DateTimeToUnixTimestampUtc(DateTime dateTime)
-        {
-            return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-        }
-        
-        public static DateTime ConvertToUtc(DateTime time, string timezone)
-        {
-            DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
-                                             time.Minute, time.Second, DateTimeKind.Unspecified);
-
-            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(timezone);
-
-            return TimeZoneInfo.ConvertTimeToUtc(unspecifiedKindTime, tst);
-        }
-
-        public static DateTime ConvertFromUtc(DateTime time, string timezone)
-        {
-            DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
-                                             time.Minute, time.Second, DateTimeKind.Utc);
-
-            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(timezone);
-
-            return TimeZoneInfo.ConvertTimeFromUtc(unspecifiedKindTime, tst);
-        }
-
         public static SqlQueryInfo GetSqlDataMonitor(SqlCommand command)
         {
             SqlQueryInfo sqlInfo = new SqlQueryInfo();
@@ -1245,22 +1204,59 @@ namespace ODBCWrapper
 
             return result;
         }
-
-        public static long DateTimeToUnixTimestampUtcMilliseconds(DateTime dateTime)
+        
+        public static DateTime ConvertToUtc(DateTime time, string timezone)
         {
-            return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+            DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
+                                             time.Minute, time.Second, DateTimeKind.Unspecified);
+
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+
+            return TimeZoneInfo.ConvertTimeToUtc(unspecifiedKindTime, tst);
+        }
+        
+        public static DateTime ConvertFromUtc(DateTime time, string timezone)
+        {
+            DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
+                                             time.Minute, time.Second, DateTimeKind.Utc);
+
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+
+            return TimeZoneInfo.ConvertTimeFromUtc(unspecifiedKindTime, tst);
+        }
+        
+        private static DateTime GetTruncDateTimeUtc()
+        {
+            DateTime truncDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return truncDateTimeUtc;
         }
 
-        public static DateTime UnixTimestampToDateTimeMilliseconds(long timestamp)
+        public static long GetUtcUnixTimestampNow()
         {
-            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            TimeSpan ts = DateTime.UtcNow - GetTruncDateTimeUtc();
+            return Convert.ToInt64(ts.TotalSeconds, CultureInfo.CurrentCulture);
+        }
+
+        public static long DateTimeToUtcUnixTimestampMilliseconds(DateTime dateTime)
+        {
+            return (long)(dateTime - GetTruncDateTimeUtc()).TotalMilliseconds;
+        }
+
+        public static DateTime UtcUnixTimestampMillisecondsToDateTime(long timestamp)
+        {
+            DateTime origin = GetTruncDateTimeUtc();
             return origin.AddMilliseconds(timestamp);
         }
 
-        public static long UnixTimeStampNow()
+        public static long DateTimeToUtcUnixTimestampSeconds(DateTime dateTime)
         {
-            TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            return Convert.ToInt64(ts.TotalSeconds, CultureInfo.CurrentCulture);
+            return (long)(dateTime - GetTruncDateTimeUtc()).TotalSeconds;
+        }
+
+        public static DateTime UtcUnixTimestampSecondsToDateTime(long timestamp)
+        {
+            DateTime origin = GetTruncDateTimeUtc();
+            return origin.AddSeconds(timestamp);
         }
     }
 }

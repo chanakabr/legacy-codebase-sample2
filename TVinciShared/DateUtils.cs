@@ -46,7 +46,7 @@ namespace TVinciShared
             try
             {
                 if (sDate == "")
-                    return DateTime.Now;
+                    return DateTime.UtcNow;
                 string[] timeHour = sDate.Split(' ');
                 if (timeHour.Length > 1)
                     sDate = timeHour[0];
@@ -61,7 +61,7 @@ namespace TVinciShared
             }
             catch
             {
-                return DateTime.Now;
+                return DateTime.UtcNow;
             }
         }
 
@@ -70,7 +70,7 @@ namespace TVinciShared
             try
             {
                 if (sDate == "")
-                    return DateTime.Now;
+                    return DateTime.UtcNow;
                 string[] timeHour = sDate.Split(' ');
                 if (timeHour.Length > 1)
                     sDate = timeHour[0];
@@ -85,7 +85,7 @@ namespace TVinciShared
             }
             catch
             {
-                return DateTime.Now;
+                return DateTime.UtcNow;
             }
         }
 
@@ -95,7 +95,7 @@ namespace TVinciShared
             {
                 string sTime = "";
                 if (sDate == "")
-                    return DateTime.Now;
+                    return DateTime.UtcNow;
 
                 string[] timeHour = sDate.Split(' ');
                 if (timeHour.Length == 2)
@@ -104,7 +104,7 @@ namespace TVinciShared
                     sTime = timeHour[1];
                 }
                 else
-                    return DateTime.Now;
+                    return DateTime.UtcNow;
                 string[] splited = sDate.Split('/');
                 
                 Int32 nYear = 1;
@@ -128,7 +128,7 @@ namespace TVinciShared
             }
             catch
             {
-                return DateTime.Now;
+                return DateTime.UtcNow;
             }
         }
 
@@ -137,7 +137,7 @@ namespace TVinciShared
             try
             {
                 string sDate = "";
-                TimeSpan ts = DateTime.Now - theDate;
+                TimeSpan ts = DateTime.UtcNow - theDate;
                 if (ts.TotalSeconds <= 1)
                     sDate = "ממש מעכשיו";
                 else if (ts.TotalSeconds == 2)
@@ -206,7 +206,7 @@ namespace TVinciShared
             }
             catch
             {
-                return GetStrFromDateExp(DateTime.Now);
+                return GetStrFromDateExp(DateTime.UtcNow);
             }
         }
 
@@ -231,7 +231,7 @@ namespace TVinciShared
             }
             catch
             {
-                return GetStrFromDate(DateTime.Now);
+                return GetStrFromDate(DateTime.UtcNow);
             }
         }
 
@@ -274,7 +274,7 @@ namespace TVinciShared
             }
             catch
             {
-                return GetStrFromDate(DateTime.Now);
+                return GetStrFromDate(DateTime.UtcNow);
             }
         }
 
@@ -297,53 +297,88 @@ namespace TVinciShared
             return "";
 
         }
-
-        public static DateTime GetStartOfDay()
+        
+        private static DateTime GetTruncDateTimeUtc()
         {
-            return DateTime.Now.Date;
+            DateTime truncDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return truncDateTimeUtc;
         }
 
-        public static DateTime UnixTimeStampToDateTime(long unixTimeStamp)
+        public static long GetUtcUnixTimestampNow()
         {
-            // Unix timestamp is seconds past epoch
-            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToUniversalTime();
-            return dtDateTime;
-        }
-
-        public static DateTime UnixTimeStampMillisecondsToDateTime(long unixTimeStamp)
-        {
-            // Unix timestamp is seconds past epoch
-            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            dtDateTime = dtDateTime.AddMilliseconds(unixTimeStamp).ToUniversalTime();
-            return dtDateTime;
-        }
-
-        public static long DateTimeToUnixTimestamp(DateTime dateTime)
-        {
-            return dateTime.ToUnixTimestamp();
-        }
-
-        public static long ToUnixTimestamp(this DateTime dateTime)
-        {
-            return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-        }
-
-        public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
-        {
-            return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-        }
-
-        public static long UnixTimeStampNow()
-        {
-            TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            TimeSpan ts = DateTime.UtcNow - GetTruncDateTimeUtc();
             return Convert.ToInt64(ts.TotalSeconds, CultureInfo.CurrentCulture);
         }
 
-        public static DateTime UnixTimestampToDateTime(this long timestamp)
+        // DateTime to Milliseconds
+        public static long DateTimeToUtcUnixTimestampMilliseconds(DateTime dateTime)
         {
-            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            return origin.AddSeconds(timestamp);
+            return (long)(dateTime - GetTruncDateTimeUtc()).TotalMilliseconds;
+        }
+
+        // Milliseconds to DateTime
+        public static DateTime UtcUnixTimestampMillisecondsToDateTime(long unixTimeStamp)
+        {
+            DateTime origin = GetTruncDateTimeUtc();
+            return origin.AddMilliseconds(unixTimeStamp);
+        }
+
+        // DateTime to Seconds
+        public static long DateTimeToUtcUnixTimestampSeconds(DateTime dateTime)
+        {
+            return dateTime.ToUtcUnixTimestampSeconds();
+        }
+
+        // DateTime to Seconds
+        public static long? DateTimeToUtcUnixTimestampSeconds(DateTime? dateTime)
+        {
+            if (!dateTime.HasValue)
+            {
+                return null;
+            }
+
+            return dateTime.Value.ToUtcUnixTimestampSeconds();
+        }
+
+        // DateTime to Seconds
+        public static long ToUtcUnixTimestampSeconds(this DateTime dateTime)
+        {
+            return (long)(dateTime - GetTruncDateTimeUtc()).TotalSeconds;
+        }
+
+        // Seconds to DateTime
+        public static DateTime UtcUnixTimestampSecondsToDateTime(long unixTimeStamp)
+        {
+            DateTime origin = GetTruncDateTimeUtc();
+            return origin.AddSeconds(unixTimeStamp);
+        }
+
+        // Seconds? to DateTime?
+        public static DateTime? UtcUnixTimestampSecondsToDateTime(long? unixTimeStamp)
+        {
+            if (!unixTimeStamp.HasValue)
+            {
+                return null;
+            }
+
+            return UtcUnixTimestampSecondsToDateTime(unixTimeStamp.Value);
+        }
+
+        /// <summary>
+        /// convert string to dateTime in format dd/MM/yyyy HH:mm:ss
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public static long StringToUtcUnixTimestampSeconds(string date)
+        {
+            string dateFormat = "dd/MM/yyyy HH:mm:ss";
+            DateTime formattedDate;
+            if (DateTime.TryParseExact(date, dateFormat, null, DateTimeStyles.None, out formattedDate))
+            {
+                return DateTimeToUtcUnixTimestampSeconds(formattedDate);
+            }
+
+            return 0;
         }
     }
 }

@@ -2965,7 +2965,7 @@ namespace TVinciShared
         //    }
         //    selectQuery.Finish();
         //    selectQuery = null;
-        //    DateTime theDate = DateTime.Now;
+        //    DateTime theDate = DateTime.UtcNow;
         //    if (t != null && t != DBNull.Value)
         //        theDate = (DateTime)t;
         //    return new DateTime(theDate.Year, theDate.Month, theDate.Day, theDate.Hour, 0, 0);
@@ -4117,8 +4117,8 @@ namespace TVinciShared
 
                 Int32 nPicID = 0;
 
-                DateTime dPublish = DateTime.Now;
-                DateTime dStart = DateTime.Now;
+                DateTime dPublish = DateTime.UtcNow;
+                DateTime dStart = DateTime.UtcNow;
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 string sEndDateField = "m.";
                 if (theDoc != null)
@@ -8902,8 +8902,8 @@ namespace TVinciShared
 
             string userData = "";
             int TicketExpMinutes = 24 * 60;
-            DateTime start = DateTime.Now.AddHours(-1);
-            ticketExp = DateTime.Now.AddMinutes(TicketExpMinutes);
+            DateTime start = DateTime.UtcNow.AddHours(-1);
+            ticketExp = DateTime.UtcNow.AddMinutes(TicketExpMinutes);
             CUWMAuthTickets.TicketGenerator tgen = new CUWMAuthTickets.TicketGeneratorClass();
             string sAuthTicket = tgen.GenerateClientTicket(sSecretCode, start, ticketExp, sIP, userData);
             return sAuthTicket;
@@ -9008,7 +9008,7 @@ namespace TVinciShared
                 string sNewURL = sMediaURL;
                 try
                 {
-                    if (HttpContext.Current.Session["castup_ticket"] == null || (HttpContext.Current.Session["castup_ticket"] != null && ((DateTime)(HttpContext.Current.Session["castup_ticket_epiration"])) < DateTime.Now))
+                    if (HttpContext.Current.Session["castup_ticket"] == null || (HttpContext.Current.Session["castup_ticket"] != null && ((DateTime)(HttpContext.Current.Session["castup_ticket_epiration"])) < DateTime.UtcNow))
                     {
                         DateTime ticketExp = DateTime.UtcNow;
                         string sAuthTicket = GetCastUpToken(PageUtils.GetCallerIP(), nGroupID, ref ticketExp);
@@ -9037,7 +9037,7 @@ namespace TVinciShared
                 string sNewURL = "";
                 try
                 {
-                    if (HttpContext.Current.Session["castup_ticket"] == null || (HttpContext.Current.Session["castup_ticket"] != null && ((DateTime)(HttpContext.Current.Session["castup_ticket_epiration"])) < DateTime.Now))
+                    if (HttpContext.Current.Session["castup_ticket"] == null || (HttpContext.Current.Session["castup_ticket"] != null && ((DateTime)(HttpContext.Current.Session["castup_ticket_epiration"])) < DateTime.UtcNow))
                     {
                         DateTime ticketExp = DateTime.UtcNow;
                         string sAuthTicket = GetCastUpToken(PageUtils.GetCallerIP(), nGroupID, ref ticketExp);
@@ -9404,7 +9404,7 @@ namespace TVinciShared
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelRequestObject[] nChannels,
             ref ApiObjects.ChannelObject[] theChannelObj, Int32 nDeviceID)
         {
-            log.Info(String.Format("{0} : {1} ", "ChannelMediaProtocol Start At", DateTime.Now));
+            log.Info(String.Format("{0} : {1} ", "ChannelMediaProtocol Start At", DateTime.UtcNow));
 
             Int32 nLangID = 0;
             XmlNode theInfoStruct = null;
@@ -9502,7 +9502,7 @@ namespace TVinciShared
                         sPicSizeForCache, ref thePics, nCountryID, nDeviceID, bUseStartDate, deviceRules));
                     if (d != null)
                     {
-                        log.Info(String.Format("{0} : {1} ", "Complete all medias Data Start At ", DateTime.Now));
+                        log.Info(String.Format("{0} : {1} ", "Complete all medias Data Start At ", DateTime.UtcNow));
                         Int32 nCount = d.DefaultView.Count;
                         Int32 nBlocakble = int.Parse(PageUtils.GetTableSingleVal("groups", "BLOCKS_ACTIVE", nGroupID).ToString());
                         string sFileFormat = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "file_format");
@@ -9537,7 +9537,7 @@ namespace TVinciShared
                     sRet.Append("</channel>");
                 }
                 sRet.Append("</response>");
-                log.Info(String.Format("{0} : {1} ", "Complete all medias Data End At ", DateTime.Now));
+                log.Info(String.Format("{0} : {1} ", "Complete all medias Data End At ", DateTime.UtcNow));
             }
             else
             {
@@ -9628,7 +9628,7 @@ namespace TVinciShared
                     }
                 }
             }
-            log.Info(String.Format("{0} : {1} ", "ChannelMediaProtocol End At", DateTime.Now));
+            log.Info(String.Format("{0} : {1} ", "ChannelMediaProtocol End At", DateTime.UtcNow));
             return sRet.ToString();
         }
 
@@ -13696,7 +13696,7 @@ namespace TVinciShared
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("WATCHER_ID", "=", nWatcherID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by platform API");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.Now);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 insertQuery.Execute();
                 insertQuery.Finish();
                 insertQuery = null;
@@ -13771,7 +13771,7 @@ namespace TVinciShared
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ORDER_NUM", "=", nOrderNum);
-            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.Now);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
             insertQuery.Execute();
             insertQuery.Finish();
             insertQuery = null;
@@ -14085,7 +14085,7 @@ namespace TVinciShared
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("WATCHER_ID", "=", nWatcherID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by platform API");
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.Now);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                         insertQuery.Execute();
                         insertQuery.Finish();
                         insertQuery = null;
@@ -14364,7 +14364,7 @@ namespace TVinciShared
             }
 
             Int32 nID = 0;
-            DateTime dNow = DateTime.Now;
+            DateTime dNow = DateTime.UtcNow;
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetCachedSec(0);

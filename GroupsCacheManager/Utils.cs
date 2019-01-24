@@ -24,7 +24,7 @@ namespace GroupsCacheManager
 
                 log.DebugFormat("BuildGroup - Started for nGroupID={0}, from ST={1}", nGroupID, st.ToString());
 
-                DateTime dNow = DateTime.Now;
+                DateTime dNow = DateTime.UtcNow;
 
                 group = ChannelRepository.BuildGroup(nGroupID);
 

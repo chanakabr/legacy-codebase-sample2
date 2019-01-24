@@ -346,7 +346,7 @@ namespace TVinciShared
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STREAMING_CODE", "=", sCDNCode);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
                 updateQuery += "where";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaFileID);
