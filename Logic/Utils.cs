@@ -379,33 +379,7 @@ namespace APILogic
 
             return ApiObjects.MetaType.All;
         }
-
-        internal static Tuple<DataTable, bool> Get_GeoBlockPerMedia(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            DataTable dt = null;
-            try
-            {
-                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
-                {
-                    int? groupId, mediaId;
-                    groupId = funcParams["groupId"] as int?;
-                    mediaId = funcParams["mediaId"] as int?;
-                    if (groupId.HasValue && mediaId.HasValue)
-                    {
-                        dt = DAL.ApiDAL.Get_GeoBlockRuleForMediaAndCountries(groupId.Value, mediaId.Value);
-                        res = dt != null;
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Get_GeoBlockPerMedia failed, parameters : {0}", string.Join(";",funcParams.Keys)), ex);
-            }
-            return new Tuple<DataTable,bool>(dt, res);
-        }
-
+        
         internal static Tuple<bool?, bool> GetIsMediaExistsToUserType(Dictionary<string, object> funcParams)
         {
             bool res = false;

@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using Core.Catalog.CatalogManagement;
 using System;
 using System.Collections.Generic;
@@ -124,7 +125,7 @@ namespace Core.Catalog.Response
             m_dUpdateDate = mediaAsset.UpdateDate.HasValue ? mediaAsset.UpdateDate.Value : DateTime.MinValue;
             m_lMetas = new List<Metas>(mediaAsset.Metas);
             m_lTags = new List<Tags>(mediaAsset.Tags);
-            GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? Core.Catalog.CatalogLogic.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
+            GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? TvmRuleManager.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
             DeviceRule = mediaAsset.DeviceRuleId.HasValue ? Core.Catalog.CatalogLogic.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
             m_lFiles = FileManager.ConvertFiles(mediaAsset.Files, groupId);
             m_lPicture = ImageManager.ConvertImagesToPictures(mediaAsset.Images, groupId);

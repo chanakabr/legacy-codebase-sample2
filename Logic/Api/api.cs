@@ -1,6 +1,7 @@
 ﻿using AdapterControllers;
 using ApiLogic;
 using APILogic;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -2394,7 +2395,7 @@ namespace Core.Api
                             //Update Like - set is_active=1
                             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_social_actions");
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
                             updateQuery += " where ";
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
                             updateQuery.Execute();
@@ -2404,7 +2405,7 @@ namespace Core.Api
                             //Update UnLike - set is_active=0
                             updateQuery = new ODBCWrapper.UpdateQuery("users_social_actions");
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
                             updateQuery += " where ";
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                             updateQuery += " and ";
@@ -2447,7 +2448,7 @@ namespace Core.Api
                             //Update Like - set is_active=1
                             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_social_actions");
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
                             updateQuery += " where ";
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
                             updateQuery.Execute();
@@ -2461,7 +2462,7 @@ namespace Core.Api
                         {
                             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_social_actions");
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
                             updateQuery += " where ";
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
 
@@ -2540,49 +2541,7 @@ namespace Core.Api
         }
 
         protected Int32 m_nGroupID;
-
-        public static Country GetCountryByIp(int groupId, string ip)
-        {
-            Country country = null;
-
-            if (string.IsNullOrEmpty(ip))
-            {
-                return country;
-            }
-
-            try
-            {
-                string key = LayeredCacheKeys.GetKeyForIp(ip);
-                if (!LayeredCache.Instance.Get<Country>(key, ref country, APILogic.Utils.GetCountryByIpFromES, new Dictionary<string, object>() { { "ip", ip } },
-                                                        groupId, LayeredCacheConfigNames.COUNTRY_BY_IP_LAYERED_CACHE_CONFIG_NAME,
-                                                        new List<string>() { LayeredCacheConfigNames.GET_COUNTRY_BY_IP_INVALIDATION_KEY }))
-                {
-                    log.ErrorFormat("Failed getting country by ip from LayeredCache, ip: {0}, key: {1}", ip, key);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);
-            }
-
-            string debugString = string.Empty;
-
-            if (country == null || country.Id <= 0)
-            {
-                debugString = string.Format("No country found for ip {0}", ip);
-                // make sure country is null when ID is not valid
-                country = null;
-            }
-            else
-            {
-                debugString = string.Format("Found country with id = {0} and name = {1} for ip {2}", country.Id, country.Name, ip);
-            }
-
-            log.Debug(debugString);
-
-            return country;
-        }
-
+        
         public static Country GetCountryByCountryName(int groupId, string countryName)
         {
             Country country = null;
@@ -2602,135 +2561,7 @@ namespace Core.Api
 
             return country;
         }
-
-        static public bool CheckGeoBlockMedia(Int32 groupId, Int32 mediaId, string ip, out string ruleName)
-        {
-            bool isBlocked = false;
-            ruleName = "GeoAvailability";
-
-            // check for Geo Restriction - White-list/Blacklist IPs    
-            var rules = GetAssetRulesByIp(groupId, ip);
-
-            if (rules != null && rules.Count > 0)
-            {
-                if (rules.Count(x => x.Actions != null && x.Actions.Any(a => a.Type == RuleActionType.BlockPlayback)) > 0)
-                {
-                    ruleName = "Blacklist";
-                    return true;
-                }
-                else
-                {
-                    return isBlocked;
-                }
-            }
-
-            Int32 geoBlockID = 0;
-            Country country = GetCountryByIp(groupId, ip);
-
-            bool isGeoAvailability = false;
-            int countryId = country != null ? country.Id : 0;
-            isBlocked = IsMediaBlockedForCountryGeoAvailability(groupId, countryId, mediaId, out isGeoAvailability);
-
-            if (!isGeoAvailability)
-            {
-                string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
-                DataTable dt = null;
-                // try to get from cache            
-                bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", groupId },
-                                                                    { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME,
-                                                                        new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
-                if (cacheResult && dt != null)
-                {
-                    if (dt.Rows != null && dt.Rows.Count > 0)
-                    {
-                        Int32 nCountryID = countryId;
-                        ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
-                        geoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
-                        int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
-
-                        DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
-                        bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
-
-                        log.Debug("Geo Blocks - Geo Block ID " + geoBlockID + " Country ID " + nCountryID);
-
-                        if (geoBlockID > 0)
-                        {
-                            //No one except
-                            if (nONLY_OR_BUT == 0)
-                                isBlocked = !bExsitInRuleM2M;
-                            //All except
-                            if (nONLY_OR_BUT == 1)
-                                isBlocked = bExsitInRuleM2M;
-
-                            if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) == 1) // then check what about the proxy - is it reliable 
-                            {
-                                isBlocked = (APILogic.Utils.IsProxyBlocked(groupId, ip));
-                            }
-                        }
-                    }
-                }
-            }
-
-            return isBlocked;
-        }
-
-        private static List<AssetRule> GetAssetRulesByIp(int groupId, string ip)
-        {
-            List<AssetRule> assetRules = null;
-            long convertedIp = 0;
-
-            // convert ip address to number
-            if (!APILogic.Utils.ConvertIpToNumber(ip, out convertedIp) || convertedIp == 0)
-            {
-                //invalid ip
-                return assetRules;
-            }
-
-            // check if assetRule exist
-            GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.GetAssetRules(RuleConditionType.IP_RANGE, groupId);
-            if (assetRulesResponse == null || !assetRulesResponse.HasObjects())
-                return assetRules;
-
-            assetRules = assetRulesResponse.Objects.Where(x => x.Conditions.Any(z => z.Type == RuleConditionType.IP_RANGE) &&
-                                                               x.Conditions.OfType<IpRangeCondition>().Any(p => p.IpFrom <= convertedIp && convertedIp <= p.IpTo)).ToList();
-            return assetRules;
-        }
-
-        static public bool CheckMediaUserType(Int32 nMediaID, int nSiteGuid, int groupId)
-        {
-            bool result = true;
-            int nUserTypeID = 0;
-
-            try
-            {
-                Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, nSiteGuid.ToString(), string.Empty);
-                // Make sure response is OK
-                if (response != null && response.m_RespStatus == ResponseStatus.OK && response.m_user != null && response.m_user.m_eSuspendState == DAL.DomainSuspentionStatus.OK
-                    && response.m_user.m_oBasicData != null && response.m_user.m_oBasicData.m_UserType.ID.HasValue)
-                {
-                    nUserTypeID = response.m_user.m_oBasicData.m_UserType.ID.Value;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat(string.Format("CheckMediaUserType - Error when calling GetUserData, user {0} in group {1}. ex = {2}, ST = {3}", nSiteGuid, groupId, ex.Message, ex.StackTrace), ex);
-            }
-
-            string key = LayeredCacheKeys.GetIsMediaExistsToUserTypeKey(nMediaID, nUserTypeID);
-            bool? isMediaExistsToUserType = null;
-            // try go get from cache
-            bool cacheResult = LayeredCache.Instance.Get<bool?>(key, ref isMediaExistsToUserType, APILogic.Utils.GetIsMediaExistsToUserType,
-                                                                new Dictionary<string, object>() { { "mediaId", nMediaID }, { "userTypeId", nUserTypeID } },
-                                                                groupId, LayeredCacheConfigNames.MEDIA_USER_TYPE_LAYERED_CACHE_CONFIG_NAME);
-
-            if (cacheResult && isMediaExistsToUserType.HasValue)
-            {
-                result = isMediaExistsToUserType.Value;
-            }
-
-            return result;
-        }
-
+        
         public static bool SendToFriend(int nGroupID, string sSenderName, string sSendaerMail, string sMailTo, string sNameTo, int nMediaID)
         {
             bool retVal = false;
@@ -2783,62 +2614,7 @@ namespace Core.Api
             retVal = SendMailTemplate(request);
             return retVal;
         }
-
-        static public List<GroupRule> GetGroupMediaRules(int mediaId, string ip, string siteGuid, int groupId, string deviceUdid)
-        {
-            List<GroupRule> groupRules = new List<GroupRule>();
-
-            //Check if geo-block applies
-            string ruleName;
-            if (CheckGeoBlockMedia(groupId, (int)mediaId, ip, out ruleName))
-            {
-                groupRules.Add(new GroupRule()
-                {
-                    Name = "GeoBlock",
-                    IsActive = true,
-                    BlockType = eBlockType.Geo,
-
-                });
-            }
-
-            //Check if user type match media user types
-            if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)mediaId, int.Parse(siteGuid), groupId) == false)
-            {
-                groupRules.Add(new GroupRule()
-                {
-                    RuleID = 0,
-                    Name = "UserTypeBlock",
-                    BlockType = eBlockType.UserType,
-                    IsActive = true
-                });
-            }
-
-            // check if the user have assetUserRules 
-            long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
-            var mediaAssetUserRules = GetMediaAssetUserRulesToUser(groupId, userId, mediaId);
-
-            if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
-            {
-                groupRules.AddRange(ConvertAssetUserRuleToGroupRule(mediaAssetUserRules));
-            }
-
-            // check if the user have Parental Rules 
-            var response = GetParentalMediaRules(groupId, siteGuid, mediaId, 0);
-
-            if (response != null && response.status != null && response.status.Code == 0)
-            {
-                groupRules.AddRange(ConvertParentalToGroupRule(response.rules));
-            }
-
-            return groupRules;
-
-            #region old code
-            //List<GroupRule> tempRules = getMediaUserRules(nMediaID, nSiteGuid);
-            //List<GroupRule> resultRules = GetRules(eGroupRuleType.Parental, nSiteGuid, nMediaID, nGroupID, sIP, tempRules);
-            //return resultRules; 
-            #endregion
-        }
-
+        
         private static List<GroupRule> getMediaUserRules(int nMediaID, int nSiteGuid)
         {
             DataTable rulesDt = DAL.ApiDAL.Get_GroupMediaRules(nMediaID, nSiteGuid.ToString());
@@ -2867,68 +2643,7 @@ namespace Core.Api
             }
             return userRules;
         }
-
-        private static bool CheckAgeValidation(int ageLimit, int userID)
-        {
-            bool retVal = false;
-            DataTable dt = DAL.ApiDAL.Get_DetailsUsersDynamicData(userID);
-            if (dt != null)
-            {
-                if (dt.DefaultView.Count > 0)
-                {
-                    int count = dt.DefaultView.Count;
-                    int birthDay = 0;
-                    int birthMonth = 0;
-                    int birthYear = 0;
-                    DateTime birthDate = DateTime.MaxValue;
-                    for (int i = 0; i < count; i++)
-                    {
-                        string dataType = dt.Rows[i]["data_type"].ToString();
-                        string dataValue = dt.Rows[i]["data_value"].ToString();
-                        if (dataType.ToLower().Equals("birthday"))
-                        {
-                            if (dataValue.ToLower().Contains("/"))
-                            {
-                                if (DateTime.TryParse(dataValue.ToLower(), out birthDate))
-                                {
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                birthDay = int.Parse(dataValue);
-                            }
-                        }
-                        else if (dataType.ToLower().Equals("birthmonth"))
-                        {
-                            birthMonth = int.Parse(dataValue);
-                        }
-                        else if (dataType.ToLower().Equals("birthyear"))
-                        {
-                            birthYear = int.Parse(dataValue);
-                        }
-
-                    }
-                    if (birthDate == DateTime.MaxValue)
-                    {
-                        if (birthYear != 0 && birthYear != 0)
-                        {
-                            birthDate = new DateTime(birthYear, birthMonth, birthDay);
-                        }
-                    }
-                    if (birthDate != DateTime.MaxValue)
-                    {
-                        if (birthDate.CompareTo(DateTime.Now.AddYears(-ageLimit)) < 0)
-                        {
-                            retVal = true;
-                        }
-                    }
-                }
-            }
-
-            return retVal;
-        }
-
+        
         static public bool SendMailTemplate(MailRequestObj request)
         {
             bool retVal = false;
@@ -3380,7 +3095,7 @@ namespace Core.Api
             return settingsRule;
         }
 
-        private static List<GroupRule> ConvertParentalToGroupRule(List<ParentalRule> parentalRules)
+        internal static List<GroupRule> ConvertParentalToGroupRule(List<ParentalRule> parentalRules)
         {
             List<GroupRule> groupRules = new List<GroupRule>();
 
@@ -3558,6 +3273,205 @@ namespace Core.Api
         }
 
         #endregion
+
+        public static GenericRuleResponse GetMediaRules(int groupId, string siteGuid, long mediaId, long domainId, string ip, string udid, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
+        {
+            GenericRuleResponse response = new GenericRuleResponse
+            {
+                Status = api.ValidateUserAndDomain(groupId, siteGuid, (int)domainId)
+            };
+
+            if (response.Status.Code == (int)eResponseStatus.OK)
+            {
+                try
+                {
+                    //Check if geo-block applies
+                    string ruleName;
+                    if (TvmRuleManager.CheckGeoBlockMedia(groupId, (int)mediaId, ip, out ruleName))
+                    {
+                        response.Rules.Add(new GenericRule() { Name = ruleName, RuleType = RuleType.Geo, Description = string.Empty });
+                    }
+
+                    //Check if user type match media user types
+                    if (!string.IsNullOrEmpty(siteGuid) && api.CheckMediaUserType((int)mediaId, int.Parse(siteGuid), groupId) == false)
+                    {
+                        response.Rules.Add(new GenericRule() { Name = "UserTypeBlock", RuleType = RuleType.UserType, Description = string.Empty });
+                    }
+
+                    // get all AssetUserRule for the user
+                    long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
+                    var mediaAssetUserRules = AssetUserRuleManager.GetMediaAssetUserRulesToUser(groupId, userId, mediaId);
+
+                    if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+                    {
+                        foreach (AssetUserRule assetUserRule in mediaAssetUserRules)
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Id = assetUserRule.Id,
+                                Name = assetUserRule.Name,
+                                Description = assetUserRule.Description,
+                                RuleType = RuleType.AssetUser
+                            });
+                        }
+                    }
+
+                    // get all ParentalRules for the user
+                    ParentalRulesResponse parentalRulesResponse = api.GetParentalMediaRules(groupId, siteGuid, mediaId, domainId);
+                    if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
+                    {
+                        foreach (ParentalRule rule in parentalRulesResponse.rules)
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Id = rule.id,
+                                Description = rule.description,
+                                Name = rule.name,
+                                RuleType = RuleType.Parental
+                            });
+                        }
+                    }
+
+                    AssetRule blockingRule;
+                    var assetsToCheck = AssetRuleManager.GetAssetsForValidation(eAssetTypes.MEDIA, groupId, mediaId);
+                    var networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetsToCheck, groupId, ip, out blockingRule);
+                    if (!networkRulesStatus.IsOkStatusCode())
+                    {
+                        response.Rules.Add(new GenericRule()
+                        {
+                            Id = blockingRule.Id,
+                            Description = blockingRule.Description,
+                            Name = blockingRule.Name,
+                            RuleType = RuleType.Network
+                        });
+                    }
+
+                    // order results
+                    switch (orderBy)
+                    {
+                        case GenericRuleOrderBy.NameAsc:
+                            response.Rules.OrderBy(r => r.Name).ToList();
+                            break;
+                        case GenericRuleOrderBy.NameDesc:
+                            response.Rules.OrderByDescending(r => r.Name).ToList();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    response.Status.Set((int)eResponseStatus.OK, "OK");
+                }
+                catch (Exception ex)
+                {
+                    response.Status.Set((int)eResponseStatus.Error, "Error");
+
+                    log.Error("GetMediaRules - " + string.Format("Error in GetMediaRules: group = {0}, user = {3}, media = {4}, ex = {1}, ST = {2}",
+                        groupId, ex.Message, ex.StackTrace, siteGuid, mediaId),
+                        ex);
+                }
+            }
+
+            return response;
+        }
+
+        public static GenericRuleResponse GetEpgRules(int groupId, string siteGuid, long epgId, long channelMediaId, long domainId, string ip, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
+        {
+            GenericRuleResponse response = new GenericRuleResponse
+            {
+                Status = api.ValidateUserAndDomain(groupId, siteGuid, (int)domainId)
+            };
+
+            if (response.Status.Code == (int)eResponseStatus.OK)
+            {
+                try
+                {
+                    if (channelMediaId == 0)
+                    {
+                        // get epg channel media id
+                        channelMediaId = DAL.ApiDAL.GetLinearMediaIdByEpgId(epgId);
+                    }
+
+                    if (channelMediaId > 0)
+                    {
+                        //Check if geo-block applies
+                        string ruleName;
+                        if (TvmRuleManager.CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Name = ruleName,
+                                RuleType = RuleType.Geo,
+                                Description = string.Empty
+                            });
+                        }
+
+                        //Check if user type match media user types
+                        if (!string.IsNullOrEmpty(siteGuid) && api.CheckMediaUserType((int)channelMediaId, int.Parse(siteGuid), groupId) == false)
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Name = "UserTypeBlock",
+                                RuleType = RuleType.UserType,
+                                Description = string.Empty
+                            });
+                        }
+
+                        ParentalRulesResponse parentalRulesResponse = api.GetParentalEPGRules(groupId, siteGuid, epgId, domainId);
+                        if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
+                        {
+                            foreach (ParentalRule rule in parentalRulesResponse.rules)
+                            {
+                                response.Rules.Add(new GenericRule()
+                                {
+                                    Id = rule.id,
+                                    Description = rule.description,
+                                    Name = rule.name,
+                                    RuleType = RuleType.Parental
+                                });
+                            }
+                        }
+
+                        AssetRule blockingRule;
+                        var assetsToCheck = AssetRuleManager.GetAssetsForValidation(eAssetTypes.EPG, groupId, epgId);
+                        var networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetsToCheck, groupId, ip, out blockingRule);
+                        if (!networkRulesStatus.IsOkStatusCode())
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Id = blockingRule.Id,
+                                Description = blockingRule.Description,
+                                Name = blockingRule.Name,
+                                RuleType = RuleType.Network
+                            });
+                        }
+
+                        // order results
+                        switch (orderBy)
+                        {
+                            case GenericRuleOrderBy.NameAsc:
+                                response.Rules.OrderBy(r => r.Name).ToList();
+                                break;
+                            case GenericRuleOrderBy.NameDesc:
+                                response.Rules.OrderByDescending(r => r.Name).ToList();
+                                break;
+                            default:
+                                break;
+                        }
+
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
+                    log.Error("GetEPGRules - " +
+                        string.Format("Error in GetEPGRules: group = {0}, user = {3}, epg = {4}, ex = {1}, ST = {2}",
+                        groupId, ex.Message, ex.StackTrace, siteGuid, epgId), ex);
+                }
+            }
+
+            return response;
+        }
 
         static public GroupOperator[] GetGroupOperators(int nGroupID, string sScope = "")
         {
@@ -3779,7 +3693,6 @@ namespace Core.Api
             #endregion
         }
 
-
         public static bool SetDefaultRules(string sSiteGuid, int nGroupID)
         {
             // Because of new parental rules, this logic is no longer needed.
@@ -3859,6 +3772,53 @@ namespace Core.Api
             }
             return retVal;
         }
+
+        public static ApiObjects.Country GetCountryByIp(int groupId, string ip)
+        {
+            ApiObjects.Country country = null;
+
+            if (string.IsNullOrEmpty(ip))
+            {
+                return country;
+            }
+
+            try
+            {
+                string key = LayeredCacheKeys.GetKeyForIp(ip);
+                if (!LayeredCache.Instance.Get(key,
+                                               ref country,
+                                               APILogic.Utils.GetCountryByIpFromES,
+                                               new Dictionary<string, object>() { { "ip", ip } },
+                                               groupId,
+                                               LayeredCacheConfigNames.COUNTRY_BY_IP_LAYERED_CACHE_CONFIG_NAME,
+                                               new List<string>() { LayeredCacheConfigNames.GET_COUNTRY_BY_IP_INVALIDATION_KEY }))
+                {
+                    log.ErrorFormat("Failed getting country by ip from LayeredCache, ip: {0}, key: {1}", ip, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);
+            }
+
+            string debugString = string.Empty;
+
+            if (country == null || country.Id <= 0)
+            {
+                // make sure country is null when ID is not valid
+                country = null;
+                debugString = string.Format("No country found for ip {0}", ip);
+            }
+            else
+            {
+                debugString = string.Format("Found country with id = {0} and name = {1} for ip {2}", country.Id, country.Name, ip);
+            }
+
+            log.Debug(debugString);
+
+            return country;
+        }
+
         /// <summary>
         /// Check Geo Commerce subscription
         /// </summary>
@@ -4152,169 +4112,41 @@ namespace Core.Api
             return nMedias;
         }
 
-        public static List<GroupRule> GetEPGProgramRules(int programId, int channelMediaId, string siteGuid, string ip, int groupId, string deviceUdid)
+        internal static bool CheckMediaUserType(Int32 nMediaID, int nSiteGuid, int groupId)
         {
-            List<GroupRule> groupRules = new List<GroupRule>();
+            bool result = true;
+            int nUserTypeID = 0;
 
-            //Check if geo-block applies
-            string ruleName;
-            if (string.IsNullOrEmpty(ip) || CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
+            try
             {
-                groupRules.Add(new GroupRule()
+                var response = Core.Users.Module.GetUserData(groupId, nSiteGuid.ToString(), string.Empty);
+                // Make sure response is OK
+                if (response != null && response.m_RespStatus == ResponseStatus.OK && response.m_user != null && response.m_user.m_eSuspendState == DAL.DomainSuspentionStatus.OK
+                    && response.m_user.m_oBasicData != null && response.m_user.m_oBasicData.m_UserType.ID.HasValue)
                 {
-                    Name = "GeoBlock",
-                    IsActive = true,
-                    BlockType = eBlockType.Geo,
-
-                });
-            }
-
-            //Check if user type match media user types
-            if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)channelMediaId, int.Parse(siteGuid), groupId) == false)
-            {
-                groupRules.Add(new GroupRule()
-                {
-                    RuleID = 0,
-                    Name = "UserTypeBlock",
-                    BlockType = eBlockType.UserType,
-                    IsActive = true
-                });
-            }
-
-            var response = GetParentalEPGRules(groupId, siteGuid, programId, 0);
-
-            if (response != null && response.status != null && response.status.Code == 0)
-            {
-                groupRules.AddRange(ConvertParentalToGroupRule(response.rules));
-            }
-
-            return groupRules;
-
-            #region old code
-            //List<GroupRule> tempRules = getEpgUserRules(nProgramId, nGroupId, nSiteGuid);
-            //List<GroupRule> resultRules = GetRules(eGroupRuleType.EPG, nSiteGuid, nMediaId, nGroupId, sIP, tempRules);
-            //return resultRules; 
-            #endregion
-        }
-
-        public static List<GroupRule> GetNpvrRules(RecordedEPGChannelProgrammeObject recordedProgram, int siteGuid, string ip, int groupId, string deviceUdid)
-        {
-            int mediaGroupId = 0;
-            int mediaId = 0;
-            List<GroupRule> groupRules = new List<GroupRule>();
-
-            // get media ID and non parent group ID
-            DataSet mediaIdResultDataSet = Tvinci.Core.DAL.CatalogDAL.GetMediaByEpgChannelIds(groupId, new List<string>() { recordedProgram.EPG_CHANNEL_ID });
-
-            if (mediaIdResultDataSet != null &&
-                mediaIdResultDataSet.Tables != null &&
-                mediaIdResultDataSet.Tables.Count > 0 &&
-                mediaIdResultDataSet.Tables[0].Rows.Count > 0)
-            {
-                mediaGroupId = APILogic.Utils.GetIntSafeVal(mediaIdResultDataSet.Tables[0].Rows[0], "GROUP_ID");
-                mediaId = APILogic.Utils.GetIntSafeVal(mediaIdResultDataSet.Tables[0].Rows[0], "id");
-
-                if (mediaId != 0)
-                {
-                    // get EPG rules
-                    List<GroupRule> tempRules = getEpgUserRules(recordedProgram, groupId, siteGuid, mediaGroupId);
-
-                    // combine user with EPG rules
-                    groupRules = GetRules(eGroupRuleType.EPG, siteGuid, mediaId, groupId, ip, tempRules);
+                    nUserTypeID = response.m_user.m_oBasicData.m_UserType.ID.Value;
                 }
             }
-
-            if (mediaId == 0)
+            catch (Exception ex)
             {
-                log.Debug("GetEPGRecordedProgramRules - " +
-                    string.Format("Failed to retrieve media ID using EPG ID. group ID: {0}, siteguid: {1}, EPG ID: {2}", groupId, siteGuid, recordedProgram.EPG_IDENTIFIER));
+                log.ErrorFormat(string.Format("CheckMediaUserType - Error when calling GetUserData, user {0} in group {1}. ex = {2}, ST = {3}", nSiteGuid, groupId, ex.Message, ex.StackTrace), ex);
             }
 
-            return groupRules;
-        }
+            string key = LayeredCacheKeys.GetIsMediaExistsToUserTypeKey(nMediaID, nUserTypeID);
+            bool? isMediaExistsToUserType = null;
+            // try go get from cache
+            bool cacheResult = LayeredCache.Instance.Get<bool?>(key, ref isMediaExistsToUserType, APILogic.Utils.GetIsMediaExistsToUserType,
+                                                                new Dictionary<string, object>() { { "mediaId", nMediaID }, { "userTypeId", nUserTypeID } },
+                                                                groupId, LayeredCacheConfigNames.MEDIA_USER_TYPE_LAYERED_CACHE_CONFIG_NAME);
 
-        //get the epg rules that are relevant for the user and for the program
-        private static List<GroupRule> getEpgUserRules(int nProgramId, int nGroupID, int nSiteGuid)
-        {
-            List<GroupRule> epgRules = new List<GroupRule>();
-            int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
-            TvinciEpgBL epgBLTvinci = new TvinciEpgBL(nParentGroupID);  //assuming this is a Tvinci user - does not support yes Epg
-            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)nProgramId);
-            if (epg != null)
+            if (cacheResult && isMediaExistsToUserType.HasValue)
             {
-                int nGroupIDNonParent = epg.GroupID;
-                List<GroupRule> userRules = getAllEpgUserRules(nSiteGuid, nGroupIDNonParent);
-                //add only rules for tags that are tags of the specific EPG
-                foreach (GroupRule rule in userRules)
-                {
-                    string TagKey = rule.TagType.ToLower();
-                    if (epg.Tags.ContainsKey(TagKey))
-                    {
-                        if (epg.Tags[TagKey].Contains(rule.TagValue))
-                            epgRules.Add(rule);
-                    }
-                }
+                result = isMediaExistsToUserType.Value;
             }
-            return epgRules;
+
+            return result;
         }
-
-        //get the EPG rules that are relevant for the user and for the program
-        private static List<GroupRule> getEpgUserRules(RecordedEPGChannelProgrammeObject recordedProgram, int groupId, int siteGuid, int nonParentGroupId)
-        {
-            List<GroupRule> epgRules = new List<GroupRule>();
-            int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
-            List<GroupRule> userRules = getAllEpgUserRules(siteGuid, nonParentGroupId);
-
-            //add only rules for tags that are tags of the specific EPG           
-            foreach (GroupRule rule in userRules)
-            {
-                if (rule != null)
-                {
-                    var ruleTag = recordedProgram.EPG_TAGS.Where(x => x.Key.ToLower() == rule.TagType.ToLower());
-                    foreach (EPGDictionary epgItem in ruleTag)
-                    {
-                        if (!string.IsNullOrEmpty(epgItem.Key))
-                        {
-                            if (epgItem.Value.ToLower() == rule.TagValue.ToLower())
-                                epgRules.Add(rule);
-                        }
-                    }
-                }
-            }
-            return epgRules;
-        }
-
-        //get All epg rules that are relevant for the user
-        private static List<GroupRule> getAllEpgUserRules(int nSiteGuid, int nGroupID)
-        {
-            DataTable rulesDt = DAL.ApiDAL.Get_EPGRules(nSiteGuid.ToString(), nGroupID);
-            List<GroupRule> userRules = new List<GroupRule>();
-            GroupRule rule = new GroupRule();
-            if (rulesDt != null)
-            {
-                if (rulesDt.Rows != null && rulesDt.Rows.Count > 0)
-                {
-                    for (int i = 0; i < rulesDt.Rows.Count; i++)
-                    {
-                        int nRuleID = APILogic.Utils.GetIntSafeVal(rulesDt.Rows[i], "rule_id");
-                        int nTagTypeID = APILogic.Utils.GetIntSafeVal(rulesDt.Rows[i], "TAG_TYPE_ID");
-                        string sValue = APILogic.Utils.GetSafeStr(rulesDt.Rows[i], "VALUE");
-                        string sKey = APILogic.Utils.GetSafeStr(rulesDt.Rows[i], "Key");
-                        string sName = APILogic.Utils.GetSafeStr(rulesDt.Rows[i], "Name");
-                        object sAgeRestriction = rulesDt.Rows[i]["age_restriction"];
-                        int nIsActive = APILogic.Utils.GetIntSafeVal(rulesDt.Rows[i], "is_active");
-                        eGroupRuleType eRuleType = (eGroupRuleType)APILogic.Utils.GetIntSafeVal(rulesDt.Rows[i], "group_rule_type_id");
-                        int nBlockAnonymous = APILogic.Utils.GetIntSafeVal(rulesDt.Rows[i], "block_anonymous");
-                        bool bBlockAnonymous = (nBlockAnonymous == 1);
-                        string tagType = APILogic.Utils.GetSafeStr(rulesDt.Rows[i], "tagName");
-                        rule = new GroupRule(nRuleID, nTagTypeID, sValue, sKey, sName, sAgeRestriction, nIsActive, eRuleType, bBlockAnonymous, tagType);
-                        userRules.Add(rule);
-                    }
-                }
-            }
-            return userRules;
-        }
-
+        
         //get a Dictionary of the tag ID and its type 
         private static Dictionary<int, string> getTagTypes(int nGroupID)
         {
@@ -4338,61 +4170,7 @@ namespace Core.Api
             selectQuery = null;
             return result;
         }
-
-        private static List<GroupRule> GetRules(eGroupRuleType eRuleType, int nSiteGuid, int nMediaId, int nGroupID, string sIP, List<GroupRule> tempRules)
-        {
-            List<GroupRule> rules = new List<GroupRule>();
-
-            //Check if geo-block applies
-            string ruleName;
-            if (CheckGeoBlockMedia(nGroupID, nMediaId, sIP, out ruleName))
-            {
-                rules.Add(new GroupRule() { Name = "GeoBlock", BlockType = eBlockType.Geo });
-            }
-
-            //Check if user type match media user types
-            if (nSiteGuid > 0 && CheckMediaUserType(nMediaId, nSiteGuid, nGroupID) == false)
-            {
-                rules.Add(new GroupRule() { Name = "UserTypeBlock", BlockType = eBlockType.UserType });
-            }
-
-            if (tempRules != null && tempRules.Count > 0)
-            {
-                foreach (GroupRule rule in tempRules)
-                {
-                    if (rule.GroupRuleType == eRuleType && rule.BlockType != eBlockType.Geo)
-                    {
-                        if (nSiteGuid > 0)
-                        {
-                            if (rule.AgeRestriction > 0 && !CheckAgeValidation(rule.AgeRestriction, nSiteGuid)) //check for active????
-                            {
-                                rule.BlockType = eBlockType.AgeBlock;
-                                rules.Add(rule);
-                            }
-                            else
-                            {
-                                if (rule.IsActive)
-                                {
-                                    rule.BlockType = eBlockType.Validation;
-                                    rules.Add(rule);
-                                }
-                            }
-                        }
-                        else //check for anonymous Rules
-                        {
-                            if (rule.BlockAnonymous && rule.IsActive)
-                            {
-                                rule.BlockType = eBlockType.AnonymousAccessBlock;
-                                rules.Add(rule);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return rules;
-        }
-
+        
         public static List<int> ChannelsContainingMedia(List<int> lChannels, int nMediaID, int nGroupID, int nFileTypeID)
         {
             try
@@ -5659,106 +5437,6 @@ namespace Core.Api
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
 
-        public static GenericRuleResponse GetMediaRules(int groupId, string siteGuid, long mediaId, long domainId, string ip, string udid, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
-        {
-            GenericRuleResponse response = new GenericRuleResponse
-            {
-                Status = ValidateUserAndDomain(groupId, siteGuid, (int)domainId)
-            };
-
-            if (response.Status.Code == (int)eResponseStatus.OK)
-            {
-                try
-                {
-                    //Check if geo-block applies
-                    string ruleName;
-                    if (CheckGeoBlockMedia(groupId, (int)mediaId, ip, out ruleName))
-                    {
-                        response.Rules.Add(new GenericRule() { Name = ruleName, RuleType = RuleType.Geo, Description = string.Empty });
-                    }
-
-                    //Check if user type match media user types
-                    if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)mediaId, int.Parse(siteGuid), groupId) == false)
-                    {
-                        response.Rules.Add(new GenericRule() { Name = "UserTypeBlock", RuleType = RuleType.UserType, Description = string.Empty });
-                    }
-
-                    // get all AssetUserRule for the user
-                    long userId = !string.IsNullOrEmpty(siteGuid) ? long.Parse(siteGuid) : 0;
-                    var mediaAssetUserRules = GetMediaAssetUserRulesToUser(groupId, userId, mediaId);
-
-                    if (mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
-                    {
-                        foreach (AssetUserRule assetUserRule in mediaAssetUserRules)
-                        {
-                            response.Rules.Add(new GenericRule()
-                            {
-                                Id = assetUserRule.Id,
-                                Name = assetUserRule.Name,
-                                Description = assetUserRule.Description,
-                                RuleType = RuleType.AssetUser
-                            });
-                        }
-                    }
-
-                    // get all ParentalRules for the user
-                    ParentalRulesResponse parentalRulesResponse = GetParentalMediaRules(groupId, siteGuid, mediaId, domainId);
-                    if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
-                    {
-                        foreach (ParentalRule rule in parentalRulesResponse.rules)
-                        {
-                            response.Rules.Add(new GenericRule()
-                            {
-                                Id = rule.id,
-                                Description = rule.description,
-                                Name = rule.name,
-                                RuleType = RuleType.Parental
-                            });
-                        }
-                    }
-
-                    AssetRule blockingRule;
-                    var assetsToCheck = AssetRuleManager.GetAssetsForValidation(eAssetTypes.MEDIA, groupId, mediaId);
-                    Status networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetsToCheck, groupId, ip, out blockingRule);
-                    if (!networkRulesStatus.IsOkStatusCode())
-                    {
-                        response.Rules.Add(new GenericRule()
-                        {
-                            Id = blockingRule.Id,
-                            Description = blockingRule.Description,
-                            Name = blockingRule.Name,
-                            RuleType = RuleType.Network
-                        });
-                    }
-
-                    // order results
-                    switch (orderBy)
-                    {
-                        case GenericRuleOrderBy.NameAsc:
-                            response.Rules.OrderBy(r => r.Name).ToList();
-                            break;
-                        case GenericRuleOrderBy.NameDesc:
-                            response.Rules.OrderByDescending(r => r.Name).ToList();
-                            break;
-                        default:
-                            break;
-                    }
-
-                    response.Status.Set((int)eResponseStatus.OK, "OK");
-                }
-                catch (Exception ex)
-                {
-                    response.Status.Set((int)eResponseStatus.Error, "Error");
-
-                    log.Error("GetMediaRules - " + string.Format("Error in GetMediaRules: group = {0}, user = {3}, media = {4}, ex = {1}, ST = {2}",
-                        groupId, ex.Message, ex.StackTrace, siteGuid, mediaId),
-                        ex);
-                }
-            }
-
-            return response;
-        }
-
         public static ParentalRulesResponse GetParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId)
         {
             List<ParentalRule> rules = null;
@@ -5912,105 +5590,7 @@ namespace Core.Api
             }
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
-
-        public static GenericRuleResponse GetEpgRules(int groupId, string siteGuid, long epgId, long channelMediaId, long domainId, string ip, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
-        {
-            GenericRuleResponse response = new GenericRuleResponse();
-
-            response.Status = ValidateUserAndDomain(groupId, siteGuid, (int)domainId);
-
-            if (response.Status.Code == (int)eResponseStatus.OK)
-            {
-                try
-                {
-                    if (channelMediaId == 0)
-                    {
-                        // get epg channel media id
-                        channelMediaId = DAL.ApiDAL.GetLinearMediaIdByEpgId(epgId);
-                    }
-
-                    if (channelMediaId > 0)
-                    {
-                        //Check if geo-block applies
-                        string ruleName;
-                        if (CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
-                        {
-                            response.Rules.Add(new GenericRule()
-                            {
-                                Name = ruleName,
-                                RuleType = RuleType.Geo,
-                                Description = string.Empty
-                            });
-                        }
-
-                        //Check if user type match media user types
-                        if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)channelMediaId, int.Parse(siteGuid), groupId) == false)
-                        {
-                            response.Rules.Add(new GenericRule()
-                            {
-                                Name = "UserTypeBlock",
-                                RuleType = RuleType.UserType,
-                                Description = string.Empty
-                            });
-                        }
-
-                        ParentalRulesResponse parentalRulesResponse = GetParentalEPGRules(groupId, siteGuid, epgId, domainId);
-                        if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
-                        {
-                            foreach (ParentalRule rule in parentalRulesResponse.rules)
-                            {
-                                response.Rules.Add(new GenericRule()
-                                {
-                                    Id = rule.id,
-                                    Description = rule.description,
-                                    Name = rule.name,
-                                    RuleType = RuleType.Parental
-                                });
-                            }
-                        }
-
-                        AssetRule blockingRule;
-                        var assetsToCheck = AssetRuleManager.GetAssetsForValidation(eAssetTypes.EPG, groupId, epgId);
-                        Status networkRulesStatus = AssetRuleManager.CheckNetworkRules(assetsToCheck, groupId, ip, out blockingRule);
-                        if (!networkRulesStatus.IsOkStatusCode())
-                        {
-                            response.Rules.Add(new GenericRule()
-                            {
-                                Id = blockingRule.Id,
-                                Description = blockingRule.Description,
-                                Name = blockingRule.Name,
-                                RuleType = RuleType.Network
-                            });
-                        }
-
-                        // order results
-                        switch (orderBy)
-                        {
-                            case GenericRuleOrderBy.NameAsc:
-                                response.Rules.OrderBy(r => r.Name).ToList();
-                                break;
-                            case GenericRuleOrderBy.NameDesc:
-                                response.Rules.OrderByDescending(r => r.Name).ToList();
-                                break;
-                            default:
-                                break;
-                        }
-
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                    log.Error("GetEPGRules - " +
-                        string.Format("Error in GetEPGRules: group = {0}, user = {3}, epg = {4}, ex = {1}, ST = {2}",
-                        groupId, ex.Message, ex.StackTrace, siteGuid, epgId), ex);
-                }
-            }
-
-            return response;
-        }
-
+        
         public static ParentalRulesTagsResponse GetUserParentalRuleTags(int groupId, string siteGuid, long domainId)
         {
             ParentalRulesTagsResponse response = new ParentalRulesTagsResponse();
@@ -6263,7 +5843,8 @@ namespace Core.Api
         #endregion
 
         #region Utility
-        private static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId)
+
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId)
         {
             Users.Domain domain;
             return ValidateUserAndDomain(groupId, siteGuid, domainId, out domain);
@@ -6620,7 +6201,7 @@ namespace Core.Api
                 if (ossAdapter != null && !string.IsNullOrEmpty(ossAdapter.AdapterUrl))
                 {
                     //set unixTimestamp
-                    long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                    long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                     //set signature
                     string signature = string.Concat(ossAdapter.ID, ossAdapter.Settings != null ? string.Concat(ossAdapter.Settings.Select(s => string.Concat(s.key, s.value))) : string.Empty,
@@ -7482,7 +7063,7 @@ namespace Core.Api
                 if (recommendationEngine != null && !string.IsNullOrEmpty(recommendationEngine.AdapterUrl))
                 {
                     //set unixTimestamp
-                    long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                    long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                     //set signature
                     string signature = string.Concat(recommendationEngine.ID, recommendationEngine.Settings != null ? string.Concat(recommendationEngine.Settings.Select(s => string.Concat(s.key, s.value))) : string.Empty,
@@ -8201,7 +7782,7 @@ namespace Core.Api
                 }
 
                 // generate task version 
-                string version = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow).ToString();
+                string version = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow).ToString();
 
                 // insert task
                 response.Task = DAL.ApiDAL.InsertBulkExportTask(groupId, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, version, isActive);
@@ -8256,7 +7837,7 @@ namespace Core.Api
                     return response;
                 }
                 // generate task version 
-                string version = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow).ToString();
+                string version = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow).ToString();
 
                 response.Task = DAL.ApiDAL.UpdateBulkExportTask(groupId, id, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, version, isActive);
 
@@ -10517,7 +10098,7 @@ namespace Core.Api
                 SearchHistory searchHistory = new SearchHistory()
                 {
                     action = action,
-                    createdAt = TVinciShared.DateUtils.UnixTimeStampNow(),
+                    createdAt = TVinciShared.DateUtils.GetUtcUnixTimestampNow(),
                     filter = persistedFilter,
                     name = name,
                     service = service,
@@ -11069,7 +10650,65 @@ namespace Core.Api
             return true;
         }
 
-        internal static DataTable GetMediaCountries(int groupId, long mediaId)
+        internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability, GroupsCacheManager.Group group = null)
+        {
+            isGeoAvailability = false;
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            CatalogGroupCache catalogGroupCache = null;
+            if (doesGroupUsesTemplates)
+            {
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling IsMediaBlockedForCountryGeoAvailability", groupId);
+                    return isGeoAvailability;
+                }
+            }
+            else if (group == null)
+            {
+                group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+            }
+
+            if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
+            {
+                isGeoAvailability = true;
+
+                DataTable mediaCountriesDt = GetMediaCountries(groupId, mediaId);
+                if (mediaCountriesDt != null && mediaCountriesDt.Rows != null && mediaCountriesDt.Rows.Count != 0)
+                {
+                    DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
+                    DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
+
+                    bool allowUnknownCountry = ApplicationConfiguration.AllowUnknownCountry.Value;
+                    if (allowUnknownCountry && countryId == 0) // Do not block if country is unknown and configuration allowes it (for internal IP)
+                    {
+                        return false;
+                    }
+                    if (blockedCountries != null && blockedCountries.FirstOrDefault(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId) != null)
+                    {
+                        return true;
+                    }
+                    else if (allowedCountries == null || allowedCountries.Length == 0)
+                    {
+                        isGeoAvailability = false;
+                        return false;
+                    }
+                    else if (allowedCountries.FirstOrDefault(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId) == null)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    isGeoAvailability = false;
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
+
+        private static DataTable GetMediaCountries(int groupId, long mediaId)
         {
             DataTable mediaCountries = null;
 
@@ -11116,198 +10755,7 @@ namespace Core.Api
 
             return new Tuple<DataTable, bool>(mediaCountries, result);
         }
-
-        internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability, GroupsCacheManager.Group group = null)
-        {
-            isGeoAvailability = false;
-            bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
-            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
-            if (doesGroupUsesTemplates)
-            {
-                if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling IsMediaBlockedForCountryGeoAvailability", groupId);
-                    return isGeoAvailability;
-                }
-            }
-            else if (group == null)
-            {
-                group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
-            }
-
-            if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
-            {
-                isGeoAvailability = true;
-
-                DataTable mediaCountriesDt = Core.Api.api.GetMediaCountries(groupId, mediaId);
-                if (mediaCountriesDt != null && mediaCountriesDt.Rows != null && mediaCountriesDt.Rows.Count != 0)
-                {
-                    DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
-                    DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
-
-                    bool allowUnknownCountry = ApplicationConfiguration.AllowUnknownCountry.Value;
-                    if (allowUnknownCountry && countryId == 0) // Do not block if country is unknown and configuration allowes it (for internal IP)
-                    {
-                        return false;
-                    }
-                    if (blockedCountries != null && blockedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() != null)
-                    {
-                        return true;
-                    }
-                    else if (allowedCountries == null || allowedCountries.Length == 0)
-                    {
-                        isGeoAvailability = false;
-                        return false;
-                    }
-                    else if (allowedCountries.Where(bc => ODBCWrapper.Utils.GetIntSafeVal(bc, "country_id") == countryId).FirstOrDefault() == null)
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    isGeoAvailability = false;
-                    return false;
-                }
-            }
-
-            return false;
-        }
-
-        public static List<AssetUserRule> GetMediaAssetUserRulesToUser(int groupId, long userId, long mediaId, GenericListResponse<AssetUserRule> userToAssetUserRules = null)
-        {
-            List<AssetUserRule> rules = new List<AssetUserRule>();
-
-            if (userId > 0)
-            {
-                try
-                {
-                    // check that have AssetUserRule for the group in general and return it
-                    var assetUserRuleList = AssetUserRuleManager.GetAssetUserRuleList(groupId, null);
-
-                    if (assetUserRuleList == null || !assetUserRuleList.HasObjects())
-                    {
-                        return null;
-                    }
-
-                    List<long> mediaAssetUserRuleIds = null;
-                    string mediaAssetUserRulesKey = LayeredCacheKeys.GetMediaAssetUserRulesKey(groupId, mediaId);
-
-                    //Get mediaAssetUserRuleIds from cache
-                    if (!LayeredCache.Instance.Get<List<long>>(mediaAssetUserRulesKey,
-                                                               ref mediaAssetUserRuleIds,
-                                                               GetMediaAssetUserRules,
-                                                               new Dictionary<string, object>()
-                                                               {
-                                                                   { "groupId", groupId },
-                                                                   { "mediaId", mediaId },
-                                                                   { "assetUserRules", assetUserRuleList.Objects }
-                                                               },
-                                                               groupId,
-                                                               LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
-                                                               new List<string>() { LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId) }))
-                    {
-                        log.Error(string.Format("GetMediaAssetUserRulesToUser - GetMediaAssetUserRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
-                    }
-
-                    if (mediaAssetUserRuleIds == null || mediaAssetUserRuleIds.Count == 0)
-                    {
-                        return rules;
-                    }
-
-                    if (userToAssetUserRules == null)
-                    {
-                        userToAssetUserRules = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId);
-                    }
-
-                    // if user has at least one rule applied on him
-                    if (userToAssetUserRules == null || !userToAssetUserRules.HasObjects())
-                    {
-                        return rules;
-                    }
-
-                    // union userRules with the mediaRules 
-                    rules = userToAssetUserRules.Objects.Where(assetUserRule => mediaAssetUserRuleIds.Contains(assetUserRule.Id)).ToList();
-                }
-                catch (Exception ex)
-                {
-                    log.Error(string.Format("Error in GetMediaAssetUserRulesToUser: group={0}, user={1}, media={2}", groupId, userId), ex);
-                }
-            }
-
-            return rules;
-        }
-
-        private static Tuple<List<long>, bool> GetMediaAssetUserRules(Dictionary<string, object> funcParams)
-        {
-            bool result = false;
-            List<long> ruleIds = new List<long>();
-
-            try
-            {
-                if (funcParams != null && funcParams.Count == 3)
-                {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("assetUserRules"))
-                    {
-                        int? groupId = funcParams["groupId"] as int?;
-                        long? mediaId = funcParams["mediaId"] as long?;
-                        List<AssetUserRule> mediaAssetUserRules = funcParams["assetUserRules"] as List<AssetUserRule>;
-
-                        UnifiedSearchResult[] medias;
-                        string filter = string.Empty;
-
-                        if (groupId.HasValue && mediaId.HasValue && mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
-                        {
-                            // find all asset ids that match the tag + tag value ==> if so save the rule id
-                            //build search for each tag and tag values
-                            Parallel.ForEach(mediaAssetUserRules, (rule) =>
-                            {
-                                if (rule.Conditions != null && rule.Conditions.Count > 0)
-                                {
-                                    filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);
-                                    medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
-
-                                    if (medias != null && medias.Count() > 0)// there is a match 
-                                    {
-                                        ruleIds.Add(rule.Id);
-                                    }
-                                }
-                            });
-
-                            result = true;
-                        }
-                    }
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetMediaAssetUserRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-            return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
-        }
-
-        private static List<GroupRule> ConvertAssetUserRuleToGroupRule(List<AssetUserRule> assetUserRules)
-        {
-            List<GroupRule> groupRules = new List<GroupRule>();
-
-            foreach (var assetUserRule in assetUserRules)
-            {
-                GroupRule groupRule = new GroupRule()
-                {
-                    RuleID = (int)assetUserRule.Id,
-                    IsActive = true,
-                    Name = assetUserRule.Name,
-                    GroupRuleType = eGroupRuleType.AssetUser,
-                    BlockType = eBlockType.AssetUserBlock
-                };
-
-                groupRules.Add(groupRule);
-            }
-
-            return groupRules;
-        }
-
+        
         internal static DeviceConcurrencyPriority GetDeviceConcurrencyPriority(int groupId)
         {
             DeviceConcurrencyPriority deviceConcurrencyPriority = null;
@@ -11464,7 +10912,7 @@ namespace Core.Api
         internal static GenericListResponse<PlaybackProfile> GetPlaybackAdapters(int groupId)
         {
             GenericListResponse<PlaybackProfile> response = new GenericListResponse<PlaybackProfile>();
-            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            response.SetStatus(eResponseStatus.OK);
 
             try
             {
@@ -11476,7 +10924,7 @@ namespace Core.Api
                 else
                 {
                     response.Objects.AddRange(playbackAdapter);
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK);
                 }
 
                 return response;
@@ -11730,7 +11178,7 @@ namespace Core.Api
         internal static GenericListResponse<PlaybackProfile> GetPlaybackProfile(int groupId, long playbackProfileId, bool shouldGetOnlyActive)
         {
             GenericListResponse<PlaybackProfile> response = new GenericListResponse<PlaybackProfile>();
-            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            response.SetStatus(eResponseStatus.OK);
 
             try
             {
@@ -11742,7 +11190,7 @@ namespace Core.Api
                 else
                 {
                     response.Objects = new List<PlaybackProfile>() { playbackAdapter };
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK);
                 }
 
                 return response;
