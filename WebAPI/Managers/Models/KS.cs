@@ -13,6 +13,7 @@ using System.Web.Http.Controllers;
 using System.Net.Http;
 using WebAPI.Filters;
 using KLogMonitor;
+using TVinciShared;
 
 namespace WebAPI.Managers.Models
 {
@@ -98,7 +99,7 @@ namespace WebAPI.Managers.Models
 
         public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, Dictionary<string, string> privilegesList, KSVersion ksType)
         {
-            int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
+            int relativeExpiration = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) + expiration;
 
             //prepare data - url encode + replace '_'
             string encodedData = string.Empty;
@@ -205,7 +206,7 @@ namespace WebAPI.Managers.Models
                         case "e":
                             long expiration;
                             long.TryParse(pair[1], out expiration);
-                            ks.expiration = SerializationUtils.ConvertFromUnixTimestamp(expiration);
+                            ks.expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(expiration);
                             break;
                         case "u":
                             ks.userId = pair[1];
@@ -312,7 +313,7 @@ namespace WebAPI.Managers.Models
                 groupId = token.GroupID,
                 userId = token.UserId,
                 sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
-                expiration = Utils.SerializationUtils.ConvertFromUnixTimestamp(token.AccessTokenExpiration),
+                expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(token.AccessTokenExpiration),
                 data = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = token.Udid }),
                 encryptedValue = tokenVal
             };

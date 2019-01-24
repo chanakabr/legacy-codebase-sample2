@@ -13,6 +13,7 @@ using Core.Catalog;
 using ApiObjects.SearchObjects;
 using ApiObjects;
 using Core.Catalog.Response;
+using TVinciShared;
 
 namespace WebAPI.ObjectsConvertor
 {
@@ -31,8 +32,8 @@ namespace WebAPI.ObjectsConvertor
             {
                 if (withList.Contains(KalturaCatalogWith.stats))
                 {
-                    long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
-                    long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
+                    long minDateTimeMin = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.MinValue);
+                    long minDateTimeMax = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.MaxValue);
 
                     // get media IDs for assets statistics
                     List<int> mediaBaseListIds = assetBaseList.Where(m => m.AssetType == eAssetTypes.MEDIA).Select(x => int.Parse(x.AssetId)).ToList();
@@ -90,8 +91,8 @@ namespace WebAPI.ObjectsConvertor
             {
                 if (withList.Contains(KalturaCatalogWith.stats))
                 {
-                    long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
-                    long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
+                    long minDateTimeMin = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.MinValue);
+                    long minDateTimeMax = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.MaxValue);
 
                     // get EPG IDs for assets statistics
                     List<int> epgBaseListIds = epgPrograms.Select(e => (int)e.EPG_ID).ToList();
@@ -134,8 +135,8 @@ namespace WebAPI.ObjectsConvertor
             {
                 if (with.Contains(KalturaCatalogWith.stats))
                 {
-                    long minDateTimeMin = SerializationUtils.ConvertToUnixTimestamp(DateTime.MinValue);
-                    long minDateTimeMax = SerializationUtils.ConvertToUnixTimestamp(DateTime.MaxValue);
+                    long minDateTimeMin = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.MinValue);
+                    long minDateTimeMax = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.MaxValue);
 
                     // get media IDs for assets statistics
                     List<int> mediaBaseListIds = assetBaseList.Where(m => m.AssetType == eAssetTypes.MEDIA).Select(x => int.Parse(x.AssetId)).ToList();
@@ -204,39 +205,39 @@ namespace WebAPI.ObjectsConvertor
             {
                 case KalturaOrder.a_to_z:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaOrder.z_to_a:
                     result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaOrder.views:
                     result.m_eOrderBy = OrderBy.VIEWS;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaOrder.ratings:
                     result.m_eOrderBy = OrderBy.RATING;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaOrder.votes:
                     result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaOrder.newest:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaOrder.relevancy:
                     result.m_eOrderBy = OrderBy.RELATED;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaOrder.oldest_first:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaOrder.likes:
                     result.m_eOrderBy = OrderBy.LIKE_COUNTER;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
             }
             return result;
@@ -251,12 +252,12 @@ namespace WebAPI.ObjectsConvertor
                 {
                     case KalturaMetaTagOrderBy.META_ASC:
                         result.m_eOrderBy = OrderBy.META;
-                        result.m_eOrderDir = OrderDir.ASC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                         result.m_sOrderValue = dynamicOrderBy.Name;
                         break;
                     case KalturaMetaTagOrderBy.META_DESC:
                         result.m_eOrderBy = OrderBy.META;
-                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                         result.m_sOrderValue = dynamicOrderBy.Name;
                         break;
                 }
@@ -269,48 +270,48 @@ namespace WebAPI.ObjectsConvertor
                 {
                     case KalturaAssetOrderBy.NAME_ASC:
                         result.m_eOrderBy = OrderBy.NAME;
-                        result.m_eOrderDir = OrderDir.ASC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     case KalturaAssetOrderBy.NAME_DESC:
                         result.m_eOrderBy = OrderBy.NAME;
-                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     case KalturaAssetOrderBy.VIEWS_DESC:
                         result.m_eOrderBy = OrderBy.VIEWS;
-                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     case KalturaAssetOrderBy.RATINGS_DESC:
                         result.m_eOrderBy = OrderBy.RATING;
-                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     case KalturaAssetOrderBy.VOTES_DESC:
                         result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     case KalturaAssetOrderBy.START_DATE_DESC:
                         result.m_eOrderBy = OrderBy.START_DATE;
-                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     case KalturaAssetOrderBy.RELEVANCY_DESC:
                         result.m_eOrderBy = OrderBy.RELATED;
-                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     case KalturaAssetOrderBy.START_DATE_ASC:
                         result.m_eOrderBy = OrderBy.START_DATE;
-                        result.m_eOrderDir = OrderDir.ASC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     case KalturaAssetOrderBy.CREATE_DATE_ASC:
                         result.m_eOrderBy = OrderBy.CREATE_DATE;
-                        result.m_eOrderDir = OrderDir.ASC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     case KalturaAssetOrderBy.CREATE_DATE_DESC:
                         result.m_eOrderBy = OrderBy.CREATE_DATE;
-                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     case KalturaAssetOrderBy.LIKES_DESC:
                         {
                             result.m_eOrderBy = OrderBy.LIKE_COUNTER;
-                            result.m_eOrderDir = OrderDir.DESC;
+                            result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                             break;
                         }
                 }
@@ -326,7 +327,7 @@ namespace WebAPI.ObjectsConvertor
             {
                 case KalturaAssetCommentOrderBy.CREATE_DATE_DESC:
                     result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;              
             }
             return result;

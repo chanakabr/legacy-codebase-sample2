@@ -20,6 +20,7 @@ using WebAPI.Models.Renderers;
 using System.Net.Http;
 using Newtonsoft.Json;
 using WebAPI.Utils;
+using TVinciShared;
 
 namespace Validator.Managers.Scheme
 {
@@ -446,7 +447,7 @@ namespace Validator.Managers.Scheme
             writer.WriteStartDocument();
             writer.WriteStartElement("xml");
             writer.WriteAttributeString("apiVersion", GetAssemblyVersion());
-            writer.WriteAttributeString("generatedDate", SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow).ToString());
+            writer.WriteAttributeString("generatedDate", DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow).ToString());
 
             //Printing enums
             writer.WriteStartElement("enums");

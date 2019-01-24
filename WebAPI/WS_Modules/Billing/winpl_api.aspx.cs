@@ -45,7 +45,7 @@ namespace WS_Billing
             catch (Exception ex)
             {
                 log.Error("WINPL request exception: " + ex.Message + " || form parameters:" + sFormParameters, ex);
-                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
             }
         }
 
@@ -73,7 +73,7 @@ namespace WS_Billing
             else
             {
                 log.Debug("WINPL request - Request came in an unexpected format. Didn't find the TP_XML part.");
-                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
                 return;
             }
 
@@ -99,7 +99,7 @@ namespace WS_Billing
                     else
                     {
                         log.Debug("WINPL request - SMS cell number came empty");
-                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
                     }
 
                     // Get sms text
@@ -109,7 +109,7 @@ namespace WS_Billing
                     else
                     {
                         log.Debug("WINPL request - SMS Text came empty");
-                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
                     }
 
                     // Seperate token from text
@@ -117,7 +117,7 @@ namespace WS_Billing
                     if (sepMSG.Length != 2)
                     {
                         log.Debug("WINPL request - Error extracting token from message. Message: " + sSMSText);
-                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
                         return;
                     }
 
@@ -131,7 +131,7 @@ namespace WS_Billing
             catch (Exception ex)
             {
                 log.Error("WINPL request - Failed parsing request to xml. Error Message: " + ex.Message + " || Stack Trace: " + ex.StackTrace, ex);
-                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
             }
         }
 
@@ -245,7 +245,7 @@ namespace WS_Billing
             if (string.IsNullOrEmpty(sCellNum) || string.IsNullOrEmpty(sToken))
             {
                 log.Debug("WINPL request - HandleRequest - request parameters are invalid. Phone: " + sCellNum + ", Text: " + sToken);
-                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
             }
 
             double dPrice = 0.0;
@@ -261,19 +261,19 @@ namespace WS_Billing
 
                         if (UpdateSMSCodeStatus(nSMSTokenEntry, 2))
                         {
-                            Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "0"));
+                            Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "0"));
                         }
                         else
                         {
                             //Billing.SMSHelper.SendBulkSMS(nGroupID, sCellNum, "System failed to process your request. Please send again", sCurrencyCode);
-                            Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                            Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
                             return;
                         }
                     }
                     else
                     {
                         log.Debug("WINPL request - Failed sending premium sms to mobile: " + sCellNum + ", Text: " + sToken);
-                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
                     }
                 }
                 else
@@ -284,26 +284,26 @@ namespace WS_Billing
 
                         if (UpdateSMSCodeStatus(nSMSTokenEntry, 2))
                         {
-                            Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "0"));
+                            Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "0"));
                         }
                         else
                         {
                             //Billing.SMSHelper.SendBulkSMS(nGroupID, sCellNum, "System failed to process your request. Please send again", sCurrencyCode);
-                            Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                            Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
                             return;
                         }
                     }
                     else
                     {
                         log.Debug("WINPL request - Failed sending free sms to user. " + sCellNum + ", Text: " + sToken);
-                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                        Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
                     }
                 }
             }
             else
             {
                 log.Debug("WINPL request - HandleRequest - Failed to get SMS token. Phone: " + sCellNum + ", Text: " + sToken);
-                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.Now.ToString("ddMMyyhhmmss"), "301"));
+                Response.Write(string.Format(WINPLC_RESPONSE_FORMAT, DateTime.UtcNow.ToString("ddMMyyhhmmss"), "301"));
             }
         }
     }

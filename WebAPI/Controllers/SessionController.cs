@@ -10,6 +10,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 using WebAPI.ClientManagers.Client;
+using TVinciShared;
 
 namespace WebAPI.Controllers
 {
@@ -42,7 +43,7 @@ namespace WebAPI.Controllers
             return new KalturaSession()
             {
                 ks = ks.ToString(),
-                expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
+                expiry = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
                 partnerId = ks.GroupId,
                 privileges = KS.JoinPrivileges(ks.Privileges, ",", ":"),
                 sessionType = ks.SessionType,
@@ -77,7 +78,7 @@ namespace WebAPI.Controllers
             return new KalturaSessionInfo()
             {
                 ks = ks.ToString(),
-                expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
+                expiry = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
                 partnerId = ks.GroupId,
                 privileges = KS.JoinPrivileges(ks.Privileges, ",", ":"),
                 sessionType = ks.SessionType,

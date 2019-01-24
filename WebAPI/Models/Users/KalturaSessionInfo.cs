@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using TVinciShared;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -86,7 +87,7 @@ namespace WebAPI.Models.Users
         {
             var payload = KSUtils.ExtractKSPayload(ks);
             this.ks = ks.ToString();
-            this.expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration);
+            this.expiry = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration);
             this.partnerId = ks.GroupId;
             this.privileges = KS.JoinPrivileges(ks.Privileges, ",", ":");
             this.sessionType = ks.SessionType;

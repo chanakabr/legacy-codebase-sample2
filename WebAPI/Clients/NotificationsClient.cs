@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -1743,7 +1744,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetEngagements(groupId, convertedtypeIn, NotificationMapping.ConvertSendTime(sendTimeLessThanOrEqual));
+                    response = Core.Notification.Module.GetEngagements(groupId, convertedtypeIn, DateUtils.UtcUnixTimestampSecondsToDateTime(sendTimeLessThanOrEqual));
                 }
             }
             catch (Exception ex)

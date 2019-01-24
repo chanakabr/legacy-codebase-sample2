@@ -14,6 +14,7 @@ using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Utils;
 using ApiObjects.Response;
+using TVinciShared;
 
 namespace WebAPI.Controllers
 {
@@ -44,9 +45,9 @@ namespace WebAPI.Controllers
             {
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
-                    announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
+                    announcement.StartTime < DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
                 {
-                    log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
+                    log.ErrorFormat("start time have passed. given time: {0}", DateUtils.UtcUnixTimestampSecondsToDateTime((long)announcement.StartTime));
                     throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 
@@ -86,9 +87,9 @@ namespace WebAPI.Controllers
             {
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
-                    announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
+                    announcement.StartTime < DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
                 {
-                    log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
+                    log.ErrorFormat("start time have passed. given time: {0}", DateUtils.UtcUnixTimestampSecondsToDateTime((long)announcement.StartTime));
                     throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 
@@ -131,9 +132,9 @@ namespace WebAPI.Controllers
 
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
-                    announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
+                    announcement.StartTime < DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
                 {
-                    log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
+                    log.ErrorFormat("start time have passed. given time: {0}", DateUtils.UtcUnixTimestampSecondsToDateTime((long)announcement.StartTime));
                     throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 
@@ -176,9 +177,9 @@ namespace WebAPI.Controllers
                 
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
-                    announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
+                    announcement.StartTime < DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
                 {
-                    log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
+                    log.ErrorFormat("start time have passed. given time: {0}", DateUtils.UtcUnixTimestampSecondsToDateTime((long)announcement.StartTime));
                     throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 

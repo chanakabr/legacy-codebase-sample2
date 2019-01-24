@@ -11,6 +11,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using AutoMapper.Configuration;
+using TVinciShared;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -277,10 +278,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
-                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => GetLongNullableValue(src.SeasonNumber)))
+                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber.ToNullable()))
                  .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.SERIES))
-                 ;
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.SERIES));
 
             cfg.CreateMap<DbReminder, KalturaReminder>()
                 .Include<DbSeriesReminder, KalturaSeriesReminder>();
@@ -339,7 +339,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EngagementType, opt => opt.ResolveUsing(src => ConvertEngagementType( src.Type)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
-               .ForMember(dest => dest.SendTime, opt => opt.ResolveUsing(src => ConvertSendTime(src.SendTimeInSeconds)))
+               .ForMember(dest => dest.SendTime, opt => opt.ResolveUsing(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.SendTimeInSeconds)))
                .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
                .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
                .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId))
@@ -351,7 +351,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertEngagementType(src.EngagementType)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
-               .ForMember(dest => dest.SendTimeInSeconds, opt => opt.ResolveUsing(src => ConvertSendTime(src.SendTime)))
+               .ForMember(dest => dest.SendTimeInSeconds, opt => opt.ResolveUsing(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.SendTime)))
                .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
                .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
                .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId))
@@ -359,28 +359,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             
             #endregion
         }
-
-        private static long? GetLongNullableValue(long? nullable)
-        {
-            if (nullable.HasValue && nullable.Value != 0)
-                return nullable;
-            else return null;
-
-        }
-
-        private static long ConvertSendTime(DateTime dateTime)
-        {
-            return WebAPI.Utils.SerializationUtils.ConvertToUnixTimestamp(dateTime);
-        }
-
-        public static DateTime? ConvertSendTime(long? dateTime)
-        {
-            if (dateTime.HasValue)
-                return WebAPI.Utils.SerializationUtils.ConvertFromUnixTimestamp(dateTime.Value);
-            else
-                return null;
-        }
-
+        
         public static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
         {
             switch (eEngagementType)
@@ -888,7 +867,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaAssetReminderOrderBy.RELEVANCY_DESC:
                     result.m_eOrderBy = OrderBy.RELATED;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaAssetReminderOrderBy.START_DATE_ASC:
                     result.m_eOrderBy = OrderBy.START_DATE;
