@@ -20,12 +20,20 @@ namespace ApiObjects.Response
             TotalItems = 0;
         }
 
-        public void SetStatus(eResponseStatus responseStatus, string message)
+        public void SetStatus(eResponseStatus responseStatus, string message = null)
         {
             this.Status.Code = (int)responseStatus;
-            this.Status.Message = message;
-        }
 
+            if (string.IsNullOrEmpty(message))
+            {
+                this.Status.Message = responseStatus.ToString();
+            }
+            else
+            {
+                this.Status.Message = message;
+            }
+        }
+        
         public void SetStatus(int responseStatusCode, string message)
         {
             this.Status.Code = responseStatusCode;

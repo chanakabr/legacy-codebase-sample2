@@ -496,7 +496,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateEpg", groupId);
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpsertProgram", groupId);
                         return false;
                     }
                 }
@@ -505,7 +505,7 @@ namespace Core.Catalog.CatalogManagement
                     group = GroupsCache.Instance().GetGroup(groupId);
                     if (group == null)
                     {
-                        log.ErrorFormat("Couldn't get group {0}", groupId);
+                        log.ErrorFormat("Couldn't get group {0} when calling UpsertProgram", groupId);
                         return false;
                     }
                 }
@@ -557,7 +557,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // TODO - Lior, remove these 5 lines below - used only to currently support linear media id search on elastic search
                 List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
-                Dictionary<string, Core.Catalog.LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
+                Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
                 if (linearChannelSettings == null)
                 {
                     linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();

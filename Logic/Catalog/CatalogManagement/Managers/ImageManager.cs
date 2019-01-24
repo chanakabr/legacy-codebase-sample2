@@ -1368,7 +1368,7 @@ namespace Core.Catalog.CatalogManagement
 
             return groupRatioNamesToImageTypes;
         }
-        
+
         public static Dictionary<string, List<EpgPicture>> GetGroupEpgPicturesSizes(int groupId)
         {
             string allEpgPicturesKey = LayeredCacheKeys.GetAllEpgPicturesKey(groupId);

@@ -235,7 +235,6 @@ namespace Core.Catalog.CatalogManagement
 
             if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
             {
-                // TODO SHIR - ask ira about this
                 // use old image server flow
                 //MutateFullEpgPicURLOldImageServerFlow(epgList, pictures);
             }
