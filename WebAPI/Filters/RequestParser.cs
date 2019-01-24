@@ -356,7 +356,7 @@ namespace WebAPI.Filters
             }
             else
             {
-                string filePath = String.Format("{0}\\{1}", fileSystemUploaderSourcePath, Path.GetRandomFileName());
+                string filePath = String.Format("{0}\\{1}", fileSystemUploaderSourcePath, CreateRandomFileName(fileName));
                 byte[] bytes = new byte[fieldBytes.Length - index - 2];  // \r\n
                 Array.Copy(fieldBytes, index, bytes, 0, bytes.Length);
                 File.WriteAllBytes(filePath, bytes);
@@ -365,6 +365,12 @@ namespace WebAPI.Filters
             }
 
             return new KeyValuePair<string, object>("aaa", "bb");
+        }
+
+        private object CreateRandomFileName(string fileName)
+        {
+            var ret = Path.GetRandomFileName();
+            return ret.Remove(ret.Length - 3) + fileName.Substring(fileName.Length - 3);
         }
 
         public async Task<Dictionary<string, object>> ParseFormData(HttpActionContext actionContext)
