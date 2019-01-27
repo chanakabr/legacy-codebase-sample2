@@ -119,6 +119,50 @@ namespace KlogMonitorHelper
             }
         }
 
+        public static void InitMonitorLogsDataFormUrlEncoded(string action, string requestString, int groupId)
+        {
+            if (string.IsNullOrEmpty(requestString))
+                log.Debug("REQUEST STRING IS EMPTY");
+            else
+            {
+                try
+                {
+                    HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
+
+                    // get request ID
+                    if (HttpContext.Current.Request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY.ToString()] == null)
+                        HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
+                    else
+                        HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = HttpContext.Current.Request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY];
+
+                    // get user agent
+                    if (HttpContext.Current.Request.UserAgent != null)
+                        HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
+
+                    // get host IP
+                    if (HttpContext.Current.Request.UserHostAddress != null)
+                        HttpContext.Current.Items[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
+
+
+                    HttpContext.Current.Items[Constants.ACTION] = action;
+                    var nameValueCollection = HttpUtility.ParseQueryString(requestString);
+
+                    // start k-monitor
+                    HttpContext.Current.Items[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);                    
+
+                    // log request
+                    if (requestString.Length > MAX_LOG_REQUEST_SIZE)
+                        log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
+                    else
+                        log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while loading and parsing data form", ex);
+                }
+            }
+        }
+
         public static void InitMonitorLogsDataWCF(Message requestMessage)
         {
             KLogger.AppType = KLogEnums.AppType.WCF;
