@@ -496,5 +496,16 @@ namespace Core.Notification
             return (userSettings != null &&
                 userSettings.EnableSms == true);
         }
+
+        public static bool IsNotificationSettingsExistsForPartner(int groupId)
+        {            
+            NotificationPartnerSettingsResponse partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            return partnerSettingsResponse != null && partnerSettingsResponse.settings != null &&
+                    ((partnerSettingsResponse.settings.IsPushNotificationEnabled.HasValue && partnerSettingsResponse.settings.IsPushNotificationEnabled.Value)
+                    || (partnerSettingsResponse.settings.IsInboxEnabled.HasValue && partnerSettingsResponse.settings.IsInboxEnabled.Value)
+                    || (partnerSettingsResponse.settings.IsPushSystemAnnouncementsEnabled.HasValue && partnerSettingsResponse.settings.IsPushSystemAnnouncementsEnabled.Value)
+                    || (partnerSettingsResponse.settings.IsRemindersEnabled.HasValue && partnerSettingsResponse.settings.IsRemindersEnabled.Value)
+                    || (partnerSettingsResponse.settings.IsSMSEnabled.HasValue && partnerSettingsResponse.settings.IsSMSEnabled.Value));
+        }
     }
 }
