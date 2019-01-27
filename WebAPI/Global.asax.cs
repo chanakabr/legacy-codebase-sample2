@@ -20,6 +20,7 @@ namespace WebAPI
     public class WebApiApplication : System.Web.HttpApplication
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string FORM_URL_ENCODED = "application/x-www-form-urlencoded";
 
         protected void Application_Start()
         {
@@ -98,10 +99,23 @@ namespace WebAPI
 
                 // initialize monitor and logs parameters
                 string requestString = MonitorLogsHelper.GetWebServiceRequestString();
-                if (!string.IsNullOrEmpty(requestString) && requestString.ToLower().Contains("<soap"))
+                if (!string.IsNullOrEmpty(requestString))
                 {
-                    // soap request
-                    MonitorLogsHelper.InitMonitorLogsDataWS(ApiObjects.eWSModules.USERS, requestString);
+                    if (requestString.ToLower().Contains("<soap"))
+                    {
+                        // soap request
+                        MonitorLogsHelper.InitMonitorLogsDataWS(ApiObjects.eWSModules.USERS, requestString);
+                    }
+                    else if (Request.ContentType == FORM_URL_ENCODED)
+                    {
+                        string action = string.Empty;
+                        if (!string.IsNullOrEmpty(Request.PathInfo) && Request.PathInfo.Length > 1)
+                        {
+                            action = Request.PathInfo.Substring(1);
+                        }
+
+                        MonitorLogsHelper.InitMonitorLogsDataFormUrlEncoded(action, requestString);
+                    }
                 }
             }
             else
