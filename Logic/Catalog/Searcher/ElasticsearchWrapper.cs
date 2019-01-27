@@ -665,10 +665,7 @@ namespace Core.Catalog
                 
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);
-                if (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(nParentGroupID) != null)
-                {
-                    epgSearch.m_bSearchEndDate = true;
-                }
+                epgSearch.m_bSearchEndDate = ConditionalAccess.Utils.GetIsTimeShiftedTvPartnerSettingsExists(nParentGroupID);                
 
                 DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
