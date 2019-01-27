@@ -22,6 +22,7 @@ namespace WebAPI
     public class WebApiApplication : System.Web.HttpApplication
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string FORM_URL_ENCODED = "application/x-www-form-urlencoded";
 
         protected void Application_Start()
         {
@@ -127,6 +128,26 @@ namespace WebAPI
             return 0;
         }
 
+        static private int GetGroupIdFormUrlEncoded(string requestString)
+        {
+            int groupId = 0;
+            try
+            {
+                NameValueCollection nameValueCollection = HttpUtility.ParseQueryString(requestString);
+                string username = nameValueCollection["sWSUserName"];
+                string module = GetWsModuleByUserName(username);
+                string password = nameValueCollection["sWSPassword"];
+                Credentials wsc = new Credentials(username, password);
+                groupId = TvinciCache.WSCredentials.GetGroupID(module, wsc);                
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get groupId from FormUrlEncoded", ex);
+            }
+
+            return groupId;
+        }
+
         private static string GetWsModuleByUserName(string userName)
         {
             string[] splitedUserName = userName.Split('_');
@@ -153,11 +174,25 @@ namespace WebAPI
 
                 // initialize monitor and logs parameters
                 string requestString = MonitorLogsHelper.GetWebServiceRequestString();
-                if (!string.IsNullOrEmpty(requestString) && requestString.ToLower().Contains("<soap"))
+                if (!string.IsNullOrEmpty(requestString))
                 {
-                    // soap request
-                    int groupId = GetGroupID(requestString);
-                    MonitorLogsHelper.InitMonitorLogsDataWS("USERS", requestString, groupId);
+                    if (requestString.ToLower().Contains("<soap"))
+                    {
+                        // soap request
+                        int groupId = GetGroupID(requestString);
+                        MonitorLogsHelper.InitMonitorLogsDataWS("USERS", requestString, groupId);
+                    }
+                    else if (Request.ContentType == FORM_URL_ENCODED)
+                    {
+                        string action = string.Empty;
+                        if (!string.IsNullOrEmpty(Request.PathInfo) && Request.PathInfo.Length > 1)
+                        {
+                            action = Request.PathInfo.Substring(1);
+                        }
+
+                        int groupId = GetGroupIdFormUrlEncoded(requestString);
+                        MonitorLogsHelper.InitMonitorLogsDataFormUrlEncoded(action, requestString, groupId);
+                    }
                 }
             }
             else
