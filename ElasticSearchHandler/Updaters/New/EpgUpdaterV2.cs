@@ -201,12 +201,12 @@ namespace ElasticSearchHandler.Updaters
                 // GetLinear Channel Values 
                 ElasticSearchTaskUtils.GetLinearChannelValues(epgObjects, this.groupId);
 
-                // TODO - Lior, remove these 5 lines below - used only to currently support linear media id search on elastic search
-                List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
-                Dictionary<string, Core.Catalog.LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
-                if (linearChannelSettings == null)
+                // used only to support linear media id search on elastic search                
+                Dictionary<string, Core.Catalog.LinearChannelSettings> linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();
+                if (doesGroupUsesTemplates)
                 {
-                    linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();
+                    List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
+                    linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
                 }
 
                 if (epgObjects != null)
@@ -247,7 +247,7 @@ namespace ElasticSearchHandler.Updaters
                                     }
 
                                     // TODO - Lior, remove all this if - used only to currently support linear media id search on elastic search
-                                    if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
+                                    if (doesGroupUsesTemplates && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                                     {
                                         epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
                                     }

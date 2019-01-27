@@ -423,12 +423,12 @@ namespace ElasticSearchHandler.IndexBuilders
 
             ElasticSearchTaskUtils.GetLinearChannelValues(programsList, groupId);
 
-            // TODO - Lior, remove these 5 lines below - used only to currently support linear media id search on elastic search
+            // used only to support linear media id search on elastic search
             List<string> epgChannelIds = programsList.Select(item => item.ChannelID.ToString()).ToList<string>();
-            Dictionary<string, Core.Catalog.LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
-            if (linearChannelSettings == null)
+            Dictionary<string, Core.Catalog.LinearChannelSettings>  linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();
+            if (doesGroupUsesTemplates)
             {
-                linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();
+                linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
             }
 
             // Run on all programs
@@ -465,8 +465,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (epg != null)
                     {
-                        // TODO - Lior, remove all this if - used only to currently support linear media id search on elastic search
-                        if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
+                        // used only to currently support linear media id search on elastic search
+                        if (doesGroupUsesTemplates && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                         {
                             epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
                         }
