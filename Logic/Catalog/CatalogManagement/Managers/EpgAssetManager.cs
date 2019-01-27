@@ -1519,7 +1519,7 @@ namespace Core.Catalog.CatalogManagement
                     bool picReplaced = false;
                     for (int picIndex = 0; picIndex < program.pictures.Count; picIndex++)
                     {
-                        if(program.pictures[picIndex].IsProgramImage && program.pictures[picIndex].Ratio == image.RatioName)
+                        if(!program.pictures[picIndex].IsProgramImage && program.pictures[picIndex].Ratio == image.RatioName)
                         {
                             program.pictures[picIndex] = pic;
                             picReplaced = true;
