@@ -930,6 +930,9 @@ namespace Core.Catalog.CatalogManagement
                             image.ImageObjectType = eAssetImageType.ProgramGroup;
                             epgPics.Add(image.Id, image);
                         }
+
+                        image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
+
                     }
 
                     // Get images for updating image.Id 
