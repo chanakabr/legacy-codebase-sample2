@@ -1074,19 +1074,20 @@ namespace Core.Users
             return isAllowed;
         }
 
-        public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
+        public static void AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
-            InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
-            ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
+            if (Notification.NotificationSettings.IsNotificationSettingsExistsForPartner(groupId))
+            {
+                InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
+                ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
 
-            bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
+                bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
 
-            if (res)
-                log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-            else
-                log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-
-            return res;
+                if (res)
+                    log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+                else
+                    log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+            }
         }
         
         private static string CreateInitiazeNotificationACtionSoapRequest(string wsUserName, string wsPassword, eUserMessageAction action, int userId, string udid, string pushToken)

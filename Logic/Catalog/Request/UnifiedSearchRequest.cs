@@ -342,7 +342,7 @@ namespace Core.Catalog.Request
 
         internal virtual bool GetShouldUseSearchEndDate()
         {
-            return (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID) != null);            
+            return ConditionalAccess.Utils.GetIsTimeShiftedTvPartnerSettingsExists(m_nGroupID);            
         }
     }
 }

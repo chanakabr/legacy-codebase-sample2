@@ -52,7 +52,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }        
+        }
 
         private static Status CreateImageTypeResponseStatusFromResult(long result)
         {
@@ -165,7 +165,7 @@ namespace Core.Catalog.CatalogManagement
             // try to get from cache  
 
             bool cacheResult = LayeredCache.Instance.Get<List<Ratio>>(key, ref result, GetRatios, new Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupRatiosInvalidationKey(groupId) } );
+                groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupRatiosInvalidationKey(groupId) });
 
             if (!cacheResult)
             {
@@ -224,7 +224,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }        
+        }
 
         private static Image CreateImageFromDataRow(int groupId, DataRow row, Dictionary<long, string> imageTypeIdToRatioName, List<Ratio> ratios, long id = 0)
         {
@@ -262,7 +262,7 @@ namespace Core.Catalog.CatalogManagement
 
                 image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
             }
-            
+
             return image;
         }
 
@@ -309,7 +309,7 @@ namespace Core.Catalog.CatalogManagement
         private static Dictionary<long, string> GetGroupRatioIdToNameMap(int groupId)
         {
             Dictionary<long, string> result = null;
-            List<Ratio> groupRatios = GetGroupImageRatios(groupId);            
+            List<Ratio> groupRatios = GetGroupImageRatios(groupId);
             if (groupRatios != null && groupRatios.Count > 0)
             {
                 result = new Dictionary<long, string>();
@@ -317,7 +317,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     if (!result.ContainsKey(ratio.Id))
                     {
-                        result.Add(ratio.Id, ratio.Name);                        
+                        result.Add(ratio.Id, ratio.Name);
                     }
                 }
             }
@@ -342,14 +342,14 @@ namespace Core.Catalog.CatalogManagement
                             groupDefaultImages = new List<Image>();
                             List<long> imageTypesWithDefaultPic = imageTypes.Where(x => x.DefaultImageId.HasValue && x.DefaultImageId.Value > 0).Select(x => x.DefaultImageId.Value).ToList();
                             if (imageTypesWithDefaultPic != null && imageTypesWithDefaultPic.Count > 0)
-                            {                                
+                            {
                                 GenericListResponse<Image> defaultImagesResponse = GetImagesByIds(groupId.Value, imageTypesWithDefaultPic, true);
                                 if (defaultImagesResponse != null && defaultImagesResponse.Status != null && defaultImagesResponse.Status.Code == (int)eResponseStatus.OK)
                                 {
                                     groupDefaultImages.AddRange(defaultImagesResponse.Objects);
                                 }
                             }
-                        }                                          
+                        }
 
                         res = groupDefaultImages != null;
                     }
@@ -379,7 +379,7 @@ namespace Core.Catalog.CatalogManagement
             // invalidate channel
             else if (assetImageType == eAssetImageType.Channel)
             {
-                string invalidationKey = LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)id);                
+                string invalidationKey = LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)id);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after {2}", id, invalidationKey, callingMethod);
@@ -429,7 +429,7 @@ namespace Core.Catalog.CatalogManagement
                 image = new Image()
                 {
                     Id = imageId,
-                    ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),                    
+                    ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),
                     ImageObjectType = eAssetImageType.Program,
                     Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
                     Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
@@ -446,7 +446,7 @@ namespace Core.Catalog.CatalogManagement
         {
             switch (imageObjectType)
             {
-                case eAssetImageType.ProgramGroup:                
+                case eAssetImageType.ProgramGroup:
                     return ImageReferenceTable.EpgPics;
                 case eAssetImageType.Media:
                 case eAssetImageType.Channel:
@@ -507,7 +507,7 @@ namespace Core.Catalog.CatalogManagement
 
         internal static Dictionary<ImageReferenceTable, Dictionary<long, long>> CreateImageReferncesIdsFromDataTable(DataTable dt)
         {
-            Dictionary<ImageReferenceTable, Dictionary<long, long>>  response = new Dictionary<ImageReferenceTable, Dictionary<long, long>>();
+            Dictionary<ImageReferenceTable, Dictionary<long, long>> response = new Dictionary<ImageReferenceTable, Dictionary<long, long>>();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 foreach (DataRow row in dt.Rows)
@@ -564,7 +564,7 @@ namespace Core.Catalog.CatalogManagement
                 if (imageTypeToAdd.DefaultImageId.HasValue)
                 {
                     GenericListResponse<Image> imageList = GetImagesByIds(groupId, new List<long>() { imageTypeToAdd.DefaultImageId.Value });
-                    if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK ||imageList.Objects == null || imageList.Objects.Count != 1)
+                    if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK || imageList.Objects == null || imageList.Objects.Count != 1)
                     {
                         result.SetStatus(eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
                         return result;
@@ -642,7 +642,7 @@ namespace Core.Catalog.CatalogManagement
                             log.ErrorFormat("Failed to set invalidation key on DeleteImageType key = {0}", defaultGroupImagesInvalidationKey);
                         }
                     }
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -795,13 +795,13 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteImage(groupId, id))
                 {
                     Image image = imagesResponse.Objects.First();
-                    if (!CatalogDAL.DeletePic(groupId, id, userId))
+                    if (!CatalogDAL.DeletePic(groupId, image.ReferenceId, userId))
                     {
                         log.ErrorFormat("Failed to delete image from {0} table. Id = {1}", image.ReferenceTable, image.ReferenceId);
                     }
 
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    
+
                     if (image != null)
                     {
                         if (image.IsDefault.HasValue && image.IsDefault.Value)
@@ -814,26 +814,26 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         // in case of program, need to remove pic and update CB
-                        if( image.ImageObjectType == eAssetImageType.Program )
+                        if (image.ImageObjectType == eAssetImageType.Program)
                         {
                             EpgCB program = EpgDal.GetEpgCB(image.ImageObjectId);
-                            if(program != null && program.pictures != null)
+                            if (program != null && program.pictures != null)
                             {
                                 /// remove picture
                                 var pic = program.pictures.Where(x => x.IsProgramImage && x.PicID == image.ReferenceId).FirstOrDefault();
-                                if( pic != null && program.pictures.Remove(pic))
+                                if (pic != null && program.pictures.Remove(pic))
                                 {
                                     if (!EpgDal.SaveEpgCB(program, true))
                                     {
-                                        log.ErrorFormat("Error while update epgCB at DeleteImage. groupId: {0}, imageId:{1}, user: {2}", groupId, id, userId);                                        
+                                        log.ErrorFormat("Error while update epgCB at DeleteImage. groupId: {0}, imageId:{1}, user: {2}", groupId, id, userId);
                                     }
-                                }                                
+                                }
                             }
                         }
 
                         // invalidate asset with this image
                         InvalidateAsset(groupId, image.ImageObjectId, image.ImageObjectType);
-                    }                   
+                    }
                 }
             }
             catch (Exception ex)
@@ -866,7 +866,7 @@ namespace Core.Catalog.CatalogManagement
                     // check if group uses pic sizes
                     UpdateImagesForGroupWithPicSizes(groupId, ref tempResponse);
 
-                    response = tempResponse;                 
+                    response = tempResponse;
                 }
             }
 
@@ -920,7 +920,7 @@ namespace Core.Catalog.CatalogManagement
                             ImageTypeId = imageTypeId
                         };
 
-                        if(pic.IsProgramImage)
+                        if (pic.IsProgramImage)
                         {
                             image.ImageObjectType = eAssetImageType.Program;
                             pics.Add(image.Id, image);
@@ -930,6 +930,9 @@ namespace Core.Catalog.CatalogManagement
                             image.ImageObjectType = eAssetImageType.ProgramGroup;
                             epgPics.Add(image.Id, image);
                         }
+
+                        image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
+
                     }
 
                     // Get images for updating image.Id 
@@ -938,7 +941,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.Pics, pics.Keys.ToList());
                         referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
-                        
+
                         foreach (Image item in pics.Values)
                         {
                             if (referncesIds.Keys.Count > 0 && referncesIds[ImageReferenceTable.Pics].ContainsKey(item.Id))
@@ -1024,7 +1027,7 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<Image> result = new GenericResponse<Image>();
             try
             {
-                if(imageToAdd.ImageObjectType  == eAssetImageType.ProgramGroup)
+                if (imageToAdd.ImageObjectType == eAssetImageType.ProgramGroup)
                 {
                     log.ErrorFormat("ImageType is not addable. assetId = {0}, assetType = {1}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
                     result.SetStatus(eResponseStatus.Error, "ImageType is not addable");
@@ -1084,7 +1087,7 @@ namespace Core.Catalog.CatalogManagement
 
                                 result.SetStatus(imageTypeResult.Status);
                             }
-                       }
+                        }
 
                         ImageReferenceTable table = GetImageReferenceTable(imageToAdd.ImageObjectType);
                         id = CatalogDAL.InsertImage(groupId, (int)table, id);
@@ -1145,7 +1148,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // validate image ratio
                 Ratio ratio = null;
-                ImageType imageType = GetImageType(groupId, image.ImageTypeId);                
+                ImageType imageType = GetImageType(groupId, image.ImageTypeId);
                 if (imageType == null)
                 {
                     result = new Status((int)eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
@@ -1163,7 +1166,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             using (WebClient webClient = new WebClient())
                             {
-                                byte[] imageBytes = webClient.DownloadData(url);                    
+                                byte[] imageBytes = webClient.DownloadData(url);
                                 MemoryStream imageStream = new MemoryStream(imageBytes);
                                 System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream);
                                 double downloadedImageRatio = (double)downloadedImage.Width / downloadedImage.Height;
@@ -1210,7 +1213,7 @@ namespace Core.Catalog.CatalogManagement
 
                     // invalidate asset with this image
                     InvalidateAsset(groupId, image.ImageObjectId, image.ImageObjectType);
-                    
+
                 }
             }
             catch (Exception ex)
@@ -1238,7 +1241,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             Id = id,
                             Height = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "height"),
-                            Width= ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "width"),
+                            Width = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "width"),
                             PrecisionPrecentage = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "precision_percentage"),
                             Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME")
                         };
@@ -1334,7 +1337,7 @@ namespace Core.Catalog.CatalogManagement
         public static Dictionary<long, string> GetImageTypeIdToRatioNameMap(int groupId)
         {
             Dictionary<long, string> result = null;
-            List<ImageType> groupImageTypes = GetGroupImageTypes(groupId);            
+            List<ImageType> groupImageTypes = GetGroupImageTypes(groupId);
             if (groupImageTypes != null && groupImageTypes.Count > 0)
             {
                 Dictionary<long, string> ratioIdToNameMap = GetGroupRatioIdToNameMap(groupId);
@@ -1355,7 +1358,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
                     }
-                }                                        
+                }
             }
 
             return result;
@@ -1368,15 +1371,15 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<ImageType> imageTypes = GetImageTypes(groupId, false, null);
             if (imageTypes != null && imageTypes.HasObjects())
             {
-                    groupRatioNamesToImageTypes = new Dictionary<string, ImageType>();
+                groupRatioNamesToImageTypes = new Dictionary<string, ImageType>();
 
-                    foreach (var imageType in imageTypes.Objects)
+                foreach (var imageType in imageTypes.Objects)
+                {
+                    if (!groupRatioNamesToImageTypes.ContainsKey(imageType.SystemName))
                     {
-                        if (!groupRatioNamesToImageTypes.ContainsKey(imageType.SystemName))
-                        {
-                            groupRatioNamesToImageTypes.Add(imageType.SystemName, imageType);
-                        }
+                        groupRatioNamesToImageTypes.Add(imageType.SystemName, imageType);
                     }
+                }
             }
 
             return groupRatioNamesToImageTypes;
@@ -1397,7 +1400,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.ErrorFormat("GetGroupEpgPicturesSizes - GetAllEpgPictures - Failed get data from cache. groupId: {0}", groupId);
             }
-            
+
             return epgPictures;
         }
 

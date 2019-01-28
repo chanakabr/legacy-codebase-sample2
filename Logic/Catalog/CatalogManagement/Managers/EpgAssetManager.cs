@@ -1516,14 +1516,20 @@ namespace Core.Catalog.CatalogManagement
                         ImageTypeId = image.ImageTypeId
                     };
 
-                    var programPic = program.pictures.FirstOrDefault(x => !x.IsProgramImage && x.Ratio == image.RatioName);
-                    if (programPic != null)
+                    bool picReplaced = false;
+                    for (int picIndex = 0; picIndex < program.pictures.Count; picIndex++)
                     {
-                        programPic = pic;
+                        if(!program.pictures[picIndex].IsProgramImage && program.pictures[picIndex].Ratio == image.RatioName)
+                        {
+                            program.pictures[picIndex] = pic;
+                            picReplaced = true;
+                        }
                     }
-                    else
+
+                    if(!picReplaced)
                     {
                         program.pictures.Add(pic);
+
                     }
                 }
 
