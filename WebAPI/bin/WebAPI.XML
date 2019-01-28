@@ -9341,6 +9341,11 @@
             Package type. Possible values: PPV, Subscription, Collection
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.AdapterData">
+            <summary>
+            Additional data for the adapter
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Currency">
             <summary>
             Identifier for paying currency, according to ISO 4217
@@ -9364,11 +9369,6 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Coupon">
             <summary>
             Coupon code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.AdapterData">
-            <summary>
-            Additional data for the adapter
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseSession.PreviewModuleId">
@@ -11992,7 +11992,7 @@
             Base class
             </summary>
         </member>
-        <member name="M:WebAPI.Models.General.KalturaOTTObject.GetItemsIn``2(System.String,System.String)">
+        <member name="M:WebAPI.Models.General.KalturaOTTObject.GetItemsIn``2(System.String,System.String,System.Boolean)">
             <summary>
             Convert comma separated string to collection.
             </summary>

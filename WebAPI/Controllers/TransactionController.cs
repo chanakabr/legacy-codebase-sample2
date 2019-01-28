@@ -343,7 +343,10 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().ProcessReceipt(ks.GroupId, ks.UserId.ToString(), 0, externalReceipt.getContentId(), externalReceipt.ProductId, externalReceipt.ProductType, udid, externalReceipt.ReceiptId, externalReceipt.PaymentGatewayName);
+                response = ClientsManager.ConditionalAccessClient().ProcessReceipt(ks.GroupId, ks.UserId.ToString(), 0, externalReceipt.getContentId(), 
+                                                                                   externalReceipt.ProductId, externalReceipt.ProductType, udid, 
+                                                                                   externalReceipt.ReceiptId, externalReceipt.PaymentGatewayName, 
+                                                                                   externalReceipt.AdapterData);
             }
             catch (ClientException ex)
             {
@@ -369,7 +372,8 @@ namespace WebAPI.Controllers
         [Action("processReceipt")]
         [ApiAuthorize]
         [Obsolete]
-        static public KalturaTransaction ProcessReceipt(int product_id, KalturaTransactionType product_type, string purchase_receipt, string payment_gateway_name, int content_id = 0)
+        static public KalturaTransaction ProcessReceipt(int product_id, KalturaTransactionType product_type, string purchase_receipt, string payment_gateway_name,
+                                                        int content_id = 0)
         {
             KalturaTransaction response = null;
             KS ks = KS.GetFromRequest();
@@ -386,7 +390,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().ProcessReceipt(ks.GroupId, ks.UserId.ToString(), 0, content_id, product_id, product_type, udid, purchase_receipt, payment_gateway_name);
+                response = ClientsManager.ConditionalAccessClient().ProcessReceipt(ks.GroupId, ks.UserId.ToString(), 0, content_id, product_id, product_type, udid, 
+                                                                                   purchase_receipt, payment_gateway_name, null);
             }
             catch (ClientException ex)
             {
