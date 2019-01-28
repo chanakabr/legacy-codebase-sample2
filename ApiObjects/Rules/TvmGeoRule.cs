@@ -30,7 +30,7 @@ namespace ApiObjects.Rules
 
         public TvmGeoRule()
         {
-            TvmRuleType = RuleType.Geo;
+            RuleType = TvmRuleType.Geo;
         }
     }
 }

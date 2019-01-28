@@ -13,7 +13,7 @@ namespace ApiObjects.Rules
         [JsonProperty("CreateDate")]
         public long CreateDate { get; set; }
 
-        [JsonProperty("TvmRuleType")]
-        public RuleType TvmRuleType { get; protected set; }
+        [JsonProperty("RuleType")]
+        public TvmRuleType RuleType { get; protected set; }
     }
 }

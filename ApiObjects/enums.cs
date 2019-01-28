@@ -60,6 +60,12 @@ namespace ApiObjects
         Network = 5
     }
 
+    public enum TvmRuleType
+    {
+        Geo = 0,
+        Device = 1,
+    }
+
     public enum eMailTemplateType
     {
         Welcome = 0,

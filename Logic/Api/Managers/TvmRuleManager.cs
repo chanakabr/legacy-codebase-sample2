@@ -319,14 +319,14 @@ namespace APILogic.Api.Managers
             return null;
         }
 
-        public static GenericListResponse<TvmRule> GetTvmRules(int groupId, RuleType? ruleTypeEqual, string nameEqual)
+        public static GenericListResponse<TvmRule> GetTvmRules(int groupId, TvmRuleType? ruleTypeEqual, string nameEqual)
         {
             GenericListResponse<TvmRule> tvmRules = new GenericListResponse<TvmRule>();
 
             try
             {
                 // get geo rules
-                if (!ruleTypeEqual.HasValue || ruleTypeEqual.Value == RuleType.Geo)
+                if (!ruleTypeEqual.HasValue || ruleTypeEqual.Value == TvmRuleType.Geo)
                 {
                     var tvmGeoRules = GetTvmGeoRulesFromCache(groupId);
                     if (tvmGeoRules != null && tvmGeoRules.Count > 0)
@@ -347,7 +347,7 @@ namespace APILogic.Api.Managers
                 }
 
                 // get device rules
-                if (!ruleTypeEqual.HasValue || ruleTypeEqual.Value == RuleType.Device)
+                if (!ruleTypeEqual.HasValue || ruleTypeEqual.Value == TvmRuleType.Device)
                 {
                     var tvmDeviceRules = GetTvmDeviceRulesFromCache(groupId);
                     if (tvmDeviceRules != null && tvmDeviceRules.Count > 0)
