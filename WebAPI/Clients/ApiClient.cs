@@ -4152,10 +4152,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaTvmRuleListResponse GetTvmRules(int groupId, KalturaRuleType? ruleTypeEqual, string nameEqual)
+        internal KalturaTvmRuleListResponse GetTvmRules(int groupId, KalturaTvmRuleType? ruleTypeEqual, string nameEqual)
         {
             KalturaTvmRuleListResponse result = new KalturaTvmRuleListResponse();
-            var ruleType = AutoMapper.Mapper.Map<RuleType?>(ruleTypeEqual);
+            var ruleType = AutoMapper.Mapper.Map<TvmRuleType?> (ruleTypeEqual);
 
             Func<GenericListResponse<TvmRule>> getTvmRulesFunc = () =>
                 TvmRuleManager.GetTvmRules(groupId, ruleType, nameEqual);

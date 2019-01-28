@@ -989,15 +989,61 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
+            cfg.CreateMap<KalturaTvmRuleType?, TvmRuleType?>()
+               .ConvertUsing(kalturaTvmRuleType =>
+               {
+                   if (!kalturaTvmRuleType.HasValue)
+                   {
+                       return null;
+                   }
+
+                   switch (kalturaTvmRuleType)
+                   {
+                       case KalturaTvmRuleType.Geo:
+                           return TvmRuleType.Geo;
+                           break;
+                       case KalturaTvmRuleType.Device:
+                           return TvmRuleType.Device;
+                           break;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue,
+                               string.Format("Unknown KalturaTvmRuleType value : {0}", kalturaTvmRuleType.ToString()));
+                           break;
+                   }
+               });
+
+            cfg.CreateMap<TvmRuleType?, KalturaTvmRuleType?>()
+               .ConvertUsing(tvmRuleType =>
+               {
+                   if (!tvmRuleType.HasValue)
+                   {
+                       return null;
+                   }
+
+                   switch (tvmRuleType)
+                   {
+                       case TvmRuleType.Geo:
+                           return KalturaTvmRuleType.Geo;
+                           break;
+                       case TvmRuleType.Device:
+                           return KalturaTvmRuleType.Device;
+                           break;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue,
+                               string.Format("Unknown TvmRuleType value : {0}", tvmRuleType.ToString()));
+                           break;
+                   }
+               });
+
             cfg.CreateMap<KalturaTvmRule, TvmRule>()
                 .IncludeBase<KalturaRule, Rule>()
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.TvmRuleType, opt => opt.MapFrom(src => src.RuleType));
+                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => src.RuleType));
 
             cfg.CreateMap<TvmRule, KalturaTvmRule>()
                 .IncludeBase<Rule, KalturaRule>()
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => src.TvmRuleType));
+                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => src.RuleType));
 
             cfg.CreateMap<KalturaTvmGeoRule, TvmGeoRule>()
                 .IncludeBase<KalturaTvmRule, TvmRule>()
