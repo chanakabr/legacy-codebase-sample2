@@ -695,7 +695,7 @@ namespace APILogic.PaymentGWAdapter {
         APILogic.PaymentGWAdapter.TransactionResponse VerifyPendingTransaction(int paymentGatewayId, string transactionID, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/VerifyTransaction", ReplyAction="http://tempuri.org/IService/VerifyTransactionResponse")]
-        APILogic.PaymentGWAdapter.TransactionResponse VerifyTransaction(int paymentGatewayId, string userId, string ip, string productId, string productCode, APILogic.PaymentGWAdapter.eTransactionType transactionType, string purchaseToken, long timeStamp, string signature, string contentId);
+        APILogic.PaymentGWAdapter.TransactionResponse VerifyTransaction(int paymentGatewayId, string userId, string ip, string productId, string productCode, APILogic.PaymentGWAdapter.eTransactionType transactionType, string purchaseToken, long timeStamp, string signature, string contentId, string adapterData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/ProcessRenewal", ReplyAction="http://tempuri.org/IService/ProcessRenewalResponse")]
         APILogic.PaymentGWAdapter.TransactionResponse ProcessRenewal(int paymentGatewayId, string userId, string productId, string productCode, string transactionId, int gracePeriodMinutes, double price, string currency, string chargeId, string paymentMethodExternalId, long timeStamp, string signature);
@@ -753,8 +753,8 @@ namespace APILogic.PaymentGWAdapter {
             return base.Channel.VerifyPendingTransaction(paymentGatewayId, transactionID, timeStamp, signature);
         }
         
-        public APILogic.PaymentGWAdapter.TransactionResponse VerifyTransaction(int paymentGatewayId, string userId, string ip, string productId, string productCode, APILogic.PaymentGWAdapter.eTransactionType transactionType, string purchaseToken, long timeStamp, string signature, string contentId) {
-            return base.Channel.VerifyTransaction(paymentGatewayId, userId, ip, productId, productCode, transactionType, purchaseToken, timeStamp, signature, contentId);
+        public APILogic.PaymentGWAdapter.TransactionResponse VerifyTransaction(int paymentGatewayId, string userId, string ip, string productId, string productCode, APILogic.PaymentGWAdapter.eTransactionType transactionType, string purchaseToken, long timeStamp, string signature, string contentId, string adapterData) {
+            return base.Channel.VerifyTransaction(paymentGatewayId, userId, ip, productId, productCode, transactionType, purchaseToken, timeStamp, signature, contentId, adapterData);
         }
         
         public APILogic.PaymentGWAdapter.TransactionResponse ProcessRenewal(int paymentGatewayId, string userId, string productId, string productCode, string transactionId, int gracePeriodMinutes, double price, string currency, string chargeId, string paymentMethodExternalId, long timeStamp, string signature) {
