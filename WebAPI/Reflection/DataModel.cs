@@ -4538,6 +4538,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IsProtected":
                             return "isProtected";
+                        case "MetaData":
+                            return "metaData";
                         case "Status":
                             return "status";
                         case "Type":
