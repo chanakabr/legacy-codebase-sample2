@@ -1299,9 +1299,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case eAssetImageType.ImageType:
                     return KalturaImageObjectType.IMAGE_TYPE;
                 case eAssetImageType.ProgramGroup:
-                    return KalturaImageObjectType.PROGRAM_GROUP;
-                case eAssetImageType.DefaultPic:
+                    return KalturaImageObjectType.PROGRAM_GROUP;               
                 case eAssetImageType.LogoPic:
+                    return KalturaImageObjectType.PARTNER;
+                case eAssetImageType.DefaultPic:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown image object type");
             }
@@ -1324,7 +1325,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaImageObjectType.PROGRAM_GROUP:
                     return eAssetImageType.ProgramGroup;
                 case KalturaImageObjectType.PARTNER:
-                    throw new ClientException((int)StatusCode.Error, "Not implemented yet");
+                    return eAssetImageType.LogoPic;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown image object type");
             }
