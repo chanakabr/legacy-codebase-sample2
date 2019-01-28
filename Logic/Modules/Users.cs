@@ -1533,6 +1533,16 @@ namespace Core.Users
                 AddItemToContext(Constants.USER_ID, oBasicData.m_sUserName);
             }
 
+            if (oBasicData.RoleIds != null && oBasicData.RoleIds.Count > 0)
+            {
+                var roles = Api.Module.GetRoles(nGroupID, oBasicData.RoleIds);
+                if (roles == null || roles.Status == null || roles.Status.Code == (int)eResponseStatus.Error || roles.Roles == null || roles.Roles.Count != oBasicData.RoleIds.Count)
+                {
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.RoleDoesNotExists, eResponseStatus.RoleDoesNotExists.ToString());
+                    return response;
+                }
+            }
+            
             response.user = AddNewUser(nGroupID, oBasicData, dynamicData, password, affiliateCode);
 
             if (response.user != null)
