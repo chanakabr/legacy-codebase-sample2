@@ -4737,6 +4737,53 @@ namespace Core.ConditionalAccess
             return channelsList;
         }
 
+        private static Tuple<bool, bool> GetIsTstvSettingsExists(Dictionary<string, object> funcParams)
+        {
+            bool isExists = false;
+            bool result = true;
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupId.Value, out result);
+
+                        isExists = dr != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetIsTimeShiftedTvPartnerSettingsExists failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<bool, bool>(isExists, result);
+        }
+
+        internal static bool GetIsTimeShiftedTvPartnerSettingsExists(int groupId)
+        {
+            bool isTstvSettingsExists = false;
+            try
+            {
+                string key = LayeredCacheKeys.GetIsTstvSettingsExistsKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetTstvAccountSettingsInvalidationKey(groupId);
+                if (!LayeredCache.Instance.Get<bool>(key, ref isTstvSettingsExists, GetIsTstvSettingsExists, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                                groupId, LayeredCacheConfigNames.GET_TSTV_ACCOUNT_SETTINGS_CACHE_CONFIG_NAME, new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("Failed getting is tstv settings exists from LayeredCache, groupId: {0}", groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetIsTimeShiftedTvPartnerSettingsExists for groupId: {0}", groupId), ex);
+            }
+
+            return isTstvSettingsExists;
+        }
+
         private static Tuple<TimeShiftedTvPartnerSettings, bool> GetTimeShiftedTvPartnerSettings(Dictionary<string, object> funcParams)
         {
             TimeShiftedTvPartnerSettings tstvAccountSettings = null;
@@ -5451,7 +5498,7 @@ namespace Core.ConditionalAccess
                     LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap,
                     GetDomainRecordingsFromDB, funcParams, groupId,
                     LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
-                    new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)});
+                    new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)}, true);
             }
 
             catch (Exception ex)
@@ -5702,6 +5749,14 @@ namespace Core.ConditionalAccess
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
                 RecordingType recordingType = (RecordingType) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
 
+                string metaDataStr = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATA");
+                Dictionary<string, string> metaData = null;
+                try
+                {
+                    metaData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(metaDataStr);
+                }
+                catch { }
+ 
                 if (!recordingStatus.HasValue)
                 {
                     log.ErrorFormat(
@@ -5745,8 +5800,7 @@ namespace Core.ConditionalAccess
                         RecordingStatus = recordingStatus.Value,
                         ExternalRecordingId = externalRecordingId,
                         Crid = crid,
-                        Type = recordingType,
-
+                        Type = recordingType
                     };
                 }
                 else
@@ -5766,7 +5820,8 @@ namespace Core.ConditionalAccess
                         ExternalRecordingId = externalRecordingId,
                         Crid = crid,
                         Type = recordingType,
-                        ExternalDomainRecordingId = domainExternalRecordingId
+                        ExternalDomainRecordingId = domainExternalRecordingId,
+                        MetaData = metaData
                     };
                 }
 

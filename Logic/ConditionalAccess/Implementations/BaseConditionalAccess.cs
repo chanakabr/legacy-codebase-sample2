@@ -14550,7 +14550,15 @@ namespace Core.ConditionalAccess
                 recording.Id = domainRecordingId;
 
                 // Validate there is an update
-                bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected);
+                string metaDataStr = string.Empty;
+                if (recording is ExternalRecording)
+                {
+                    metaDataStr = (recording as ExternalRecording).MetaDataAsJson;
+                }
+
+                bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected)
+                    || !metaDataStr.IsNullOrEmptyOrWhiteSpace();
+
                 if (!shouldUpdate)
                 {
                     return recording;
@@ -14580,8 +14588,8 @@ namespace Core.ConditionalAccess
                         protectedUntilEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate.Value);
                     }
 
-                    if (RecordingsDAL.UpdateRecordingProtected(recording.Id, protectedUntilDate,
-                        protectedUntilEpoch))
+                    if (RecordingsDAL.UpdateRecordingProtectedAndMetaData(recording.Id, protectedUntilDate,
+                        protectedUntilEpoch, (recording as ExternalRecording).MetaDataAsJson))
                     {
                         UpdateRecordingSuccessed(recording, protectedUntilEpoch);
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainRecordingId));
@@ -16927,8 +16935,6 @@ namespace Core.ConditionalAccess
                     }
 
                     response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId);
-                    if (response.Status.IsOkStatusCode())
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
                 }
                 else
                 {                    

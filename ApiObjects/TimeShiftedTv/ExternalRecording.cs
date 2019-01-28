@@ -1,17 +1,23 @@
-﻿using Newtonsoft.Json;
+﻿using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace ApiObjects.TimeShiftedTv
 {
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+
     public class ExternalRecording: Recording
     {
+        private static readonly KLogger _log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public string ExternalDomainRecordingId { get; set; }
+
+        public Dictionary<string, string> MetaData { get; set; }
 
         public ExternalRecording()
             : base()
@@ -20,18 +26,12 @@ namespace ApiObjects.TimeShiftedTv
             this.ExternalDomainRecordingId = string.Empty;
         }
 
-        public ExternalRecording(Recording recording, string externalDomainRecordingId)
-            : base(recording)
-        {
-            this.isExternalRecording = true;
-            this.ExternalDomainRecordingId = externalDomainRecordingId;
-        }
-
-        public ExternalRecording(ExternalRecording externalRecording)
+        public ExternalRecording(ExternalRecording externalRecording, string externalDomainRecordingId)
             : base(externalRecording)
         {
             this.isExternalRecording = true;
             this.ExternalDomainRecordingId = externalRecording.ExternalDomainRecordingId;
+            this.MetaData = externalRecording.MetaData;
         }
 
         public override string ToString()
@@ -42,5 +42,20 @@ namespace ApiObjects.TimeShiftedTv
             return sb.ToString();
         }
 
+        public string MetaDataAsJson
+        {
+            get
+            {
+                try
+                {
+                    return JsonConvert.SerializeObject(this.MetaData, Formatting.None);
+                }
+                catch (Exception e)
+                {
+                    _log.Warn("error when trying to serialize MetaData to json");
+                    return string.Empty;
+                }
+            }
+        }
     }
 }

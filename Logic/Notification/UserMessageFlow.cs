@@ -51,48 +51,51 @@ namespace Core.Notification
             bool result = true;
             UserNotification userNotificationData = null;
 
-            if (userId > 0)
+            if (NotificationSettings.IsNotificationSettingsExistsForPartner(groupId))
             {
-                ApiObjects.Response.Status status = Utils.GetUserNotificationData(groupId, userId, out userNotificationData);
-                if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                if (userId > 0)
                 {
-                    return false;
+                    ApiObjects.Response.Status status = Utils.GetUserNotificationData(groupId, userId, out userNotificationData);
+                    if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                    {
+                        return false;
+                    }
+
+                    if (userNotificationData != null)
+                    {
+                        // remove old user reminders
+                        DeleteOldAnnouncements(groupId, userNotificationData);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed to get userNotificationDate, userId = {0}", userId);
+                        return false;
+                    }
                 }
 
-                if (userNotificationData != null)
+                if (PUSH_ACTIONS.Contains(userAction))
                 {
-                    // remove old user reminders
-                    DeleteOldAnnouncements(groupId, userNotificationData);
+                    result = InitiatePushAction(groupId, userAction, userId, udid, pushToken, userNotificationData);
                 }
-                else
+
+                if (MAIL_ACTIONS.Contains(userAction))
                 {
-                    log.ErrorFormat("Failed to get userNotificationDate, userId = {0}", userId);
-                    return false;
+                    result = result && InitiateMailAction(groupId, userAction, userId, userNotificationData);
                 }
-            }
 
-            if (PUSH_ACTIONS.Contains(userAction))
-            {
-                result = InitiatePushAction(groupId, userAction, userId, udid, pushToken, userNotificationData);
-            }
+                if (SMS_ACTIONS.Contains(userAction))
+                {
+                    result = result && InitiateSmsAction(groupId, userAction, userId, userNotificationData);
+                }
 
-            if (MAIL_ACTIONS.Contains(userAction))
-            {
-                result = result && InitiateMailAction(groupId, userAction, userId, userNotificationData);
-            }
-
-            if (SMS_ACTIONS.Contains(userAction))
-            {
-                result = result && InitiateSmsAction(groupId, userAction, userId, userNotificationData);
-            }
-
-            if (userAction == eUserMessageAction.DeleteUser)
-            {
-                // remove user data
-                if (!NotificationDal.RemoveUserNotificationData(groupId, userId, userNotificationData.cas))
-                    log.ErrorFormat("Error while trying to remove user notification data. GID: {0}, UID: {1}", groupId, userId);
-                else
-                    log.DebugFormat("Successfully removed user notification data. GID: {0}, UID: {1}", groupId, userId);
+                if (userAction == eUserMessageAction.DeleteUser)
+                {
+                    // remove user data
+                    if (!NotificationDal.RemoveUserNotificationData(groupId, userId, userNotificationData.cas))
+                        log.ErrorFormat("Error while trying to remove user notification data. GID: {0}, UID: {1}", groupId, userId);
+                    else
+                        log.DebugFormat("Successfully removed user notification data. GID: {0}, UID: {1}", groupId, userId);
+                }
             }
 
             return result;
