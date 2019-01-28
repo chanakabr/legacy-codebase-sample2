@@ -10,8 +10,7 @@ using System.Xml.Serialization;
 
 namespace ApiObjects.TimeShiftedTv
 {
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+
     public class ExternalRecording: Recording
     {
         private static readonly KLogger _log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

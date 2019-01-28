@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.TimeShiftedTv
 {
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+
     public class Recording
     {
         public ApiObjects.Response.Status Status { get; set; }

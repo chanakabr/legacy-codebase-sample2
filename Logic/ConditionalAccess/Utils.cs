@@ -5498,7 +5498,7 @@ namespace Core.ConditionalAccess
                     LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap,
                     GetDomainRecordingsFromDB, funcParams, groupId,
                     LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
-                    new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)});
+                    new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)}, true);
             }
 
             catch (Exception ex)
