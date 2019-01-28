@@ -411,6 +411,14 @@ namespace CouchbaseManager
                 return string.Empty;
         }
 
+        private static string ObjectToJson<T>(T obj, JsonSerializerSettings jsonSerializerSettings)
+        {
+            if (obj != null && jsonSerializerSettings != null)
+                return Newtonsoft.Json.JsonConvert.SerializeObject(obj, jsonSerializerSettings);
+            else
+                return string.Empty;
+        }
+
         private static T JsonToObject<T>(string json)
         {
             if (!string.IsNullOrEmpty(json))
@@ -423,6 +431,18 @@ namespace CouchbaseManager
                 {
                     return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
                 }
+            }
+            else
+            {
+                return default(T);
+            }
+        }
+
+        private static T JsonToObject<T>(string json, JsonSerializerSettings jsonSerializerSettings)
+        {
+            if (!string.IsNullOrEmpty(json) && jsonSerializerSettings != null)
+            {
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json, jsonSerializerSettings);
             }
             else
             {
@@ -956,6 +976,47 @@ namespace CouchbaseManager
             return result;
         }
 
+        public T Get<T>(string key, out eResultStatus status, JsonSerializerSettings jsonSerializerSettings)
+        {
+            T result = default(T);
+            status = eResultStatus.ERROR;
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult<string> getResult = null;
+
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                {                    
+                    getResult = bucket.Get<string>(key);
+                }
+
+                if (getResult != null)
+                {
+                    if (getResult.Exception != null)
+                        throw getResult.Exception;
+
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        if (!string.IsNullOrEmpty(getResult.Value))
+                        {
+                            result = JsonToObject<T>(getResult.Value, jsonSerializerSettings);
+                            status = eResultStatus.SUCCESS;
+                        }
+                    }
+                    else
+                        HandleStatusCode(getResult, ref status, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+            }
+
+            return result;
+        }
+
         public bool Get<T>(string key, ref T result)
         {
             bool res = false;
@@ -964,6 +1025,24 @@ namespace CouchbaseManager
             try
             {
                 result = Get<T>(key, out status);
+                res = status == eResultStatus.SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+            }
+
+            return res;
+        }
+
+        public bool Get<T>(string key, ref T result, JsonSerializerSettings jsonSerializerSettings)
+        {
+            bool res = false;
+            eResultStatus status = eResultStatus.ERROR;
+
+            try
+            {
+                result = Get<T>(key, out status, jsonSerializerSettings);
                 res = status == eResultStatus.SUCCESS;
             }
             catch (Exception ex)
@@ -1146,6 +1225,51 @@ namespace CouchbaseManager
             return result;
         }
 
+        public T GetWithVersion<T>(string key, out ulong version, JsonSerializerSettings jsonSerializerSettings)
+        {
+            version = 0;
+            T result = default(T);
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+
+                IOperationResult<string> getResult;
+
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                {
+                    getResult = bucket.Get<string>(key);
+                }
+
+                if (getResult != null)
+                {
+                    if (getResult.Exception != null)
+                        throw getResult.Exception;
+
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        if (!string.IsNullOrEmpty(getResult.Value))
+                        {
+                            result = JsonToObject<T>(getResult.Value, jsonSerializerSettings);
+                            version = getResult.Cas;
+                        }
+                    }
+                    else
+                    {
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(getResult, ref status, key);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed GetWithVersion with key = {0}, ex = {1}", key, ex);
+            }
+
+            return result;
+        }
+
         public bool GetWithVersion<T>(string key, out ulong version, ref T result)
         {
             bool res = false;
@@ -1154,6 +1278,24 @@ namespace CouchbaseManager
             try
             {
                 result = GetWithVersion<T>(key, out version, out status);
+                res = status == eResultStatus.SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+            }
+
+            return res;
+        }
+
+        public bool GetWithVersion<T>(string key, out ulong version, ref T result, JsonSerializerSettings jsonSerializerSettings)
+        {
+            bool res = false;
+            version = 0;
+            eResultStatus status = eResultStatus.ERROR;
+            try
+            {
+                result = GetWithVersion<T>(key, out version, out status, jsonSerializerSettings);
                 res = status == eResultStatus.SUCCESS;
             }
             catch (Exception ex)
@@ -1196,6 +1338,52 @@ namespace CouchbaseManager
                         result = getResult.Value;
                         version = getResult.Cas;
                         status = eResultStatus.SUCCESS;
+                    }
+                    else
+                    {
+                        HandleStatusCode(getResult, ref status, key);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed GetWithVersion with key = {0}, ex = {1}", key, ex);
+            }
+
+            return result;
+        }
+
+        public T GetWithVersion<T>(string key, out ulong version, out eResultStatus status, JsonSerializerSettings jsonSerializerSettings)
+        {
+            version = 0;
+            T result = default(T);
+            status = eResultStatus.ERROR;
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+
+                IOperationResult<string> getResult;
+
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                {
+                    getResult = bucket.Get<string>(key);
+                }
+
+                if (getResult != null)
+                {
+                    if (getResult.Exception != null)
+                        throw getResult.Exception;
+
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        if (!string.IsNullOrEmpty(getResult.Value))
+                        {
+                            result = JsonToObject<T>(getResult.Value, jsonSerializerSettings);
+                            version = getResult.Cas;
+                            status = eResultStatus.SUCCESS;
+                        }                        
                     }
                     else
                     {
@@ -1261,6 +1449,44 @@ namespace CouchbaseManager
                             string serializedValue = ObjectToJson(value);
                             setResult = bucket.Upsert(key, serializedValue, version, expiration);
                         }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public bool SetWithVersion(string key, object value, ulong version, JsonSerializerSettings jsonSerializerSettings, uint expiration = 0)
+        {
+            bool result = false;
+
+            var bucket = ClusterHelper.GetBucket(bucketName);
+            IOperationResult setResult;
+            expiration = FixExpirationTime(expiration);
+
+            string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
+            {
+                string serializedValue = ObjectToJson(value, jsonSerializerSettings);
+                setResult = bucket.Upsert(key, serializedValue, version, expiration);
+            }
+
+            if (setResult != null)
+            {
+                if (setResult.Exception != null)
+                    throw setResult.Exception;
+
+                if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    result = setResult.Success;
+                else
+                {
+                    eResultStatus status = eResultStatus.ERROR;
+                    HandleStatusCode(setResult, ref status, key);
+
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
+                    {
+                        string serializedValue = ObjectToJson(value, jsonSerializerSettings);
+                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
                     }
                 }
             }
@@ -1469,6 +1695,30 @@ namespace CouchbaseManager
             return result;
         }
 
+        public bool SetWithVersionWithRetry<T>(string key, object value, ulong version, int numOfRetries, int retryInterval, JsonSerializerSettings jsonSerializerSettings, uint expiration = 0)
+        {
+            bool result = false;
+
+            if (numOfRetries >= 0)
+            {
+                bool operationResult = SetWithVersion(key, value, version, jsonSerializerSettings, expiration);
+                if (!operationResult)
+                {
+                    numOfRetries--;
+                    Thread.Sleep(retryInterval);
+
+                    ulong newVersion;
+                    var getResult = GetWithVersion<T>(key, out newVersion, jsonSerializerSettings);
+
+                    result = SetWithVersionWithRetry<T>(key, value, newVersion, numOfRetries, retryInterval, jsonSerializerSettings, expiration);
+                }
+                else
+                    result = true;
+            }
+
+            return result;
+        }
+
         public IDictionary<string, T> GetValues<T>(List<string> keys, bool shouldAllowPartialQuery = false, bool asJson = false)
         {
             IDictionary<string, T> result = null;
@@ -1565,6 +1815,88 @@ namespace CouchbaseManager
             return result;
         }
 
+        public IDictionary<string, T> GetValues<T>(List<string> keys, JsonSerializerSettings jsonSerializerSettings, bool shouldAllowPartialQuery = false)
+        {
+            IDictionary<string, T> result = null;
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IDictionary<string, IOperationResult<string>> getResult;
+
+                string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                {
+                    getResult = bucket.Get<string>(keys);
+                }
+
+                // Success until proven otherwise
+                Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.Success;
+
+                foreach (var item in getResult)
+                {
+                    // Throw exception if there is one
+                    if (item.Value.Exception != null)
+                        throw item.Value.Exception;
+
+                    // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
+                    if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
+                    {
+                        if (item.Value.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            log.WarnFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
+                        }
+
+                        status = item.Value.Status;
+
+                        if (!shouldAllowPartialQuery)
+                            break;
+                    }
+                    else
+                    {
+                        log.DebugFormat("Couchbase manager: GetValues success - get key {0}, status {1}", item.Key, item.Value.Status);
+                    }
+                }
+
+                if (shouldAllowPartialQuery || status == Couchbase.IO.ResponseStatus.Success)
+                {
+                    // if successful - build dictionary based on execution result
+                    result = new Dictionary<string, T>();
+
+                    foreach (var item in getResult)
+                    {
+                        if (item.Value.Status == Couchbase.IO.ResponseStatus.Success && !string.IsNullOrEmpty(item.Value.Value))
+                        {
+                            result.Add(item.Key, JsonToObject<T>(item.Value.Value, jsonSerializerSettings));
+                        }
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Error while executing action on CB. Status code = {0}; Status = {1}", (int)status, status.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                if (keys != null && keys.Count > 0)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var item in keys)
+                        sb.Append(item + " ");
+
+                    log.ErrorFormat("Error while getting the following keys from CB: {0}. Exception: {1}", sb.ToString(), ex);
+                }
+                else
+                    log.Error("Error while getting keys from CB", ex);
+            }
+
+            return result;
+        }
+
         public bool SetJson<T>(string key, T value, uint expiration = 0)
         {
             var json = ObjectToJson<T>(value);
@@ -1608,6 +1940,34 @@ namespace CouchbaseManager
         }
 
         public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
+        {
+            bool result = false;
+
+            try
+            {
+                results = GetValues<T>(keys, shouldAllowPartialQuery);
+
+                if (results != null)
+                {
+                    if (shouldAllowPartialQuery)
+                    {
+                        result = true;
+                    }
+                    else
+                    {
+                        result = keys.Count == results.Count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetValues<T> from CB while getting the following keys: {0}", string.Join(",", keys)), ex);
+            }
+
+            return result;
+        }
+
+        public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, JsonSerializerSettings jsonSerializerSettings, bool shouldAllowPartialQuery = false)
         {
             bool result = false;
 

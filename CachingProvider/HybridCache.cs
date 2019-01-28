@@ -352,6 +352,26 @@ namespace CachingProvider
             return result != null;
         }
 
+        public override bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        {
+            bool res = false;
+
+            res = inMemoryCache.Get<T>(key, ref result);
+
+            if (!res)
+            {
+                res = couchbaseCache.Get<T>(key, ref result, jsonSerializerSettings);
+
+                if (result != null)
+                {
+                    BaseModuleCache newBaseModule = new BaseModuleCache(result);
+                    inMemoryCache.Add(key, newBaseModule, this.secondsInMemory / 60);
+                }
+            }
+
+            return result != null;
+        }
+
         public override bool GetWithVersion<T>(string key, out ulong version, ref T result)
         {
             bool res = inMemoryCache.Get<T>(key, ref result);
@@ -360,6 +380,24 @@ namespace CachingProvider
             if (!res)
             {
                 res = couchbaseCache.GetWithVersion<T>(key, out version, ref result);
+
+                if (res)
+                {
+                    res = inMemoryCache.Get<T>(key, ref result);
+                }
+            }
+
+            return res;
+        }
+
+        public override bool GetWithVersion<T>(string key, out ulong version, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        {
+            bool res = inMemoryCache.Get<T>(key, ref result);
+            version = 0;
+            // If it isn't in in-memory, get it from couchbase and put in in-memory
+            if (!res)
+            {
+                res = couchbaseCache.GetWithVersion<T>(key, out version, ref result, jsonSerializerSettings);
 
                 if (res)
                 {
@@ -383,6 +421,12 @@ namespace CachingProvider
         public override bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
         {
             return this.couchbaseCache.SetWithVersion<T>(key, value, version, expirationInSeconds) && this.inMemoryCache.Add<T>(key, value, expirationInSeconds);
+        }
+
+        public override bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        {
+
+            return this.couchbaseCache.SetWithVersion<T>(key, value, version, expirationInSeconds, jsonSerializerSettings) && this.inMemoryCache.Add<T>(key, value, expirationInSeconds);
         }
 
         public override bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
@@ -419,6 +463,47 @@ namespace CachingProvider
                     foreach (string key in missingKeys)
                     {
                         Add<T>(key, results[key], ttl);          
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public override bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings, bool shouldAllowPartialQuery = false)
+        {
+            bool res = false;
+
+            res = inMemoryCache.GetValues<T>(keys, ref results, shouldAllowPartialQuery);
+
+            if (!res)
+            {
+                List<string> missingKeys = new List<string>();
+                if (results == null || results.Count == 0)
+                {
+                    missingKeys = keys;
+                }
+                else
+                {
+                    foreach (string key in keys)
+                    {
+                        if (!results.ContainsKey(key))
+                        {
+                            missingKeys.Add(key);
+                        }
+                    }
+                }
+                res = couchbaseCache.GetValues<T>(keys, ref results, jsonSerializerSettings, shouldAllowPartialQuery);
+                if (res && results != null)
+                {
+                    uint ttl;
+                    if (!uint.TryParse(this.secondsInMemory.ToString(), out ttl))
+                    {
+                        log.ErrorFormat("HybridCache - GetValues<T> Failed parsing secondsInMemory: {0}", this.secondsInMemory.ToString());
+                    }
+                    foreach (string key in missingKeys)
+                    {
+                        Add<T>(key, results[key], ttl);
                     }
                 }
             }
