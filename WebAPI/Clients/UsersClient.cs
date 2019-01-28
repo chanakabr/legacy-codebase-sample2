@@ -116,14 +116,14 @@ namespace WebAPI.Clients
             
             try
             {
+                UserBasicData userBasicData = Mapper.Map<UserBasicData>(userData);
+                UserDynamicData userDynamicData = Mapper.Map<UserDynamicData>(userData.DynamicData);
+
+                if (userDynamicData == null)
+                    userDynamicData = new UserDynamicData();
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    UserBasicData userBasicData = Mapper.Map<UserBasicData>(userData);
-                    UserDynamicData userDynamicData = Mapper.Map<UserDynamicData>(userData.DynamicData);
-
-                    if (userDynamicData == null)
-                        userDynamicData = new UserDynamicData();
-
                     response = Core.Users.Module.SignUp(groupId, userBasicData, userDynamicData, password, userData.AffiliateCode);
                 }
             }
