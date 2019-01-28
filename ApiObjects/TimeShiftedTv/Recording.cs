@@ -12,7 +12,6 @@ namespace ApiObjects.TimeShiftedTv
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class Recording
     {
-        
         public ApiObjects.Response.Status Status { get; set; }
 
         public long Id { get; set; }        

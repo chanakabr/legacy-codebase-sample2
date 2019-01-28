@@ -18,6 +18,7 @@ using KlogMonitorHelper;
 using ApiObjects.QueueObjects;
 using Core.ConditionalAccess;
 using ConfigurationManager;
+using CachingProvider.LayeredCache;
 
 namespace Core.Recordings
 {
@@ -765,7 +766,9 @@ namespace Core.Recordings
                     long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "DOMAIN_RECORDING_ID");
                     string externalDomainRecordingId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "EXTERNAL_DOMAIN_RECORDING_ID");
                     if (domainRecordingId > 0 && !string.IsNullOrEmpty(externalDomainRecordingId))
-                    {                        
+                    {
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+
                         bool isNew = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_NEW", -1) == 1;
                         Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId);
                         if (domainRecording.Status.Code != (int)eResponseStatus.OK)
@@ -782,7 +785,7 @@ namespace Core.Recordings
                         }
 
                         domainRecording.Id = domainRecordingId;
-                        result.Object = new ExternalRecording(domainRecording, externalDomainRecordingId);
+                        result.Object = new ExternalRecording(domainRecording as ExternalRecording, externalDomainRecordingId);
                         result.SetStatus((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }

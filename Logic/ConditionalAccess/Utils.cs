@@ -5702,6 +5702,14 @@ namespace Core.ConditionalAccess
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
                 RecordingType recordingType = (RecordingType) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
 
+                string metaDataStr = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATA");
+                Dictionary<string, string> metaData = null;
+                try
+                {
+                    metaData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(metaDataStr);
+                }
+                catch { }
+ 
                 if (!recordingStatus.HasValue)
                 {
                     log.ErrorFormat(
@@ -5745,8 +5753,7 @@ namespace Core.ConditionalAccess
                         RecordingStatus = recordingStatus.Value,
                         ExternalRecordingId = externalRecordingId,
                         Crid = crid,
-                        Type = recordingType,
-
+                        Type = recordingType
                     };
                 }
                 else
@@ -5766,7 +5773,8 @@ namespace Core.ConditionalAccess
                         ExternalRecordingId = externalRecordingId,
                         Crid = crid,
                         Type = recordingType,
-                        ExternalDomainRecordingId = domainExternalRecordingId
+                        ExternalDomainRecordingId = domainExternalRecordingId,
+                        MetaData = metaData
                     };
                 }
 
