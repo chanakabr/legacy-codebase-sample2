@@ -5494,13 +5494,15 @@ namespace Core.ConditionalAccess
             {
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
 
-                LayeredCache.Instance.Get(
-                    LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap,
-                    GetDomainRecordingsFromDB, funcParams, groupId,
-                    LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
-                    new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)}, true);
+                LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), 
+                                          ref domainRecordingIdToRecordingMap,
+                                          GetDomainRecordingsFromDB, 
+                                          funcParams, 
+                                          groupId,
+                                          LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
+                                          new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)}, 
+                                          true);
             }
-
             catch (Exception ex)
             {
                 log.Error(string.Format("failed GetDomainRecordings, groupId: {0}, domainId: {1}", groupId, domainId), ex);
