@@ -9581,6 +9581,11 @@
             Specifies when was the recording last updated. Date and time represented as epoch.
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.MetaData">
+            <summary>
+            key/value map field for extra data
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Code">
             <summary>
             query status code

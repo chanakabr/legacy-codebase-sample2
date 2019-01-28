@@ -1794,7 +1794,7 @@
       <Name>KlogMonitorHelper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
-	  <Project>{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}</Project>
+      <Project>{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">

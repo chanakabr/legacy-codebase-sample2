@@ -2429,6 +2429,11 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("id", "\"id\": " + Id);
             }
             ret.Add("isProtected", "\"isProtected\": " + IsProtected.ToString().ToLower());
+            if(MetaData != null)
+            {
+                propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("metaData", "\"metaData\": " + propertyValue);
+            }
             ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaRecordingStatus), Status) + "\"");
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaRecordingType), Type) + "\"");
             ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
@@ -2451,6 +2456,11 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("id", "<id>" + Id + "</id>");
             }
             ret.Add("isProtected", "<isProtected>" + IsProtected.ToString().ToLower() + "</isProtected>");
+            if(MetaData != null)
+            {
+                propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("metaData", "<metaData>" + propertyValue + "</metaData>");
+            }
             ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaRecordingStatus), Status) + "" + "</status>");
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaRecordingType), Type) + "" + "</type>");
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
