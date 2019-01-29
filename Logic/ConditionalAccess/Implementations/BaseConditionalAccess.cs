@@ -16452,10 +16452,16 @@ namespace Core.ConditionalAccess
         {
             SearchableRecording[] result = new SearchableRecording[0];
             List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
-
-            try
+            bool shouldFilterViewableRecordingOnly = true;
+            if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
             {
-                Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses);
+                recordingStatuses.AddRange(new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled });
+                shouldFilterViewableRecordingOnly = false;
+            }
+
+                try
+            {
+                Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses, shouldFilterViewableRecordingOnly);
 
                 if (domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
