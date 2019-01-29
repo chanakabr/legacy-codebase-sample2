@@ -1542,7 +1542,7 @@ namespace Core.Users
                     return response;
                 }
             }
-            
+
             response.user = AddNewUser(nGroupID, oBasicData, dynamicData, password, affiliateCode);
 
             if (response.user != null)
@@ -1664,9 +1664,19 @@ namespace Core.Users
         {
             // add siteguid to logs/monitor
             AddItemToContext(Constants.USER_ID, siteGUID);
-
-
+            
             UserResponse response = new UserResponse();
+
+            if (basicData.RoleIds != null && basicData.RoleIds.Count > 0)
+            {
+                var roles = Api.Module.GetRoles(nGroupID, basicData.RoleIds);
+                if (roles == null || roles.Status == null || roles.Status.Code == (int)eResponseStatus.Error || roles.Roles == null || roles.Roles.Count != basicData.RoleIds.Count)
+                {
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.RoleDoesNotExists, eResponseStatus.RoleDoesNotExists.ToString());
+                    return response;
+                }
+            }
+
             response.user = SetUserData(nGroupID, siteGUID, basicData, dynamicData);
             if (response.user != null)
             {
