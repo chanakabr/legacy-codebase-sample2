@@ -2262,5 +2262,10 @@ namespace Core.Api
         {
             return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext);
         }
+
+        public static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
+        {
+            return api.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
+        }
     }
 }

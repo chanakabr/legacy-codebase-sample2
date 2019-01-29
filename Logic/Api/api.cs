@@ -1930,7 +1930,7 @@ namespace Core.Api
             selectTagsQuery.Finish();
             selectTagsQuery = null;
             return EPG_ResponseTag;
-        }
+        }       
 
         static public List<EPGChannelProgrammeObject> GetEPGChannelPrograms_Old(Int32 groupID, string sEPGChannelID, string sPicSize, EPGUnit unit, int nFromOffsetUnit, int nToOffsetUnit, int nUTCOffset)
         {
@@ -11315,5 +11315,30 @@ namespace Core.Api
             }
         }
         #endregion
+
+        internal static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                // upsert GeneralPartnerConfig            
+                if (!ApiDAL.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate))
+                {
+                    log.ErrorFormat("Error while update generalPartnerConfig. groupId: {0}", groupId);
+                    return response;
+                }
+
+                //TODO: check if cache is needed
+                //LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId));
+                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("UpdateDeviceConcurrencyPriority failed ex={0}, groupId={1}", ex, groupId);
+            }
+
+            return response;
+        }
     }
 }

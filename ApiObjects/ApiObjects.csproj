@@ -133,6 +133,7 @@
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
+    <Compile Include="GeneralPartnerConfig.cs" />
     <Compile Include="PlaybackAdapter\AccessControlMessage.cs" />
     <Compile Include="PlaybackAdapter\AssetFile.cs" />
     <Compile Include="PlaybackAdapter\BumpersPlaybackPluginData.cs" />
