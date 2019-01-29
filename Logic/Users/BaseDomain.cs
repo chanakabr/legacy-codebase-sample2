@@ -407,7 +407,7 @@ namespace Core.Users
 
             DomainResponseObject oDomainResponseObject;
             DomainResponseStatus eDomainResponseStatus;
-            
+
             eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
@@ -766,7 +766,7 @@ namespace Core.Users
             }
             return res;
         }
-        
+
         public virtual ValidationResponseObject ValidateLimitationModule(int deviceBrandID, ValidationType validationType, DevicePlayData devicePlayData)
         {
             ValidationResponseObject response = new ValidationResponseObject();
@@ -1206,7 +1206,7 @@ namespace Core.Users
                             }
                         }
 
-                        if ((!familyIDs.Contains(5) && string.IsNullOrEmpty(udid)) || 
+                        if ((!familyIDs.Contains(5) && string.IsNullOrEmpty(udid)) ||
                             (!familyIDs.Contains(5) && udid.ToLower().Equals("web site")))
                         {
                             isDeviceRecognized = true;
@@ -1393,7 +1393,7 @@ namespace Core.Users
                 {
                     log.Error("Failed getting user from cache", ex);
                 }
-                
+
                 if (newDomainId == 0)
                 {
                     bool tempIsMaster = false;
@@ -2272,6 +2272,74 @@ namespace Core.Users
             }
 
             return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+        }
+
+        internal GenericListResponse<LimitationsManager> GetDLMList(int groupId)
+        {
+            GenericListResponse<LimitationsManager> response = new GenericListResponse<LimitationsManager>();
+            response.SetStatus(eResponseStatus.OK);
+
+            try
+            {
+                List<LimitationsManager> limitationsManagerList = GetLimitationsManagerList(groupId);
+                if (limitationsManagerList == null || limitationsManagerList.Count == 0)
+                {
+                    response.SetStatus(eResponseStatus.OK, "No DLM found");
+                }
+                else
+                {
+                    response.Objects.AddRange(limitationsManagerList);
+                    response.SetStatus(eResponseStatus.OK);
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetDLMList with groupId: {0}. ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        private List<LimitationsManager> GetLimitationsManagerList(int groupId)
+        {
+            List<LimitationsManager> limitationsManagerList = null;
+            List<int> limitationsManagerIds = null;
+            DLMResponse response = null;
+
+            DataTable dt = DomainDal.GetGroupsDeviceLimitationModules(groupId);
+            limitationsManagerIds = GetGroupsDeviceLimitationModuleIds(dt);
+
+            if (limitationsManagerIds == null)
+            {
+                return limitationsManagerList;
+            }
+
+            limitationsManagerList = new List<LimitationsManager>();
+            foreach (var id in limitationsManagerIds)
+            {
+                response = GetDLM(id, groupId);
+                if (response != null && response.resp != null && response.resp.Code == (int)eResponseStatus.OK)
+                {
+
+                }
+            }
+        }
+
+        private List<int> GetGroupsDeviceLimitationModuleIds(DataTable dt)
+        {
+            List<int> response = null;
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                response = new List<int>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    response.Add(ODBCWrapper.Utils.GetIntSafeVal(row, "ID"));
+                }
+            }
+
+            return response;
         }
     }
 }

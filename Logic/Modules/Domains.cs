@@ -5,7 +5,6 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Web;
-using ApiObjects.Rules;
 using ApiObjects.MediaMarks;
 
 namespace Core.Domains
@@ -1002,6 +1001,20 @@ namespace Core.Domains
             }
 
             return status;
+        }
+
+        public static GenericListResponse<LimitationsManager> GetDLMList(int groupId)
+        {
+            GenericListResponse<LimitationsManager> response = new GenericListResponse<LimitationsManager>();
+
+            Core.Users.BaseDomain t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.GetDLMList(groupId);
+            }
+
+            return response;
         }
     }
 }
