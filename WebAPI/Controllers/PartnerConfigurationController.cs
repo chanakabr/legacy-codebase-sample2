@@ -100,6 +100,11 @@ namespace WebAPI.Controllers
                     KalturaConcurrencyPartnerConfig partnerConfig = configuration as KalturaConcurrencyPartnerConfig;
                     response = ClientsManager.ApiClient().UpdateConcurrencyPartner(groupId, partnerConfig);
                 }
+                else if (configuration is KalturaGeneralPartnerConfig)
+                {
+                    KalturaGeneralPartnerConfig partnerConfig = configuration as KalturaGeneralPartnerConfig;
+                    response = ClientsManager.ApiClient().UpdateGeneralPartnerConfiguration(groupId, partnerConfig);
+                }
                 else
                 {
                     throw new InternalServerErrorException();

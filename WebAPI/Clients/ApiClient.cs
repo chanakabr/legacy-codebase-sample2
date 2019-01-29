@@ -161,7 +161,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }
+        }        
 
         internal List<Models.API.KalturaParentalRule> GetDomainParentalRules(int groupId, int domainId)
         {
@@ -4167,6 +4167,16 @@ namespace WebAPI.Clients
             result.TotalCount = response.TotalCount;
 
             return result;
+        }
+
+        internal bool UpdateGeneralPartnerConfiguration(int groupId, KalturaGeneralPartnerConfig partnerConfig)
+        {
+            Func<GeneralPartnerConfig, Status> UpdateGeneralPartnerConfigFunc = (GeneralPartnerConfig partnerConfigToUpdate) =>
+                   Core.Api.Module.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
+
+            ClientUtils.GetResponseStatusFromWS<KalturaGeneralPartnerConfig, GeneralPartnerConfig>(UpdateGeneralPartnerConfigFunc, partnerConfig);
+
+            return true;
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿using ApiObjects.Billing;
+﻿using ApiObjects;
+using ApiObjects.Billing;
 using ApiObjects.Rules;
 using AutoMapper;
+using AutoMapper.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +10,6 @@ using System.Web;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
-using ApiObjects;
-using AutoMapper.Configuration;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -31,8 +31,35 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
                 .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)));
+
+            // map GeneralPartnerConfig to KalturaGeneralPartnerConfig
+            cfg.CreateMap<GeneralPartnerConfig, KalturaGeneralPartnerConfig>()
+                .ForMember(dest => dest.PartnerName, opt => opt.MapFrom(src => src.PartnerName))
+                .ForMember(dest => dest.MainLanguage, opt => opt.MapFrom(src => src.MainLanguage))
+                .ForMember(dest => dest.SecondaryLanguages, opt => opt.MapFrom(src => src.SecondaryLanguages))
+                .ForMember(dest => dest.DeleteMediaPolicy, opt => opt.ResolveUsing(src => ConvertDeleteMediaPolicy(src.DeleteMediaPolicy)))
+                .ForMember(dest => dest.MainCurrency, opt => opt.MapFrom(src => src.MainCurrency))
+                .ForMember(dest => dest.SecondaryCurrencys, opt => opt.MapFrom(src => src.SecondaryCurrencys))
+                .ForMember(dest => dest.DowngradePolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicy(src.DowngradePolicy)))
+                .ForMember(dest => dest.MailSettings, opt => opt.MapFrom(src => src.MailSettings))
+                .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
+                .ForMember(dest => dest.HouseholdLimitationModule, opt => opt.MapFrom(src => src.HouseholdLimitationModule));
+
+            // map KalturaGeneralPartnerConfig to GeneralPartnerConfig
+            cfg.CreateMap<KalturaGeneralPartnerConfig, GeneralPartnerConfig>()
+                .ForMember(dest => dest.PartnerName, opt => opt.MapFrom(src => src.PartnerName))
+                .ForMember(dest => dest.MainLanguage, opt => opt.MapFrom(src => src.MainLanguage))
+                .ForMember(dest => dest.SecondaryLanguages, opt => opt.MapFrom(src => src.SecondaryLanguages))
+                .ForMember(dest => dest.DeleteMediaPolicy, opt => opt.ResolveUsing(src => ConvertDeleteMediaPolicy(src.DeleteMediaPolicy)))
+                .ForMember(dest => dest.MainCurrency, opt => opt.MapFrom(src => src.MainCurrency))
+                .ForMember(dest => dest.SecondaryCurrencys, opt => opt.MapFrom(src => src.SecondaryCurrencys))
+                .ForMember(dest => dest.DowngradePolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicy(src.DowngradePolicy)))
+                .ForMember(dest => dest.MailSettings, opt => opt.MapFrom(src => src.MailSettings))
+                .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
+                .ForMember(dest => dest.HouseholdLimitationModule, opt => opt.MapFrom(src => src.HouseholdLimitationModule));
+
         }
-        
+
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)
         {
             PartnerConfigurationType result;
@@ -54,7 +81,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
-        
+
         private static KalturaEvictionPolicyType ConvertDowngradePolicyToEvictionPolicy(DowngradePolicy priorityOrder)
         {
             KalturaEvictionPolicyType result;
@@ -88,6 +115,82 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown Eviction Policy type");
+            }
+
+            return result;
+        }
+
+        private static KalturaDeleteMediaPolicy? ConvertDeleteMediaPolicy(DeleteMediaPolicy? deleteMediaPolicy)
+        {
+            KalturaDeleteMediaPolicy? result;
+
+            switch (deleteMediaPolicy)
+            {
+                case DeleteMediaPolicy.Delete:
+                    result = KalturaDeleteMediaPolicy.Delete;
+                    break;
+                case DeleteMediaPolicy.Disable:
+                    result = KalturaDeleteMediaPolicy.Disable;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown DeleteMediaPolicy");
+            }
+
+            return result;
+        }
+
+        private static DeleteMediaPolicy? ConvertDeleteMediaPolicy(KalturaDeleteMediaPolicy? deleteMediaPolicy)
+        {
+            DeleteMediaPolicy? result;
+
+            switch (deleteMediaPolicy)
+            {
+                case KalturaDeleteMediaPolicy.Delete:
+                    result = DeleteMediaPolicy.Delete;
+                    break;
+                case KalturaDeleteMediaPolicy.Disable:
+                    result = DeleteMediaPolicy.Disable;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown DeleteMediaPolicy");
+            }
+
+            return result;
+        }
+
+        private static KalturaDowngradePolicy? ConvertDowngradePolicy(DowngradePolicy? downgradePolicy)
+        {
+            KalturaDowngradePolicy? result;
+
+            switch (downgradePolicy)
+            {
+                case DowngradePolicy.FIFO:
+                    result = KalturaDowngradePolicy.FIFO;
+                    break;
+                case DowngradePolicy.LIFO:
+                    result = KalturaDowngradePolicy.LIFO;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown DowngradePolicy");
+            }
+
+            return result;
+        }
+
+        private static DowngradePolicy? ConvertDowngradePolicy(KalturaDowngradePolicy? downgradePolicy)
+        {
+            DowngradePolicy? result;
+
+            switch (downgradePolicy)
+            {
+                case KalturaDowngradePolicy.FIFO:
+                    result = DowngradePolicy.FIFO;
+                    break;
+                case KalturaDowngradePolicy.LIFO:
+                    result = DowngradePolicy.LIFO;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown DowngradePolicy");
             }
 
             return result;

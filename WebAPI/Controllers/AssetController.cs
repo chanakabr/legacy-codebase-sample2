@@ -946,6 +946,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ProgramDoesntExist)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.AdapterAppFailure)]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.UserSuspended)]
         static public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext response = null;
