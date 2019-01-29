@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using Tvinci.Core.DAL;
-using ApiObjects.Rules;
-using System.Threading;
 
 namespace DAL
 {
@@ -31,7 +29,7 @@ namespace DAL
         private const string SP_GET_DOMAIN_COGUID = "Get_DomainCoGuid";
         private const string SP_GET_DOMAIN_COGUID_BY_SITEGUID = "Get_DomainCoGuidBySiteGuid";
         private const string SP_GET_DEVICE_ID_AND_BRAND_BY_PIN = "Get_DeviceIDAndBrandByPIN";
-        
+
         private const string SP_INSERT_USER_TO_DOMAIN = "sp_InsertUserToDomain";
         private const string SP_INSERT_DEVICE_TO_DOMAIN = "sp_InsertDeviceToDomain";
 
@@ -46,12 +44,12 @@ namespace DAL
         private const string SP_PURGE_DOMAIN = "Purge_Domain";
 
         #endregion
-        
+
         private static void HandleException(Exception ex)
         {
 
         }
-        
+
         public static bool InitDeviceInDb(int nDeviceID, int nDomainID,
                                     ref int nGroupID, ref string sDbDeviceUDID, ref int nDbDeviceBrandID, ref string sDbDeviceName, ref int nDbDeviceFamilyID, ref string sDbPin, ref DateTime dtDbActivationDate, ref string sDbState)
         {
@@ -1275,7 +1273,7 @@ namespace DAL
 
             return nActivationStatus;
         }
-        
+
         public static List<int> GetDomainIDsByEmail(int nGroupID, string sEmail)
         {
             List<int> lDomainIDs = new List<int>();
@@ -1824,7 +1822,7 @@ namespace DAL
                         string[] dbDeviceContainer = new string[2] { deviceFamilyId, deviceFamilyName };
                         res.Add(dbDeviceContainer);
                     }
-                    
+
                     DataTable dtSpecificLimits = ds.Tables[1];
                     if (dtSpecificLimits != null && dtSpecificLimits.Rows != null && dtSpecificLimits.Rows.Count > 0)
                     {
@@ -2489,7 +2487,7 @@ namespace DAL
 
         public static int GetDeviceBrandIdByUdid(int groupId, string udid)
         {
-            int brandId = 0; 
+            int brandId = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDeviceBrandIdByUdid");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -2501,6 +2499,14 @@ namespace DAL
                 brandId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "device_brand_id");
             }
             return brandId;
+        }
+
+        public static DataTable GetGroupsDeviceLimitationModules(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ImagesByTableReferenceIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            return sp.Execute();
         }
     }
 }
