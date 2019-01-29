@@ -165,8 +165,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        static public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null,
-            KalturaFilterPager pager = null)
+        static public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaRecordingListResponse response = null;
 
@@ -188,10 +187,18 @@ namespace WebAPI.Controllers
 
                 filter.Validate();
 
+                Dictionary<string, string> metaDataFilter = null;
+                var externalFilter = filter as KalturaExternalRecordingFilter;
+                if (externalFilter != null)
+                {
+                    metaDataFilter =
+                        externalFilter.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLower());
+                }
+
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId,
                     filter.ConvertStatusIn(), filter.Ksql, filter.GetExternalRecordingIds(),
-                    pager.getPageIndex(), pager.PageSize, filter.OrderBy);
+                    pager.getPageIndex(), pager.PageSize, filter.OrderBy, metaDataFilter);
             }
             catch (ClientException ex)
             {

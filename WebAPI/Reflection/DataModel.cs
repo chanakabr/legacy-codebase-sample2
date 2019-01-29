@@ -2192,6 +2192,16 @@ namespace WebAPI.Reflection
                     {
                         case "ExternalId":
                             return "externalId";
+                        case "MetaData":
+                            return "metaData";
+                    }
+                    break;
+                    
+                case "KalturaExternalRecordingFilter":
+                    switch(property.Name)
+                    {
+                        case "MetaData":
+                            return "metaData";
                     }
                     break;
                     
@@ -4538,8 +4548,6 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IsProtected":
                             return "isProtected";
-                        case "MetaData":
-                            return "metaData";
                         case "Status":
                             return "status";
                         case "Type":

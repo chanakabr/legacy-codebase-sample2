@@ -2819,7 +2819,7 @@ namespace WS_ConditionalAccess
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.SearchDomainRecordings(nGroupID, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, shouldIgnorePaging);
+                return Core.ConditionalAccess.Module.SearchDomainRecordings(nGroupID, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, null);
             }
             else
             {

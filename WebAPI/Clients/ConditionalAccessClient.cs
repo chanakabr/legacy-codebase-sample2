@@ -1391,7 +1391,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaRecordingListResponse SearchRecordings(int groupId, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter, HashSet<string> externalRecordingIds,
-                                                                int pageIndex, int? pageSize, KalturaRecordingOrderBy? orderBy)
+                                                                int pageIndex, int? pageSize, KalturaRecordingOrderBy? orderBy, Dictionary<string, string> metaData)
         {
             KalturaRecordingListResponse result = new KalturaRecordingListResponse() { TotalCount = 0 };
             RecordingResponse response = null;
@@ -1421,7 +1421,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = Core.ConditionalAccess.Module.SearchDomainRecordings(groupId, userID, domainID, convertedRecordingStatuses.ToArray(),
-                                                                          ksqlFilter, pageIndex, pageSize.Value, order, false, externalRecordingIds);
+                                                                          ksqlFilter, pageIndex, pageSize.Value, order, false, metaData, externalRecordingIds);
                 }
             }
             catch (Exception ex)

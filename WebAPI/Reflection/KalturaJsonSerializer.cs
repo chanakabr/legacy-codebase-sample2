@@ -1580,6 +1580,11 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
             }
+            if(MetaData != null)
+            {
+                propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("metaData", "\"metaData\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -1591,6 +1596,39 @@ namespace WebAPI.Models.ConditionalAccess
             if(ExternalId != null)
             {
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
+            }
+            if(MetaData != null)
+            {
+                propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("metaData", "<metaData>" + propertyValue + "</metaData>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaExternalRecordingFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(MetaData != null)
+            {
+                propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("metaData", "\"metaData\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(MetaData != null)
+            {
+                propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("metaData", "<metaData>" + propertyValue + "</metaData>");
             }
             return ret;
         }
@@ -2429,11 +2467,6 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("id", "\"id\": " + Id);
             }
             ret.Add("isProtected", "\"isProtected\": " + IsProtected.ToString().ToLower());
-            if(MetaData != null)
-            {
-                propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
-                ret.Add("metaData", "\"metaData\": " + propertyValue);
-            }
             ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaRecordingStatus), Status) + "\"");
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaRecordingType), Type) + "\"");
             ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
@@ -2456,11 +2489,6 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("id", "<id>" + Id + "</id>");
             }
             ret.Add("isProtected", "<isProtected>" + IsProtected.ToString().ToLower() + "</isProtected>");
-            if(MetaData != null)
-            {
-                propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
-                ret.Add("metaData", "<metaData>" + propertyValue + "</metaData>");
-            }
             ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaRecordingStatus), Status) + "" + "</status>");
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaRecordingType), Type) + "" + "</type>");
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
