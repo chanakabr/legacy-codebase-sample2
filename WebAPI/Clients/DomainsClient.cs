@@ -1292,5 +1292,20 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal KalturaHouseholdLimitationsListResponse GetDomainLimitationModule(int groupId)
+        {
+            KalturaHouseholdLimitationsListResponse result = new KalturaHouseholdLimitationsListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<LimitationsManager>> getLimitationsManagerFunc = () => Core.Domains.Module.GetDLMList(groupId);
+
+            KalturaGenericListResponse<KalturaHouseholdLimitations> response =
+                ClientUtils.GetResponseListFromWS<KalturaHouseholdLimitations, LimitationsManager>(getLimitationsManagerFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
     }
 }

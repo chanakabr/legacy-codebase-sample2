@@ -8,20 +8,22 @@ using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.API
+namespace WebAPI.Models.Domains
 {
     /// <summary>
-    /// Household limitation module
+    /// Household limitations details 
     /// </summary>
-    public partial class KalturaHouseholdLimitationModuleListResponse : KalturaListResponse
+    public partial class KalturaHouseholdLimitationsListResponse : KalturaListResponse
     {
+
         /// <summary>
-        /// A list of household limitation module
+        /// Household limitations
         /// </summary>
         [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
+        [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaHouseholdLimitationModule> PlaybackProfiles { get; set; }
+        [XmlArrayItem("item")]
+        public List<KalturaHouseholdLimitations> Objects { get; set; }
+
     }
 }
