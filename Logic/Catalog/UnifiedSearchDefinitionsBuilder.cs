@@ -481,8 +481,11 @@ namespace Core.Catalog
 
             foreach (ApiObjects.TimeShiftedTv.SearchableRecording recording in domainSearchableRecordings)
             {
-                definitions.recordingIdToSearchableRecordingMapping.Add(recording.RecordingId.ToString(), recording);
-                result.Add(recording.RecordingId.ToString());
+                if (!definitions.recordingIdToSearchableRecordingMapping.ContainsKey(recording.RecordingId.ToString()))
+                {
+                    definitions.recordingIdToSearchableRecordingMapping.Add(recording.RecordingId.ToString(), recording);
+                    result.Add(recording.RecordingId.ToString());
+                }
             }
 
             return result;
