@@ -249,15 +249,6 @@ namespace Core.Catalog.CatalogManagement
                 if (imageTypeIdToRatioName.ContainsKey(image.ImageTypeId))
                 {
                     image.RatioName = imageTypeIdToRatioName[image.ImageTypeId];
-                    if (ratios != null && ratios.Count > 0)
-                    {
-                        var ratio = ratios.FirstOrDefault(x => x.Name.Equals(imageTypeIdToRatioName[image.ImageTypeId]));
-                        if (ratio != null)
-                        {
-                            image.Height = ratio.Height;
-                            image.Width = ratio.Width;
-                        }
-                    }
                 }
 
                 image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
@@ -464,21 +455,49 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal
 
-        internal static GenericListResponse<Image> CreateImageListResponseFromDataTable(int groupId, DataTable dt)
+        internal static GenericListResponse<Image> CreateImageListResponseFromDataTable(int groupId, DataTable dt, bool isWithPicSizes = false)
         {
             GenericListResponse<Image> response = new GenericListResponse<Image>();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 response.Objects = new List<Image>();
-                var imageTypeIdToRatioName = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
-                var ratios = ImageManager.GetRatios(groupId);
+                Dictionary<long, string> imageTypeIdToRatioName = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                GenericListResponse<Ratio> ratios = ImageManager.GetRatios(groupId);
+                List<PicSize> pictureSizes = null;
+                List<ApiObjects.Ratio> oldGroupRatios = null;
+
+                if (isWithPicSizes)
+                {
+                    pictureSizes = Cache.CatalogCache.Instance().GetGroupPicSizes(groupId);
+                    oldGroupRatios = Cache.CatalogCache.Instance().GetGroupRatios(groupId);
+                }
 
                 foreach (DataRow row in dt.Rows)
                 {
                     Image image = CreateImageFromDataRow(groupId, row, imageTypeIdToRatioName, ratios.Objects);
                     if (image != null)
                     {
-                        response.Objects.Add(image);
+                        // backward compatibility for pic sizes
+                        if (isWithPicSizes && !string.IsNullOrEmpty(image.RatioName) && oldGroupRatios != null && oldGroupRatios.Count > 0
+                            && oldGroupRatios.Any(x => x.Name == image.RatioName) && pictureSizes != null && pictureSizes.Count > 0)
+                        {
+                            ApiObjects.Ratio oldRatio = oldGroupRatios.First(x => x.Name == image.RatioName);
+                            if (pictureSizes.Any(x => x.RatioId == oldRatio.Id))
+                            {
+                                foreach (PicSize picSize in pictureSizes.Where(x => x.RatioId == oldRatio.Id))
+                                {
+                                    Image imageToAdd = new Image(image);
+                                    imageToAdd.Height = picSize.Height;
+                                    imageToAdd.Width = picSize.Width;
+                                    imageToAdd.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, imageToAdd.ContentId, imageToAdd.Version, imageToAdd.Width, imageToAdd.Height, 100);
+                                    response.Objects.Add(imageToAdd);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            response.Objects.Add(image);
+                        }
                     }
                 }
             }
