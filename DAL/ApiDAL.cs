@@ -5394,5 +5394,29 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public static bool UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfig)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_Groups");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@partnerName", partnerConfig.PartnerName);
+            if (partnerConfig.MainLanguage.HasValue)
+                sp.AddParameter("@mainLanguage", partnerConfig.MainLanguage);
+            sp.AddParameter("@secondaryLanguagesExist", partnerConfig.SecondaryLanguages != null && partnerConfig.SecondaryLanguages.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<int>("@secondaryLanguages", partnerConfig.SecondaryLanguages, "Id");
+            if (partnerConfig.DeleteMediaPolicy.HasValue)
+                sp.AddParameter("@deleteMediaPolicy", partnerConfig.DeleteMediaPolicy.Value);
+            if (partnerConfig.MainCurrency.HasValue)
+                sp.AddParameter("@mainCurrency", partnerConfig.MainCurrency);
+            sp.AddParameter("@secondaryCurrencysExist", partnerConfig.SecondaryCurrencys != null && partnerConfig.SecondaryCurrencys.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<int>("@secondaryCurrencys", partnerConfig.SecondaryCurrencys, "Id");            
+            if (partnerConfig.DowngradePolicy.HasValue)
+                sp.AddParameter("@downgradePolicy", partnerConfig.DowngradePolicy.Value);
+            sp.AddParameter("@mailSettings", partnerConfig.MailSettings);
+            sp.AddParameter("@dateFormat", partnerConfig.DateFormat);            
+            if (partnerConfig.HouseholdLimitationModule.HasValue)
+                sp.AddParameter("@domainLimitionModule", partnerConfig.HouseholdLimitationModule);            
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }
