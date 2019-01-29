@@ -677,11 +677,9 @@ namespace Core.Billing
                     ConvertTransactionType(request.productType),
                     request.purchaseToken,
                     unixTimestamp,
-                    System.Convert.ToBase64String(
-                    TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
-                    ,
-                    request.contentId.ToString()
-                    );
+                    Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature))),
+                    request.contentId.ToString(),
+                    request.adapterData);
 
                 LogAdapterResponse(adapterResponse, "VerifyTransaction");
 
@@ -708,10 +706,9 @@ namespace Core.Billing
                         ConvertTransactionType(request.productType),
                         request.purchaseToken,
                         unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
-                        ,
-                         request.contentId.ToString()
-                        );
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature))),
+                        request.contentId.ToString(),
+                        request.adapterData);
 
                     LogAdapterResponse(adapterResponse, "VerifyTransaction");
                 }

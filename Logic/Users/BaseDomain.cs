@@ -471,7 +471,7 @@ namespace Core.Users
             int masterUserID = DAL.UsersDal.GetUserIDByUsername(sMasterUN, m_nGroupID);
 
             User masterUser = new User();
-            bool bInit = masterUser.Initialize(masterUserID, m_nGroupID, false);
+            bool bInit = masterUser.Initialize(masterUserID, m_nGroupID);
 
             if (masterUserID <= 0 || !bInit || !masterUser.m_isDomainMaster)
             {

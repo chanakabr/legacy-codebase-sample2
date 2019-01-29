@@ -776,11 +776,12 @@ namespace Core.Billing
         }
 
         
-        public static TransactResult VerifyReceipt(int nGroupID, string siteGUID, long householdID, double price, string currency, string userIP,
-            string customData, int productID, string productCode, eTransactionType productType, int contentID, string purchaseToken, string paymentGatewayType, string billingGuid)
+        public static TransactResult VerifyReceipt(int nGroupID, string siteGUID, long householdID, double price, string currency, string userIP, string customData, 
+                                                   int productID, string productCode, eTransactionType productType, int contentID, string purchaseToken, 
+                                                   string paymentGatewayType, string billingGuid, string adapterData)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID ?? "null";
 
             TransactResult response = null;
 
@@ -790,22 +791,22 @@ namespace Core.Billing
                 if (t != null)
                 {
                     response = t.VerifyReceipt(siteGUID, householdID, price, currency, userIP, customData, productID, productCode,
-                                               productType, contentID, purchaseToken, paymentGatewayType, billingGuid);
+                                               productType, contentID, purchaseToken, paymentGatewayType, billingGuid, adapterData);
                 }
                 else
                 {
-                    response = new TransactResult();
-                    response.Status = new ApiObjects.Response.Status();
-                    response.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                    response.Status.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
+                    response = new TransactResult
+                    {
+                        Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString())
+                    };
                 }
             }
             catch (Exception ex)
             {
-                response = new TransactResult();
-                response.Status = new ApiObjects.Response.Status();
-                response.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                response.Status.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
+                response = new TransactResult
+                {
+                    Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString())
+                };
 
                 log.Error(string.Empty, ex);
             }

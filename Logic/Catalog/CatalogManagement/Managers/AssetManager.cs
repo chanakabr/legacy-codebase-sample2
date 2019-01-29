@@ -1328,7 +1328,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
-            // TODO - Lior - Remove TagId, not needed
+            // TODO Lior - Remove TagId, not needed
             Dictionary<long, Dictionary<long, List<LanguageContainer>>> topicIdToTag = new Dictionary<long, Dictionary<long, List<LanguageContainer>>>();
             foreach (DataRow dr in tagsTable.Rows)
             {

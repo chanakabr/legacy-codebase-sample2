@@ -3195,8 +3195,9 @@ namespace Core.Billing
             return response;
         }
 
-        public virtual TransactResult VerifyReceipt(string siteGUID, long householdID, double price, string currency, string userIP, string customData,
-            int productID, string productCode, eTransactionType productType, int contentID, string purchaseToken, string paymentGatewayTypeName, string billingGuid)
+        public virtual TransactResult VerifyReceipt(string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, 
+                                                    string productCode, eTransactionType productType, int contentID, string purchaseToken, string paymentGatewayTypeName, 
+                                                    string billingGuid, string adapterData)
         {
             TransactResult response = new TransactResult();
 
@@ -3205,7 +3206,7 @@ namespace Core.Billing
                 // validate type name
                 if (string.IsNullOrEmpty(paymentGatewayTypeName))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
@@ -3215,19 +3216,21 @@ namespace Core.Billing
                     paymentGWList.Count == 0 ||
                     paymentGWList[0].ID < 1)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
                 int paymentNumber = 1;
 
                 response = SendVerifyReceiptToAdapter(price, currency, userIP, productID, productCode, productType, contentID, siteGUID,
-                                                      householdID, billingGuid, paymentGWList[0], customData, purchaseToken, paymentNumber);
+                                                      householdID, billingGuid, paymentGWList[0], customData, purchaseToken, paymentNumber, adapterData);
             }
             catch (Exception ex)
             {
-                response = new TransactResult();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new TransactResult
+                {
+                    Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
                 log.ErrorFormat("Failed ex={0}, siteGUID={1}, price={2}, currency={3}, customData={4}, productID={5}, productCode={6}, transactionType={7}, billingGuid={8}",
                     ex,                                                               // {0}
                     !string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,        // {1}
@@ -3243,8 +3246,9 @@ namespace Core.Billing
             return response;
         }
 
-        private TransactResult SendVerifyReceiptToAdapter(double price, string currency, string userIP, int productId, string productCode, eTransactionType productType, int contentId,
-            string siteGuid, long householdID, string billingGuid, PaymentGateway paymentGateway, string customData, string purchaseToken, int paymentNumber)
+        private TransactResult SendVerifyReceiptToAdapter(double price, string currency, string userIP, int productId, string productCode, eTransactionType productType, 
+                                                          int contentId, string siteGuid, long householdID, string billingGuid, PaymentGateway paymentGateway, 
+                                                          string customData, string purchaseToken, int paymentNumber, string adapterData)
         {
             TransactResult response = new TransactResult();
 
@@ -3268,14 +3272,14 @@ namespace Core.Billing
             long userId = 0;
             if (!long.TryParse(siteGuid, out userId))
             {
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.InvalidUser, Message = "Invalid User" };
+                response.Status = new Status() { Code = (int)eResponseStatus.InvalidUser, Message = "Invalid User" };
                 return response;
             }
 
             // validate adapter URL exists
             if (string.IsNullOrEmpty(paymentGateway.AdapterUrl))
             {
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.NoConfigurationFound, Message = "Adapter URL wasn't found" };
+                response.Status = new Status() { Code = (int)eResponseStatus.NoConfigurationFound, Message = "Adapter URL wasn't found" };
                 return response;
             }
             else
@@ -3296,7 +3300,8 @@ namespace Core.Billing
                     siteGuid = siteGuid,
                     userIP = userIP,
                     purchaseToken = purchaseToken,
-                    productCode = productCode
+                    productCode = productCode,
+                    adapterData = adapterData
                 };
 
                 // verify receipt
@@ -3310,7 +3315,7 @@ namespace Core.Billing
                     // error validating adapter response
                     response = new TransactResult()
                     {
-                        Status = new ApiObjects.Response.Status()
+                        Status = new Status()
                         {
                             Code = (int)eResponseStatus.Error,
                             Message = "Error validating adapter response"

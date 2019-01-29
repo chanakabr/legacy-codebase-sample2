@@ -11434,7 +11434,7 @@ namespace Core.ConditionalAccess
         /// Purchase
         /// </summary>
         public virtual TransactionResponse ProcessReceipt(string siteguid, long household, int contentId, int productId, eTransactionType transactionType,
-                                                          string userIp, string deviceName, string purchaseToken, string paymentGatewayName)
+                                                          string userIp, string deviceName, string purchaseToken, string paymentGatewayName, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -11509,13 +11509,13 @@ namespace Core.ConditionalAccess
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        response = ProcessPPVReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName, contentId);
+                        response = ProcessPPVReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName, contentId, adapterData);
                         break;
                     case eTransactionType.Subscription:
-                        response = ProcessSubscriptionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName);
+                        response = ProcessSubscriptionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName, adapterData);
                         break;
                     case eTransactionType.Collection:
-                        response = ProcessCollectionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName);
+                        response = ProcessCollectionReceipt(siteguid, household, productId, userIp, deviceName, purchaseToken, paymentGatewayName, adapterData);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
@@ -11532,7 +11532,8 @@ namespace Core.ConditionalAccess
         }
 
 
-        private TransactionResponse ProcessPPVReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwName, int contentId)
+        private TransactionResponse ProcessPPVReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, 
+                                                      string paymentGwName, int contentId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -11581,9 +11582,8 @@ namespace Core.ConditionalAccess
                 Subscription relevantSub = null;
                 Collection relevantCol = null;
                 PrePaidModule relevantPP = null;
-                Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppv, siteguid, string.Empty, m_nGroupID,
-                                                                                              ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
-                                                                                              string.Empty, string.Empty, deviceName);
+                Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppv, siteguid, string.Empty, m_nGroupID, ref ePriceReason, ref relevantSub, 
+                                                                                ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName);
 
                 if (ePriceReason == PriceReason.ForPurchase ||
                    (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
@@ -11615,8 +11615,8 @@ namespace Core.ConditionalAccess
                     }
 
                     // purchase
-                    response = VerifyPurchase(siteguid, householdId, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData,
-                                                productId, ppvCode, eTransactionType.PPV, billingGuid, paymentGwName, contentId, purchaseToken);
+                    response = VerifyPurchase(siteguid, householdId, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId, ppvCode, 
+                                              eTransactionType.PPV, billingGuid, paymentGwName, contentId, purchaseToken, adapterData);
                     if (response != null && response.Status != null)
                     {
                         // Status OK + (State OK || State Pending) = grant entitlement
@@ -11695,7 +11695,8 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private TransactionResponse ProcessSubscriptionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwName)
+        private TransactionResponse ProcessSubscriptionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, 
+                                                               string paymentGwName, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -11721,7 +11722,8 @@ namespace Core.ConditionalAccess
                 // validate item is for purchased
                 PriceReason priceReason = PriceReason.UnKnown;
                 Subscription subscription = null;
-                Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason, ref subscription, country, string.Empty, deviceName);
+                Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason, ref subscription, country, 
+                                                                      string.Empty, deviceName);
 
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
 
@@ -11746,7 +11748,7 @@ namespace Core.ConditionalAccess
                             subscription.m_ProductCode;
 
                         response = VerifyPurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
-                                                  productId, productCode, eTransactionType.Subscription, billingGuid, paymentGwName, 0, purchaseToken);
+                                                  productId, productCode, eTransactionType.Subscription, billingGuid, paymentGwName, 0, purchaseToken, adapterData);
                         if (response != null && response.Status != null)
                         {
                             // Status OK + (State OK || State Pending) = grant entitlement
@@ -11885,7 +11887,8 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private TransactionResponse ProcessCollectionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwName)
+        private TransactionResponse ProcessCollectionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, 
+                                                             string paymentGwName, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -11919,8 +11922,8 @@ namespace Core.ConditionalAccess
                 {
                     // item is for purchase
                     // price validated, create the Custom Data
-                    string customData = GetCustomDataForCollection(collection, productId.ToString(), siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
-                                                                   userIp, country, string.Empty, deviceName, string.Empty);
+                    string customData = GetCustomDataForCollection(collection, productId.ToString(), siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, 
+                                                                   string.Empty, userIp, country, string.Empty, deviceName, string.Empty);
 
                     // create new GUID for billing_transaction
                     string billingGuid = Guid.NewGuid().ToString();
@@ -11932,7 +11935,7 @@ namespace Core.ConditionalAccess
                         collection.m_ProductCode;
 
                     response = VerifyPurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
-                                              productId, productCode, eTransactionType.Collection, billingGuid, paymentGwName, 0, purchaseToken);
+                                              productId, productCode, eTransactionType.Collection, billingGuid, paymentGwName, 0, purchaseToken, adapterData);
                     if (response != null && response.Status != null)
                     {
                         // Status OK + (State OK || State Pending) = grant entitlement
@@ -12010,7 +12013,8 @@ namespace Core.ConditionalAccess
         }
 
         protected TransactionResponse VerifyPurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
-                                                 int productID, string productCode, eTransactionType transactionType, string billingGuid, string paymentGWName, int contentId, string purchaseToken)
+                                                     int productID, string productCode, eTransactionType transactionType, string billingGuid, string paymentGWName, 
+                                                     int contentId, string purchaseToken, string adapterData)
         {
             TransactionResponse response = new TransactionResponse();
 
@@ -12032,8 +12036,8 @@ namespace Core.ConditionalAccess
             try
             {
                 // call new billing method for charge adapter
-                var transactionResponse = Billing.Module.VerifyReceipt(m_nGroupID, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, productCode, transactionType,
-                                                                         contentId, purchaseToken, paymentGWName, billingGuid);
+                var transactionResponse = Billing.Module.VerifyReceipt(m_nGroupID, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, productCode, 
+                                                                       transactionType, contentId, purchaseToken, paymentGWName, billingGuid, adapterData);
 
                 response = ConvertTransactResultToTransactionResponse(logString, transactionResponse);
 
@@ -14546,7 +14550,15 @@ namespace Core.ConditionalAccess
                 recording.Id = domainRecordingId;
 
                 // Validate there is an update
-                bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected);
+                string metaDataStr = string.Empty;
+                if (recording is ExternalRecording)
+                {
+                    metaDataStr = (recording as ExternalRecording).MetaDataAsJson;
+                }
+
+                bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected)
+                    || !metaDataStr.IsNullOrEmptyOrWhiteSpace();
+
                 if (!shouldUpdate)
                 {
                     return recording;
@@ -14576,8 +14588,8 @@ namespace Core.ConditionalAccess
                         protectedUntilEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate.Value);
                     }
 
-                    if (RecordingsDAL.UpdateRecordingProtected(recording.Id, protectedUntilDate,
-                        protectedUntilEpoch))
+                    if (RecordingsDAL.UpdateRecordingProtectedAndMetaData(recording.Id, protectedUntilDate,
+                        protectedUntilEpoch, (recording as ExternalRecording).MetaDataAsJson))
                     {
                         UpdateRecordingSuccessed(recording, protectedUntilEpoch);
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainRecordingId));
@@ -16923,8 +16935,6 @@ namespace Core.ConditionalAccess
                     }
 
                     response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId);
-                    if (response.Status.IsOkStatusCode())
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
                 }
                 else
                 {                    

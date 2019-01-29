@@ -1991,13 +1991,13 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static TransactionResponse ProcessReceipt(int groupID, string siteguid, long household, Int32 contentId,
-                                         int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGatewayName)
+        public static TransactionResponse ProcessReceipt(int groupID, string siteguid, long household, Int32 contentId, int productId, eTransactionType transactionType, 
+                                                         string userIp, string deviceName, string purchaseToken, string paymentGatewayName, string adapterData)
         {
             TransactionResponse response = new TransactionResponse();
 
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid ?? "null";
 
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
@@ -2005,7 +2005,8 @@ namespace Core.ConditionalAccess
 
             if (casImpl != null)
             {
-                response = casImpl.ProcessReceipt(siteguid, household, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGatewayName);
+                response = casImpl.ProcessReceipt(siteguid, household, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGatewayName, 
+                                                  adapterData);
                 if (response == null)
                     response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
@@ -2013,6 +2014,7 @@ namespace Core.ConditionalAccess
             {
                 response.Status = new Status((int)eResponseStatus.Error, "Error");
             }
+
             return response;
         }
         public static Status GrantEntitlements(int groupID, string siteguid, long housholdId, Int32 contentId,

@@ -472,35 +472,14 @@ namespace Core.Catalog
         {
             List<string> result = new List<string>();
 
-            string userName = string.Empty;
-            string password = string.Empty;
+            ApiObjects.TimeShiftedTv.SearchableRecording[] domainSearchableRecordings = ConditionalAccess.Module.GetDomainSearchableRecordings(groupId, domainId);
 
-            //get username + password from wsCache
-            Credentials credentials =
-                TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.CONDITIONALACCESS);
-
-            if (credentials != null)
+            if (domainSearchableRecordings == null)
             {
-                userName = credentials.m_sUsername;
-                password = credentials.m_sPassword;
+                throw new Exception("GetDomainSearchableRecordings returned invalid response");
             }
 
-            // validate user name and password length
-            if (userName.Length == 0 || password.Length == 0)
-            {
-                throw new Exception(string.Format(
-                    "No WS_CAS login parameters were extracted from DB. userId={0}, groupid={1}",
-                    siteGuid, groupId));
-            }
-
-            var casResponse = ConditionalAccess.Module.GetDomainSearchableRecordings(groupId, domainId);
-
-            if (casResponse == null)
-            {
-                throw new Exception("WS_CAS GetDomainRecordingsMapping returned invalid response");
-            }
-
-            foreach (ApiObjects.TimeShiftedTv.SearchableRecording recording in casResponse)
+            foreach (ApiObjects.TimeShiftedTv.SearchableRecording recording in domainSearchableRecordings)
             {
                 definitions.recordingIdToSearchableRecordingMapping.Add(recording.RecordingId.ToString(), recording);
                 result.Add(recording.RecordingId.ToString());

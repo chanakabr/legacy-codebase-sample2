@@ -15,7 +15,7 @@ namespace ApiObjects.Rules
 
         public TvmDeviceRule()
         {
-            TvmRuleType = RuleType.Device;
+            RuleType = TvmRuleType.Device;
         }
     }
 }

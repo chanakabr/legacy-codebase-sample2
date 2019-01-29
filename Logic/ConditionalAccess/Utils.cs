@@ -5494,13 +5494,15 @@ namespace Core.ConditionalAccess
             {
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
 
-                LayeredCache.Instance.Get(
-                    LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap,
-                    GetDomainRecordingsFromDB, funcParams, groupId,
-                    LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
-                    new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)});
+                LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), 
+                                          ref domainRecordingIdToRecordingMap,
+                                          GetDomainRecordingsFromDB, 
+                                          funcParams, 
+                                          groupId,
+                                          LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
+                                          new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)}, 
+                                          true);
             }
-
             catch (Exception ex)
             {
                 log.Error(string.Format("failed GetDomainRecordings, groupId: {0}, domainId: {1}", groupId, domainId), ex);
@@ -5749,6 +5751,14 @@ namespace Core.ConditionalAccess
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
                 RecordingType recordingType = (RecordingType) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
 
+                string metaDataStr = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATA");
+                Dictionary<string, string> metaData = null;
+                try
+                {
+                    metaData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(metaDataStr);
+                }
+                catch { }
+ 
                 if (!recordingStatus.HasValue)
                 {
                     log.ErrorFormat(
@@ -5792,8 +5802,7 @@ namespace Core.ConditionalAccess
                         RecordingStatus = recordingStatus.Value,
                         ExternalRecordingId = externalRecordingId,
                         Crid = crid,
-                        Type = recordingType,
-
+                        Type = recordingType
                     };
                 }
                 else
@@ -5813,7 +5822,8 @@ namespace Core.ConditionalAccess
                         ExternalRecordingId = externalRecordingId,
                         Crid = crid,
                         Type = recordingType,
-                        ExternalDomainRecordingId = domainExternalRecordingId
+                        ExternalDomainRecordingId = domainExternalRecordingId,
+                        MetaData = metaData
                     };
                 }
 

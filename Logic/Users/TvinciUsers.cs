@@ -597,7 +597,12 @@ namespace Core.Users
             {
                 userResponse.Initialize(ResponseStatus.OK, newUser);
             }
-            
+
+            // get new user from db
+            UsersCache usersCache = UsersCache.Instance();
+            var userFromDb = usersCache.GetUser(userId, m_nGroupID);
+            userResponse.m_user = userFromDb;
+
             string sNewsLetter = sDynamicData.GetValByKey("newsletter");
             if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true") &&
                 m_newsLetterImpl != null && !m_newsLetterImpl.IsUserSubscribed(newUser))

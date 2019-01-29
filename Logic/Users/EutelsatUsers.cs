@@ -100,7 +100,7 @@ namespace Core.Users
             int nUserID = GetUserIDByUserName(sUN);
 
             User u = new User();
-            bool bInit = u.Initialize(nUserID, m_nGroupID, false);
+            bool bInit = u.Initialize(nUserID, m_nGroupID);
 
             UserResponseObject resp = new UserResponseObject();
             if (nUserID <= 0 || !bInit)
