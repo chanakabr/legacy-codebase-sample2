@@ -439,11 +439,14 @@ namespace ElasticSearchHandler.IndexBuilders
                 foreach (string languageCode in programs[epgID].Keys)
                 {
                     EpgCB epg = programs[epgID][languageCode];
-                    LanguageObj language = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapByCode[languageCode] : group.GetLanguage(languageCode);
-                    
-                    if (language == null)
+                    LanguageObj language = null;
+                    if (doesGroupUsesTemplates)
                     {
-                        language = doesGroupUsesTemplates ? catalogGroupCache.DefaultLanguage : group.GetGroupDefaultLanguage();
+                        language = catalogGroupCache.LanguageMapByCode.ContainsKey(languageCode) ? catalogGroupCache.LanguageMapByCode[languageCode] : catalogGroupCache.DefaultLanguage;
+                    }
+                    else
+                    {
+                        language = group.GetLanguage(languageCode) != null ? group.GetLanguage(languageCode) : group.GetGroupDefaultLanguage();
                     }
 
                     if (epg != null)

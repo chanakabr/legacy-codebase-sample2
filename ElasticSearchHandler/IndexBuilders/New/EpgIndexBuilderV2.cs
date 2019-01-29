@@ -442,7 +442,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (!string.IsNullOrEmpty(languageCode))
                     {
-                        language = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapByCode[languageCode] : group.GetLanguage(languageCode);
+                        if (doesGroupUsesTemplates)
+                        {
+                            language = catalogGroupCache.LanguageMapByCode.ContainsKey(languageCode) ? catalogGroupCache.LanguageMapByCode[languageCode] : null;
+                        }
+                        else
+                        {
+                            language = group.GetLanguage(languageCode);
+                        }
 
                         // Validate language
                         if (language == null)
