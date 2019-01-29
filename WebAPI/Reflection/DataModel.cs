@@ -4386,8 +4386,6 @@ namespace WebAPI.Reflection
                 case "KalturaPurchase":
                     switch(property.Name)
                     {
-                        case "AdapterData":
-                            return "adapterData";
                         case "Coupon":
                             return "coupon";
                         case "Currency":
@@ -4404,6 +4402,8 @@ namespace WebAPI.Reflection
                 case "KalturaPurchaseBase":
                     switch(property.Name)
                     {
+                        case "AdapterData":
+                            return "adapterData";
                         case "ContentId":
                             return "contentId";
                         case "ProductId":
@@ -4538,6 +4538,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IsProtected":
                             return "isProtected";
+                        case "MetaData":
+                            return "metaData";
                         case "Status":
                             return "status";
                         case "Type":

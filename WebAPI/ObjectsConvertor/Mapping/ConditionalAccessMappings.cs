@@ -368,36 +368,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // KalturaRecording to Recording
             cfg.CreateMap<KalturaRecording, Recording>()
-               .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.RecordingStatus, opt => opt.ResolveUsing(src => ConvertKalturaRecordingStatus(src.Status)))
-               .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertKalturaRecordingType(src.Type)))
-               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
-               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsProtected))
-               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
-               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.UpdateDate)))
-               .ForMember(dest => dest.Status, opt => opt.Ignore());
-
+                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.RecordingStatus,
+                    opt => opt.ResolveUsing(src => ConvertKalturaRecordingStatus(src.Status)))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertKalturaRecordingType(src.Type)))
+                .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
+                .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsProtected))
+                .ForMember(dest => dest.CreateDate,
+                    opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate,
+                    opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.UpdateDate)))
+                .ForMember(dest => dest.Status, opt => opt.Ignore());
+            
             // Recording to KalturaRecording
             cfg.CreateMap<Recording, KalturaRecording>()
-               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
-               .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertRecordingType(src.Type)))
-               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => IsRecordingProtected(src.ProtectedUntilDate)))
-               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
-               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
-               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)));
-
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Status,
+                    opt => opt.ResolveUsing(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
+                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertRecordingType(src.Type)))
+                .ForMember(dest => dest.IsProtected,
+                    opt => opt.MapFrom(src => IsRecordingProtected(src.ProtectedUntilDate)))
+                .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
+                .ForMember(dest => dest.CreateDate,
+                    opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate,
+                    opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)));
+            
             // KalturaExternalRecording to ExternalRecording
             cfg.CreateMap<KalturaExternalRecording, ExternalRecording>()
                 .IncludeBase<KalturaRecording, Recording>()
-                .ForMember(dest => dest.ExternalDomainRecordingId, opt => opt.MapFrom(src => src.ExternalId));
+                .ForMember(dest => dest.ExternalDomainRecordingId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.MetaData, opt => opt.ResolveUsing(src => ConvertMetaData(src.MetaData)))
+                .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
 
             // ExternalRecording to KalturaExternalRecording
             cfg.CreateMap<ExternalRecording, KalturaExternalRecording>()
                 .IncludeBase<Recording, KalturaRecording>()
-                .ForMember(dest => dest.ExternalId, opt=>opt.MapFrom(src=>src.ExternalDomainRecordingId));
+                .ForMember(dest => dest.ExternalId, opt=>opt.MapFrom(src=>src.ExternalDomainRecordingId))
+                .ForMember(dest => dest.MetaData, opt => opt.ResolveUsing(src => ConvertMetaData(src.MetaData)))
+                .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
 
             // KalturaSeriesRecording to SeriesRecording
             cfg.CreateMap<KalturaSeriesRecording, SeriesRecording>()
@@ -843,6 +854,40 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
             }
             return result;
+        }
+
+        internal static Dictionary<string, string> ConvertMetaData(SerializableDictionary<string, KalturaStringValue> metaData)
+        {
+            Dictionary<string, string> res = null;
+
+            if (metaData != null && metaData.Any())
+            {
+                res = new Dictionary<string, string>();
+
+                foreach (var item in metaData)
+                {
+                    res.Add(item.Key, item.Value.value);
+                }
+            }
+
+            return res;
+        }
+
+        internal static SerializableDictionary<string, KalturaStringValue> ConvertMetaData(Dictionary<string, string> metaData)
+        {
+            SerializableDictionary<string, KalturaStringValue> res = null;
+
+            if (metaData != null && metaData.Any())
+            {
+                res = new SerializableDictionary<string, KalturaStringValue>();
+
+                foreach (var item in metaData)
+                {
+                    res.Add(item.Key, new KalturaStringValue() {value = item.Value});
+                }
+            }
+
+            return res;
         }
 
         internal static List<CDVRAdapterSettings> ConvertCDVRAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)

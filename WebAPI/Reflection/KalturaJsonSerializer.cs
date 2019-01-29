@@ -2306,10 +2306,6 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(AdapterData != null)
-            {
-                ret.Add("adapterData", "\"adapterData\": " + "\"" + EscapeJson(AdapterData) + "\"");
-            }
             if(Coupon != null)
             {
                 ret.Add("coupon", "\"coupon\": " + "\"" + EscapeJson(Coupon) + "\"");
@@ -2335,10 +2331,6 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(AdapterData != null)
-            {
-                ret.Add("adapterData", "<adapterData>" + EscapeXml(AdapterData) + "</adapterData>");
-            }
             if(Coupon != null)
             {
                 ret.Add("coupon", "<coupon>" + EscapeXml(Coupon) + "</coupon>");
@@ -2366,6 +2358,10 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(AdapterData != null)
+            {
+                ret.Add("adapterData", "\"adapterData\": " + "\"" + EscapeJson(AdapterData) + "\"");
+            }
             if(ContentId.HasValue)
             {
                 ret.Add("contentId", "\"contentId\": " + ContentId);
@@ -2380,6 +2376,10 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(AdapterData != null)
+            {
+                ret.Add("adapterData", "<adapterData>" + EscapeXml(AdapterData) + "</adapterData>");
+            }
             if(ContentId.HasValue)
             {
                 ret.Add("contentId", "<contentId>" + ContentId + "</contentId>");
@@ -2429,6 +2429,11 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("id", "\"id\": " + Id);
             }
             ret.Add("isProtected", "\"isProtected\": " + IsProtected.ToString().ToLower());
+            if(MetaData != null)
+            {
+                propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("metaData", "\"metaData\": " + propertyValue);
+            }
             ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaRecordingStatus), Status) + "\"");
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaRecordingType), Type) + "\"");
             ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
@@ -2451,6 +2456,11 @@ namespace WebAPI.Models.ConditionalAccess
                 ret.Add("id", "<id>" + Id + "</id>");
             }
             ret.Add("isProtected", "<isProtected>" + IsProtected.ToString().ToLower() + "</isProtected>");
+            if(MetaData != null)
+            {
+                propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("metaData", "<metaData>" + propertyValue + "</metaData>");
+            }
             ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaRecordingStatus), Status) + "" + "</status>");
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaRecordingType), Type) + "" + "</type>");
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
@@ -15809,7 +15819,7 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("createDate", "\"createDate\": " + CreateDate);
-            ret.Add("ruleType", "\"ruleType\": " + "\"" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "\"");
+            ret.Add("ruleType", "\"ruleType\": " + "\"" + Enum.GetName(typeof(KalturaTvmRuleType), RuleType) + "\"");
             return ret;
         }
         
@@ -15819,7 +15829,7 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
-            ret.Add("ruleType", "<ruleType>" + "" + Enum.GetName(typeof(KalturaRuleType), RuleType) + "" + "</ruleType>");
+            ret.Add("ruleType", "<ruleType>" + "" + Enum.GetName(typeof(KalturaTvmRuleType), RuleType) + "" + "</ruleType>");
             return ret;
         }
     }
@@ -15836,7 +15846,7 @@ namespace WebAPI.Models.API
             }
             if(RuleTypeEqual.HasValue)
             {
-                ret.Add("ruleTypeEqual", "\"ruleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaRuleType), RuleTypeEqual) + "\"");
+                ret.Add("ruleTypeEqual", "\"ruleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTvmRuleType), RuleTypeEqual) + "\"");
             }
             return ret;
         }
@@ -15852,7 +15862,7 @@ namespace WebAPI.Models.API
             }
             if(RuleTypeEqual.HasValue)
             {
-                ret.Add("ruleTypeEqual", "<ruleTypeEqual>" + "" + Enum.GetName(typeof(KalturaRuleType), RuleTypeEqual) + "" + "</ruleTypeEqual>");
+                ret.Add("ruleTypeEqual", "<ruleTypeEqual>" + "" + Enum.GetName(typeof(KalturaTvmRuleType), RuleTypeEqual) + "" + "</ruleTypeEqual>");
             }
             return ret;
         }

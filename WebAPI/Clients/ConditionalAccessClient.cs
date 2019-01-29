@@ -410,7 +410,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaTransaction ProcessReceipt(int groupId, string siteguid, long household, int contentId, int productId, KalturaTransactionType clientTransactionType,
-                                                           string udid, string purchaseToken, string paymentGatewayName)
+                                                   string udid, string purchaseToken, string paymentGatewayName, string adapterData)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
@@ -426,7 +426,8 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Core.ConditionalAccess.Module.ProcessReceipt(groupId, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), udid, purchaseToken, paymentGatewayName);
+                    wsResponse = Core.ConditionalAccess.Module.ProcessReceipt(groupId, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), 
+                                                                              udid, purchaseToken, paymentGatewayName, adapterData);
                 }
             }
             catch (Exception ex)

@@ -4052,16 +4052,6 @@ namespace WebAPI.Models.ConditionalAccess
             MinLength = -1,
             MinInteger = 1,
         };
-        private static RuntimeSchemePropertyAttribute AdapterDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPurchase")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = 1024,
-            MinLength = -1,
-        };
         public KalturaPurchase(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -4096,14 +4086,6 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     Coupon = (String) Convert.ChangeType(parameters["coupon"], typeof(String));
                 }
-                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        AdapterDataSchemaProperty.Validate("adapterData", parameters["adapterData"]);
-                    }
-                    AdapterData = (String) Convert.ChangeType(parameters["adapterData"], typeof(String));
-                }
             }
         }
     }
@@ -4119,6 +4101,16 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+        };
+        private static RuntimeSchemePropertyAttribute AdapterDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPurchaseBase")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = 1024,
+            MinLength = -1,
         };
         public KalturaPurchaseBase(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -4141,6 +4133,14 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("productType") && parameters["productType"] != null)
                 {
                     ProductType = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["productType"].ToString(), true);
+                }
+                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AdapterDataSchemaProperty.Validate("adapterData", parameters["adapterData"]);
+                    }
+                    AdapterData = (String) Convert.ChangeType(parameters["adapterData"], typeof(String));
                 }
             }
         }
@@ -4295,6 +4295,13 @@ namespace WebAPI.Models.ConditionalAccess
                         UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
                     }
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
+                {
+                    if (parameters["metaData"] is JObject)
+                    {
+                        MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
+                    }
                 }
             }
         }
@@ -16084,7 +16091,7 @@ namespace WebAPI.Models.API
                     {
                         RuleTypeSchemaProperty.Validate("ruleType", parameters["ruleType"]);
                     }
-                    RuleType = (KalturaRuleType) Enum.Parse(typeof(KalturaRuleType), parameters["ruleType"].ToString(), true);
+                    RuleType = (KalturaTvmRuleType) Enum.Parse(typeof(KalturaTvmRuleType), parameters["ruleType"].ToString(), true);
                 }
             }
         }
@@ -16097,7 +16104,7 @@ namespace WebAPI.Models.API
             {
                 if (parameters.ContainsKey("ruleTypeEqual") && parameters["ruleTypeEqual"] != null)
                 {
-                    RuleTypeEqual = (KalturaRuleType) Enum.Parse(typeof(KalturaRuleType), parameters["ruleTypeEqual"].ToString(), true);
+                    RuleTypeEqual = (KalturaTvmRuleType) Enum.Parse(typeof(KalturaTvmRuleType), parameters["ruleTypeEqual"].ToString(), true);
                 }
                 if (parameters.ContainsKey("nameEqual") && parameters["nameEqual"] != null)
                 {

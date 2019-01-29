@@ -29,7 +29,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.RuleType = KalturaRuleType.device;
+            this.RuleType = KalturaTvmRuleType.Device;
         }
 
         public HashSet<int> GetDeviceBrandIds()

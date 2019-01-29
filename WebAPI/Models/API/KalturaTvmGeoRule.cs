@@ -69,7 +69,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.RuleType = KalturaRuleType.geo;
+            this.RuleType = KalturaTvmRuleType.Geo;
         }
 
         public HashSet<int> GetCountryIds()

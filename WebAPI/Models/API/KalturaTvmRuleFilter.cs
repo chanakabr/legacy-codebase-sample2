@@ -28,7 +28,7 @@ namespace WebAPI.Models.API
         [JsonProperty("ruleTypeEqual")]
         [XmlElement(ElementName = "ruleTypeEqual", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public KalturaRuleType? RuleTypeEqual { get; set; }
+        public KalturaTvmRuleType? RuleTypeEqual { get; set; }
 
         /// <summary>
         /// Indicates which tvm rule list to return by their name.

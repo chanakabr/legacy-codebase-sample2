@@ -227,31 +227,7 @@ namespace WebAPI.Models.Users
 
         internal List<long> GetRoleIds()
         {
-            List<long> values = new List<long>();
-            
-            if (!string.IsNullOrEmpty(RoleIds))
-            {
-                string[] stringValues = RoleIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (long.TryParse(stringValue, out value))
-                    {
-                        if (values.Contains(value))
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "roleIds");
-                        }
-
-                        values.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "roleIds");
-                    }
-                }
-            }
-
-            return values;
+            return GetItemsIn<List<long>, long>(RoleIds, "KalturaOTTUser.roleIds", true);
         }
     }
 }
