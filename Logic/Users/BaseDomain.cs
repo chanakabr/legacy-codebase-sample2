@@ -2322,9 +2322,11 @@ namespace Core.Users
                 response = GetDLM(id, groupId);
                 if (response != null && response.resp != null && response.resp.Code == (int)eResponseStatus.OK)
                 {
-
+                    limitationsManagerList.Add(response.dlm);
                 }
             }
+
+            return limitationsManagerList;
         }
 
         private List<int> GetGroupsDeviceLimitationModuleIds(DataTable dt)
