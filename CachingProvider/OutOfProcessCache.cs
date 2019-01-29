@@ -43,7 +43,11 @@ namespace CachingProvider
 
         public abstract bool Get<T>(string key, ref T result);
 
+        public abstract bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings);
+
         public abstract bool GetWithVersion<T>(string key, out ulong version, ref T result);
+
+        public abstract bool GetWithVersion<T>(string key, out ulong version, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings);
 
         public abstract bool RemoveKey(string key);
 
@@ -51,7 +55,11 @@ namespace CachingProvider
 
         public abstract bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds);
 
+        public abstract bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings);
+
         public abstract bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false);
+
+        public abstract bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings, bool shouldAllowPartialQuery = false);
 
     }
 }

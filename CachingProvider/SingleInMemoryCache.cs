@@ -273,6 +273,11 @@ namespace CachingProvider
             return res;
         }
 
+        public bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        {
+            return Get(key, ref result);
+        }
+
         public bool GetWithVersion<T>(string key, out ulong version, ref T result)
         {            
             bool res = false;
@@ -287,6 +292,11 @@ namespace CachingProvider
             }
 
             return res;
+        }
+
+        public bool GetWithVersion<T>(string key, out ulong version, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        {
+            return GetWithVersion(key, out version, ref result);
         }
 
         public bool RemoveKey(string sKey)
@@ -320,6 +330,11 @@ namespace CachingProvider
             return bRes;
         }
 
+        public bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        {
+            return SetWithVersion(key, value, version, expirationInSeconds);
+        }
+
         public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
         {
             bool res = false;
@@ -349,6 +364,11 @@ namespace CachingProvider
             }
 
             return res;
+        }
+
+        public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings, bool shouldAllowPartialQuery = false)
+        {
+            return GetValues(keys, ref results, shouldAllowPartialQuery);
         }
 
     }

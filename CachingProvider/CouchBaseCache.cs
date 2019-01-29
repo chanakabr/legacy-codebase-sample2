@@ -235,9 +235,19 @@ namespace CachingProvider
             return new CouchbaseManager.CouchbaseManager(bucket).Get<T>(key, ref result);
         }
 
+        public override bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        {
+            return new CouchbaseManager.CouchbaseManager(bucket).Get<T>(key, ref result, jsonSerializerSettings);
+        }
+
         public override bool GetWithVersion<T>(string key, out ulong version, ref T result)
         {
             return new CouchbaseManager.CouchbaseManager(bucket).GetWithVersion<T>(key, out version, ref result);
+        }
+
+        public override bool GetWithVersion<T>(string key, out ulong version, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        {
+            return new CouchbaseManager.CouchbaseManager(bucket).GetWithVersion<T>(key, out version, ref result, jsonSerializerSettings);
         }
 
         public override bool RemoveKey(string key)
@@ -255,10 +265,21 @@ namespace CachingProvider
             return new CouchbaseManager.CouchbaseManager(bucket).SetWithVersionWithRetry<T>(key, value, version, RETRY_LIMIT, RETRY_INTERVAL, expirationInSeconds);
         }
 
+        public override bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        {
+            return new CouchbaseManager.CouchbaseManager(bucket).SetWithVersionWithRetry<T>(key, value, version, RETRY_LIMIT, RETRY_INTERVAL, jsonSerializerSettings, expirationInSeconds);
+        }
+
         public override bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
         {
             return new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, ref results, shouldAllowPartialQuery);
         }
+
+        public override bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings, bool shouldAllowPartialQuery = false)
+        {
+            return new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, ref results, jsonSerializerSettings, shouldAllowPartialQuery);
+        }
+
         public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false, bool asJson = false)
         {
             results = new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, shouldAllowPartialQuery, asJson);

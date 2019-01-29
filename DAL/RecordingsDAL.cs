@@ -743,6 +743,7 @@ namespace DAL
             sp.AddParameter("@Crid", recording.Crid);
             sp.AddParameter("@ProtectedUntilDate", protectedUntilDate);
             sp.AddParameter("@ProtectedUntilEpoch", recording.ProtectedUntilDate.HasValue ? recording.ProtectedUntilDate.Value : 0);
+            sp.AddParameter("@MetaData", recording.MetaDataAsJson);
 
             return sp.Execute();
         }
@@ -1344,14 +1345,15 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool UpdateRecordingProtected(long Id, DateTime? protectedUntilDate, long protectedUntilEpoch)
+        public static bool UpdateRecordingProtectedAndMetaData(long Id, DateTime? protectedUntilDate, long protectedUntilEpoch, string metaData)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("ProtectRecording");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateRecordingProtectedAndMetaData");
 
             sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@ID", Id);
             sp.AddParameter("@ProtectedUntilDate", protectedUntilDate);
             sp.AddParameter("@ProtectedUntilEpoch", protectedUntilEpoch);
+            sp.AddParameter("@meta_data", metaData);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
