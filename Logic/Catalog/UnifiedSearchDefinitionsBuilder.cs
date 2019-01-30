@@ -304,39 +304,29 @@ namespace Core.Catalog
 
                     if (definitions.shouldGetDomainsRecordings)
                     {
-                        List<string> recordings = new List<string>();
-
-                        if (request.domainId > 0)
-                        {
-                            recordings = GetUserRecordings(definitions, request.m_sSiteGuid, request.m_nGroupID, (long)request.domainId);
-                        }
-
                         if (definitions.specificAssets == null)
                         {
                             definitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
                         }
 
-                        // If user has at least one recording
-                        if (recordings != null && recordings.Count > 0)
+                        HashSet<string> domainRecordingIds = new HashSet<string>();
+                        List<string> recordingIds = new List<string>();
+                        /* If there are previous specific assets - we need to map the list of domain recording ids
+                         * to recording ids  and we narrow down the list to contain only the user's recordings */
+                        if (request.domainId > 0 && definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
                         {
-                            // If there are previous specific assets - we narrow down the list to contain only the user's recordings
-                            if (definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
-                            {
-                                var currentRecordings = definitions.specificAssets[eAssetTypes.NPVR];
-
-                                var newRecordings = currentRecordings.Intersect(recordings).ToList();
-
-                                definitions.specificAssets[eAssetTypes.NPVR] = newRecordings;
-                            }
-                            // Otherwise we are happy with the list we got from conditional access
-                            else
-                            {
-                                definitions.specificAssets.Add(eAssetTypes.NPVR, recordings);
-                            }
+                            domainRecordingIds = new HashSet<string>(definitions.specificAssets[eAssetTypes.NPVR]);
+                            recordingIds = GetDomainRecordings(definitions, request.m_nGroupID, (long)request.domainId, domainRecordingIds);
                         }
-                        else
+
+                        // If domain has at least one recording
+                        if (recordingIds != null && recordingIds.Count > 0)
                         {
-                            // if not, create a new list which symbols no assets at all.
+                            definitions.specificAssets[eAssetTypes.NPVR] = recordingIds;
+                        }
+                        // if not, create a new list which symbols no assets at all.
+                        else
+                        {                           
                             definitions.specificAssets[eAssetTypes.NPVR] = new List<string>() { "0" };
                         }
                     }
@@ -468,7 +458,7 @@ namespace Core.Catalog
             }
         }
 
-        private List<string> GetUserRecordings(UnifiedSearchDefinitions definitions, string siteGuid, int groupId, long domainId)
+        private List<string> GetDomainRecordings(UnifiedSearchDefinitions definitions, int groupId, long domainId, HashSet<string> domainRecordingIds)
         {
             List<string> result = new List<string>();
 
@@ -476,13 +466,18 @@ namespace Core.Catalog
 
             if (domainSearchableRecordings == null)
             {
-                throw new Exception("GetDomainSearchableRecordings returned invalid response");
+                log.ErrorFormat("GetDomainSearchableRecordings returned invalid response, domainId : {0}, groupId: {1}", domainId, groupId);
+                return result;
             }
 
             foreach (ApiObjects.TimeShiftedTv.SearchableRecording recording in domainSearchableRecordings)
             {
-                definitions.recordingIdToSearchableRecordingMapping.Add(recording.RecordingId.ToString(), recording);
-                result.Add(recording.RecordingId.ToString());
+                if (!definitions.recordingIdToSearchableRecordingMapping.ContainsKey(recording.RecordingId.ToString())
+                    && (domainRecordingIds.Count == 0 || domainRecordingIds.Contains(recording.DomainRecordingId)))
+                {
+                    definitions.recordingIdToSearchableRecordingMapping.Add(recording.RecordingId.ToString(), recording);
+                    result.Add(recording.RecordingId.ToString());
+                }
             }
 
             return result;

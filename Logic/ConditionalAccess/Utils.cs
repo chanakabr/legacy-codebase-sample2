@@ -5486,7 +5486,7 @@ namespace Core.ConditionalAccess
                     .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        internal static Dictionary<long, Recording> GetDomainRecordings(int groupId, long domainId)
+        internal static Dictionary<long, Recording> GetDomainRecordings(int groupId, long domainId, bool shouldFilterViewableRecordingsOnly = true)
         {
             Dictionary<long, Recording> domainRecordingIdToRecordingMap = null;
             
@@ -5494,19 +5494,28 @@ namespace Core.ConditionalAccess
             {
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
 
-                LayeredCache.Instance.Get(
-                    LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap,
-                    GetDomainRecordingsFromDB, funcParams, groupId,
-                    LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
-                    new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)}, true);
+                LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), 
+                                          ref domainRecordingIdToRecordingMap,
+                                          GetDomainRecordingsFromDB, 
+                                          funcParams, 
+                                          groupId,
+                                          LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
+                                          new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)}, 
+                                          true);
             }
-
             catch (Exception ex)
             {
                 log.Error(string.Format("failed GetDomainRecordings, groupId: {0}, domainId: {1}", groupId, domainId), ex);
             }
-            
-            return FilterViewableRecordingsOnly(domainRecordingIdToRecordingMap);
+
+            if (shouldFilterViewableRecordingsOnly)
+            {
+                return FilterViewableRecordingsOnly(domainRecordingIdToRecordingMap);
+            }
+            else
+            {
+                return new Dictionary<long, Recording>(domainRecordingIdToRecordingMap);
+            }
         }
 
         private static Dictionary<long, Recording> FilterViewableRecordingsOnly(Dictionary<long, Recording> domainRecordingIdToRecordingMap)
@@ -5559,11 +5568,12 @@ namespace Core.ConditionalAccess
             return new Tuple<Dictionary<long, Recording>, bool>(DomainRecordingIdToRecordingMap, dt != null);
         }
 
-        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses)
+        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
+                                                                                                bool shouldFilterViewableRecordingOnly = true)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
 
-            var domainRecordings = GetDomainRecordings(groupID, domainID);
+            var domainRecordings = GetDomainRecordings(groupID, domainID, shouldFilterViewableRecordingOnly);
             foreach (var record in domainRecordings)
             {
                 if (recordingStatuses.Contains(record.Value.RecordingStatus))

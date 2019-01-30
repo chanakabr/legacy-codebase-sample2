@@ -48,5 +48,25 @@ namespace Core.Catalog.CatalogManagement
         public ImageReferenceTable ReferenceTable { get; set; }
 
         public long ReferenceId { get; set; }
+
+        public Image() { }
+
+        public Image(Image imageToCopy)
+        {
+            this.Id = imageToCopy.Id;
+            this.ContentId = imageToCopy.ContentId;
+            this.Height = imageToCopy.Height;
+            this.ImageObjectId = imageToCopy.ImageObjectId;
+            this.ImageObjectType = imageToCopy.ImageObjectType;
+            this.ImageTypeId = imageToCopy.ImageTypeId;
+            this.IsDefault = imageToCopy.IsDefault;
+            this.RatioName = imageToCopy.RatioName;
+            this.ReferenceId = imageToCopy.ReferenceId;
+            this.ReferenceTable = imageToCopy.ReferenceTable;
+            this.Status = imageToCopy.Status;
+            this.Url = imageToCopy.Url;
+            this.Version = imageToCopy.Version;
+            this.Width = imageToCopy.Width;
+        }
     }
 }
