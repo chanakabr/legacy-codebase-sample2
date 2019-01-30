@@ -2471,7 +2471,8 @@ namespace WebAPI.Clients
 
         internal KalturaExternalRecording AddExternalRecording(int groupId, KalturaExternalRecording recording, long userId)
         {
-            Func<ExternalRecording, GenericResponse<ExternalRecording>> addExternalRecordigFunc = (ExternalRecording recordingToAdd) => Core.ConditionalAccess.Module.AddExternalRecording(groupId, recordingToAdd, recording.IsProtected, userId);
+            Func<ExternalRecording, GenericResponse<ExternalRecording>> addExternalRecordigFunc = (ExternalRecording recordingToAdd) =>
+                    Core.ConditionalAccess.Module.AddExternalRecording(groupId, recordingToAdd, recording.IsProtected, userId);
             return ClientUtils.GetResponseFromWS<KalturaExternalRecording, ExternalRecording>(recording, addExternalRecordigFunc);
         }
 
