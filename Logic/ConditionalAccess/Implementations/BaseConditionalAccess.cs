@@ -14593,10 +14593,10 @@ namespace Core.ConditionalAccess
                 recording.Id = domainRecordingId;
 
                 // Validate there is an update
-                string metaDataStr = GetNewMetaDataStr(recording, recordingToUpdate);
+                string metaDataStr = GetUpdatedMetaDataStr(recording, recordingToUpdate);
 
                 bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected)
-                    || metaDataStr != null;
+                                    || metaDataStr != null;
 
                 if (!shouldUpdate)
                 {
@@ -14635,8 +14635,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        log.DebugFormat(
-                            "Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}",
+                        log.DebugFormat("Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}",
                             domainID, userId, domainRecordingId);
                         recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
@@ -14781,7 +14780,7 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
-        private static string GetNewMetaDataStr(Recording recording, Recording recordingToUpdate)
+        private static string GetUpdatedMetaDataStr(Recording recording, Recording recordingToUpdate)
         {
             var rec = recording as ExternalRecording;
             var update = recordingToUpdate as ExternalRecording;
