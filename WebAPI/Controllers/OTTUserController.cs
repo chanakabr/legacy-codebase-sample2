@@ -818,7 +818,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve user by external identifier or username or if filter is null all user in the master or the user itself
+        /// Returns list of OTTUser (limited to 500 items). Filters by username/external identifier/idIn or roleIdIn
         /// </summary>
         /// <param name="filter">Filter request</param>
         /// <remarks>Possible status codes: 
@@ -831,22 +831,59 @@ namespace WebAPI.Controllers
         {
             KalturaOTTUserListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
 
-            if (filter != null)
+            if (filter == null)
             {
-                filter.Validate();
+                filter = new KalturaOTTUserFilter();
             }
 
             try
             {
-                HashSet<long> roleIdsIn = filter != null ? filter.GetItemsIn<HashSet<long>, long>(filter.RoleIdsIn, "roleIdsIn") : null;
-                bool isOperatorAndAbove = RolesManager.GetRoleIds(KS.GetFromRequest()).Any(ur => ur == RolesManager.OPERATOR_ROLE_ID ||
-                                                                                                 ur == RolesManager.MANAGER_ROLE_ID ||
-                                                                                                 ur == RolesManager.ADMINISTRATOR_ROLE_ID);
+                bool isOperatorOrAbove = RolesManager.GetRoleIds(ks).
+                    Any(ur => ur == RolesManager.OPERATOR_ROLE_ID || ur == RolesManager.MANAGER_ROLE_ID || ur == RolesManager.ADMINISTRATOR_ROLE_ID);
 
-                // call client
-                if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UsernameEqual) && string.IsNullOrEmpty(filter.IdIn)))
+                filter.Validate(isOperatorOrAbove);
+
+                if (!string.IsNullOrEmpty(filter.UsernameEqual))
+                {
+                    response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UsernameEqual);
+                }
+                else if (!string.IsNullOrEmpty(filter.ExternalIdEqual))
+                {
+                    response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
+                }
+                else if (!string.IsNullOrEmpty(filter.IdIn)) 
+                {
+                    List<string> usersToGet = null;
+                    KalturaHousehold household = HouseholdUtils.GetHouseholdFromRequest();
+
+                    // get users only from my domain
+                    if (household != null && !isOperatorOrAbove)
+                    {
+                        var householdUsers = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        if (householdUsers != null && householdUsers.Count > 0)
+                        {
+                            usersToGet = new List<string>(filter.GetIdIn().Where(userId => householdUsers.Contains(userId)));
+                        }
+                    }
+                    // get users from idIn
+                    else if (isOperatorOrAbove)
+                    {
+                        usersToGet = filter.GetIdIn();
+                    }
+                    else // no household and less then Operator
+                    {
+                        throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, 
+                                                        Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.READ),
+                                                        "KalturaOTTUserFilter", 
+                                                        "idIn");
+                    }
+
+                    response = GetUsersData(groupId, usersToGet);
+                }
+                else // empty filter (can have roleIds)
                 {
                     response = new KalturaOTTUserListResponse();
                     string userId = KS.GetFromRequest().UserId;
@@ -858,8 +895,7 @@ namespace WebAPI.Controllers
 
                     // get all users of the master / itself                    
                     List<string> householdUserIds = null;
-
-                    if (!userId.Equals(originalUserId) || !isOperatorAndAbove)
+                    if (!userId.Equals(originalUserId) || !isOperatorOrAbove)
                     {
                         householdUserIds = new List<string>();
                         if (HouseholdUtils.GetHouseholdFromRequest() != null)
@@ -872,61 +908,28 @@ namespace WebAPI.Controllers
                         }
                     }
 
-                    response.Users = ClientsManager.UsersClient().GetUsersData(groupId, householdUserIds, roleIdsIn);
-
-                    if (response.Users != null)
-                    {
-                        response.TotalCount = response.Users.Count();
-                    }
-                }
-                else if (!string.IsNullOrEmpty(filter.ExternalIdEqual))
-                {
-                    response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
-                }
-                else if (!string.IsNullOrEmpty(filter.UsernameEqual))
-                {
-                    response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UsernameEqual);
-                }
-                // user or master
-                else if (!string.IsNullOrEmpty(filter.IdIn))
-                {
-                    List<string> usersToGet = null;
-                    KalturaHousehold household = HouseholdUtils.GetHouseholdFromRequest();
-                    
-                    if (household != null && !isOperatorAndAbove)
-                    {
-                        var householdUsers = HouseholdUtils.GetHouseholdUserIds(groupId);
-                        if (householdUsers != null && householdUsers.Count > 0)
-                        {
-                            usersToGet = new List<string>(filter.GetIdIn().Where(userId => householdUsers.Contains(userId)));
-                        }
-                    }
-                    // operator +
-                    else if (isOperatorAndAbove)
-                    {
-                        usersToGet = filter.GetIdIn();
-                    }
-                    else
-                    {
-                        throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.READ),
-                            "KalturaOTTUserFilter", "idIn");
-                    }
-
-                    response = new KalturaOTTUserListResponse();
-                    if (usersToGet != null && usersToGet.Count > 0)
-                    {
-                        response.Users = ClientsManager.UsersClient().GetUsersData(groupId, usersToGet, roleIdsIn);
-                    }
-
-                    if (response.Users != null)
-                    {
-                        response.TotalCount = response.Users.Count;
-                    }
+                    response = GetUsersData(groupId, householdUserIds, filter.GetRoleIdsIn());
                 }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        private static KalturaOTTUserListResponse GetUsersData(int groupId, List<string> usersToGet, HashSet<long> roleIdsIn = null)
+        {
+            KalturaOTTUserListResponse response = new KalturaOTTUserListResponse();
+            if (usersToGet != null && usersToGet.Count > 0)
+            {
+                response.Users = ClientsManager.UsersClient().GetUsersData(groupId, usersToGet, roleIdsIn);
+            }
+
+            if (response.Users != null)
+            {
+                response.TotalCount = response.Users.Count;
             }
 
             return response;
