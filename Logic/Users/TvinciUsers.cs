@@ -1911,7 +1911,11 @@ namespace Core.Users
 
         public override ApiObjects.Response.Status DeleteUser(int userId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status()
+            {
+                Code = (int)eResponseStatus.Error,
+                Message = eResponseStatus.Error.ToString()
+            };
 
             try
             {
@@ -1924,7 +1928,7 @@ namespace Core.Users
                 }
 
                 // get User's domain 
-                Core.Users.BaseDomain baseDomain = null;
+                BaseDomain baseDomain = null;
                 Utils.GetBaseImpl(ref baseDomain, m_nGroupID);
 
                 if (baseDomain == null)
@@ -1934,9 +1938,7 @@ namespace Core.Users
                     return response;
                 }
 
-
                 Domain userDomain = baseDomain.GetDomainInfo(userResponse.m_user.m_domianID, m_nGroupID);
-
                 if (userDomain == null)
                 {
                     response.Code = (int)eResponseStatus.UserNotExistsInDomain;

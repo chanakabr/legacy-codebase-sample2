@@ -5486,7 +5486,7 @@ namespace Core.ConditionalAccess
                     .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        internal static Dictionary<long, Recording> GetDomainRecordings(int groupId, long domainId)
+        internal static Dictionary<long, Recording> GetDomainRecordings(int groupId, long domainId, bool shouldFilterViewableRecordingsOnly = true)
         {
             Dictionary<long, Recording> domainRecordingIdToRecordingMap = null;
             
@@ -5507,18 +5507,27 @@ namespace Core.ConditionalAccess
             {
                 log.Error(string.Format("failed GetDomainRecordings, groupId: {0}, domainId: {1}", groupId, domainId), ex);
             }
-            
-            return FilterViewableRecordingsOnly(domainRecordingIdToRecordingMap);
+
+            if (shouldFilterViewableRecordingsOnly)
+            {
+                return FilterViewableRecordingsOnly(domainRecordingIdToRecordingMap);
+            }
+            else
+            {
+                return new Dictionary<long, Recording>(domainRecordingIdToRecordingMap);
+            }
         }
 
         private static Dictionary<long, Recording> FilterViewableRecordingsOnly(Dictionary<long, Recording> domainRecordingIdToRecordingMap)
         {
-            if (domainRecordingIdToRecordingMap == null||!domainRecordingIdToRecordingMap.Any())
+            if (domainRecordingIdToRecordingMap == null || !domainRecordingIdToRecordingMap.Any())
                 return domainRecordingIdToRecordingMap;
+
+            var epoc = DateTime.UtcNow.ToUtcUnixTimestampSeconds();
 
             return domainRecordingIdToRecordingMap
                 .Where(x => x.Value.ViewableUntilDate.HasValue &&
-                            x.Value.ViewableUntilDate.Value - DateTime.UtcNow.ToUtcUnixTimestampSeconds() > 0)
+                            x.Value.ViewableUntilDate.Value > epoc)
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
@@ -5559,11 +5568,12 @@ namespace Core.ConditionalAccess
             return new Tuple<Dictionary<long, Recording>, bool>(DomainRecordingIdToRecordingMap, dt != null);
         }
 
-        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses)
+        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
+                                                                                                bool shouldFilterViewableRecordingOnly = true)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
 
-            var domainRecordings = GetDomainRecordings(groupID, domainID);
+            var domainRecordings = GetDomainRecordings(groupID, domainID, shouldFilterViewableRecordingOnly);
             foreach (var record in domainRecordings)
             {
                 if (recordingStatuses.Contains(record.Value.RecordingStatus))

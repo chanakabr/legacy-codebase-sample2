@@ -224,7 +224,7 @@ namespace Core.Catalog.Request
                 }
 
                 result = ConditionalAccess.Module.SearchDomainRecordings(m_nGroupID, m_sSiteGuid, domainId, statusesToSearch.ToArray(), string.Empty, 0, 0,
-                                                    new OrderObj() { m_eOrderBy = OrderBy.ID, m_eOrderDir = OrderDir.ASC }, true);
+                                                    new OrderObj() { m_eOrderBy = OrderBy.ID, m_eOrderDir = OrderDir.ASC }, true, null);
             }
 
             catch (Exception ex)

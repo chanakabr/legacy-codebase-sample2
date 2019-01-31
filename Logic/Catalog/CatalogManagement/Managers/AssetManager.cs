@@ -172,7 +172,7 @@ namespace Core.Catalog.CatalogManagement
             List<Image> images = new List<Image>();
             if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
             {
-                GenericListResponse<Image> imageResponse = ImageManager.CreateImageListResponseFromDataTable(groupId, ds.Tables[4]);
+                GenericListResponse<Image> imageResponse = ImageManager.CreateImageListResponseFromDataTable(groupId, ds.Tables[4], true);
                 if (imageResponse == null || imageResponse.Status == null || imageResponse.Status.Code != (int)eResponseStatus.OK || imageResponse.Objects.Count == 0)
                 {
                     log.WarnFormat("CreateMediaAssetFromDataSet - failed to get images for Id: {0}", id);
