@@ -214,6 +214,7 @@ namespace DAL
             spUpdateOrInsertDomainRecording.AddParameter("@EpgChannelId", recording.ChannelId);
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingType", (int)recording.Type);
             spUpdateOrInsertDomainRecording.AddParameter("@DomainSeriesRecordingId", domainSeriesRecordingId);
+            spUpdateOrInsertDomainRecording.AddParameter("@MetaData", null);
             List<TstvRecordingStatus> deleteStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Deleted, TstvRecordingStatus.SeriesDelete };
             spUpdateOrInsertDomainRecording.AddParameter("@Status", deleteStatus.Contains(recording.RecordingStatus) ? 2 : 1);
 
