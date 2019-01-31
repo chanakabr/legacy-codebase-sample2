@@ -1353,7 +1353,7 @@ namespace DAL
             sp.AddParameter("@ID", Id);
             sp.AddParameter("@ProtectedUntilDate", protectedUntilDate);
             sp.AddParameter("@ProtectedUntilEpoch", protectedUntilEpoch);
-            sp.AddParameter("@meta_data", metaData);
+            sp.AddParameter("@MetaData", metaData);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
