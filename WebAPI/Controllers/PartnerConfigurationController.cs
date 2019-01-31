@@ -57,6 +57,10 @@ namespace WebAPI.Controllers
                                                   "filter.partnerConfigurationTypeEqual",
                                                   KalturaPartnerConfigurationType.Concurrency.ToString());
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.General)
+                {
+                    response = ClientsManager.ApiClient().GetGeneralPartnerConfiguration(groupId);
+                }
                 else
                 {
                     throw new InternalServerErrorException();

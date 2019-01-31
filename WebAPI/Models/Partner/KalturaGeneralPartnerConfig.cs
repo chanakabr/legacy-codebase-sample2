@@ -36,6 +36,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "secondaryLanguages")]
         [JsonProperty("secondaryLanguages")]
         [XmlElement(ElementName = "secondaryLanguages")]
+        [XmlArrayItem("item")]
         public List<KalturaIntegerValue> SecondaryLanguages { get; set; }
 
         /// <summary>
@@ -60,6 +61,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "secondaryCurrencys")]
         [JsonProperty("secondaryCurrencys")]
         [XmlElement(ElementName = "secondaryCurrencys")]
+        [XmlArrayItem("item")]
         public List<KalturaIntegerValue> SecondaryCurrencys { get; set; }
 
         /// <summary>

@@ -4178,5 +4178,21 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal KalturaPartnerConfigurationListResponse GetGeneralPartnerConfiguration(int groupId)
+        {
+            KalturaPartnerConfigurationListResponse result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<GeneralPartnerConfig>> getGeneralPartnerConfigFunc = () =>
+                Core.Api.Module.GetGeneralPartnerConfiguration(groupId);
+
+            KalturaGenericListResponse<KalturaGeneralPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaGeneralPartnerConfig, GeneralPartnerConfig>(getGeneralPartnerConfigFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
     }
 }

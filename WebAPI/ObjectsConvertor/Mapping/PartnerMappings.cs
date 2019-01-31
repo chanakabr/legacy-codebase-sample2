@@ -122,18 +122,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static KalturaDeleteMediaPolicy? ConvertDeleteMediaPolicy(DeleteMediaPolicy? deleteMediaPolicy)
         {
-            KalturaDeleteMediaPolicy? result;
+            KalturaDeleteMediaPolicy? result = null;
 
-            switch (deleteMediaPolicy)
+            if (deleteMediaPolicy.HasValue)
             {
-                case DeleteMediaPolicy.Delete:
-                    result = KalturaDeleteMediaPolicy.Delete;
-                    break;
-                case DeleteMediaPolicy.Disable:
-                    result = KalturaDeleteMediaPolicy.Disable;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown DeleteMediaPolicy");
+                switch (deleteMediaPolicy)
+                {
+                    case DeleteMediaPolicy.Delete:
+                        result = KalturaDeleteMediaPolicy.Delete;
+                        break;
+                    case DeleteMediaPolicy.Disable:
+                        result = KalturaDeleteMediaPolicy.Disable;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown DeleteMediaPolicy");
+                }
             }
 
             return result;
@@ -141,18 +144,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static DeleteMediaPolicy? ConvertDeleteMediaPolicy(KalturaDeleteMediaPolicy? deleteMediaPolicy)
         {
-            DeleteMediaPolicy? result;
+            DeleteMediaPolicy? result = null;
 
-            switch (deleteMediaPolicy)
+            if (deleteMediaPolicy.HasValue)
             {
-                case KalturaDeleteMediaPolicy.Delete:
-                    result = DeleteMediaPolicy.Delete;
-                    break;
-                case KalturaDeleteMediaPolicy.Disable:
-                    result = DeleteMediaPolicy.Disable;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown DeleteMediaPolicy");
+                switch (deleteMediaPolicy)
+                {
+                    case KalturaDeleteMediaPolicy.Delete:
+                        result = DeleteMediaPolicy.Delete;
+                        break;
+                    case KalturaDeleteMediaPolicy.Disable:
+                        result = DeleteMediaPolicy.Disable;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown DeleteMediaPolicy");
+                }
             }
 
             return result;
@@ -160,18 +166,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static KalturaDowngradePolicy? ConvertDowngradePolicy(DowngradePolicy? downgradePolicy)
         {
-            KalturaDowngradePolicy? result;
+            KalturaDowngradePolicy? result = null;
 
-            switch (downgradePolicy)
+            if (downgradePolicy.HasValue)
             {
-                case DowngradePolicy.FIFO:
-                    result = KalturaDowngradePolicy.FIFO;
-                    break;
-                case DowngradePolicy.LIFO:
-                    result = KalturaDowngradePolicy.LIFO;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown DowngradePolicy");
+                switch (downgradePolicy)
+                {
+                    case DowngradePolicy.FIFO:
+                        result = KalturaDowngradePolicy.FIFO;
+                        break;
+                    case DowngradePolicy.LIFO:
+                        result = KalturaDowngradePolicy.LIFO;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown DowngradePolicy");
+                }
             }
 
             return result;
@@ -179,18 +188,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static DowngradePolicy? ConvertDowngradePolicy(KalturaDowngradePolicy? downgradePolicy)
         {
-            DowngradePolicy? result;
+            DowngradePolicy? result = null;
 
-            switch (downgradePolicy)
+            if (downgradePolicy.HasValue)
             {
-                case KalturaDowngradePolicy.FIFO:
-                    result = DowngradePolicy.FIFO;
-                    break;
-                case KalturaDowngradePolicy.LIFO:
-                    result = DowngradePolicy.LIFO;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown DowngradePolicy");
+                switch (downgradePolicy)
+                {
+                    case KalturaDowngradePolicy.FIFO:
+                        result = DowngradePolicy.FIFO;
+                        break;
+                    case KalturaDowngradePolicy.LIFO:
+                        result = DowngradePolicy.LIFO;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown DowngradePolicy");
+                }
             }
 
             return result;
