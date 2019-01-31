@@ -2503,7 +2503,7 @@ namespace DAL
 
         public static DataTable GetGroupsDeviceLimitationModules(int groupId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ImagesByTableReferenceIds");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_groupsDeviceLimitationModules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             return sp.Execute();

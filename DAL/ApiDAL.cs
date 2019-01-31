@@ -5418,5 +5418,13 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        public static DataSet GetGeneralPartnerConfig(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupsById");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            return sp.ExecuteDataSet();
+        }
     }
 }
