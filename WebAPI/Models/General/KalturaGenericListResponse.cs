@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -9,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.General
 {
-    // TODO - AFTER APPROVE CHANGE ALL KalturaListResponse TO THIS ONE
+    // TODO SHIR - AFTER APPROVE CHANGE ALL KalturaListResponse TO THIS ONE
     /// <summary>
     /// Generic response list
     /// </summary>
@@ -17,6 +19,24 @@ namespace WebAPI.Models.General
     public partial class KalturaGenericListResponse<KalturaT> : KalturaListResponse
         where KalturaT : KalturaOTTObject
     {
+        public KalturaGenericListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaT>(typeof(KalturaT), (JArray)parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaT), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// A list of objects
         /// </summary>
@@ -31,13 +51,5 @@ namespace WebAPI.Models.General
             base.Init();
             TotalCount = 0;
         }
-
-        /// <summary>
-        /// real objectType
-        /// </summary>
-        [DataMember(Name = "objectType")]
-        [JsonProperty(PropertyName = "objectType")]
-        [XmlElement(ElementName = "objectType")]
-        public override string objectType { get { return typeof(KalturaT).Name + "ListResponse"; } }
     }
 }
