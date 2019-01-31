@@ -15,7 +15,7 @@ namespace WebAPI.Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string HOUSEHOLd_KEY = "household";
+        private const string HOUSEHOLD_KEY = "household";
 
         public static long GetHouseholdIDByKS(int groupID)
         {
@@ -89,9 +89,9 @@ namespace WebAPI.Utils
         {
             KalturaHousehold domain = null;
 
-            if (HttpContext.Current.Items.Contains(HOUSEHOLd_KEY))
+            if (HttpContext.Current.Items.Contains(HOUSEHOLD_KEY))
             {
-                domain = (KalturaHousehold)HttpContext.Current.Items[HOUSEHOLd_KEY];
+                domain = (KalturaHousehold)HttpContext.Current.Items[HOUSEHOLD_KEY];
             }
             else
             {
@@ -116,13 +116,13 @@ namespace WebAPI.Utils
             if (domain == null)
                 return null;
 
-            if (HttpContext.Current.Items.Contains(HOUSEHOLd_KEY))
+            if (HttpContext.Current.Items.Contains(HOUSEHOLD_KEY))
             {
-                HttpContext.Current.Items[HOUSEHOLd_KEY] = domain;
+                HttpContext.Current.Items[HOUSEHOLD_KEY] = domain;
             }
             else
             {
-                HttpContext.Current.Items.Add(HOUSEHOLd_KEY, domain);
+                HttpContext.Current.Items.Add(HOUSEHOLD_KEY, domain);
             }
 
             return domain;

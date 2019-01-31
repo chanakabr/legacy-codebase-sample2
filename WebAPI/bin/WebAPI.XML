@@ -4782,7 +4782,7 @@
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.List(WebAPI.Models.Users.KalturaOTTUserFilter)">
             <summary>
-            Retrieve user by external identifier or username or if filter is null all user in the master or the user itself
+            Returns list of OTTUser (limited to 500 items). Filters by username/external identifier/idIn or roleIdIn
             </summary>
             <param name="filter">Filter request</param>
             <remarks>Possible status codes: 
@@ -8796,9 +8796,24 @@
             Format
             </summary>
         </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaExternalRecordingFilter">
+            <summary>
+            Filtering external recordings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalRecordingFilter.MetaData">
+            <summary>
+            MetaData filtering 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalRecording.ExternalId">
             <summary>
             External identifier for the recording
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalRecording.MetaData">
+            <summary>
+            key/value map field for extra data
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsContext.Sources">
@@ -9579,11 +9594,6 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.UpdateDate">
             <summary>
             Specifies when was the recording last updated. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.MetaData">
-            <summary>
-            key/value map field for extra data
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Code">

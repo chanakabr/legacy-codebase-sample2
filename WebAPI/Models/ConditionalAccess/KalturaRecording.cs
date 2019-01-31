@@ -85,13 +85,5 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
-
-        /// <summary>
-        /// key/value map field for extra data
-        /// </summary>
-        [DataMember(Name = "metaData")]
-        [JsonProperty("metaData")]
-        [XmlElement(ElementName = "metaData")]
-        public SerializableDictionary<string, KalturaStringValue> MetaData { get; set; }
     }
 }

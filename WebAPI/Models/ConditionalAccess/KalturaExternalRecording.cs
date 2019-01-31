@@ -24,6 +24,12 @@ namespace WebAPI.Models.ConditionalAccess
         [SchemeProperty(MinLength = 1, MaxLength = 255, RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
         public string ExternalId { get; set; }
 
+        /// <summary>
+        /// key/value map field for extra data
+        /// </summary>
+        [DataMember(Name = "metaData")]
+        [JsonProperty("metaData")]
+        [XmlElement(ElementName = "metaData")]
+        public SerializableDictionary<string, KalturaStringValue> MetaData { get; set; }
     }
-
 }
