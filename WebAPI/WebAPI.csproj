@@ -188,6 +188,10 @@
     <Reference Include="Microsoft.Net.Http.Headers, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.Headers.2.1.1\lib\netstandard2.0\Microsoft.Net.Http.Headers.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
@@ -786,6 +790,7 @@
   <ItemGroup>
     <Compile Include="App_Start\AssetXmlFormatter.cs" />
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
+    <Compile Include="App_Start\ExcelFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="clear_cache.aspx.cs">
       <DependentUpon>clear_cache.aspx</DependentUpon>
@@ -833,6 +838,7 @@
     <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
     <Compile Include="Models\API\KalturaTvmGeoRule.cs" />
     <Compile Include="Models\API\KalturaTvmRuleFilter.cs" />
+    <Compile Include="Models\API\KalturaShirCheckListResponse.cs" />
     <Compile Include="Models\API\KalturaTvmRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaTvmRule.cs" />
     <Compile Include="Models\API\KalturaBusinessModuleRuleFilter.cs" />

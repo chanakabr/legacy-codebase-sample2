@@ -38,6 +38,7 @@ namespace WebAPI
             // add asset XML formatter
             config.Formatters.Add(new AssetXmlFormatter());
             config.Formatters.Add(new CustomResponseFormatter());
+            config.Formatters.Add(new ExcelFormatter());
             config.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
 
             config.Filters.Add(new RequestParser());
