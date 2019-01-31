@@ -4801,10 +4801,6 @@ namespace WebAPI.Models.General
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("objects", "\"objects\": " + propertyValue);
             }
-            if(!ret.ContainsKey("objectType") && objectType != null)
-            {
-                ret.Add("objectType", "\"objectType\": " + "\"" + EscapeJson(objectType) + "\"");
-            }
             return ret;
         }
         
@@ -4817,10 +4813,6 @@ namespace WebAPI.Models.General
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
-            if(!ret.ContainsKey("objectType") && objectType != null)
-            {
-                ret.Add("objectType", "<objectType>" + EscapeXml(objectType) + "</objectType>");
             }
             return ret;
         }
@@ -15512,6 +15504,24 @@ namespace WebAPI.Models.API
             {
                 ret.Add("segmentsIds", "<segmentsIds>" + EscapeXml(SegmentsIds) + "</segmentsIds>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaShirCheckListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
             return ret;
         }
     }
