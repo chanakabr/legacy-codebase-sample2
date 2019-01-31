@@ -1930,7 +1930,7 @@ namespace Core.Api
             selectTagsQuery.Finish();
             selectTagsQuery = null;
             return EPG_ResponseTag;
-        }       
+        }      
 
         static public List<EPGChannelProgrammeObject> GetEPGChannelPrograms_Old(Int32 groupID, string sEPGChannelID, string sPicSize, EPGUnit unit, int nFromOffsetUnit, int nToOffsetUnit, int nUTCOffset)
         {
@@ -11329,8 +11329,6 @@ namespace Core.Api
                     return response;
                 }
 
-                //TODO: check if cache is needed
-                //LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId));
                 response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -11339,6 +11337,90 @@ namespace Core.Api
             }
 
             return response;
+        }
+
+        internal static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
+        {
+            GenericListResponse<GeneralPartnerConfig> response = new GenericListResponse<GeneralPartnerConfig>();
+            var generalPartnerConfig = GetGeneralPartnerConfig(groupId);
+            if (generalPartnerConfig != null)
+            {
+                response.Objects.Add(generalPartnerConfig);
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
+        private static GeneralPartnerConfig GetGeneralPartnerConfig(int groupId)
+        {
+            GeneralPartnerConfig generalPartnerConfig = null;
+
+            DataTable dt = null;
+
+            try
+            {
+                DataSet ds = ApiDAL.GetGeneralPartnerConfig(groupId);
+                if (ds != null && ds.Tables != null && ds.Tables.Count == 3)
+                {
+                    
+                        dt = ds.Tables[0];
+                    if (dt.Rows.Count > 0)
+                    {
+                        generalPartnerConfig = new GeneralPartnerConfig()
+                        {
+                            DateFormat = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "date_email_format"),
+                            HouseholdLimitationModule = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "max_device_limit"),
+                            MailSettings = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_settings"),
+                            MainCurrency = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "CURRENCY_ID"),
+                            PartnerName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "GROUP_NAME"),
+                            MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID")
+                        };
+
+                        int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
+                        int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
+
+                        if (deleteMediaPolicy.HasValue)
+                        {
+                            generalPartnerConfig.DeleteMediaPolicy = (DeleteMediaPolicy)deleteMediaPolicy.Value;
+                        }
+                        if (downgradePolicy.HasValue)
+                        {
+                            generalPartnerConfig.DowngradePolicy = (DowngradePolicy)downgradePolicy.Value;
+                        }
+                    }
+                    
+
+                        dt = ds.Tables[1];
+                    if (dt.Rows.Count > 0)
+                    {
+                        generalPartnerConfig.SecondaryLanguages = new List<int>();
+
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            generalPartnerConfig.SecondaryLanguages.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "LANGUAGE_ID"));
+                        }
+                    }
+
+                    
+                        dt = ds.Tables[2];
+                    if (dt.Rows.Count > 0)
+                    {
+                        generalPartnerConfig.SecondaryCurrencys = new List<int>();
+
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            generalPartnerConfig.SecondaryCurrencys.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetGeneralPartnerConfig failed ex={0}, groupId={1}", ex, groupId);
+            }
+
+            return generalPartnerConfig;
         }
     }
 }

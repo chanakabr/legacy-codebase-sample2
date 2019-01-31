@@ -2267,5 +2267,10 @@ namespace Core.Api
         {
             return api.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
         }
+
+        public static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
+        {
+            return api.GetGeneralPartnerConfiguration(groupId);
+        }
     }
 }
