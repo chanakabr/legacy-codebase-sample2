@@ -5521,12 +5521,14 @@ namespace Core.ConditionalAccess
 
         private static Dictionary<long, Recording> FilterViewableRecordingsOnly(Dictionary<long, Recording> domainRecordingIdToRecordingMap)
         {
-            if (domainRecordingIdToRecordingMap == null||!domainRecordingIdToRecordingMap.Any())
+            if (domainRecordingIdToRecordingMap == null || !domainRecordingIdToRecordingMap.Any())
                 return domainRecordingIdToRecordingMap;
+
+            var epoc = DateTime.UtcNow.ToUtcUnixTimestampSeconds();
 
             return domainRecordingIdToRecordingMap
                 .Where(x => x.Value.ViewableUntilDate.HasValue &&
-                            x.Value.ViewableUntilDate.Value - DateTime.UtcNow.ToUtcUnixTimestampSeconds() > 0)
+                            x.Value.ViewableUntilDate.Value > epoc)
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 

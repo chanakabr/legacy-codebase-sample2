@@ -13977,7 +13977,7 @@ namespace Core.ConditionalAccess
         }
 
         public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
-            string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, HashSet<string> externalRecordingIds = null)
+            string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, Dictionary<string, string> metaData, HashSet<string> externalRecordingIds = null)
         {
             RecordingResponse response = new RecordingResponse();
             try
@@ -14030,6 +14030,11 @@ namespace Core.ConditionalAccess
                 // if domain has recordings (could also be filtered by external recordings ID already)
                 if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
                 {
+                    if (metaData != null && metaData.Any())
+                    {
+                        DomainRecordingIdToRecordingMap = FilterOutByMetaData(DomainRecordingIdToRecordingMap, metaData);
+                    }
+
                     Dictionary<long, Recording> recordingIdToDomainRecording = new Dictionary<long, Recording>();
                     foreach (KeyValuePair<long, Recording> pair in DomainRecordingIdToRecordingMap)
                     {
@@ -14084,6 +14089,44 @@ namespace Core.ConditionalAccess
             }
 
             return response;
+        }
+
+        private Dictionary<long, Recording> FilterOutByMetaData(Dictionary<long, Recording> domainRecording, Dictionary<string, string> metaDataFilter)
+        {
+            Dictionary<long, Recording> ret = new Dictionary<long, Recording>();
+
+            foreach (var recording in domainRecording)
+            {
+                if (recording.Value.isExternalRecording && IsContained(
+                        (recording.Value as ExternalRecording).MetaData.ToDictionary(x => x.Key.ToLower(),
+                            x => x.Value.ToLower()), metaDataFilter))
+                {
+                    ret.Add(recording.Key, recording.Value);
+                }
+            }
+
+            return ret;
+        }
+
+        private bool IsContained(Dictionary<string, string> metaData, Dictionary<string, string> filters)
+        {
+            foreach (var filter in filters)
+            {
+                string value;
+                if (metaData.TryGetValue(filter.Key, out value))
+                {
+                    if (!filter.Value.Equals(value))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public Recording GetRecordingByID(long domainID, long domainRecordingID, bool shouldReplaceRecordingObjectId = true)
@@ -14550,14 +14593,10 @@ namespace Core.ConditionalAccess
                 recording.Id = domainRecordingId;
 
                 // Validate there is an update
-                string metaDataStr = string.Empty;
-                if (recording is ExternalRecording)
-                {
-                    metaDataStr = (recording as ExternalRecording).MetaDataAsJson;
-                }
+                string metaDataStr = GetUpdatedMetaDataStr(recording, recordingToUpdate);
 
                 bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected)
-                    || !metaDataStr.IsNullOrEmptyOrWhiteSpace();
+                                    || metaDataStr != null;
 
                 if (!shouldUpdate)
                 {
@@ -14588,16 +14627,14 @@ namespace Core.ConditionalAccess
                         protectedUntilEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate.Value);
                     }
 
-                    if (RecordingsDAL.UpdateRecordingProtectedAndMetaData(recording.Id, protectedUntilDate,
-                        protectedUntilEpoch, (recording as ExternalRecording).MetaDataAsJson))
+                    if (RecordingsDAL.SetDomainsRecordings(recording.Id, protectedUntilDate, protectedUntilEpoch, metaDataStr))
                     {
-                        UpdateRecordingSuccessed(recording, protectedUntilEpoch);
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainRecordingId));
+                        UpdateRecordingSuccessed((recording as ExternalRecording), protectedUntilEpoch, (recordingToUpdate as ExternalRecording).MetaData);
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
                     }
                     else
                     {
-                        log.DebugFormat(
-                            "Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}",
+                        log.DebugFormat("Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}",
                             domainID, userId, domainRecordingId);
                         recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
@@ -14712,7 +14749,7 @@ namespace Core.ConditionalAccess
                     // Try to Update protection details for domain recording and update recording status
                     if (RecordingsDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainRecordingId));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
                         UpdateRecordingSuccessed(recording, protectedUntilEpoch);
                     }
                     else
@@ -14742,7 +14779,32 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
-        private static void UpdateRecordingSuccessed(Recording recording, long protectedUntilEpoch)
+        private static string GetUpdatedMetaDataStr(Recording recording, Recording recordingToUpdate)
+        {
+            var rec = recording as ExternalRecording;
+            var update = recordingToUpdate as ExternalRecording;
+
+            if (rec == null || update == null)
+            {
+                return null;
+            }
+
+            return rec.MetaDataAsJson.Equals(update.MetaDataAsJson) ? null : update.MetaDataAsJson;
+        }
+
+        private static void UpdateRecordingSuccessed(ExternalRecording recording, long protectedUntilEpoch,
+            Dictionary<string, string> metaData)
+        {
+            if (metaData != null)
+            {
+                recording.MetaData = metaData;
+            }
+
+            UpdateRecordingSuccessed((Recording)recording, protectedUntilEpoch, metaData);
+        }
+
+        private static void UpdateRecordingSuccessed(Recording recording, long protectedUntilEpoch,
+            Dictionary<string, string> metaData = null)
         {
             recording.ProtectedUntilDate = protectedUntilEpoch;
 

@@ -2526,13 +2526,13 @@ namespace Core.ConditionalAccess
 
 
         public static ApiObjects.TimeShiftedTv.RecordingResponse SearchDomainRecordings(int groupID, string userID, long domainID, ApiObjects.TstvRecordingStatus[] recordingStatuses, string filter,
-                                                        int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, HashSet<string> externalRecordingIds = null)
+                                                        int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, Dictionary<string, string> metaData, HashSet<string> externalRecordingIds = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.SerachDomainRecordings(userID, domainID, recordingStatuses.ToList(), filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, externalRecordingIds);
+                return t.SerachDomainRecordings(userID, domainID, recordingStatuses.ToList(), filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, metaData, externalRecordingIds);
             }
             else
             {
