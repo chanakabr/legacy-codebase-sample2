@@ -316,9 +316,10 @@ namespace Core.Catalog
                         if (request.domainId > 0 && definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
                         {
                             domainRecordingIds = new HashSet<string>(definitions.specificAssets[eAssetTypes.NPVR]);
-                            recordingIds = GetDomainRecordings(definitions, request.m_nGroupID, (long)request.domainId, domainRecordingIds);
                         }
 
+                        recordingIds = GetDomainRecordings(definitions, request.m_nGroupID, (long)request.domainId, domainRecordingIds);
+                        
                         // If domain has at least one recording
                         if (recordingIds != null && recordingIds.Count > 0)
                         {
