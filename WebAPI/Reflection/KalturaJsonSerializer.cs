@@ -21456,13 +21456,11 @@ namespace WebAPI.Models.Partner
             }
             if(SecondaryCurrencys != null)
             {
-                propertyValue = "[" + String.Join(", ", SecondaryCurrencys.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("secondaryCurrencys", "\"secondaryCurrencys\": " + propertyValue);
+                ret.Add("secondaryCurrencys", "\"secondaryCurrencys\": " + "\"" + EscapeJson(SecondaryCurrencys) + "\"");
             }
             if(SecondaryLanguages != null)
             {
-                propertyValue = "[" + String.Join(", ", SecondaryLanguages.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("secondaryLanguages", "\"secondaryLanguages\": " + propertyValue);
+                ret.Add("secondaryLanguages", "\"secondaryLanguages\": " + "\"" + EscapeJson(SecondaryLanguages) + "\"");
             }
             return ret;
         }
@@ -21506,13 +21504,11 @@ namespace WebAPI.Models.Partner
             }
             if(SecondaryCurrencys != null)
             {
-                propertyValue = SecondaryCurrencys.Count > 0 ? "<item>" + String.Join("</item><item>", SecondaryCurrencys.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("secondaryCurrencys", "<secondaryCurrencys>" + propertyValue + "</secondaryCurrencys>");
+                ret.Add("secondaryCurrencys", "<secondaryCurrencys>" + EscapeXml(SecondaryCurrencys) + "</secondaryCurrencys>");
             }
             if(SecondaryLanguages != null)
             {
-                propertyValue = SecondaryLanguages.Count > 0 ? "<item>" + String.Join("</item><item>", SecondaryLanguages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("secondaryLanguages", "<secondaryLanguages>" + propertyValue + "</secondaryLanguages>");
+                ret.Add("secondaryLanguages", "<secondaryLanguages>" + EscapeXml(SecondaryLanguages) + "</secondaryLanguages>");
             }
             return ret;
         }

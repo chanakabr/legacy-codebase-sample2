@@ -31,13 +31,12 @@ namespace WebAPI.Models.Partner
         public int? MainLanguage { get; set; }
 
         /// <summary>
-        /// More languages
+        /// A list of comma separated languages ids.        
         /// </summary>
         [DataMember(Name = "secondaryLanguages")]
         [JsonProperty("secondaryLanguages")]
-        [XmlElement(ElementName = "secondaryLanguages")]
-        [XmlArrayItem("item")]
-        public List<KalturaIntegerValue> SecondaryLanguages { get; set; }
+        [XmlElement(ElementName = "secondaryLanguages")]        
+        public string SecondaryLanguages { get; set; }
 
         /// <summary>
         /// Delete media policy
@@ -56,13 +55,13 @@ namespace WebAPI.Models.Partner
         public int? MainCurrency { get; set; }
 
         /// <summary>
-        /// More currencys
+        /// A list of comma separated currencys ids.
         /// </summary>
         [DataMember(Name = "secondaryCurrencys")]
         [JsonProperty("secondaryCurrencys")]
         [XmlElement(ElementName = "secondaryCurrencys")]
         [XmlArrayItem("item")]
-        public List<KalturaIntegerValue> SecondaryCurrencys { get; set; }
+        public string SecondaryCurrencys { get; set; }
 
         /// <summary>
         /// Downgrade policy

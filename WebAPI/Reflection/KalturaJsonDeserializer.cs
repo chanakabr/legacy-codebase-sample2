@@ -21665,14 +21665,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("secondaryLanguages") && parameters["secondaryLanguages"] != null)
                 {
-                    if (parameters["secondaryLanguages"] is JArray)
-                    {
-                        SecondaryLanguages = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["secondaryLanguages"]);
-                    }
-                    else if (parameters["secondaryLanguages"] is IList)
-                    {
-                        SecondaryLanguages = buildList(typeof(KalturaIntegerValue), parameters["secondaryLanguages"] as object[]);
-                    }
+                    SecondaryLanguages = (String) Convert.ChangeType(parameters["secondaryLanguages"], typeof(String));
                 }
                 if (parameters.ContainsKey("deleteMediaPolicy") && parameters["deleteMediaPolicy"] != null)
                 {
@@ -21684,14 +21677,7 @@ namespace WebAPI.Models.Partner
                 }
                 if (parameters.ContainsKey("secondaryCurrencys") && parameters["secondaryCurrencys"] != null)
                 {
-                    if (parameters["secondaryCurrencys"] is JArray)
-                    {
-                        SecondaryCurrencys = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["secondaryCurrencys"]);
-                    }
-                    else if (parameters["secondaryCurrencys"] is IList)
-                    {
-                        SecondaryCurrencys = buildList(typeof(KalturaIntegerValue), parameters["secondaryCurrencys"] as object[]);
-                    }
+                    SecondaryCurrencys = (String) Convert.ChangeType(parameters["secondaryCurrencys"], typeof(String));
                 }
                 if (parameters.ContainsKey("downgradePolicy") && parameters["downgradePolicy"] != null)
                 {
