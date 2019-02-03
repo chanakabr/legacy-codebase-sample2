@@ -214,6 +214,7 @@ namespace DAL
             spUpdateOrInsertDomainRecording.AddParameter("@EpgChannelId", recording.ChannelId);
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingType", (int)recording.Type);
             spUpdateOrInsertDomainRecording.AddParameter("@DomainSeriesRecordingId", domainSeriesRecordingId);
+            spUpdateOrInsertDomainRecording.AddParameter("@MetaData", null);
             List<TstvRecordingStatus> deleteStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Deleted, TstvRecordingStatus.SeriesDelete };
             spUpdateOrInsertDomainRecording.AddParameter("@Status", deleteStatus.Contains(recording.RecordingStatus) ? 2 : 1);
 
@@ -1345,9 +1346,9 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool UpdateRecordingProtectedAndMetaData(long Id, DateTime? protectedUntilDate, long protectedUntilEpoch, string metaData)
+        public static bool SetDomainsRecordings(long Id, DateTime? protectedUntilDate, long protectedUntilEpoch, string metaData)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateRecordingProtectedAndMetaData");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_DomainsRecordings");
 
             sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@ID", Id);
