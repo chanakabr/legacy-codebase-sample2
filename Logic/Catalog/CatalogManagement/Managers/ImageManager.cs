@@ -982,7 +982,6 @@ namespace Core.Catalog.CatalogManagement
                         imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.EpgPics, epgPics.Keys.ToList());
                         referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
 
-                        response.Objects = epgPics.Values.ToList();
                         foreach (Image item in epgPics.Values)
                         {
                             if (referncesIds.Keys.Count > 0 && referncesIds[ImageReferenceTable.EpgPics].ContainsKey(item.Id))
@@ -994,6 +993,9 @@ namespace Core.Catalog.CatalogManagement
                                 item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.EpgPics, item.Id);
                             }
                         }
+
+                        response.Objects.AddRange(epgPics.Values.ToList());
+
                     }
                 }
             }
