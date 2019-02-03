@@ -2825,6 +2825,7 @@ namespace Core.Catalog
                 finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
             }
 
+            log.DebugFormat("finishedPercentThreshold value is: {0}", finishedPercentThreshold);
             return finishedPercentThreshold;
         }
 
