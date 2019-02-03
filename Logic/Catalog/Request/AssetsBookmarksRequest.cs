@@ -79,7 +79,7 @@ namespace Core.Catalog.Request
                                         if (asset.AssetType != eAssetTypes.UNKNOWN)
                                         {
                                             assetPositionResponseInfo = 
-                                                CatalogLogic.GetAssetLastPosition(asset.AssetID, asset.AssetType, userID, isDefaultUser, users, defaultUsers, usersDictionary);
+                                                CatalogLogic.GetAssetLastPosition(m_nGroupID, asset.AssetID, asset.AssetType, userID, isDefaultUser, users, defaultUsers, usersDictionary);
                                         }
                                         else
                                         {
