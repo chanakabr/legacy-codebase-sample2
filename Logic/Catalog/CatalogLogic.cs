@@ -5644,7 +5644,7 @@ namespace Core.Catalog
         /// <param name="defaultUsers"></param>
         /// <param name="usersDictionary"></param>
         /// <returns></returns>
-        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users,
+        internal static AssetBookmarks GetAssetLastPosition(int groupID, string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, 
                                                             List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
@@ -5686,8 +5686,9 @@ namespace Core.Catalog
 
                     if (!bookmarks.Any(x => x.User.m_sSiteGUID == userMediaMark.UserID.ToString()))
                     {
+                        var finishedPercentThreshold = GetFinishedPercentThreshold(groupID, 3600);
                         bool isFinished = userMediaMark.AssetAction.ToUpper() == MediaPlayActions.FINISH.ToString().ToUpper() ? true :
-                                          (((float)userMediaMark.Location / (float)userMediaMark.FileDuration) * 100 > FINISHED_PERCENT_THRESHOLD) ? true : false;
+                                          (((float)userMediaMark.Location / (float)userMediaMark.FileDuration) * 100 > finishedPercentThreshold) ? true : false;
                         bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location, isFinished));
                     }
                 }
