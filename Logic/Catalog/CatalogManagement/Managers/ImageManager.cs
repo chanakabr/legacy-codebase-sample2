@@ -902,6 +902,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
+            response.TotalItems = response.HasObjects() ? response.Objects.Count : 0;
             return response;
         }
 
@@ -1096,7 +1097,14 @@ namespace Core.Catalog.CatalogManagement
 
                         if (result.Object != null)
                         {
-                            result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());                            
+                        }
+
+                        ImageReferenceTable table = GetImageReferenceTable(imageToAdd.ImageObjectType);
+                        id = CatalogDAL.InsertImage(groupId, (int)table, id);
+                        if (id > 0)
+                        {
+                            result.Object.Id = id;
 
                             if (imageToAdd.ImageObjectType == eAssetImageType.ImageType)
                             {
@@ -1106,13 +1114,6 @@ namespace Core.Catalog.CatalogManagement
 
                                 result.SetStatus(imageTypeResult.Status);
                             }
-                        }
-
-                        ImageReferenceTable table = GetImageReferenceTable(imageToAdd.ImageObjectType);
-                        id = CatalogDAL.InsertImage(groupId, (int)table, id);
-                        if (id > 0)
-                        {
-                            result.Object.Id = id;
                         }
                         else
                         {
