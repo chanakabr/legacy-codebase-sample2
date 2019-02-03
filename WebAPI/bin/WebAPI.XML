@@ -11711,11 +11711,6 @@
             A list of objects
             </summary>
         </member>
-        <member name="P:WebAPI.Models.General.KalturaGenericListResponse`1.objectType">
-            <summary>
-            real objectType
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">
             <summary>
             Kaltura Aggregation CountFilter
