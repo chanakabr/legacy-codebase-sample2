@@ -1996,7 +1996,8 @@ namespace Core.ConditionalAccess
         static public DateTime GetEndDateTime(DateTime dBase, Int32 nVal, bool bIsAddLifeCycle)
         {
             int mulFactor = bIsAddLifeCycle ? 1 : -1;
-            DateTime dRet = dBase;
+            DateTime dRet = dBase.AddTicks(-(dBase.Ticks % TimeSpan.TicksPerSecond));
+
             if (nVal == 1111111)
                 dRet = dRet.AddMonths(mulFactor * 1);
             else if (nVal == 2222222)

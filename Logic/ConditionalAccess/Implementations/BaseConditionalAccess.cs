@@ -14627,8 +14627,7 @@ namespace Core.ConditionalAccess
                         protectedUntilEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate.Value);
                     }
 
-                    if (RecordingsDAL.UpdateRecordingProtectedAndMetaData(recording.Id, protectedUntilDate,
-                        protectedUntilEpoch, metaDataStr))
+                    if (RecordingsDAL.SetDomainsRecordings(recording.Id, protectedUntilDate, protectedUntilEpoch, metaDataStr))
                     {
                         UpdateRecordingSuccessed((recording as ExternalRecording), protectedUntilEpoch, (recordingToUpdate as ExternalRecording).MetaData);
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
