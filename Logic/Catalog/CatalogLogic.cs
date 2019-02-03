@@ -2795,24 +2795,29 @@ namespace Core.Catalog
                     }
                 }
 
-                UserMediaMark userMediaMark;
+                UserMediaMark userMediaMark = null;
                 switch (playType)
                 {
                     case ePlayType.MEDIA:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, mediaTypeId);
-                        CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, finishedPercentThreshold, isLinearChannel);
+                        userMediaMark.AssetType = eAssetTypes.MEDIA;
                         break;
                     case ePlayType.NPVR:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.NPVR);
-                        CatalogDAL.UpdateOrInsertUsersNpvrMark(userMediaMark, isFirstPlay);
+                        userMediaMark.AssetType = eAssetTypes.NPVR;
+                        //CatalogDAL.UpdateOrInsertUsersNpvrMark(userMediaMark, isFirstPlay);
                         break;
                     case ePlayType.EPG:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.EPG);
-                        CatalogDAL.UpdateOrInsertUsersEpgMark(userMediaMark, isFirstPlay);
+                        userMediaMark.AssetType = eAssetTypes.EPG;
+                        //CatalogDAL.UpdateOrInsertUsersEpgMark(userMediaMark, isFirstPlay);
                         break;
                     default:
                         break;
                 }
+
+                CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, finishedPercentThreshold, isLinearChannel);
+
             }
         }
 

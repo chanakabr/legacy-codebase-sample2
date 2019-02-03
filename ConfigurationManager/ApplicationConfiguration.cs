@@ -164,7 +164,7 @@ namespace ConfigurationManager
                 }
 
                 //Populate settings from remote
-                TCMClient.Settings.Instance.Init(config.URL, application, host, environment, config.AppID, config.AppSecret);
+                TCMClient.Settings.Instance.Init(config.URL, application, host, environment, config.AppID, config.AppSecret, string.Empty);
             }
             else
             {
