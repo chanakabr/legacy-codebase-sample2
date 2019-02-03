@@ -42,6 +42,8 @@ namespace Tvinci.Core.DAL
         public const int SHORT_TTL = 65;
         public const int LONG_TTL = 21600; // 6 HOURS
 
+        private static readonly Random r = new Random();
+
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure spGet_MediaDetails = new ODBCWrapper.StoredProcedure("Get_MediaDetails");
@@ -2060,37 +2062,150 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark, bool isFirstPlay, int finishedPercentThreshold, bool isLinearChannel)
         {
-            //Now storing this by the mediaID
-            string mmKey = UtilsDal.GetUserMediaMarkDocKey(userMediaMark.UserID.ToString(), userMediaMark.AssetID);
             int limitRetries = RETRY_LIMIT;
             bool success = false;
             bool shouldUpdateLocation = false;
-            Random r = new Random();
 
             // media hits interest us only on media that are not linear channel - if it is a linear channel, we are not interested in the location
             // because it is a live, constant, "endless" stream
             if (!isLinearChannel || (isLinearChannel && isFirstPlay))
             {
-                var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
                 while (limitRetries >= 0 && !success)
                 {
-                    shouldUpdateLocation = UpdateOrInsertUsersMediaMarkOrHit(mediaHitsManager, userMediaMark.UDID, ref limitRetries, r, mmKey, ref success, userMediaMark, finishedPercentThreshold);
+                    shouldUpdateLocation = UpdateOrInsertUsersMediaHit(ref success, userMediaMark, finishedPercentThreshold);
+
+                    if (!success)
+                    {
+                        Thread.Sleep(r.Next(50));
+                        limitRetries--;
+                    }
                 }
             }
 
             // media marks interest us only if location status is changed (in progress / done) or if it is first play
             if (isFirstPlay || shouldUpdateLocation)
             {
-                //Now storing this by the mediaID
                 limitRetries = RETRY_LIMIT;
                 success = false;
-                var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
                 while (limitRetries >= 0 && !success)
                 {
-                    UpdateOrInsertUsersMediaMarkOrHit(mediaMarksManager, userMediaMark.UDID, ref limitRetries, r, mmKey, ref success, userMediaMark, 0);
+
+                    success = InsertMediaMarkToUsersMonthlyMediaMarks(userMediaMark);
+
+                    if (!success)
+                    {
+                        Thread.Sleep(r.Next(50));
+                        limitRetries--;
+                    }
+                    //UpdateOrInsertUsersMediaMarkOrHit(mediaMarksManager, ref limitRetries, r, mmKey, ref success, userMediaMark, 0);
                 }
             }
+        }
+
+        private static bool UpdateOrInsertUsersMediaHit(ref bool success, UserMediaMark userMediaMark, int finishedPercentThreshold)
+        {
+            var couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
+
+            string mmKey = string.Empty;
+
+            switch (userMediaMark.AssetType)
+            {
+                case eAssetTypes.EPG:
+                    mmKey = UtilsDal.GetUserEpgMarkDocKey(userMediaMark.UserID, userMediaMark.AssetID);
+                    break;
+                case eAssetTypes.NPVR:
+                    mmKey = UtilsDal.GetUserNpvrMarkDocKey(userMediaMark.UserID, userMediaMark.NpvrID);
+                    break;
+                case eAssetTypes.UNKNOWN:
+                case eAssetTypes.MEDIA:
+                    mmKey = UtilsDal.GetUserMediaMarkDocKey(userMediaMark.UserID.ToString(), userMediaMark.AssetID);
+                    break;
+                default:
+                    break;
+            }
+
+            bool locationStatusChanged = false;
+            int previousLocation = 0;
+
+            ulong version;
+            var mediaHitData = couchbaseManager.GetWithVersion<string>(mmKey, out version);
+
+            MediaMarkLog umm = new MediaMarkLog();
+
+            bool wasFinishedBefore = false;
+            bool isFinishedNow = false;
+
+            if (finishedPercentThreshold > 0)
+            {
+                if (mediaHitData != null)
+                {
+                    umm = JsonConvert.DeserializeObject<MediaMarkLog>(mediaHitData);
+
+                    previousLocation = umm.LastMark.Location;
+                    int duration = umm.LastMark.FileDuration;
+
+                    if ((duration != 0) && (((float)previousLocation / (float)duration * 100) > finishedPercentThreshold))
+                    {
+                        wasFinishedBefore = true;
+                    }
+                }
+
+                if ((userMediaMark.FileDuration != 0) && (((float)userMediaMark.Location / (float)userMediaMark.FileDuration * 100) > finishedPercentThreshold))
+                {
+                    isFinishedNow = true;
+                }
+
+                // if there is a difference in the location statuses (wasn't finished but now it is, or vice versa) - mark it
+                if (wasFinishedBefore != isFinishedNow)
+                {
+                    locationStatusChanged = true;
+                }
+            }
+
+            umm.LastMark = userMediaMark;
+            umm.devices = new List<UserMediaMark>();
+
+            bool result = couchbaseManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
+
+            if (result)
+            {
+                success = true;
+            }
+
+            return locationStatusChanged;
+        }
+
+        private static bool InsertMediaMarkToUsersMonthlyMediaMarks(UserMediaMark userMediaMark)
+        {
+            bool success = false;
+
+            string documentKey = UtilsDal.GetUserMonthlyMediaMarksDocKey(userMediaMark.UserID.ToString(), userMediaMark.CreatedAt);
+
+            var couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+
+            ulong version;
+            var mediaMarks = couchbaseManager.GetWithVersion<UserMonthlyMediaMarks>(documentKey, out version);
+
+            if (mediaMarks == null)
+            {
+                mediaMarks = new UserMonthlyMediaMarks();
+            }
+            else
+            {
+                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m => m.AssetID == userMediaMark.AssetID);
+
+                if (relevantMediaMark != null)
+                {
+                    mediaMarks.mediaMarks.Remove(relevantMediaMark);
+                }
+            }
+
+            mediaMarks.mediaMarks.Add(userMediaMark);
+
+            success = couchbaseManager.SetWithVersion(documentKey, mediaMarks, version);
+
+            return success;
         }
 
         public static void UpdateOrInsertUsersNpvrMark(UserMediaMark userNpvrMark, bool isFirstPlay)
@@ -2105,7 +2220,7 @@ namespace Tvinci.Core.DAL
 
             while (limitRetries >= 0 && !hitSuccess)
             {
-                shouldUpdateLocation = UpdateOrInsertUsersMediaMarkOrHit(mediaHitManager, userNpvrMark.UDID, ref limitRetries, r, mmKey, ref hitSuccess, userNpvrMark, 95);
+                shouldUpdateLocation = UpdateOrInsertUsersMediaMarkOrHit(mediaHitManager, ref limitRetries, r, mmKey, ref hitSuccess, userNpvrMark, 95);
             }
 
             if (isFirstPlay || shouldUpdateLocation)
@@ -2115,7 +2230,7 @@ namespace Tvinci.Core.DAL
                 limitRetries = RETRY_LIMIT;
                 while (limitRetries >= 0 && !markSuccess)
                 {
-                    UpdateOrInsertUsersMediaMarkOrHit(mediaMarkManager, userNpvrMark.UDID, ref limitRetries, r, mmKey, ref markSuccess, userNpvrMark);
+                    UpdateOrInsertUsersMediaMarkOrHit(mediaMarkManager, ref limitRetries, r, mmKey, ref markSuccess, userNpvrMark);
                 }
             }
         }
@@ -2155,7 +2270,7 @@ namespace Tvinci.Core.DAL
             }
         }
         
-        private static bool UpdateOrInsertUsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, string udid, ref int limitRetries, Random r,
+        private static bool UpdateOrInsertUsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, ref int limitRetries, Random r,
                                                               string mmKey, ref bool success, UserMediaMark userMediaMark, int finishedPercent = 95)
         {
             bool locationStatusChanged = false;
@@ -2214,7 +2329,13 @@ namespace Tvinci.Core.DAL
             return locationStatusChanged;
         }
 
-        private static bool UpdateOrInsertUserEpgMarkOrHit(CouchbaseManager.CouchbaseManager manager, Random r, UserMediaMark dev, string mmKey)
+        private static bool UpdateOrInsertUserEpgMark(UserMediaMark dev, string mmKey)
+        {
+            CouchbaseManager.CouchbaseManager manager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            return UpdateOrInsertUserEpgMarkOrHit(manager, dev, mmKey);
+        }
+
+        private static bool UpdateOrInsertUserEpgMarkOrHit(CouchbaseManager.CouchbaseManager manager, UserMediaMark dev, string mmKey)
         {
             bool success = false;
             int limitRetries = RETRY_LIMIT;
