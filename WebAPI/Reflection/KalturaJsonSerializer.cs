@@ -12930,6 +12930,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
             }
+            ret.Add("id", "\"id\": " + Id);
             ret.Add("isDefault", "\"isDefault\": " + IsDefault.ToString().ToLower());
             if(Name != null)
             {
@@ -12951,6 +12952,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
             }
+            ret.Add("id", "<id>" + Id + "</id>");
             ret.Add("isDefault", "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>");
             if(Name != null)
             {
@@ -13756,6 +13758,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("direction", "\"direction\": " + "\"" + EscapeJson(Direction) + "\"");
             }
+            ret.Add("id", "\"id\": " + Id);
             ret.Add("isDefault", "\"isDefault\": " + IsDefault.ToString().ToLower());
             if(Name != null)
             {
@@ -13781,6 +13784,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("direction", "<direction>" + EscapeXml(Direction) + "</direction>");
             }
+            ret.Add("id", "<id>" + Id + "</id>");
             ret.Add("isDefault", "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>");
             if(Name != null)
             {
@@ -21411,6 +21415,108 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
+    public partial class KalturaGeneralPartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(DateFormat != null)
+            {
+                ret.Add("dateFormat", "\"dateFormat\": " + "\"" + EscapeJson(DateFormat) + "\"");
+            }
+            if(DeleteMediaPolicy.HasValue)
+            {
+                ret.Add("deleteMediaPolicy", "\"deleteMediaPolicy\": " + "\"" + Enum.GetName(typeof(KalturaDeleteMediaPolicy), DeleteMediaPolicy) + "\"");
+            }
+            if(DowngradePolicy.HasValue)
+            {
+                ret.Add("downgradePolicy", "\"downgradePolicy\": " + "\"" + Enum.GetName(typeof(KalturaDowngradePolicy), DowngradePolicy) + "\"");
+            }
+            if(HouseholdLimitationModule.HasValue)
+            {
+                ret.Add("householdLimitationModule", "\"householdLimitationModule\": " + HouseholdLimitationModule);
+            }
+            if(MailSettings != null)
+            {
+                ret.Add("mailSettings", "\"mailSettings\": " + "\"" + EscapeJson(MailSettings) + "\"");
+            }
+            if(MainCurrency.HasValue)
+            {
+                ret.Add("mainCurrency", "\"mainCurrency\": " + MainCurrency);
+            }
+            if(MainLanguage.HasValue)
+            {
+                ret.Add("mainLanguage", "\"mainLanguage\": " + MainLanguage);
+            }
+            if(PartnerName != null)
+            {
+                ret.Add("partnerName", "\"partnerName\": " + "\"" + EscapeJson(PartnerName) + "\"");
+            }
+            if(SecondaryCurrencys != null)
+            {
+                propertyValue = "[" + String.Join(", ", SecondaryCurrencys.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("secondaryCurrencys", "\"secondaryCurrencys\": " + propertyValue);
+            }
+            if(SecondaryLanguages != null)
+            {
+                propertyValue = "[" + String.Join(", ", SecondaryLanguages.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("secondaryLanguages", "\"secondaryLanguages\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(DateFormat != null)
+            {
+                ret.Add("dateFormat", "<dateFormat>" + EscapeXml(DateFormat) + "</dateFormat>");
+            }
+            if(DeleteMediaPolicy.HasValue)
+            {
+                ret.Add("deleteMediaPolicy", "<deleteMediaPolicy>" + "" + Enum.GetName(typeof(KalturaDeleteMediaPolicy), DeleteMediaPolicy) + "" + "</deleteMediaPolicy>");
+            }
+            if(DowngradePolicy.HasValue)
+            {
+                ret.Add("downgradePolicy", "<downgradePolicy>" + "" + Enum.GetName(typeof(KalturaDowngradePolicy), DowngradePolicy) + "" + "</downgradePolicy>");
+            }
+            if(HouseholdLimitationModule.HasValue)
+            {
+                ret.Add("householdLimitationModule", "<householdLimitationModule>" + HouseholdLimitationModule + "</householdLimitationModule>");
+            }
+            if(MailSettings != null)
+            {
+                ret.Add("mailSettings", "<mailSettings>" + EscapeXml(MailSettings) + "</mailSettings>");
+            }
+            if(MainCurrency.HasValue)
+            {
+                ret.Add("mainCurrency", "<mainCurrency>" + MainCurrency + "</mainCurrency>");
+            }
+            if(MainLanguage.HasValue)
+            {
+                ret.Add("mainLanguage", "<mainLanguage>" + MainLanguage + "</mainLanguage>");
+            }
+            if(PartnerName != null)
+            {
+                ret.Add("partnerName", "<partnerName>" + EscapeXml(PartnerName) + "</partnerName>");
+            }
+            if(SecondaryCurrencys != null)
+            {
+                propertyValue = SecondaryCurrencys.Count > 0 ? "<item>" + String.Join("</item><item>", SecondaryCurrencys.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("secondaryCurrencys", "<secondaryCurrencys>" + propertyValue + "</secondaryCurrencys>");
+            }
+            if(SecondaryLanguages != null)
+            {
+                propertyValue = SecondaryLanguages.Count > 0 ? "<item>" + String.Join("</item><item>", SecondaryLanguages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("secondaryLanguages", "<secondaryLanguages>" + propertyValue + "</secondaryLanguages>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaPartnerConfiguration
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -23229,6 +23335,34 @@ namespace WebAPI.Models.Domains
                 {
                 ret.Add("users_limit", "<users_limit>" + UsersLimit + "</users_limit>");
                 }
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaHouseholdLimitationsListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }

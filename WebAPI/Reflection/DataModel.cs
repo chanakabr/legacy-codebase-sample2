@@ -1582,6 +1582,8 @@ namespace WebAPI.Reflection
                     {
                         case "Code":
                             return "code";
+                        case "Id":
+                            return "id";
                         case "IsDefault":
                             return "isDefault";
                         case "Name":
@@ -2329,6 +2331,32 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaGeneralPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "DateFormat":
+                            return "dateFormat";
+                        case "DeleteMediaPolicy":
+                            return "deleteMediaPolicy";
+                        case "DowngradePolicy":
+                            return "downgradePolicy";
+                        case "HouseholdLimitationModule":
+                            return "householdLimitationModule";
+                        case "MailSettings":
+                            return "mailSettings";
+                        case "MainCurrency":
+                            return "mainCurrency";
+                        case "MainLanguage":
+                            return "mainLanguage";
+                        case "PartnerName":
+                            return "partnerName";
+                        case "SecondaryCurrencys":
+                            return "secondaryCurrencys";
+                        case "SecondaryLanguages":
+                            return "secondaryLanguages";
+                    }
+                    break;
+                    
                 case "KalturaGenericListResponse`1":
                     switch(property.Name)
                     {
@@ -2536,6 +2564,14 @@ namespace WebAPI.Reflection
                             return "userFrequencyDescription";
                         case "UsersLimit":
                             return "usersLimit";
+                    }
+                    break;
+                    
+                case "KalturaHouseholdLimitationsListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -2826,6 +2862,8 @@ namespace WebAPI.Reflection
                             return "code";
                         case "Direction":
                             return "direction";
+                        case "Id":
+                            return "id";
                         case "IsDefault":
                             return "isDefault";
                         case "Name":
@@ -7403,6 +7441,10 @@ namespace WebAPI.Reflection
                         case "get":
                             RolesManager.ValidateActionPermitted("householdLimitations", "get", false);
                             return HouseholdLimitationsController.Get((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("householdLimitations", "list", false);
+                            return HouseholdLimitationsController.List();
                             
                     }
                     break;
@@ -13059,6 +13101,9 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(int),
                             });
+                            return ret;
+                            
+                        case "list":
                             return ret;
                             
                     }

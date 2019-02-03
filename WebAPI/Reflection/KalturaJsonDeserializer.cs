@@ -670,6 +670,9 @@ namespace WebAPI.Reflection
                 case "KalturaFollowTvSeriesListResponse":
                     return new KalturaFollowTvSeriesListResponse(parameters);
                     
+                case "KalturaGeneralPartnerConfig":
+                    return new KalturaGeneralPartnerConfig(parameters);
+                    
                 case "KalturaGenericRule":
                     return new KalturaGenericRule(parameters);
                     
@@ -708,6 +711,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaHouseholdLimitations":
                     return new KalturaHouseholdLimitations(parameters);
+                    
+                case "KalturaHouseholdLimitationsListResponse":
+                    return new KalturaHouseholdLimitationsListResponse(parameters);
                     
                 case "KalturaHouseholdPaymentGateway":
                     return new KalturaHouseholdPaymentGateway(parameters);
@@ -13562,12 +13568,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
-            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13635,6 +13641,10 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
+                }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
@@ -14198,6 +14208,10 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
+                }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
@@ -14494,12 +14508,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
-            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21635,6 +21649,69 @@ namespace WebAPI.Models.Partner
             }
         }
     }
+    public partial class KalturaGeneralPartnerConfig
+    {
+        public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("partnerName") && parameters["partnerName"] != null)
+                {
+                    PartnerName = (String) Convert.ChangeType(parameters["partnerName"], typeof(String));
+                }
+                if (parameters.ContainsKey("mainLanguage") && parameters["mainLanguage"] != null)
+                {
+                    MainLanguage = (Int32) Convert.ChangeType(parameters["mainLanguage"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("secondaryLanguages") && parameters["secondaryLanguages"] != null)
+                {
+                    if (parameters["secondaryLanguages"] is JArray)
+                    {
+                        SecondaryLanguages = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["secondaryLanguages"]);
+                    }
+                    else if (parameters["secondaryLanguages"] is IList)
+                    {
+                        SecondaryLanguages = buildList(typeof(KalturaIntegerValue), parameters["secondaryLanguages"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("deleteMediaPolicy") && parameters["deleteMediaPolicy"] != null)
+                {
+                    DeleteMediaPolicy = (KalturaDeleteMediaPolicy) Enum.Parse(typeof(KalturaDeleteMediaPolicy), parameters["deleteMediaPolicy"].ToString(), true);
+                }
+                if (parameters.ContainsKey("mainCurrency") && parameters["mainCurrency"] != null)
+                {
+                    MainCurrency = (Int32) Convert.ChangeType(parameters["mainCurrency"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("secondaryCurrencys") && parameters["secondaryCurrencys"] != null)
+                {
+                    if (parameters["secondaryCurrencys"] is JArray)
+                    {
+                        SecondaryCurrencys = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["secondaryCurrencys"]);
+                    }
+                    else if (parameters["secondaryCurrencys"] is IList)
+                    {
+                        SecondaryCurrencys = buildList(typeof(KalturaIntegerValue), parameters["secondaryCurrencys"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("downgradePolicy") && parameters["downgradePolicy"] != null)
+                {
+                    DowngradePolicy = (KalturaDowngradePolicy) Enum.Parse(typeof(KalturaDowngradePolicy), parameters["downgradePolicy"].ToString(), true);
+                }
+                if (parameters.ContainsKey("mailSettings") && parameters["mailSettings"] != null)
+                {
+                    MailSettings = (String) Convert.ChangeType(parameters["mailSettings"], typeof(String));
+                }
+                if (parameters.ContainsKey("dateFormat") && parameters["dateFormat"] != null)
+                {
+                    DateFormat = (String) Convert.ChangeType(parameters["dateFormat"], typeof(String));
+                }
+                if (parameters.ContainsKey("householdLimitationModule") && parameters["householdLimitationModule"] != null)
+                {
+                    HouseholdLimitationModule = (Int32) Convert.ChangeType(parameters["householdLimitationModule"], typeof(Int32));
+                }
+            }
+        }
+    }
     public partial class KalturaPartnerConfiguration
     {
         public KalturaPartnerConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
@@ -23601,6 +23678,26 @@ namespace WebAPI.Models.Domains
                     else if (parameters["device_families_limitations"] is IList)
                     {
                         DeviceFamiliesLimitations = buildList(typeof(KalturaHouseholdDeviceFamilyLimitations), parameters["device_families_limitations"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaHouseholdLimitationsListResponse
+    {
+        public KalturaHouseholdLimitationsListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaHouseholdLimitations>(typeof(KalturaHouseholdLimitations), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHouseholdLimitations), parameters["objects"] as object[]);
                     }
                 }
             }

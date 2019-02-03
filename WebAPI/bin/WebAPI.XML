@@ -2670,6 +2670,13 @@
             <param name="id">Household limitations module identifier</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdLimitationsController.List">
+            <summary>
+            Get the list of PartnerConfiguration
+            </summary>
+            <param name="filter">filter by PartnerConfiguration type</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.HouseholdPremiumServiceController.ListOldStandard">
             <summary>
             Returns all the premium services allowed for the household
@@ -5295,6 +5302,11 @@
             Currency details
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaCurrency.Id">
+            <summary>
+            Identifier
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaCurrency.Name">
             <summary>
             Currency name
@@ -5364,6 +5376,11 @@
         <member name="T:WebAPI.Models.API.KalturaLanguage">
             <summary>
             Language details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaLanguage.Id">
+            <summary>
+            Identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaLanguage.Name">
@@ -10025,6 +10042,436 @@
             The Identifier of the purchasing household
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitationsListResponse">
+            <summary>
+            Household limitations details 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitationsListResponse.Objects">
+            <summary>
+            Household limitations
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaDeviceBrand">
+            <summary>
+            Device brand details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceBrand.Id">
+            <summary>
+            Device brand identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceBrand.Name">
+            <summary>
+            Device brand name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceBrand.DeviceFamilyId">
+            <summary>
+            Device family identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFilter.HouseholdIdEqual">
+            <summary>
+            The identifier of the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFilter.DeviceFamilyIdIn">
+            <summary>
+            Device family Ids
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceListResponse.Objects">
+            <summary>
+            Household devices
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUserFilter.HouseholdIdEqual">
+            <summary>
+            The identifier of the household
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdUserListResponse">
+            <summary>
+            Household users list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUserListResponse.Objects">
+            <summary>
+            Household users
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdUser">
+            <summary>
+            Household user 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.HouseholdId">
+            <summary>
+            The identifier of the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.UserId">
+            <summary>
+            The identifier of the user
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.IsMaster">
+            <summary>
+            True if the user added as master use
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.HouseholdMasterUsername">
+            <summary>
+            The username of the household master for adding a user in status pending for the household master to approve
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.Status">
+            <summary>
+            The status of the user in the household 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.IsDefault">
+            <summary>
+            True if the user is a default user
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitations">
+            <summary>
+            Household limitations details 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.Id">
+            <summary>
+            Household limitation module identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.Name">
+            <summary>
+            Household limitation module name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.ConcurrentLimit">
+            <summary>
+            Max number of streams allowed for the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.DeviceLimit">
+            <summary>
+             Max number of devices allowed for the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.DeviceFrequency">
+            <summary>
+            Allowed device change frequency code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.DeviceFrequencyDescription">
+            <summary>
+            Allowed device change frequency description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.UserFrequency">
+            <summary>
+            Allowed user change frequency code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.UserFrequencyDescription">
+            <summary>
+            Allowed user change frequency description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.NpvrQuotaInSeconds">
+            <summary>
+            Allowed NPVR Quota in Seconds
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.UsersLimit">
+            <summary>
+            Max number of users allowed for the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.DeviceFamiliesLimitations">
+            <summary>
+            Device families limitations
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaDevicePin">
+            <summary>
+            Device pin
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDevicePin.Pin">
+            <summary>
+            Device pin
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaDeviceRegistrationStatusHolder">
+            <summary>
+            Holder object for household device registration status enum
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceRegistrationStatusHolder.Status">
+            <summary>
+            Household device registration status
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdDevice">
+            <summary>
+            Device details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.HouseholdId">
+            <summary>
+            Household identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Udid">
+            <summary>
+            Device UDID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Name">
+            <summary>
+            Device name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Brand">
+            <summary>
+            Device brand name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.BrandId">
+            <summary>
+            Device brand identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.ActivatedOn">
+            <summary>
+            Device activation date (epoch)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.State">
+            <summary>
+            Device state
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Status">
+            <summary>
+            Device state
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.DeviceFamilyId">
+            <summary>
+            Device family id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Drm">
+            <summary>
+            Device DRM data
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaDeviceFamilyBase">
+            <summary>
+            Device family details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamilyBase.Id">
+            <summary>
+            Device family identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamilyBase.Name">
+            <summary>
+            Device family name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamilyBase.DeviceLimit">
+            <summary>
+            Max number of devices allowed for this family
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamilyBase.ConcurrentLimit">
+            <summary>
+            Max number of streams allowed for this family
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaDeviceFamily">
+            <summary>
+            Device family details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamily.Devices">
+            <summary>
+            List of all the devices in this family
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations">
+            <summary>
+            Device family limitations details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations.Frequency">
+            <summary>
+            Allowed device change frequency code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations.DeviceLimit">
+            <summary>
+            Max number of devices allowed for this family
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations.ConcurrentLimit">
+            <summary>
+            Max number of streams allowed for this family
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHousehold">
+            <summary>
+            Household details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Id">
+            <summary>
+            Household identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Name">
+            <summary>
+            Household name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Description">
+            <summary>
+            Household description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.ExternalId">
+            <summary>
+            Household external identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.HouseholdLimitationsId">
+            <summary>
+            Household limitation module identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.DevicesLimit">
+            <summary>
+            The max number of the devices that can be added to the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.UsersLimit">
+            <summary>
+            The max number of the users that can be added to the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.ConcurrentLimit">
+            <summary>
+            The max number of concurrent streams in the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Users">
+            <summary>
+            List of users identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.MasterUsers">
+            <summary>
+            List of master users identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.DefaultUsers">
+            <summary>
+            List of default users identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.PendingUsers">
+            <summary>
+            List of pending users identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.RegionId">
+            <summary>
+            The households region identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.State">
+            <summary>
+            Household state
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.IsFrequencyEnabled">
+            <summary>
+            Is household frequency enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.FrequencyNextDeviceAction">
+            <summary>
+            The next time a device is allowed to be removed from the household (epoch)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.FrequencyNextUserAction">
+            <summary>
+            The next time a user is allowed to be removed from the household (epoch)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Restriction">
+            <summary>
+            Household restriction
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.DeviceFamilies">
+            <summary>
+            Household device families
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.RoleId">
+            <summary>
+            suspended roleId 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHomeNetworkListResponse">
+            <summary>
+            Home networks
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHomeNetworkListResponse.Objects">
+            <summary>
+            Home networks
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHomeNetwork">
+            <summary>
+            Home network details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.ExternalId">
+            <summary>
+            Home network identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.Name">
+            <summary>
+            Home network name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.Description">
+            <summary>
+            Home network description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.IsActive">
+            <summary>
+            Is home network is active
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdWithHolder">
+            <summary>
+            Holder object for Household With enum
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.MultiRequest.KalturaSkipCondition">
             <summary>
             Skip current request according to skip condition
@@ -10073,6 +10520,126 @@
         <member name="P:WebAPI.Models.MultiRequest.KalturaMultiRequestAction.AbortAllOnError">
             <summary>
             Abort all following requests if current request has an error
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaGeneralPartnerConfig">
+            <summary>
+            Partner General configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.PartnerName">
+            <summary>
+            Partner name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.MainLanguage">
+            <summary>
+            Main metadata language
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.SecondaryLanguages">
+            <summary>
+            More languages
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.DeleteMediaPolicy">
+            <summary>
+            Delete media policy
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.MainCurrency">
+            <summary>
+            Main currency
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.SecondaryCurrencys">
+            <summary>
+            More currencys
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.DowngradePolicy">
+            <summary>
+            Downgrade policy
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.MailSettings">
+            <summary>
+            Mail settings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.DateFormat">
+            <summary>
+            Default Date Format for Email notifications (default should be: DD Month YYYY)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.HouseholdLimitationModule">
+            <summary>
+            Household limitation module
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig">
+            <summary>
+            Partner concurrency configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.DeviceFamilyIds">
+            <summary>
+            Comma separated list of device Family Ids order by their priority.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.EvictionPolicy">
+            <summary>
+            Policy of eviction devices
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter">
+            <summary>
+            Partner configuration filter 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter.PartnerConfigurationTypeEqual">
+            <summary>
+            Indicates which partner configuration list to return
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
+            <summary>
+            Partner billing configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Value">
+            <summary>
+            configuration value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.PartnerConfigurationType">
+            <summary>
+            partner configuration type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Type">
+            <summary>
+            partner configuration type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder">
+            <summary>
+            Holder object for channel enrichment enum
+            </summary>    
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder.type">
+            <summary>
+            Partner configuration type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfiguration">
+            <summary>
+            Partner  base configuration
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationListResponse.Objects">
+            <summary>
+            Partner Configurations
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaAssetFilePpv">
@@ -12177,71 +12744,6 @@
             Total items
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig">
-            <summary>
-            Partner concurrency configuration
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.DeviceFamilyIds">
-            <summary>
-            Comma separated list of device Family Ids order by their priority.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaConcurrencyPartnerConfig.EvictionPolicy">
-            <summary>
-            Policy of eviction devices
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter">
-            <summary>
-            Partner configuration filter 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationFilter.PartnerConfigurationTypeEqual">
-            <summary>
-            Indicates which partner configuration list to return
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
-            <summary>
-            Partner billing configuration
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Value">
-            <summary>
-            configuration value
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.PartnerConfigurationType">
-            <summary>
-            partner configuration type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaBillingPartnerConfig.Type">
-            <summary>
-            partner configuration type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder">
-            <summary>
-            Holder object for channel enrichment enum
-            </summary>    
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder.type">
-            <summary>
-            Partner configuration type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Partner.KalturaPartnerConfiguration">
-            <summary>
-            Partner  base configuration
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationListResponse.Objects">
-            <summary>
-            Partner Configurations
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.TemplateName">
             <summary>
             email template name 
@@ -13805,426 +14307,6 @@
         <member name="P:WebAPI.Models.DMS.KalturaConfigurationIdentifier.Name">
             <summary>
             Name
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaDeviceBrand">
-            <summary>
-            Device brand details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDeviceBrand.Id">
-            <summary>
-            Device brand identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDeviceBrand.Name">
-            <summary>
-            Device brand name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDeviceBrand.DeviceFamilyId">
-            <summary>
-            Device family identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFilter.HouseholdIdEqual">
-            <summary>
-            The identifier of the household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFilter.DeviceFamilyIdIn">
-            <summary>
-            Device family Ids
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceListResponse.Objects">
-            <summary>
-            Household devices
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUserFilter.HouseholdIdEqual">
-            <summary>
-            The identifier of the household
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHouseholdUserListResponse">
-            <summary>
-            Household users list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUserListResponse.Objects">
-            <summary>
-            Household users
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHouseholdUser">
-            <summary>
-            Household user 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.HouseholdId">
-            <summary>
-            The identifier of the household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.UserId">
-            <summary>
-            The identifier of the user
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.IsMaster">
-            <summary>
-            True if the user added as master use
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.HouseholdMasterUsername">
-            <summary>
-            The username of the household master for adding a user in status pending for the household master to approve
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.Status">
-            <summary>
-            The status of the user in the household 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.IsDefault">
-            <summary>
-            True if the user is a default user
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitations">
-            <summary>
-            Household limitations details 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.Id">
-            <summary>
-            Household limitation module identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.Name">
-            <summary>
-            Household limitation module name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.ConcurrentLimit">
-            <summary>
-            Max number of streams allowed for the household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.DeviceLimit">
-            <summary>
-             Max number of devices allowed for the household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.DeviceFrequency">
-            <summary>
-            Allowed device change frequency code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.DeviceFrequencyDescription">
-            <summary>
-            Allowed device change frequency description
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.UserFrequency">
-            <summary>
-            Allowed user change frequency code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.UserFrequencyDescription">
-            <summary>
-            Allowed user change frequency description
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.NpvrQuotaInSeconds">
-            <summary>
-            Allowed NPVR Quota in Seconds
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.UsersLimit">
-            <summary>
-            Max number of users allowed for the household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdLimitations.DeviceFamiliesLimitations">
-            <summary>
-            Device families limitations
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaDevicePin">
-            <summary>
-            Device pin
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDevicePin.Pin">
-            <summary>
-            Device pin
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaDeviceRegistrationStatusHolder">
-            <summary>
-            Holder object for household device registration status enum
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDeviceRegistrationStatusHolder.Status">
-            <summary>
-            Household device registration status
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHouseholdDevice">
-            <summary>
-            Device details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.HouseholdId">
-            <summary>
-            Household identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Udid">
-            <summary>
-            Device UDID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Name">
-            <summary>
-            Device name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Brand">
-            <summary>
-            Device brand name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.BrandId">
-            <summary>
-            Device brand identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.ActivatedOn">
-            <summary>
-            Device activation date (epoch)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.State">
-            <summary>
-            Device state
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Status">
-            <summary>
-            Device state
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.DeviceFamilyId">
-            <summary>
-            Device family id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Drm">
-            <summary>
-            Device DRM data
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaDeviceFamilyBase">
-            <summary>
-            Device family details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamilyBase.Id">
-            <summary>
-            Device family identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamilyBase.Name">
-            <summary>
-            Device family name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamilyBase.DeviceLimit">
-            <summary>
-            Max number of devices allowed for this family
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamilyBase.ConcurrentLimit">
-            <summary>
-            Max number of streams allowed for this family
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaDeviceFamily">
-            <summary>
-            Device family details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDeviceFamily.Devices">
-            <summary>
-            List of all the devices in this family
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations">
-            <summary>
-            Device family limitations details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations.Frequency">
-            <summary>
-            Allowed device change frequency code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations.DeviceLimit">
-            <summary>
-            Max number of devices allowed for this family
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations.ConcurrentLimit">
-            <summary>
-            Max number of streams allowed for this family
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHousehold">
-            <summary>
-            Household details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Id">
-            <summary>
-            Household identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Name">
-            <summary>
-            Household name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Description">
-            <summary>
-            Household description
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.ExternalId">
-            <summary>
-            Household external identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.HouseholdLimitationsId">
-            <summary>
-            Household limitation module identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.DevicesLimit">
-            <summary>
-            The max number of the devices that can be added to the household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.UsersLimit">
-            <summary>
-            The max number of the users that can be added to the household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.ConcurrentLimit">
-            <summary>
-            The max number of concurrent streams in the household
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Users">
-            <summary>
-            List of users identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.MasterUsers">
-            <summary>
-            List of master users identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.DefaultUsers">
-            <summary>
-            List of default users identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.PendingUsers">
-            <summary>
-            List of pending users identifiers 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.RegionId">
-            <summary>
-            The households region identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.State">
-            <summary>
-            Household state
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.IsFrequencyEnabled">
-            <summary>
-            Is household frequency enabled
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.FrequencyNextDeviceAction">
-            <summary>
-            The next time a device is allowed to be removed from the household (epoch)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.FrequencyNextUserAction">
-            <summary>
-            The next time a user is allowed to be removed from the household (epoch)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.Restriction">
-            <summary>
-            Household restriction
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.DeviceFamilies">
-            <summary>
-            Household device families
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.RoleId">
-            <summary>
-            suspended roleId 
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHomeNetworkListResponse">
-            <summary>
-            Home networks
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHomeNetworkListResponse.Objects">
-            <summary>
-            Home networks
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHomeNetwork">
-            <summary>
-            Home network details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.ExternalId">
-            <summary>
-            Home network identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.Name">
-            <summary>
-            Home network name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.Description">
-            <summary>
-            Home network description
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.IsActive">
-            <summary>
-            Is home network is active
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHouseholdWithHolder">
-            <summary>
-            Holder object for Household With enum
             </summary>
         </member>
         <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Id">
