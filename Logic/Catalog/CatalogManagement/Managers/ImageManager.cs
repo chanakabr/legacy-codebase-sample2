@@ -421,7 +421,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     Id = imageId,
                     ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),
-                    ImageObjectType = eAssetImageType.Program,
+                    ImageObjectType = eAssetImageType.ProgramGroup,
                     Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
                     Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
                     ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
