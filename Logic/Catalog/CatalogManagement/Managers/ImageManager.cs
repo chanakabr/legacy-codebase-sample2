@@ -1102,6 +1102,17 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
+                if (imageToAdd.ImageObjectType == eAssetImageType.Program && imageToAdd.ImageObjectId > 0)
+                {
+                    GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.EPG, true);
+                    if (asset.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Asset not found. assetId = {0}, assetType = {1}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
+                        result.SetStatus(asset.Status.Code, "Asset not found");
+                        return result;
+                    }
+                }
+
                 ImageType imageType = GetImageType(groupId, imageToAdd.ImageTypeId);
                 if (imageType == null)
                 {
