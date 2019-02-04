@@ -79,9 +79,8 @@ namespace WebAPI.Models.Users
                                                   "KalturaOTTUserFilter.roleIdsIn");
                 }
             }
-
             // validate that filter is only by externalId
-            if (!string.IsNullOrEmpty(ExternalIdEqual))
+            else if (!string.IsNullOrEmpty(ExternalIdEqual))
             {
                 if (!string.IsNullOrEmpty(IdIn))
                 {
@@ -97,17 +96,18 @@ namespace WebAPI.Models.Users
                                                   "KalturaOTTUserFilter.roleIdsIn");
                 }
             }
-
             // validate that filter is only by idIn
-            if (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(RoleIdsIn))
+            else if (!string.IsNullOrEmpty(IdIn))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                if (!string.IsNullOrEmpty(RoleIdsIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
                                               "KalturaOTTUserFilter.idIn",
                                               "KalturaOTTUserFilter.roleIdsIn");
+                }
             }
-
             // RoleIdsIn cannot be empty if the user isOperatorOrAbove
-            if (string.IsNullOrEmpty(RoleIdsIn) && isOperatorOrAbove)
+            else if (string.IsNullOrEmpty(RoleIdsIn) && isOperatorOrAbove)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaOTTUserFilter.roleIdsIn");
             }
