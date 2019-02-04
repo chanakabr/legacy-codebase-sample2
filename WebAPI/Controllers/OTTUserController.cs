@@ -922,7 +922,7 @@ namespace WebAPI.Controllers
         private static KalturaOTTUserListResponse GetUsersData(int groupId, List<string> usersToGet, HashSet<long> roleIdsIn = null)
         {
             KalturaOTTUserListResponse response = new KalturaOTTUserListResponse();
-            if (usersToGet != null && usersToGet.Count > 0)
+            if ((usersToGet != null && usersToGet.Count > 0) || (roleIdsIn != null && roleIdsIn.Count > 0))
             {
                 response.Users = ClientsManager.UsersClient().GetUsersData(groupId, usersToGet, roleIdsIn);
             }
