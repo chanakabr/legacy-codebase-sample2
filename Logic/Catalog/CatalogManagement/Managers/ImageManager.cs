@@ -590,6 +590,17 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
+                if (imageTypeToAdd.RatioId.HasValue)
+                {
+                    List<Ratio> ratioList = GetGroupImageRatios(groupId);
+                    // check for RatioId valid
+                    if (ratioList != null && ratioList.Count(x => x.Id == imageTypeToAdd.RatioId.Value) == 0)
+                    {
+                        result.SetStatus((int)eResponseStatus.RatioDoesNotExist, eResponseStatus.RatioDoesNotExist.ToString());
+                        return result;
+                    }
+                }
+
                 DataSet ds = CatalogDAL.InsertImageType(groupId, imageTypeToAdd.Name, imageTypeToAdd.SystemName, imageTypeToAdd.RatioId.Value, imageTypeToAdd.HelpText,
                                                       userId, imageTypeToAdd.DefaultImageId);
                 if (ds != null)
@@ -711,6 +722,17 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result.SetStatus(eResponseStatus.ImageTypeAlreadyInUse, eResponseStatus.ImageTypeAlreadyInUse.ToString());
                     return result;
+                }
+
+                if (imageTypeToUpdate.RatioId.HasValue)
+                {
+                    List<Ratio> ratioList = GetGroupImageRatios(groupId);
+                    // check for RatioId valid
+                    if (ratioList != null && ratioList.Count(x => x.Id == imageTypeToUpdate.RatioId.Value) == 0)
+                    {
+                        result.SetStatus((int)eResponseStatus.RatioDoesNotExist, eResponseStatus.RatioDoesNotExist.ToString());
+                        return result;
+                    }
                 }
 
                 DataSet ds = CatalogDAL.UpdateImageType(groupId, id, imageTypeToUpdate.Name, imageTypeToUpdate.SystemName, imageTypeToUpdate.RatioId,

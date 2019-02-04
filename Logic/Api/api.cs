@@ -11322,6 +11322,62 @@ namespace Core.Api
 
             try
             {
+                LanguageResponse languageResponse = GetLanguageList(groupId, null);                
+
+                if(languageResponse != null && languageResponse.Languages != null)
+                {
+                    // check for MainLanguage valid
+                    if (partnerConfigToUpdate.MainLanguage.HasValue && languageResponse.Languages.Count(x => x.ID == partnerConfigToUpdate.MainLanguage.Value) == 0)
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. MainLanguageId {0} not exist in groupId: {1}", partnerConfigToUpdate.MainLanguage.Value, groupId);
+                        response.Set((int)eResponseStatus.GroupDoesNotContainLanguage, eResponseStatus.GroupDoesNotContainLanguage.ToString());
+                        return response;
+                    }
+
+                    // check for SecondaryLanguages valid
+                    if (partnerConfigToUpdate.SecondaryLanguages != null && 
+                        new HashSet<int>(languageResponse.Languages.Select(x => x.ID)).IsSupersetOf(partnerConfigToUpdate.SecondaryLanguages))
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. not all SecondaryLanguages {0} exist in groupId: {1}", string.Join(";", partnerConfigToUpdate.SecondaryLanguages), groupId);
+                        response.Set((int)eResponseStatus.GroupDoesNotContainLanguage, eResponseStatus.GroupDoesNotContainLanguage.ToString());
+                        return response;
+                    }
+                }
+
+                CurrencyResponse currencyResponse = GetCurrencyList(groupId, null);
+
+                if (currencyResponse != null && currencyResponse.Currencies != null)
+                {
+                    // check for MainCurrency valid
+                    if (partnerConfigToUpdate.MainCurrency.HasValue && currencyResponse.Currencies.Count(x => x.m_nCurrencyID == partnerConfigToUpdate.MainCurrency.Value) == 0)
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. MainCurrencyId {0} not exist in groupId: {1}", partnerConfigToUpdate.MainCurrency.Value, groupId);
+                        response.Set((int)eResponseStatus.GroupDoesNotContainCurrency, eResponseStatus.GroupDoesNotContainCurrency.ToString());
+                        return response;
+                    }
+
+                    // check for SecondaryCurrencys valid
+                    if (partnerConfigToUpdate.SecondaryCurrencys != null &&
+                        new HashSet<int>(currencyResponse.Currencies.Select(x => x.m_nCurrencyID)).IsSupersetOf(partnerConfigToUpdate.SecondaryCurrencys))
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. not all SecondaryCurrencys {0} exist in groupId: {1}", string.Join(";", partnerConfigToUpdate.SecondaryCurrencys), groupId);
+                        response.Set((int)eResponseStatus.GroupDoesNotContainCurrency, eResponseStatus.GroupDoesNotContainCurrency.ToString());
+                        return response;
+                    }
+                }
+
+                if( partnerConfigToUpdate.HouseholdLimitationModule.HasValue)
+                {
+                    var limitationsManagerResponse = Domains.Module.GetDLMList(groupId);
+                    if(limitationsManagerResponse != null && limitationsManagerResponse.HasObjects() &&
+                        limitationsManagerResponse.Objects.Count(x => x.domianLimitID== partnerConfigToUpdate.HouseholdLimitationModule.Value) == 0)
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. HouseholdLimitationModule {0} not exist in groupId: {1}",  partnerConfigToUpdate.HouseholdLimitationModule.Value , groupId);
+                        response.Set((int)eResponseStatus.DlmNotExist, eResponseStatus.DlmNotExist.ToString());
+                        return response;
+                    }
+                }
+
                 // upsert GeneralPartnerConfig            
                 if (!ApiDAL.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate))
                 {
