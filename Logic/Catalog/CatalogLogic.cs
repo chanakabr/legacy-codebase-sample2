@@ -4309,7 +4309,39 @@ namespace Core.Catalog
                         else
                         {
                             /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
-                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+
+                            if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
+                            {
+                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+                            }
+                            else
+                            {
+                                Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetMediaStatsKey(x), x => x.ToString());
+                                Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
+                                Dictionary<string, object> funcParameters = new Dictionary<string, object>()
+                                    {
+                                        { "assetsIds", lAssetIDs },
+                                        { "statsType", StatsType.MEDIA },
+                                        { "groupId", nGroupID },
+                                        { "mapping", assetIdToAssetStatsMapping },
+                                    };
+
+                                bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap, 
+                                    ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+
+                                if (!success)
+                                {
+                                    log.ErrorFormat("Failed getting stats for medias {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
+                                }
+                                else
+                                {
+                                    foreach (var assetStats in results.Values)
+                                    {
+                                        assetIdToAssetStatsMapping[assetStats.m_nAssetID].CopyFrom(assetStats);
+                                    }
+                                }
+                            }
+
                         }
 
                         break;
@@ -4395,7 +4427,57 @@ namespace Core.Catalog
                             else
                             {
                                 /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
-                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+
+                                if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
+                                {
+                                    GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+                                }
+                                else
+                                {
+                                    Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetEPGStatsKey(x), x => x.ToString());
+                                    Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
+                                    Dictionary<string, object> funcParameters = new Dictionary<string, object>()
+                                    {
+                                        { "assetsIds", lAssetIDs },
+                                        { "statsType", StatsType.EPG },
+                                        { "groupId", nGroupID },
+                                        { "mapping", assetIdToAssetStatsMapping },
+                                    };
+
+                                    bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
+                                        ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+
+                                    if (!success)
+                                    {
+                                        log.ErrorFormat("Failed getting stats for epgs {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
+                                    }
+                                    else
+                                    {
+                                        foreach (var assetStats in results.Values)
+                                        {
+                                            assetIdToAssetStatsMapping[assetStats.m_nAssetID].CopyFrom(assetStats);
+                                        }
+                                    }
+                                    //foreach (var assetId in lAssetIDs)
+                                    //{
+                                    //    Dictionary<string, object> funcParameters = new Dictionary<string, object>()
+                                    //{
+                                    //    { "assetId", assetId },
+                                    //    { "statsType", StatsType.EPG },
+                                    //    { "groupId", nGroupID },
+                                    //    { "mapping", assetIdToAssetStatsMapping },
+                                    //};
+
+                                    //    AssetStatsResult assetStatsResult = null;
+                                    //    bool success = LayeredCache.Instance.Get<AssetStatsResult>(LayeredCacheKeys.GetEPGStatsKey(assetId), ref assetStatsResult, GetAssetStats, funcParameters,
+                                    //        nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+
+                                    //    if (!success)
+                                    //    {
+                                    //        log.ErrorFormat("Failed getting stats for EPG {0} group {1}", assetId, nGroupID);
+                                    //    }
+                                    //}
+                                }
                             }
                         }
 
@@ -4409,6 +4491,101 @@ namespace Core.Catalog
             } // switch
 
             return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
+        }
+
+        private static Tuple<AssetStatsResult, bool> GetAssetStats(Dictionary<string, object> funcParams)
+        {
+            AssetStatsResult result = null;
+            bool success = false;
+
+            try
+            {
+                if (funcParams != null &&
+                    funcParams.ContainsKey("assetId") && funcParams.ContainsKey("statsType") &&
+                    funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mapping"))
+                {
+                    int assetId = Convert.ToInt32(funcParams["assetId"]);
+                    int groupId = Convert.ToInt32(funcParams["groupId"]);
+                    StatsType statsType = (StatsType)funcParams["statsType"];
+                    Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
+                    
+                    GetDataForGetAssetStatsFromES(groupId, new List<int>() { assetId }, DateTime.MinValue, DateTime.MaxValue, statsType, mapping);
+
+                    if (mapping.ContainsKey(assetId))
+                    {
+                        result = mapping[assetId];
+                        success = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting asset stats result. ex = {0}", ex);
+            }
+
+            return new Tuple<AssetStatsResult, bool>(result, success);
+        }
+
+        private static Tuple<Dictionary<string, AssetStatsResult>, bool> GetAssetsStats(Dictionary<string, object> funcParams)
+        {
+            Dictionary<string, AssetStatsResult> result = null;
+            bool success = false;
+
+            try
+            {
+                if (funcParams != null &&
+                    funcParams.ContainsKey("assetsIds") && funcParams.ContainsKey("statsType") &&
+                    funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mapping"))
+                {
+                    List<int> assetIds = null;
+
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        assetIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        assetIds = funcParams["assetsIds"] as List<int>;
+                    }
+                    
+                    int groupId = Convert.ToInt32(funcParams["groupId"]);
+                    StatsType statsType = (StatsType)funcParams["statsType"];
+                    Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
+
+                    GetDataForGetAssetStatsFromES(groupId, assetIds, DateTime.MinValue, DateTime.MaxValue, statsType, mapping);
+
+                    result = new Dictionary<string, AssetStatsResult>();
+
+                    foreach (var assetId in assetIds)
+                    {
+                        if (mapping.ContainsKey(assetId))
+                        {
+                            string key = string.Empty;
+
+                            switch (statsType)
+                            {
+                                case StatsType.MEDIA:
+                                    key = LayeredCacheKeys.GetMediaStatsKey(assetId);
+                                    break;
+                                case StatsType.EPG:
+                                    key = LayeredCacheKeys.GetEPGStatsKey(assetId);
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            result[key] = mapping[assetId];
+                        }
+                    }
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting assets stats result. ex = {0}", ex);
+            }
+
+            return new Tuple<Dictionary<string, AssetStatsResult>, bool>(result, success);
         }
 
         private static AssetStatsResult.SocialPartialAssetStatsResult GetSocialAssetStats(int groupId, int assetId, StatsType statsTypes,
