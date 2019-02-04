@@ -724,6 +724,17 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if (imageTypeToUpdate.RatioId.HasValue)
+                {
+                    List<Ratio> ratioList = GetGroupImageRatios(groupId);
+                    // check for RatioId valid
+                    if (ratioList != null && ratioList.Count(x => x.Id == imageTypeToUpdate.RatioId.Value) == 0)
+                    {
+                        result.SetStatus((int)eResponseStatus.RatioDoesNotExist, eResponseStatus.RatioDoesNotExist.ToString());
+                        return result;
+                    }
+                }
+
                 DataSet ds = CatalogDAL.UpdateImageType(groupId, id, imageTypeToUpdate.Name, imageTypeToUpdate.SystemName, imageTypeToUpdate.RatioId,
                     imageTypeToUpdate.HelpText, userId, imageTypeToUpdate.DefaultImageId);
                 if (ds != null)
