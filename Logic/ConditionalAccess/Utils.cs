@@ -5527,8 +5527,7 @@ namespace Core.ConditionalAccess
             var epoc = DateTime.UtcNow.ToUtcUnixTimestampSeconds();
 
             return domainRecordingIdToRecordingMap
-                .Where(x => x.Value.ViewableUntilDate.HasValue &&
-                            x.Value.ViewableUntilDate.Value > epoc)
+                .Where(x => !x.Value.ViewableUntilDate.HasValue || (x.Value.ViewableUntilDate.HasValue && x.Value.ViewableUntilDate.Value > epoc))
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
