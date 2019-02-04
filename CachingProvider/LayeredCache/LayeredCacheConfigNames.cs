@@ -96,6 +96,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_SSO_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME = "GetSSOAdapaterByGroupId";
         public const string API_GET_MEDIA_FILE_TYPE = "GetMediaFileTypeID";
         public const string API_GET_MAPPED_MEDIA_FILES = "GetMappedMediaFiles";
+        public const string ASSET_STATS_CONFIG_NAME = "AssetStats";
 
         #endregion
 
