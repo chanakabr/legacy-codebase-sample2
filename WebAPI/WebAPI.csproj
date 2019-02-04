@@ -835,6 +835,7 @@
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\UserSegmentController.cs" />
+    <Compile Include="Managers\Scheme\ExcelAttribute.cs" />
     <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
     <Compile Include="Models\API\KalturaTvmGeoRule.cs" />
     <Compile Include="Models\API\KalturaTvmRuleFilter.cs" />

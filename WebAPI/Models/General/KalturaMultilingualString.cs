@@ -24,6 +24,15 @@ namespace WebAPI.Models.General
         private string RequestLanguageCode;
         private string GroupDefaultLanguageCode;
 
+        /// <summary>
+        /// All values in different languages
+        /// </summary>
+        [DataMember(Name = "values")]
+        [JsonProperty("values")]
+        [XmlArray(ElementName = "values", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaTranslationToken> Values { get; set; }
+
         public KalturaMultilingualString(LanguageContainer[] values) : base(null)
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
@@ -142,16 +151,7 @@ namespace WebAPI.Models.General
         {
             return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1)); ;
         }
-        
-        /// <summary>
-        /// All values in different languages
-        /// </summary>
-        [DataMember(Name = "values")]
-        [JsonProperty("values")]
-        [XmlArray(ElementName = "values", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaTranslationToken> Values { get; set; }
-
+       
         public override string ToString()
         {
             if (Values != null && Values.Count > 0)
