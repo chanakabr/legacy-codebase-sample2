@@ -273,6 +273,7 @@ namespace ApiObjects.Response
         GroupDoesNotContainLanguage = 4078,
         MetaIdsDuplication = 4079,
         AssetFilePPVNotExist = 4080,
+        GroupDoesNotContainCurrency = 4081,
 
         #endregion
 
