@@ -1375,9 +1375,6 @@ namespace WebAPI.Reflection
                 case "KalturaSessionInfo":
                     return new KalturaSessionInfo(parameters);
                     
-                case "KalturaShirCheckListResponse":
-                    return new KalturaShirCheckListResponse(parameters);
-                    
                 case "KalturaSingleSegmentValue":
                     return new KalturaSingleSegmentValue(parameters);
                     
@@ -15804,12 +15801,6 @@ namespace WebAPI.Models.API
                     SegmentsIds = (String) Convert.ChangeType(parameters["segmentsIds"], typeof(String));
                 }
             }
-        }
-    }
-    public partial class KalturaShirCheckListResponse
-    {
-        public KalturaShirCheckListResponse(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
     public partial class KalturaTimeShiftedTvPartnerSettings
