@@ -5522,7 +5522,7 @@ namespace Core.ConditionalAccess
         private static Dictionary<long, Recording> FilterViewableRecordingsOnly(Dictionary<long, Recording> domainRecordingIdToRecordingMap)
         {
             if (domainRecordingIdToRecordingMap == null || !domainRecordingIdToRecordingMap.Any())
-                return domainRecordingIdToRecordingMap;
+                return new Dictionary<long, Recording>();
 
             var epoc = DateTime.UtcNow.ToUtcUnixTimestampSeconds();
 
