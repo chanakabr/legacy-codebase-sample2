@@ -2241,12 +2241,12 @@ namespace Tvinci.Core.DAL
             Random r = new Random();
 
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            UpdateOrInsertUserEpgMarkOrHit(mediaHitsManager, r, userEpgMark, mmKey);
+            UpdateOrInsertUserEpgMarkOrHit(mediaHitsManager, userEpgMark, mmKey);
 
             if (isFirstPlay)
             {
                 var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-                UpdateOrInsertUserEpgMarkOrHit(mediaMarksManager, r, userEpgMark, mmKey);
+                UpdateOrInsertUserEpgMarkOrHit(mediaMarksManager, userEpgMark, mmKey);
             }
         }
 
