@@ -50,7 +50,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "roleIdsIn")]
         [JsonProperty("roleIdsIn")]
         [XmlElement(ElementName = "roleIdsIn")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, DynamicMinInt = 0)]
         public string RoleIdsIn { get; set; }
 
         internal void Validate(bool isOperatorOrAbove)
