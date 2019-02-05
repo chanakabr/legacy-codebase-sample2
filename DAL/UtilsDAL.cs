@@ -263,6 +263,11 @@ namespace DAL
             return string.Format("u{0}_t{1}", userId, createdAt.ToString("yyyyMM"));
         }
 
+        public static string GetUserAllAssetMarksDocKey(string userId)
+        {
+            return string.Format("u{0}", userId);
+        }
+
         public static string GetUserMediaMarkDocKey(string siteUserGuid, int mediaId)
         {
             return string.Format("u{0}_m{1}", siteUserGuid, mediaId);

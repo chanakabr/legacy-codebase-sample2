@@ -34,7 +34,8 @@ namespace Tvinci.Core.DAL
         private static readonly string META_ID_FIELD = "META_ID";
         private static readonly string PARENT_META_ID_FIELD = "PARENT_META_ID";
         private static readonly string ENABLE_NOTIFICATION_FIELD = "ENABLE_NOTIFICATION";
-        
+        private static readonly string MEDIA_MARK_KEY_FORMAT = "u{0}_{1}{2}";
+
         /// <summary>
         /// 5
         /// </summary>
@@ -1415,25 +1416,23 @@ namespace Tvinci.Core.DAL
         {
             Dictionary<string, int> dictMediaUsersCount = new Dictionary<string, int>(); // key: media id , value: users count
 
+            List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId.ToString())).ToList();
+
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-            ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
-            {
-                startKey = new object[] { usersList, 0 },
-                endKey = new object[] { usersList, string.Empty },
-                staleState = ViewStaleState.False,
-                asJson = true
-            };
+            var usersMediaMarks = cbManager.GetValues<UserMediaMarks>(keys, true, false);
 
-            List<WatchHistory> lastWatchViews = cbManager.View<WatchHistory>(viewManager);
-
-            foreach (var view in lastWatchViews)
+            foreach (var userMediaMarks in usersMediaMarks.Values)
             {
-                if (!dictMediaUsersCount.ContainsKey(view.AssetId))
-                    dictMediaUsersCount.Add(view.AssetId, 1);
-                else
-                    dictMediaUsersCount[view.AssetId]++;
+                foreach (var view in userMediaMarks.mediaMarks)
+                {
+                    string assetId = view.AssetId.ToString();
+                    if (!dictMediaUsersCount.ContainsKey(assetId))
+                        dictMediaUsersCount.Add(assetId, 1);
+                    else
+                        dictMediaUsersCount[assetId]++;
+                }
+
             }
-
             return dictMediaUsersCount;
         }
 
@@ -2090,15 +2089,24 @@ namespace Tvinci.Core.DAL
 
                 while (limitRetries >= 0 && !success)
                 {
-
-                    success = InsertMediaMarkToUsersMonthlyMediaMarks(userMediaMark);
+                    success = InsertMediaMarkToUserMediaMarks(userMediaMark);
 
                     if (!success)
                     {
                         Thread.Sleep(r.Next(50));
                         limitRetries--;
                     }
-                    //UpdateOrInsertUsersMediaMarkOrHit(mediaMarksManager, ref limitRetries, r, mmKey, ref success, userMediaMark, 0);
+                }
+
+                limitRetries = RETRY_LIMIT;
+                success = false;
+
+                CouchbaseManager.CouchbaseManager mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+                string mmKey = GetMediaMarkKey(userMediaMark);
+
+                while (limitRetries >= 0 && !success)
+                {
+                    UpdateOrInsertUsersMediaMarkOrHit(mediaMarksManager, ref limitRetries, r, mmKey, ref success, userMediaMark, 0);
                 }
             }
         }
@@ -2106,24 +2114,7 @@ namespace Tvinci.Core.DAL
         private static bool UpdateOrInsertUsersMediaHit(ref bool success, UserMediaMark userMediaMark, int finishedPercentThreshold)
         {
             var couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-
-            string mmKey = string.Empty;
-
-            switch (userMediaMark.AssetType)
-            {
-                case eAssetTypes.EPG:
-                    mmKey = UtilsDal.GetUserEpgMarkDocKey(userMediaMark.UserID, userMediaMark.AssetID);
-                    break;
-                case eAssetTypes.NPVR:
-                    mmKey = UtilsDal.GetUserNpvrMarkDocKey(userMediaMark.UserID, userMediaMark.NpvrID);
-                    break;
-                case eAssetTypes.UNKNOWN:
-                case eAssetTypes.MEDIA:
-                    mmKey = UtilsDal.GetUserMediaMarkDocKey(userMediaMark.UserID.ToString(), userMediaMark.AssetID);
-                    break;
-                default:
-                    break;
-            }
+            string mmKey = GetMediaMarkKey(userMediaMark);
 
             bool locationStatusChanged = false;
             int previousLocation = 0;
@@ -2176,24 +2167,47 @@ namespace Tvinci.Core.DAL
             return locationStatusChanged;
         }
 
-        private static bool InsertMediaMarkToUsersMonthlyMediaMarks(UserMediaMark userMediaMark)
+        private static string GetMediaMarkKey(UserMediaMark userMediaMark)
+        {
+            string mmKey = string.Empty;
+
+            switch (userMediaMark.AssetType)
+            {
+                case eAssetTypes.EPG:
+                    mmKey = UtilsDal.GetUserEpgMarkDocKey(userMediaMark.UserID, userMediaMark.AssetID);
+                    break;
+                case eAssetTypes.NPVR:
+                    mmKey = UtilsDal.GetUserNpvrMarkDocKey(userMediaMark.UserID, userMediaMark.NpvrID);
+                    break;
+                case eAssetTypes.UNKNOWN:
+                case eAssetTypes.MEDIA:
+                    mmKey = UtilsDal.GetUserMediaMarkDocKey(userMediaMark.UserID.ToString(), userMediaMark.AssetID);
+                    break;
+                default:
+                    break;
+            }
+
+            return mmKey;
+        }
+
+        public static bool InsertMediaMarkToUserMediaMarks(UserMediaMark userMediaMark)
         {
             bool success = false;
 
-            string documentKey = UtilsDal.GetUserMonthlyMediaMarksDocKey(userMediaMark.UserID.ToString(), userMediaMark.CreatedAt);
+            string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userMediaMark.UserID.ToString());
 
             var couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
             ulong version;
-            var mediaMarks = couchbaseManager.GetWithVersion<UserMonthlyMediaMarks>(documentKey, out version);
+            var mediaMarks = couchbaseManager.GetWithVersion<UserMediaMarks>(documentKey, out version);
 
             if (mediaMarks == null)
             {
-                mediaMarks = new UserMonthlyMediaMarks();
+                mediaMarks = new UserMediaMarks();
             }
             else
             {
-                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m => m.AssetID == userMediaMark.AssetID);
+                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m => m.AssetId == userMediaMark.AssetID);
 
                 if (relevantMediaMark != null)
                 {
@@ -2201,7 +2215,17 @@ namespace Tvinci.Core.DAL
                 }
             }
 
-            mediaMarks.mediaMarks.Add(userMediaMark);
+            mediaMarks.mediaMarks.Add(new AssetAndLocation()
+            {
+                AssetId = userMediaMark.AssetID,
+                AssetTypeId = userMediaMark.AssetTypeId,
+                AssetType = userMediaMark.AssetType,
+                CreatedAt = userMediaMark.CreatedAtEpoch
+            });
+
+            // order by create date, only select top [TCM] (let's say 300, it should cater 99% of users)
+            var temporaryMediaMarks = mediaMarks.mediaMarks.OrderByDescending(mark => mark.CreatedAt);
+            mediaMarks.mediaMarks = temporaryMediaMarks.Take(ApplicationConfiguration.MediaMarksListLength.IntValue).ToList();
 
             success = couchbaseManager.SetWithVersion(documentKey, mediaMarks, version);
 
@@ -2231,6 +2255,21 @@ namespace Tvinci.Core.DAL
                 while (limitRetries >= 0 && !markSuccess)
                 {
                     UpdateOrInsertUsersMediaMarkOrHit(mediaMarkManager, ref limitRetries, r, mmKey, ref markSuccess, userNpvrMark);
+
+                }
+
+                limitRetries = RETRY_LIMIT;
+                markSuccess = false;
+
+                while (limitRetries >= 0 && !markSuccess)
+                {
+                    markSuccess = InsertMediaMarkToUserMediaMarks(userNpvrMark);
+
+                    if (!markSuccess)
+                    {
+                        Thread.Sleep(r.Next(50));
+                        limitRetries--;
+                    }
                 }
             }
         }
@@ -2247,6 +2286,7 @@ namespace Tvinci.Core.DAL
             {
                 var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
                 UpdateOrInsertUserEpgMarkOrHit(mediaMarksManager, userEpgMark, mmKey);
+                InsertMediaMarkToUserMediaMarks(userEpgMark);
             }
         }
 
@@ -5585,5 +5625,54 @@ namespace Tvinci.Core.DAL
 
         #endregion
 
+        public static List<string> ConvertUserMediaMarksToKeys(string userId, IEnumerable<AssetAndLocation> assetsAndLocations)
+        {
+            List<string> result = new List<string>();
+
+            foreach (var item in assetsAndLocations)
+            {
+                string assetType = ConvertAssetTypeIdToKeyPrefix(item.AssetTypeId);
+                string key = string.Format(MEDIA_MARK_KEY_FORMAT, userId, assetType, item.AssetId);
+
+                result.Add(key);
+            }
+
+            return result;
+        }
+
+        public static string GetWatchHistoryCouchbaseKey(WatchHistory currentResult)
+        {
+            string assetType = ConvertAssetTypeIdToKeyPrefix(currentResult.AssetTypeId);
+
+            return string.Format(MEDIA_MARK_KEY_FORMAT, currentResult.UserID, assetType, currentResult.AssetId);
+        }
+
+        public static string ConvertAssetTypeIdToKeyPrefix(int typeId)
+        {
+            string assetType;
+            switch (typeId)
+            {
+                case (int)eAssetTypes.EPG:
+                    {
+                        assetType = "epg";
+                        break;
+                    }
+
+                case (int)eAssetTypes.NPVR:
+                    {
+                        assetType = "npvr";
+                        break;
+                    }
+                case (int)eAssetTypes.MEDIA:
+                default:
+                    {
+                        assetType = "m";
+                        break;
+                    }
+
+            }
+
+            return assetType;
+        }
     }
 }
