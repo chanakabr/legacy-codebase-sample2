@@ -125,6 +125,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue ExcludeTemplatesImplementation;
         public static NumericConfigurationValue EPGDeleteBulkSize;
         public static BooleanConfigurationValue AllowUnknownCountry;
+        public static BooleanConfigurationValue ShouldSubscriptionOverlapConsiderDLM;
 
         #endregion
 
@@ -549,6 +550,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
+            ShouldSubscriptionOverlapConsiderDLM = new BooleanConfigurationValue("should_subscription_overlap_consider_dlm")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -653,7 +659,8 @@ namespace ConfigurationManager
                     MetaFeaturesPattern,
                     ExcludeTemplatesImplementation,
                     EPGDeleteBulkSize,
-                    AllowUnknownCountry
+                    AllowUnknownCountry,
+                    ShouldSubscriptionOverlapConsiderDLM
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

@@ -14,6 +14,7 @@ using DAL;
 using Core.Pricing;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
+using ConfigurationManager;
 
 namespace Core.ConditionalAccess
 {
@@ -688,12 +689,12 @@ namespace Core.ConditionalAccess
                     {
                         return status;
                     }
-                }          
+                }
 
                 SubscriptionsResponse subscriptionsResponse = Pricing.Module.GetSubscriptions(groupId, SubCodes.ToArray(), string.Empty, string.Empty, string.Empty);
-                if (subscriptionsResponse != null && 
-                    subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && 
-                    subscriptionsResponse.Subscriptions != null && 
+                if (subscriptionsResponse != null &&
+                    subscriptionsResponse.Status.Code == (int)eResponseStatus.OK &&
+                    subscriptionsResponse.Subscriptions != null &&
                     subscriptionsResponse.Subscriptions.Count() > 0)
                 {
                     permittedSubscriptions = subscriptionsResponse.Subscriptions.ToList();
@@ -701,14 +702,14 @@ namespace Core.ConditionalAccess
 
                 if (npvrCheck)
                 {
-                    if (permittedSubscriptions.Select(x => x.m_lServices != null && x.m_lServices.Select(y => y.ID == (long)eService.NPVR).Count() > 0 ).Count() > 0)
+                    if (permittedSubscriptions.Select(x => x.m_lServices != null && x.m_lServices.Select(y => y.ID == (long)eService.NPVR).Count() > 0).Count() > 0)
                     {
                         status = new Status((int)eResponseStatus.ServiceAlreadyExists, eResponseStatus.ServiceAlreadyExists.ToString());
                         return status;
                     }
                 }
 
-                if (dlmCheck)
+                if (ApplicationConfiguration.ShouldSubscriptionOverlapConsiderDLM.Value && dlmCheck)
                 {
                     if (permittedSubscriptions.Select(x => x.m_nDomainLimitationModule > 0).Count() > 0)
                     {
