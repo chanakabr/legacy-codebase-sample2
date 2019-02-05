@@ -2801,23 +2801,21 @@ namespace Core.Catalog
                     case ePlayType.MEDIA:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, mediaTypeId);
                         userMediaMark.AssetType = eAssetTypes.MEDIA;
+                        CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, finishedPercentThreshold, isLinearChannel);
                         break;
                     case ePlayType.NPVR:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.NPVR);
                         userMediaMark.AssetType = eAssetTypes.NPVR;
-                        //CatalogDAL.UpdateOrInsertUsersNpvrMark(userMediaMark, isFirstPlay);
+                        CatalogDAL.UpdateOrInsertUsersNpvrMark(userMediaMark, isFirstPlay);
                         break;
                     case ePlayType.EPG:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.EPG);
                         userMediaMark.AssetType = eAssetTypes.EPG;
-                        //CatalogDAL.UpdateOrInsertUsersEpgMark(userMediaMark, isFirstPlay);
+                        CatalogDAL.UpdateOrInsertUsersEpgMark(userMediaMark, isFirstPlay);
                         break;
                     default:
                         break;
                 }
-
-                CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, finishedPercentThreshold, isLinearChannel);
-
             }
         }
 
@@ -9143,17 +9141,36 @@ namespace Core.Catalog
                         staleState = CouchbaseManager.ViewStaleState.Ok;
                     }
                 }
+                
+                string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(siteGuid);
+                var allUserAssetMarks = mediaMarksManager.Get<UserMediaMarks>(documentKey);
+                var dateFilteredResult = allUserAssetMarks.mediaMarks.Where(mark => mark.CreatedAt > minFilterdate && mark.CreatedAt < maxFilterDate);
 
-                // get view results
-                CouchbaseManager.ViewManager viewManager = new CouchbaseManager.ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                List<WatchHistory> unFilteredresult = new List<WatchHistory>();
+                List<string> mediaMarkKeys = CatalogDAL.ConvertUserMediaMarksToKeys(siteGuid, dateFilteredResult);
+                var mediaMarkLogsDictionary = mediaMarksManager.GetValues<MediaMarkLog>(mediaMarkKeys, true, true);
+                var mediaMarkLogs = mediaMarkLogsDictionary.Values;
+
+                int userId = 0;
+                int.TryParse(siteGuid, out userId);
+
+                unFilteredresult = mediaMarkLogs.Select(log =>
                 {
-                    startKey = new object[] { long.Parse(siteGuid), minFilterdate },
-                    endKey = new object[] { long.Parse(siteGuid), maxFilterDate },
-                    staleState = staleState,
-                    asJson = true
-                };
-
-                List<WatchHistory> unFilteredresult = mediaMarksManager.View<WatchHistory>(viewManager);
+                    int recordingId = 0;
+                    int.TryParse(log.LastMark.NpvrID, out recordingId);
+                    
+                    return new WatchHistory()
+                    {
+                        AssetId = log.LastMark.AssetID.ToString(),
+                        Duration = log.LastMark.FileDuration,
+                        AssetTypeId = log.LastMark.AssetTypeId,
+                        LastWatch = log.LastMark.CreatedAtEpoch,
+                        Location = log.LastMark.Location,
+                        RecordingId = recordingId,
+                        UserID = userId
+                    };
+                }
+                ).ToList();
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
@@ -9176,14 +9193,15 @@ namespace Core.Catalog
                             shouldUseStartDateForEpg = true,
                             shouldUseFinalEndDate = true,
                             shouldUseStartDateForMedia = true,
-                            shouldAddIsActiveTerm = true
+                            shouldAddIsActiveTerm = true,
+                            //shouldIgnoreDeviceRuleID = true
                         };
 
                         int elasticSearchPageSize = 0;
 
                         List<string> listOfMedia = unFilteredresult.Where(
                             x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR && x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
-                                .Select(x => x.AssetId).ToList();
+                                .Select(x => x.AssetId.ToString()).ToList();
 
                         if (listOfMedia.Count > 0)
                         {
@@ -9193,6 +9211,7 @@ namespace Core.Catalog
                         }
 
                         // From the unfiltered list get only the recordings;
+                        //unFilteredresult = mediaMarksManager.GetValues<MediaMarkLog>(
 
                         List<string> listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
                             .Select(x =>
@@ -9330,7 +9349,7 @@ namespace Core.Catalog
                         {
                             if (!currentResult.IsFinishedWatching)
                             {
-                                string key = GetWatchHistoryCouchbaseKey(currentResult);
+                                string key = CatalogDAL.GetWatchHistoryCouchbaseKey(currentResult);
 
                                 keysToGetLocation.Add(key);
                             }
@@ -9344,7 +9363,7 @@ namespace Core.Catalog
                             {
                                 foreach (var currentResult in unFilteredresult)
                                 {
-                                    string key = GetWatchHistoryCouchbaseKey(currentResult);
+                                    string key = CatalogDAL.GetWatchHistoryCouchbaseKey(currentResult);
 
                                     if (mediaHitsDictionary.ContainsKey(key))
                                     {
@@ -9393,35 +9412,6 @@ namespace Core.Catalog
             return usersWatchHistory;
         }
 
-        private static string GetWatchHistoryCouchbaseKey(WatchHistory currentResult)
-        {
-            string assetType = string.Empty;
-
-            switch (currentResult.AssetTypeId)
-            {
-                case (int)eAssetTypes.EPG:
-                    {
-                        assetType = "epg";
-                        break;
-                    }
-
-                case (int)eAssetTypes.NPVR:
-                    {
-                        assetType = "npvr";
-                        break;
-                    }
-                case (int)eAssetTypes.MEDIA:
-                default:
-                    {
-                        assetType = "m";
-                        break;
-                    }
-
-            }
-
-            string key = string.Format("u{0}_{1}{2}", currentResult.UserID, assetType, currentResult.AssetId);
-            return key;
-        }
 
         public static void WriteNewWatcherMediaActionLog(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID, int nGroupID,
                                                         int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID)
