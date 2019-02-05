@@ -559,6 +559,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("MapMediaFileId_{0}_group_{1}", fileId, groupId);
         }
 
+        public static string GetMediaStatsKey(int assetId)
+        {
+            return string.Format("MediaStats_{0}", assetId);
+        }
+
+        public static string GetEPGStatsKey(int assetId)
+        {
+            return string.Format("EPGStats_{0}", assetId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -982,7 +992,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_MediaFileTypeID_{0}_group_{1}", fileId, groupId);
         }
-
+        
         #endregion
 
         #region Domains
