@@ -91,7 +91,7 @@ namespace TVPApiModule.CatalogLoaders
                 response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId()
                 {
                     Assets = unifiedResponse.Assets,
-                    RequestId = string.Empty,
+                    RequestId = unifiedResponse.RequestId,
                     Status = unifiedResponse.Status,
                     TotalItems = unifiedResponse.TotalItems
                 };
