@@ -5283,7 +5283,7 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string orderByValue, int? isSlidingWindow,
+        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int? isActive, int orderBy, int orderByDir, string orderByValue, int? isSlidingWindow,
                                             int? slidingWindowPeriod, int channelType, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages,
                                             List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId,
                                             bool supportSegmentBasedOrdering)
@@ -5318,7 +5318,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet UpdateChannel(
-            int groupId, int id, string systemName, string name, string description, int isActive, int? orderBy, 
+            int groupId, int id, string systemName, string name, string description, int? isActive, int? orderBy, 
             int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy, 
             List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, 
             List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering, int? channelType = null)

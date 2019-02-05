@@ -37,7 +37,7 @@ namespace GroupsCacheManager
         [DataMember]
         public int m_nParentGroupID { get; set; }
         [DataMember]
-        public int m_nIsActive { get; set; }
+        public int? m_nIsActive { get; set; }
         [DataMember]
         public int m_nStatus { get; set; }
         [DataMember]
