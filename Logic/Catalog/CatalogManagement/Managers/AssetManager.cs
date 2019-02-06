@@ -1150,22 +1150,22 @@ namespace Core.Catalog.CatalogManagement
                 {
                     ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
                 }
-
+                
                 // Add Description meta values (for languages that are not default), Description can be updated or added
-                if (string.IsNullOrEmpty(currentAsset.Description))
+                if (currentAsset.Description == null && !string.IsNullOrEmpty(assetToUpdate.Description))
                 {
                     ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);
                 }
-                else
+                else if (currentAsset.Description != null)
                 {
                     ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
                 }
 
-                DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : currentAsset.StartDate.HasValue ? currentAsset.StartDate.Value : DateTime.UtcNow;
-                DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : currentAsset.CatalogStartDate.HasValue ? currentAsset.CatalogStartDate.Value : DateTime.UtcNow;
-                DateTime endDate = assetToUpdate.EndDate.HasValue ? assetToUpdate.EndDate.Value : currentAsset.EndDate.HasValue ? currentAsset.EndDate.Value : DateTime.MaxValue;
+                DateTime startDate = assetToUpdate.StartDate ?? (currentAsset.StartDate ?? DateTime.UtcNow);
+                DateTime catalogStartDate = assetToUpdate.CatalogStartDate ?? (currentAsset.CatalogStartDate ?? DateTime.UtcNow);
+                DateTime endDate = assetToUpdate.EndDate ?? (currentAsset.EndDate ?? DateTime.MaxValue);
 
-                AssetInheritancePolicy inheritancePolicy = assetToUpdate.InheritancePolicy.HasValue ? assetToUpdate.InheritancePolicy.Value : currentAsset.InheritancePolicy.HasValue ? currentAsset.InheritancePolicy.Value : AssetInheritancePolicy.Enable;
+                AssetInheritancePolicy inheritancePolicy = assetToUpdate.InheritancePolicy ?? (currentAsset.InheritancePolicy ?? AssetInheritancePolicy.Enable);
 
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
                 DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
@@ -1335,7 +1335,7 @@ namespace Core.Catalog.CatalogManagement
                 long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
                 long tagId = ODBCWrapper.Utils.GetLongSafeVal(dr, "tag_id");
                 long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
-                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
+                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "value");
 
                 if (languagesDictionary.ContainsKey(languageId))
                 {
