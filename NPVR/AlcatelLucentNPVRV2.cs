@@ -1826,7 +1826,8 @@ namespace NPVR
         {
             try
             {
-                JObject responseJObject = JObject.Parse(responseJson);
+                var serializerSettings = new JsonSerializerSettings { DateParseHandling = DateParseHandling.None };
+                JObject responseJObject = JsonConvert.DeserializeObject<JObject>(responseJson, serializerSettings);
 
                 if (responseJObject != null)
                 {
