@@ -331,6 +331,44 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaProgramAsset GetEpgAsset(int groupId, long epgId, bool isAllowedToViewInactiveAssets)
+        {
+            GenericResponse<Asset> response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, epgId, eAssetTypes.EPG, isAllowedToViewInactiveAssets);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling catalog service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            KalturaProgramAsset result = null;
+            if (response.Object != null)
+            {
+                result = AutoMapper.Mapper.Map<KalturaProgramAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            }
+
+            return result;
+
+        }
+
         public bool RemoveTopicsFromAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, HashSet<long> topicIds, long userId)
         {
             Func<Status> removeTopicsFromAssetFunc = delegate ()
