@@ -72,7 +72,7 @@ namespace ApiObjects.TimeShiftedTv
             this.CreateDate = record.CreateDate;
             this.UpdateDate = record.UpdateDate;
             this.Crid = record.Crid;
-            this.isExternalRecording = false;
+            this.isExternalRecording = record.isExternalRecording;
         }
 
         public override string ToString()

@@ -5490,45 +5490,46 @@ namespace Core.ConditionalAccess
         internal static Dictionary<long, Recording> GetDomainRecordings(int groupId, long domainId, bool shouldFilterViewableRecordingsOnly = true)
         {
             Dictionary<long, Recording> domainRecordingIdToRecordingMap = null;
-            
+            Dictionary<long, Recording> response = new Dictionary<long, Recording>();
+
             try
             {
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
 
-                LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), 
-                                          ref domainRecordingIdToRecordingMap,
-                                          GetDomainRecordingsFromDB, 
-                                          funcParams, 
-                                          groupId,
-                                          LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME,
-                                          new List<string> {LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId)}, 
-                                          true);
+                if (LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap, GetDomainRecordingsFromDB, funcParams, groupId,
+                                        LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId) }, true)
+                    && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
+                {
+                    Dictionary<long, Recording> recordingsToCopy = new Dictionary<long, Recording>();
+                    if (shouldFilterViewableRecordingsOnly)
+                    {
+                        long epoc = DateTime.UtcNow.ToUtcUnixTimestampSeconds();
+                        if (domainRecordingIdToRecordingMap.Any(x => !x.Value.ViewableUntilDate.HasValue || (x.Value.ViewableUntilDate.HasValue && x.Value.ViewableUntilDate.Value > epoc)))
+                        {
+                            recordingsToCopy = domainRecordingIdToRecordingMap.Where(x => !x.Value.ViewableUntilDate.HasValue
+                                                || (x.Value.ViewableUntilDate.HasValue && x.Value.ViewableUntilDate.Value > epoc)).ToDictionary(x => x.Key, x => x.Value);
+                        }
+                    }
+                    else
+                    {
+                        recordingsToCopy = domainRecordingIdToRecordingMap;
+                    }
+
+                    if (recordingsToCopy != null)
+                    {
+                        foreach (KeyValuePair<long, Recording> recToCopy in recordingsToCopy)
+                        {
+                            response[recToCopy.Key] = recToCopy.Value.isExternalRecording ? new ExternalRecording(recToCopy.Value as ExternalRecording) : new Recording(recToCopy.Value);                            
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("failed GetDomainRecordings, groupId: {0}, domainId: {1}", groupId, domainId), ex);
             }
 
-            if (shouldFilterViewableRecordingsOnly)
-            {
-                return FilterViewableRecordingsOnly(domainRecordingIdToRecordingMap);
-            }
-            else
-            {
-                return new Dictionary<long, Recording>(domainRecordingIdToRecordingMap);
-            }
-        }
-
-        private static Dictionary<long, Recording> FilterViewableRecordingsOnly(Dictionary<long, Recording> domainRecordingIdToRecordingMap)
-        {
-            if (domainRecordingIdToRecordingMap == null || !domainRecordingIdToRecordingMap.Any())
-                return new Dictionary<long, Recording>();
-
-            var epoc = DateTime.UtcNow.ToUtcUnixTimestampSeconds();
-
-            return domainRecordingIdToRecordingMap
-                .Where(x => !x.Value.ViewableUntilDate.HasValue || (x.Value.ViewableUntilDate.HasValue && x.Value.ViewableUntilDate.Value > epoc))
-                .ToDictionary(x => x.Key, x => x.Value);
+            return response;
         }
 
         private static Tuple<Dictionary<long, Recording>, bool> GetDomainRecordingsFromDB(Dictionary<string, object> arg)

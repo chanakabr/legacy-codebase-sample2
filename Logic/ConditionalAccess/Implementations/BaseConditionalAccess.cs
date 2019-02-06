@@ -13652,14 +13652,6 @@ namespace Core.ConditionalAccess
                     recording.Id = domainRecordingId;
                     return recording;
                 }
-
-                bool isLastRecording = false;
-                if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
-                {
-                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(m_nGroupID, recording.ExternalRecordingId);
-                    isLastRecording = recordingsWithTheSameExternalId.Count == 1;
-                }
-
                 else if (shouldCancel)
                 {
                     res = RecordingsDAL.CancelDomainRecording(domainRecordingId, domainStatus.Value);  // delete recording id from domain
@@ -13675,17 +13667,11 @@ namespace Core.ConditionalAccess
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
 
-                    // can only be last if account uses external_recordings                    
-                    if (isLastRecording)
+                    if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
                     {
-                        if (RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted))
-                        {
-                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        }
+                        recording.Status = RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
                     }
-
-                    if (!TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS) 
-                            && QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                    else if (QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
                     {
                         ContextData contextData = new ContextData();
                         System.Threading.Tasks.Task async = Task.Run(() =>

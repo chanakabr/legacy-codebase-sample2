@@ -798,26 +798,36 @@ namespace Core.Recordings
             return result;
         }
 
-        internal bool CacnelOrDeleteExternalRecording(int groupId, long recordingId, long programId, bool shouldDelete)
+        internal Status CacnelOrDeleteExternalRecording(int groupId, long recordingId, long programId, bool shouldDelete)
         {
-            bool res = false;
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             try
             {
-
-                UpdateIndex(groupId, recordingId, eAction.Delete);
-                UpdateCouchbase(groupId, programId, recordingId, true);
-                if (shouldDelete && RecordingsDAL.DeleteRecording(recordingId) || !shouldDelete && RecordingsDAL.CancelRecording(recordingId))
+                System.Data.DataTable dt = RecordingsDAL.GetExistingDomainRecordingsByRecordingID(groupId, recordingId);
+                bool isLastRecording = dt == null || dt.Rows == null || dt.Rows.Count == 0;
+                bool isActionSuccessful = false;
+                if (isLastRecording)
                 {
-                    res = true;
+                    UpdateIndex(groupId, recordingId, eAction.Delete);
+                    UpdateCouchbase(groupId, programId, recordingId, true);
+                    if (shouldDelete && RecordingsDAL.DeleteRecording(recordingId) || !shouldDelete && RecordingsDAL.CancelRecording(recordingId))
+                    {
+                        isActionSuccessful = true;
+                    }
+                }
+
+                if (!isLastRecording || isActionSuccessful)
+                {
+                    status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed DeleteExternalRecording for recordingId: {0}, programId: {1}", recordingId, programId), ex);
+                log.Error(string.Format("Failed CacnelOrDeleteExternalRecording for recordingId: {0}, programId: {1}", recordingId, programId), ex);
             }
 
-            return res;
+            return status;
         }
 
         public static long GetProgramIdByExternalRecordingId(int groupId, string externalRecordingId, int domainId)
