@@ -13652,6 +13652,14 @@ namespace Core.ConditionalAccess
                     recording.Id = domainRecordingId;
                     return recording;
                 }
+
+                bool isLastRecording = false;
+                if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
+                {
+                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(m_nGroupID, recording.ExternalRecordingId);
+                    isLastRecording = recordingsWithTheSameExternalId.Count == 1;
+                }
+
                 else if (shouldCancel)
                 {
                     res = RecordingsDAL.CancelDomainRecording(domainRecordingId, domainStatus.Value);  // delete recording id from domain
@@ -13667,11 +13675,17 @@ namespace Core.ConditionalAccess
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
 
-                    if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
+                    // can only be last if account uses external_recordings                    
+                    if (isLastRecording)
                     {
-                        recording.Status = RecordingsManager.Instance.DeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, recording.ExternalRecordingId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
+                        if (RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted))
+                        {
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }
                     }
-                    else if (QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+
+                    if (!TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS) 
+                            && QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
                     {
                         ContextData contextData = new ContextData();
                         System.Threading.Tasks.Task async = Task.Run(() =>
@@ -13685,7 +13699,7 @@ namespace Core.ConditionalAccess
 
                         recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
-
+                    
                     recording.RecordingStatus = tstvRecordingStatus;
                 }
                 else
