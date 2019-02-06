@@ -347,13 +347,17 @@ namespace DAL
             return spCancelDomainRecording.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetExistingDomainRecordingsByRecordingID(int groupID, long recordID, RecordingType type)
+        public static DataTable GetExistingDomainRecordingsByRecordingID(int groupID, long recordID, RecordingType? type = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExistingDomainRecordingsByRecordingID");
             sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@RecordID", recordID);
-            sp.AddParameter("@Type", (int)type);
+            if (type.HasValue)
+            {
+                sp.AddParameter("@Type", (int)type);
+            }
+
             DataTable dt = sp.Execute();
 
             return dt;
