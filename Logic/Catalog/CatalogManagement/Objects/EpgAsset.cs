@@ -268,7 +268,7 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 this.Images.Add(new Image()
                                 {
-                                    Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, 0, 0, 100),
+                                    Url = ImageUtils.BuildImageUrl(groupId, picBaseName, epgPicture.Version, size.PicWidth, size.PicHeight, 100),
                                     ContentId = picBaseName,
                                     RatioName = epgPicture.Ratio,
                                     Version = epgPicture.Version,
