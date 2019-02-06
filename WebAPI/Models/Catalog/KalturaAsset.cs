@@ -252,7 +252,7 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    this.Description.Validate("multilingualDescription");
+                    this.Description.Validate("multilingualDescription", true, false);
                 }
             }
 
