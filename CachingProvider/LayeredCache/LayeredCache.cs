@@ -601,9 +601,10 @@ namespace CachingProvider.LayeredCache
 
                     if (!result)
                     {
-                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", key,
+                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key: {0}, with MethodName: {1}, and funcParameters: {2}.", 
+                                        key,
                                         fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
-                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
+                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys) : "No_Func_Parameters");
                     }
                 }
             }
@@ -723,9 +724,10 @@ namespace CachingProvider.LayeredCache
 
                     if (!result)
                     {
-                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", string.Join(",", KeyToOriginalValueMap.Keys),
+                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key: {0}, with MethodName: {1}, and funcParameters: {2}.", 
+                                        string.Join(",", KeyToOriginalValueMap.Keys),
                                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
-                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
+                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys) : "No_Func_Parameters");
                     }
                 }
             }
