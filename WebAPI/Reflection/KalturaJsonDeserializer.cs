@@ -19856,6 +19856,7 @@ namespace WebAPI.Models.Users
             WriteOnly = false,
             RequiresPermission = 6,
             IsNullable = false,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
