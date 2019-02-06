@@ -378,6 +378,7 @@ namespace WebAPI.Controllers
                 string userID = ks.UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
 
                 switch (assetReferenceType)
                 {
@@ -388,8 +389,7 @@ namespace WebAPI.Controllers
                             {
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
-
-                            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                            
                             response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);
                         }
 
@@ -402,16 +402,23 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
 
-                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                               0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
-
-                            // if no response - return not found status 
-                            if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                            if (ClientsManager.CatalogClient().DoesGroupUsesTemplates(groupId))
                             {
-                                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
+                                response = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
                             }
+                            else
+                            {
+                                var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                                   0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
 
-                            response = epgRes.Objects.First();
+                                // if no response - return not found status 
+                                if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                                {
+                                    throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
+                                }
+
+                                response = epgRes.Objects.First();
+                            }
                         }
 
                         break;
