@@ -14592,17 +14592,6 @@ namespace Core.ConditionalAccess
 
                 recording.Id = domainRecordingId;
 
-                // Validate there is an update
-                string metaDataStr = GetUpdatedMetaDataStr(recording, recordingToUpdate);
-
-                bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected)
-                                    || metaDataStr != null;
-
-                if (!shouldUpdate)
-                {
-                    return recording;
-                }
-
                 // Validate recording is in "Recorded" status
                 if (recording.RecordingStatus != TstvRecordingStatus.Recorded)
                 {
@@ -14618,6 +14607,17 @@ namespace Core.ConditionalAccess
                 if (recording.isExternalRecording)
                 {
                     // External recording handling
+
+                    // Validate there is an update
+                    string metaDataStr = GetUpdatedMetaDataStr(recording, recordingToUpdate);
+
+                    bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected)
+                                        || metaDataStr != null;
+
+                    if (!shouldUpdate)
+                    {
+                        return recording;
+                    }
 
                     DateTime? protectedUntilDate = null;
                     long protectedUntilEpoch = 0;
