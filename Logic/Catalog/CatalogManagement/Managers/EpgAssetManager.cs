@@ -1137,7 +1137,6 @@ namespace Core.Catalog.CatalogManagement
             // validate correct MetaType was sent
             MetaType sentMetaType;
             if (!Enum.TryParse<MetaType>(tagMeta.m_sType, out sentMetaType) ||
-                !topic.Type.ToString().ToLower().Equals(tagMeta.m_sType.ToLower()) ||
                 (metaType != MetaType.Tag && (sentMetaType == MetaType.All || sentMetaType == MetaType.Tag)) ||
                 (metaType == MetaType.Tag && sentMetaType != MetaType.Tag))
             {
