@@ -11335,7 +11335,7 @@ namespace Core.Api
                     }
 
                     // check for SecondaryLanguages valid
-                    if (partnerConfigToUpdate.SecondaryLanguages != null && 
+                    if (partnerConfigToUpdate.SecondaryLanguages != null && partnerConfigToUpdate.SecondaryLanguages.Count > 0 &&
                         new HashSet<int>(languageResponse.Languages.Select(x => x.ID)).IsSupersetOf(partnerConfigToUpdate.SecondaryLanguages))
                     {
                         log.ErrorFormat("Error while update generalPartnerConfig. not all SecondaryLanguages {0} exist in groupId: {1}", string.Join(";", partnerConfigToUpdate.SecondaryLanguages), groupId);
@@ -11357,7 +11357,7 @@ namespace Core.Api
                     }
 
                     // check for SecondaryCurrencys valid
-                    if (partnerConfigToUpdate.SecondaryCurrencys != null &&
+                    if (partnerConfigToUpdate.SecondaryCurrencys != null && partnerConfigToUpdate.SecondaryCurrencys.Count > 0 &&
                         new HashSet<int>(currencyResponse.Currencies.Select(x => x.m_nCurrencyID)).IsSupersetOf(partnerConfigToUpdate.SecondaryCurrencys))
                     {
                         log.ErrorFormat("Error while update generalPartnerConfig. not all SecondaryCurrencys {0} exist in groupId: {1}", string.Join(";", partnerConfigToUpdate.SecondaryCurrencys), groupId);
