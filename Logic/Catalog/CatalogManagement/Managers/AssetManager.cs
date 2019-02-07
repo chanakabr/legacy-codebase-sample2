@@ -2255,7 +2255,8 @@ namespace Core.Catalog.CatalogManagement
                             currentAsset = new MediaAsset()
                             {
                                 MediaType = mediaAssetToUpdate.MediaType,
-                                MediaAssetType = mediaAssetToUpdate.MediaAssetType
+                                MediaAssetType = mediaAssetToUpdate.MediaAssetType,
+                                Description = null
                             };
                         }
                         else
