@@ -1086,7 +1086,7 @@ namespace ElasticSearch.Searcher
                             // If it is a leaf, check if it is a not-exact leaf or not
                             if (current.type == BooleanNodeType.Leaf)
                             {
-                                if ((current as BooleanLeaf).field != RECORDING_ID)
+                                if ((current as BooleanLeaf).field == RECORDING_ID)
                                 {
                                     isCurrentDone = true;
                                 }
