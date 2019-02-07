@@ -3455,7 +3455,7 @@ namespace WebAPI.Models.ConditionalAccess
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 6,
+            RequiresPermission = 4,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
