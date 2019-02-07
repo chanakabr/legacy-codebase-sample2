@@ -133,7 +133,7 @@ namespace Core.Catalog
             "epg_id",
             STATUS,
             "linear_media_id",
-            "recording_id"
+            ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID
         };
 
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
@@ -7843,7 +7843,24 @@ namespace Core.Catalog
 
                             try
                             {
-                                leaf.value = Convert.ToInt64(leaf.value);
+                                if (searchKeyLowered == ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID)
+                                {
+                                    if (definitions.specificAssets == null)
+                                    {
+                                        definitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
+                                    }
+
+                                    if (!definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
+                                    {
+                                        definitions.specificAssets.Add(eAssetTypes.NPVR, new List<string>());
+                                    }
+
+                                    definitions.specificAssets[eAssetTypes.NPVR].Add(leaf.value.ToString());
+                                }
+                                else
+                                {
+                                    leaf.value = Convert.ToInt64(leaf.value);
+                                }
                             }
                             catch (Exception ex)
                             {
