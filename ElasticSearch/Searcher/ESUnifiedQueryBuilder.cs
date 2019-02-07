@@ -1084,10 +1084,14 @@ namespace ElasticSearch.Searcher
                         {
                             BooleanPhraseNode current = stack.Pop();                            
                             // If it is a leaf, check if it is a not-exact leaf or not
-                            if (current.type == BooleanNodeType.Leaf && (current as BooleanLeaf).field != RECORDING_ID)
+                            if (current.type == BooleanNodeType.Leaf)
                             {
+                                if ((current as BooleanLeaf).field != RECORDING_ID)
+                                {
+                                    isCurrentDone = true;
+                                }
                                 // If yes, this means the root-ancestor is a query and not a filter
-                                if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
+                                else if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.WordStartsWith ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
