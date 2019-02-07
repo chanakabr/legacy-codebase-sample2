@@ -30,6 +30,7 @@ namespace ElasticSearch.Searcher
         public const string PARENTAL_RULES_FIELD = "parental_rules";
         public const string USER_INTERESTS_FIELD = "user_interests";
         public const string ASSET_TYPE = "asset_type";
+        public const string RECORDING_ID = "recording_id";
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -1042,20 +1043,22 @@ namespace ElasticSearch.Searcher
                 if (root.type == BooleanNodeType.Leaf)
                 {
                     var leaf = root as BooleanLeaf;
-
-                    // If it is contains - it is not exact and thus belongs to query
-                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
-                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic ||
-                        leaf.operand == ApiObjects.ComparisonOperator.Exists || leaf.operand == ApiObjects.ComparisonOperator.NotExists ||
-                        leaf.operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
-                        leaf.shouldLowercase)
+                    if (leaf.field != RECORDING_ID)
                     {
-                        queryNode = leaf;
-                    }
-                    // Otherwise it is an exact search and belongs to a filter
-                    else
-                    {
-                        filterNode = leaf;
+                        // If it is contains - it is not exact and thus belongs to query
+                        if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
+                            leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic ||
+                            leaf.operand == ApiObjects.ComparisonOperator.Exists || leaf.operand == ApiObjects.ComparisonOperator.NotExists ||
+                            leaf.operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
+                            leaf.shouldLowercase)
+                        {
+                            queryNode = leaf;
+                        }
+                        // Otherwise it is an exact search and belongs to a filter
+                        else
+                        {
+                            filterNode = leaf;
+                        }
                     }
                 }
                 // If it is a phrase, we must understand which of its child nodes belongs to the query part or to the filter part
@@ -1079,10 +1082,9 @@ namespace ElasticSearch.Searcher
                         // Go DFS with stack until we find one "contains" leaf or until no more nodes are left
                         while (stack.Count > 0 && !isCurrentDone)
                         {
-                            BooleanPhraseNode current = stack.Pop();
-
+                            BooleanPhraseNode current = stack.Pop();                            
                             // If it is a leaf, check if it is a not-exact leaf or not
-                            if (current.type == BooleanNodeType.Leaf)
+                            if (current.type == BooleanNodeType.Leaf && (current as BooleanLeaf).field != RECORDING_ID)
                             {
                                 // If yes, this means the root-ancestor is a query and not a filter
                                 if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
