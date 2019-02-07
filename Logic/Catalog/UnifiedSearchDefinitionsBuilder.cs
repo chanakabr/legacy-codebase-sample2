@@ -302,7 +302,7 @@ namespace Core.Catalog
                 {
                     definitions.extraReturnFields.Add("epg_id");
 
-                    if (definitions.shouldGetDomainsRecordings)
+                    if (definitions.shouldGetDomainsRecordings && request.domainId > 0)
                     {
                         if (definitions.specificAssets == null)
                         {
