@@ -30,14 +30,16 @@ namespace ApiObjects.TimeShiftedTv
             : base(externalRecording)
         {            
             this.ExternalDomainRecordingId = externalDomainRecordingId;
-            this.MetaData = new Dictionary<string, string>(externalRecording.MetaData);
+            if (externalRecording.MetaData != null)
+                this.MetaData = new Dictionary<string, string>(externalRecording.MetaData);
         }
 
         public ExternalRecording(ExternalRecording externalRecording)
             : base(externalRecording)
         {
             this.ExternalDomainRecordingId = externalRecording.ExternalDomainRecordingId;
-            this.MetaData = new Dictionary<string, string>(externalRecording.MetaData);
+            if (externalRecording.MetaData != null)
+                this.MetaData = new Dictionary<string, string>(externalRecording.MetaData);
         }
 
         public override string ToString()
