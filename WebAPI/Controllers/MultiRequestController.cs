@@ -400,6 +400,7 @@ namespace WebAPI.Controllers
                 {
                     list.Add(translateMultirequestTokens(item, responses, out propertyType));
                 }
+
                 parameter = list.ToArray();
             }
             else if (parameter.GetType() == typeof(JArray))
@@ -410,9 +411,10 @@ namespace WebAPI.Controllers
                 {
                     list.Add(translateMultirequestTokens(item, responses, out propertyType));
                 }
+
                 parameter = list.ToArray();
             }
-            else if (parameter.GetType() == typeof(Dictionary<string, object>) || parameter.GetType() == typeof(JObject))
+            else if (parameter.GetType() == typeof(Dictionary<string, object>))
             {
                 Dictionary<string, object> dict = parameter.GetType() == typeof(JObject) ? ((JObject)parameter).ToObject<Dictionary<string, object>>() : (Dictionary<string, object>)parameter;
                 Dictionary<string, object> result = new Dictionary<string, object>();
@@ -421,6 +423,19 @@ namespace WebAPI.Controllers
                 {
                     result.Add(item.Key, translateMultirequestTokens(item.Value, responses, out propertyType));
                 }
+
+                parameter = result;
+            }
+            else if(parameter.GetType() == typeof(JObject))
+            {
+                Dictionary<string, object> dict = parameter.GetType() == typeof(JObject) ? ((JObject)parameter).ToObject<Dictionary<string, object>>() : (Dictionary<string, object>)parameter;
+                JObject result = new JObject();
+
+                foreach (KeyValuePair<string, object> item in dict)
+                {
+                    result.Add(new JProperty(item.Key, translateMultirequestTokens(item.Value, responses, out propertyType)));
+                }
+
                 parameter = result;
             }
 

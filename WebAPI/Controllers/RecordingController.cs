@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -192,7 +193,7 @@ namespace WebAPI.Controllers
                 if (externalFilter != null)
                 {
                     metaDataFilter =
-                        externalFilter.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLower());
+                        externalFilter.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
                 }
 
                 // call client                

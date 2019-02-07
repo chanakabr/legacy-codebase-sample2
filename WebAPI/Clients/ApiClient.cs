@@ -161,7 +161,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }
+        }        
 
         internal List<Models.API.KalturaParentalRule> GetDomainParentalRules(int groupId, int domainId)
         {
@@ -4164,6 +4164,32 @@ namespace WebAPI.Clients
                 ClientUtils.GetResponseListFromWS<KalturaTvmRule, TvmRule>(getTvmRulesFunc);
 
             result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal bool UpdateGeneralPartnerConfiguration(int groupId, KalturaGeneralPartnerConfig partnerConfig)
+        {
+            Func<GeneralPartnerConfig, Status> UpdateGeneralPartnerConfigFunc = (GeneralPartnerConfig partnerConfigToUpdate) =>
+                   Core.Api.Module.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
+
+            ClientUtils.GetResponseStatusFromWS<KalturaGeneralPartnerConfig, GeneralPartnerConfig>(UpdateGeneralPartnerConfigFunc, partnerConfig);
+
+            return true;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetGeneralPartnerConfiguration(int groupId)
+        {
+            KalturaPartnerConfigurationListResponse result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<GeneralPartnerConfig>> getGeneralPartnerConfigFunc = () =>
+                Core.Api.Module.GetGeneralPartnerConfiguration(groupId);
+
+            KalturaGenericListResponse<KalturaGeneralPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaGeneralPartnerConfig, GeneralPartnerConfig>(getGeneralPartnerConfigFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
             result.TotalCount = response.TotalCount;
 
             return result;

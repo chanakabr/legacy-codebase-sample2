@@ -12,8 +12,8 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    // TODO SHIR - DELETE THIS WHEN FINISH TO CHECK..
-    public partial class KalturaShirCheckListResponse : KalturaGenericListResponse<KalturaTvmGeoRule>
-    {
-    }
+    // TODO SHIR - DELETE THIS WHEN FINISH TO CHECK.. talk with tantan - its like KalturaFilter
+    //public partial class KalturaShirCheckListResponse : KalturaGenericListResponse<KalturaTvmGeoRule>
+    //{
+    //}
 }

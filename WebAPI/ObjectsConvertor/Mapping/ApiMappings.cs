@@ -41,14 +41,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Direction, opt => opt.MapFrom(src => src.Direction))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.DisplayName) ? src.DisplayName : src.Name))
-                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID));
 
             //KalturaCurrency
             cfg.CreateMap<Core.Pricing.Currency, KalturaCurrency>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.m_bIsDefault))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCurrencyName))
-                .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign));
+                .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nCurrencyID));
 
             //AssetType to Catalog.StatsType
             cfg.CreateMap<AssetType, StatsType>().ConstructUsing(ConvertAssetTypeToStatsType);

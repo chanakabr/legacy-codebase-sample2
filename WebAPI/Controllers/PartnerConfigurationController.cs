@@ -57,6 +57,10 @@ namespace WebAPI.Controllers
                                                   "filter.partnerConfigurationTypeEqual",
                                                   KalturaPartnerConfigurationType.Concurrency.ToString());
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.General)
+                {
+                    response = ClientsManager.ApiClient().GetGeneralPartnerConfiguration(groupId);
+                }
                 else
                 {
                     throw new InternalServerErrorException();
@@ -83,6 +87,9 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.NonExistingDeviceFamilyIds)]
+        [Throws(eResponseStatus.GroupDoesNotContainLanguage)]
+        [Throws(eResponseStatus.GroupDoesNotContainCurrency)]
+        [Throws(eResponseStatus.DlmNotExist)]
         static public bool Update(KalturaPartnerConfiguration configuration)
         {
             bool response = false;
@@ -99,6 +106,11 @@ namespace WebAPI.Controllers
                 {
                     KalturaConcurrencyPartnerConfig partnerConfig = configuration as KalturaConcurrencyPartnerConfig;
                     response = ClientsManager.ApiClient().UpdateConcurrencyPartner(groupId, partnerConfig);
+                }
+                else if (configuration is KalturaGeneralPartnerConfig)
+                {
+                    KalturaGeneralPartnerConfig partnerConfig = configuration as KalturaGeneralPartnerConfig;
+                    response = ClientsManager.ApiClient().UpdateGeneralPartnerConfiguration(groupId, partnerConfig);
                 }
                 else
                 {

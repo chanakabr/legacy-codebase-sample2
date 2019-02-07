@@ -30,6 +30,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "metaData")]
         [JsonProperty("metaData")]
         [XmlElement(ElementName = "metaData")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.UPDATE)]
         public SerializableDictionary<string, KalturaStringValue> MetaData { get; set; }
     }
 }

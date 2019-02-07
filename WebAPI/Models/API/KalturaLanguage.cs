@@ -15,6 +15,13 @@ namespace WebAPI.Models.API
     /// </summary>
     public partial class KalturaLanguage : KalturaOTTObject
     {
+        /// <summary>
+        /// Identifier
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        public int Id { get; set; }
 
         /// <summary>
         /// Language name

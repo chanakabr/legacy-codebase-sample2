@@ -670,6 +670,9 @@ namespace WebAPI.Reflection
                 case "KalturaFollowTvSeriesListResponse":
                     return new KalturaFollowTvSeriesListResponse(parameters);
                     
+                case "KalturaGeneralPartnerConfig":
+                    return new KalturaGeneralPartnerConfig(parameters);
+                    
                 case "KalturaGenericRule":
                     return new KalturaGenericRule(parameters);
                     
@@ -708,6 +711,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaHouseholdLimitations":
                     return new KalturaHouseholdLimitations(parameters);
+                    
+                case "KalturaHouseholdLimitationsListResponse":
+                    return new KalturaHouseholdLimitationsListResponse(parameters);
                     
                 case "KalturaHouseholdPaymentGateway":
                     return new KalturaHouseholdPaymentGateway(parameters);
@@ -1368,9 +1374,6 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSessionInfo":
                     return new KalturaSessionInfo(parameters);
-                    
-                case "KalturaShirCheckListResponse":
-                    return new KalturaShirCheckListResponse(parameters);
                     
                 case "KalturaSingleSegmentValue":
                     return new KalturaSingleSegmentValue(parameters);
@@ -3447,6 +3450,16 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = 255,
             MinLength = 1,
         };
+        private static RuntimeSchemePropertyAttribute MetaDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExternalRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 4,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaExternalRecording(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -3463,6 +3476,10 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        MetaDataSchemaProperty.Validate("metaData", parameters["metaData"]);
+                    }
                     if (parameters["metaData"] is JObject)
                     {
                         MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
@@ -13562,12 +13579,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
-            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -13635,6 +13652,10 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
+                }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
@@ -14198,6 +14219,10 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
+                }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
@@ -14494,12 +14519,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
-            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -15790,12 +15815,6 @@ namespace WebAPI.Models.API
                     SegmentsIds = (String) Convert.ChangeType(parameters["segmentsIds"], typeof(String));
                 }
             }
-        }
-    }
-    public partial class KalturaShirCheckListResponse
-    {
-        public KalturaShirCheckListResponse(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
     public partial class KalturaTimeShiftedTvPartnerSettings
@@ -19851,6 +19870,7 @@ namespace WebAPI.Models.Users
             WriteOnly = false,
             RequiresPermission = 6,
             IsNullable = false,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21631,6 +21651,55 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("evictionPolicy") && parameters["evictionPolicy"] != null)
                 {
                     EvictionPolicy = (KalturaEvictionPolicyType) Enum.Parse(typeof(KalturaEvictionPolicyType), parameters["evictionPolicy"].ToString(), true);
+                }
+            }
+        }
+    }
+    public partial class KalturaGeneralPartnerConfig
+    {
+        public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("partnerName") && parameters["partnerName"] != null)
+                {
+                    PartnerName = (String) Convert.ChangeType(parameters["partnerName"], typeof(String));
+                }
+                if (parameters.ContainsKey("mainLanguage") && parameters["mainLanguage"] != null)
+                {
+                    MainLanguage = (Int32) Convert.ChangeType(parameters["mainLanguage"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("secondaryLanguages") && parameters["secondaryLanguages"] != null)
+                {
+                    SecondaryLanguages = (String) Convert.ChangeType(parameters["secondaryLanguages"], typeof(String));
+                }
+                if (parameters.ContainsKey("deleteMediaPolicy") && parameters["deleteMediaPolicy"] != null)
+                {
+                    DeleteMediaPolicy = (KalturaDeleteMediaPolicy) Enum.Parse(typeof(KalturaDeleteMediaPolicy), parameters["deleteMediaPolicy"].ToString(), true);
+                }
+                if (parameters.ContainsKey("mainCurrency") && parameters["mainCurrency"] != null)
+                {
+                    MainCurrency = (Int32) Convert.ChangeType(parameters["mainCurrency"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("secondaryCurrencys") && parameters["secondaryCurrencys"] != null)
+                {
+                    SecondaryCurrencys = (String) Convert.ChangeType(parameters["secondaryCurrencys"], typeof(String));
+                }
+                if (parameters.ContainsKey("downgradePolicy") && parameters["downgradePolicy"] != null)
+                {
+                    DowngradePolicy = (KalturaDowngradePolicy) Enum.Parse(typeof(KalturaDowngradePolicy), parameters["downgradePolicy"].ToString(), true);
+                }
+                if (parameters.ContainsKey("mailSettings") && parameters["mailSettings"] != null)
+                {
+                    MailSettings = (String) Convert.ChangeType(parameters["mailSettings"], typeof(String));
+                }
+                if (parameters.ContainsKey("dateFormat") && parameters["dateFormat"] != null)
+                {
+                    DateFormat = (String) Convert.ChangeType(parameters["dateFormat"], typeof(String));
+                }
+                if (parameters.ContainsKey("householdLimitationModule") && parameters["householdLimitationModule"] != null)
+                {
+                    HouseholdLimitationModule = (Int32) Convert.ChangeType(parameters["householdLimitationModule"], typeof(Int32));
                 }
             }
         }
@@ -23601,6 +23670,26 @@ namespace WebAPI.Models.Domains
                     else if (parameters["device_families_limitations"] is IList)
                     {
                         DeviceFamiliesLimitations = buildList(typeof(KalturaHouseholdDeviceFamilyLimitations), parameters["device_families_limitations"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaHouseholdLimitationsListResponse
+    {
+        public KalturaHouseholdLimitationsListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaHouseholdLimitations>(typeof(KalturaHouseholdLimitations), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHouseholdLimitations), parameters["objects"] as object[]);
                     }
                 }
             }
