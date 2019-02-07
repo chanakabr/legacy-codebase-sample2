@@ -21,6 +21,17 @@
       "parameter": "externalId",
       "action": "UPDATE",
       "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaRecording_metaData_Update",
+      "object": "KalturaExternalRecording",
+      "parameter": "metaData",
+      "action": "UPDATE",
+      "type": "Parameter"
     }
   ],
   "type": "Parameter"

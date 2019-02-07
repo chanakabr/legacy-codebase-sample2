@@ -3450,6 +3450,16 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = 255,
             MinLength = 1,
         };
+        private static RuntimeSchemePropertyAttribute MetaDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExternalRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 6,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaExternalRecording(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -3466,6 +3476,10 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        MetaDataSchemaProperty.Validate("metaData", parameters["metaData"]);
+                    }
                     if (parameters["metaData"] is JObject)
                     {
                         MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());

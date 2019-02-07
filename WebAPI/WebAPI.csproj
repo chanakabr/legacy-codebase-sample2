@@ -833,7 +833,7 @@
     <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
     <Compile Include="Models\API\KalturaTvmGeoRule.cs" />
     <Compile Include="Models\API\KalturaTvmRuleFilter.cs" />
-	<Compile Include="Models\API\KalturaShirCheckListResponse.cs" />
+    <Compile Include="Models\API\KalturaShirCheckListResponse.cs" />
     <Compile Include="Models\API\KalturaTvmRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaTvmRule.cs" />
     <Compile Include="Models\API\KalturaBusinessModuleRuleFilter.cs" />
