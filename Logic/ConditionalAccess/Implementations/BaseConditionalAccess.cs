@@ -14099,7 +14099,7 @@ namespace Core.ConditionalAccess
             {
                 if (recording.Value.isExternalRecording && IsContained(
                         (recording.Value as ExternalRecording).MetaData.ToDictionary(x => x.Key.ToLower(),
-                            x => x.Value.ToLower()), metaDataFilter))
+                            x => x.Value.ToLowerOrNull()), metaDataFilter))
                 {
                     ret.Add(recording.Key, recording.Value);
                 }
@@ -14115,6 +14115,11 @@ namespace Core.ConditionalAccess
                 string value;
                 if (metaData.TryGetValue(filter.Key, out value))
                 {
+                    if (value == null && filter.Value == null)
+                    {
+                        continue;
+                    }
+
                     if (!filter.Value.Equals(value))
                     {
                         return false;
