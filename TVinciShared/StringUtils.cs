@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiObjects.SearchObjects;
 
 namespace TVinciShared
 {
@@ -60,6 +61,20 @@ namespace TVinciShared
             }
 
             return null;
+        }
+
+        //
+        // Summary:
+        //     Returns a copy of this string converted to lowercase or null in case the input is null.
+        //
+        // Returns:
+        //     A string in lowercase.
+        public static string ToLowerOrNull(this string value)
+        {
+            if (value == null)
+                return null;
+
+            return value.ToLower();
         }
 
         /// <summary>
