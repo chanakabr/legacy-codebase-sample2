@@ -411,6 +411,8 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public string preference;
 
+        public Dictionary<int, int> domainRecordingIdToRecordingIdMapping;
+
         #endregion
 
         #region Ctor

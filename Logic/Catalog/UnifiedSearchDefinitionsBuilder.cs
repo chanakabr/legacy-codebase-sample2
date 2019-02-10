@@ -481,6 +481,9 @@ namespace Core.Catalog
                 }
             }
 
+            // TODO: Lior -  fill
+            definitions.domainRecordingIdToRecordingIdMapping = null;
+
             return result;
         }
 
