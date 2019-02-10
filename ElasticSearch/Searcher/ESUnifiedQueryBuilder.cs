@@ -1073,9 +1073,7 @@ namespace ElasticSearch.Searcher
                     {
                         Stack<BooleanPhraseNode> stack = new Stack<BooleanPhraseNode>();
                         stack.Push(node);
-
                         bool isCurrentDone = false;
-
                         // Go DFS with stack until we find one "contains" leaf or until no more nodes are left
                         while (stack.Count > 0 && !isCurrentDone)
                         {
@@ -1083,12 +1081,8 @@ namespace ElasticSearch.Searcher
                             // If it is a leaf, check if it is a not-exact leaf or not
                             if (current.type == BooleanNodeType.Leaf)
                             {
-                                if ((current as BooleanLeaf).field == RECORDING_ID)
-                                {
-                                    isCurrentDone = true;
-                                }
                                 // If yes, this means the root-ancestor is a query and not a filter
-                                else if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
+                                if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.WordStartsWith ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
@@ -2049,10 +2043,8 @@ namespace ElasticSearch.Searcher
 
             if (leaf.operand == ApiObjects.ComparisonOperator.Equals)
             {
-                int recordingId = 0;
-
-                int domainRecordingId = Convert.ToInt32(leaf.value);
-
+                string recordingId = "0";
+                string domainRecordingId = leaf.value.ToString();
                 if (SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
                 {
                     recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
@@ -2060,8 +2052,8 @@ namespace ElasticSearch.Searcher
 
                 result = new ESTerm(true)
                 {
-                    Key = "recording_id",
-                    Value = recordingId.ToString()
+                    Key = RECORDING_ID,
+                    Value = recordingId
                 };
             }
             else if (leaf.operand == ApiObjects.ComparisonOperator.In)
@@ -2069,15 +2061,13 @@ namespace ElasticSearch.Searcher
                 List<string> domainRecordingIds = Convert.ToString(leaf.value).Split(',').ToList();
                 List<string> recordingIds = new List<string>();
 
-                foreach (string stringDomainRecordingId in domainRecordingIds)
+                foreach (string domainRecordingId in domainRecordingIds)
                 {
-                    int domainRecordingId = Convert.ToInt32(stringDomainRecordingId);
-                    int recordingId = 0;
-
+                    string recordingId = "0";
                     if (SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
                     {
                         recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
-                        recordingIds.Add(recordingId.ToString());
+                        recordingIds.Add(recordingId);
                     }
                     else;
                     {
@@ -2087,7 +2077,7 @@ namespace ElasticSearch.Searcher
 
                 result = new ESTerms(true)
                 {
-                    Key = "recording_id"
+                    Key = RECORDING_ID
                 };
 
                 (result as ESTerms).Value.AddRange(recordingIds);
@@ -2410,6 +2400,43 @@ namespace ElasticSearch.Searcher
             else
             {
                 value = leaf.value.ToString().ToLower();
+            }
+
+            if (leaf.field == RECORDING_ID)
+            {
+                List<string> domainRecordingIds = new List<string>();
+
+                if (leaf.value is IEnumerable<string>)
+                {
+                    domainRecordingIds = (leaf.value as IEnumerable<string>).Select(item => item.ToLower()).ToList();
+                }
+                else
+                {
+                    domainRecordingIds = leaf.value.ToString().ToLower().Split(',').ToList(); ;
+                }
+
+                List<string> recordingIds = new List<string>();
+
+                foreach (string domainRecordingId in domainRecordingIds)
+                {
+                    string recordingId = "0";
+                    if (SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
+                    {
+                        recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
+                        recordingIds.Add(recordingId);
+                    }
+                    else;
+                    {
+                        recordingIds.Add("0");
+                    }
+                }
+
+                term = new ESTerms(true)
+                {
+                    Key = RECORDING_ID
+                };
+
+                (term as ESTerms).Value.AddRange(recordingIds);
             }
 
             // Create the term according to the comparison operator
