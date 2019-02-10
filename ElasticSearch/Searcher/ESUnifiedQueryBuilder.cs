@@ -2437,6 +2437,7 @@ namespace ElasticSearch.Searcher
                 };
 
                 (term as ESTerms).Value.AddRange(recordingIds);
+                return (term);
             }
 
             // Create the term according to the comparison operator
