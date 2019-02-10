@@ -309,16 +309,16 @@ namespace Core.Catalog
                             definitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
                         }
 
-                        HashSet<string> domainRecordingIds = new HashSet<string>();
+                        HashSet<long> specificRecordingIds = new HashSet<long>();
                         List<string> recordingIds = new List<string>();
                         /* If there are previous specific assets - we need to map the list of domain recording ids
                          * to recording ids  and we narrow down the list to contain only the user's recordings */
                         if (request.domainId > 0 && definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
                         {
-                            domainRecordingIds = new HashSet<string>(definitions.specificAssets[eAssetTypes.NPVR]);
+                            specificRecordingIds = new HashSet<long>(definitions.specificAssets[eAssetTypes.NPVR].Select(x => long.Parse(x)));
                         }
 
-                        recordingIds = GetDomainRecordings(definitions, request.m_nGroupID, (long)request.domainId, domainRecordingIds);
+                        recordingIds = GetDomainRecordings(definitions, request.m_nGroupID, (long)request.domainId, specificRecordingIds);
                         
                         // If domain has at least one recording
                         if (recordingIds != null && recordingIds.Count > 0)
@@ -459,10 +459,10 @@ namespace Core.Catalog
             }
         }
 
-        private List<string> GetDomainRecordings(UnifiedSearchDefinitions definitions, int groupId, long domainId, HashSet<string> domainRecordingIds)
+        private List<string> GetDomainRecordings(UnifiedSearchDefinitions definitions, int groupId, long domainId, HashSet<long> specificRecordingIds)
         {
             List<string> result = new List<string>();
-
+            definitions.domainRecordingIdToRecordingIdMapping = new Dictionary<string, string>();
             ApiObjects.TimeShiftedTv.SearchableRecording[] domainSearchableRecordings = ConditionalAccess.Module.GetDomainSearchableRecordings(groupId, domainId);
 
             if (domainSearchableRecordings == null)
@@ -474,15 +474,17 @@ namespace Core.Catalog
             foreach (ApiObjects.TimeShiftedTv.SearchableRecording recording in domainSearchableRecordings)
             {
                 if (!definitions.recordingIdToSearchableRecordingMapping.ContainsKey(recording.RecordingId.ToString())
-                    && (domainRecordingIds.Count == 0 || domainRecordingIds.Contains(recording.DomainRecordingId)))
+                    && (specificRecordingIds.Count == 0 || specificRecordingIds.Contains(recording.RecordingId)))
                 {
                     definitions.recordingIdToSearchableRecordingMapping.Add(recording.RecordingId.ToString(), recording);
                     result.Add(recording.RecordingId.ToString());
                 }
             }
 
-            // TODO: Lior -  fill
-            definitions.domainRecordingIdToRecordingIdMapping = null;
+            if (definitions.recordingIdToSearchableRecordingMapping != null && definitions.recordingIdToSearchableRecordingMapping.Count > 0)
+            {
+                definitions.domainRecordingIdToRecordingIdMapping = definitions.recordingIdToSearchableRecordingMapping.ToDictionary(x => x.Value.DomainRecordingId, x => x.Key);
+            }
 
             return result;
         }

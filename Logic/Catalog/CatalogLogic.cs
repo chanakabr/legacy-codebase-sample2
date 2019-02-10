@@ -7840,38 +7840,23 @@ namespace Core.Catalog
                         if (searchKeyLowered == ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID)
                         {
                             definitions.shouldSearchRecordings = true;
+                            // I mock a "in" operator so that the query builder will know it is a not-exact search
+                            leaf.operand = ComparisonOperator.In;
                         }
 
-                        //if (leaf.operand != ComparisonOperator.In)
-                        //{
-                        //    leaf.valueType = typeof(long);
+                        if (leaf.operand != ComparisonOperator.In)
+                        {
+                            leaf.valueType = typeof(long);
 
-                        //    try
-                        //    {
-                        //        if (searchKeyLowered == ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID)
-                        //        {
-                        //            if (definitions.specificAssets == null)
-                        //            {
-                        //                definitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
-                        //            }
-
-                        //            if (!definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
-                        //            {
-                        //                definitions.specificAssets.Add(eAssetTypes.NPVR, new List<string>());
-                        //            }
-
-                        //            definitions.specificAssets[eAssetTypes.NPVR].Add(leaf.value.ToString());
-                        //        }
-                        //        else
-                        //        {
-                        //            leaf.value = Convert.ToInt64(leaf.value);
-                        //        }
-                        //    }
-                        //    catch (Exception ex)
-                        //    {
-                        //        throw new KalturaException(string.Format("Invalid search value was sent for numeric field: {0}", originalKey), (int)eResponseStatus.BadSearchRequest);
-                        //    }
-                        //}
+                            try
+                            {
+                                leaf.value = Convert.ToInt64(leaf.value);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new KalturaException(string.Format("Invalid search value was sent for numeric field: {0}", originalKey), (int)eResponseStatus.BadSearchRequest);
+                            }
+                        }
                     }
                     else if (definitions.isInternalSearch && internalReservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {

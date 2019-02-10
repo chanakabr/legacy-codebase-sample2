@@ -411,7 +411,7 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public string preference;
 
-        public Dictionary<int, int> domainRecordingIdToRecordingIdMapping;
+        public Dictionary<string, string> domainRecordingIdToRecordingIdMapping;
 
         #endregion
 
