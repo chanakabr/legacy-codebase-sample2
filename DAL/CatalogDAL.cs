@@ -2218,7 +2218,6 @@ namespace Tvinci.Core.DAL
             mediaMarks.mediaMarks.Add(new AssetAndLocation()
             {
                 AssetId = userMediaMark.AssetID,
-                AssetTypeId = userMediaMark.AssetTypeId,
                 AssetType = userMediaMark.AssetType,
                 CreatedAt = userMediaMark.CreatedAtEpoch
             });
@@ -5631,7 +5630,7 @@ namespace Tvinci.Core.DAL
 
             foreach (var item in assetsAndLocations)
             {
-                string assetType = ConvertAssetTypeIdToKeyPrefix(item.AssetTypeId);
+                string assetType = ConvertAssetTypeIdToKeyPrefix((int)item.AssetType);
                 string key = string.Format(MEDIA_MARK_KEY_FORMAT, userId, assetType, item.AssetId);
 
                 result.Add(key);
