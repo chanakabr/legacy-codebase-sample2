@@ -14609,6 +14609,13 @@ namespace Core.ConditionalAccess
                     return recording;
                 }
 
+                if (recording.isExternalRecording != recordingToUpdate.isExternalRecording)
+                {
+                    log.DebugFormat("Recording type is not valid");
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, "Recording type is not valid");
+                    return recording;
+                }
+
                 if (recording.isExternalRecording)
                 {
                     // External recording handling
