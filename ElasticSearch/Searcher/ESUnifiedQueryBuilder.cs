@@ -1043,22 +1043,19 @@ namespace ElasticSearch.Searcher
                 if (root.type == BooleanNodeType.Leaf)
                 {
                     var leaf = root as BooleanLeaf;
-                    if (leaf.field != RECORDING_ID)
+                    // If it is contains - it is not exact and thus belongs to query
+                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
+                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic ||
+                        leaf.operand == ApiObjects.ComparisonOperator.Exists || leaf.operand == ApiObjects.ComparisonOperator.NotExists ||
+                        leaf.operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
+                        leaf.shouldLowercase)
                     {
-                        // If it is contains - it is not exact and thus belongs to query
-                        if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
-                            leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic ||
-                            leaf.operand == ApiObjects.ComparisonOperator.Exists || leaf.operand == ApiObjects.ComparisonOperator.NotExists ||
-                            leaf.operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
-                            leaf.shouldLowercase)
-                        {
-                            queryNode = leaf;
-                        }
-                        // Otherwise it is an exact search and belongs to a filter
-                        else
-                        {
-                            filterNode = leaf;
-                        }
+                        queryNode = leaf;
+                    }
+                    // Otherwise it is an exact search and belongs to a filter
+                    else
+                    {
+                        filterNode = leaf;
                     }
                 }
                 // If it is a phrase, we must understand which of its child nodes belongs to the query part or to the filter part
@@ -1082,7 +1079,7 @@ namespace ElasticSearch.Searcher
                         // Go DFS with stack until we find one "contains" leaf or until no more nodes are left
                         while (stack.Count > 0 && !isCurrentDone)
                         {
-                            BooleanPhraseNode current = stack.Pop();                            
+                            BooleanPhraseNode current = stack.Pop();
                             // If it is a leaf, check if it is a not-exact leaf or not
                             if (current.type == BooleanNodeType.Leaf)
                             {
@@ -1097,7 +1094,7 @@ namespace ElasticSearch.Searcher
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Phonetic ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Exists ||
-                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotExists || 
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotExists ||
                                     (current as BooleanLeaf).shouldLowercase)
                                 {
                                     queryRoots.Add(node);
@@ -1785,6 +1782,10 @@ namespace ElasticSearch.Searcher
                 {
                     term = BuildAssetTypeQuery(leaf);
                 }
+                else if (leaf.field == RECORDING_ID)
+                {
+                    term = BuildRecordingIdTerm(leaf);
+                }
                 else
                 {
                     bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
@@ -2040,6 +2041,59 @@ namespace ElasticSearch.Searcher
             }
 
             return (term);
+        }
+
+        private IESTerm BuildRecordingIdTerm(BooleanLeaf leaf)
+        {
+            IESTerm result = null;
+
+            if (leaf.operand == ApiObjects.ComparisonOperator.Equals)
+            {
+                int recordingId = 0;
+
+                int domainRecordingId = Convert.ToInt32(leaf.value);
+
+                if (SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
+                {
+                    recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
+                }
+
+                result = new ESTerm(true)
+                {
+                    Key = "recording_id",
+                    Value = recordingId.ToString()
+                };
+            }
+            else if (leaf.operand == ApiObjects.ComparisonOperator.In)
+            {
+                List<string> domainRecordingIds = Convert.ToString(leaf.value).Split(',').ToList();
+                List<string> recordingIds = new List<string>();
+
+                foreach (string stringDomainRecordingId in domainRecordingIds)
+                {
+                    int domainRecordingId = Convert.ToInt32(stringDomainRecordingId);
+                    int recordingId = 0;
+
+                    if (SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
+                    {
+                        recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
+                        recordingIds.Add(recordingId.ToString());
+                    }
+                    else;
+                    {
+                        recordingIds.Add("0");
+                    }
+                }
+
+                result = new ESTerms(true)
+                {
+                    Key = "recording_id"
+                };
+
+                (result as ESTerms).Value.AddRange(recordingIds);
+            }
+
+            return result;
         }
 
         private IESTerm BuildAssetTypeQuery(BooleanLeaf leaf)
