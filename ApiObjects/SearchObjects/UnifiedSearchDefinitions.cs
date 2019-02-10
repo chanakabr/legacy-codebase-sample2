@@ -458,6 +458,7 @@ namespace ApiObjects.SearchObjects
             distinctGroup = new KeyValuePair<string, string>();
 
             recordingIdToSearchableRecordingMapping = new Dictionary<string, TimeShiftedTv.SearchableRecording>();
+            domainRecordingIdToRecordingIdMapping = new Dictionary<string, string>();
 
             PersonalData = new List<string>();
 
