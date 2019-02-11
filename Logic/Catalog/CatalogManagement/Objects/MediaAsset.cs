@@ -123,7 +123,7 @@ namespace Core.Catalog.CatalogManagement
             this.Files = new List<AssetFile>();
             this.UserTypes = string.Empty;
             this.IsActive = mediaObj.IsActive;
-            this.MediaAssetType = string.IsNullOrEmpty(mediaObj.m_ExternalIDs) ? MediaAssetType.Media : MediaAssetType.Linear;
+            this.MediaAssetType = MediaAssetType.Media;
         }
     }
 }
