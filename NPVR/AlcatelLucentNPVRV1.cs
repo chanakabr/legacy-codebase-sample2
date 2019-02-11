@@ -1130,25 +1130,22 @@ namespace NPVR
                 return;
             }
 
-            StringBuilder urlStr;
-
             foreach (EpgPicture pic in pictures)
             {
                 if (ratioDic.ContainsKey(pic.RatioId))
                 {
-                    urlStr = new StringBuilder();
-                    urlStr.Append(pic.Url);
-                    urlStr.Append(ratioDic[pic.RatioId].Key);
-                    urlStr.Append(string.Format("_{0}X{1}.", pic.PicWidth, pic.PicHeight));
-                    urlStr.Append(ratioDic[pic.RatioId].Value);
-
                     log.Debug("SetEpgPictures " + string.Format("RatioId= {0} Name= {1}", pic.RatioId, ratioDic[pic.RatioId].Key));
-
 
                     string url = string.Empty;
                     if (WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     {
                         // use old image server flow
+                        StringBuilder urlStr = new StringBuilder();
+                        urlStr.Append(pic.Url);
+                        urlStr.Append(ratioDic[pic.RatioId].Key);
+                        urlStr.Append(string.Format("_{0}X{1}.", pic.PicWidth, pic.PicHeight));
+                        urlStr.Append(ratioDic[pic.RatioId].Value);
+
                         url = urlStr.ToString();
                     }
                     else
@@ -1184,13 +1181,22 @@ namespace NPVR
                 if (!string.IsNullOrEmpty(pic))
                 {
                     var internalStr = pic.Split((new char[] { '=', '.' }));
-                    if (internalStr.Length == 3)
+
+                    if (internalStr.Length >= 2)
                     {
                         int ratioId = 0;
                         if (int.TryParse(internalStr[0], out ratioId))
                         {
                             log.Debug("SetRatioList " + string.Format("pic={0} ratioId={1}", pic, ratioId));
-                            list.Add(ratioId, new KeyValuePair<string, string>(internalStr[1], internalStr[2]));
+                            string id = internalStr[1];
+                            string ext = string.Empty;
+
+                            if (internalStr.Length == 3)
+                            {
+                                ext = internalStr[2];
+                            }
+
+                            list.Add(ratioId, new KeyValuePair<string, string>(id, ext));
                         }
                     }
                 }
