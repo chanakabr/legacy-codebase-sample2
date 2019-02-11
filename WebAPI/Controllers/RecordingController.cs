@@ -190,7 +190,7 @@ namespace WebAPI.Controllers
 
                 Dictionary<string, string> metaDataFilter = null;
                 var externalFilter = filter as KalturaExternalRecordingFilter;
-                if (externalFilter != null)
+                if (externalFilter != null && externalFilter.MetaData != null)
                 {
                     metaDataFilter =
                         externalFilter.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
