@@ -755,12 +755,12 @@ namespace Core.Recordings
             }
         }
 
-        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, DateTime? protectedUntilDate, long domainId, long userId, DateTime? expiryDate)
+        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, DateTime? protectedUntilDate, long domainId, long userId)
         {
             GenericResponse<ExternalRecording> result = new GenericResponse<ExternalRecording>();
             try
             {
-                System.Data.DataTable dt = RecordingsDAL.AddExternalRecording(groupId, recording, viewableUntilDate, protectedUntilDate, domainId, userId, expiryDate);
+                System.Data.DataTable dt = RecordingsDAL.AddExternalRecording(groupId, recording, viewableUntilDate, protectedUntilDate, domainId, userId);
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
                     long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "DOMAIN_RECORDING_ID");

@@ -5761,8 +5761,9 @@ namespace Core.ConditionalAccess
                 string domainExternalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_DOMAIN_RECORDING_ID");
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
                 RecordingType recordingType = (RecordingType) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
-
                 string metaDataStr = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATA");
+                long expiryDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "EXPIRY_DATE", 0);
+                
                 Dictionary<string, string> metaData = null;
                 try
                 {
@@ -5834,7 +5835,8 @@ namespace Core.ConditionalAccess
                         Crid = crid,
                         Type = recordingType,
                         ExternalDomainRecordingId = domainExternalRecordingId,
-                        MetaData = metaData
+                        MetaData = metaData,
+                        ExpiryDate = expiryDate
                     };
                 }
 
