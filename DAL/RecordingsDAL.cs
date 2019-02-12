@@ -749,6 +749,7 @@ namespace DAL
             sp.AddParameter("@ProtectedUntilDate", protectedUntilDate);
             sp.AddParameter("@ProtectedUntilEpoch", recording.ProtectedUntilDate.HasValue ? recording.ProtectedUntilDate.Value : 0);
             sp.AddParameter("@MetaData", recording.MetaDataAsJson);
+            sp.AddParameter("@ExpiryDate", recording.ExpiryDate);
 
             return sp.Execute();
         }
