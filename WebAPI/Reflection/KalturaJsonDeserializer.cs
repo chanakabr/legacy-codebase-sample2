@@ -3460,6 +3460,16 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ExpiryDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExternalRecording")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaExternalRecording(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -3484,6 +3494,14 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
                     }
+                }
+                if (parameters.ContainsKey("expiryDate") && parameters["expiryDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ExpiryDateSchemaProperty.Validate("expiryDate", parameters["expiryDate"]);
+                    }
+                    ExpiryDate = (Int64) Convert.ChangeType(parameters["expiryDate"], typeof(Int64));
                 }
             }
         }

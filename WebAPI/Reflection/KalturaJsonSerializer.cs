@@ -1576,6 +1576,10 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(ExpiryDate.HasValue)
+            {
+                ret.Add("expiryDate", "\"expiryDate\": " + ExpiryDate);
+            }
             if(ExternalId != null)
             {
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
@@ -1593,6 +1597,10 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(ExpiryDate.HasValue)
+            {
+                ret.Add("expiryDate", "<expiryDate>" + ExpiryDate + "</expiryDate>");
+            }
             if(ExternalId != null)
             {
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");

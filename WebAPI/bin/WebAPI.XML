@@ -8833,6 +8833,11 @@
             key/value map field for extra data
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalRecording.ExpiryDate">
+            <summary>
+            Specifies until when the recording is available. Date and time represented as epoch.
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsContext.Sources">
             <summary>
             Sources

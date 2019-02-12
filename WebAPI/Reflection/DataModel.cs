@@ -2192,6 +2192,8 @@ namespace WebAPI.Reflection
                 case "KalturaExternalRecording":
                     switch(property.Name)
                     {
+                        case "ExpiryDate":
+                            return "expiryDate";
                         case "ExternalId":
                             return "externalId";
                         case "MetaData":
