@@ -8391,7 +8391,7 @@ namespace Core.ConditionalAccess
             }
 
             return res;
-        }
+        }       
 
         private static Tuple<DataTable, bool> GetAllCurrencies(Dictionary<string, object> funcParams)
         {
@@ -9014,6 +9014,33 @@ namespace Core.ConditionalAccess
             }
 
             return epgs;
+        }
+
+        internal static bool IsValidCurrencyId(int groupId, int currencyId)
+        {
+            bool res = false;
+            if (currencyId <= 0)
+            {
+                return res;
+            }
+
+            try
+            {
+                DataTable dt = null;
+                if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
+                                                        LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = (from row in dt.AsEnumerable()
+                           where ((long)row["id"]) == (long)currencyId
+                           select row).Count() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IsValidCurrencyId, groupId: {0}, currencyCode: {1}", groupId, currencyId), ex);
+            }
+
+            return res;
         }
     }
 }
