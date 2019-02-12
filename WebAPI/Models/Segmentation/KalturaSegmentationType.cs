@@ -31,7 +31,6 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
-        [SchemeProperty()]
         public string Name { get; set; }
 
         /// <summary>
@@ -40,7 +39,6 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "description")]
         [JsonProperty(PropertyName = "description")]
         [XmlElement(ElementName = "description")]
-        [SchemeProperty()]
         public string Description { get; set; }
 
         /// <summary>
@@ -50,7 +48,6 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "conditions", NullValueHandling = NullValueHandling.Ignore)]
         [XmlArray(ElementName = "conditions", IsNullable = true)]
         [XmlArrayItem("item")]
-        [SchemeProperty()]
         public List<KalturaBaseSegmentCondition> Conditions { get; set; }
 
         /// <summary>
@@ -59,7 +56,6 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "value")]
         [JsonProperty(PropertyName = "value")]
         [XmlElement(ElementName = "value")]
-        [SchemeProperty()]
         public KalturaBaseSegmentValue Value { get; set; }
 
         /// <summary>
@@ -79,6 +75,15 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "version")]
         [SchemeProperty(ReadOnly = true)]
         public long Version { get; set; }
+
+        /// <summary>
+        /// The amount of users that are being affected by this Segmentation type
+        /// </summary>
+        [DataMember(Name = "affectedUsers")]
+        [JsonProperty(PropertyName = "affectedUsers")]
+        [XmlElement(ElementName = "affectedUsers")]
+        [SchemeProperty(ReadOnly = true)]
+        public int AffectedUsers { get; set; }
     }
 
     public enum KalturaContentAction
