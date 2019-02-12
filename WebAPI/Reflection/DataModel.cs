@@ -7404,7 +7404,7 @@ namespace WebAPI.Reflection
                             
                         case "get":
                             RolesManager.ValidateActionPermitted("householdDevice", "get", false);
-                            return HouseholdDeviceController.Get();
+                            return HouseholdDeviceController.Get((string) methodParams[0]);
                             
                         case "getstatus":
                             RolesManager.ValidateActionPermitted("householdDevice", "getStatus", false);
@@ -13019,6 +13019,17 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "get":
+                            ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("udid", "householdDevice", "get") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
+                            });
                             return ret;
                             
                         case "getstatus":

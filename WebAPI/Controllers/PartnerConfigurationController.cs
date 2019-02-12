@@ -87,8 +87,8 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.NonExistingDeviceFamilyIds)]
-        [Throws(eResponseStatus.GroupDoesNotContainLanguage)]
-        [Throws(eResponseStatus.GroupDoesNotContainCurrency)]
+        [Throws(eResponseStatus.InvalidLanguage)]
+        [Throws(eResponseStatus.InvalidCurrency)]
         [Throws(eResponseStatus.DlmNotExist)]
         static public bool Update(KalturaPartnerConfiguration configuration)
         {
