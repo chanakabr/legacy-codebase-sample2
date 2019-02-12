@@ -27,5 +27,14 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "id")]
         [SchemeProperty(ReadOnly = true)]
         public long Id { get; set; }
+
+        /// <summary>
+        /// The amount of users that are being affected by this Segmentation type
+        /// </summary>
+        [DataMember(Name = "affectedUsers")]
+        [JsonProperty(PropertyName = "affectedUsers")]
+        [XmlElement(ElementName = "affectedUsers")]
+        [SchemeProperty(ReadOnly = true)]
+        public int AffectedUsers { get; set; }
     }
 }

@@ -5098,6 +5098,8 @@ namespace WebAPI.Reflection
                 case "KalturaSingleSegmentValue":
                     switch(property.Name)
                     {
+                        case "AffectedUsers":
+                            return "affectedUsers";
                         case "Id":
                             return "id";
                     }

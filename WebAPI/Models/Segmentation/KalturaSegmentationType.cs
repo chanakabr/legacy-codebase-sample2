@@ -76,14 +76,6 @@ namespace WebAPI.Models.Segmentation
         [SchemeProperty(ReadOnly = true)]
         public long Version { get; set; }
 
-        /// <summary>
-        /// The amount of users that are being affected by this Segmentation type
-        /// </summary>
-        [DataMember(Name = "affectedUsers")]
-        [JsonProperty(PropertyName = "affectedUsers")]
-        [XmlElement(ElementName = "affectedUsers")]
-        [SchemeProperty(ReadOnly = true)]
-        public int AffectedUsers { get; set; }
     }
 
     public enum KalturaContentAction

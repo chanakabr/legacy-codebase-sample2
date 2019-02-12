@@ -21164,6 +21164,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("affectedUsers", "\"affectedUsers\": " + AffectedUsers);
             ret.Add("id", "\"id\": " + Id);
             return ret;
         }
@@ -21173,6 +21174,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("affectedUsers", "<affectedUsers>" + AffectedUsers + "</affectedUsers>");
             ret.Add("id", "<id>" + Id + "</id>");
             return ret;
         }
