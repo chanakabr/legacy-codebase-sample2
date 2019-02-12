@@ -58,6 +58,11 @@ namespace ApiObjects.Segmentation
             return true;
         }
 
+        internal virtual SegmentBaseValue GetSegmentById(long segmentId)
+        {
+            return null;
+        }
+
         #endregion
     }
 
@@ -65,6 +70,12 @@ namespace ApiObjects.Segmentation
     {
         [JsonProperty()]
         public long Id;
+
+        [JsonProperty()]
+        public int AffectedUsers;
+
+        [JsonProperty()]
+        public DateTime AffectedUsersUpdateDate;
 
         public override bool AddSegmentsIds(long segmentationTypeId)
         {
@@ -102,6 +113,11 @@ namespace ApiObjects.Segmentation
             result = couchbaseManager.Remove(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, this.Id));
 
             return result;
+        }
+
+        internal override SegmentBaseValue GetSegmentById(long segmentId)
+        {
+            return base.GetSegmentById(segmentId);
         }
     }
 }

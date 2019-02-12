@@ -2,6 +2,7 @@
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
+using ODBCWrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -278,14 +279,24 @@ namespace ApiObjects.Segmentation
             var pagedKeys = keys.Skip(pageIndex * pageSize).Take(pageSize);
 
             // get all segmentation types from CB
-            var getResult = couchbaseManager.GetValues<SegmentationType>(keys, false, true);
+            var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(keys, false, true);
 
-            if (getResult == null)
+
+            DateTime now = DateTime.UtcNow;
+            foreach (var item in segmentationTypes)
+            {
+                if (item.Value.AffectedUsers > 0 && item.Value.AffectedUsersUpdateDate.AddHours(UserSegment.USER_SEGMENT_TTL_HOURS) < now)
+                {
+                    item.Value.AffectedUsers = 0;
+                }
+            }
+
+            if (segmentationTypes == null)
             {
                 throw new Exception("Failed getting list of segmentation types from Couchbase");
             }
 
-            result = getResult.Values.ToList();
+            result = segmentationTypes.Values.ToList();
 
             return result;
         }
@@ -317,6 +328,68 @@ namespace ApiObjects.Segmentation
 
             return result;
         }
+
+        private static bool UpdateAffectedUsers(int groupId, long segmentId, int affectedUsers)
+        {
+            bool result = false;
+
+            //string key = GetSegmentationTypeDocumentKey(groupId, segmentId);
+            //CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            //SegmentationType segmentationType = couchbaseManager.Get<SegmentationType>(key, true);
+            //if (segmentationType == null)
+            //{
+            //    //this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Given Id does not exist for group");
+            //    return false;
+            //}
+
+            int totalCount;
+            long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
+
+            var segmentationTypes = SegmentationType.List(groupId, new List<long>() { segmentationTypeId }, 0, 1000, out totalCount);
+
+            SegmentationType segmentationType = null;
+
+            if (segmentationTypes != null && segmentationTypes.Count > 0)
+            {
+                segmentationType = segmentationTypes.FirstOrDefault();
+            }
+
+            if (segmentationType != null)
+            {
+                var segmentDummyValue = (segmentationType.Value as SegmentDummyValue);
+
+                if (segmentDummyValue != null)
+                {
+                    segmentDummyValue.AffectedUsers = affectedUsers;
+                    segmentDummyValue.AffectedUsersUpdateDate = DateTime.UtcNow;
+                }
+            }
+            //segmentationType.AffectedUsers = affectedUsers;
+            //segmentationType.AffectedUsersUpdateDate = DateTime.UtcNow;
+
+            segmentationType.DoUpdate();
+            //bool setResult = couchbaseManager.Set<SegmentationType>(key, segmentationType);
+
+            //if (!setResult)
+            //{
+            //    log.ErrorFormat("Error updating existing segment type in Couchbase.");
+            //    return false;
+            //}
+
+            return result;
+        }
+
+        public static bool UpdateSegmentsAffectedUsers(int groupId, Dictionary<long, int> data)
+        {
+            foreach (var item in data)
+            {
+                UpdateAffectedUsers(groupId, item.Key, item.Value);
+            }
+
+            return true;
+        }
+
+
     }
     
     public class GroupSegmentationTypes
