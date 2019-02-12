@@ -11338,7 +11338,7 @@ namespace Core.Api
                 {
                     foreach (var secondaryLanguageId in partnerConfigToUpdate.SecondaryLanguages)
                     {
-                        if (IsValidLanguageId(groupId, secondaryLanguageId))
+                        if (!IsValidLanguageId(groupId, secondaryLanguageId))
                         {
                             log.ErrorFormat("Error while update generalPartnerConfig. SecondaryLanguageId {0}, groupId: {1}", secondaryLanguageId, groupId);
                             response.Set((int)eResponseStatus.InvalidLanguage, eResponseStatus.InvalidLanguage.ToString());
