@@ -38,6 +38,11 @@ namespace SegmentationTaskHandler
                             success = UserSegment.MultiInsert(request.GroupID, request.UsersSegments);
                             break;
                         }
+                    case SegmentationTaskType.update_segment_affected_users:
+                        {
+                            success = SegmentationType.UpdateSegmentsAffectedUsers(request.GroupID, request.SegmentAffectedUsers);
+                            break;
+                        }
                     default:
                         break;
                 }
