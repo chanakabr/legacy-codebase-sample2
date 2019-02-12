@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -10,10 +11,14 @@ using System.Reflection;
 
 namespace ApiObjects.Segmentation
 {
+
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     public class SegmentationType : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.UserSegmentTTL.IntValue;
+
 
         [JsonProperty()]
         public string Name;
@@ -283,13 +288,6 @@ namespace ApiObjects.Segmentation
 
 
             DateTime now = DateTime.UtcNow;
-            foreach (var item in segmentationTypes)
-            {
-                if (item.Value.AffectedUsers > 0 && item.Value.AffectedUsersUpdateDate.AddHours(UserSegment.USER_SEGMENT_TTL_HOURS) < now)
-                {
-                    item.Value.AffectedUsers = 0;
-                }
-            }
 
             if (segmentationTypes == null)
             {
@@ -333,15 +331,6 @@ namespace ApiObjects.Segmentation
         {
             bool result = false;
 
-            //string key = GetSegmentationTypeDocumentKey(groupId, segmentId);
-            //CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            //SegmentationType segmentationType = couchbaseManager.Get<SegmentationType>(key, true);
-            //if (segmentationType == null)
-            //{
-            //    //this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Given Id does not exist for group");
-            //    return false;
-            //}
-
             int totalCount;
             long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
 
@@ -361,20 +350,11 @@ namespace ApiObjects.Segmentation
                 if (segmentDummyValue != null)
                 {
                     segmentDummyValue.AffectedUsers = affectedUsers;
-                    segmentDummyValue.AffectedUsersUpdateDate = DateTime.UtcNow;
+                    segmentDummyValue.AffectedUsersTtl = DateTime.UtcNow.AddHours(USER_SEGMENT_TTL_HOURS);
                 }
             }
-            //segmentationType.AffectedUsers = affectedUsers;
-            //segmentationType.AffectedUsersUpdateDate = DateTime.UtcNow;
 
-            segmentationType.DoUpdate();
-            //bool setResult = couchbaseManager.Set<SegmentationType>(key, segmentationType);
-
-            //if (!setResult)
-            //{
-            //    log.ErrorFormat("Error updating existing segment type in Couchbase.");
-            //    return false;
-            //}
+            result = segmentationType.DoUpdate();
 
             return result;
         }

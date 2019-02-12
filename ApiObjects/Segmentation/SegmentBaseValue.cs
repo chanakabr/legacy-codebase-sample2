@@ -75,7 +75,7 @@ namespace ApiObjects.Segmentation
         public int AffectedUsers;
 
         [JsonProperty()]
-        public DateTime AffectedUsersUpdateDate;
+        public DateTime AffectedUsersTtl;
 
         public override bool AddSegmentsIds(long segmentationTypeId)
         {
