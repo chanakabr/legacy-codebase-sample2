@@ -17014,7 +17014,7 @@ namespace Core.ConditionalAccess
                         protectedUntilDate = viewableUntilDate;
                     }
 
-                    response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId);
+                    response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId, expiryDate);
                 }
                 else
                 {                    

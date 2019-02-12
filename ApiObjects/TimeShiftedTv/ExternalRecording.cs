@@ -19,6 +19,8 @@ namespace ApiObjects.TimeShiftedTv
 
         public Dictionary<string, string> MetaData { get; set; }
 
+        public long? ExpiryDate { get; set; }
+
         public ExternalRecording()
             : base()
         {
@@ -32,6 +34,7 @@ namespace ApiObjects.TimeShiftedTv
             this.ExternalDomainRecordingId = externalDomainRecordingId;
             if (externalRecording.MetaData != null)
                 this.MetaData = new Dictionary<string, string>(externalRecording.MetaData);
+            this.ExpiryDate = externalRecording.ExpiryDate;
         }
 
         public ExternalRecording(ExternalRecording externalRecording)
@@ -40,6 +43,7 @@ namespace ApiObjects.TimeShiftedTv
             this.ExternalDomainRecordingId = externalRecording.ExternalDomainRecordingId;
             if (externalRecording.MetaData != null)
                 this.MetaData = new Dictionary<string, string>(externalRecording.MetaData);
+            this.ExpiryDate = externalRecording.ExpiryDate;
         }
 
         public override string ToString()
