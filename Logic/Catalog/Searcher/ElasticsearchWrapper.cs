@@ -2255,7 +2255,7 @@ namespace Core.Catalog
 
         #endregion
 
-        public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex)
+        public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex, bool shouldIgnoreRecordings = false)
         {
             List<UnifiedSearchResult> finalList = new List<UnifiedSearchResult>();
             totalItems = 0;
@@ -2299,7 +2299,7 @@ namespace Core.Catalog
             List<KeyValuePair<eAssetTypes, string>> assetsPairs = assets.Select(asset =>
                 new KeyValuePair<eAssetTypes, string>(asset.AssetType, asset.AssetId)).ToList();
 
-            string requestBody = ESUnifiedQueryBuilder.BuildGetUpdateDatesString(assetsPairs);
+            string requestBody = ESUnifiedQueryBuilder.BuildGetUpdateDatesString(assetsPairs, shouldIgnoreRecordings);
 
             int httpStatus = 0;
 
@@ -2357,8 +2357,7 @@ namespace Core.Catalog
 
                 var validAssets = assets.Where(asset =>
                     {
-                        bool valid = asset.m_dUpdateDate != DateTime.MinValue;
-
+                        bool valid = asset.m_dUpdateDate != DateTime.MinValue || (shouldIgnoreRecordings && asset.AssetType == eAssetTypes.NPVR);
                         if (!valid)
                         {
                             log.WarnFormat(

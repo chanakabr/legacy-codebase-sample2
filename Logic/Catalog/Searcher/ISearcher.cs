@@ -71,7 +71,7 @@ namespace Core.Catalog
             out List<AggregationsResult> aggregationsResult);
 
         [OperationContract]
-        List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex);
+        List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex, bool shouldIgnoreRecordings = false);
 
         [OperationContract]
         List<UnifiedSearchResult> MultipleUnifiedSearch(int groupId, List<UnifiedSearchDefinitions> unifiedSearchDefinitions, ref int totalItems);
