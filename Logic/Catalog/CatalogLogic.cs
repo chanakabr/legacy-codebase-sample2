@@ -9144,6 +9144,12 @@ namespace Core.Catalog
                 
                 string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(siteGuid);
                 var allUserAssetMarks = mediaMarksManager.Get<UserMediaMarks>(documentKey);
+
+                if (allUserAssetMarks == null)
+                {
+                    allUserAssetMarks = new UserMediaMarks();
+                }
+
                 var dateFilteredResult = allUserAssetMarks.mediaMarks.Where(mark => mark.CreatedAt > minFilterdate && mark.CreatedAt < maxFilterDate);
 
                 List<WatchHistory> unFilteredresult = new List<WatchHistory>();
