@@ -5762,7 +5762,7 @@ namespace Core.ConditionalAccess
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
                 RecordingType recordingType = (RecordingType) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
                 string metaDataStr = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATA");
-                long expiryDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "EXPIRY_DATE", 0);
+                long externalExpiryDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "EXTERNAL_EXPIRY_DATE", 0);
                 
                 Dictionary<string, string> metaData = null;
                 try
@@ -5835,8 +5835,7 @@ namespace Core.ConditionalAccess
                         Crid = crid,
                         Type = recordingType,
                         ExternalDomainRecordingId = domainExternalRecordingId,
-                        MetaData = metaData,
-                        ExpiryDate = expiryDate
+                        MetaData = metaData
                     };
                 }
 
@@ -5844,6 +5843,11 @@ namespace Core.ConditionalAccess
                 if (recording.RecordingStatus == TstvRecordingStatus.Recorded)
                 {
                     recording.ViewableUntilDate = viewableUntilEpoch;
+
+                    if (externalExpiryDate > 0)
+                    {
+                        recording.ViewableUntilDate = externalExpiryDate;
+                    }
 
                     // if recording is/was protected then set ProtectedUntilDate
                     if (protectedUntilDate > 0)

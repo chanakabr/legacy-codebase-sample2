@@ -17005,6 +17005,8 @@ namespace Core.ConditionalAccess
                         externalRecording.ChannelId = channelId;
                     }
 
+                    long? externalViewableUntilDate = externalRecording.ViewableUntilDate;
+
                     DateTime viewableUntilDate = DateTime.UtcNow.AddYears(100);
                     externalRecording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
                     DateTime? protectedUntilDate = null;
@@ -17014,7 +17016,7 @@ namespace Core.ConditionalAccess
                         protectedUntilDate = viewableUntilDate;
                     }
 
-                    response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId);
+                    response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId, externalViewableUntilDate);
                 }
                 else
                 {                    
