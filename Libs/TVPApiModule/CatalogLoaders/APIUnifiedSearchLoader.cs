@@ -420,15 +420,18 @@ namespace TVPApiModule.CatalogLoaders
                 foreach (var id in ids)
                 {
                     key = new CacheKey(id.AssetId, id.m_dUpdateDate);
-
-                    if (id.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
+                    switch (id.AssetType)
                     {
-                        mediaKeys.Add(key);
-                    }
-
-                    else if (id.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
-                    {
-                        epgKeys.Add(key);
+                        case eAssetTypes.MEDIA:
+                            mediaKeys.Add(key);
+                            break;
+                        case eAssetTypes.EPG:                            
+                        case eAssetTypes.NPVR:
+                            epgKeys.Add(key);
+                            break;
+                        case eAssetTypes.UNKNOWN:
+                        default:
+                            break;
                     }
                 }
 
