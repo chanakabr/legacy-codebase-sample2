@@ -1202,7 +1202,7 @@ namespace ElasticSearch.Searcher
         /// (media id IN (...) OR epg id IN (...))
         /// </summary>
         /// <returns></returns>
-        public static string BuildGetUpdateDatesString(List<KeyValuePair<ApiObjects.eAssetTypes, string>> assets)
+        public static string BuildGetUpdateDatesString(List<KeyValuePair<ApiObjects.eAssetTypes, string>> assets, bool shouldIgnoreRecordings = false)
         {
             if (assets == null)
             {
@@ -1287,8 +1287,11 @@ namespace ElasticSearch.Searcher
                     }
                     case ApiObjects.eAssetTypes.NPVR:
                     {
-                        recordingIdsTerm.Value.Add(item.Value);
-                        shouldSearchRecordings = true;
+                        if (!shouldIgnoreRecordings)
+                        {
+                            recordingIdsTerm.Value.Add(item.Value);
+                            shouldSearchRecordings = true;
+                        }
                         break;
                     }
                     case ApiObjects.eAssetTypes.MEDIA:
