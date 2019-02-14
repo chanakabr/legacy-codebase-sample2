@@ -46,6 +46,7 @@ namespace Core.Catalog.CatalogManagement
                 if (defaultEpgCB != null)
                 {
                     this.Id = (long)defaultEpgCB.EpgID;
+                    this.GroupId = groupId;
                     this.EpgIdentifier = defaultEpgCB.EpgIdentifier;
                     this.IsActive = defaultEpgCB.IsActive;
                     this.Status = defaultEpgCB.Status;

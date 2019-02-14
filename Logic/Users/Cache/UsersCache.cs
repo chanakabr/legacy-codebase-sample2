@@ -117,9 +117,8 @@ namespace Core.Users
             try
             {
                 string key = LayeredCacheKeys.GetUserKey(userId, groupId);
-                User userToGet = null;
                 if (!LayeredCache.Instance.Get(key, 
-                                               ref userToGet, 
+                                               ref user, 
                                                GetUser, 
                                                new Dictionary<string, object>()
                                                {
@@ -138,7 +137,6 @@ namespace Core.Users
                 }
                 else
                 {
-                    user = TVinciShared.ObjectCopier.Clone<User>(userToGet);
                     if (user != null)
                     {
                         user.SetReadingInvalidationKeys();

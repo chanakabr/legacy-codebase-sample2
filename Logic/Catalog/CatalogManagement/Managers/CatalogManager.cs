@@ -2788,38 +2788,38 @@ namespace Core.Catalog.CatalogManagement
             List<Topic> result = new List<Topic>();
             foreach (KeyValuePair<string, string> meta in BasicMediaAssetMetasSystemNameToName)
             {
-                Topic topicToAdd = new Topic() { SystemName = meta.Key, Name = meta.Value, IsPredefined = true, Features = new HashSet<string>(StringComparer.OrdinalIgnoreCase) };
+                Topic topicToAdd = new Topic(meta.Key, true, meta.Value);
                 switch (meta.Key)
                 {
                     case AssetManager.NAME_META_SYSTEM_NAME:
-                        topicToAdd.Type = MetaType.MultilingualString;
+                        topicToAdd.SetType(MetaType.MultilingualString);
                         topicToAdd.SearchRelated = true;
                         topicToAdd.Features.Add(OPC_UI_METADATA);
                         topicToAdd.Features.Add(OPC_UI_MANDATORY);
                         break;
                     case AssetManager.DESCRIPTION_META_SYSTEM_NAME:
-                        topicToAdd.Type = MetaType.MultilingualString;
+                        topicToAdd.SetType(MetaType.MultilingualString);
                         topicToAdd.Features.Add(OPC_UI_METADATA);
                         topicToAdd.Features.Add(OPC_UI_TEXTAREA);
                         break;
                     case AssetManager.EXTERNAL_ID_META_SYSTEM_NAME:
-                        topicToAdd.Type = MetaType.String;
+                        topicToAdd.SetType(MetaType.String);
                         topicToAdd.Features.Add(OPC_UI_METADATA);
                         topicToAdd.Features.Add(OPC_UI_READONLY);
                         break;
                     case AssetManager.ENTRY_ID_META_SYSTEM_NAME:
-                        topicToAdd.Type = MetaType.String;
+                        topicToAdd.SetType(MetaType.String);
                         topicToAdd.Features.Add(OPC_UI_METADATA);
                         break;
                     case AssetManager.STATUS_META_SYSTEM_NAME:
-                        topicToAdd.Type = MetaType.Bool;
+                        topicToAdd.SetType(MetaType.Bool);
                         topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
                         break;
                     case AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME:
                     case AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME:
                     case AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
                     case AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME:
-                        topicToAdd.Type = MetaType.DateTime;
+                        topicToAdd.SetType(MetaType.DateTime);
                         topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
                         break;
                     default:
@@ -2837,37 +2837,37 @@ namespace Core.Catalog.CatalogManagement
             List<Topic> result = new List<Topic>();
             foreach (KeyValuePair<string, string> meta in BasicProgramMetasSystemNameToName)
             {
-                Topic topicToAdd = new Topic() { SystemName = meta.Key, Name = meta.Value, IsPredefined = true, Features = new HashSet<string>(StringComparer.OrdinalIgnoreCase) };
+                Topic topicToAdd = new Topic(meta.Key, true, meta.Value);
                 switch (meta.Key)
                 {
                     case EPG_TITLE_META_NAME:
-                        topicToAdd.Type = MetaType.MultilingualString;
+                        topicToAdd.SetType(MetaType.MultilingualString);
                         topicToAdd.SearchRelated = true;
                         topicToAdd.Features.Add(OPC_UI_METADATA);
                         topicToAdd.Features.Add(OPC_UI_MANDATORY);
                         break;
                     case EPG_DESCRIPTION_META_NAME:
-                        topicToAdd.Type = MetaType.MultilingualString;
+                        topicToAdd.SetType(MetaType.MultilingualString);
                         topicToAdd.Features.Add(OPC_UI_METADATA);
                         topicToAdd.Features.Add(OPC_UI_TEXTAREA);
                         break;
                     case EPG_EXTERNAL_ID_SYSTEM_META_NAME:
-                        topicToAdd.Type = MetaType.String;
+                        topicToAdd.SetType(MetaType.String);
                         topicToAdd.Features.Add(OPC_UI_METADATA);
                         topicToAdd.Features.Add(OPC_UI_READONLY);
                         break;
                     case EPG_CRID_SYSTEM_META_NAME:
-                        topicToAdd.Type = MetaType.String;
+                        topicToAdd.SetType(MetaType.String);
                         topicToAdd.Features.Add(OPC_UI_METADATA);
                         topicToAdd.Features.Add(OPC_UI_MANDATORY);
                         break;
                     case EPG_START_DATE_SYSTEM_META_NAME:
-                        topicToAdd.Type = MetaType.DateTime;
+                        topicToAdd.SetType(MetaType.DateTime);
                         topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
                         topicToAdd.Features.Add(OPC_UI_MANDATORY);
                         break;
                     case EPG_END_DATE_SYSTEM_META_NAME:
-                        topicToAdd.Type = MetaType.DateTime;
+                        topicToAdd.SetType(MetaType.DateTime);
                         topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
                         topicToAdd.Features.Add(OPC_UI_MANDATORY);
                         break;

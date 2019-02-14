@@ -9,7 +9,6 @@ namespace Core.Catalog.CatalogManagement
 {
     public class Topic
     {
-                
         private const string SEARCH_RELATED = "searchRelated";
 
         public long Id { get; set; }
@@ -36,34 +35,43 @@ namespace Core.Catalog.CatalogManagement
             this.IsPredefined = null;
             this.SearchRelated = false;
             this.HelpText = string.Empty;
-            this.ParentId = 0;            
+            this.ParentId = 0;
             this.CreateDate = 0;
-            this.UpdateDate = 0;            
+            this.UpdateDate = 0;
         }
 
-        public Topic(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, MetaType type, HashSet<string> features, bool isPredefined, string helpText, long parentId,
-                        long createDate, long updateDate)
+        public Topic(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, MetaType type,
+                     HashSet<string> features, bool isPredefined, string helpText, long parentId, long createDate, long updateDate)
         {
             this.Id = id;
             this.Name = name;
             this.NamesInOtherLanguages = new List<LanguageContainer>(namesInOtherLanguages);
             this.SystemName = systemName;
-            this.Type = type;            
+            this.Type = type;
             this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             if (this.Features.Contains(SEARCH_RELATED))
             {
-                this.SearchRelated = true;                
+                this.SearchRelated = true;
             }
             else
             {
                 this.SearchRelated = false;
             }
 
-            this.IsPredefined = isPredefined;            
+            this.IsPredefined = isPredefined;
             this.HelpText = helpText;
             this.ParentId = parentId;
             this.CreateDate = createDate;
-            this.UpdateDate = updateDate;            
+            this.UpdateDate = updateDate;
+        }
+
+        public Topic(string systemName, bool isPredefined, string name)
+            : base()
+        {
+            SystemName = systemName;
+            Name = name;
+            IsPredefined = isPredefined;
+            Features = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
 
         public Topic(Topic topicToCopy)
@@ -107,6 +115,11 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        public void SetType(MetaType metaType)
+        {
+            this.Type = metaType;
         }
 
         public override string ToString()

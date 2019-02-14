@@ -728,7 +728,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (deserializeObject == null || !(deserializeObject is IngestFeed))
             {
-                ingestResponse.IngestStatus.Set((int)eResponseStatus.IllegalXml, "TOEDO SHIE SET ERROR MSG");
+                ingestResponse.IngestStatus.Set((int)eResponseStatus.IllegalXml, "TODO - SET ERROR MSG");
                 log.ErrorFormat("XML file with wrong format: {0}. groupId:{1}.", xml, groupId);
                 return null;
             }
