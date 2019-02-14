@@ -193,8 +193,13 @@ namespace WebAPI.Controllers
             KalturaHouseholdDevice device = null;
 
             KS ks = KS.GetFromRequest();
+
+            int householdId = 0;
             if (udid.IsNullOrEmptyOrWhiteSpace())
+            {
                 udid = KSUtils.ExtractKSPayload().UDID;
+                householdId = (int) HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
+            }
 
             if (string.IsNullOrEmpty(udid))
             {
@@ -204,12 +209,13 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                device = ClientsManager.DomainsClient().GetDevice(ks.GroupId, (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId), udid, ks.UserId);
+                device = ClientsManager.DomainsClient().GetDevice(ks.GroupId, householdId, udid, ks.UserId);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
             return device;
         }
 
