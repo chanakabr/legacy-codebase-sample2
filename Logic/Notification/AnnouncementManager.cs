@@ -618,38 +618,46 @@ namespace Core.Notification
                     }
                 }
 
-                if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Mail) == null)
+                // BEO-6157: Try to send mail announcement only if partner has an adapter defined
+                if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId))
                 {
-                    announcementName = "Mail";
-                    string mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
-                    if (string.IsNullOrEmpty(mailExternalAnnouncementId))
+                    if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Mail) == null)
                     {
-                        log.ErrorFormat("CreateSystemAnnouncement failed Create mail announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
-                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create mail announcement");
-                    }
+                        announcementName = "Mail";
+                        string mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
+                        if (string.IsNullOrEmpty(mailExternalAnnouncementId))
+                        {
+                            log.ErrorFormat("CreateSystemAnnouncement failed Create mail announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                            return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create mail announcement");
+                        }
 
-                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, string.Empty, (int)eMessageType.Mail, (int)eAnnouncementRecipientsType.Mail, mailExternalAnnouncementId) == 0)
-                    {
-                        log.ErrorFormat("CreateSystemAnnouncement failed insert mail announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
-                        return new Status((int)eResponseStatus.Error, "fail insert mail announcement to DB");
+                        if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, string.Empty, (int)eMessageType.Mail, (int)eAnnouncementRecipientsType.Mail, mailExternalAnnouncementId) == 0)
+                        {
+                            log.ErrorFormat("CreateSystemAnnouncement failed insert mail announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                            return new Status((int)eResponseStatus.Error, "fail insert mail announcement to DB");
+                        }
                     }
                 }
 
-                if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Sms) == null)
+                // BEO-6157: Try to send SMS announcement only if partner has SMS notification enabled
+                if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
                 {
-                    announcementName = "Sms";
-                    string smsExternalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
-                    if (string.IsNullOrEmpty(smsExternalAnnouncementId))
+                    if (dbAnnouncements != null && dbAnnouncements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Sms) == null)
                     {
-                        log.ErrorFormat("CreateSystemAnnouncement failed Create SMS announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
-                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create SMS announcement");
-                    }
+                        announcementName = "Sms";
+                        string smsExternalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                        if (string.IsNullOrEmpty(smsExternalAnnouncementId))
+                        {
+                            log.ErrorFormat("CreateSystemAnnouncement failed Create SMS announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                            return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create SMS announcement");
+                        }
 
-                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, smsExternalAnnouncementId, (int)eMessageType.Sms, 
-                        (int)eAnnouncementRecipientsType.Sms, string.Empty) == 0)
-                    {
-                        log.ErrorFormat("CreateSystemAnnouncement failed insert SMS announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
-                        return new Status((int)eResponseStatus.Error, "fail insert SMS announcement to DB");
+                        if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, smsExternalAnnouncementId, (int)eMessageType.Sms,
+                            (int)eAnnouncementRecipientsType.Sms, string.Empty) == 0)
+                        {
+                            log.ErrorFormat("CreateSystemAnnouncement failed insert SMS announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                            return new Status((int)eResponseStatus.Error, "fail insert SMS announcement to DB");
+                        }
                     }
                 }
 
