@@ -380,5 +380,17 @@ namespace TVinciShared
 
             return 0;
         }
+
+        public static string StringUtcUnixTimestampToDateTime(string unixTimeStamp, string dateFormat)
+        {
+            long parseUnixTimeStamp;
+            if (long.TryParse(unixTimeStamp, out parseUnixTimeStamp))
+            {
+                DateTime origin = GetTruncDateTimeUtc();
+                return origin.AddSeconds(parseUnixTimeStamp).ToString(dateFormat);
+            }
+
+            return null;
+        }
     }
 }
