@@ -1335,7 +1335,7 @@ namespace Core.Catalog.CatalogManagement
                 long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
                 long tagId = ODBCWrapper.Utils.GetLongSafeVal(dr, "tag_id");
                 long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
-                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
 
                 if (languagesDictionary.ContainsKey(languageId))
                 {
