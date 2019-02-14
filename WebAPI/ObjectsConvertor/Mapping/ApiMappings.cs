@@ -1275,7 +1275,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // segment dummy value
             cfg.CreateMap<SegmentDummyValue, KalturaSingleSegmentValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.AffectedUsers, opt => opt.MapFrom(src => src.AffectedUsersTtl <= DateTime.UtcNow ? src.AffectedUsers : 0))
+                .ForMember(dest => dest.AffectedUsers, opt => opt.MapFrom(src => src.AffectedUsersTtl >= DateTime.UtcNow ? src.AffectedUsers : 0))
                 ;
 
             cfg.CreateMap<KalturaSingleSegmentValue, SegmentDummyValue>()
