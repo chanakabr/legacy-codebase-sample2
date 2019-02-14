@@ -9117,7 +9117,9 @@ namespace Core.Catalog
             List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays,
             ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
-            List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
+            log.DebugFormat("Start GetUserWatchHistory for user {0} in groupId {1}", siteGuid, groupId);
+
+            List <WatchHistory> usersWatchHistory = new List<WatchHistory>();
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIA_HITS);
 
