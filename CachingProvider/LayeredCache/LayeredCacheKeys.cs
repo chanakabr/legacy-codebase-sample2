@@ -423,12 +423,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("TstvAccountSettingsExists_groupId_{0}", groupId);
         }
-
-        public static string GetExcelTemplateKey(int groupId, string mediaTypeId, bool shouldGenerateFiles, bool shouldGenerateImages)
-        {
-            return string.Format("ExcelTemplate_groupId_{0}_mediaType_{1}_WithFiles_{2}_WithImages_{3}", groupId, mediaTypeId, shouldGenerateFiles, shouldGenerateImages);
-        }
-
+        
         public static string GetDeviceRulesByBrandIdKey(int groupId, int brandId)
         {
             return string.Format("deviceRules_groupId_{0}_brandId_{1}", groupId, brandId);

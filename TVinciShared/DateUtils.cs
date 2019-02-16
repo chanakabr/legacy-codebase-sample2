@@ -353,6 +353,11 @@ namespace TVinciShared
             return origin.AddSeconds(unixTimeStamp);
         }
 
+        public static string UtcUnixTimestampSecondsToDateTime(long unixTimeStamp, string dateFormat)
+        {
+            return UtcUnixTimestampSecondsToDateTime(unixTimeStamp).ToString(dateFormat);
+        }
+
         // Seconds? to DateTime?
         public static DateTime? UtcUnixTimestampSecondsToDateTime(long? unixTimeStamp)
         {
@@ -379,18 +384,6 @@ namespace TVinciShared
             }
 
             return 0;
-        }
-
-        public static string StringUtcUnixTimestampToDateTime(string unixTimeStamp, string dateFormat)
-        {
-            long parseUnixTimeStamp;
-            if (long.TryParse(unixTimeStamp, out parseUnixTimeStamp))
-            {
-                DateTime origin = GetTruncDateTimeUtc();
-                return origin.AddSeconds(parseUnixTimeStamp).ToString(dateFormat);
-            }
-
-            return null;
         }
     }
 }

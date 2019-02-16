@@ -63,7 +63,6 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_DEFAULT_IMAGES_CACHE_CONFIG_NAME = "GetGroupDefaultImages";
         public const string GET_CHANNELS_CACHE_CONFIG_NAME = "GetChannels";
         public const string GET_TSTV_ACCOUNT_SETTINGS_CACHE_CONFIG_NAME = "GetTimeShiftedTvPartnerSettings";
-        public const string GET_EXCEL_TEMPLATE = "GenerateExcelAsBytes";
         public const string GET_DEVICE_RULES_BY_BRAND_ID_CACHE_CONFIG_NAME = "GetDeviceRulesByBrandId";
         public const string GET_USER_WATCHED_MEDIA_IDS_LAYERED_CACHE_CONFIG_NAME = "GetUserWatchedMediaIds";
         public const string UNIFIED_SEARCH_WITH_PERSONAL_DATA = "UnifiedSearchWithPersonalData";

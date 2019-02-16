@@ -47,11 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExcelAssetDefinitionColumn.cs" />
-    <Compile Include="ExcelTopicDefinitionColumn.cs" />
-    <Compile Include="ExcelDefinitionColumn.cs" />
-    <Compile Include="ExcelFileDefinitionColumn.cs" />
-    <Compile Include="ExcelImageDefinitionColumn.cs" />
     <Compile Include="ExcelManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

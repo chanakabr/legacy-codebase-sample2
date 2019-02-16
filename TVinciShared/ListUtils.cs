@@ -7,7 +7,7 @@ using System.Text;
 
 namespace TVinciShared
 {
-    public class ListUtils
+    public static class ListUtils
     {
         /// <summary>
         /// TVinciShared Extension Method for paging
@@ -58,6 +58,51 @@ namespace TVinciShared
             }
 
             return keyValues;
+        }
+
+        public static void AddRange(this Dictionary<string, object> current, Dictionary<string, object> other)
+        {
+            if (other != null)
+            {
+                foreach (var value in other)
+                {
+                    if (!current.ContainsKey(value.Key))
+                    {
+                        current.Add(value.Key, value.Value);
+                    }
+                }
+            }
+        }
+
+        public static bool TryAdd<T>(this Dictionary<string, T> current, string key, T value)
+            where T : class
+        {   
+            if (!value.Equals(default(T)) && !current.ContainsKey(key))
+            {
+                current.Add(key, value);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool TryAddRange<T>(this Dictionary<string, T> current, Dictionary<string, T> other)
+            where T : class
+        {
+            if (other != null)
+            {
+                foreach (var item in other)
+                {
+                    if (!current.TryAdd(item.Key, item.Value))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
         }
     }
 }
