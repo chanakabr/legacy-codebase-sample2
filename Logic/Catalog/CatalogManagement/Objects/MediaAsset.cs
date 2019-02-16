@@ -11,37 +11,26 @@ namespace Core.Catalog.CatalogManagement
 {
     public class MediaAsset : Asset
     {
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME)]
         public DateTime? CatalogStartDate { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME)]
         public DateTime? FinalEndDate { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public MediaType MediaType { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.ENTRY_ID_META_SYSTEM_NAME)]
         public string EntryId { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.DEVICE_RULE_ID)]
         public int? DeviceRuleId { get; set; }
         
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.GEO_BLOCK_RULE_ID)]
         public int? GeoBlockRuleId { get; set; }
         
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public List<AssetFile> Files { get; set; }
         
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public string UserTypes { get; set; }
         
-        [ExcelTemplateAttribute(PropertyValueRequired = true, SystemName = AssetManager.STATUS_META_SYSTEM_NAME)]
         public bool? IsActive { get; set; }
         
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public MediaAssetType MediaAssetType { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public AssetInheritancePolicy? InheritancePolicy { get; set; }
 
         public MediaAsset()

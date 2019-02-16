@@ -22,17 +22,18 @@ namespace Core.Catalog.CatalogManagement
         #region Constants and Read-only
 
         private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
-        internal const string NAME_META_SYSTEM_NAME = "Name";
-        internal const string DESCRIPTION_META_SYSTEM_NAME = "Description";
+        public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        public const string NAME_META_SYSTEM_NAME = "Name";
+        public const string DESCRIPTION_META_SYSTEM_NAME = "Description";
         internal const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
-        internal const string STATUS_META_SYSTEM_NAME = "Status";
+        public const string STATUS_META_SYSTEM_NAME = "Status";
         internal const string DEVICE_RULE_ID = "DeviceRuleId";
         internal const string GEO_BLOCK_RULE_ID = "GeoBlockRuleId";
-        internal const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
-        internal const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
-        public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
-        public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
         public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
+        public const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
+        public const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
+        public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
+        
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -1335,7 +1336,7 @@ namespace Core.Catalog.CatalogManagement
                 long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
                 long tagId = ODBCWrapper.Utils.GetLongSafeVal(dr, "tag_id");
                 long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
-                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
 
                 if (languagesDictionary.ContainsKey(languageId))
                 {

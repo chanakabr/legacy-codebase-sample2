@@ -9,48 +9,38 @@ namespace Core.Catalog.CatalogManagement
 {
     public class Asset
     {
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]        
         public long Id { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public eAssetTypes AssetType { get; set; }
 
-        [ExcelTemplateAttribute(PropertyValueRequired = true, SystemName = AssetManager.NAME_META_SYSTEM_NAME)]
         public string Name { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
-        // Name in other languages other then default (when language="*")        
+        /// <summary>
+        /// Name in other languages other then default (when language="*")        
+        /// </summary>
         public List<LanguageContainer> NamesWithLanguages { get; set; }
 
-        [ExcelTemplateAttribute(PropertyValueRequired = true, SystemName = AssetManager.DESCRIPTION_META_SYSTEM_NAME)]
         public string Description { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
-        // Description in other languages other then default (when language="*")
+        /// <summary>
+        /// Description in other languages other then default (when language="*")
+        /// </summary>
         public List<LanguageContainer> DescriptionsWithLanguages { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public DateTime? CreateDate { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public DateTime? UpdateDate { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME)]
         public DateTime? StartDate { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = false, SystemName = AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME)]
         public DateTime? EndDate { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public List<Metas> Metas { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public List<Tags> Tags { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
         public List<Image> Images { get; set; }
 
-        [ExcelTemplateAttribute(PropertyValueRequired = true, IsKeyProperty = true, SystemName = AssetManager.EXTERNAL_ID_META_SYSTEM_NAME)]
         [XmlElement("co_guid")]
         public string CoGuid{ get; set; }
 

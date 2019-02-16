@@ -201,7 +201,6 @@
     <Compile Include="Catalog\CatalogManagement\Objects\IngestMediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\CatalogGroupCache.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\EpgAsset.cs" />
-    <Compile Include="Catalog\CatalogManagement\Objects\ExcelTemplateAttribute.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\MediaFileType.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\Image.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\Ratio.cs" />
