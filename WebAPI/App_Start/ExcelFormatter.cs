@@ -21,37 +21,41 @@ using KLogMonitor;
 using System.Reflection;
 using System.Data;
 using System.ComponentModel;
-using Microsoft.Office.Interop.Excel;
 using WebAPI.Models.Catalog;
 using System.Linq;
 using Core.Catalog.CatalogManagement;
 using ApiObjects.Response;
 using ApiObjects.Catalog;
+using TVinciShared;
+using ApiObjects;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using WebAPI.Utils;
+using System.Drawing;
 
 namespace WebAPI.App_Start
 {
     public class ExcelFormatter : MediaTypeFormatter
     {
+        // TODO SHIR - NEED THAT??
+        private static readonly string excelTemplateDir = string.Format("{0}ExcelTemplates\\", AppDomain.CurrentDomain.BaseDirectory);
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string ID = "id";
-        private const string TYPE = "type";
-        private const string NAME = "name";
-        private const string DESCRIPTION = "description";
-        private const string IMAGE = "image";
-        private const string MEDIA_FILE = "mediaFile";
-        private const string META = "meta";
-        private const string TAG = "tag";
-        private const string START_DATE = "startDate";
-        private const string END_DATE = "endDate";
-        private const string CREATE_DATE = "createDate";
-        private const string UPDATE_DATE = "updateDate";
-        private const string EXTERNAL_ID = "externalId";
+        private const string EXCEL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        private const string OTHER_LANG_FORMAT = "{0} ({1})";
+        internal const string DATE_FORMAT = "dd/MM/yyyy hh:mm:ss";
 
+        // col headers
+        private const string COLUMN_TYPE = "t";
+        private const string COLUMN_SYSTEM_NAME = "n";
+        private const string COLUMN_LANGUAGE = "l";
+        private const string ITEM_INDEX = "i";
+        
         public ExcelFormatter()
         {
-            SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-            MediaTypeMappings.Add(new QueryStringMapping("format", "31", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            SupportedMediaTypes.Add(new MediaTypeHeaderValue(EXCEL_CONTENT_TYPE));
+            MediaTypeMappings.Add(new QueryStringMapping("format", "31", EXCEL_CONTENT_TYPE));
         }
 
         public override bool CanReadType(Type type)
@@ -72,55 +76,35 @@ namespace WebAPI.App_Start
         {
             try
             {
-                if (value != null)
+                if (value != null && value is StatusWrapper)
                 {
                     // validate expected type was received
-                    StatusWrapper restResultWrapper = (StatusWrapper)value;
+                    StatusWrapper restResultWrapper = value as StatusWrapper;
 
-                    if (restResultWrapper != null && restResultWrapper.Result != null && (restResultWrapper.Result is KalturaAssetListResponse))
+                    if (restResultWrapper != null && restResultWrapper.Result != null && (restResultWrapper.Result is KalturaListResponse))
                     {
-                        var result = restResultWrapper.Result as Models.Catalog.KalturaAssetListResponse;
-                        // 1. Serialize value to xml
-                        //Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                        var listResponse = restResultWrapper.Result as KalturaAssetListResponse;
+                        int? groupId;
+                        string fileName;
 
-                        //string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><xml>" + result.ToXml(currentVersion, true) + "</xml>";
-
-                        // 2. Serialize xml to ds
-                        //var ds = CreateDataSetFromXml(xml);
-                        // System.Data.DataTable dt = CreateDataTableForAsset(xml);
-
-                        // 3. Serialize ds to excel
-                        //var excel = ConvertDatatableToExcel(dt);
-                        //--------------
-                        // 1. Serialize value to dt
-                        //var genericList = KalturaOTTObject.buildList(type, result.Objects.ToArray());
-                        //var dataTable = ConvertToDataTable(result.Objects);
-                        //var dataTable = ConvertToDataTable(genericList);
-                        // 2. Serialize dt to excel
-                        //var excel1 = ConvertDatatableToExcel(dataTable);
-                        //writeStream.Write(excel);
-
-                        // 1.
-                        var dt = ConvertToTabel(result.Objects, content);
-                        var excel = ConvertDatatableToExcel(dt);
-
-                        if (excel != null)
+                        if (TryGetDataFromRequest(listResponse, out groupId, out fileName))
                         {
-                            // TODO SHIR - ASK TANTAN ABOUT THIS
-                            using (TextWriter streamWriter = new StreamWriter(writeStream))
+                            var excelColumns = listResponse.GetExcelColumns(groupId.Value);
+                            if (excelColumns != null)
                             {
-                                streamWriter.Write(excel);
-                                return Task.FromResult(writeStream);
+                                // TODO SHIR - TALK WITH TAN TAN ABOUT THE OBJECTS..
+                                DataTable fullDataTable = GetDataTableByObjects(groupId.Value, listResponse.Objects, excelColumns);
+
+                                if (fullDataTable != null)
+                                {
+                                    var sheetName = "shir Sheet";
+                                    
+                                    HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
+                                    HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+                                    return CreateExcel(writeStream, fileName, fullDataTable, sheetName, listResponse.GetExcelOverviewInstructions(), excelColumns.Values.ToList(), listResponse.GetExcelColumnsColors());
+                                }
                             }
-                        }
-                    }
-                    else
-                    {
-                        // TODO SHIR - ASK TANTAN ABOUT THIS
-                        using (TextWriter streamWriter = new StreamWriter(writeStream))
-                        {
-                            streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
-                            return Task.FromResult(writeStream);
                         }
                     }
                 }
@@ -128,682 +112,160 @@ namespace WebAPI.App_Start
             catch (Exception ex)
             {
                 log.Error(string.Format("Error while formatting object to Excel. object type:{0}, value:{1}", type.Name, value), ex);
+                ErrorUtils.HandleWSException(ex);
             }
 
-            return null;
+            using (TextWriter streamWriter = new StreamWriter(writeStream))
+            {
+                HttpContext.Current.Response.ContentType = "application/json";
+                streamWriter.Write(JsonConvert.SerializeObject(value));
+                return Task.FromResult(writeStream);
+            }
         }
 
-        private DataSet CreateDataSetFromXml(string xmlString)
+        public static string GetHiddenColumn(ExcelColumnType columnType, string systemName, string language = null, int? itemIndex = null)
         {
-            DataSet ds = new DataSet();
-            try
+            Dictionary<string, string> dic = new Dictionary<string, string>()
             {
-                StringBuilder output = new StringBuilder();
-                using (XmlReader xmlReader = XmlReader.Create(new StringReader(xmlString)))
-                {
-                    while (xmlReader.Read())
-                    {
-                        string colName;
-                        if (xmlReader.NodeType == XmlNodeType.Element)
-                        {
-                            colName = xmlReader.Name;
-                        }
+                { COLUMN_TYPE, columnType.ToString() },
+                { COLUMN_SYSTEM_NAME, systemName }
+            };
 
-
-                        switch (xmlReader.NodeType)
-                        {
-                            case System.Xml.XmlNodeType.Element:
-                                System.Data.DataTable dt;
-                                if (ds.Tables.Contains(xmlReader.Name))
-                                {
-                                    dt = ds.Tables[xmlReader.Name];
-                                }
-                                else
-                                {
-                                    dt = new System.Data.DataTable(xmlReader.Name);
-                                    ds.Tables.Add(dt);
-                                }
-                                
-                                while (xmlReader.MoveToNextAttribute())
-                                {
-                                    dt.Columns.Add(xmlReader.Value);
-                                }
-
-                                if (xmlReader.Read())
-                                {
-                                    DataRow row = dt.NewRow();
-                                    int i = 0;
-                                    while (xmlReader.NodeType != XmlNodeType.EndElement)
-                                    {
-                                        //row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
-                                    }
-                                    dt.Rows.Add();
-                                }
-                                
-                                break;
-                            case System.Xml.XmlNodeType.Text:
-                                //xmlWriter.WriteString(xmlReader.Value);
-                                break;
-                            case System.Xml.XmlNodeType.Comment:
-                                //xmlWriter.WriteComment(xmlReader.Value);
-                                break;
-                            case System.Xml.XmlNodeType.EndElement:
-                                //xmlWriter.WriteFullEndElement();
-                                break;
-                            case System.Xml.XmlNodeType.XmlDeclaration:
-                            case System.Xml.XmlNodeType.ProcessingInstruction:
-                                //xmlWriter.WriteProcessingInstruction(xmlReader.Name, xmlReader.Value);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (!string.IsNullOrEmpty(language))
             {
-                log.Error(string.Format("Error while CreateDataTableFromXml. XmlFile:{0}", xmlString), ex);
+                dic.Add(COLUMN_LANGUAGE, language);
             }
 
-            return ds;
-        }
-
-        private System.Data.DataTable CreateDataTableForAsset(string xmlString)
-        {
-            System.Data.DataTable dt = new System.Data.DataTable();
-            try
+            if (itemIndex.HasValue)
             {
-                StringBuilder output  = new StringBuilder();
-                using (XmlReader xmlReader = XmlReader.Create(new StringReader(xmlString)))
-                {
-                    XmlWriterSettings ws = new XmlWriterSettings();
-                    ws.Indent = true;
-                    using (XmlWriter xmlWriter = XmlWriter.Create(output, ws))
-                    {
-                        while (xmlReader.Read())
-                        {
-                            switch (xmlReader.NodeType)
-                            {
-                                case System.Xml.XmlNodeType.Element:
-                                    xmlWriter.WriteStartElement(xmlReader.Name);
-                                    break;
-                                case System.Xml.XmlNodeType.Text:
-                                    xmlWriter.WriteString(xmlReader.Value);
-                                    break;
-                                case System.Xml.XmlNodeType.Comment:
-                                    xmlWriter.WriteComment(xmlReader.Value);
-                                    break;
-                                case System.Xml.XmlNodeType.EndElement:
-                                    xmlWriter.WriteFullEndElement();
-                                    break;
-                                case System.Xml.XmlNodeType.XmlDeclaration:
-                                case System.Xml.XmlNodeType.ProcessingInstruction:
-                                    xmlWriter.WriteProcessingInstruction(xmlReader.Name, xmlReader.Value);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-
-                    DataSet ds = new DataSet();
-                    ds.ReadXml(xmlReader);
-                    dt.Load(ds.CreateDataReader());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error while CreateDataTableFromXml. XmlFile:{0}", xmlString), ex);
+                dic.Add(ITEM_INDEX, itemIndex.Value.ToString());
             }
 
-            return dt;
-        }
-
-        private System.Data.DataTable ConvertToDataTable(List<KalturaAsset> data)
-        {
-            System.Data.DataTable table = new System.Data.DataTable();
-
-            if (data == null || data.Count == 0)
-            {
-                return table;
-            }
-
-            try
-            {
-                var types = new Dictionary<Type, Dictionary<ExcelPropertyAttribute, PropertyInfo>>();
-                foreach (var asset in data)
-                {
-                    // add type attributes
-                    var currType = asset.GetType();
-                    if (!types.ContainsKey(currType))
-                    {
-                        types.Add(currType, new Dictionary<ExcelPropertyAttribute, PropertyInfo>());
-                        var properties = currType.GetProperties();
-                        foreach (var prop in properties)
-                        {
-                            var excelObjectPropertyAttribute = prop.GetCustomAttribute<ExcelObjectPropertyAttribute>();
-                            if (excelObjectPropertyAttribute != null)
-                            {
-                                var innerProperties = prop.PropertyType.GetProperties();
-                                ExcelKeyPropertyAttribute innerKey = null;
-                                ExcelValuePropertyAttribute innerValue = null;
-                                foreach (var innerProp in innerProperties)
-                                {
-                                    if (innerKey == null)
-                                    {
-                                        innerKey = innerProp.GetCustomAttribute<ExcelKeyPropertyAttribute>();
-                                        if (innerKey != null)
-                                        {
-                                            continue;
-                                        }
-                                    }
-
-                                    if (innerValue == null)
-                                    {
-                                        innerValue = innerProp.GetCustomAttribute<ExcelValuePropertyAttribute>();
-                                    }
-
-                                    if (innerKey != null && innerValue != null)
-                                    {
-                                        break;
-                                    }
-                                }
-
-                                if (innerKey != null && innerValue != null)
-                                {
-                                    break;
-                                }
-                            }
-
-                            var excelPropertyAttribute = prop.GetCustomAttribute<ExcelPropertyAttribute>();
-                            if (excelPropertyAttribute != null)
-                            {
-                                if (types[currType].ContainsKey(excelPropertyAttribute))
-                                {
-                                    // TODO SHIR - THROW EXCEPTION FOR DUPLICATE COLUMN NAME
-                                    //throw new BadRequestException(BadRequestException.DUPLICATE_PIN, name, DynamicMaxInt);
-                                }
-
-                                if (string.IsNullOrEmpty(excelPropertyAttribute.Name))
-                                {
-                                    // TODO SHIR - THROW EXCEPTION FOR empty COLUMN NAME
-                                    //throw new BadRequestException(BadRequestException.DUPLICATE_PIN, name, DynamicMaxInt);
-                                }
-
-                                types[currType].Add(excelPropertyAttribute, prop);
-                                table.Columns.Add(excelPropertyAttribute.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-                            }
-
-                            // names
-                            if (prop.PropertyType.IsAutoLayout &&
-                                prop.PropertyType.IsClass &&
-                                !prop.PropertyType.IsLayoutSequential &&
-                                !prop.PropertyType.IsSealed &&
-                                !prop.PropertyType.IsValueType)
-                            {
-                                // excelAttribute.SystemName + "_";
-                            }
-                        }
-                    }
-                }
-
-                // add asset to table
-                DataRow row = table.NewRow();
-                //foreach (var prop in types[currType])
-                //{
-                //    if (!prop.Key.IsKey)
-                //    {
-                //        row[prop.Key.SystemName] = prop.Value.GetValue(asset) ?? DBNull.Value;
-                //    }
-
-                //}
-                table.Rows.Add(row);
-
-
-                // TODO SHIR - GET FROM DATAMODEL
-                Dictionary<Type, PropertyDescriptorCollection> allTypes = new Dictionary<Type, PropertyDescriptorCollection>();
-                HashSet<PropertyDescriptor> allProperties = new HashSet<PropertyDescriptor>();
-                foreach (var item in data)
-                {
-                    var currType = item.GetType();
-                    if (!allTypes.ContainsKey(currType))
-                    {
-                        PropertyDescriptorCollection currProperties = TypeDescriptor.GetProperties(currType);
-                        allTypes.Add(currType, currProperties);
-                        foreach (PropertyDescriptor prop in currProperties)
-                        {
-                            if (!allProperties.Contains(prop))
-                            {
-                                // TODO SHIR - GET FROM DATAMODEL
-                                // if need more columns
-                                if (prop.PropertyType.IsAutoLayout &&
-                                    prop.PropertyType.IsClass &&
-                                    !prop.PropertyType.IsLayoutSequential &&
-                                    !prop.PropertyType.IsSealed &&
-                                    !prop.PropertyType.IsValueType)
-                                {
-
-                                }
-                                else
-                                {
-                                    table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-                                    allProperties.Add(prop);
-                                }
-                            }
-                        }
-                    }
-
-                    //DataRow row = table.NewRow();
-                    //foreach (PropertyDescriptor prop in allTypes[currType])
-                    //{
-                    //    row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
-                    //}
-                    //table.Rows.Add(row);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error while Convert objects list to datatable", ex);
-            }
-
-            return table;
+            return dic.ToJSON();
         }
         
-        private System.Data.DataTable ConvertToDataTable<T>(IList<T> data)
+        public static string GetNonDefaultFriendlyColumnName(string columnName, string langCode)
         {
-            System.Data.DataTable table = new System.Data.DataTable();
-
-            try
-            {
-                // TODO SHIR - GET FROM DATAMODEL
-                Dictionary<Type, PropertyDescriptorCollection> allTypes = new Dictionary<Type, PropertyDescriptorCollection>();
-                HashSet<PropertyDescriptor> allProperties = new HashSet<PropertyDescriptor>();
-                foreach (var item in data)
-                {
-                    var currType = item.GetType();
-                    if (!allTypes.ContainsKey(currType))
-                    {
-                        PropertyDescriptorCollection currProperties = TypeDescriptor.GetProperties(currType);
-                        allTypes.Add(currType, currProperties);
-                        foreach (PropertyDescriptor prop in currProperties)
-                        {
-                            if (!allProperties.Contains(prop))
-                            {
-                                // TODO SHIR - GET FROM DATAMODEL
-                                // if need more columns
-                                if (prop.PropertyType.IsAutoLayout && 
-                                    prop.PropertyType.IsClass && 
-                                    !prop.PropertyType.IsLayoutSequential &&
-                                    !prop.PropertyType.IsSealed &&
-                                    !prop.PropertyType.IsValueType)
-                                {
-
-                                }
-                                else
-                                {
-                                    table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-                                    allProperties.Add(prop);
-                                }
-                            }
-                        }
-                    }
-
-                    DataRow row = table.NewRow();
-                    foreach (PropertyDescriptor prop in allTypes[currType])
-                    {
-                        row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
-                    }
-                    table.Rows.Add(row);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error while Convert objects list to datatable", ex);
-            }
-
-            return table;
+            return String.Format(OTHER_LANG_FORMAT, columnName, langCode);
         }
 
-        public Application ConvertDatatableToExcel(System.Data.DataTable dataTable)
+        private bool TryGetDataFromRequest(KalturaListResponse assetListResponse, out int? groupId, out string fileName)
         {
-            if (dataTable == null || dataTable.Columns.Count == 0)
-                throw new Exception("ExportToExcel: Null or empty input table!\n");
+            bool isResponseValid = false;
+            groupId = null;
+            fileName = null;
 
-            // Start Excel and get Application object.
-            var excelApp = new Application();
-            
-            // for making Excel visible
-            excelApp.Visible = false;
-            excelApp.DisplayAlerts = false;
-
-            excelApp.Worksheets.Add(dataTable, "shir name");
-
-            // Creation a new Workbook
-            var excelworkBook = excelApp.Workbooks.Add(Type.Missing);
-
-            // single Worksheet
-            var excelSheet = (Worksheet)excelworkBook.ActiveSheet;
-            excelSheet.Name = "Test work sheet";
-            
-            // column headings
-            for (var i = 0; i < dataTable.Columns.Count; i++)
+            if (assetListResponse != null)
             {
-                excelSheet.Cells[1, i + 1] = dataTable.Columns[i].ColumnName;
-            }
-
-            // rows
-            for (var i = 0; i < dataTable.Rows.Count; i++)
-            {
-                // TODO SHIR - format datetime values before printing
-                for (var j = 0; j < dataTable.Columns.Count; j++)
+                groupId = Utils.Utils.GetGroupIdFromRequest();
+                if (!groupId.HasValue || groupId.Value == 0)
                 {
-                    excelSheet.Cells[i + 2, j + 1] = dataTable.Rows[i][j];
+                    log.ErrorFormat("no group id");
+                    throw new RequestParserException(RequestParserException.PARTNER_INVALID);
                 }
-            }
 
-            // Working with range and formatting Excel cells - resize the columns
-            var excelCellrange = excelSheet.Range[excelSheet.Cells[1, 1], excelSheet.Cells[dataTable.Rows.Count, dataTable.Columns.Count]];
-            excelCellrange.EntireColumn.AutoFit();
-            Borders border = excelCellrange.Borders;
-            border.LineStyle = XlLineStyle.xlContinuous;
-            border.Weight = 2d;
 
-            return excelApp;
-        }
-       
-        private System.Data.DataTable ConvertToTabel(List<KalturaAsset> assets, System.Net.Http.HttpContent content)
-        {
-            int groupId = 0;
-            IEnumerable<string> values = null;
-            if (content.Headers.TryGetValues(KLogMonitor.Constants.GROUP_ID, out values) && values != null)
-            {
-                groupId = int.Parse(values.First());
-            }
-
-            if (groupId == 0)
-            {
-                return null;
-            }
-
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-            {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling ConvertToMediaAssets", groupId);
-                return null;
-            }
-
-            var dt = GenerateEmptyDataTable(groupId, "0");
-            if (dt == null)
-            {
-                return null;
-            }
-
-            foreach (var asset in assets)
-            {
-                var row = dt.NewRow();
-                row[ID] = asset.Id;
-                row[TYPE] = asset.Type;
-                row[START_DATE] = asset.StartDate;
-                row[END_DATE] = asset.EndDate;
-                row[CREATE_DATE] = asset.CreateDate;
-                row[UPDATE_DATE] = asset.UpdateDate;
-                row[EXTERNAL_ID] = asset.ExternalId;
-
-                if (asset.Name != null && asset.Name.Values != null && asset.Name.Values.Count > 0)
+                if(HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] is IEnumerable)
                 {
-                    foreach (var name in asset.Name.Values)
+                    List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
+                    var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
+                    if (kalturaPersistedFilter != null)
                     {
-                        row[NAME + "_" + name.Language] = name.Value;
+                        fileName = (kalturaPersistedFilter as IKalturaPersistedFilter).Name;
+                        // TODO SHIR - VALIDATE FILE NAME ENDS WITH .xlsx
                     }
                 }
 
-                if (asset.Description != null && asset.Description.Values != null && asset.Description.Values.Count > 0)
+                if (string.IsNullOrEmpty(fileName))
                 {
-                    foreach (var description in asset.Description.Values)
-                    {
-                        row[DESCRIPTION + "_" + description.Language] = description.Value;
-                    }
+                    fileName = Guid.NewGuid().ToString();
                 }
 
-                if (asset.Images != null && asset.Images.Count > 0)
-                {
-                    foreach (var image in asset.Images)
-                    {
-                        row[IMAGE + "_" + image.Ratio] = image.Url;
-                    }
-                }
-
-                //row[MEDIA_FILE ] = asset.MediaFiles;
-
-                if (asset.Metas != null && asset.Metas.Count > 0)
-                {
-                    foreach (var meta in asset.Metas)
-                    {
-                        // TODO SHIR - CHECK THAT!!
-                        row[META + "_" + meta.Key] = meta.Value;
-                    }
-                }
-
-                if (asset.Tags != null && asset.Tags.Count > 0)
-                {
-                    foreach (var tag in asset.Tags)
-                    {
-                        if (tag.Value != null && tag.Value.Objects != null && tag.Value.Objects.Count > 0)
-                        {
-                            foreach (var tagValue in tag.Value.Objects)
-                            {
-                                if (tagValue.value != null && tagValue.value.Values != null && tagValue.value.Values.Count > 0)
-                                {
-                                    var defaultValue = tagValue.value.Values.FirstOrDefault(x => catalogGroupCache.DefaultLanguage.Code.Equals(x.Language));
-                                    if (defaultValue != null)
-                                    {
-                                        foreach (var tagValueValue in tagValue.value.Values)
-                                        {
-                                            // TODO SHIR - CHECK THAT!!
-                                            row[TAG + "_" + tag.Key + "_" + defaultValue.Value + "_" + tagValueValue.Language] = tagValueValue.Value;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                dt.Rows.Add(row);
+                isResponseValid = true;
             }
 
-            return dt;
+            return isResponseValid;
         }
 
-        private System.Data.DataTable GenerateEmptyDataTable(int groupId, string mediaType)
+        private Task CreateExcel(Stream writeStream, string fileName, DataTable dt, string sheetName,  List<string> overviewInstructions, List<KalturaExcelColumn> columns, Dictionary<ExcelColumnType, Color> columnsColors)
         {
-            System.Data.DataTable dt = new System.Data.DataTable();
-
-            try
+            using (ExcelPackage pack = new ExcelPackage(new FileInfo(fileName)))
             {
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("Failed to get catalogGroupCache for groupId: {0} when calling GenerateExcelTemplate", groupId);
-                    return null;
-                }
+                ExcelWorksheet excelWorksheet = pack.Workbook.Worksheets.Add(sheetName);
 
-                if (catalogGroupCache.AssetStructsMapById.Values.Count(x => x.Name == mediaType) != 1)
+                int hiddenRowIndex = 1;
+                // Set overview instructions
+                if (overviewInstructions != null && overviewInstructions.Count > 0)
                 {
-                    log.ErrorFormat("MediaType {0} doesn't exist for groupId: {1}", mediaType, groupId);
-                    return null;
-                }
+                    for (int i = 1; i <= overviewInstructions.Count; i++)
+                    {
+                        excelWorksheet.Cells[i, 1].Value = overviewInstructions[i - 1];
+                    }
 
-                GenericListResponse<MediaFileType> groupFileTypes = FileManager.GetMediaFileTypes(groupId);
-                if (!groupFileTypes.HasObjects())
-                {
-                    log.ErrorFormat("Failed to get group file types for groupId: {0}", groupId);
-                    return null;
-                }
-
-                GenericListResponse<ImageType> groupImageTypes = ImageManager.GetImageTypes(groupId, true, null);
-                if (!groupImageTypes.HasObjects())
-                {
-                    log.ErrorFormat("Failed to get group image types for groupId: {0}", groupId);
-                    return null;
+                    hiddenRowIndex = overviewInstructions.Count + 2;
                 }
                 
-                Dictionary<string, PropertyInfo> indexToAccountDescMap = new Dictionary<string, PropertyInfo>();
-                
-                dt.Columns.Add(ID);
-                dt.Columns.Add(TYPE);
-                dt.Columns.Add(START_DATE);
-                dt.Columns.Add(END_DATE);
-                dt.Columns.Add(CREATE_DATE);
-                dt.Columns.Add(UPDATE_DATE);
-                dt.Columns.Add(EXTERNAL_ID);
-
-                foreach (var lang in catalogGroupCache.LanguageMapByCode)
+                excelWorksheet.Row(hiddenRowIndex).Hidden = true;
+                for (int i = 1; i <= columns.Count; i++)
                 {
-                    dt.Columns.Add(NAME + "_" + lang.Key);
-                    dt.Columns.Add(DESCRIPTION + "_" + lang.Key);
+                    excelWorksheet.Cells[hiddenRowIndex, i].Value = columns[i -1].HiddenName;
+                    excelWorksheet.Cells[hiddenRowIndex + 1, i].Value = columns[i - 1].HelpText;
+                    excelWorksheet.Cells[hiddenRowIndex + 2, i].Value = columns[i - 1].FriendlyName;
+                    if (columnsColors != null && columnsColors.ContainsKey(columns[i - 1].ColumnType))
+                    {
+                        excelWorksheet.Cells[hiddenRowIndex + 2, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        excelWorksheet.Cells[hiddenRowIndex + 2, i].Style.Fill.BackgroundColor.SetColor(columnsColors[columns[i - 1].ColumnType]);
+                    }
+                    excelWorksheet.Cells[hiddenRowIndex + 2, i].Style.Font.Bold = true;
                 }
 
-                foreach (var imageType in groupImageTypes.Objects)
+                excelWorksheet.Cells[hiddenRowIndex + 3, 1].LoadFromDataTable(dt, false, OfficeOpenXml.Table.TableStyles.Medium13);
+                
+                pack.SaveAs(writeStream);
+
+                return Task.FromResult(writeStream);
+            }
+        }
+
+        private DataTable GetDataTableByObjects(int groupId, List<KalturaAsset> objects, Dictionary<string, KalturaExcelColumn> columns)
+        {
+            DataTable dataTable = new DataTable();
+            if (columns != null && columns.Count > 0)
+            {
+                foreach (var col in columns)
                 {
-                    // TODO SHIR - CHECK THIS
-                    dt.Columns.Add(IMAGE + "_" + imageType.SystemName);
+                    dataTable.Columns.Add(col.Key);
                 }
 
-                // TODO SHIR - ADD MediaFiles TO EMPTY DT
-                //row[MEDIA_FILE ] = asset.MediaFiles;
-                
-
-                AssetStruct assetStruct = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.Name == mediaType);
-                foreach (long topicId in assetStruct.MetaIds)
+                if (objects != null && objects.Count > 0)
                 {
-                    Topic topic = catalogGroupCache.TopicsMapById.ContainsKey(topicId) ? catalogGroupCache.TopicsMapById[topicId] : null;
-                    if (topic == null)
+                    foreach (var OTTObject in objects)
                     {
-                        continue;
-                    }
-
-                    if (topic.Type == ApiObjects.MetaType.Tag)
-                    {
-                        //if (asset.Tags != null && asset.Tags.Count > 0)
-                        //{
-                        //    foreach (var tag in asset.Tags)
-                        //    {
-                        //        if (tag.Value != null && tag.Value.Objects != null && tag.Value.Objects.Count > 0)
-                        //        {
-                        //            foreach (var tagValue in tag.Value.Objects)
-                        //            {
-                        //                if (tagValue.value != null && tagValue.value.Values != null && tagValue.value.Values.Count > 0)
-                        //                {
-                        //                    var defaultValue = tagValue.value.Values.FirstOrDefault(x => catalogGroupCache.DefaultLanguage.Code.Equals(x.Language));
-                        //                    if (defaultValue != null)
-                        //                    {
-                        //                        foreach (var tagValueValue in tagValue.value.Values)
-                        //                        {
-                        //                            // TODO SHIR - CHECK THAT!!
-                        //                            row[TAG + "_" + tag.Key + "_" + defaultValue.Value + "_" + tagValueValue.Language] = tagValueValue.Value;
-                        //                        }
-                        //                    }
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
-                    }
-                    else
-                    {
-                        foreach (var lang in catalogGroupCache.LanguageMapByCode)
+                        try
                         {
-                            dt.Columns.Add(META + "_" + topic.SystemName + "_" + lang.Key);
+                            var excelValues = OTTObject.GetExcelValues(groupId);
+                            if (excelValues != null && excelValues.Count > 0)
+                            {
+                                var row = dataTable.NewRow();
+                                foreach (var excelValue in excelValues)
+                                {
+                                    if (dataTable.Columns.Contains(excelValue.Key))
+                                    {
+                                        row[excelValue.Key] = excelValue.Value;
+                                    }
+                                }
+                                dataTable.Rows.Add(row);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(string.Format("Error in GetDataTableByObjects for object: {0}", OTTObject), ex);
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                dt = null;
-                log.Error(string.Format("Failed GenerateEmptyDataTable for groupId: {0}, mediaType: {1}", groupId, mediaType), ex);
-            }
 
-            return dt;
-        }
-
-        private Dictionary<string, string> GetImages(List<KalturaMediaImage> mediaImages)
-        {
-            Dictionary<string, string> images = new Dictionary<string, string>();
-            if (mediaImages == null || mediaImages.Count == 0)
-            {
-                return images;
-            }
-
-            foreach (var image in mediaImages)
-            {
-                images.Add(image.Ratio, image.Url);
-            }
-
-            return images;
-        }
-
-        private Dictionary<string, string> GetLanguagePairs(KalturaMultilingualString multilingualString, ref HashSet<string> allLanguages)
-        {
-            Dictionary<string, string> languagePairs = new Dictionary<string, string>();
-            if (multilingualString == null || multilingualString.Values == null || multilingualString.Values.Count == 0)
-            {
-                return languagePairs;
-            }
-
-            foreach (var pair in multilingualString.Values)
-            {
-                languagePairs.Add(pair.Language, pair.Value);
-                if (!allLanguages.Contains(pair.Language))
-                {
-                    allLanguages.Add(pair.Language);
-                }
-            }
-
-            return languagePairs;
-        }
-    }
-
-    public class ExcelAsset
-    {
-        [ExcelProperty(Name = "id")]
-        public long? Id { get; set; }
-
-        [ExcelProperty(Name = "type")]
-        public int? Type { get; set; }
-        
-        [ExcelProperty(Name = "name")]
-        public Dictionary<string, string> Names { get; set; }
-
-        [ExcelProperty(Name = "description")]
-        public Dictionary<string, string> Descriptions { get; set; }
-        
-        [ExcelProperty(Name = "image")]
-        public Dictionary<string, string> Images { get; set; }
-
-        [ExcelProperty(Name = "mediaFile")]
-        public Dictionary<string, string> MediaFiles { get; set; }
-
-        [ExcelProperty(Name = "meta")]
-        public Dictionary<string, Dictionary<string, KalturaValue>> Metas { get; set; }
-
-        [ExcelProperty(Name = "tag")]
-        public Dictionary<string, Dictionary<string, Dictionary<string, KalturaValue>>> Tags { get; set; }
-        
-        [ExcelProperty(Name = "startDate")]
-        public long? StartDate { get; set; }
-
-        [ExcelProperty(Name = "endDate")]
-        public long? EndDate { get; set; }
-
-        [ExcelProperty(Name = "createDate")]
-        public long CreateDate { get; set; }
-
-        [ExcelProperty(Name = "updateDate")]
-        public long UpdateDate { get; set; }
-        
-        [ExcelProperty(Name = "externalId")]
-        public string ExternalId { get; set; }
+            return dataTable;
+        } 
     }
 }

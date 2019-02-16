@@ -1,10 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
@@ -22,5 +25,32 @@ namespace WebAPI.Models.General
         [JsonProperty("value")]
         [ValidationException(SchemeValidationType.NULLABLE)]
         public long value { get; set; }
+
+        internal override Dictionary<string, object> GetExcelValues(int groupId, Dictionary<string, object> data = null)
+        {
+            Dictionary<string, object> excelValues = new Dictionary<string, object>();
+
+            var baseExcelValues = base.GetExcelValues(groupId, data);
+            excelValues.TryAddRange(baseExcelValues);
+
+            if (data != null && data.ContainsKey(TOPIC_TYPE) && data.ContainsKey(TOPIC_SYSTEM_NAME))
+            {
+                MetaType? topicType = data[TOPIC_TYPE] as MetaType?;
+                string topicSystemName = data[TOPIC_SYSTEM_NAME] as string;
+
+                if (topicType.HasValue && !string.IsNullOrEmpty(topicSystemName))
+                {
+                    var columnType = GetExcelMetaColumnType(topicType.Value);
+                    if (columnType.HasValue && columnType.Value == ExcelColumnType.MetaDate)
+                    {
+                        var metaHiddenName = ExcelFormatter.GetHiddenColumn(columnType.Value, topicSystemName);
+                        var metaDateValue = DateUtils.UtcUnixTimestampSecondsToDateTime(this.value, ExcelFormatter.DATE_FORMAT);
+                        excelValues.TryAdd(metaHiddenName, metaDateValue);
+                    }
+                }
+            }
+
+            return excelValues;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 
@@ -18,6 +21,11 @@ namespace WebAPI.Models.Catalog
     public partial class KalturaMediaAsset : KalturaAsset
     {
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+
+        // MEDIA ASSET EXCEL COLUMNS
+        internal const string TYPE_DESCRIPTION = "Type Description";
+        internal const string GEO_RULE_ID = "GeoBlockRuleId";
+        internal const string DEVICE_RULE_ID = "DeviceRuleId";
 
         /// <summary>
         /// External identifiers
@@ -134,5 +142,27 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("InheritancePolicy")]
         [XmlElement(ElementName = "InheritancePolicy", IsNullable = true)]
         public KalturaAssetInheritancePolicy? InheritancePolicy { get; set; }
+
+        internal override Dictionary<string, object> GetExcelValues(int groupId, Dictionary<string, object> data = null)
+        {
+            Dictionary<string, object> excelValues = new Dictionary<string, object>();
+
+            var baseExcelValues = base.GetExcelValues(groupId, data);
+            excelValues.TryAddRange(baseExcelValues);
+
+            var typeDescription = ExcelFormatter.GetHiddenColumn(ExcelColumnType.Basic, TYPE_DESCRIPTION);
+            excelValues.TryAdd(typeDescription, this.TypeDescription);
+            
+            var status = ExcelFormatter.GetHiddenColumn(ExcelColumnType.MetaBool, AssetManager.STATUS_META_SYSTEM_NAME);
+            excelValues.TryAdd(status, this.Status);
+            
+            var geoRule = ExcelFormatter.GetHiddenColumn(ExcelColumnType.Rule, GEO_RULE_ID);
+            excelValues.TryAdd(geoRule, this.GeoBlockRuleId);
+            
+            var deviceRule = ExcelFormatter.GetHiddenColumn(ExcelColumnType.Rule, DEVICE_RULE_ID);
+            excelValues.TryAdd(deviceRule, this.DeviceRuleId);
+
+            return excelValues;
+        }
     }
 }

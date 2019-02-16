@@ -1,10 +1,14 @@
-﻿using Jil;
+﻿using ApiObjects;
+using Core.Catalog.CatalogManagement;
+using Jil;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
@@ -21,8 +25,25 @@ namespace WebAPI.Models.Catalog
     [XmlInclude(typeof(KalturaMediaAsset))]
     abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable
     {
+        #region Consts
 
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+
+        internal static readonly HashSet<string> BASIC_METAS = new HashSet<string>()
+        {
+            AssetManager.STATUS_META_SYSTEM_NAME,
+            AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME,
+            AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME,
+            AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
+            AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME
+        };
+
+        // ASSET EXCEL COLUMNS
+        internal const string TYPE = "Type";
+
+        #endregion
+
+        #region Data Members
 
         /// <summary>
         /// Unique identifier for the asset
@@ -67,7 +88,7 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
         [SchemeProperty(ReadOnly = true)]
-        [ExcelProperty(Name ="image")]
+        [ExcelProperty(Name = "image")]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
@@ -146,7 +167,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCdvr")]
         [JsonProperty(PropertyName = "enableCdvr")]
         [XmlElement(ElementName = "enableCdvr")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public bool? EnableCdvr { get; set; }
 
         /// <summary>
@@ -155,7 +176,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCatchUp")]
         [JsonProperty(PropertyName = "enableCatchUp")]
         [XmlElement(ElementName = "enableCatchUp")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public bool? EnableCatchUp { get; set; }
 
         /// <summary>
@@ -164,7 +185,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableStartOver")]
         [JsonProperty(PropertyName = "enableStartOver")]
         [XmlElement(ElementName = "enableStartOver")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public bool? EnableStartOver { get; set; }
 
         /// <summary>
@@ -173,7 +194,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableTrickPlay")]
         [JsonProperty(PropertyName = "enableTrickPlay")]
         [XmlElement(ElementName = "enableTrickPlay")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public bool? EnableTrickPlay { get; set; }
 
         /// <summary>
@@ -181,12 +202,14 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
-        [XmlElement(ElementName = "externalId")]        
+        [XmlElement(ElementName = "externalId")]
         public string ExternalId { get; set; }
 
+        #endregion
+        
         internal int getType()
         {
-            return Type.HasValue ? (int)Type : 0;
+            return Type.HasValue ? Type.Value : 0;
         }
 
         internal virtual void ValidateForInsert()
@@ -306,6 +329,96 @@ namespace WebAPI.Models.Catalog
                     }
                 }
             }            
+        }
+
+        internal override Dictionary<string, object> GetExcelValues(int groupId, Dictionary<string, object> data = null)
+        {
+            Dictionary<string, object> excelValues = new Dictionary<string, object>();
+
+            var baseExcelValues = base.GetExcelValues(groupId, data);
+            excelValues.TryAddRange(baseExcelValues);
+
+            CatalogGroupCache catalogGroupCache;
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                return excelValues;
+            }
+
+            var type = ExcelFormatter.GetHiddenColumn(ExcelColumnType.Basic, TYPE);
+            excelValues.TryAdd(type, this.getType());
+
+            var externalId = ExcelFormatter.GetHiddenColumn(ExcelColumnType.Basic, AssetManager.EXTERNAL_ID_META_SYSTEM_NAME);
+            excelValues.TryAdd(externalId, this.ExternalId);
+
+            if (this.MediaFiles != null)
+            {
+                for (int i = 0; i < this.MediaFiles.Count; i++)
+                {
+                    var mediaFileExcelValues =
+                        this.MediaFiles[0].GetExcelValues(groupId, new Dictionary<string, object>() { { KalturaMediaFile.MEDIA_FILE_INDEX, i } });
+                    excelValues.TryAddRange(mediaFileExcelValues);
+                }
+            }
+
+            if (this.Tags != null)
+            {
+                foreach (var tag in Tags)
+                {
+                    if (tag.Value != null)
+                    {
+                        excelValues.TryAddRange(tag.Value.GetExcelValues(groupId, new Dictionary<string, object>() { { KalturaMultilingualStringValueArray.TAG_SYSTEM_NAME, tag.Key } }));
+                    }
+                }
+            }
+
+            // TODO SHIR - CHECK IF NEED DIFFERENT IN BASICS?
+            //Dictionary<string, KalturaValue> basicMetasToValue = new Dictionary<string, KalturaValue>();
+            if (this.Metas != null)
+            {
+                foreach (var meta in this.Metas)
+                {
+                    var topic = catalogGroupCache.TopicsMapBySystemName[meta.Key];
+                    //if (!BASIC_METAS.Contains(topic.SystemName))
+                    //{
+                    excelValues.TryAddRange(meta.Value.GetExcelValues(groupId,
+                                                                      new Dictionary<string, object>()
+                                                                      {
+                                                                                  { KalturaValue.TOPIC_TYPE, topic.Type },
+                                                                                  { KalturaValue.TOPIC_SYSTEM_NAME, topic.SystemName }
+                                                                      }));
+                    //}
+                    //else
+                    //{
+                    //    basicMetasToValue.Add(topic.SystemName, meta.Value);
+                    //}
+                }
+            }
+
+            if (this.Name != null)
+            {
+                excelValues.TryAddRange(Name.GetExcelValues(groupId,
+                                                            new Dictionary<string, object>()
+                                                            {
+                                                                    { KalturaValue.TOPIC_TYPE, MetaType.MultilingualString },
+                                                                    { KalturaValue.TOPIC_SYSTEM_NAME, AssetManager.NAME_META_SYSTEM_NAME }
+                                                            }));
+            }
+
+            if (this.Description != null)
+            {
+                excelValues.TryAddRange(Description.GetExcelValues(groupId,
+                                                            new Dictionary<string, object>()
+                                                            {
+                                                                    { KalturaValue.TOPIC_TYPE, MetaType.MultilingualString },
+                                                                    { KalturaValue.TOPIC_SYSTEM_NAME, AssetManager.DESCRIPTION_META_SYSTEM_NAME }
+                                                            }));
+            }
+
+            // TODO SHIR - ASK IRA ABOUT THE DATES
+            //row[GetColHiddenName(ColumnType.Basic, START_DATE)] = this.StartDate;
+            //row[GetColHiddenName(ColumnType.Basic, END_DATE)] = this.EndDate;
+
+            return excelValues;
         }
     }
 }

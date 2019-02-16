@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -30,8 +32,22 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public partial class KalturaMediaFile : KalturaAssetFile
     {
-
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+        internal const string MEDIA_FILE_INDEX = "mediaFileIndex";
+
+        // MEDIA FILE EXCEL COLUMNS
+        internal const string FILE_TYPE = "Type";
+        internal const string CDN_NAME = "CDN Name";
+        internal const string CDN_CODE = "CDN Code";
+        internal const string DURATION = "Duration";
+        internal const string FILE_EXTERNAL_ID = "External Id";
+        internal const string LANGUAGE = "Language";
+        internal const string IS_DEFAULT_LANGUAGE = "Is Default Language";
+        internal const string FILE_START_DATE = "Start Date";
+        internal const string FILE_END_DATE = "End Date";
+        internal const string EXTERNAL_STORE_ID = "External Store Id";
+        internal const string ALT_CDN_CODE = "Alt CDN Code";
+        internal const string ALTERNATIVE_CDN_ADAPTER_PROFILE_ID = "Alternative CdnAdapater Profile Id";
 
         /// <summary>
         /// Unique identifier for the asset
@@ -59,7 +75,6 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "type")]
         [SchemeProperty(ReadOnly = true)]
         public string Type { get; set; }
-
 
         /// <summary>
         /// Device types identifier as defined in the system
@@ -290,6 +305,60 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "CatalogEndDate")]
         public long? CatalogEndDate { get; set; }
 
+        internal override Dictionary<string, object> GetExcelValues(int groupId, Dictionary<string, object> data = null)
+        {
+            Dictionary<string, object> excelValues = new Dictionary<string, object>();
+
+            var baseExcelValues = base.GetExcelValues(groupId, data);
+            excelValues.TryAddRange(baseExcelValues);
+
+            if (data != null && data.ContainsKey(MEDIA_FILE_INDEX))
+            {
+                int? mediaFileIndex = data[MEDIA_FILE_INDEX] as int?;
+
+                if (mediaFileIndex.HasValue)
+                {
+                    var fileType = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, FILE_TYPE, null, mediaFileIndex.Value);
+                    // TODO SHIR - ask ira if this is the true TYPE PROPERTY
+                    excelValues.TryAdd(fileType, this.TypeId);
+                    
+                    var cdnName = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, CDN_NAME, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(cdnName, this.CdnName);
+                    
+                    var cdnCode = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, CDN_CODE, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(cdnCode, this.CdnCode);
+                    
+                    var duration = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, DURATION, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(duration, this.Duration);
+                    
+                    var fileExternalId = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, FILE_EXTERNAL_ID, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(fileExternalId, this.ExternalId);
+                    
+                    var language = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, LANGUAGE, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(language, this.Language);
+                    
+                    var isDefaultLanguage = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, IS_DEFAULT_LANGUAGE, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(isDefaultLanguage, this.IsDefaultLanguage);
+                    
+                    var startDate = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, FILE_START_DATE, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(startDate, this.StartDate);
+                    
+                    var endDate = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, FILE_END_DATE, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(endDate, this.EndDate);
+                    
+                    var externalStoreId = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, EXTERNAL_STORE_ID, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(externalStoreId, this.ExternalStoreId);
+                    
+                    var altCdnCode = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, ALT_CDN_CODE, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(altCdnCode, this.AltCdnCode);
+                    
+                    var alternativeCdnAdapaterProfileId = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, ALTERNATIVE_CDN_ADAPTER_PROFILE_ID, null, mediaFileIndex.Value);
+                    excelValues.TryAdd(alternativeCdnAdapaterProfileId, this.AlternativeCdnAdapaterProfileId);
+                }
+            }
+
+            return excelValues;
+        }
     }
 
     /// <summary>
@@ -299,6 +368,8 @@ namespace WebAPI.Models.Catalog
     [XmlRoot("Collections")]
     public partial class KalturaMediaFileListResponse : KalturaListResponse
     {
+        internal const string MAX_MEDIA_FILES = "maxMediaFiles";
+        
         /// <summary>
         /// A list of media-file types
         /// </summary>
@@ -307,6 +378,81 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaMediaFile> Files { get; set; }
+
+        internal override Dictionary<string, KalturaExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null)
+        {
+            Dictionary<string, KalturaExcelColumn> excelColumns = new Dictionary<string, KalturaExcelColumn>();
+
+            var baseExcelColumns = base.GetExcelColumns(groupId, data);
+            excelColumns.TryAddRange(baseExcelColumns);
+
+            if (data != null && data.ContainsKey(MAX_MEDIA_FILES))
+            {
+                int? maxMediaFiles = data[MAX_MEDIA_FILES] as int?;
+
+                if (maxMediaFiles.HasValue)
+                {
+                    if (maxMediaFiles.Value == 0)
+                    {
+                        maxMediaFiles = 1;
+                    }
+
+                    for (int i = 0; i < maxMediaFiles.Value; i++)
+                    {
+                        // FILE_TYPE
+                        var fileType = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.FILE_TYPE, null, i);
+                        excelColumns.TryAdd(fileType, new KalturaExcelColumn(ExcelColumnType.File, fileType, KalturaMediaFile.FILE_TYPE));
+
+                        // CDN_NAME
+                        var cdnName = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.CDN_NAME, null, i);
+                        excelColumns.TryAdd(cdnName, new KalturaExcelColumn(ExcelColumnType.File, cdnName, KalturaMediaFile.CDN_NAME));
+
+                        // CDN_CODE
+                        var cdnCode = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.CDN_CODE, null, i);
+                        excelColumns.TryAdd(cdnCode, new KalturaExcelColumn(ExcelColumnType.File, cdnCode, KalturaMediaFile.CDN_CODE));
+
+                        // DURATION
+                        var duration = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.DURATION, null, i);
+                        excelColumns.TryAdd(duration, new KalturaExcelColumn(ExcelColumnType.File, duration, KalturaMediaFile.DURATION));
+
+                        // FILE_EXTERNAL_ID
+                        var fileExternalId = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.FILE_EXTERNAL_ID, null, i);
+                        excelColumns.TryAdd(fileExternalId, new KalturaExcelColumn(ExcelColumnType.File, fileExternalId, KalturaMediaFile.FILE_EXTERNAL_ID));
+
+                        // LANGUAGE
+                        var language = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.LANGUAGE, null, i);
+                        excelColumns.TryAdd(language, new KalturaExcelColumn(ExcelColumnType.File, language, KalturaMediaFile.LANGUAGE));
+
+                        // IS_DEFAULT_LANGUAGE
+                        var isDefaultLanguage = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.IS_DEFAULT_LANGUAGE, null, i);
+                        excelColumns.TryAdd(isDefaultLanguage, new KalturaExcelColumn(ExcelColumnType.File, isDefaultLanguage, KalturaMediaFile.IS_DEFAULT_LANGUAGE));
+
+                        // FILE_START_DATE
+                        var startDate = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.FILE_START_DATE, null, i);
+                        excelColumns.TryAdd(startDate, new KalturaExcelColumn(ExcelColumnType.File, startDate, KalturaMediaFile.FILE_START_DATE));
+
+                        // FILE_END_DATE
+                        var endDate = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.FILE_END_DATE, null, i);
+                        excelColumns.TryAdd(endDate, new KalturaExcelColumn(ExcelColumnType.File, endDate, KalturaMediaFile.FILE_END_DATE));
+
+                        // EXTERNAL_STORE_ID
+                        var externalStoreId = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.EXTERNAL_STORE_ID, null, i);
+                        excelColumns.TryAdd(externalStoreId, new KalturaExcelColumn(ExcelColumnType.File, externalStoreId, KalturaMediaFile.EXTERNAL_STORE_ID));
+
+                        // ALT_CDN_CODE
+                        var altCdnCode = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.ALT_CDN_CODE, null, i);
+                        excelColumns.TryAdd(altCdnCode, new KalturaExcelColumn(ExcelColumnType.File, altCdnCode, KalturaMediaFile.ALT_CDN_CODE));
+
+                        // ALTERNATIVE_CDN_ADAPTER_PROFILE_ID
+                        var alternativeCdnAdapaterProfileId = ExcelFormatter.GetHiddenColumn(ExcelColumnType.File, KalturaMediaFile.ALTERNATIVE_CDN_ADAPTER_PROFILE_ID, null, i);
+                        excelColumns.TryAdd(alternativeCdnAdapaterProfileId,
+                                            new KalturaExcelColumn(ExcelColumnType.File, alternativeCdnAdapaterProfileId, KalturaMediaFile.ALTERNATIVE_CDN_ADAPTER_PROFILE_ID));
+                    }
+                }
+            }
+
+            return excelColumns;
+        }
     }
 
 }

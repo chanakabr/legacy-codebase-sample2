@@ -78,6 +78,7 @@ namespace WebAPI.Models.General
         {
             return new Dictionary<string, string>();
         }
+
     }
 
     public interface IKalturaOTTObject
@@ -283,6 +284,11 @@ namespace WebAPI.Models.General
             }
 
             return values;
+        }
+
+        internal virtual Dictionary<string, object> GetExcelValues(int groupId, Dictionary<string, object> data = null)
+        {
+            return null;
         }
     }
 

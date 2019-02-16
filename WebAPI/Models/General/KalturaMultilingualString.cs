@@ -13,6 +13,7 @@ using System;
 using Newtonsoft.Json.Linq;
 using KLogMonitor;
 using System.Reflection;
+using TVinciShared;
 
 namespace WebAPI.Models.General
 {
@@ -33,10 +34,12 @@ namespace WebAPI.Models.General
         [XmlArrayItem("item")]
         public List<KalturaTranslationToken> Values { get; set; }
 
+        #region Ctor's
+
         public KalturaMultilingualString(LanguageContainer[] values) : base(null)
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
-            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();            
+            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(values);
         }
 
@@ -44,8 +47,8 @@ namespace WebAPI.Models.General
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
-            
-            List <LanguageContainer> tempValuesList = values != null? new List<LanguageContainer>(values) : new List<LanguageContainer>();
+
+            List<LanguageContainer> tempValuesList = values != null ? new List<LanguageContainer>(values) : new List<LanguageContainer>();
 
             if (!string.IsNullOrEmpty(GroupDefaultLanguageCode) &&
                 !tempValuesList.Any(x => x.LanguageCode == GroupDefaultLanguageCode))
@@ -78,6 +81,8 @@ namespace WebAPI.Models.General
             tempValuesList.Add(new LanguageContainer(GroupDefaultLanguageCode, defaultLanguageValue, true));
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(tempValuesList);
         }
+
+        #endregion
 
         internal List<LanguageContainer> GetLanugageContainer()
         {
@@ -288,6 +293,35 @@ namespace WebAPI.Models.General
                 ret += "<" + multilingualName + "><item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item></" + multilingualName + ">";
             }
             return ret;
+        }
+
+        internal override Dictionary<string, object> GetExcelValues(int groupId, Dictionary<string, object> data = null)
+        {
+            Dictionary<string, object> excelValues = new Dictionary<string, object>();
+
+            var baseExcelValues = base.GetExcelValues(groupId, data);
+            excelValues.TryAddRange(baseExcelValues);
+
+            if (Values != null && Values.Count > 0)
+            {
+                if (data == null)
+                {
+                    data = new Dictionary<string, object>();
+                }
+
+                if (!data.ContainsKey(KalturaTranslationToken.DEFALUT_LANGUAGE_CODE))
+                {
+                    data.Add(KalturaTranslationToken.DEFALUT_LANGUAGE_CODE, GroupDefaultLanguageCode);
+                }
+
+                foreach (var translationToken in this.Values)
+                {
+                    var translationTokenExcelValues = translationToken.GetExcelValues(groupId, data);
+                    excelValues.TryAddRange(translationTokenExcelValues);
+                }
+            }
+
+            return excelValues;
         }
     }
 }

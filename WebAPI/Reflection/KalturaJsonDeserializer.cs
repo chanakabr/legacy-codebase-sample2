@@ -12564,12 +12564,12 @@ namespace WebAPI.Models.Catalog
         {
             ReadOnly = false,
             InsertOnly = false,
+            MinInteger = 1,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaRelatedExternalFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12606,12 +12606,12 @@ namespace WebAPI.Models.Catalog
         {
             ReadOnly = false,
             InsertOnly = false,
+            MinInteger = 1,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaRelatedFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12814,12 +12814,12 @@ namespace WebAPI.Models.Catalog
         {
             ReadOnly = false,
             InsertOnly = false,
+            MinInteger = 1,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaTag(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12863,12 +12863,12 @@ namespace WebAPI.Models.Catalog
         {
             ReadOnly = false,
             InsertOnly = false,
+            MinInteger = 1,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaTagFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -13404,23 +13404,23 @@ namespace WebAPI.Models.API
         {
             ReadOnly = false,
             InsertOnly = false,
+            MinInteger = 0,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute DefaultRecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNPartnerSettings")
         {
             ReadOnly = false,
             InsertOnly = false,
+            MinInteger = 0,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         public KalturaCDNPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
         {

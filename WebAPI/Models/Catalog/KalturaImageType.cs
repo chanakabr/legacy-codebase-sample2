@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -80,5 +82,31 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaImageType> ImageTypes { get; set; }
+
+        internal override Dictionary<string, KalturaExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null)
+        {
+            Dictionary<string, KalturaExcelColumn> excelColumns = new Dictionary<string, KalturaExcelColumn>();
+
+            var baseExcelColumns = base.GetExcelColumns(groupId, data);
+            excelColumns.TryAddRange(baseExcelColumns);
+
+            if (ImageTypes != null && ImageTypes.Count > 0)
+            {
+                foreach (var imageType in this.ImageTypes)
+                {
+                    // TODO SHIR - ASK IRA IF ID IS THE RIGTH PROPERTY 
+                    var image = ExcelFormatter.GetHiddenColumn(ExcelColumnType.Image, imageType.Id.ToString());
+                    excelColumns.TryAdd(image, new KalturaExcelColumn(ExcelColumnType.Image, image, imageType.SystemName, imageType.HelpText));
+                }
+            }
+
+            return excelColumns;
+        }
+
+        // TODO SHIR - USE BASE WHEN IS AVILABLE
+        public bool HasObjects()
+        {
+            return (ImageTypes != null && ImageTypes.Count > 0);
+        }
     }
 }
