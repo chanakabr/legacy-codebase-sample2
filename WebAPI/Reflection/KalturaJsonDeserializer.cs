@@ -20840,46 +20840,6 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute ConditionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
             ReadOnly = true,
@@ -20916,26 +20876,14 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DescriptionSchemaProperty.Validate("description", parameters["description"]);
-                    }
                     Description = (String) Convert.ChangeType(parameters["description"], typeof(String));
                 }
                 if (parameters.ContainsKey("conditions") && parameters["conditions"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConditionsSchemaProperty.Validate("conditions", parameters["conditions"]);
-                    }
                     if (parameters["conditions"] is JArray)
                     {
                         Conditions = buildList<KalturaBaseSegmentCondition>(typeof(KalturaBaseSegmentCondition), (JArray) parameters["conditions"]);
@@ -20947,10 +20895,6 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ValueSchemaProperty.Validate("value", parameters["value"]);
-                    }
                     if (parameters["value"] is JObject)
                     {
                         Value = (KalturaBaseSegmentValue) Deserializer.deserialize(typeof(KalturaBaseSegmentValue), ((JObject) parameters["value"]).ToObject<Dictionary<string, object>>());
@@ -21406,6 +21350,16 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute AffectedUsersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSingleSegmentValue")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaSingleSegmentValue(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -21419,6 +21373,14 @@ namespace WebAPI.Models.Segmentation
                         IdSchemaProperty.Validate("id", parameters["id"]);
                     }
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("affectedUsers") && parameters["affectedUsers"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AffectedUsersSchemaProperty.Validate("affectedUsers", parameters["affectedUsers"]);
+                    }
+                    AffectedUsers = (Int32) Convert.ChangeType(parameters["affectedUsers"], typeof(Int32));
                 }
             }
         }

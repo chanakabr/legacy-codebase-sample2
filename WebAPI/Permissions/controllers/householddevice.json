@@ -28,6 +28,17 @@
     },
     {
       "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "HouseholdDevice_Get_udid",
+      "parameter": "udid",
+      "service": "HouseholdDevice",
+      "action": "Get",
+      "type": "Argument"
+    },
+    {
+      "permissions": [
         "User",
         "Master",
         "Operator"

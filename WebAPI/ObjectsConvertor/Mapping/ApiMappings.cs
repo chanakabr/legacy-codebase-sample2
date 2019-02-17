@@ -1123,24 +1123,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // Segmentation type
             cfg.CreateMap<KalturaSegmentationType, SegmentationType>()
-                .ForMember(d => d.Conditions, opt => opt.MapFrom(s => s.Conditions))
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
-                ;
+                .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
+                .ForMember(dest => dest.Version, opt => opt.Ignore());
 
             cfg.CreateMap<SegmentationType, KalturaSegmentationType>()
-                .ForMember(d => d.Conditions, opt => opt.MapFrom(s => s.Conditions))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
-                ;
+                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version));
 
             // Segmentation source
             cfg.CreateMap<KalturaSegmentSource, SegmentSource>()
@@ -1277,6 +1275,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // segment dummy value
             cfg.CreateMap<SegmentDummyValue, KalturaSingleSegmentValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AffectedUsers, opt => opt.MapFrom(src => src.AffectedUsersTtl >= DateTime.UtcNow ? src.AffectedUsers : 0))
                 ;
 
             cfg.CreateMap<KalturaSingleSegmentValue, SegmentDummyValue>()

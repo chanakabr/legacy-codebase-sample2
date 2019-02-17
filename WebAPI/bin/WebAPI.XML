@@ -3210,10 +3210,11 @@
             <remarks>Possible status codes: 
             Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdDeviceController.Get">
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.Get(System.String)">
             <summary>
             Returns device registration status to the supplied household
             </summary>
+            <param name="udid">device id</param>
             <returns></returns><remarks>Possible status codes: 
             Device does not exist = 1019, Device not in household = 1003, Device exists in other household = 1016</remarks>
         </member>
@@ -11840,6 +11841,11 @@
         <member name="P:WebAPI.Models.Segmentation.KalturaSingleSegmentValue.Id">
             <summary>
             Id of segment
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaSingleSegmentValue.AffectedUsers">
+            <summary>
+            The amount of users that are being affected by this Segmentation type
             </summary>
         </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaMonetizationCondition">
