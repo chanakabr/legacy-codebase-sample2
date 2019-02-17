@@ -188,7 +188,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static GenericResponse<AssetFile> CreateAssetFileResponseFromDataSet(int groupId, DataSet ds)
+        private static GenericResponse<AssetFile> CreateAssetFileResponseFromDataSet(int groupId, DataSet ds, bool shouldAddBaseUrl = true)
         {
             GenericResponse<AssetFile> response = new GenericResponse<AssetFile>();
 
@@ -197,7 +197,7 @@ namespace Core.Catalog.CatalogManagement
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
-                    response.Object = CreateAssetFile(groupId, dt.Rows[0]);
+                    response.Object = CreateAssetFile(groupId, dt.Rows[0], true);
                     if (response.Object != null)
                     {
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -213,7 +213,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }        
 
-        private static AssetFile CreateAssetFile(int groupId, DataRow dr)
+        private static AssetFile CreateAssetFile(int groupId, DataRow dr, bool shouldAddBaseUrl)
         {
             string typeName = string.Empty;
             int typeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
@@ -225,7 +225,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             DateTime? catalogEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CATALOG_END_DATE");
-            return new AssetFile(typeName)
+            AssetFile res = new AssetFile(typeName)
             {
                 AdditionalData = ODBCWrapper.Utils.GetSafeStr(dr, "ADDITIONAL_DATA"),
                 AltExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_CO_GUID"),
@@ -250,6 +250,15 @@ namespace Core.Catalog.CatalogManagement
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1,
                 CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate : new DateTime(2099, 1, 1)
             };
+
+            if (shouldAddBaseUrl)
+            {
+                res.Url = string.Concat(ODBCWrapper.Utils.GetSafeStr(dr, "BASE_URL"), res.Url);
+                res.AltStreamingCode = string.Concat(ODBCWrapper.Utils.GetSafeStr(dr, "ALT_BASE_URL"), res.AltStreamingCode);
+            }
+
+            return res;
+;
         }       
 
         private static Status ValidateMediaFileExternalIdUniqueness(int groupId, AssetFile assetFile)
@@ -362,7 +371,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(int groupId, DataTable dt)
+        internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(int groupId, DataTable dt, bool shouldAddBaseUrl = true)
         {
             List<AssetFile> response = new List<AssetFile>();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -370,7 +379,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        AssetFile assetFile = CreateAssetFile(groupId, dr);
+                        AssetFile assetFile = CreateAssetFile(groupId, dr, true);
                         if (assetFile != null)
                         {
                             response.Add(assetFile);
@@ -382,13 +391,13 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        internal static List<AssetFile> GetAssetFilesById(int groupId, long id)
+        internal static List<AssetFile> GetAssetFilesById(int groupId, long id, bool shouldAddBaseUrl = true)
         {
             List<AssetFile> files = new List<AssetFile>();
             GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
 
             DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
-            result = CreateAssetFileResponseFromDataSet(groupId, ds);
+            result = CreateAssetFileResponseFromDataSet(groupId, ds, shouldAddBaseUrl);
 
             if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
             {
@@ -399,13 +408,13 @@ namespace Core.Catalog.CatalogManagement
             return files;
         }
 
-        internal static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId)
+        internal static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId, bool shouldAddBaseUrl = true)
         {
             List<AssetFile> files = new List<AssetFile>();
             DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long>() { assetId });
             if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
-                files = CreateAssetFileListResponseFromDataTable(groupId, ds.Tables[0]);
+                files = CreateAssetFileListResponseFromDataTable(groupId, ds.Tables[0], shouldAddBaseUrl);
             }
 
             return files;
@@ -807,11 +816,11 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (id > 0)
                 {
-                    response.Objects = GetAssetFilesById(groupId, id);
+                    response.Objects = GetAssetFilesById(groupId, id, false);
                 }
                 else
                 {
-                    response.Objects = GetAssetFilesByAssetId(groupId, assetId);
+                    response.Objects = GetAssetFilesByAssetId(groupId, assetId, false);
                 }
 
                 if (response.Objects != null)
