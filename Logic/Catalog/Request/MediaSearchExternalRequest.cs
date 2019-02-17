@@ -102,8 +102,8 @@ namespace Core.Catalog.Request
                 List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
                 int tempTotalItems = 0;
                 if (allRecommendations != null && allRecommendations.Count > 0)
-                    searchResultsList =
-                        searcher.FillUpdateDates(mediaSearchRequest.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems, mediaSearchRequest.m_nPageSize, mediaSearchRequest.m_nPageIndex);
+                    searchResultsList = searcher.FillUpdateDates(mediaSearchRequest.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems,
+                                                                    mediaSearchRequest.m_nPageSize, mediaSearchRequest.m_nPageIndex, true);
 
                 response.m_nTotalItems = totalItems;
                 response.searchResults = searchResultsList;

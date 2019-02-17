@@ -11322,49 +11322,55 @@ namespace Core.Api
 
             try
             {
-                LanguageResponse languageResponse = GetLanguageList(groupId, null);                
-
-                if(languageResponse != null && languageResponse.Languages != null)
+                // check for MainLanguage valid
+                if (partnerConfigToUpdate.MainLanguage.HasValue)
                 {
-                    // check for MainLanguage valid
-                    if (partnerConfigToUpdate.MainLanguage.HasValue && languageResponse.Languages.Count(x => x.ID == partnerConfigToUpdate.MainLanguage.Value) == 0)
+                    if (!IsValidLanguageId(groupId, partnerConfigToUpdate.MainLanguage.Value))
                     {
-                        log.ErrorFormat("Error while update generalPartnerConfig. MainLanguageId {0} not exist in groupId: {1}", partnerConfigToUpdate.MainLanguage.Value, groupId);
-                        response.Set((int)eResponseStatus.GroupDoesNotContainLanguage, eResponseStatus.GroupDoesNotContainLanguage.ToString());
-                        return response;
-                    }
-
-                    // check for SecondaryLanguages valid
-                    if (partnerConfigToUpdate.SecondaryLanguages != null && partnerConfigToUpdate.SecondaryLanguages.Count > 0 &&
-                        new HashSet<int>(languageResponse.Languages.Select(x => x.ID)).IsSupersetOf(partnerConfigToUpdate.SecondaryLanguages))
-                    {
-                        log.ErrorFormat("Error while update generalPartnerConfig. not all SecondaryLanguages {0} exist in groupId: {1}", string.Join(";", partnerConfigToUpdate.SecondaryLanguages), groupId);
-                        response.Set((int)eResponseStatus.GroupDoesNotContainLanguage, eResponseStatus.GroupDoesNotContainLanguage.ToString());
+                        log.ErrorFormat("Error while update generalPartnerConfig. MainLanguage {0}, groupId: {1}", partnerConfigToUpdate.MainLanguage.Value, groupId);
+                        response.Set((int)eResponseStatus.InvalidLanguage, eResponseStatus.InvalidLanguage.ToString());
                         return response;
                     }
                 }
 
-                CurrencyResponse currencyResponse = GetCurrencyList(groupId, null);
-
-                if (currencyResponse != null && currencyResponse.Currencies != null)
+                // check for SecondaryLanguages valid
+                if (partnerConfigToUpdate.SecondaryLanguages != null && partnerConfigToUpdate.SecondaryLanguages.Count > 0)
                 {
-                    // check for MainCurrency valid
-                    if (partnerConfigToUpdate.MainCurrency.HasValue && currencyResponse.Currencies.Count(x => x.m_nCurrencyID == partnerConfigToUpdate.MainCurrency.Value) == 0)
+                    foreach (var secondaryLanguageId in partnerConfigToUpdate.SecondaryLanguages)
                     {
-                        log.ErrorFormat("Error while update generalPartnerConfig. MainCurrencyId {0} not exist in groupId: {1}", partnerConfigToUpdate.MainCurrency.Value, groupId);
-                        response.Set((int)eResponseStatus.GroupDoesNotContainCurrency, eResponseStatus.GroupDoesNotContainCurrency.ToString());
-                        return response;
+                        if (!IsValidLanguageId(groupId, secondaryLanguageId))
+                        {
+                            log.ErrorFormat("Error while update generalPartnerConfig. SecondaryLanguageId {0}, groupId: {1}", secondaryLanguageId, groupId);
+                            response.Set((int)eResponseStatus.InvalidLanguage, eResponseStatus.InvalidLanguage.ToString());
+                            return response;
+                        }
                     }
+                }
 
-                    // check for SecondaryCurrencys valid
-                    if (partnerConfigToUpdate.SecondaryCurrencys != null && partnerConfigToUpdate.SecondaryCurrencys.Count > 0 &&
-                        new HashSet<int>(currencyResponse.Currencies.Select(x => x.m_nCurrencyID)).IsSupersetOf(partnerConfigToUpdate.SecondaryCurrencys))
+                // check for MainCurrency valid
+                if (partnerConfigToUpdate.MainCurrency.HasValue)
+                {
+                   if (!ConditionalAccess.Utils.IsValidCurrencyId(groupId, partnerConfigToUpdate.MainCurrency.Value))
                     {
-                        log.ErrorFormat("Error while update generalPartnerConfig. not all SecondaryCurrencys {0} exist in groupId: {1}", string.Join(";", partnerConfigToUpdate.SecondaryCurrencys), groupId);
-                        response.Set((int)eResponseStatus.GroupDoesNotContainCurrency, eResponseStatus.GroupDoesNotContainCurrency.ToString());
+                        log.ErrorFormat("Error while update generalPartnerConfig. MainCurrencyId {0}, groupId: {1}", partnerConfigToUpdate.MainCurrency.Value, groupId);
+                        response.Set((int)eResponseStatus.InvalidCurrency, eResponseStatus.InvalidCurrency.ToString());
                         return response;
                     }
                 }
+
+                // check for SecondaryCurrencys valid
+                if (partnerConfigToUpdate.SecondaryCurrencys != null && partnerConfigToUpdate.SecondaryCurrencys.Count > 0)
+                {
+                    foreach (var secondaryCurrencyId in partnerConfigToUpdate.SecondaryCurrencys)
+                    {
+                        if (!ConditionalAccess.Utils.IsValidCurrencyId(groupId, secondaryCurrencyId))
+                        {
+                            log.ErrorFormat("Error while update generalPartnerConfig. SecondaryCurrency {0}, groupId: {1}", secondaryCurrencyId, groupId);
+                            response.Set((int)eResponseStatus.InvalidCurrency, eResponseStatus.InvalidCurrency.ToString());
+                            return response;
+                        }
+                    }
+                }               
 
                 if( partnerConfigToUpdate.HouseholdLimitationModule.HasValue)
                 {
@@ -11477,6 +11483,57 @@ namespace Core.Api
             }
 
             return generalPartnerConfig;
+        }
+
+        public static List<LanguageObj> GetAllLanguagesList(int groupId)
+        {
+            List<LanguageObj> languages = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetAllLanguageListKey();
+
+                if (!LayeredCache.Instance.Get<List<LanguageObj>>(key,
+                                                              ref languages,
+                                                              APILogic.Utils.GetAllLanguagesList,
+                                                              new Dictionary<string, object>(),
+                                                              groupId,
+                                                              LayeredCacheConfigNames.GET_ALL_LANGUAGE_LIST_LAYERED_CACHE_CONFIG_NAME))
+                {
+                    log.ErrorFormat("Failed getting language list by Ids from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetAllLanguagesList for groupId: {0}, ex: {1}", groupId, ex);
+            }
+
+            return languages;
+        }
+
+        internal static bool IsValidLanguageId(int groupId, int languageId)
+        {
+            bool res = false;
+            if (languageId <= 0)
+            {
+                return res;
+            }
+
+            try
+            {
+                List<LanguageObj> languageList = GetAllLanguagesList(groupId);
+                if(languageList == null && languageList.Count == 0)
+                {
+                    return res;
+                }
+
+                res = languageList.Count(x => x.ID == languageId) > 0 ;                
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed IsValidLanguageId, groupId: {0}, languageId: {1}, ex: {2}", groupId, languageId, ex);
+            }
+
+            return res;
         }
     }
 }

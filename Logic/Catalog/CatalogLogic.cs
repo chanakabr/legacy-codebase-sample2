@@ -5978,8 +5978,8 @@ namespace Core.Catalog
                     }
                     ).ToList();
 
-                searchResultsList =
-                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems, request.m_nPageSize, request.m_nPageIndex);
+                searchResultsList = searcher.FillUpdateDates(request.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems,
+                                                             request.m_nPageSize, request.m_nPageIndex, true);
             }
             // If there is, go to ES and perform further filter
             else

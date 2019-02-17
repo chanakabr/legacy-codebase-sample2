@@ -225,7 +225,20 @@ namespace Core.Catalog.CatalogManagement
                     {
                         string type = GetTanslationType(MEDIA, lang);
                         ESDeleteResult deleteResult = esApi.DeleteDoc(index, type, assetId.ToString());
-                        result = deleteResult.Ok && result;
+
+                        if (!deleteResult.Found)
+                        {
+                            log.WarnFormat("IndexManager - DeleteMedia Delete request: delete media with ID {0} and language {1} not found", assetId, lang.Code);
+                        }
+                        else
+                        {
+                            if (!deleteResult.Ok)
+                            {
+                                log.ErrorFormat("IndexManager - DeleteMedia error: Could not delete media from ES. Media id={0} language={1}", assetId, lang.Code);
+                            }
+
+                            result = deleteResult.Ok && result;
+                        }
                     }
                 }
             }

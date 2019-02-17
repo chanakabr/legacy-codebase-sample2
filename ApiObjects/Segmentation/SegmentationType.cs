@@ -1,7 +1,9 @@
 ﻿using ApiObjects.Response;
+using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
+using ODBCWrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +11,14 @@ using System.Reflection;
 
 namespace ApiObjects.Segmentation
 {
+
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     public class SegmentationType : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.UserSegmentTTL.IntValue;
+
 
         [JsonProperty()]
         public string Name;
@@ -278,14 +284,17 @@ namespace ApiObjects.Segmentation
             var pagedKeys = keys.Skip(pageIndex * pageSize).Take(pageSize);
 
             // get all segmentation types from CB
-            var getResult = couchbaseManager.GetValues<SegmentationType>(keys, false, true);
+            var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(keys, false, true);
 
-            if (getResult == null)
+
+            DateTime now = DateTime.UtcNow;
+
+            if (segmentationTypes == null)
             {
                 throw new Exception("Failed getting list of segmentation types from Couchbase");
             }
 
-            result = getResult.Values.ToList();
+            result = segmentationTypes.Values.ToList();
 
             return result;
         }
@@ -317,6 +326,50 @@ namespace ApiObjects.Segmentation
 
             return result;
         }
+
+        private static bool UpdateAffectedUsers(int groupId, long segmentId, int affectedUsers)
+        {
+            bool result = false;
+
+            int totalCount;
+            long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
+
+            var segmentationTypes = SegmentationType.List(groupId, new List<long>() { segmentationTypeId }, 0, 1000, out totalCount);
+
+            SegmentationType segmentationType = null;
+
+            if (segmentationTypes != null && segmentationTypes.Count > 0)
+            {
+                segmentationType = segmentationTypes.FirstOrDefault();
+            }
+
+            if (segmentationType != null)
+            {
+                var segmentDummyValue = (segmentationType.Value as SegmentDummyValue);
+
+                if (segmentDummyValue != null)
+                {
+                    segmentDummyValue.AffectedUsers = affectedUsers;
+                    segmentDummyValue.AffectedUsersTtl = DateTime.UtcNow.AddHours(USER_SEGMENT_TTL_HOURS);
+                }
+            }
+
+            result = segmentationType.DoUpdate();
+
+            return result;
+        }
+
+        public static bool UpdateSegmentsAffectedUsers(int groupId, Dictionary<long, int> data)
+        {
+            foreach (var item in data)
+            {
+                UpdateAffectedUsers(groupId, item.Key, item.Value);
+            }
+
+            return true;
+        }
+
+
     }
     
     public class GroupSegmentationTypes

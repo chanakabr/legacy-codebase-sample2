@@ -379,7 +379,7 @@ namespace APILogic
 
             return ApiObjects.MetaType.All;
         }
-        
+
         internal static Tuple<bool?, bool> GetIsMediaExistsToUserType(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -388,7 +388,7 @@ namespace APILogic
             {
                 if (funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("userTypeId"))
                 {
-                    int? mediaId, userTypeId;                    
+                    int? mediaId, userTypeId;
                     mediaId = funcParams["mediaId"] as int?;
                     userTypeId = funcParams["userTypeId"] as int?;
                     if (mediaId.HasValue && userTypeId.HasValue)
@@ -432,7 +432,7 @@ namespace APILogic
                                         int bmType = ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
                                         int restrictionPolicy = ODBCWrapper.Utils.ExtractInteger(dr, "restriction_policy");
 
-                                        MediaConcurrencyRule rule = new MediaConcurrencyRule(ruleID, tagTypeID, tagType, name, 1, bmId, 
+                                        MediaConcurrencyRule rule = new MediaConcurrencyRule(ruleID, tagTypeID, tagType, name, 1, bmId,
                                             (eBusinessModule)bmType, MCLimitation, (ConcurrencyRestrictionPolicy)restrictionPolicy);
 
                                         //get all tagValues
@@ -444,7 +444,7 @@ namespace APILogic
                                             rule.AllTagValues.AddRange(drTags.Select(x => x.Field<string>("VALUE")));
                                         }
                                         result.Add(rule);
-                                    }                                    
+                                    }
                                 }
                             }
 
@@ -478,7 +478,7 @@ namespace APILogic
                         }
 
                         res = true;
-                    }                    
+                    }
                 }
 
             }
@@ -524,7 +524,7 @@ namespace APILogic
             {
                 if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
                 {
-                    int? groupId = funcParams["groupId"] as int?;                    
+                    int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue)
                     {
                         bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId.Value);
@@ -672,16 +672,16 @@ namespace APILogic
 
         internal static Dictionary<int, CountryLocale> GetCountriesLocaleMap(int groupId, List<int> countryIds)
         {
-            Dictionary<int, CountryLocale> result = null;            
+            Dictionary<int, CountryLocale> result = null;
             try
             {
                 if (countryIds != null && countryIds.Count > 0)
                 {
-                    Dictionary<long, CountryLocale> countryLocaleMapping = new Dictionary<long,CountryLocale>();
+                    Dictionary<long, CountryLocale> countryLocaleMapping = new Dictionary<long, CountryLocale>();
                     DataSet ds = DAL.ApiDAL.GetCountriesLocale(groupId, countryIds);
                     if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                     {
-                        result = new Dictionary<int, CountryLocale>();                        
+                        result = new Dictionary<int, CountryLocale>();
                         if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
                         {
                             foreach (DataRow dr in ds.Tables[0].Rows)
@@ -845,7 +845,7 @@ namespace APILogic
             if (string.IsNullOrEmpty(ip))
             {
                 return false;
-            }            
+            }
             try
             {
                 string[] splitted = ip.Split('.');
@@ -856,7 +856,7 @@ namespace APILogic
             {
                 log.Error(string.Format("Failed ConvertIpToInt for ip: {0}", ip), ex);
                 return false;
-            }            
+            }
         }
 
         internal static Tuple<List<ApiObjects.Country>, bool> GetAllCountryList(Dictionary<string, object> funcParams)
@@ -901,6 +901,45 @@ namespace APILogic
             }
 
             return new Tuple<List<ApiObjects.Country>, bool>(countriesResult, res);
+        }
+
+        internal static Tuple<List<LanguageObj>, bool> GetAllLanguagesList(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<LanguageObj> languagesResult = null;
+
+            try
+            {
+                DataTable dt = DAL.ApiDAL.GetAllLanguages();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    languagesResult = new List<LanguageObj>();
+                    LanguageObj language;
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        DataRow dr = dt.Rows[i];
+                        if (dr != null)
+                        {
+                            language = new LanguageObj()
+                            {
+                                Code = ODBCWrapper.Utils.GetSafeStr(dr, "CODE3"),
+                                Direction = ODBCWrapper.Utils.GetSafeStr(dr, "DIRECTION"),                                
+                                ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),                                
+                                Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME")
+                            };
+                            languagesResult.Add(language);
+                        }
+                    }
+                }
+
+                res = languagesResult != null;
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetAllLanguagesList failed", ex);
+            }
+
+            return new Tuple<List<LanguageObj>, bool>(languagesResult, res);
         }
     }
 }
