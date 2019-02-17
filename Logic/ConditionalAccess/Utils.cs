@@ -5069,25 +5069,38 @@ namespace Core.ConditionalAccess
                     break;
                 case RecordingInternalStatus.OK:
                     // If program already finished, we say it is recorded
-                    if (epgEndDate < DateTime.UtcNow)
-                    {
-                        recordingStatus = TstvRecordingStatus.Recorded;
-                    }
-                    // If program already started but didn't finish, we say it is recording
-                    else if (epgStartDate < DateTime.UtcNow)
-                    {
-                        recordingStatus = TstvRecordingStatus.Recording;
-                    }
-                    else
-                    {
-                        recordingStatus = TstvRecordingStatus.Scheduled;
-                    }
+                    recordingStatus = SetRecordingStatus(epgStartDate, epgEndDate);
                     break;
                 default:
                     break;
             }
 
             return recordingStatus;
+        }
+
+        internal static TstvRecordingStatus SetRecordingStatus(DateTime epgStartDate, DateTime epgEndDate)
+        {
+            if (epgEndDate < DateTime.UtcNow)
+            {
+                return TstvRecordingStatus.Recorded;
+            }
+            // If program already started but didn't finish, we say it is recording
+            else if (epgStartDate < DateTime.UtcNow)
+            {
+                return TstvRecordingStatus.Recording;
+            }
+            else
+            {
+                return TstvRecordingStatus.Scheduled;
+            }
+        }
+
+        internal static void SetRecordingStatus(Dictionary<long, Recording> dic)
+        {
+            foreach (var recording in dic.Values)
+            {
+                recording.RecordingStatus = SetRecordingStatus(recording.EpgStartDate, recording.EpgEndDate);
+            }
         }
 
         internal static TstvRecordingStatus? ConvertToTstvRecordingStatus(DomainRecordingStatus domainRecordingStatus)
@@ -5500,6 +5513,8 @@ namespace Core.ConditionalAccess
                                         LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId) }, true)
                     && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
+                    SetRecordingStatus(domainRecordingIdToRecordingMap);
+
                     Dictionary<long, Recording> recordingsToCopy = new Dictionary<long, Recording>();
                     if (shouldFilterViewableRecordingsOnly)
                     {
