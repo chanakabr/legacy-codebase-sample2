@@ -5426,5 +5426,15 @@ namespace DAL
             sp.AddParameter("@groupId", groupId);
             return sp.ExecuteDataSet();
         }
+
+        public static DataTable GetAllLanguages()
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("GetAllLanguages");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            dt = sp.Execute();
+
+            return dt;
+        }
     }
 }
