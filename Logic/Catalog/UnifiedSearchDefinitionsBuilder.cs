@@ -379,7 +379,7 @@ namespace Core.Catalog
 
                 #region Geo Availability
 
-                if (!request.isInternalSearch && (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled))
+                if (!definitions.isInternalSearch && (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled))
                 {
                     definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
                 }
