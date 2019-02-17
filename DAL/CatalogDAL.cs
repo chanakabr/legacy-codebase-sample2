@@ -2228,6 +2228,9 @@ namespace Tvinci.Core.DAL
 
             success = couchbaseManager.SetWithVersion(documentKey, mediaMarks, version);
 
+            log.DebugFormat("InsertMediaMarkToUserMediaMarks for user {0} and asset {1}:{2} - success = {3}",
+                userMediaMark.UserID, userMediaMark.AssetType, userMediaMark.AssetID, success);
+
             return success;
         }
 
