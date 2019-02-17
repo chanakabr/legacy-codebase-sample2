@@ -4264,16 +4264,6 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ViewableUntilDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
             ReadOnly = true,
@@ -4334,10 +4324,6 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("viewableUntilDate") && parameters["viewableUntilDate"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ViewableUntilDateSchemaProperty.Validate("viewableUntilDate", parameters["viewableUntilDate"]);
-                    }
                     ViewableUntilDate = (Int64) Convert.ChangeType(parameters["viewableUntilDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isProtected") && parameters["isProtected"] != null)
