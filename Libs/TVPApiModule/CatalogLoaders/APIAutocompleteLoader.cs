@@ -66,8 +66,9 @@ namespace TVPApiModule.CatalogLoaders
             {
                 List<MediaObj> medias;
                 List<ProgramObj> epgs;
+                List<ProgramObj> recordings;
 
-                GetAssets(cacheKey, response, out medias, out epgs);
+                GetAssets(cacheKey, response, out medias, out epgs, out recordings);
 
                 // Gets one list including both medias and EPGs, ordered by Catalog order
                 result.Assets = OrderAndCompleteSlimResults(response.searchResults, medias, epgs);

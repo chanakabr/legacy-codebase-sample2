@@ -20,6 +20,7 @@ namespace TVPApiModule.CatalogLoaders
     {
         protected const string MEDIA_CACHE_KEY_PREFIX = "media";
         protected const string EPG_CACHE_KEY_PREFIX = "epg";
+        protected const string NPVR_CACHE_KEY_PREFIX = "npvr";
         protected const string CACHE_KEY_FORMAT = "{0}_lng{1}";
         private string m_sCulture;
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -132,13 +133,14 @@ namespace TVPApiModule.CatalogLoaders
 
                 List<MediaObj> medias;
                 List<ProgramObj> epgs;
+                List<ProgramObj> recordings;
 
-                GetAssets(cacheKey, response, out medias, out epgs);
+                GetAssets(cacheKey, response, out medias, out epgs, out recordings);
 
-                // add extraData to tags only for EPG
-                Util.UpdateEPGTags(epgs, response.searchResults);
+                // add extraData to tags only for EPG                
+                Util.UpdateEPGAndRecordingTags(epgs, recordings, response.searchResults);
 
-                result.Assets = OrderAndCompleteResults(response.searchResults, medias, epgs); // Gets one list including both medias and epgds, ordered by Catalog order
+                result.Assets = OrderAndCompleteResults(response.searchResults, medias, epgs, recordings); // Gets one list including both medias and epgds, ordered by Catalog order
             }
             else
             {
@@ -148,22 +150,26 @@ namespace TVPApiModule.CatalogLoaders
             return result;
         }
 
-        protected void GetAssets(string cacheKey, Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response, out List<MediaObj> medias, out List<ProgramObj> epgs)
+        protected void GetAssets(string cacheKey, Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response, out List<MediaObj> medias,
+                                out List<ProgramObj> epgs, out List<ProgramObj> recordings)
         {
             // Insert the UnifiedSearchResponse to cache for failover support
             CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
 
             medias = null;
             epgs = null;
+            recordings = null;
             List<long> missingMediaIds = null;
             List<long> missingEpgIds = null;
+            List<long> missingRecordingIds = null;
 
-            if (!GetAssetsFromCache(response.searchResults, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+            if (!GetAssetsFromCache(response.searchResults, out medias, out epgs, out recordings, out missingMediaIds, out missingEpgIds, out missingRecordingIds))
             {
                 List<MediaObj> mediasFromCatalog;
                 List<ProgramObj> epgsFromCatalog;
+                List<ProgramObj> recordingsFromCatalog;
 
-                GetAssetsFromCatalog(missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog); // Get the assets that were missing in cache 
+                GetAssetsFromCatalog(missingMediaIds, missingEpgIds, missingRecordingIds, out mediasFromCatalog, out epgsFromCatalog, out recordingsFromCatalog); // Get the assets that were missing in cache 
 
                 // Append the medias from Catalog to the medias from cache
                 if (medias == null && mediasFromCatalog != null)
@@ -180,16 +186,24 @@ namespace TVPApiModule.CatalogLoaders
                 }
 
                 epgs.AddRange(epgsFromCatalog);
+
+                // Append the recordings from Catalog to the recordings from cache
+                if (recordings == null && recordingsFromCatalog != null)
+                {
+                    recordings = new List<ProgramObj>();
+                }
+
+                recordings.AddRange(recordingsFromCatalog);
             }
         }
 
         // Returns a list of AssetInfo results from the medias and epgs, ordered by the list of search results from Catalog
         // In case 'With' member contains "stats" - an AssetStatsRequest is made to complete the missing stats data from Catalog
-        protected List<AssetInfo> OrderAndCompleteResults(List<UnifiedSearchResult> order, List<MediaObj> medias, List<ProgramObj> epgs)
+        protected List<AssetInfo> OrderAndCompleteResults(List<UnifiedSearchResult> order, List<MediaObj> medias, List<ProgramObj> epgs, List<ProgramObj> recordings)
         {
             List<AssetInfo> result = null;
 
-            if (order == null || ((medias == null || medias.Count == 0) && (epgs == null || epgs.Count == 0)))
+            if (order == null || ((medias == null || medias.Count == 0) && (epgs == null || epgs.Count == 0) && (recordings == null || recordings.Count == 0)))
             {
                 return null;
             }
@@ -198,9 +212,11 @@ namespace TVPApiModule.CatalogLoaders
             AssetInfo asset = null;
             MediaObj media = null;
             ProgramObj epg = null;
+            ProgramObj rec = null;
 
             List<AssetStatsResult> mediaAssetsStats = null;
             List<AssetStatsResult> epgAssetsStats = null;
+            List<AssetStatsResult> recAssetsStats = null;
 
             bool shouldAddFiles = false;
 
@@ -218,7 +234,13 @@ namespace TVPApiModule.CatalogLoaders
                         epgAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, epgs.Select(p => int.Parse(p.AssetId)).ToList(),
                             StatsType.EPG, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
                     }
+                    if (recordings != null && recordings.Count > 0)
+                    {
+                        recAssetsStats = new AssetStatsLoader(GroupID, m_sUserIP, 0, 0, recordings.Select(p => int.Parse(p.AssetId)).ToList(),
+                            StatsType.EPG, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
+                    }
                 }
+
                 if (With.Contains("files")) // if stats are required - add a flag 
                 {
                     shouldAddFiles = true;
@@ -246,8 +268,7 @@ namespace TVPApiModule.CatalogLoaders
                             media = null;
                         }
                         break;
-                    case eAssetTypes.EPG:                        
-                    case eAssetTypes.NPVR:
+                    case eAssetTypes.EPG:                                            
                         epg = epgs.Where(p => p != null && p.AssetId == item.AssetId).FirstOrDefault();
                         if (epg != null)
                         {
@@ -263,6 +284,22 @@ namespace TVPApiModule.CatalogLoaders
                             epg = null;
                         }
                         break;
+                    case eAssetTypes.NPVR:
+                        rec = recordings.Where(p => p != null && p.AssetId == item.AssetId).FirstOrDefault();
+                        if (recordings != null)
+                        {
+                            if (recAssetsStats != null && recAssetsStats.Count > 0)
+                            {
+                                asset = new AssetInfo(rec.m_oProgram, recAssetsStats.Where(eas => eas.m_nAssetID.ToString() == rec.AssetId).FirstOrDefault());
+                            }
+                            else
+                            {
+                                asset = new AssetInfo(rec.m_oProgram);
+                            }
+                            result.Add(asset);
+                            rec = null;
+                        }
+                        break;
                     case eAssetTypes.UNKNOWN:
                     default:
                         break;
@@ -272,17 +309,30 @@ namespace TVPApiModule.CatalogLoaders
             return result;
         }
 
-        protected void GetAssetsFromCatalog(List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
+        protected void GetAssetsFromCatalog(List<long> missingMediaIds, List<long> missingEpgIds, List<long> missingRecordingIds, out List<MediaObj> mediasFromCatalog,
+                                            out List<ProgramObj> epgsFromCatalog, out List<ProgramObj> recordingsFromCatalog)
         {
             mediasFromCatalog = null;
             epgsFromCatalog = null;
+            recordingsFromCatalog = null;
 
-            if ((missingMediaIds != null && missingMediaIds.Count > 0) || (missingEpgIds != null && missingEpgIds.Count > 0))
+            if ((missingMediaIds != null && missingMediaIds.Count > 0) || (missingEpgIds != null && missingEpgIds.Count > 0) || (missingRecordingIds != null && missingRecordingIds.Count > 0))
             {
+                List<long> requestEpgIds = new List<long>();
+                if (missingEpgIds != null)
+                {
+                    requestEpgIds.AddRange(missingEpgIds);
+                }
+
+                if (missingRecordingIds != null)
+                {
+                    requestEpgIds.AddRange(missingRecordingIds);
+                }
+
                 // Build AssetInfoRequest with the missing ids
                 AssetInfoRequest request = new AssetInfoRequest()
                 {
-                    epgIds = missingEpgIds,
+                    epgIds = requestEpgIds,
                     mediaIds = missingMediaIds,
                     m_nGroupID = GroupID,
                     m_nPageIndex = PageIndex,
@@ -346,11 +396,34 @@ namespace TVPApiModule.CatalogLoaders
 
                     if (epgsFromCatalog != null && epgsFromCatalog.Count > 0)
                     {
-                        Log("Storing EPGs in Cache", epgsFromCatalog);
+                        recordingsFromCatalog = new List<ProgramObj>();
+                        HashSet<string> npvrIds = missingRecordingIds != null ? new HashSet<string>(missingRecordingIds.Select(x => x.ToString())) : new HashSet<string>();
+                        foreach (long recordingId in missingRecordingIds)
+                        {
+                            try
+                            {
+                                int index = epgsFromCatalog.FindIndex(x => x.AssetId == recordingId.ToString());
+                                recordingsFromCatalog.Add(epgsFromCatalog[index]);
+                                epgsFromCatalog.RemoveAt(index);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log(string.Format("recording with id {0} wasn't found", recordingId), null);
+                            }
+
+                        }
+
+                        if (recordingsFromCatalog != null && recordingsFromCatalog.Count > 0)
+                        {
+                            List<BaseObject> npvrBaseObjects = new List<BaseObject>();
+                            recordingsFromCatalog.ForEach(p => npvrBaseObjects.Add(p));
+                            Log("Storing NPVRs in Cache", recordingsFromCatalog);
+                            CacheManager.Cache.StoreObjects(npvrBaseObjects, string.Format(CACHE_KEY_FORMAT, NPVR_CACHE_KEY_PREFIX, Language), duration);
+                        }
 
                         baseObjects = new List<BaseObject>();
                         epgsFromCatalog.ForEach(p => baseObjects.Add(p));
-
+                        Log("Storing EPGs in Cache", epgsFromCatalog);
                         CacheManager.Cache.StoreObjects(baseObjects, string.Format(CACHE_KEY_FORMAT, EPG_CACHE_KEY_PREFIX, Language), duration);
                     }
                 }
@@ -360,13 +433,16 @@ namespace TVPApiModule.CatalogLoaders
 
         // Gets medias and epgs from cache
         // Returns true if all assets were found in cache, false if at least one is missing or not up to date
-        protected bool GetAssetsFromCache(List<UnifiedSearchResult> ids, out List<MediaObj> medias, out List<ProgramObj> epgs, out List<long> missingMediaIds, out List<long> missingEpgIds)
+        protected bool GetAssetsFromCache(List<UnifiedSearchResult> ids, out List<MediaObj> medias, out List<ProgramObj> epgs, out List<ProgramObj> recordings,
+                                            out List<long> missingMediaIds, out List<long> missingEpgIds, out List<long> missingRecordingIds)
         {
             bool result = true;
             medias = null;
             epgs = null;
+            recordings = null;
             missingMediaIds = null;
             missingEpgIds = null;
+            missingRecordingIds = null;
 
             if (ids != null && ids.Count > 0)
             {
@@ -374,6 +450,7 @@ namespace TVPApiModule.CatalogLoaders
 
                 List<CacheKey> mediaKeys = new List<CacheKey>();
                 List<CacheKey> epgKeys = new List<CacheKey>();
+                List<CacheKey> recordingKeys = new List<CacheKey>();
 
                 CacheKey key = null;
 
@@ -387,8 +464,10 @@ namespace TVPApiModule.CatalogLoaders
                             mediaKeys.Add(key);
                             break;
                         case eAssetTypes.EPG:
-                        case eAssetTypes.NPVR:
                             epgKeys.Add(key);
+                            break;
+                        case eAssetTypes.NPVR:
+                            recordingKeys.Add(key);
                             break;
                         case eAssetTypes.UNKNOWN:
                         default:
@@ -429,6 +508,25 @@ namespace TVPApiModule.CatalogLoaders
                     }
 
                     if (missingEpgIds != null && missingEpgIds.Count > 0)
+                    {
+                        result = false;
+                    }
+                }
+
+                // RECORDINGS - Get the recordings from cache, Cast the results, return false if at least one is missing
+                if (recordingKeys != null && recordingKeys.Count > 0)
+                {
+                    cacheResults = CacheManager.Cache.GetObjects(recordingKeys, string.Format(CACHE_KEY_FORMAT, NPVR_CACHE_KEY_PREFIX, Language), out missingRecordingIds);
+                    if (cacheResults != null && cacheResults.Count > 0)
+                    {
+                        recordings = new List<ProgramObj>();
+                        foreach (var res in cacheResults)
+                        {
+                            recordings.Add((ProgramObj)res);
+                        }
+                    }
+
+                    if (missingRecordingIds != null && missingRecordingIds.Count > 0)
                     {
                         result = false;
                     }

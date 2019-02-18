@@ -140,13 +140,14 @@ namespace TVPApiModule.CatalogLoaders
 
                 List<MediaObj> medias;
                 List<ProgramObj> epgs;
+                List<ProgramObj> recordings;
 
-                GetAssets(cacheKey, response, out medias, out epgs);
+                GetAssets(cacheKey, response, out medias, out epgs, out recordings);
 
                 // add extraData to tags only for EPG
-                Util.UpdateEPGTags(epgs, response.searchResults);
+                Util.UpdateEPGAndRecordingTags(epgs, recordings, response.searchResults);
 
-                result.Assets = OrderAndCompleteResults(response.searchResults, medias, epgs); // Gets one list including both medias and epgds, ordered by Catalog order
+                result.Assets = OrderAndCompleteResults(response.searchResults, medias, epgs, recordings); // Gets one list including both medias and epgds, ordered by Catalog order
             }
             else
             {
