@@ -1561,6 +1561,15 @@ namespace Core.Catalog.CatalogManagement
                                 }
                             }
 
+                            // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                            foreach (ApiObjects.SearchObjects.Media media in assets.Values)
+                            {
+                                if (media.allowedCountries.Count == 0)
+                                {
+                                    media.allowedCountries.Add(0);
+                                }
+                            }
+
                             groupAssetsMap.Add((int)mediaAsset.Id, assets);
                         }
                     }
