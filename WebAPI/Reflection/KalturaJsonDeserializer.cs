@@ -238,6 +238,9 @@ namespace WebAPI.Reflection
                 case "KalturaAssetUserRuleFilter":
                     return new KalturaAssetUserRuleFilter(parameters);
                     
+                case "KalturaAssetUserRuleFilterAction":
+                    return new KalturaAssetUserRuleFilterAction(parameters);
+                    
                 case "KalturaAssetUserRuleListResponse":
                     return new KalturaAssetUserRuleListResponse(parameters);
                     
@@ -1841,6 +1844,12 @@ namespace WebAPI.Models.ConditionalAccess
     public partial class KalturaAssetUserRuleBlockAction
     {
         public KalturaAssetUserRuleBlockAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaAssetUserRuleFilterAction
+    {
+        public KalturaAssetUserRuleFilterAction(Dictionary<string, object> parameters = null) : base(parameters)
         {
         }
     }

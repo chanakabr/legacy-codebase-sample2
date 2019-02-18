@@ -840,6 +840,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER:
                             return RuleActionType.ApplyPlaybackAdapter;
                             break;
+                        case KalturaRuleActionType.FILTER:
+                            return RuleActionType.Filter;
+                            break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleAction value : {0}", kalturaRuleActionType.ToString()));
                             break;
@@ -876,6 +879,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleActionType.ApplyPlaybackAdapter:
                             return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
                             break;
+                        case RuleActionType.Filter:
+                            return KalturaRuleActionType.FILTER;
+                            break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ruleActionType value : {0}", ruleActionType.ToString()));
                             break;
@@ -908,6 +914,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .IncludeBase<KalturaAssetUserRuleAction, AssetUserRuleAction>();
 
             cfg.CreateMap<AssetUserRuleBlockAction, KalturaAssetUserRuleBlockAction>()
+                .IncludeBase<AssetUserRuleAction, KalturaAssetUserRuleAction>();
+
+            cfg.CreateMap<KalturaAssetUserRuleFilterAction, AssetUserRuleFilterAction>()
+               .IncludeBase<KalturaAssetUserRuleAction, AssetUserRuleAction>();
+
+            cfg.CreateMap<AssetUserRuleFilterAction, KalturaAssetUserRuleFilterAction>()
                 .IncludeBase<AssetUserRuleAction, KalturaAssetUserRuleAction>();
 
             cfg.CreateMap<KalturaAssetRuleAction, AssetRuleAction>()
@@ -1553,6 +1565,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                        case KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER:
                            return ApiObjects.PlaybackAdapter.RuleActionType.APPLY_PLAYBACK_ADAPTER;
                            break;
+                       case KalturaRuleActionType.FILTER:
+                           return ApiObjects.PlaybackAdapter.RuleActionType.FILTER;
+                           break;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown kalturaRuleActionType value : {0}", kalturaRuleActionType.ToString()));
                            break;
@@ -1588,6 +1603,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             break;
                         case ApiObjects.PlaybackAdapter.RuleActionType.APPLY_PLAYBACK_ADAPTER:
                             return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
+                            break;
+                        case ApiObjects.PlaybackAdapter.RuleActionType.FILTER:
+                            return KalturaRuleActionType.FILTER;
                             break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown PlaybackAdapterRuleActionType value : {0}", ruleActionType.ToString()));
