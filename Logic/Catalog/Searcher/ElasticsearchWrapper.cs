@@ -2274,41 +2274,41 @@ namespace Core.Catalog
             if (shouldSearch)
             {
 
-            // Build indexes and types string - for URL
-            string indexes = string.Empty;
-            string types = string.Empty;
+                // Build indexes and types string - for URL
+                string indexes = string.Empty;
+                string types = string.Empty;
 
-            if (shouldSearchEpg && shouldSearchMedia)
-            {
-                indexes = string.Format("{0},{0}_epg", groupId);
-                types = string.Format("{0},{1}", media, epg);
-            }
-            else if (shouldSearchMedia)
-            {
-                indexes = groupId.ToString();
-                types = media;
-            }
-            else if (shouldSearchEpg)
-            {
-                indexes = string.Format("{0}_epg", groupId);
-                types = epg;
-            }
+                if (shouldSearchEpg && shouldSearchMedia)
+                {
+                    indexes = string.Format("{0},{0}_epg", groupId);
+                    types = string.Format("{0},{1}", media, epg);
+                }
+                else if (shouldSearchMedia)
+                {
+                    indexes = groupId.ToString();
+                    types = media;
+                }
+                else if (shouldSearchEpg)
+                {
+                    indexes = string.Format("{0}_epg", groupId);
+                    types = epg;
+                }
 
-            // Build complete URL
-            string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
+                // Build complete URL
+                string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
-            // Build request body with the assistance of unified query builder
-            List<KeyValuePair<eAssetTypes, string>> assetsPairs = assets.Select(asset =>
-                new KeyValuePair<eAssetTypes, string>(asset.AssetType, asset.AssetId)).ToList();
+                // Build request body with the assistance of unified query builder
+                List<KeyValuePair<eAssetTypes, string>> assetsPairs = assets.Select(asset =>
+                    new KeyValuePair<eAssetTypes, string>(asset.AssetType, asset.AssetId)).ToList();
 
-            string requestBody = ESUnifiedQueryBuilder.BuildGetUpdateDatesString(assetsPairs, shouldIgnoreRecordings);
+                string requestBody = ESUnifiedQueryBuilder.BuildGetUpdateDatesString(assetsPairs, shouldIgnoreRecordings);
 
-            int httpStatus = 0;
+                int httpStatus = 0;
 
-            // Perform search
-            string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
+                // Perform search
+                string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
 
-            log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
+                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
 
                 if (httpStatus == STATUS_OK)
                 {
@@ -2357,33 +2357,33 @@ namespace Core.Catalog
                         }
                     }
                 }
-                
-                foreach (UnifiedSearchResult asset in assets)
-                {
-                    if (asset.m_dUpdateDate != DateTime.MinValue || (shouldIgnoreRecordings && asset.AssetType == eAssetTypes.NPVR))
-                    {
-                        validAssets.Add(asset);
-                    }
-                    else                    
-                    {
-                        log.WarnFormat("Received invalid asset from recommendation engine. ID = {0}, type = {1}", asset.AssetId, asset.AssetType.ToString());
-                    }
-                }
-
-                bool illegalRequest = false;
-                var pagedList = TVinciShared.ListUtils.Page(validAssets, pageSize, pageIndex, out illegalRequest);
-
-                //if (!illegalRequest)
-                //{
-                //    finalList = pagedList.ToList();
-                //}
-                //else
-                //{
-                //    finalList = null;
-                //}
-
-                #endregion
             }
+
+            foreach (UnifiedSearchResult asset in assets)
+            {
+                if (asset.m_dUpdateDate != DateTime.MinValue || (shouldIgnoreRecordings && asset.AssetType == eAssetTypes.NPVR))
+                {
+                    validAssets.Add(asset);
+                }
+                else
+                {
+                    log.WarnFormat("Received invalid asset from recommendation engine. ID = {0}, type = {1}", asset.AssetId, asset.AssetType.ToString());
+                }
+            }
+
+            bool illegalRequest = false;
+            var pagedList = TVinciShared.ListUtils.Page(validAssets, pageSize, pageIndex, out illegalRequest);
+
+            //if (!illegalRequest)
+            //{
+            //    finalList = pagedList.ToList();
+            //}
+            //else
+            //{
+            //    finalList = null;
+            //}
+
+            #endregion
 
             return validAssets;
         }
