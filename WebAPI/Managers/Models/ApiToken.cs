@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TVinciShared;
 using WebAPI.Models.General;
 
 namespace WebAPI.Managers.Models
@@ -45,7 +46,7 @@ namespace WebAPI.Managers.Models
 
         public ApiToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration, Dictionary<string,string> privileges = null)
         {
-            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = (int)Utils.SerializationUtils.GetCurrentUtcTimeInUnixTimestamp() });
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = (int)DateUtils.GetUtcUnixTimestampNow() });
             RefreshToken = Utils.Utils.Generate32LengthGuid();
             GroupID = groupId;
             UserId = userId;
@@ -54,11 +55,11 @@ namespace WebAPI.Managers.Models
             Udid = udid;
             if (isLongRefreshExpiration)
             {
-                RefreshTokenExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds));
+                RefreshTokenExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds));
             }
             else
             {
-                RefreshTokenExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+                RefreshTokenExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             }
 
             // set access expiration time - no longer than refresh expiration (not relative)
@@ -66,11 +67,11 @@ namespace WebAPI.Managers.Models
             long accessExpiration;
             if (UserId == "0")
             {
-                accessExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
+                accessExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
             }
             else
             {
-                accessExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
+                accessExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
             }
 
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
@@ -78,7 +79,7 @@ namespace WebAPI.Managers.Models
             KsObject = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
                 groupId.ToString(),
                 userId,
-                (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), // relative
+                (int)(AccessTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)), // relative
                 isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 payload,
                 privileges,
@@ -89,7 +90,7 @@ namespace WebAPI.Managers.Models
 
         public ApiToken(ApiToken token, Group groupConfig, string udid)
         {
-            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = (int)Utils.SerializationUtils.GetCurrentUtcTimeInUnixTimestamp() });
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = (int)DateUtils.GetUtcUnixTimestampNow() });
             RefreshToken = token.RefreshToken;
             GroupID = token.GroupID;
             UserId = token.UserId;
@@ -113,11 +114,11 @@ namespace WebAPI.Managers.Models
             long accessExpiration;
             if (UserId == "0")
             {
-                accessExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
+                accessExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
             }
             else
             {
-                accessExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
+                accessExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
             }
 
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
@@ -125,7 +126,7 @@ namespace WebAPI.Managers.Models
             KsObject = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
                 token.GroupID.ToString(),
                 token.UserId,
-                (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)),
+                (int)(AccessTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)),
                 token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 payload,
                 null, 

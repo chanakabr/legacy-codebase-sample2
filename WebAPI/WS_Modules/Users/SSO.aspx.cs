@@ -135,7 +135,7 @@ namespace WS_Users
 
             userBasicData.m_CoGuid = turnerUserDetails.identifier;
 
-            string sUserName = turnerUserDetails.identifier.Substring(0, 10) + DateTime.Now.Ticks;
+            string sUserName = turnerUserDetails.identifier.Substring(0, 10) + DateTime.UtcNow.Ticks;
 
             userBasicData.m_sUserName = sUserName;
             userBasicData.m_sPassword = sUserName;

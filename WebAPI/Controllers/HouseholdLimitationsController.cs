@@ -40,5 +40,29 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Get the list of PartnerConfiguration
+        /// </summary>
+        /// <param name="filter">filter by PartnerConfiguration type</param>
+        /// <returns></returns>
+        [Action("list")]
+        [ApiAuthorize]
+        static public KalturaHouseholdLimitationsListResponse List()
+        {
+            KalturaHouseholdLimitationsListResponse response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.DomainsClient().GetDomainLimitationModule(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

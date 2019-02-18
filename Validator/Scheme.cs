@@ -20,6 +20,7 @@ using WebAPI.Models.Renderers;
 using System.Net.Http;
 using Newtonsoft.Json;
 using WebAPI.Utils;
+using TVinciShared;
 
 namespace Validator.Managers.Scheme
 {
@@ -446,7 +447,7 @@ namespace Validator.Managers.Scheme
             writer.WriteStartDocument();
             writer.WriteStartElement("xml");
             writer.WriteAttributeString("apiVersion", GetAssemblyVersion());
-            writer.WriteAttributeString("generatedDate", SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow).ToString());
+            writer.WriteAttributeString("generatedDate", DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow).ToString());
 
             //Printing enums
             writer.WriteStartElement("enums");
@@ -575,6 +576,11 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("volatile", "1");
             writer.WriteAttributeString("description", "Response profile - this attribute will be automatically unset after every API call");
             writer.WriteEndElement(); // responseProfile
+
+            writer.WriteStartElement("abortOnError");
+            writer.WriteAttributeString("type", "bool");
+            writer.WriteAttributeString("description", "Abort the Multireuqset call if any error occurs in one of the requests");
+            writer.WriteEndElement(); // abortOnError
 
             writer.WriteStartElement("abortAllOnError");
             writer.WriteAttributeString("type", "bool");

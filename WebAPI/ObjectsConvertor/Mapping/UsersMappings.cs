@@ -25,7 +25,7 @@ namespace ObjectsConvertor.Mapping
             cfg.CreateMap<PinCodeResponse, KalturaUserLoginPin>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                 .ForMember(dest => dest.PinCode, opt => opt.MapFrom(src => src.pinCode))
-                .ForMember(dest => dest.ExpirationTime, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.expiredDate)));
+                .ForMember(dest => dest.ExpirationTime, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.expiredDate)));
 
             // UserType
             cfg.CreateMap<UserType, KalturaOTTUserType>()
@@ -82,8 +82,8 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
                 .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(src.m_RespStatus, src.m_user.IsActivationGracePeriod)))
                 .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => string.Join(",", src.m_user.m_oBasicData.RoleIds)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.CreateDate.ToUnixTimestamp()))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.UpdateDate.ToUnixTimestamp()));
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.CreateDate.ToUtcUnixTimestampSeconds()))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.UpdateDate.ToUtcUnixTimestampSeconds()));
 
             // User to KalturaOTTUser
             cfg.CreateMap<User, KalturaOTTUser>()
@@ -111,8 +111,8 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_isDomainMaster))
                 .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(ResponseStatus.OK, src.IsActivationGracePeriod))) // for activation status
                 .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => string.Join(",", src.m_oBasicData.RoleIds)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.m_oBasicData.CreateDate.ToUnixTimestamp()))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_oBasicData.UpdateDate.ToUnixTimestamp()));
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.m_oBasicData.CreateDate.ToUtcUnixTimestampSeconds()))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_oBasicData.UpdateDate.ToUtcUnixTimestampSeconds()));
 
             // KalturaOTTUser to KalturaBaseOTTUser
             cfg.CreateMap<KalturaOTTUser, KalturaBaseOTTUser>()
@@ -143,8 +143,8 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_UserType, opt => opt.ResolveUsing(src => src.UserType == null ? null : src.UserType))
                 .ForMember(dest => dest.m_sZip, opt => opt.MapFrom(src => src.Zip))
                 .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => src.GetRoleIds()))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate.UnixTimestampToDateTime()))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate.UnixTimestampToDateTime()));
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.UpdateDate)));
 
             // Country
             cfg.CreateMap<KalturaCountry, Core.Users.Country>()
@@ -170,13 +170,13 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_sItemCode))
                 .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)));
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dCreateDate)));
 
             cfg.CreateMap<KalturaFavorite , FavoritObject>()
                 .ForMember(dest => dest.m_sExtraData, opt => opt.MapFrom(src => src.ExtraData))
                 .ForMember(dest => dest.m_sItemCode, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.m_sItemCode, opt => opt.MapFrom(src => src.Asset))
-                .ForMember(dest => dest.m_dCreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)));
+                .ForMember(dest => dest.m_dCreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)));
 
             // UserItemsList to KalturaUserAssetsList
             cfg.CreateMap<UserItemsList, KalturaUserAssetsList>()

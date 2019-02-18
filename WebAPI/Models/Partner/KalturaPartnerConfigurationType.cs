@@ -10,7 +10,8 @@ namespace WebAPI.Models.Partner
         DefaultPaymentGateway,
         EnablePaymentGatewaySelection,
         OSSAdapter,
-        Concurrency
+        Concurrency,
+        General
     }
 
     /// <summary>

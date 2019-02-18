@@ -1,0 +1,15 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "TvmRule_List",
+      "service": "TvmRule",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

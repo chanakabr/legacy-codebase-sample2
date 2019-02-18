@@ -2167,8 +2167,8 @@ namespace WS_ConditionalAccess
         }
 
         [WebMethod]
-        public TransactionResponse ProcessReceipt(string sWSUserName, string sWSPassword, string siteguid, long household, Int32 contentId,
-                                         int productId, eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGatewayName)
+        public TransactionResponse ProcessReceipt(string sWSUserName, string sWSPassword, string siteguid, long household, Int32 contentId, int productId, 
+                                                  eTransactionType transactionType, string userIp, string deviceName, string purchaseToken, string paymentGatewayName)
         {
             TransactionResponse response = new TransactionResponse();
 
@@ -2181,7 +2181,7 @@ namespace WS_ConditionalAccess
 
             if (nGroupID != 0 && casImpl != null)
             {
-                response = casImpl.ProcessReceipt(siteguid, household, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGatewayName);
+                response = casImpl.ProcessReceipt(siteguid, household, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGatewayName, null);
                 if (response == null)
                     response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
@@ -2819,7 +2819,7 @@ namespace WS_ConditionalAccess
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.SearchDomainRecordings(nGroupID, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, shouldIgnorePaging);
+                return Core.ConditionalAccess.Module.SearchDomainRecordings(nGroupID, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, null);
             }
             else
             {

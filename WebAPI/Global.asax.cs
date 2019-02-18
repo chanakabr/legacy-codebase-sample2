@@ -22,6 +22,7 @@ namespace WebAPI
     public class WebApiApplication : System.Web.HttpApplication
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string FORM_URL_ENCODED = "application/x-www-form-urlencoded";
 
         protected void Application_Start()
         {
@@ -37,6 +38,9 @@ namespace WebAPI
 
         private static void InitializeLogging()
         {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+            string assemblyVersion = string.Format("{0}_{1}_{2}", fvi.FileMajorPart, fvi.FileMinorPart, fvi.FileBuildPart);
             string apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             string logDir = System.Environment.GetEnvironmentVariable("API_LOG_DIR");
             if(logDir != null)
@@ -47,7 +51,9 @@ namespace WebAPI
             {
                 logDir = @"C:\log\RestfulApi\" + apiVersion;
             }
+
             log4net.GlobalContext.Properties["LogDir"] = logDir;
+            log4net.GlobalContext.Properties["ApiVersion"] = assemblyVersion;
 
             // build log4net partial file name
             string partialLogName = string.Empty;
@@ -122,6 +128,26 @@ namespace WebAPI
             return 0;
         }
 
+        static private int GetGroupIdFormUrlEncoded(string requestString)
+        {
+            int groupId = 0;
+            try
+            {
+                NameValueCollection nameValueCollection = HttpUtility.ParseQueryString(requestString);
+                string username = nameValueCollection["sWSUserName"];
+                string module = GetWsModuleByUserName(username);
+                string password = nameValueCollection["sWSPassword"];
+                Credentials wsc = new Credentials(username, password);
+                groupId = TvinciCache.WSCredentials.GetGroupID(module, wsc);                
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get groupId from FormUrlEncoded", ex);
+            }
+
+            return groupId;
+        }
+
         private static string GetWsModuleByUserName(string userName)
         {
             string[] splitedUserName = userName.Split('_');
@@ -135,15 +161,38 @@ namespace WebAPI
 
         protected void Application_BeginRequest()
         {
+            KMonitor.SetAppType(KLogEnums.AppType.WS);
+            KLogger.SetAppType(KLogEnums.AppType.WS);
             if (!Request.AppRelativeCurrentExecutionFilePath.ToLower().Contains("/api_v"))
             {
+                // set appType to WCF only if we know its a WCF service
+                if (Request.AppRelativeCurrentExecutionFilePath.ToLower().Contains(".svc"))
+                {
+                    KMonitor.SetAppType(KLogEnums.AppType.WCF);
+                    KLogger.SetAppType(KLogEnums.AppType.WCF);
+                }
+
                 // initialize monitor and logs parameters
                 string requestString = MonitorLogsHelper.GetWebServiceRequestString();
-                if (!string.IsNullOrEmpty(requestString) && requestString.ToLower().Contains("<soap"))
+                if (!string.IsNullOrEmpty(requestString))
                 {
-                    // soap request
-                    int groupId = GetGroupID(requestString);
-                    MonitorLogsHelper.InitMonitorLogsDataWS("USERS", requestString, groupId);
+                    if (requestString.ToLower().Contains("<soap"))
+                    {
+                        // soap request
+                        int groupId = GetGroupID(requestString);
+                        MonitorLogsHelper.InitMonitorLogsDataWS("USERS", requestString, groupId);
+                    }
+                    else if (Request.ContentType == FORM_URL_ENCODED)
+                    {
+                        string action = string.Empty;
+                        if (!string.IsNullOrEmpty(Request.PathInfo) && Request.PathInfo.Length > 1)
+                        {
+                            action = Request.PathInfo.Substring(1);
+                        }
+
+                        int groupId = GetGroupIdFormUrlEncoded(requestString);
+                        MonitorLogsHelper.InitMonitorLogsDataFormUrlEncoded(action, requestString, groupId);
+                    }
                 }
             }
             else

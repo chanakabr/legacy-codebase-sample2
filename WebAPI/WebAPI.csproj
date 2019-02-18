@@ -39,8 +39,8 @@
     <LangVersion>5</LangVersion>
     <FilesToIncludeForPublish>AllFilesInProjectFolder</FilesToIncludeForPublish>
     <PublishDatabases>false</PublishDatabases>
-	<ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
-	<ExcludeFoldersFromDeployment>bin\ssl-dev;bin\bin</ExcludeFoldersFromDeployment>
+    <ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
+    <ExcludeFoldersFromDeployment>bin\ssl-dev;bin\bin</ExcludeFoldersFromDeployment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,8 +52,8 @@
     <DocumentationFile>bin\WebAPI.XML</DocumentationFile>
     <FilesToIncludeForPublish>AllFilesInProjectFolder</FilesToIncludeForPublish>
     <PublishDatabases>false</PublishDatabases>
-	<ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
-	<ExcludeFoldersFromDeployment>bin\ssl-dev;bin\bin</ExcludeFoldersFromDeployment>
+    <ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
+    <ExcludeFoldersFromDeployment>bin\ssl-dev;bin\bin</ExcludeFoldersFromDeployment>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper, Version=7.0.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
@@ -794,6 +794,7 @@
     <Compile Include="Clients\ClientUtils.cs" />
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AssetFilePpvController.cs" />
+    <Compile Include="Controllers\TvmRuleController.cs" />
     <Compile Include="Controllers\BusinessModuleRuleController.cs" />
     <Compile Include="Controllers\PlaybackProfileController.cs" />
     <Compile Include="Controllers\SegmentationTypeController.cs" />
@@ -829,6 +830,12 @@
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\UserSegmentController.cs" />
+    <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
+    <Compile Include="Models\API\KalturaTvmGeoRule.cs" />
+    <Compile Include="Models\API\KalturaTvmRuleFilter.cs" />
+    <Compile Include="Models\API\KalturaShirCheckListResponse.cs" />
+    <Compile Include="Models\API\KalturaTvmRuleListResponse.cs" />
+    <Compile Include="Models\API\KalturaTvmRule.cs" />
     <Compile Include="Models\API\KalturaBusinessModuleRuleFilter.cs" />
     <Compile Include="Models\API\KalturaPlaybackProfile.cs" />
     <Compile Include="Models\API\KalturaPlaybackProfileListResponse.cs" />
@@ -841,8 +848,11 @@
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBumpersPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCaptionPlaybackPluginData.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaExternalRecordingFilter.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdLimitationsListResponse.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
     <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />
+    <Compile Include="Models\Partner\KalturaGeneralPartnerConfig.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpv.cs" />
     <Compile Include="Models\Pricing\KalturaPpvFilter.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpvFilter.cs" />
@@ -1788,7 +1798,7 @@
       <Name>KlogMonitorHelper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
-      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Project>{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">

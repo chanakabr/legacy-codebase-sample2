@@ -11,10 +11,9 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     /// <summary>
-    /// Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
+    /// User asset rule - representing different type of rules on an asset(Parental, Geo, User Type, Device)
     /// </summary>
-    [Obsolete]
-    public partial class KalturaGenericRule : KalturaOTTObject
+    public partial class KalturaUserAssetRule : KalturaOTTObject
     {
         /// <summary>
         /// Unique rule identifier
@@ -22,6 +21,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public long? Id { get; set; }
 
         /// <summary>
@@ -30,7 +30,6 @@ namespace WebAPI.Models.API
         [DataMember(Name = "ruleType")]
         [JsonProperty("ruleType")]
         [XmlElement(ElementName = "ruleType")]
-        [OldStandardProperty("rule_type")]
         public KalturaRuleType RuleType { get; set; }
 
         /// <summary>

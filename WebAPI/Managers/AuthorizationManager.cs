@@ -15,6 +15,7 @@ using WebAPI.Models.General;
 using APILogic.Api.Managers;
 using ApiObjects;
 using ConfigurationManager;
+using TVinciShared;
 
 namespace WebAPI.Managers
 {
@@ -95,7 +96,7 @@ namespace WebAPI.Managers
             }
 
             // Store new access + refresh tokens pair
-            if (!cbManager.SetWithVersion(tokenKey, token, version, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
+            if (!cbManager.SetWithVersion(tokenKey, token, version, (uint)(token.RefreshTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)), true))
             {
                 log.ErrorFormat("RefreshSession: Failed to store refreshed token");
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
@@ -137,7 +138,7 @@ namespace WebAPI.Managers
             if (group.IsRefreshTokenEnabled)
             {
                 // try store in CB, will return false if the same token already exists
-                if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
+                if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)), true))
                 {
                     log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                     throw new InternalServerErrorException();
@@ -286,7 +287,7 @@ namespace WebAPI.Managers
             long sessionDuration = 0;
             if (appToken.Expiry > 0)
             {
-                sessionDuration = Math.Min(appToken.SessionDuration, appToken.Expiry - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp());
+                sessionDuration = Math.Min(appToken.SessionDuration, appToken.Expiry - DateUtils.GetUtcUnixTimestampNow());
             }
             else
             {
@@ -314,7 +315,7 @@ namespace WebAPI.Managers
             WebAPI.Managers.Models.KS.KSData ksData = new WebAPI.Managers.Models.KS.KSData()
             {
                 UDID = udid,
-                CreateDate = (int)SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()
+                CreateDate = (int)DateUtils.GetUtcUnixTimestampNow()
             };
             string payload = KSUtils.PrepareKSPayload(ksData);
 
@@ -417,7 +418,7 @@ namespace WebAPI.Managers
             // 3. set default values for empty properties
             List<long> userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
 
-            int utcNow = (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
+            int utcNow = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             if (appToken.getExpiry() == 0 && userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() == 0)
             {
@@ -508,7 +509,7 @@ namespace WebAPI.Managers
 
             string revokedSessionKeyFormat = GetRevokedSessionKeyFormat(group);
             string revokedSessionCbKey = string.Format(revokedSessionKeyFormat, appToken.Token);
-            long revokedSessionTime = Utils.Utils.DateTimeToUnixTimestamp(DateTime.Now, false);
+            long revokedSessionTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
             long revokedSessionExpiryInSeconds = group.RefreshExpirationForPinLoginSeconds;
             if (appToken.getSessionDuration() > 0 && appToken.getSessionDuration() < revokedSessionExpiryInSeconds)
                 revokedSessionExpiryInSeconds = appToken.getSessionDuration();
@@ -532,7 +533,7 @@ namespace WebAPI.Managers
                 ApiToken revokedToken = new ApiToken()
                 {
                     GroupID = ks.GroupId,
-                    AccessTokenExpiration = SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
+                    AccessTokenExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
                     KS = ks.ToString(),
                     Udid = KSUtils.ExtractKSPayload().UDID,
                     UserId = ks.UserId
@@ -540,7 +541,7 @@ namespace WebAPI.Managers
 
                 string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
 
-                uint expiration = (uint)(revokedToken.RefreshTokenExpiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp());
+                uint expiration = (uint)(revokedToken.RefreshTokenExpiration - DateUtils.GetUtcUnixTimestampNow());
                 if (revokedKsMaxTtlSeconds > 0 && revokedKsMaxTtlSeconds < expiration)
                 {
                     expiration = (uint)revokedKsMaxTtlSeconds;
@@ -592,7 +593,7 @@ namespace WebAPI.Managers
         {
             Group group = GroupsManager.GetGroup(groupId);
 
-            if (!UpdateUsersSessionsRevocationTime(group, userId, string.Empty, (int)SerializationUtils.GetCurrentUtcTimeInUnixTimestamp(), 0, true))
+            if (!UpdateUsersSessionsRevocationTime(group, userId, string.Empty, (int)DateUtils.GetUtcUnixTimestampNow(), 0, true))
             {
                 log.ErrorFormat("RevokeKs: Failed to store users sessions");
                 throw new InternalServerErrorException();
@@ -708,7 +709,7 @@ namespace WebAPI.Managers
                 {
                     usersSessions.UserRevocation = revocationTime;
 
-                    long now = SerializationUtils.GetCurrentUtcTimeInUnixTimestamp();
+                    long now = DateUtils.GetUtcUnixTimestampNow();
                     usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (int)(now + group.KSExpirationSeconds)), (int)now + group.AppTokenSessionMaxDurationSeconds);
                 }
                 else
@@ -727,7 +728,7 @@ namespace WebAPI.Managers
                 }
 
                 // store
-                if (!cbManager.SetWithVersion<UserSessions>(userSessionsCbKey, usersSessions, version, (uint)(usersSessions.expiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()), true))
+                if (!cbManager.SetWithVersion<UserSessions>(userSessionsCbKey, usersSessions, version, (uint)(usersSessions.expiration - DateUtils.GetUtcUnixTimestampNow()), true))
                 {
                     log.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
                     return false;
@@ -775,7 +776,7 @@ namespace WebAPI.Managers
                 return;
 
             Group group = GroupsManager.GetGroup(groupId);
-            long utcNow = Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
             long maxSessionDuration = utcNow + Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
 
             foreach (string userId in householdUserIds)

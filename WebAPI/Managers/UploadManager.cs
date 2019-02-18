@@ -16,6 +16,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using ConfigurationManager;
+using ConfigurationManager.Types;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -91,10 +92,15 @@ namespace WebAPI.Managers
             FileInfo fileInfo = new FileInfo(path);
             cbUploadToken.FileSize = fileInfo.Length;
 
-            if (ShouldWriteToS3())
-                cbUploadToken.FileUrl = S3Uploader.Instance.UploadFile(fileInfo, id);
-            else
-                cbUploadToken.FileUrl = FileSystemUploader.Instance.UploadFile(fileInfo, id);
+            switch (ApplicationConfiguration.FileUpload.UploadType)
+            {
+                case FileUploadConfiguration.eFileUploadType.FileSystem:
+                    cbUploadToken.FileUrl = FileSystemUploader.Instance.UploadFile(fileInfo, id);
+                    break;
+                case FileUploadConfiguration.eFileUploadType.S3:
+                    cbUploadToken.FileUrl = S3Uploader.Instance.UploadFile(fileInfo, id);
+                    break;
+            }
 
             cbUploadToken.Status = KalturaUploadTokenStatus.FULL_UPLOAD;
 
@@ -122,12 +128,6 @@ namespace WebAPI.Managers
 
             return new KalturaUploadToken(cbUploadToken);
         }
-
-        internal static bool ShouldWriteToS3()
-        {
-            // get from TCM
-            return ApplicationConfiguration.UploadFilesToS3.Value;
-        }
     }
 
     public abstract class BaseUploader
@@ -141,7 +141,13 @@ namespace WebAPI.Managers
 
         protected BaseUploader()
         {
+            initialize();
             Initialize();
+        }
+
+        private void initialize()
+        {
+            ShouldDeleteSourceFile = ApplicationConfiguration.FileUpload.ShouldDeleteSourceFile.Value;
         }
 
         public string UploadFile(FileInfo fileInfo, string id)
@@ -178,13 +184,12 @@ namespace WebAPI.Managers
 
         protected override void Initialize()
         {
-            AccessKey = ApplicationConfiguration.S3FileUploader.AccessKey.Value;
-            SecretKey = ApplicationConfiguration.S3FileUploader.SecretKey.Value;
-            Region = ApplicationConfiguration.S3FileUploader.Region.Value;
-            BucketName = ApplicationConfiguration.S3FileUploader.BucketName.Value;
-            NumberOfRetries = ApplicationConfiguration.S3FileUploader.NumberOfRetries.IntValue;
-            Path = ApplicationConfiguration.S3FileUploader.Path.Value;
-            ShouldDeleteSourceFile = ApplicationConfiguration.S3FileUploader.ShouldDeleteSourceFile.Value;
+            AccessKey = ApplicationConfiguration.FileUpload.S3.AccessKey.Value;
+            SecretKey = ApplicationConfiguration.FileUpload.S3.SecretKey.Value;
+            Region = ApplicationConfiguration.FileUpload.S3.Region.Value;
+            BucketName = ApplicationConfiguration.FileUpload.S3.BucketName.Value;
+            NumberOfRetries = ApplicationConfiguration.FileUpload.S3.NumberOfRetries.IntValue;
+            Path = ApplicationConfiguration.FileUpload.S3.Path.Value;
         }
 
         protected override string Upload(FileInfo fileInfo, string id)
@@ -242,15 +247,13 @@ namespace WebAPI.Managers
 
         protected override void Initialize()
         {
-            Destination = ApplicationConfiguration.FileSystemUploader.DestPath.Value;
-            PublicUrl = ApplicationConfiguration.FileSystemUploader.PublicUrl.Value;
-            ShouldDeleteSourceFile = ApplicationConfiguration.FileSystemUploader.ShouldDeleteSourceFile.Value;
+            Destination = ApplicationConfiguration.FileUpload.FileSystem.DestPath.Value;
+            PublicUrl = ApplicationConfiguration.FileUpload.FileSystem.PublicUrl.Value;
         }
 
         protected override string Upload(FileInfo fileInfo, string id)
         {
-            var subDir = GetSubDir(id);
-            var destDir = Path.Combine(Destination, subDir);
+            var destDir = Path.Combine(Destination, GetSubDir(id));
             CreateSubDir(destDir);
 
             var fileName = id + fileInfo.Extension;
@@ -273,7 +276,7 @@ namespace WebAPI.Managers
                 throw new InternalServerErrorException(new ApiException.ApiExceptionType(StatusCode.Error, "can't upload file"));
             }
 
-            return new Uri(new Uri(PublicUrl), fileName).AbsoluteUri;
+            return string.Format("{0}{1}{2}", PublicUrl, GetSubUrl(id), fileName);
         }
 
         private static void CreateSubDir(string destDir)
@@ -286,7 +289,7 @@ namespace WebAPI.Managers
         {
             const int CharacterNumber = 8;
 
-            if (id.Length < CharacterNumber)
+            if (id.Length <= CharacterNumber)
                 throw new InternalServerErrorException(new ApiException.ApiExceptionType(StatusCode.Error, "file id length is too short"));
 
             var sb = new StringBuilder(CharacterNumber);
@@ -297,6 +300,11 @@ namespace WebAPI.Managers
             }
 
             return sb.ToString();
+        }
+
+        private static string GetSubUrl(string id)
+        {
+            return GetSubDir(id).Replace("\\", "/");
         }
     }
 }

@@ -50,17 +50,66 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "roleIdsIn")]
         [JsonProperty("roleIdsIn")]
         [XmlElement(ElementName = "roleIdsIn")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, DynamicMinInt = 0)]
         public string RoleIdsIn { get; set; }
 
-        internal void Validate()
+        internal void Validate(bool isOperatorOrAbove)
         {
-            if ((!string.IsNullOrEmpty(UsernameEqual) && !string.IsNullOrEmpty(ExternalIdEqual) && !string.IsNullOrEmpty(IdIn)) ||
-                (!string.IsNullOrEmpty(UsernameEqual) && !string.IsNullOrEmpty(ExternalIdEqual)) ||
-                (!string.IsNullOrEmpty(UsernameEqual) && !string.IsNullOrEmpty(IdIn)) ||
-                (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(ExternalIdEqual)))
+            // validate that filter is only by username
+            if (!string.IsNullOrEmpty(UsernameEqual))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaOTTUserFilter.userNameEqual", "KalturaOTTUserFilter.externalIdEqual");
+                if (!string.IsNullOrEmpty(ExternalIdEqual))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, 
+                                                  "KalturaOTTUserFilter.userNameEqual", 
+                                                  "KalturaOTTUserFilter.externalIdEqual");
+                }
+
+                if (!string.IsNullOrEmpty(IdIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                                  "KalturaOTTUserFilter.userNameEqual",
+                                                  "KalturaOTTUserFilter.idIn");
+                }
+
+                if (!string.IsNullOrEmpty(RoleIdsIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                                  "KalturaOTTUserFilter.userNameEqual",
+                                                  "KalturaOTTUserFilter.roleIdsIn");
+                }
+            }
+            // validate that filter is only by externalId
+            else if (!string.IsNullOrEmpty(ExternalIdEqual))
+            {
+                if (!string.IsNullOrEmpty(IdIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                                  "KalturaOTTUserFilter.externalIdEqual",
+                                                  "KalturaOTTUserFilter.idIn");
+                }
+
+                if (!string.IsNullOrEmpty(RoleIdsIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                                  "KalturaOTTUserFilter.externalIdEqual",
+                                                  "KalturaOTTUserFilter.roleIdsIn");
+                }
+            }
+            // validate that filter is only by idIn
+            else if (!string.IsNullOrEmpty(IdIn))
+            {
+                if (!string.IsNullOrEmpty(RoleIdsIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                              "KalturaOTTUserFilter.idIn",
+                                              "KalturaOTTUserFilter.roleIdsIn");
+                }
+            }
+            // RoleIdsIn cannot be empty if the user isOperatorOrAbove
+            else if (string.IsNullOrEmpty(RoleIdsIn) && isOperatorOrAbove)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaOTTUserFilter.roleIdsIn");
             }
         }
 
@@ -68,7 +117,12 @@ namespace WebAPI.Models.Users
         {
             return this.GetItemsIn<List<string>, string>(IdIn, "KalturaOTTUserFilter.idIn");
         }
-        
+
+        internal HashSet<long> GetRoleIdsIn()
+        {
+            return this.GetItemsIn<HashSet<long>, long>(RoleIdsIn, "KalturaOTTUserFilter.roleIdsIn");
+        }
+
         public override KalturaOTTUserOrderBy GetDefaultOrderByValue()
         {
             return KalturaOTTUserOrderBy.NONE;

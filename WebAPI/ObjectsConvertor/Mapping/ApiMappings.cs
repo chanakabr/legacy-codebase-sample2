@@ -41,14 +41,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Direction, opt => opt.MapFrom(src => src.Direction))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.DisplayName) ? src.DisplayName : src.Name))
-                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID));
 
             //KalturaCurrency
             cfg.CreateMap<Core.Pricing.Currency, KalturaCurrency>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.m_bIsDefault))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCurrencyName))
-                .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign));
+                .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nCurrencyID));
 
             //AssetType to Catalog.StatsType
             cfg.CreateMap<AssetType, StatsType>().ConstructUsing(ConvertAssetTypeToStatsType);
@@ -506,6 +508,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region AssetRule
 
+            cfg.CreateMap<KalturaRule, Rule>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<Rule, KalturaRule>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
             cfg.CreateMap<AssetRule, KalturaAssetRule>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
@@ -828,6 +840,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER:
                             return RuleActionType.ApplyPlaybackAdapter;
                             break;
+                        case KalturaRuleActionType.FILTER:
+                            return RuleActionType.Filter;
+                            break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleAction value : {0}", kalturaRuleActionType.ToString()));
                             break;
@@ -864,6 +879,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleActionType.ApplyPlaybackAdapter:
                             return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
                             break;
+                        case RuleActionType.Filter:
+                            return KalturaRuleActionType.FILTER;
+                            break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ruleActionType value : {0}", ruleActionType.ToString()));
                             break;
@@ -897,6 +915,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<AssetUserRuleBlockAction, KalturaAssetUserRuleBlockAction>()
                 .IncludeBase<AssetUserRuleAction, KalturaAssetUserRuleAction>();
+
+            cfg.CreateMap<KalturaAssetUserRuleFilterAction, AssetUserRuleFilterAction>()
+               .IncludeBase<KalturaAssetUserRuleAction, AssetUserRuleAction>()
+               .ForMember(dest => dest.ApplyOnChannel, opt => opt.MapFrom(src => src.ApplyOnChannel));
+
+            cfg.CreateMap<AssetUserRuleFilterAction, KalturaAssetUserRuleFilterAction>()
+                .IncludeBase<AssetUserRuleAction, KalturaAssetUserRuleAction>()
+                .ForMember(dest => dest.ApplyOnChannel, opt => opt.MapFrom(src => src.ApplyOnChannel));
 
             cfg.CreateMap<KalturaAssetRuleAction, AssetRuleAction>()
                .IncludeBase<KalturaRuleAction, RuleAction>();
@@ -943,6 +969,123 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<EndDateOffsetRuleAction, KalturaEndDateOffsetRuleAction>()
                 .IncludeBase<TimeOffsetRuleAction, KalturaTimeOffsetRuleAction>();
+            
+            cfg.CreateMap<KalturaRuleType?, RuleType?>()
+                .ConvertUsing(kalturaRuleType =>
+                {
+                    if (!kalturaRuleType.HasValue)
+                    {
+                        return null;
+                    }
+                    
+                    switch (kalturaRuleType)
+                    {
+                        case KalturaRuleType.parental:
+                            return RuleType.Parental;
+                            break;
+                        case KalturaRuleType.geo:
+                            return RuleType.Geo;
+                            break;
+                        case KalturaRuleType.user_type:
+                            return RuleType.UserType;
+                            break;
+                        case KalturaRuleType.device:
+                            return RuleType.Device;
+                            break;
+                        case KalturaRuleType.assetUser:
+                            return RuleType.AssetUser;
+                            break;
+                        case KalturaRuleType.network:
+                            return RuleType.Network;
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, 
+                                string.Format("Unknown KalturaRuleType value : {0}", kalturaRuleType.ToString()));
+                            break;
+                    }
+                });
+
+            cfg.CreateMap<KalturaTvmRuleType?, TvmRuleType?>()
+               .ConvertUsing(kalturaTvmRuleType =>
+               {
+                   if (!kalturaTvmRuleType.HasValue)
+                   {
+                       return null;
+                   }
+
+                   switch (kalturaTvmRuleType)
+                   {
+                       case KalturaTvmRuleType.Geo:
+                           return TvmRuleType.Geo;
+                           break;
+                       case KalturaTvmRuleType.Device:
+                           return TvmRuleType.Device;
+                           break;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue,
+                               string.Format("Unknown KalturaTvmRuleType value : {0}", kalturaTvmRuleType.ToString()));
+                           break;
+                   }
+               });
+
+            cfg.CreateMap<TvmRuleType?, KalturaTvmRuleType?>()
+               .ConvertUsing(tvmRuleType =>
+               {
+                   if (!tvmRuleType.HasValue)
+                   {
+                       return null;
+                   }
+
+                   switch (tvmRuleType)
+                   {
+                       case TvmRuleType.Geo:
+                           return KalturaTvmRuleType.Geo;
+                           break;
+                       case TvmRuleType.Device:
+                           return KalturaTvmRuleType.Device;
+                           break;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue,
+                               string.Format("Unknown TvmRuleType value : {0}", tvmRuleType.ToString()));
+                           break;
+                   }
+               });
+
+            cfg.CreateMap<KalturaTvmRule, TvmRule>()
+                .IncludeBase<KalturaRule, Rule>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => src.RuleType));
+
+            cfg.CreateMap<TvmRule, KalturaTvmRule>()
+                .IncludeBase<Rule, KalturaRule>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => src.RuleType));
+
+            cfg.CreateMap<KalturaTvmGeoRule, TvmGeoRule>()
+                .IncludeBase<KalturaTvmRule, TvmRule>()
+                .ForMember(dest => dest.OnlyOrBut, opt => opt.MapFrom(src => src.OnlyOrBut))
+                .ForMember(dest => dest.CountryIds, opt => opt.MapFrom(src => src.GetCountryIds()))
+                .ForMember(dest => dest.ProxyRuleId, opt => opt.MapFrom(src => src.ProxyRuleId))
+                .ForMember(dest => dest.ProxyRuleName, opt => opt.MapFrom(src => src.ProxyRuleName))
+                .ForMember(dest => dest.ProxyLevelId, opt => opt.MapFrom(src => src.ProxyLevelId))
+                .ForMember(dest => dest.ProxyLevelName, opt => opt.MapFrom(src => src.ProxyLevelName)); 
+
+            cfg.CreateMap<TvmGeoRule, KalturaTvmGeoRule>()
+                .IncludeBase<TvmRule, KalturaTvmRule>()
+                .ForMember(dest => dest.OnlyOrBut, opt => opt.MapFrom(src => src.OnlyOrBut))
+                .ForMember(dest => dest.CountryIds, opt => opt.MapFrom(src => src.CountryIds != null ? string.Join(",", src.CountryIds) : null))
+                .ForMember(dest => dest.ProxyRuleId, opt => opt.MapFrom(src => src.ProxyRuleId))
+                .ForMember(dest => dest.ProxyRuleName, opt => opt.MapFrom(src => src.ProxyRuleName))
+                .ForMember(dest => dest.ProxyLevelId, opt => opt.MapFrom(src => src.ProxyLevelId))
+                .ForMember(dest => dest.ProxyLevelName, opt => opt.MapFrom(src => src.ProxyLevelName));
+
+            cfg.CreateMap<KalturaTvmDeviceRule, TvmDeviceRule>()
+                .IncludeBase<KalturaTvmRule, TvmRule>()
+                .ForMember(dest => dest.DeviceBrandIds, opt => opt.MapFrom(src => src.GetDeviceBrandIds()));
+
+            cfg.CreateMap<TvmDeviceRule, KalturaTvmDeviceRule>()
+                .IncludeBase<TvmRule, KalturaTvmRule>()
+                .ForMember(dest => dest.DeviceBrandIds, opt => opt.MapFrom(src => src.DeviceBrandIds != null ? string.Join(",", src.DeviceBrandIds) : null));
 
             #endregion
 
@@ -994,24 +1137,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // Segmentation type
             cfg.CreateMap<KalturaSegmentationType, SegmentationType>()
-                .ForMember(d => d.Conditions, opt => opt.MapFrom(s => s.Conditions))
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
-                ;
+                .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
+                .ForMember(dest => dest.Version, opt => opt.Ignore());
 
             cfg.CreateMap<SegmentationType, KalturaSegmentationType>()
-                .ForMember(d => d.Conditions, opt => opt.MapFrom(s => s.Conditions))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
-                ;
+                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version));
 
             // Segmentation source
             cfg.CreateMap<KalturaSegmentSource, SegmentSource>()
@@ -1148,6 +1289,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // segment dummy value
             cfg.CreateMap<SegmentDummyValue, KalturaSingleSegmentValue>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AffectedUsers, opt => opt.MapFrom(src => src.AffectedUsersTtl >= DateTime.UtcNow ? src.AffectedUsers : 0))
                 ;
 
             cfg.CreateMap<KalturaSingleSegmentValue, SegmentDummyValue>()
@@ -1425,6 +1567,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                        case KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER:
                            return ApiObjects.PlaybackAdapter.RuleActionType.APPLY_PLAYBACK_ADAPTER;
                            break;
+                       case KalturaRuleActionType.FILTER:
+                           return ApiObjects.PlaybackAdapter.RuleActionType.FILTER;
+                           break;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown kalturaRuleActionType value : {0}", kalturaRuleActionType.ToString()));
                            break;
@@ -1460,6 +1605,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             break;
                         case ApiObjects.PlaybackAdapter.RuleActionType.APPLY_PLAYBACK_ADAPTER:
                             return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
+                            break;
+                        case ApiObjects.PlaybackAdapter.RuleActionType.FILTER:
+                            return KalturaRuleActionType.FILTER;
                             break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown PlaybackAdapterRuleActionType value : {0}", ruleActionType.ToString()));

@@ -71,6 +71,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
+        [Throws(eResponseStatus.RatioDoesNotExist)]
         static public KalturaImageType Add(KalturaImageType imageType)
         {
             KalturaImageType response = null;
@@ -117,6 +118,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
         [Throws(eResponseStatus.DefaultImageInvalidImageType)]
+        [Throws(eResponseStatus.RatioDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaImageType Update(long id, KalturaImageType imageType)
         {

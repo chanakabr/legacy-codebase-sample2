@@ -35,7 +35,6 @@ namespace WebAPI.Models.General
             OrderBy = GetDefaultOrderByValue();
         }
 
-        // TODO SHIR - USE THIS IN ALL PLACES..
         /// <summary>
         /// Convert comma separated string to collection.
         /// </summary>

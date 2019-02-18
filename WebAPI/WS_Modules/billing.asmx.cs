@@ -897,7 +897,7 @@ namespace WS_Billing
                 if (groupId != 0)
                 {
                     response = Core.Billing.Module.VerifyReceipt(groupId, siteGUID, householdID, price, currency, userIP, customData, productID, productCode,
-                                               productType, contentID, purchaseToken, paymentGatewayType, billingGuid);
+                                                                 productType, contentID, purchaseToken, paymentGatewayType, billingGuid, null);
                 }
                 else
                 {

@@ -30,6 +30,7 @@ using WebAPI.Models.Pricing;
 using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using TVinciShared;
 
 namespace WebAPI.Clients
 {
@@ -190,7 +191,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -231,7 +232,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -270,7 +271,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -310,7 +311,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -344,7 +345,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -386,7 +387,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -409,7 +410,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaTransaction ProcessReceipt(int groupId, string siteguid, long household, int contentId, int productId, KalturaTransactionType clientTransactionType,
-                                                           string udid, string purchaseToken, string paymentGatewayName)
+                                                   string udid, string purchaseToken, string paymentGatewayName, string adapterData)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
@@ -425,12 +426,13 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Core.ConditionalAccess.Module.ProcessReceipt(groupId, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), udid, purchaseToken, paymentGatewayName);
+                    wsResponse = Core.ConditionalAccess.Module.ProcessReceipt(groupId, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), 
+                                                                              udid, purchaseToken, paymentGatewayName, adapterData);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -472,7 +474,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -507,7 +509,7 @@ namespace WebAPI.Clients
         //    }
         //    catch (Exception ex)
         //    {
-        //        log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+        //        log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
         //        ErrorUtils.HandleWSException(ex);
         //    }
 
@@ -555,7 +557,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -613,7 +615,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -676,7 +678,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -761,7 +763,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -795,7 +797,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -828,7 +830,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -868,7 +870,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -907,7 +909,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -945,7 +947,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -978,7 +980,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1007,7 +1009,7 @@ namespace WebAPI.Clients
 
             try
             {
-                DateTime startTime = Utils.SerializationUtils.ConvertFromUnixTimestamp(startDate);
+                DateTime startTime = DateUtils.UtcUnixTimestampSecondsToDateTime(startDate);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -1018,7 +1020,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1056,7 +1058,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1091,7 +1093,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1127,7 +1129,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1163,7 +1165,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1201,7 +1203,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1236,7 +1238,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1273,7 +1275,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1313,7 +1315,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1366,7 +1368,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1389,7 +1391,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaRecordingListResponse SearchRecordings(int groupId, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter, HashSet<string> externalRecordingIds,
-                                                                int pageIndex, int? pageSize, KalturaRecordingOrderBy? orderBy)
+                                                                int pageIndex, int? pageSize, KalturaRecordingOrderBy? orderBy, Dictionary<string, string> metaData)
         {
             KalturaRecordingListResponse result = new KalturaRecordingListResponse() { TotalCount = 0 };
             RecordingResponse response = null;
@@ -1399,7 +1401,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.m_eOrderBy = OrderBy.START_DATE;
-                order.m_eOrderDir = OrderDir.DESC;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
             }
             else
             {
@@ -1413,21 +1415,18 @@ namespace WebAPI.Clients
 
             List<TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();
 
-            // get group configuration
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
                     response = Core.ConditionalAccess.Module.SearchDomainRecordings(groupId, userID, domainID, convertedRecordingStatuses.ToArray(),
-                                                                          ksqlFilter, pageIndex, pageSize.Value, order, false, externalRecordingIds);
+                                                                          ksqlFilter, pageIndex, pageSize.Value, order, false, metaData, externalRecordingIds);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1446,23 +1445,7 @@ namespace WebAPI.Clients
             if (response.Recordings != null && response.Recordings.Count > 0)
             {
                 result.TotalCount = response.TotalItems;
-                // convert recordings
-                result.Objects = new List<KalturaRecording>();
-                foreach (Recording recording in response.Recordings)
-                {
-                    KalturaRecording kalturaRecording = null;
-                    if (recording.isExternalRecording)
-                    {
-                        ExternalRecording externalRecording = recording as ExternalRecording;
-                        kalturaRecording = Mapper.Map<KalturaExternalRecording>(externalRecording);
-                    }
-                    else
-                    {
-                        kalturaRecording = Mapper.Map<KalturaRecording>(recording);
-                    }
-
-                    result.Objects.Add(kalturaRecording);
-                }                
+                result.Objects = Mapper.Map<List<KalturaRecording>>(response.Recordings);
             }
 
             return result;
@@ -1518,7 +1501,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1561,7 +1544,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1601,7 +1584,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1641,7 +1624,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1681,7 +1664,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1721,7 +1704,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1755,7 +1738,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.OrderBy = SeriesOrderBy.ID;
-                order.OrderDir = OrderDir.ASC;
+                order.OrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
             }
             else
             {
@@ -1795,7 +1778,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1838,7 +1821,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1873,7 +1856,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1916,7 +1899,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1961,7 +1944,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2010,7 +1993,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2077,7 +2060,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2109,7 +2092,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
             if (response == null)
@@ -2138,7 +2121,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2166,7 +2149,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2200,7 +2183,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2238,7 +2221,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2269,7 +2252,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2315,7 +2298,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2348,7 +2331,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2377,7 +2360,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2407,7 +2390,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2439,7 +2422,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2469,7 +2452,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2488,7 +2471,8 @@ namespace WebAPI.Clients
 
         internal KalturaExternalRecording AddExternalRecording(int groupId, KalturaExternalRecording recording, long userId)
         {
-            Func<ExternalRecording, GenericResponse<ExternalRecording>> addExternalRecordigFunc = (ExternalRecording recordingToAdd) => Core.ConditionalAccess.Module.AddExternalRecording(groupId, recordingToAdd, recording.IsProtected, userId);
+            Func<ExternalRecording, GenericResponse<ExternalRecording>> addExternalRecordigFunc = (ExternalRecording recordingToAdd) =>
+                    Core.ConditionalAccess.Module.AddExternalRecording(groupId, recordingToAdd, recording.IsProtected, userId);
             return ClientUtils.GetResponseFromWS<KalturaExternalRecording, ExternalRecording>(recording, addExternalRecordigFunc);
         }
 
@@ -2509,7 +2493,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

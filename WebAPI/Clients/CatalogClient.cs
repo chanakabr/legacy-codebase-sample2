@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -330,6 +331,44 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaProgramAsset GetEpgAsset(int groupId, long epgId, bool isAllowedToViewInactiveAssets)
+        {
+            GenericResponse<Asset> response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, epgId, eAssetTypes.EPG, isAllowedToViewInactiveAssets);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling catalog service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            KalturaProgramAsset result = null;
+            if (response.Object != null)
+            {
+                result = AutoMapper.Mapper.Map<KalturaProgramAsset>(response.Object);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            }
+
+            return result;
+
+        }
+
         public bool RemoveTopicsFromAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, HashSet<long> topicIds, long userId)
         {
             Func<Status> removeTopicsFromAssetFunc = delegate ()
@@ -480,7 +519,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.m_eOrderBy = OrderBy.RELATED;
-                order.m_eOrderDir = OrderDir.DESC;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
             }
             else
             {
@@ -906,7 +945,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.m_eOrderBy = OrderBy.RELATED;
-                order.m_eOrderDir = OrderDir.DESC;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
             }
             else
             {
@@ -1006,7 +1045,7 @@ namespace WebAPI.Clients
                 AssetTypes = assetTypes,
                 FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
-                OrderDir = OrderDir.DESC,
+                OrderDir = ApiObjects.SearchObjects.OrderDir.DESC,
                 AssetIds = assetIds
             };
 
@@ -1094,7 +1133,7 @@ namespace WebAPI.Clients
                 AssetIds = assetIds,
                 FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
-                OrderDir = OrderDir.DESC
+                OrderDir = ApiObjects.SearchObjects.OrderDir.DESC
             };
 
             // fire history watched request
@@ -1155,8 +1194,8 @@ namespace WebAPI.Clients
                 m_nGroupID = groupID,
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nAssetIDs = assetIds,
-                m_dStartDate = startTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(startTime) : DateTime.MinValue,
-                m_dEndDate = endTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(endTime) : DateTime.MaxValue,
+                m_dStartDate = startTime != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(startTime) : DateTime.MinValue,
+                m_dEndDate = endTime != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(endTime) : DateTime.MaxValue,
                 m_type = CatalogMappings.ConvertAssetType(assetType)
             };
 
@@ -2973,8 +3012,8 @@ namespace WebAPI.Clients
                 m_dServerTime = getServerTime(),
                 channelIds = channelIdsToFilter,
                 scheduledRecordingAssetType = CatalogMappings.ConvertKalturaScheduledRecordingAssetType(scheduledRecordingType),
-                startDate = startDateToFilter.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(startDateToFilter.Value) : new DateTime?(),
-                endDate = endDateToFilter.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(endDateToFilter.Value) : new DateTime?()
+                startDate = startDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(startDateToFilter.Value) : new DateTime?(),
+                endDate = endDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(endDateToFilter.Value) : new DateTime?()
 
             };
 
@@ -3279,7 +3318,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling catalog service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3309,7 +3348,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3346,7 +3385,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3466,38 +3505,38 @@ namespace WebAPI.Clients
 
             List<GroupsCacheManager.Channel> channels = null;
             ChannelOrderBy orderBy = ChannelOrderBy.Id;
-            OrderDir orderDirection = OrderDir.NONE;
+            var orderDirection = ApiObjects.SearchObjects.OrderDir.NONE;
 
             switch (channelOrderBy)
             {
                 case KalturaChannelsOrderBy.NONE:
                     {
                         orderBy = ChannelOrderBy.Id;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_ASC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = OrderDir.ASC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_DESC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_ASC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = OrderDir.ASC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 default:
@@ -3513,7 +3552,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling SearchChannels. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3644,7 +3683,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling catalog service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3693,7 +3732,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling catalog service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3842,38 +3881,38 @@ namespace WebAPI.Clients
 
             List<GroupsCacheManager.Channel> channels = null;
             ChannelOrderBy orderBy = ChannelOrderBy.Id;
-            OrderDir orderDirection = OrderDir.NONE;
+            var orderDirection = ApiObjects.SearchObjects.OrderDir.NONE;
 
             switch (channelOrderBy)
             {
                 case KalturaChannelsOrderBy.NONE:
                     {
                         orderBy = ChannelOrderBy.Id;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_ASC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = OrderDir.ASC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_DESC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_ASC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = OrderDir.ASC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = OrderDir.DESC;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
                 default:
@@ -3889,7 +3928,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling SearchChannels. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

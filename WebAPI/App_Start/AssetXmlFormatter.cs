@@ -479,7 +479,7 @@ namespace WebAPI.App_Start
 
                     try
                     {
-                        media.Basic.Dates.CatalogEnd = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
+                        media.Basic.Dates.CatalogEnd = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
                         media.Basic.Dates.End = media.Basic.Dates.CatalogEnd;
                     }
                     catch (Exception ex)
@@ -489,7 +489,7 @@ namespace WebAPI.App_Start
 
                     try
                     {
-                        media.Basic.Dates.CatalogStart = asset.StartDate != null && asset.StartDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
+                        media.Basic.Dates.CatalogStart = asset.StartDate != null && asset.StartDate != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
                         media.Basic.Dates.Start = media.Basic.Dates.CatalogStart;
                     }
                     catch (Exception ex)

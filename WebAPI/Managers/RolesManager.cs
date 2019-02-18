@@ -341,7 +341,22 @@ namespace WebAPI.Managers
         /// <returns>True if the property is permitted, false otherwise</returns>
         internal static void ValidatePropertyPermitted(string type, string property, RequestType action, bool silent = false)
         {
-            KS ks = getKS(silent);
+            KS ks;
+
+            try
+            {
+                ks = getKS(silent);
+            }
+            catch (UnauthorizedException ex)
+            {
+                if (ex.Code == (int)StatusCode.ServiceForbidden)
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(RequestType), action), type, property);
+                }
+
+                throw;
+            }
+            
             List<long> roleIds = GetRoleIds(ks);
 
             // no roles found for the user

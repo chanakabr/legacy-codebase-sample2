@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
@@ -73,7 +74,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -111,7 +112,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -143,7 +144,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -160,7 +161,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }
+        }        
 
         internal List<Models.API.KalturaParentalRule> GetDomainParentalRules(int groupId, int domainId)
         {
@@ -178,7 +179,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -213,7 +214,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -282,7 +283,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -320,7 +321,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -358,7 +359,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -399,7 +400,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -441,7 +442,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -482,7 +483,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -522,7 +523,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -560,7 +561,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -598,7 +599,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -632,7 +633,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -668,7 +669,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -709,7 +710,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -751,7 +752,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -792,7 +793,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -834,7 +835,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -875,7 +876,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -917,7 +918,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -958,7 +959,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -998,7 +999,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1032,7 +1033,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1067,7 +1068,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1102,7 +1103,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1138,7 +1139,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1176,7 +1177,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1214,7 +1215,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1252,7 +1253,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1294,7 +1295,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1332,7 +1333,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1371,7 +1372,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1409,7 +1410,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1468,7 +1469,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2290,7 +2291,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2328,7 +2329,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2365,7 +2366,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2405,7 +2406,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2439,7 +2440,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2478,7 +2479,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2511,7 +2512,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2538,7 +2539,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2594,7 +2595,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2630,7 +2631,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2668,7 +2669,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2712,7 +2713,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2749,7 +2750,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2785,7 +2786,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2823,7 +2824,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2857,7 +2858,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2894,7 +2895,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2930,7 +2931,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2968,7 +2969,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3003,7 +3004,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3038,7 +3039,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3074,7 +3075,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3108,7 +3109,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3141,7 +3142,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3175,7 +3176,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3208,7 +3209,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3268,7 +3269,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3305,7 +3306,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3359,7 +3360,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3416,7 +3417,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3473,7 +3474,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3505,7 +3506,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3543,7 +3544,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3579,7 +3580,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3620,7 +3621,7 @@ namespace WebAPI.Clients
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                    log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                     ErrorUtils.HandleWSException(ex);
                 }
 
@@ -3660,7 +3661,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3854,7 +3855,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -4147,6 +4148,49 @@ namespace WebAPI.Clients
 
             KalturaPlaybackContext result =
                 ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
+
+            return result;
+        }
+
+        internal KalturaTvmRuleListResponse GetTvmRules(int groupId, KalturaTvmRuleType? ruleTypeEqual, string nameEqual)
+        {
+            KalturaTvmRuleListResponse result = new KalturaTvmRuleListResponse();
+            var ruleType = AutoMapper.Mapper.Map<TvmRuleType?> (ruleTypeEqual);
+
+            Func<GenericListResponse<TvmRule>> getTvmRulesFunc = () =>
+                TvmRuleManager.GetTvmRules(groupId, ruleType, nameEqual);
+
+            KalturaGenericListResponse<KalturaTvmRule> response =
+                ClientUtils.GetResponseListFromWS<KalturaTvmRule, TvmRule>(getTvmRulesFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal bool UpdateGeneralPartnerConfiguration(int groupId, KalturaGeneralPartnerConfig partnerConfig)
+        {
+            Func<GeneralPartnerConfig, Status> UpdateGeneralPartnerConfigFunc = (GeneralPartnerConfig partnerConfigToUpdate) =>
+                   Core.Api.Module.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
+
+            ClientUtils.GetResponseStatusFromWS<KalturaGeneralPartnerConfig, GeneralPartnerConfig>(UpdateGeneralPartnerConfigFunc, partnerConfig);
+
+            return true;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetGeneralPartnerConfiguration(int groupId)
+        {
+            KalturaPartnerConfigurationListResponse result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<GeneralPartnerConfig>> getGeneralPartnerConfigFunc = () =>
+                Core.Api.Module.GetGeneralPartnerConfiguration(groupId);
+
+            KalturaGenericListResponse<KalturaGeneralPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaGeneralPartnerConfig, GeneralPartnerConfig>(getGeneralPartnerConfigFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
 
             return result;
         }

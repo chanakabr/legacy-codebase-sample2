@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -48,8 +49,8 @@ namespace WebAPI.Controllers
 
                 response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, 
                     new List<int>(filter.IDs.Select(x => x.value).ToList()), 
-                    SerializationUtils.ConvertFromUnixTimestamp(filter.getStartTime()),
-                    SerializationUtils.ConvertFromUnixTimestamp(filter.getEndTime()), with.Select(x => x.type).ToList());
+                    DateUtils.UtcUnixTimestampSecondsToDateTime(filter.getStartTime()),
+                    DateUtils.UtcUnixTimestampSecondsToDateTime(filter.getEndTime()), with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
                 if (response == null || response.Count == 0)

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -566,9 +567,9 @@ namespace WebAPI.Clients
             GetUserFollowsResponse response = null;
 
             // create order object
-            OrderDir order = OrderDir.DESC;
+            var order = ApiObjects.SearchObjects.OrderDir.DESC;
             if (orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
-                order = OrderDir.ASC;
+                order = ApiObjects.SearchObjects.OrderDir.ASC;
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -608,9 +609,9 @@ namespace WebAPI.Clients
             KalturaListFollowDataTvSeriesResponse ret;
 
             // create order object
-            OrderDir order = OrderDir.DESC;
+            var order = ApiObjects.SearchObjects.OrderDir.DESC;
             if (orderBy != null && orderBy.Value == KalturaOrder.oldest_first)
-                order = OrderDir.ASC;
+                order = ApiObjects.SearchObjects.OrderDir.ASC;
 
 
             int userId = 0;
@@ -1399,7 +1400,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1743,7 +1744,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetEngagements(groupId, convertedtypeIn, NotificationMapping.ConvertSendTime(sendTimeLessThanOrEqual));
+                    response = Core.Notification.Module.GetEngagements(groupId, convertedtypeIn, DateUtils.UtcUnixTimestampSecondsToDateTime(sendTimeLessThanOrEqual));
                 }
             }
             catch (Exception ex)
@@ -1938,7 +1939,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1976,7 +1977,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

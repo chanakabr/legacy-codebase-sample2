@@ -50,7 +50,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -91,7 +91,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -130,7 +130,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -169,7 +169,7 @@ namespace WebAPI.Clients
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                    log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                     ErrorUtils.HandleWSException(ex);
                 }
 
@@ -212,7 +212,7 @@ namespace WebAPI.Clients
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                    log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                     ErrorUtils.HandleWSException(ex);
                 }
 
@@ -254,7 +254,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -293,7 +293,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -334,7 +334,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -373,7 +373,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -410,7 +410,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -444,7 +444,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -502,7 +502,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -773,7 +773,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

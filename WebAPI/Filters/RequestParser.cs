@@ -352,11 +352,11 @@ namespace WebAPI.Filters
 
             if (fileName == null)
             {
-                return new KeyValuePair<string, object>(name, Encoding.UTF8.GetString(fieldBytes, index, fieldBytes.Length - index));
+                return new KeyValuePair<string, object>(name, Encoding.UTF8.GetString(fieldBytes, index, fieldBytes.Length - index - 2));
             }
             else
             {
-                string filePath = String.Format("{0}\\{1}", fileSystemUploaderSourcePath, Path.GetRandomFileName());
+                string filePath = String.Format("{0}\\{1}", fileSystemUploaderSourcePath, CreateRandomFileName(fileName));
                 byte[] bytes = new byte[fieldBytes.Length - index - 2];  // \r\n
                 Array.Copy(fieldBytes, index, bytes, 0, bytes.Length);
                 File.WriteAllBytes(filePath, bytes);
@@ -365,6 +365,12 @@ namespace WebAPI.Filters
             }
 
             return new KeyValuePair<string, object>("aaa", "bb");
+        }
+
+        private object CreateRandomFileName(string fileName)
+        {
+            var ret = Path.GetRandomFileName();
+            return ret.Remove(ret.Length - 3) + fileName.Substring(fileName.Length - 3);
         }
 
         public async Task<Dictionary<string, object>> ParseFormData(HttpActionContext actionContext)
@@ -562,34 +568,40 @@ namespace WebAPI.Filters
             
             if (actionContext.Request.Method == HttpMethod.Post)
             {
-                string json = null;
+                JObject JObj = null;
 
                 if (actionContext.Request.Content.IsMimeMultipartContent() && formData != null && formData.ContainsKey("json"))
                 {
-                    json = formData["json"].ToString();
+                    var str = formData["json"].ToString();
+                    JObj = JObject.Parse(str);
+
+                    if (formData.ContainsKey("fileData"))
+                    {
+                        var obj = JObject.FromObject(formData["fileData"]);
+                        JObj.Add(new JProperty("fileData", obj));
+                    }
                 }
                 else if (HttpContext.Current.Request.ContentType == "application/json" && HttpContext.Current.Request.ContentLength > 0)
                 {
                     string result = await actionContext.Request.Content.ReadAsStringAsync();
                     using (var input = new StringReader(result))
                     {
-                        json = input.ReadToEnd();
+                        var str = input.ReadToEnd();
+                        JObj = JObject.Parse(str);
                     }
                 }
 
-                if(json != null)
+                if(JObj != null)
                 {
                     try
                     {
-                        JObject reqParams = JObject.Parse(json);
-
                         if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]))
                         {
                             //For logging
                             HttpContext.Current.Items.Remove(Constants.CLIENT_TAG);
-                            if (reqParams["clientTag"] != null)
+                            if (JObj["clientTag"] != null)
                             {
-                                HttpContext.Current.Items.Add(Constants.CLIENT_TAG, reqParams["clientTag"]);
+                                HttpContext.Current.Items.Add(Constants.CLIENT_TAG, JObj["clientTag"]);
                             }
                             else if (HttpContext.Current.Request.QueryString.Count > 0 && HttpContext.Current.Request.QueryString["clientTag"] != null)
                             {
@@ -597,12 +609,12 @@ namespace WebAPI.Filters
                             }
                         }
 
-                        if (reqParams["apiVersion"] != null)
+                        if (JObj["apiVersion"] != null)
                         {
                             //For logging and to parse old standard
                             Version version;
-                            if (!Version.TryParse((string)reqParams["apiVersion"], out version))
-                                throw new RequestParserException(RequestParserException.INVALID_VERSION, reqParams["apiVersion"]);
+                            if (!Version.TryParse((string)JObj["apiVersion"], out version))
+                                throw new RequestParserException(RequestParserException.INVALID_VERSION, JObj["apiVersion"]);
 
                             HttpContext.Current.Items[REQUEST_VERSION] = version;
                         }
@@ -614,7 +626,7 @@ namespace WebAPI.Filters
                         }
                         else
                         {
-                            requestParams = reqParams.ToObject<Dictionary<string, object>>();
+                            requestParams = JObj.ToObject<Dictionary<string, object>>();
                         }
                         setRequestContext(requestParams, currentController, currentAction);
 

@@ -655,7 +655,7 @@ namespace WS_Billing
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("currency_code", "=", sCurrencyCode);
             selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", ">=", DateTime.Now);
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", ">=", DateTime.UtcNow);
             selectQuery += " and total_amount>amount_used order by end_date";
             if (selectQuery.Execute("query", true) != null)
             {

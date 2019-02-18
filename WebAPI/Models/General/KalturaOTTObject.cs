@@ -219,7 +219,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "objectType")]
         [JsonProperty(PropertyName = "objectType")]
         [XmlElement(ElementName = "objectType")]
-        public virtual string objectType { get { return this.GetType().Name; } set { } }
+        public string objectType { get { return this.GetType().Name; } set { } }
 
         [DataMember(Name = "relatedObjects")]
         [JsonProperty(PropertyName = "relatedObjects")]
@@ -243,7 +243,7 @@ namespace WebAPI.Models.General
         /// <param name="itemsIn">Comma separated string</param>
         /// <param name="propertyName">The property name of comma separated string (for error message)</param>
         /// <returns></returns>
-        internal U GetItemsIn<U, T>(string itemsIn, string propertyName) where T : IConvertible where U : ICollection<T>
+        internal U GetItemsIn<U, T>(string itemsIn, string propertyName, bool checkDuplicate = false) where T : IConvertible where U : ICollection<T>
         {
             U values = Activator.CreateInstance<U>();
 
@@ -269,6 +269,10 @@ namespace WebAPI.Models.General
                         if (!values.Contains(value))
                         {
                             values.Add(value);
+                        }
+                        else if (checkDuplicate)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, propertyName);
                         }
                     }
                     else
