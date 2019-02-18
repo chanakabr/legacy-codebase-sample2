@@ -83,6 +83,16 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class AssetUserRuleFilterAction : AssetUserRuleAction
+    {
+        public AssetUserRuleFilterAction()
+        {
+            this.Type = RuleActionType.Filter;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AllowPlaybackAction : AssetRuleAction
     {
         public AllowPlaybackAction()
