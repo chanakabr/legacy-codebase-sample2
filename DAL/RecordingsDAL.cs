@@ -1351,7 +1351,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool SetDomainsRecordings(long Id, DateTime? protectedUntilDate, long protectedUntilEpoch, string metaData)
+        public static bool SetDomainsRecordings(long Id, DateTime? protectedUntilDate, long protectedUntilEpoch, string metaData, long? externalViewableUntilDate)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_DomainsRecordings");
 
@@ -1360,6 +1360,7 @@ namespace DAL
             sp.AddParameter("@ProtectedUntilDate", protectedUntilDate);
             sp.AddParameter("@ProtectedUntilEpoch", protectedUntilEpoch);
             sp.AddParameter("@MetaData", metaData);
+            sp.AddParameter("@ExternalExpiryDate", externalViewableUntilDate);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
