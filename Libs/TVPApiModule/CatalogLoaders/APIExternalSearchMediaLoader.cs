@@ -228,39 +228,44 @@ namespace TVPApiModule.CatalogLoaders
             // Build the AssetInfo objects
             foreach (var item in order)
             {
-                if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
+                switch (item.AssetType)
                 {
-                    media = medias.Where(m => m != null && m.AssetId == item.AssetId).FirstOrDefault();
-                    if (media != null)
-                    {
-                        if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
+                    case eAssetTypes.MEDIA:
+                        media = medias.Where(m => m != null && m.AssetId == item.AssetId).FirstOrDefault();
+                        if (media != null)
                         {
-                            asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID.ToString() == media.AssetId).FirstOrDefault(), shouldAddFiles);
+                            if (mediaAssetsStats != null && mediaAssetsStats.Count > 0)
+                            {
+                                asset = new AssetInfo(media, mediaAssetsStats.Where(mas => mas.m_nAssetID.ToString() == media.AssetId).FirstOrDefault(), shouldAddFiles);
+                            }
+                            else
+                            {
+                                asset = new AssetInfo(media, shouldAddFiles);
+                            }
+                            result.Add(asset);
+                            media = null;
                         }
-                        else
+                        break;
+                    case eAssetTypes.EPG:                        
+                    case eAssetTypes.NPVR:
+                        epg = epgs.Where(p => p != null && p.AssetId == item.AssetId).FirstOrDefault();
+                        if (epg != null)
                         {
-                            asset = new AssetInfo(media, shouldAddFiles);
+                            if (epgAssetsStats != null && epgAssetsStats.Count > 0)
+                            {
+                                asset = new AssetInfo(epg.m_oProgram, epgAssetsStats.Where(eas => eas.m_nAssetID.ToString() == epg.AssetId).FirstOrDefault());
+                            }
+                            else
+                            {
+                                asset = new AssetInfo(epg.m_oProgram);
+                            }
+                            result.Add(asset);
+                            epg = null;
                         }
-                        result.Add(asset);
-                        media = null;
-                    }
-                }
-                else if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
-                {
-                    epg = epgs.Where(p => p != null && p.AssetId == item.AssetId).FirstOrDefault();
-                    if (epg != null)
-                    {
-                        if (epgAssetsStats != null && epgAssetsStats.Count > 0)
-                        {
-                            asset = new AssetInfo(epg.m_oProgram, epgAssetsStats.Where(eas => eas.m_nAssetID.ToString() == epg.AssetId).FirstOrDefault());
-                        }
-                        else
-                        {
-                            asset = new AssetInfo(epg.m_oProgram);
-                        }
-                        result.Add(asset);
-                        epg = null;
-                    }
+                        break;
+                    case eAssetTypes.UNKNOWN:
+                    default:
+                        break;
                 }
             }
 
