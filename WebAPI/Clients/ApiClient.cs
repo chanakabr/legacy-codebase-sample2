@@ -1429,6 +1429,43 @@ namespace WebAPI.Clients
             return rules;
         }
 
+        internal List<KalturaUserAssetRule> GetNPVRRules(int groupId, string userId, long mediaId, int domainId, KalturaUserAssetRuleOrderBy orderBy = KalturaUserAssetRuleOrderBy.NAME_ASC)
+        {
+            GenericRuleResponse response = null;
+            List<KalturaUserAssetRule> rules = new List<KalturaUserAssetRule>();
+            
+            //convert order by
+            GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetNPVRRules(groupId, userId, mediaId, domainId, Utils.Utils.GetClientIP(), wsOrderBy);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            rules = AutoMapper.Mapper.Map<List<KalturaUserAssetRule>>(response.Rules);
+
+            return rules;
+        }
+
+
         internal KalturaParentalRule AddParentalRule(int groupId, KalturaParentalRule parentalRule, long userId)
         {
             Func<ParentalRule, GenericResponse<ParentalRule>> addParentalRuleFunc = (ParentalRule parentalRuleToAdd) => Core.Api.api.AddParentalRule(groupId, parentalRuleToAdd, userId);

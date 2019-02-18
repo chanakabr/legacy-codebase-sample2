@@ -112,6 +112,10 @@ namespace WebAPI.Controllers
                     // call client
                     response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 }
+                else if ((AssetType) filter.AssetTypeEqual == AssetType.npvr)
+                {
+                    response = ClientsManager.ApiClient().GetNPVRRules(groupId, userID, filter.getAssetId(), (int) HouseholdUtils.GetHouseholdIDByKS(groupId));
+                }
             }
             catch (ClientException ex)
             {

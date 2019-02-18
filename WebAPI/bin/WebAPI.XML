@@ -5746,7 +5746,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaUserAssetRuleFilter.AssetTypeEqual">
             <summary>
-            Asset type to filter by - 0 = EPG, 1 = media
+            Asset type to filter by - 0 = EPG, 1 = media, 2 = npvr
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaUserAssetRuleListResponse">

@@ -24,7 +24,7 @@ namespace WebAPI.Models.API
         public long? AssetIdEqual{ get; set; }
 
         /// <summary>
-        /// Asset type to filter by - 0 = EPG, 1 = media
+        /// Asset type to filter by - 0 = EPG, 1 = media, 2 = npvr
         /// </summary>
         [DataMember(Name = "assetTypeEqual")]
         [JsonProperty("assetTypeEqual")]
