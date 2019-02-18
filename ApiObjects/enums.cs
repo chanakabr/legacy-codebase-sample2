@@ -1085,7 +1085,8 @@ namespace ApiObjects
         AllowPlayback,
         BlockPlayback,
         ApplyDiscountModuleRule,
-        ApplyPlaybackAdapter
+        ApplyPlaybackAdapter,
+        Filter
     }
 
     public enum RuleConditionType
