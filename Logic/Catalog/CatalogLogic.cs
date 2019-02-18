@@ -9162,18 +9162,18 @@ namespace Core.Catalog
                 int userId = 0;
                 int.TryParse(siteGuid, out userId);
 
-                unFilteredresult = mediaMarkLogs.Select(log =>
+                unFilteredresult = mediaMarkLogs.Select(mediaMarkLog =>
                 {
                     int recordingId = 0;
-                    int.TryParse(log.LastMark.NpvrID, out recordingId);
+                    int.TryParse(mediaMarkLog.LastMark.NpvrID, out recordingId);
                     
                     return new WatchHistory()
                     {
-                        AssetId = log.LastMark.AssetID.ToString(),
-                        Duration = log.LastMark.FileDuration,
-                        AssetTypeId = log.LastMark.AssetTypeId,
-                        LastWatch = log.LastMark.CreatedAtEpoch,
-                        Location = log.LastMark.Location,
+                        AssetId = mediaMarkLog.LastMark.AssetID.ToString(),
+                        Duration = mediaMarkLog.LastMark.FileDuration,
+                        AssetTypeId = mediaMarkLog.LastMark.AssetTypeId,
+                        LastWatch = mediaMarkLog.LastMark.CreatedAtEpoch,
+                        Location = mediaMarkLog.LastMark.Location,
                         RecordingId = recordingId,
                         UserID = userId
                     };
