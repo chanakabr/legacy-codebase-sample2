@@ -539,11 +539,6 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("description", "API Version");
             writer.WriteEndElement(); // apiVersion
 
-            writer.WriteStartElement("abortOnError");
-            writer.WriteAttributeString("type", "bool");
-            writer.WriteAttributeString("description", "Abort the Multireuqset call if any error occurs in one of the requests");
-            writer.WriteEndElement(); // abortOnError
-
             writer.WriteEndElement(); // client
 
 
@@ -581,6 +576,11 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("volatile", "1");
             writer.WriteAttributeString("description", "Response profile - this attribute will be automatically unset after every API call");
             writer.WriteEndElement(); // responseProfile
+
+            writer.WriteStartElement("abortOnError");
+            writer.WriteAttributeString("type", "bool");
+            writer.WriteAttributeString("description", "Abort the Multireuqset call if any error occurs in one of the requests");
+            writer.WriteEndElement(); // abortOnError
 
             writer.WriteStartElement("abortAllOnError");
             writer.WriteAttributeString("type", "bool");
