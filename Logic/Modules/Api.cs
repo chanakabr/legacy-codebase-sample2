@@ -1201,6 +1201,11 @@ namespace Core.Api
             return api.GetEpgRules(groupId, siteGuid, epgId, channelMediaId, domainId, ip, orderBy);
         }
 
+        public static GenericRuleResponse GetNPVRRules(int groupId, string siteGuid, long recordingId, long domainId, string ip, GenericRuleOrderBy orderBy)
+        {
+            return api.GetNPVRRules(groupId, siteGuid, recordingId, domainId, ip, orderBy);
+        }
+
         public static ParentalRulesTagsResponse GetUserParentalRuleTags(int groupId, string siteGuid, long domainId)
         {
 
