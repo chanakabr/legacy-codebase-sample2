@@ -82,6 +82,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.RecordingNotFound)]
         static public KalturaUserAssetRuleListResponse List(KalturaUserAssetRuleFilter filter)
         {
             List<KalturaUserAssetRule> response = null;
