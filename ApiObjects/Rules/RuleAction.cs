@@ -85,6 +85,9 @@ namespace ApiObjects.Rules
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AssetUserRuleFilterAction : AssetUserRuleAction
     {
+        [JsonProperty("ApplyOnChannel")]
+        public bool ApplyOnChannel { get; set; }
+
         public AssetUserRuleFilterAction()
         {
             this.Type = RuleActionType.Filter;
