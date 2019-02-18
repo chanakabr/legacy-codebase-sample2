@@ -286,7 +286,7 @@ namespace TVPApiModule.CatalogLoaders
                         break;
                     case eAssetTypes.NPVR:
                         rec = recordings.Where(p => p != null && p.AssetId == item.AssetId).FirstOrDefault();
-                        if (recordings != null)
+                        if (rec != null)
                         {
                             if (recAssetsStats != null && recAssetsStats.Count > 0)
                             {
@@ -314,7 +314,7 @@ namespace TVPApiModule.CatalogLoaders
         {
             mediasFromCatalog = null;
             epgsFromCatalog = null;
-            recordingsFromCatalog = null;
+            recordingsFromCatalog = new List<ProgramObj>();
 
             if ((missingMediaIds != null && missingMediaIds.Count > 0) || (missingEpgIds != null && missingEpgIds.Count > 0) || (missingRecordingIds != null && missingRecordingIds.Count > 0))
             {
@@ -397,20 +397,22 @@ namespace TVPApiModule.CatalogLoaders
                     if (epgsFromCatalog != null && epgsFromCatalog.Count > 0)
                     {
                         recordingsFromCatalog = new List<ProgramObj>();
-                        HashSet<string> npvrIds = missingRecordingIds != null ? new HashSet<string>(missingRecordingIds.Select(x => x.ToString())) : new HashSet<string>();
-                        foreach (long recordingId in missingRecordingIds)
+                        if (missingRecordingIds != null)
                         {
-                            try
+                            foreach (long recordingId in missingRecordingIds)
                             {
-                                int index = epgsFromCatalog.FindIndex(x => x.AssetId == recordingId.ToString());
-                                recordingsFromCatalog.Add(epgsFromCatalog[index]);
-                                epgsFromCatalog.RemoveAt(index);
-                            }
-                            catch (Exception ex)
-                            {
-                                Log(string.Format("recording with id {0} wasn't found", recordingId), null);
-                            }
+                                try
+                                {
+                                    int index = epgsFromCatalog.FindIndex(x => x.AssetId == recordingId.ToString());
+                                    recordingsFromCatalog.Add(epgsFromCatalog[index]);
+                                    epgsFromCatalog.RemoveAt(index);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log(string.Format("recording with id {0} wasn't found", recordingId), null);
+                                }
 
+                            }
                         }
 
                         if (recordingsFromCatalog != null && recordingsFromCatalog.Count > 0)
