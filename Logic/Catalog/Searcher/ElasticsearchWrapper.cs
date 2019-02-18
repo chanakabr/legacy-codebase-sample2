@@ -2257,7 +2257,7 @@ namespace Core.Catalog
 
         public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex, bool shouldIgnoreRecordings = false)
         {
-            List<UnifiedSearchResult> finalList = new List<UnifiedSearchResult>();
+            List<UnifiedSearchResult> validAssets = new List<UnifiedSearchResult>();
             totalItems = 0;
 
             bool shouldSearchEpg = false;
@@ -2269,27 +2269,29 @@ namespace Core.Catalog
             shouldSearchMedia = assets.Exists(asset => asset.AssetType == eAssetTypes.MEDIA);
             shouldSearchEpg = assets.Exists(asset => asset.AssetType == eAssetTypes.EPG);
 
+            bool shouldSearch = shouldSearchEpg || shouldSearchMedia;
+
+            if (shouldSearch)
+            {
+
             // Build indexes and types string - for URL
             string indexes = string.Empty;
             string types = string.Empty;
 
-            if (shouldSearchEpg)
+            if (shouldSearchEpg && shouldSearchMedia)
             {
-                if (shouldSearchMedia)
-                {
-                    indexes = string.Format("{0},{0}_epg", groupId);
-                    types = string.Format("{0},{1}", media, epg);
-                }
-                else
-                {
-                    indexes = string.Format("{0}_epg", groupId);
-                    types = epg;
-                }
+                indexes = string.Format("{0},{0}_epg", groupId);
+                types = string.Format("{0},{1}", media, epg);
             }
-            else
+            else if (shouldSearchMedia)
             {
                 indexes = groupId.ToString();
                 types = media;
+            }
+            else if (shouldSearchEpg)
+            {
+                indexes = string.Format("{0}_epg", groupId);
+                types = epg;
             }
 
             // Build complete URL
@@ -2308,66 +2310,65 @@ namespace Core.Catalog
 
             log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
 
-            if (httpStatus == STATUS_OK)
-            {
-                #region Process ElasticSearch result
-
-                var jsonObj = JObject.Parse(queryResultString);
-
-                if (jsonObj != null)
+                if (httpStatus == STATUS_OK)
                 {
-                    JToken tempToken;
-                    totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+                    #region Process ElasticSearch result
 
-                    if (totalItems > 0)
+                    var jsonObj = JObject.Parse(queryResultString);
+
+                    if (jsonObj != null)
                     {
-                        foreach (var item in jsonObj.SelectToken("hits.hits"))
+                        JToken tempToken;
+                        totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                        if (totalItems > 0)
                         {
-                            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
-                            eAssetTypes assetType = ElasticSearch.Common.Utils.ParseAssetType(typeString);
-
-                            string assetIdField = string.Empty;
-
-                            switch (assetType)
+                            foreach (var item in jsonObj.SelectToken("hits.hits"))
                             {
-                                case eAssetTypes.MEDIA:
-                                    {
-                                        assetIdField = "fields.media_id";
-                                        break;
-                                    }
-                                case eAssetTypes.EPG:
-                                    {
-                                        assetIdField = "fields.epg_id";
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        break;
-                                    }
+                                string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
+                                eAssetTypes assetType = ElasticSearch.Common.Utils.ParseAssetType(typeString);
+
+                                string assetIdField = string.Empty;
+
+                                switch (assetType)
+                                {
+                                    case eAssetTypes.MEDIA:
+                                        {
+                                            assetIdField = "fields.media_id";
+                                            break;
+                                        }
+                                    case eAssetTypes.EPG:
+                                        {
+                                            assetIdField = "fields.epg_id";
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            break;
+                                        }
+                                }
+
+                                string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
+                                DateTime update_date = ElasticSearch.Common.Utils.ExtractDateFromToken(item, "fields.update_date");
+
+                                // Find the asset in the list with this ID, set its update date
+                                assets.First(result => result.AssetId == id).m_dUpdateDate = update_date;
                             }
-
-                            string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
-                            DateTime update_date = ElasticSearch.Common.Utils.ExtractDateFromToken(item, "fields.update_date");
-
-                            // Find the asset in the list with this ID, set its update date
-                            assets.First(result => result.AssetId == id).m_dUpdateDate = update_date;
                         }
                     }
                 }
-
-                var validAssets = assets.Where(asset =>
+                
+                foreach (UnifiedSearchResult asset in assets)
+                {
+                    if (asset.m_dUpdateDate != DateTime.MinValue || (shouldIgnoreRecordings && asset.AssetType == eAssetTypes.NPVR))
                     {
-                        bool valid = asset.m_dUpdateDate != DateTime.MinValue || (shouldIgnoreRecordings && asset.AssetType == eAssetTypes.NPVR);
-                        if (!valid)
-                        {
-                            log.WarnFormat(
-                                "Received invalid asset from recommendation engine. ID = {0}, type = {1}", asset.AssetId, asset.AssetType.ToString());
-                        }
-
-                        return valid;
-                    });
-
-                finalList = validAssets.ToList();
+                        validAssets.Add(asset);
+                    }
+                    else                    
+                    {
+                        log.WarnFormat("Received invalid asset from recommendation engine. ID = {0}, type = {1}", asset.AssetId, asset.AssetType.ToString());
+                    }
+                }
 
                 bool illegalRequest = false;
                 var pagedList = TVinciShared.ListUtils.Page(validAssets, pageSize, pageIndex, out illegalRequest);
@@ -2384,7 +2385,7 @@ namespace Core.Catalog
                 #endregion
             }
 
-            return finalList;
+            return validAssets;
         }
 
         public List<int> GetEntitledEpgLinearChannels(Group group, UnifiedSearchDefinitions definitions, int groupId)
