@@ -917,10 +917,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<AssetUserRuleAction, KalturaAssetUserRuleAction>();
 
             cfg.CreateMap<KalturaAssetUserRuleFilterAction, AssetUserRuleFilterAction>()
-               .IncludeBase<KalturaAssetUserRuleAction, AssetUserRuleAction>();
+               .IncludeBase<KalturaAssetUserRuleAction, AssetUserRuleAction>()
+               .ForMember(dest => dest.ApplyOnChannel, opt => opt.MapFrom(src => src.ApplyOnChannel));
 
             cfg.CreateMap<AssetUserRuleFilterAction, KalturaAssetUserRuleFilterAction>()
-                .IncludeBase<AssetUserRuleAction, KalturaAssetUserRuleAction>();
+                .IncludeBase<AssetUserRuleAction, KalturaAssetUserRuleAction>()
+                .ForMember(dest => dest.ApplyOnChannel, opt => opt.MapFrom(src => src.ApplyOnChannel));
 
             cfg.CreateMap<KalturaAssetRuleAction, AssetRuleAction>()
                .IncludeBase<KalturaRuleAction, RuleAction>();

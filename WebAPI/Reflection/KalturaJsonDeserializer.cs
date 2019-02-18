@@ -1851,6 +1851,13 @@ namespace WebAPI.Models.ConditionalAccess
     {
         public KalturaAssetUserRuleFilterAction(Dictionary<string, object> parameters = null) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("applyOnChannel") && parameters["applyOnChannel"] != null)
+                {
+                    ApplyOnChannel = (Boolean) Convert.ChangeType(parameters["applyOnChannel"], typeof(Boolean));
+                }
+            }
         }
     }
     public partial class KalturaBillingResponse

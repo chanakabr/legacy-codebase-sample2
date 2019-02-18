@@ -310,6 +310,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("applyOnChannel", "\"applyOnChannel\": " + ApplyOnChannel.ToString().ToLower());
             return ret;
         }
         
@@ -318,6 +319,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("applyOnChannel", "<applyOnChannel>" + ApplyOnChannel.ToString().ToLower() + "</applyOnChannel>");
             return ret;
         }
     }

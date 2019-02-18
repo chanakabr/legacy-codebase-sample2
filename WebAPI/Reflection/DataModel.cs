@@ -727,6 +727,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetUserRuleFilterAction":
+                    switch(property.Name)
+                    {
+                        case "ApplyOnChannel":
+                            return "applyOnChannel";
+                    }
+                    break;
+                    
                 case "KalturaAssetUserRuleListResponse":
                     switch(property.Name)
                     {
