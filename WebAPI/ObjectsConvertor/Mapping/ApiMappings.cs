@@ -1479,7 +1479,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            cfg.CreateMap<KalturaBusinessModuleRuleFilter, ConditionScope>()
+            cfg.CreateMap<KalturaBusinessModuleRuleFilter, APILogic.ConditionalAccess.ConditionScope>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdApplied.HasValue ? src.BusinessModuleIdApplied.Value : 0))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConditionalAccessMappings.ConvertTransactionType(src.BusinessModuleTypeApplied)))
                 .ForMember(dest => dest.SegmentIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? src.GetItemsIn<List<long>, long>(src.SegmentIdsApplied, "filter.segmentIdsApplied") : null))
