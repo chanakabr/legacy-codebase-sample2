@@ -13,7 +13,7 @@ namespace ApiObjects.Rules
                       TypeNameHandling = TypeNameHandling.Auto, 
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<RuleCondition> Conditions { get; set; }
+        public List<RuleBaseCondition> Conditions { get; set; }
 
         [JsonProperty(PropertyName = "Actions",
                       TypeNameHandling = TypeNameHandling.Auto,
@@ -27,13 +27,14 @@ namespace ApiObjects.Rules
         [JsonProperty()]
         public long UpdateDate { get; set; }
 
-        public bool Evaluate(ConditionScope scope)
+        public bool Evaluate(IConditionScope scope)
         {
             if (Conditions != null && Conditions.Count > 0)
             {
                 foreach (var condition in Conditions)
                 {
-                    if (!condition.Evaluate(scope))
+                    var evalCondition = condition as RuleCondition<IConditionScope>;
+                    if (!evalCondition.Evaluate(scope))
                     {
                         return false;
                     }

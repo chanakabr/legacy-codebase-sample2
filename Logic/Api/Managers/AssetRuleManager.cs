@@ -150,8 +150,8 @@ namespace Core.Api.Managers
                 List<int> modifiedAssetIds = new List<int>();
 
                 // separate the country conditions and the ksql, 
-                List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Country).Select(c => (CountryCondition)c).ToList();
-                List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => (AssetCondition)c).ToList();
+                List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Country).Select(c => c as CountryCondition).ToList();
+                List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
 
                 string ksqlFilter = null;
 
@@ -736,7 +736,8 @@ namespace Core.Api.Managers
                     {
                         foreach (var condition in networkRule.Conditions)
                         {
-                            if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && condition.Evaluate(conditionScope))
+                            var evalCondition = condition as RuleCondition<IConditionScope>;
+                            if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && evalCondition.Evaluate(conditionScope))
                             {
                                 blockingRule = networkRule;
                                 log.DebugFormat("CheckNetworkRules the asset: {0} block because of NetworkRule: {1}.", asset.Id, networkRule.Id);
