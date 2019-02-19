@@ -44,6 +44,7 @@ using APILogic.Api.Managers;
 using Core.Api.Managers;
 using ApiObjects.PlayCycle;
 using ApiObjects.Segmentation;
+using APILogic.ConditionalAccess;
 
 namespace Core.ConditionalAccess
 {
@@ -1584,7 +1585,9 @@ namespace Core.ConditionalAccess
                 BusinessModuleType = transactionType,
                 SegmentIds = segmentIds,
                 FilterByDate = true,
-                FilterBySegments = true
+                FilterBySegments = true,
+                GroupId = groupId,
+                MediaId = mediaId
             };
             
             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);

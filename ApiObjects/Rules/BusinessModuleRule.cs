@@ -33,7 +33,9 @@ namespace ApiObjects.Rules
             {
                 foreach (var condition in Conditions)
                 {
+                    scope.RuleId = this.Id;
                     var evalCondition = condition as RuleCondition<IConditionScope>;
+                    
                     if (!evalCondition.Evaluate(scope))
                     {
                         return false;

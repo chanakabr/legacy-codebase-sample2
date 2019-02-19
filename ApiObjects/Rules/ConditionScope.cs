@@ -8,6 +8,7 @@ namespace ApiObjects.Rules
 {
     public interface IConditionScope
     {
+        long RuleId { get; set; }
     }
 
     public interface ISegmentsConditionScope : IConditionScope
@@ -42,6 +43,8 @@ namespace ApiObjects.Rules
     public interface IAssetConditionScope : IConditionScope
     {
         long MediaId { get; set; }
+
+        int GroupId { get; set; }
 
         List<BusinessModuleRule> GetBusinessModuleRulesByMediaId(int groupId, long mediaId);
     }

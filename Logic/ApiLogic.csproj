@@ -372,6 +372,7 @@
     <Compile Include="ConditionalAccess\Commands\RecordSeriesBySeriesIdNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RetrieveQuotaNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\ConditionalAccessCache.cs" />
+    <Compile Include="ConditionalAccess\ConditionScope.cs" />
     <Compile Include="ConditionalAccess\DomainEntitlements.cs" />
     <Compile Include="ConditionalAccess\Implementations\KangurooConditionalAccess.cs" />
     <Compile Include="ConditionalAccess\Implementations\TikleConditionalAccess.cs" />

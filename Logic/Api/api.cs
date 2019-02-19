@@ -2,6 +2,7 @@
 using ApiLogic;
 using APILogic;
 using APILogic.Api.Managers;
+using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
