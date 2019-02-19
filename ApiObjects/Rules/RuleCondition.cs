@@ -88,11 +88,17 @@ namespace ApiObjects.Rules
 
         public override bool Evaluate(IAssetConditionScope scope)
         {
+            if (scope.MediaId == 0)
+            {
+                return true;
+            }
+
             var rules = scope.GetBusinessModuleRulesByMediaId(scope.GroupId, scope.MediaId);
             if (rules != null && rules.FirstOrDefault(r => r.Id == scope.RuleId) != null)
             {
                 return true;
             }
+
             return false;
         }
     }
