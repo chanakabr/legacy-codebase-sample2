@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Roles;
@@ -536,19 +537,87 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertAssetType(src.Type)));
 
-            cfg.CreateMap<KalturaCondition, RuleCondition>()
+            cfg.CreateMap<KalturaCondition, RuleCondition<IConditionScope>>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            cfg.CreateMap<RuleCondition, KalturaCondition>()
+            cfg.CreateMap<KalturaCondition, RuleCondition<IBusinessModuleConditionScope>>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            cfg.CreateMap<KalturaCondition, AssetRuleCondition>()
-                .IncludeBase<KalturaCondition, RuleCondition>();
+            cfg.CreateMap<KalturaCondition, RuleCondition<ISegmentsConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            cfg.CreateMap<AssetRuleCondition, KalturaCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>();
+            cfg.CreateMap<KalturaCondition, RuleCondition<IDateConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaCondition, RuleCondition<IIpRangeConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaCondition, RuleCondition<IHeaderConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaCondition, RuleCondition<IAssetConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<RuleCondition<IConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<RuleCondition<IBusinessModuleConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<RuleCondition<ISegmentsConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<RuleCondition<IDateConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<RuleCondition<IIpRangeConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<RuleCondition<IHeaderConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<RuleCondition<IAssetConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaCondition, AssetRuleCondition<IConditionScope>>()
+                .IncludeBase<KalturaCondition, RuleCondition<IConditionScope>>();
+
+            cfg.CreateMap<KalturaCondition, AssetRuleCondition<IIpRangeConditionScope>>()
+                .IncludeBase<KalturaCondition, RuleCondition<IIpRangeConditionScope>>();
+
+            cfg.CreateMap<AssetRuleCondition<IIpRangeConditionScope>, KalturaCondition>()
+               .IncludeBase<RuleCondition<IIpRangeConditionScope>, KalturaCondition>();
+
+            cfg.CreateMap<KalturaCondition, AssetRuleCondition<IHeaderConditionScope>>()
+                .IncludeBase<KalturaCondition, RuleCondition<IHeaderConditionScope>>();
+
+            cfg.CreateMap<AssetRuleCondition<IHeaderConditionScope>, KalturaCondition>()
+               .IncludeBase<RuleCondition<IHeaderConditionScope>, KalturaCondition>();
+
+            cfg.CreateMap<AssetRuleCondition<IAssetConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
+
+            cfg.CreateMap<KalturaCondition, AssetRuleCondition<IAssetConditionScope>>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
+
+            cfg.CreateMap<AssetRuleCondition<IConditionScope>, KalturaCondition>()
+                .IncludeBase<RuleCondition<IConditionScope>, KalturaCondition>();
 
             cfg.CreateMap<KalturaRuleConditionType, RuleConditionType>()
                 .ConvertUsing(kalturaRuleConditionType =>
@@ -627,22 +696,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<KalturaOrCondition, OrCondition>()
-                .IncludeBase<KalturaCondition, AssetRuleCondition>()
+                .IncludeBase<KalturaCondition, AssetRuleCondition<IConditionScope>>()
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
                 .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
 
             cfg.CreateMap<OrCondition, KalturaOrCondition>()
-                .IncludeBase<AssetRuleCondition, KalturaCondition>()
+                .IncludeBase<RuleCondition<IConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
                 .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
 
             cfg.CreateMap<KalturaBusinessModuleCondition, BusinessModuleCondition>()
-                .IncludeBase<KalturaCondition, RuleCondition>()
+                .IncludeBase<KalturaCondition, RuleCondition<IBusinessModuleConditionScope>>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId.HasValue ? src.BusinessModuleId.Value : 0))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
 
             cfg.CreateMap<BusinessModuleCondition, KalturaBusinessModuleCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>()
+                .IncludeBase<RuleCondition<IBusinessModuleConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
 
@@ -692,27 +761,35 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<KalturaSegmentsCondition, SegmentsCondition>()
-               .IncludeBase<KalturaCondition, RuleCondition>()
+               .IncludeBase<KalturaCondition, RuleCondition<ISegmentsConditionScope>>()
                .ForMember(dest => dest.SegmentIds, opt => opt.MapFrom(src => src.getSegmentsIds()));
 
             cfg.CreateMap<SegmentsCondition, KalturaSegmentsCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>()
+                .IncludeBase<RuleCondition<ISegmentsConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.SegmentsIds, opt => opt.MapFrom(src => src.SegmentIds != null ? string.Join(",", src.SegmentIds) : null));
 
             cfg.CreateMap<KalturaAssetCondition, AssetCondition>()
-               .IncludeBase<KalturaCondition, AssetRuleCondition>()
+               .IncludeBase<KalturaCondition, AssetRuleCondition<IAssetConditionScope>>()
                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
 
             cfg.CreateMap<AssetCondition, KalturaAssetCondition>()
-                .IncludeBase<AssetRuleCondition, KalturaCondition>()
+                .IncludeBase<AssetRuleCondition<IAssetConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
 
-            cfg.CreateMap<KalturaNotCondition, NotRuleCondition>()
-                .IncludeBase<KalturaCondition, RuleCondition>()
+            cfg.CreateMap<KalturaNotCondition, NotRuleCondition<IConditionScope>>()
+                .IncludeBase<KalturaCondition, RuleCondition<IConditionScope>>()
                 .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
 
-            cfg.CreateMap<NotRuleCondition, KalturaNotCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>()
+            cfg.CreateMap<NotRuleCondition<IConditionScope>, KalturaNotCondition>()
+                .IncludeBase<RuleCondition<IConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
+
+            cfg.CreateMap<KalturaNotCondition, NotRuleCondition<IDateConditionScope>>()
+                .IncludeBase<KalturaCondition, RuleCondition<IDateConditionScope>>()
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
+
+            cfg.CreateMap<NotRuleCondition<IDateConditionScope>, KalturaNotCondition>()
+                .IncludeBase<RuleCondition<IDateConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
 
             cfg.CreateMap<KalturaConcurrencyCondition, ConcurrencyCondition>()
@@ -760,45 +837,45 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<KalturaDateCondition, DateCondition>()
-                .IncludeBase<KalturaNotCondition, NotRuleCondition>()
+                .IncludeBase<KalturaNotCondition, NotRuleCondition<IDateConditionScope>>()
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate));
 
             cfg.CreateMap<DateCondition, KalturaDateCondition>()
-                .IncludeBase<NotRuleCondition, KalturaNotCondition>()
+                .IncludeBase<NotRuleCondition<IDateConditionScope>, KalturaNotCondition>()
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? src.StartDate.Value : 0))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? src.EndDate.Value : 0));
 
             cfg.CreateMap<KalturaIpRangeCondition, IpRangeCondition>()
-                .IncludeBase<KalturaCondition, AssetRuleCondition>()
+                .IncludeBase<KalturaCondition, AssetRuleCondition<IIpRangeConditionScope>>()
                 .ForMember(dest => dest.FromIp, opt => opt.MapFrom(src => src.FromIP))
                 .ForMember(dest => dest.ToIp, opt => opt.MapFrom(src => src.ToIP))
                 .ForMember(dest => dest.IpFrom, opt => opt.ResolveUsing(src => GetConvertedIp(src.FromIP)))
                 .ForMember(dest => dest.IpTo, opt => opt.ResolveUsing(src => GetConvertedIp(src.ToIP)));
 
             cfg.CreateMap<IpRangeCondition, KalturaIpRangeCondition>()
-                .IncludeBase<AssetRuleCondition, KalturaCondition>()
+                .IncludeBase<AssetRuleCondition<IIpRangeConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.FromIP, opt => opt.MapFrom(src => src.FromIp))
                 .ForMember(dest => dest.ToIP, opt => opt.MapFrom(src => src.ToIp));
 
             cfg.CreateMap<KalturaCountryCondition, CountryCondition>()
-               .IncludeBase<KalturaCondition, AssetRuleCondition>()
+               .IncludeBase<KalturaCondition, AssetRuleCondition<IConditionScope>>()
                .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => src.getCountries()))
                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
 
             cfg.CreateMap<CountryCondition, KalturaCountryCondition>()
-                .IncludeBase<AssetRuleCondition, KalturaCondition>()
+                .IncludeBase<AssetRuleCondition<IConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => src.Countries != null ? string.Join(",", src.Countries) : null))
                 .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
 
             cfg.CreateMap<KalturaHeaderCondition, HeaderCondition>()
-                .IncludeBase<KalturaCondition, AssetRuleCondition>()
+                .IncludeBase<KalturaCondition, AssetRuleCondition<IHeaderConditionScope>>()
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                  .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
 
             cfg.CreateMap<HeaderCondition, KalturaHeaderCondition>()
-                .IncludeBase<AssetRuleCondition, KalturaCondition>()
+                .IncludeBase<AssetRuleCondition<IHeaderConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
