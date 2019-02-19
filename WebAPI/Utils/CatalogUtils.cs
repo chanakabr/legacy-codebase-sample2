@@ -34,6 +34,7 @@ namespace WebAPI.Utils
         private const string RECORDING_CACHE_KEY_PREFIX = "recording";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+        private readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
 
         public static bool GetBaseResponse<T>(BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
         {
@@ -576,7 +577,7 @@ namespace WebAPI.Utils
             return null;
         }
 
-        private static List<KalturaAsset> MapAssets(List<BaseObject> assets)
+        internal static List<KalturaAsset> MapAssets(List<BaseObject> assets)
         {
             List<KalturaAsset> result = new List<KalturaAsset>();
             foreach (BaseObject asset in assets)
@@ -584,11 +585,10 @@ namespace WebAPI.Utils
                 KalturaAsset assetToAdd = null;
                 if (asset.AssetType == eAssetTypes.MEDIA && asset is MediaObj)
                 {
-                    assetToAdd = AutoMapper.Mapper.Map<KalturaMediaAsset>(asset);
-                    Version version = new Version(OPC_MERGE_VERSION);
+                    assetToAdd = AutoMapper.Mapper.Map<KalturaMediaAsset>(asset);                    
                     Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
                     MediaObj mediaObj = asset as MediaObj;
-                    if (requestVersion.CompareTo(version) > 0)
+                    if (requestVersion.CompareTo(OPC_MERGE_VERSION) > 0)
                     {
                         if (!string.IsNullOrEmpty(mediaObj.m_ExternalIDs))
                         {

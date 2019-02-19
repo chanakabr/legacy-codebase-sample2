@@ -37,6 +37,7 @@ namespace WebAPI.Clients
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+        private readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
 
         public string Signature { get; set; }
         public string SignString { get; set; }
@@ -380,11 +381,13 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(removeTopicsFromAssetFunc);
         }
 
-        public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<BaseObject> assetsBaseDataList, bool isAllowedToViewInactiveAssets)
+        public KalturaAssetListResponse GetAssetsForOPCAccount(int groupId, List<BaseObject> assetsBaseDataList, bool isAllowedToViewInactiveAssets)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             if (assetsBaseDataList != null && assetsBaseDataList.Count > 0)
             {
+                Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                bool shouldReturnOldMediaObj = requestVersion.CompareTo(opcMergeVersion) < 0;
                 GenericListResponse<Asset> assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
                 if (assetListResponse != null && assetListResponse.Status != null && assetListResponse.Status.Code == (int)eResponseStatus.OK)
                 {
@@ -393,15 +396,25 @@ namespace WebAPI.Clients
                     Dictionary<long, string> imageTypeIdToRatioNameMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
                     foreach (Asset assetToConvert in assetListResponse.Objects)
                     {
-                        KalturaAsset kalturaEpgAsset = Mapper.Map<KalturaAsset>(assetToConvert);
-                        kalturaEpgAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, imageTypeIdToRatioNameMap);
-                        result.Objects.Add(kalturaEpgAsset);
+                        KalturaAsset asset = null;
+                        if (assetToConvert.AssetType == eAssetTypes.MEDIA && shouldReturnOldMediaObj)
+                        {
+                            MediaObj oldMediaObj = new MediaObj(groupId, assetToConvert as MediaAsset);
+                            asset = Mapper.Map<KalturaMediaAsset>(oldMediaObj);
+                        }
+                        else
+                        {
+                            asset = Mapper.Map<KalturaAsset>(assetToConvert);
+                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, imageTypeIdToRatioNameMap);                            
+                        }
+
+                        result.Objects.Add(asset);
                     }
                 }
                 else if (assetListResponse != null && assetListResponse.Status != null)
                 {
                     throw new ClientException((int)assetListResponse.Status.Code, assetListResponse.Status.Message.ToString());
-                }
+                }               
             }
 
             return result;
@@ -427,7 +440,7 @@ namespace WebAPI.Clients
                         }
                     }
 
-                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                    result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
                 }
                 else
                 {
@@ -442,7 +455,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
                 if (doesGroupUsesTemplates)
                 {
-                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                    result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
                 }
                 else
                 {
@@ -2002,10 +2015,9 @@ namespace WebAPI.Clients
 
             ChannelObjResponse response = null;
             if (CatalogUtils.GetBaseResponse(request, out response))
-            {
-                Version version = new Version(OPC_MERGE_VERSION);
+            {                
                 Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
-                if (requestVersion.CompareTo(version) > 0)
+                if (requestVersion.CompareTo(opcMergeVersion) > 0)
                 {
                     result = response.ChannelObj != null ? Mapper.Map<WebAPI.Models.Catalog.KalturaDynamicChannel>(response.ChannelObj) : null;
                 }
