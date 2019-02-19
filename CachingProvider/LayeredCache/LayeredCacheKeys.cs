@@ -585,6 +585,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("DomainRecordings_domainId_{0}", domainId);
         }
 
+        public static string GetBusinessModuleRulesRulesByMediaKey(long mediaId)
+        {
+            return string.Format("business_module_rules_by_mediaId_{0}", mediaId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
