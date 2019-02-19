@@ -127,6 +127,7 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue AllowUnknownCountry;
         public static BooleanConfigurationValue ShouldSubscriptionOverlapConsiderDLM;
         public static NumericConfigurationValue MediaMarksListLength;
+        public static NumericConfigurationValue MediaMarksTTL;
 
         #endregion
 
@@ -561,6 +562,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = 300
             };
+            MediaMarksTTL = new NumericConfigurationValue("media_marks_ttl_days")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 90
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -667,7 +673,8 @@ namespace ConfigurationManager
                     EPGDeleteBulkSize,
                     AllowUnknownCountry,
                     ShouldSubscriptionOverlapConsiderDLM,
-                    MediaMarksListLength
+                    MediaMarksListLength,
+                    MediaMarksTTL
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
