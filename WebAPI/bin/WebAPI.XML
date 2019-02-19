@@ -9149,6 +9149,11 @@
             Description
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetUserRuleFilterAction.ApplyOnChannel">
+            <summary>
+            Indicates whether to apply on channel
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction">
             <summary>
             Time offset action

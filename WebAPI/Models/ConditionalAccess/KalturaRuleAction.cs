@@ -19,7 +19,8 @@ namespace WebAPI.Models.ConditionalAccess
         ALLOW_PLAYBACK,
         BLOCK_PLAYBACK,
         APPLY_DISCOUNT_MODULE,
-        APPLY_PLAYBACK_ADAPTER
+        APPLY_PLAYBACK_ADAPTER,
+        FILTER
     }
     
     [Serializable]
@@ -60,6 +61,24 @@ namespace WebAPI.Models.ConditionalAccess
         {
             base.Init();
             this.Type = KalturaRuleActionType.USER_BLOCK;
+        }
+    }
+
+    [Serializable]
+    public partial class KalturaAssetUserRuleFilterAction : KalturaAssetUserRuleAction
+    {
+        /// <summary>
+        /// Indicates whether to apply on channel
+        /// </summary>
+        [DataMember(Name = "applyOnChannel")]
+        [JsonProperty("applyOnChannel")]
+        [XmlElement(ElementName = "applyOnChannel")]
+        public bool ApplyOnChannel { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleActionType.FILTER;
         }
     }
 
