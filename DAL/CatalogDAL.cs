@@ -2197,7 +2197,9 @@ namespace Tvinci.Core.DAL
             var temporaryMediaMarks = mediaMarks.mediaMarks.OrderByDescending(mark => mark.CreatedAt);
             mediaMarks.mediaMarks = temporaryMediaMarks.Take(ApplicationConfiguration.MediaMarksListLength.IntValue).ToList();
 
-            success = couchbaseManager.SetWithVersion(documentKey, mediaMarks, version);
+            uint expiration = (uint)ApplicationConfiguration.MediaMarksTTL.IntValue * 60 * 60 * 24;
+
+            success = couchbaseManager.SetWithVersion(documentKey, mediaMarks, version, expiration);
 
             log.DebugFormat("InsertMediaMarkToUserMediaMarks for user {0} and asset {1}:{2} - success = {3}",
                 userMediaMark.UserID, userMediaMark.AssetType, userMediaMark.AssetID, success);
@@ -2327,7 +2329,9 @@ namespace Tvinci.Core.DAL
             umm.LastMark = userMediaMark;
             umm.devices = new List<UserMediaMark>();
 
-            bool result = couchbaseManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
+            uint expiration = (uint)ApplicationConfiguration.MediaMarksTTL.IntValue * 60 * 60 * 24;
+
+            bool result = couchbaseManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, expiration);
 
             if (!result)
             {
