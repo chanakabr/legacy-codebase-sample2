@@ -351,8 +351,8 @@ namespace ApiObjects.Segmentation
                 }
 
                 // cleanup invalid and expired segments
-                List<long> segmentsToRemove = GetUserSegmentsToCleanup(groupId, userSegments.Segments.Values.ToList());
-                segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
+                //List<long> segmentsToRemove = GetUserSegmentsToCleanup(groupId, userSegments.Segments.Values.ToList());
+                //segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
                 bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTtl());
 
