@@ -2,6 +2,7 @@
 using ApiLogic;
 using APILogic;
 using APILogic.Api.Managers;
+using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -11359,9 +11360,9 @@ namespace Core.Api
                 }
 
                 // check for SecondaryCurrencys valid
-                if (partnerConfigToUpdate.SecondaryCurrencys != null && partnerConfigToUpdate.SecondaryCurrencys.Count > 0)
+                if (partnerConfigToUpdate.SecondaryCurrencies != null && partnerConfigToUpdate.SecondaryCurrencies.Count > 0)
                 {
-                    foreach (var secondaryCurrencyId in partnerConfigToUpdate.SecondaryCurrencys)
+                    foreach (var secondaryCurrencyId in partnerConfigToUpdate.SecondaryCurrencies)
                     {
                         if (!ConditionalAccess.Utils.IsValidCurrencyId(groupId, secondaryCurrencyId))
                         {
@@ -11389,6 +11390,12 @@ namespace Core.Api
                 {
                     log.ErrorFormat("Error while update generalPartnerConfig. groupId: {0}", groupId);
                     return response;
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
                 }
 
                 response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -11468,11 +11475,11 @@ namespace Core.Api
                         dt = ds.Tables[2];
                     if (dt.Rows.Count > 0)
                     {
-                        generalPartnerConfig.SecondaryCurrencys = new List<int>();
+                        generalPartnerConfig.SecondaryCurrencies = new List<int>();
 
                         foreach (DataRow dr in dt.Rows)
                         {
-                            generalPartnerConfig.SecondaryCurrencys.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
+                            generalPartnerConfig.SecondaryCurrencies.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
                         }
                     }
                 }
@@ -11485,7 +11492,7 @@ namespace Core.Api
             return generalPartnerConfig;
         }
 
-        public static List<LanguageObj> GetAllLanguagesList(int groupId)
+        public static List<LanguageObj> GetAllLanguages(int groupId)
         {
             List<LanguageObj> languages = null;
             try
@@ -11520,7 +11527,7 @@ namespace Core.Api
 
             try
             {
-                List<LanguageObj> languageList = GetAllLanguagesList(groupId);
+                List<LanguageObj> languageList = GetAllLanguages(groupId);
                 if(languageList == null && languageList.Count == 0)
                 {
                     return res;

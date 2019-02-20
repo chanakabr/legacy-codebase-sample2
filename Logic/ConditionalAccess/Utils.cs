@@ -1,9 +1,33 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using APILogic.ConditionalAccess;
+using APILogic.ConditionalAccess.Managers;
+using APILogic.ConditionalAccess.Modules;
+using ApiObjects;
+using ApiObjects.Billing;
+using ApiObjects.Catalog;
+using ApiObjects.CDNAdapter;
+using ApiObjects.ConditionalAccess;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
+using ApiObjects.Roles;
+using ApiObjects.Rules;
+using ApiObjects.SubscriptionSet;
 using ApiObjects.TimeShiftedTv;
-using DAL;
-using KLogMonitor;
+using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using Core.Api.Managers;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Pricing;
 using Core.Recordings;
+using Core.Users;
+using DAL;
+using GroupsCacheManager;
+using KLogMonitor;
+using KlogMonitorHelper;
+using NPVR;
+using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,38 +36,8 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Xml;
-using Tvinic.GoogleAPI;
-using System.Net;
-using System.ServiceModel;
-using Core.Pricing;
-using ApiObjects.CDNAdapter;
-using Core;
-using Core.Users;
-using Core.Catalog.Request;
-using Core.Catalog.Response;
-using Core.Catalog;
-using ApiObjects.Catalog;
-using ApiObjects.ConditionalAccess;
-using ApiObjects.Pricing;
-using NPVR;
-using CachingProvider.LayeredCache;
 using TVinciShared;
-using KlogMonitorHelper;
-using ApiObjects.Billing;
-using ApiObjects.SubscriptionSet;
-using APILogic.ConditionalAccess.Managers;
-using Core.ConditionalAccess.Modules;
-using APILogic.ConditionalAccess.Modules;
-using QueueWrapper;
-using ApiObjects.Roles;
-using ConfigurationManager;
-using GroupsCacheManager;
-using ApiObjects.Rules;
-using ApiObjects.SearchObjects;
-using APILogic.Api.Managers;
-using Core.Api.Managers;
-using ApiObjects.PlayCycle;
-using ApiObjects.Segmentation;
+using Tvinic.GoogleAPI;
 
 namespace Core.ConditionalAccess
 {
@@ -1545,12 +1539,12 @@ namespace Core.ConditionalAccess
         /// <param name="businessModuleId"></param>
         /// <param name="countryCode"></param>
         /// <returns></returns>
-        private static Price GetLowestPrice(int groupId, Price currentPrice, int domainId, Price discountPrice, eTransactionType transactionType, 
+        private static Price GetLowestPrice(int groupId, Price currentPrice, int domainId, Price discountPrice, eTransactionType transactionType,
                                             string currencyCode, long businessModuleId, string countryCode, ref string couponCode, CouponsGroup couponsGroup,
-                                            List<SubscriptionCouponGroup> subscriptionCouponGroups, List<string> allUserIdsInDomain)
+                                            List<SubscriptionCouponGroup> subscriptionCouponGroups, List<string> allUserIdsInDomain, long mediaId = 0)
         {
             Price lowestPrice = discountPrice ?? currentPrice;
-            
+
             if (allUserIdsInDomain == null || allUserIdsInDomain.Count == 0)
             {
                 allUserIdsInDomain = Domains.Module.GetDomainUserList(groupId, domainId);
@@ -1584,7 +1578,9 @@ namespace Core.ConditionalAccess
                 BusinessModuleType = transactionType,
                 SegmentIds = segmentIds,
                 FilterByDate = true,
-                FilterBySegments = true
+                FilterBySegments = true,
+                GroupId = groupId,
+                MediaId = mediaId
             };
             
             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
@@ -2156,8 +2152,8 @@ namespace Core.ConditionalAccess
             List<int> relatedMediaFileIDs = new List<int>();
             return GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
                                           ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
-                                          mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, 
-                                          ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID, currencyCode, null, 0, 
+                                          mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID,
+                                          ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID, currencyCode, null, 0,
                                           DomainSuspentionStatus.Suspended, true, shouldIgnoreBundlePurchases, blockEntitlement);
         }
 
@@ -2254,14 +2250,14 @@ namespace Core.ConditionalAccess
             return (!int.TryParse(siteGuid, out userID) || userID <= 0);
         }
 
-        internal static Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, PPVModule ppvModule, string sSiteGUID, string couponCode, 
-                                                     Int32 groupID, bool bIsValidForPurchase, ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol, 
-                                                     ref PrePaidModule relevantPP, ref string sFirstDeviceNameFound, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME, 
-                                                     string clientIP, Dictionary<int, int> mediaFileTypesMapping, List<int> allUserIDsInDomain, int nMediaFileTypeID, 
-                                                     ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID, ref List<int> relatedMediaFileIDs, 
+        internal static Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, PPVModule ppvModule, string sSiteGUID, string couponCode,
+                                                     Int32 groupID, bool bIsValidForPurchase, ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol,
+                                                     ref PrePaidModule relevantPP, ref string sFirstDeviceNameFound, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME,
+                                                     string clientIP, Dictionary<int, int> mediaFileTypesMapping, List<int> allUserIDsInDomain, int nMediaFileTypeID,
+                                                     ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID, ref List<int> relatedMediaFileIDs,
                                                      ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, ref DateTime? dtDiscountEndDate, int domainID,
-                                                     string currencyCode, DomainEntitlements domainEntitlements = null, int mediaID = 0, 
-                                                     DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true, 
+                                                     string currencyCode, DomainEntitlements domainEntitlements = null, int mediaID = 0,
+                                                     DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true,
                                                      bool shouldIgnoreBundlePurchases = false, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
             if (ppvModule == null)
@@ -2543,12 +2539,12 @@ namespace Core.ConditionalAccess
                     }
 
                     // the media file was not purchased in any way. calculate its price as a single media file and its price reason
-                    Price discountPrice = 
+                    Price discountPrice =
                         GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, out dtDiscountEndDate, domainID);
-                    
-                    price = GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID, 
-                                           countryCode, ref couponCode, null, null, allUserIDsInDomain.ConvertAll(x => x.ToString()));
-                        
+
+                    price = GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID,
+                                           countryCode, ref couponCode, null, null, allUserIDsInDomain.ConvertAll(x => x.ToString()), mediaID);
+
                     if (IsFreeMediaFile(theReason, price))
                     {
                         theReason = PriceReason.Free;
@@ -9062,6 +9058,44 @@ namespace Core.ConditionalAccess
             }
 
             return res;
+        }
+
+        public static List<Currency> GetCurrencyList(int groupId)
+        {
+            List<Currency> currencies = null;
+            try
+            {
+                int defaultGroupCurrencyId = 0;
+                if (LayeredCache.Instance.Get<int>(LayeredCacheKeys.GetGroupDefaultCurrencyKey(groupId), ref defaultGroupCurrencyId, GetGroupDefaultCurrency, new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME) && defaultGroupCurrencyId > 0)
+                {
+                    DataTable dt = null;
+                    if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
+                                                            LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        currencies = new List<Currency>();
+                        Currency currency;
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            currency = new Currency()
+                            {
+                                m_nCurrencyID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
+                                m_sCurrencyName = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                                m_sCurrencyCD2 = ODBCWrapper.Utils.GetSafeStr(dr, "code2"),
+                                m_sCurrencyCD3 = ODBCWrapper.Utils.GetSafeStr(dr, "code3"),
+                                m_sCurrencySign = ODBCWrapper.Utils.GetSafeStr(dr, "currency_sign")
+                            };
+
+                            currencies.Add(currency);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetCurrencyList, groupId: {0}, ex: {1}", groupId, ex);
+            }
+
+            return currencies;
         }
     }
 }

@@ -1,7 +1,9 @@
-﻿using ApiObjects;
+﻿using APILogic.ConditionalAccess;
+using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
+using Core.Api;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -163,12 +165,14 @@ namespace APILogic.Api.Managers
 
                 if (allBusinessModuleRules != null && allBusinessModuleRules.Count > 0)
                 {
-                    log.DebugFormat("GetBusinessModuleRules filter properties - BusinessModuleId: {0}, BusinessModuleType: {1}, FilterByDate: {2}, FilterBySegments: {3}, SegmentIds: {4}",
+                    log.DebugFormat("GetBusinessModuleRules filter properties - BusinessModuleId: {0}, BusinessModuleType: {1}, FilterByDate: {2}, FilterBySegments: {3}, SegmentIds: {4}, MediaId: {5}, GroupId: {6}",
                                     filter.BusinessModuleId,
                                     filter.BusinessModuleType.HasValue ? filter.BusinessModuleType.Value.ToString() : "null",
                                     filter.FilterByDate,
                                     filter.FilterBySegments,
-                                    filter.SegmentIds != null ? string.Join(", ", filter.SegmentIds) : "null");
+                                    filter.SegmentIds != null ? string.Join(", ", filter.SegmentIds) : "null",
+                                    filter.MediaId,
+                                    filter.GroupId);
 
                     foreach (var rule in allBusinessModuleRules)
                     {
@@ -191,7 +195,7 @@ namespace APILogic.Api.Managers
             return response;
         }
 
-        private static List<BusinessModuleRule> GetAllBusinessModuleRules(int groupId)
+        public static List<BusinessModuleRule> GetAllBusinessModuleRules(int groupId)
         {
             List<BusinessModuleRule> allBusinessModuleRules = null;
 
@@ -323,4 +327,6 @@ namespace APILogic.Api.Managers
             }
         }
     }
+
+    
 }
