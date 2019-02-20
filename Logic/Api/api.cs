@@ -11492,7 +11492,7 @@ namespace Core.Api
             return generalPartnerConfig;
         }
 
-        public static List<LanguageObj> GetAllLanguagesList(int groupId)
+        public static List<LanguageObj> GetAllLanguages(int groupId)
         {
             List<LanguageObj> languages = null;
             try
@@ -11527,7 +11527,7 @@ namespace Core.Api
 
             try
             {
-                List<LanguageObj> languageList = GetAllLanguagesList(groupId);
+                List<LanguageObj> languageList = GetAllLanguages(groupId);
                 if(languageList == null && languageList.Count == 0)
                 {
                     return res;
