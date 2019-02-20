@@ -14,7 +14,7 @@ namespace ApiObjects
 
         public int? MainCurrency { get; set; }
 
-        public List<int> SecondaryCurrencys { get; set; }
+        public List<int> SecondaryCurrencies { get; set; }
 
         public DowngradePolicy? DowngradePolicy { get; set; }
 
