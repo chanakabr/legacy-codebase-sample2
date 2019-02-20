@@ -3512,20 +3512,20 @@ namespace Core.Api
                         response.Rules.Add(new GenericRule() { Name = "UserTypeBlock", RuleType = RuleType.UserType, Description = string.Empty });
                     }
 
-                    //ParentalRulesResponse parentalRulesResponse = api.GetParentalEPGRules(groupId, siteGuid, epg.EPG_ID, domainId);
-                    //if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
-                    //{
-                    //    foreach (ParentalRule rule in parentalRulesResponse.rules)
-                    //    {
-                    //        response.Rules.Add(new GenericRule()
-                    //        {
-                    //            Id = rule.id,
-                    //            Description = rule.description,
-                    //            Name = rule.name,
-                    //            RuleType = RuleType.Parental
-                    //        });
-                    //    }
-                    //}
+                    ParentalRulesResponse parentalRulesResponse = api.GetParentalEPGRules(groupId, siteGuid, epg.EPG_ID, domainId, true);
+                    if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
+                    {
+                        foreach (ParentalRule rule in parentalRulesResponse.rules)
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Id = rule.id,
+                                Description = rule.description,
+                                Name = rule.name,
+                                RuleType = RuleType.Parental
+                            });
+                        }
+                    }
 
                     AssetRule blockingRule;
                     var networkRulesStatus = AssetRuleManager.CheckNetworkRules(
@@ -5535,7 +5535,7 @@ namespace Core.Api
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
 
-        public static ParentalRulesResponse GetParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId)
+        public static ParentalRulesResponse GetParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId, bool includeRecordingFallback = false)
         {
             List<ParentalRule> rules = null;
             ParentalRulesResponse response = new ParentalRulesResponse()
@@ -5564,7 +5564,7 @@ namespace Core.Api
                     // epg rules id 
                     string key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
                     bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "epgId", epgId },
-                                                                            { "groupParentalRules", groupsParentalRules } }, groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                                                                            { "groupParentalRules", groupsParentalRules }, {"includeRecordingFallback", includeRecordingFallback } }, groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
 
                     if (!cacheResult)
                     {
@@ -5634,17 +5634,19 @@ namespace Core.Api
 
             try
             {
-                if (funcParams != null && funcParams.Count == 3)
+                if (funcParams != null && funcParams.Count == 4)
                 {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("epgId") && funcParams.ContainsKey("groupParentalRules"))
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("epgId") && funcParams.ContainsKey("groupParentalRules") && funcParams.ContainsKey("includeRecordingFallback"))
                     {
                         int? groupId;
                         long? epgId;
                         List<ParentalRule> groupParentalRules = new List<ParentalRule>();
+                        bool includeRecordingFallback;
 
                         groupId = funcParams["groupId"] as int?;
                         epgId = funcParams["epgId"] as long?;
                         groupParentalRules = funcParams["groupParentalRules"] as List<ParentalRule>;
+                        includeRecordingFallback = (bool)funcParams["includeRecordingFallback"];
 
                         if (groupId.HasValue && epgId.HasValue && groupParentalRules != null && groupParentalRules.Count > 0)
                         {
@@ -5657,7 +5659,7 @@ namespace Core.Api
                             // get epg program from CB ==> check matches to tag type and values 
 
                             TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId.Value);  //assuming this is a Tvinci user - does not support yes Epg
-                            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgId.Value);
+                            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgId.Value, includeRecordingFallback);
                             if (epg != null)
                             {
                                 Dictionary<string, List<string>> tags = new Dictionary<string, List<string>>();
