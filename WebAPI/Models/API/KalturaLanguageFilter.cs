@@ -25,6 +25,15 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "codeIn", IsNullable = true)]
         public string CodeIn { get; set; }
 
+        /// <summary>
+        /// Exclude partner
+        /// </summary>
+        [DataMember(Name = "excludePartner")]
+        [JsonProperty("excludePartner")]
+        [XmlElement(ElementName = "excludePartner", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool? ExcludePartner { get; set; }
+
         public override KalturaLanguageOrderBy GetDefaultOrderByValue()
         {
             return KalturaLanguageOrderBy.SYSTEM_NAME_ASC;
@@ -52,5 +61,12 @@ namespace WebAPI.Models.API
             return list;
         }
 
+        internal void Validate()
+        {
+            if (!string.IsNullOrEmpty(CodeIn) && ExcludePartner.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaLanguageFilter.codeIn", "KalturaLanguageFilter.excludePartner");
+            }
+        }
     }
 }

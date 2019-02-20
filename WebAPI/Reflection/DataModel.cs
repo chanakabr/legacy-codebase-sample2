@@ -1606,6 +1606,8 @@ namespace WebAPI.Reflection
                     {
                         case "CodeIn":
                             return "codeIn";
+                        case "ExcludePartner":
+                            return "excludePartner";
                     }
                     break;
                     
@@ -2888,6 +2890,8 @@ namespace WebAPI.Reflection
                     {
                         case "CodeIn":
                             return "codeIn";
+                        case "ExcludePartner":
+                            return "excludePartner";
                     }
                     break;
                     
