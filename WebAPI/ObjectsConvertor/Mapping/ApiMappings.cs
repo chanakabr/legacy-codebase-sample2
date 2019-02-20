@@ -546,42 +546,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            //----------------------------------------------------------------------------
-
             cfg.CreateMap<KalturaCondition, RuleCondition<IConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition>();
-            //    .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-            //    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<KalturaCondition, RuleCondition<IBusinessModuleConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition>();
-            //    .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-            //    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<KalturaCondition, RuleCondition<ISegmentsConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition>();
-            //    .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-            //    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<KalturaCondition, RuleCondition<IDateConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition>();
-            //    .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-            //    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<KalturaCondition, RuleCondition<IIpRangeConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition>();
-            //    .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-            //    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<KalturaCondition, RuleCondition<IHeaderConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition>();
-            //    .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-            //    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<KalturaCondition, RuleCondition<IAssetConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition>();
-            //    .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-            //    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<RuleCondition<IConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -631,7 +615,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
 
             cfg.CreateMap<KalturaCondition, AssetRuleCondition<IAssetConditionScope>>()
-                 .IncludeBase<KalturaCondition, RuleCondition<IAssetConditionScope>>()
+                .IncludeBase<KalturaCondition, RuleCondition<IAssetConditionScope>>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
 
