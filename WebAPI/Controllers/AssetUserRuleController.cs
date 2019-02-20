@@ -161,6 +161,12 @@ namespace WebAPI.Controllers
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
+            string originalUserId = KS.GetFromRequest().OriginalUserId;
+
+            if (string.IsNullOrEmpty(originalUserId)  || !string.IsNullOrEmpty(originalUserId) && originalUserId == userId)
+            {
+                throw new BadRequestException(new ApiException.ApiExceptionType(StatusCode.BadRequest, "A user can not attach a rule to himself", null));
+            }
 
             try
             {
@@ -186,6 +192,12 @@ namespace WebAPI.Controllers
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
+            string originalUserId = KS.GetFromRequest().OriginalUserId;
+
+            if (string.IsNullOrEmpty(originalUserId) || !string.IsNullOrEmpty(originalUserId) && originalUserId == userId)
+            {
+                throw new BadRequestException(new ApiException.ApiExceptionType(StatusCode.BadRequest, "A user can not detach a rule to himself", null));
+            }
 
             try
             {
