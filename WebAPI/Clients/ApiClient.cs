@@ -4014,7 +4014,7 @@ namespace WebAPI.Clients
             KalturaBusinessModuleRuleListResponse result = new KalturaBusinessModuleRuleListResponse();
 
             Func<GenericListResponse<BusinessModuleRule>> getBusinessModuleRulesFunc = () =>
-               Core.Api.Module.GetBusinessModuleRules(groupId, AutoMapper.Mapper.Map<ConditionScope>(filter));
+               Core.Api.Module.GetBusinessModuleRules(groupId, AutoMapper.Mapper.Map<APILogic.ConditionalAccess.ConditionScope>(filter));
 
             KalturaGenericListResponse<KalturaBusinessModuleRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaBusinessModuleRule, BusinessModuleRule>(getBusinessModuleRulesFunc);
