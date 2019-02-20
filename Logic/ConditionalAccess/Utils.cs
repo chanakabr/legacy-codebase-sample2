@@ -44,6 +44,7 @@ using APILogic.Api.Managers;
 using Core.Api.Managers;
 using ApiObjects.PlayCycle;
 using ApiObjects.Segmentation;
+using APILogic.ConditionalAccess;
 
 namespace Core.ConditionalAccess
 {
@@ -1545,12 +1546,12 @@ namespace Core.ConditionalAccess
         /// <param name="businessModuleId"></param>
         /// <param name="countryCode"></param>
         /// <returns></returns>
-        private static Price GetLowestPrice(int groupId, Price currentPrice, int domainId, Price discountPrice, eTransactionType transactionType, 
+        private static Price GetLowestPrice(int groupId, Price currentPrice, int domainId, Price discountPrice, eTransactionType transactionType,
                                             string currencyCode, long businessModuleId, string countryCode, ref string couponCode, CouponsGroup couponsGroup,
-                                            List<SubscriptionCouponGroup> subscriptionCouponGroups, List<string> allUserIdsInDomain)
+                                            List<SubscriptionCouponGroup> subscriptionCouponGroups, List<string> allUserIdsInDomain, long mediaId = 0)
         {
             Price lowestPrice = discountPrice ?? currentPrice;
-            
+
             if (allUserIdsInDomain == null || allUserIdsInDomain.Count == 0)
             {
                 allUserIdsInDomain = Domains.Module.GetDomainUserList(groupId, domainId);
@@ -1584,7 +1585,9 @@ namespace Core.ConditionalAccess
                 BusinessModuleType = transactionType,
                 SegmentIds = segmentIds,
                 FilterByDate = true,
-                FilterBySegments = true
+                FilterBySegments = true,
+                GroupId = groupId,
+                MediaId = mediaId
             };
             
             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
@@ -2156,8 +2159,8 @@ namespace Core.ConditionalAccess
             List<int> relatedMediaFileIDs = new List<int>();
             return GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
                                           ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
-                                          mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, 
-                                          ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID, currencyCode, null, 0, 
+                                          mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID,
+                                          ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID, currencyCode, null, 0,
                                           DomainSuspentionStatus.Suspended, true, shouldIgnoreBundlePurchases, blockEntitlement);
         }
 
@@ -2254,14 +2257,14 @@ namespace Core.ConditionalAccess
             return (!int.TryParse(siteGuid, out userID) || userID <= 0);
         }
 
-        internal static Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, PPVModule ppvModule, string sSiteGUID, string couponCode, 
-                                                     Int32 groupID, bool bIsValidForPurchase, ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol, 
-                                                     ref PrePaidModule relevantPP, ref string sFirstDeviceNameFound, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME, 
-                                                     string clientIP, Dictionary<int, int> mediaFileTypesMapping, List<int> allUserIDsInDomain, int nMediaFileTypeID, 
-                                                     ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID, ref List<int> relatedMediaFileIDs, 
+        internal static Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, PPVModule ppvModule, string sSiteGUID, string couponCode,
+                                                     Int32 groupID, bool bIsValidForPurchase, ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol,
+                                                     ref PrePaidModule relevantPP, ref string sFirstDeviceNameFound, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME,
+                                                     string clientIP, Dictionary<int, int> mediaFileTypesMapping, List<int> allUserIDsInDomain, int nMediaFileTypeID,
+                                                     ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID, ref List<int> relatedMediaFileIDs,
                                                      ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, ref DateTime? dtDiscountEndDate, int domainID,
-                                                     string currencyCode, DomainEntitlements domainEntitlements = null, int mediaID = 0, 
-                                                     DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true, 
+                                                     string currencyCode, DomainEntitlements domainEntitlements = null, int mediaID = 0,
+                                                     DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true,
                                                      bool shouldIgnoreBundlePurchases = false, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
             if (ppvModule == null)
@@ -2543,12 +2546,12 @@ namespace Core.ConditionalAccess
                     }
 
                     // the media file was not purchased in any way. calculate its price as a single media file and its price reason
-                    Price discountPrice = 
+                    Price discountPrice =
                         GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, out dtDiscountEndDate, domainID);
-                    
-                    price = GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID, 
-                                           countryCode, ref couponCode, null, null, allUserIDsInDomain.ConvertAll(x => x.ToString()));
-                        
+
+                    price = GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID,
+                                           countryCode, ref couponCode, null, null, allUserIDsInDomain.ConvertAll(x => x.ToString()), mediaID);
+
                     if (IsFreeMediaFile(theReason, price))
                     {
                         theReason = PriceReason.Free;

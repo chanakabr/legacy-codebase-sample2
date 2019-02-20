@@ -2,6 +2,7 @@
 using ApiLogic;
 using APILogic;
 using APILogic.Api.Managers;
+using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -11486,6 +11487,12 @@ namespace Core.Api
                 {
                     log.ErrorFormat("Error while update generalPartnerConfig. groupId: {0}", groupId);
                     return response;
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
                 }
 
                 response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
