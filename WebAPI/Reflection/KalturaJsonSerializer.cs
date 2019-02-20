@@ -21482,9 +21482,9 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("partnerName", "\"partnerName\": " + "\"" + EscapeJson(PartnerName) + "\"");
             }
-            if(SecondaryCurrencys != null)
+            if(SecondaryCurrencies != null)
             {
-                ret.Add("secondaryCurrencys", "\"secondaryCurrencys\": " + "\"" + EscapeJson(SecondaryCurrencys) + "\"");
+                ret.Add("secondaryCurrencies", "\"secondaryCurrencies\": " + "\"" + EscapeJson(SecondaryCurrencies) + "\"");
             }
             if(SecondaryLanguages != null)
             {
@@ -21530,9 +21530,9 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("partnerName", "<partnerName>" + EscapeXml(PartnerName) + "</partnerName>");
             }
-            if(SecondaryCurrencys != null)
+            if(SecondaryCurrencies != null)
             {
-                ret.Add("secondaryCurrencys", "<secondaryCurrencys>" + EscapeXml(SecondaryCurrencys) + "</secondaryCurrencys>");
+                ret.Add("secondaryCurrencies", "<secondaryCurrencies>" + EscapeXml(SecondaryCurrencies) + "</secondaryCurrencies>");
             }
             if(SecondaryLanguages != null)
             {

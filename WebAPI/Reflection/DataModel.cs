@@ -2362,8 +2362,8 @@ namespace WebAPI.Reflection
                             return "mainLanguage";
                         case "PartnerName":
                             return "partnerName";
-                        case "SecondaryCurrencys":
-                            return "secondaryCurrencys";
+                        case "SecondaryCurrencies":
+                            return "secondaryCurrencies";
                         case "SecondaryLanguages":
                             return "secondaryLanguages";
                     }

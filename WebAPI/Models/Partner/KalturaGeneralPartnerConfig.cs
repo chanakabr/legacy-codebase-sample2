@@ -55,13 +55,13 @@ namespace WebAPI.Models.Partner
         public int? MainCurrency { get; set; }
 
         /// <summary>
-        /// A list of comma separated currencys ids.
+        /// A list of comma separated currency ids.
         /// </summary>
-        [DataMember(Name = "secondaryCurrencys")]
-        [JsonProperty("secondaryCurrencys")]
-        [XmlElement(ElementName = "secondaryCurrencys")]
+        [DataMember(Name = "secondaryCurrencies")]
+        [JsonProperty("secondaryCurrencies")]
+        [XmlElement(ElementName = "secondaryCurrencies")]
         [XmlArrayItem("item")]
-        public string SecondaryCurrencys { get; set; }
+        public string SecondaryCurrencies { get; set; }
 
         /// <summary>
         /// Downgrade policy

@@ -10573,9 +10573,9 @@
             Main currency
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.SecondaryCurrencys">
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.SecondaryCurrencies">
             <summary>
-            A list of comma separated currencys ids.
+            A list of comma separated currency ids.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.DowngradePolicy">

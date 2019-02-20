@@ -21671,9 +21671,9 @@ namespace WebAPI.Models.Partner
                 {
                     MainCurrency = (Int32) Convert.ChangeType(parameters["mainCurrency"], typeof(Int32));
                 }
-                if (parameters.ContainsKey("secondaryCurrencys") && parameters["secondaryCurrencys"] != null)
+                if (parameters.ContainsKey("secondaryCurrencies") && parameters["secondaryCurrencies"] != null)
                 {
-                    SecondaryCurrencys = (String) Convert.ChangeType(parameters["secondaryCurrencys"], typeof(String));
+                    SecondaryCurrencies = (String) Convert.ChangeType(parameters["secondaryCurrencies"], typeof(String));
                 }
                 if (parameters.ContainsKey("downgradePolicy") && parameters["downgradePolicy"] != null)
                 {
