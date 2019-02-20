@@ -6,7 +6,6 @@ using ApiObjects.PlaybackAdapter;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
-using ApiObjects.SearchObjects;
 using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using Core.Api.Managers;
@@ -2276,6 +2275,38 @@ namespace Core.Api
         public static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
         {
             return api.GetGeneralPartnerConfiguration(groupId);
+        }
+
+        public static LanguageResponse GetAllLanguageList(int groupId)
+        {
+            LanguageResponse result = new LanguageResponse();
+            result.Languages = api.GetAllLanguages(groupId);
+            if (result.Languages == null)
+            {
+                result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            else
+            {
+                result.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return result;
+        }
+
+        public static CurrencyResponse GetCurrencyList(int groupId)
+        {
+            CurrencyResponse result = new CurrencyResponse();
+            result.Currencies = ConditionalAccess.Utils.GetCurrencyList(groupId);
+            if (result.Currencies == null)
+            {
+                result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            else
+            {
+                result.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return result;
         }
     }
 }
