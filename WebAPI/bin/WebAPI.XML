@@ -9076,7 +9076,7 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.StreamerType">
             <summary>
-            Playback streamer type: applehttp, mpegdash, url.
+            Playback streamer type: applehttp, mpegdash, url, smothstreaming, none
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.AssetFileIds">
@@ -9147,6 +9147,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRuleAction.Description">
             <summary>
             Description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetUserRuleFilterAction.ApplyOnChannel">
+            <summary>
+            Indicates whether to apply on channel
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaTimeOffsetRuleAction">

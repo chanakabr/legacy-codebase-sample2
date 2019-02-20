@@ -67,6 +67,14 @@ namespace WebAPI.Models.ConditionalAccess
     [Serializable]
     public partial class KalturaAssetUserRuleFilterAction : KalturaAssetUserRuleAction
     {
+        /// <summary>
+        /// Indicates whether to apply on channel
+        /// </summary>
+        [DataMember(Name = "applyOnChannel")]
+        [JsonProperty("applyOnChannel")]
+        [XmlElement(ElementName = "applyOnChannel")]
+        public bool ApplyOnChannel { get; set; }
+
         protected override void Init()
         {
             base.Init();

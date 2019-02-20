@@ -1014,6 +1014,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
+                case StreamerType.none:
+                    return KalturaMediaFileStreamerType.NONE;
+
                 case StreamerType.applehttp:
                     return KalturaMediaFileStreamerType.APPLE_HTTP;
 
@@ -1040,6 +1043,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
+                case KalturaMediaFileStreamerType.NONE:
+                    return StreamerType.none;
+
                 case KalturaMediaFileStreamerType.APPLE_HTTP:
                     return StreamerType.applehttp;
 
