@@ -21,7 +21,7 @@ namespace WebAPI.Models.API
     {
 
         private const string FEATURES_PATTERN = @"\W|[^ ]{64}[^ ]";
-        private const string OPC_MERGE_VERSION = "5.6.0.0";
+        private const string OPC_MERGE_VERSION = "5.0.0.0";
 
         /// <summary>
         /// Meta id 

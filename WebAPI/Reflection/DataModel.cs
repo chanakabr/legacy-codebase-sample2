@@ -1606,6 +1606,8 @@ namespace WebAPI.Reflection
                     {
                         case "CodeIn":
                             return "codeIn";
+                        case "ExcludePartner":
+                            return "excludePartner";
                     }
                     break;
                     
@@ -2360,8 +2362,8 @@ namespace WebAPI.Reflection
                             return "mainLanguage";
                         case "PartnerName":
                             return "partnerName";
-                        case "SecondaryCurrencys":
-                            return "secondaryCurrencys";
+                        case "SecondaryCurrencies":
+                            return "secondaryCurrencies";
                         case "SecondaryLanguages":
                             return "secondaryLanguages";
                     }
@@ -2888,6 +2890,8 @@ namespace WebAPI.Reflection
                     {
                         case "CodeIn":
                             return "codeIn";
+                        case "ExcludePartner":
+                            return "excludePartner";
                     }
                     break;
                     

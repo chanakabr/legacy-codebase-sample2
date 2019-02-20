@@ -4231,5 +4231,119 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaLanguageListResponse GetLanguageList(int groupId, KalturaLanguageOrderBy? orderBy = null)
+        {
+            KalturaLanguageListResponse result = new KalturaLanguageListResponse() { TotalCount = 0 };
+            LanguageResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetAllLanguageList(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Languages != null && response.Languages.Count > 0)
+            {
+                result.Objects = AutoMapper.Mapper.Map<List<KalturaLanguage>>(response.Languages);
+                result.TotalCount = result.Objects.Count;
+            }
+
+            if (result.TotalCount > 0 && orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaLanguageOrderBy.SYSTEM_NAME_ASC:
+                        result.Objects = result.Objects.OrderBy(x => x.SystemName).ToList();
+                        break;
+                    case KalturaLanguageOrderBy.SYSTEM_NAME_DESC:
+                        result.Objects = result.Objects.OrderByDescending(x => x.SystemName).ToList();
+                        break;
+                    case KalturaLanguageOrderBy.CODE_ASC:
+                        result.Objects = result.Objects.OrderBy(x => x.Code).ToList();
+                        break;
+                    case KalturaLanguageOrderBy.CODE_DESC:
+                        result.Objects = result.Objects.OrderByDescending(x => x.Code).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        internal KalturaCurrencyListResponse GetAllCurrencies(int groupId, KalturaCurrencyOrderBy? orderBy = null)
+        {
+            KalturaCurrencyListResponse result = new KalturaCurrencyListResponse() { TotalCount = 0 };
+            CurrencyResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetCurrencyList(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Currencies != null && response.Currencies.Count > 0)
+            {
+                result.Objects = AutoMapper.Mapper.Map<List<KalturaCurrency>>(response.Currencies);
+                result.TotalCount = result.Objects.Count;
+            }
+
+            if (result.TotalCount > 0 && orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaCurrencyOrderBy.NAME_ASC:
+                        result.Objects = result.Objects.OrderBy(x => x.Name).ToList();
+                        break;
+                    case KalturaCurrencyOrderBy.NAME_DESC:
+                        result.Objects = result.Objects.OrderByDescending(x => x.Name).ToList();
+                        break;
+                    case KalturaCurrencyOrderBy.CODE_ASC:
+                        result.Objects = result.Objects.OrderBy(x => x.Code).ToList();
+                        break;
+                    case KalturaCurrencyOrderBy.CODE_DESC:
+                        result.Objects = result.Objects.OrderByDescending(x => x.Code).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
+        }
     }
 }

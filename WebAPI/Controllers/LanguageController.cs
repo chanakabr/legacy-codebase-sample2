@@ -32,9 +32,18 @@ namespace WebAPI.Controllers
              KalturaLanguageListResponse response = null;
              int groupId = KS.GetFromRequest().GroupId;
 
-             try
-             {                   
-                 response = ClientsManager.ApiClient().GetLanguageList(groupId, filter.GetCodeIn(), filter.OrderBy);                 
+            filter.Validate();
+
+            try
+            {
+                if (filter.ExcludePartner.HasValue && filter.ExcludePartner.Value)
+                {
+                    response = ClientsManager.ApiClient().GetLanguageList(groupId, filter.OrderBy);
+                }
+                else
+                {
+                    response = ClientsManager.ApiClient().GetLanguageList(groupId, filter.GetCodeIn(), filter.OrderBy);
+                }
              }
              catch (ClientException ex)
              {

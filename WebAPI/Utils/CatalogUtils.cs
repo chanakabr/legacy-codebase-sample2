@@ -34,7 +34,7 @@ namespace WebAPI.Utils
         private const string RECORDING_CACHE_KEY_PREFIX = "recording";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
         private const string OPC_MERGE_VERSION = "5.0.0.0";
-        private readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
+        private static readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
 
         public static bool GetBaseResponse<T>(BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
         {
@@ -588,7 +588,7 @@ namespace WebAPI.Utils
                     assetToAdd = AutoMapper.Mapper.Map<KalturaMediaAsset>(asset);                    
                     Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
                     MediaObj mediaObj = asset as MediaObj;
-                    if (requestVersion.CompareTo(OPC_MERGE_VERSION) > 0)
+                    if (requestVersion.CompareTo(opcMergeVersion) > 0)
                     {
                         if (!string.IsNullOrEmpty(mediaObj.m_ExternalIDs))
                         {
