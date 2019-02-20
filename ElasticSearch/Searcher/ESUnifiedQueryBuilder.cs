@@ -2072,7 +2072,7 @@ namespace ElasticSearch.Searcher
                         recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
                         recordingIds.Add(recordingId);
                     }
-                    else;
+                    else
                     {
                         recordingIds.Add("0");
                     }
