@@ -3474,6 +3474,103 @@ namespace Core.Api
             return response;
         }
 
+        public static GenericRuleResponse GetNPVRRules(int groupId, string siteGuid, long recordingId, long domainId, string ip, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
+        {
+            GenericRuleResponse response = new GenericRuleResponse
+            {
+                Status = api.ValidateUserAndDomain(groupId, siteGuid, (int)domainId)
+            };
+
+            if (response.Status.Code == (int)eResponseStatus.OK)
+            {
+                try
+                {
+                    // validate recording exists
+                    Recording recording = Core.ConditionalAccess.Utils.GetRecordingById(recordingId);
+                    if (recording == null)
+                    {
+                        log.DebugFormat("No valid recording was returned from Utils.GetRecordingById");
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
+                        return response;
+                    }
+                    
+                    // get epg
+                    List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { { recording.EpgId } });
+                    var epg = epgs.First();
+                    var mediaId = Convert.ToInt32(epg.media_id);
+
+                    //Check if geo-block applies
+                    string ruleName;
+                    if (TvmRuleManager.CheckGeoBlockMedia(groupId, mediaId, ip, out ruleName))
+                    {
+                        response.Rules.Add(new GenericRule() { Name = ruleName, RuleType = RuleType.Geo, Description = string.Empty });
+                    }
+
+                    //Check if user type match media user types
+                    if (!string.IsNullOrEmpty(siteGuid) && api.CheckMediaUserType(mediaId, int.Parse(siteGuid), groupId) == false)
+                    {
+                        response.Rules.Add(new GenericRule() { Name = "UserTypeBlock", RuleType = RuleType.UserType, Description = string.Empty });
+                    }
+
+                    ParentalRulesResponse parentalRulesResponse = api.GetParentalEPGRules(groupId, siteGuid, epg.EPG_ID, domainId, true);
+                    if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
+                    {
+                        foreach (ParentalRule rule in parentalRulesResponse.rules)
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Id = rule.id,
+                                Description = rule.description,
+                                Name = rule.name,
+                                RuleType = RuleType.Parental
+                            });
+                        }
+                    }
+
+                    AssetRule blockingRule;
+                    var networkRulesStatus = AssetRuleManager.CheckNetworkRules(
+                        new List<SlimAsset>() {new SlimAsset(mediaId, eAssetTypes.MEDIA)}, groupId, ip,
+                        out blockingRule);
+
+                    if (!networkRulesStatus.IsOkStatusCode())
+                    {
+                        response.Rules.Add(new GenericRule()
+                        {
+                            Id = blockingRule.Id,
+                            Description = blockingRule.Description,
+                            Name = blockingRule.Name,
+                            RuleType = RuleType.Network
+                        });
+                    }
+
+                    // order results
+                    switch (orderBy)
+                    {
+                        case GenericRuleOrderBy.NameAsc:
+                            response.Rules.OrderBy(r => r.Name).ToList();
+                            break;
+                        case GenericRuleOrderBy.NameDesc:
+                            response.Rules.OrderByDescending(r => r.Name).ToList();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    response.Status.Set((int)eResponseStatus.OK, "OK");
+                }
+                catch (Exception ex)
+                {
+                    response.Status.Set((int)eResponseStatus.Error, "Error");
+
+                    log.Error("GetNPVRRules - " + string.Format("Error in GetNPVRRules: group = {0}, user = {3}, recording = {4}, ex = {1}, ST = {2}",
+                        groupId, ex.Message, ex.StackTrace, siteGuid, recordingId),
+                        ex);
+                }
+            }
+
+            return response;
+        }
+        
         static public GroupOperator[] GetGroupOperators(int nGroupID, string sScope = "")
         {
             DataTable dt = DAL.ApiDAL.Get_GroupOperatorsDetails(nGroupID);
@@ -5438,7 +5535,7 @@ namespace Core.Api
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
 
-        public static ParentalRulesResponse GetParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId)
+        public static ParentalRulesResponse GetParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId, bool includeRecordingFallback = false)
         {
             List<ParentalRule> rules = null;
             ParentalRulesResponse response = new ParentalRulesResponse()
@@ -5467,7 +5564,7 @@ namespace Core.Api
                     // epg rules id 
                     string key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
                     bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "epgId", epgId },
-                                                                            { "groupParentalRules", groupsParentalRules } }, groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                                                                            { "groupParentalRules", groupsParentalRules }, {"includeRecordingFallback", includeRecordingFallback } }, groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
 
                     if (!cacheResult)
                     {
@@ -5537,17 +5634,19 @@ namespace Core.Api
 
             try
             {
-                if (funcParams != null && funcParams.Count == 3)
+                if (funcParams != null && funcParams.Count == 4)
                 {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("epgId") && funcParams.ContainsKey("groupParentalRules"))
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("epgId") && funcParams.ContainsKey("groupParentalRules") && funcParams.ContainsKey("includeRecordingFallback"))
                     {
                         int? groupId;
                         long? epgId;
                         List<ParentalRule> groupParentalRules = new List<ParentalRule>();
+                        bool includeRecordingFallback;
 
                         groupId = funcParams["groupId"] as int?;
                         epgId = funcParams["epgId"] as long?;
                         groupParentalRules = funcParams["groupParentalRules"] as List<ParentalRule>;
+                        includeRecordingFallback = (bool)funcParams["includeRecordingFallback"];
 
                         if (groupId.HasValue && epgId.HasValue && groupParentalRules != null && groupParentalRules.Count > 0)
                         {
@@ -5560,7 +5659,7 @@ namespace Core.Api
                             // get epg program from CB ==> check matches to tag type and values 
 
                             TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId.Value);  //assuming this is a Tvinci user - does not support yes Epg
-                            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgId.Value);
+                            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgId.Value, includeRecordingFallback);
                             if (epg != null)
                             {
                                 Dictionary<string, List<string>> tags = new Dictionary<string, List<string>>();
