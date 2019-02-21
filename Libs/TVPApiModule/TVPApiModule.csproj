@@ -70,7 +70,7 @@
     </Reference>
     <Reference Include="CouchbaseManager, Version=5.0.3.32993, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvincicommon\External\4.5.2\CouchbaseManager.dll</HintPath>
+      <HintPath>..\..\..\tvincicommon\External\CouchbaseManager.dll</HintPath>
     </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\..\tvincicommon\External\Jil.dll</HintPath>
@@ -83,6 +83,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\TVinciCommon\External\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />	
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
