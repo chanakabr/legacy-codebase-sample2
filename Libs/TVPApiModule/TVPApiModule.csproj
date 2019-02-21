@@ -68,20 +68,9 @@
     <Reference Include="ApiObjects">
       <HintPath>..\..\..\tvincicommon\External\ApiObjects.dll</HintPath>
     </Reference>
-    <Reference Include="Couchbase.NetClient">
-      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
-    </Reference>
-    <Reference Include="CouchbaseManager">
-      <HintPath>..\..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Enyim.Caching">
-      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.dll</HintPath>
-    </Reference>
-    <Reference Include="Enyim.Caching.Log4NetAdapter">
-      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.Log4NetAdapter.dll</HintPath>
-    </Reference>
-    <Reference Include="Enyim.Caching.NLogAdapter">
-      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.NLogAdapter.dll</HintPath>
+    <Reference Include="CouchbaseManager, Version=5.0.3.32993, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\tvincicommon\External\4.5.2\CouchbaseManager.dll</HintPath>
     </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\..\tvincicommon\External\Jil.dll</HintPath>
@@ -94,8 +83,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\TVinciCommon\External\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -404,6 +393,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
