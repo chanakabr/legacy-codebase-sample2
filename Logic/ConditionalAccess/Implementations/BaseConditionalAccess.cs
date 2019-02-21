@@ -14632,6 +14632,15 @@ namespace Core.ConditionalAccess
                         return recording;
                     }
 
+                    if (recordingToUpdate.ViewableUntilDate.HasValue)
+                    {
+                        if (recordingToUpdate.ViewableUntilDate.Value <= 0)
+                        {
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidParameters, "ViewableUntilDate");
+                            return recording;
+                        }
+                    }
+
                     DateTime? protectedUntilDate = null;
                     long protectedUntilEpoch = 0;
 
@@ -17011,6 +17020,11 @@ namespace Core.ConditionalAccess
                     }
 
                     long? externalViewableUntilDate = externalRecording.ViewableUntilDate;
+                    if (externalViewableUntilDate <= 0)
+                    {
+                        response.SetStatus((int)eResponseStatus.InvalidParameters, "ViewableUntilDate");
+                        return response;
+                    }
 
                     DateTime viewableUntilDate = DateTime.UtcNow.AddYears(100);
                     externalRecording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
