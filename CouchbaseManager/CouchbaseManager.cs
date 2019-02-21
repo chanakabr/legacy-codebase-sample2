@@ -14,6 +14,8 @@ using System.Configuration;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using Couchbase.N1QL;
+using System.Linq;
 
 namespace CouchbaseManager
 {
@@ -60,6 +62,11 @@ namespace CouchbaseManager
         /// Defines duration of a month in seconds, see http://docs.couchbase.com/developer/dev-guide-3.0/doc-expiration.html
         /// </summary>
         private const uint monthInSeconds = 30 * 24 * 60 * 60;
+
+        /// <summary>
+        /// Defines the default SearchRequestTimeout value (just like in documentation)
+        /// </summary>
+        internal const uint SEARCH_REQUEST_TIMEOUT_DEFAULT_MILLISECONDS = 75000;
 
         #endregion
 
@@ -914,7 +921,7 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    if (getResult.Exception != null)
+                    if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
                         throw getResult.Exception;
                     }
@@ -956,7 +963,7 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    if (getResult.Exception != null)
+                    if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         throw getResult.Exception;
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -965,7 +972,9 @@ namespace CouchbaseManager
                         status = eResultStatus.SUCCESS;
                     }
                     else
+                    {
                         HandleStatusCode(getResult, ref status, key);
+                    }
                 }
             }
             catch (Exception ex)
@@ -994,7 +1003,7 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    if (getResult.Exception != null)
+                    if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         throw getResult.Exception;
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1006,7 +1015,9 @@ namespace CouchbaseManager
                         }
                     }
                     else
+                    {
                         HandleStatusCode(getResult, ref status, key);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1052,45 +1063,7 @@ namespace CouchbaseManager
 
             return res;
         }
-
-        public T Get<T>(string key, out eResultStatus status, int inMemoryCacheTTL)
-        {
-            T result = default(T);
-            status = eResultStatus.ERROR;
-
-            try
-            {
-                var bucket = ClusterHelper.GetBucket(bucketName);
-                IOperationResult<T> getResult = null;
-
-                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
-                {
-                    getResult = bucket.Get<T>(key);
-                }
-
-                if (getResult != null)
-                {
-                    if (getResult.Exception != null)
-                        throw getResult.Exception;
-
-                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
-                    {
-                        result = getResult.Value;
-                        status = eResultStatus.SUCCESS;
-                    }
-                    else
-                        HandleStatusCode(getResult, ref status, key);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
-            }
-
-            return result;
-        }
-
+        
         public T Get<T>(string key, bool withLock, out ulong cas, out eResultStatus status)
         {
             T result = default(T);
@@ -1107,7 +1080,7 @@ namespace CouchbaseManager
                 {
                     if (withLock)
                     {
-                        getResult = bucket.GetWithLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
+                        getResult = bucket.GetAndLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
                         log.DebugFormat("GET locking {0}, cas: {1}", key, getResult.Cas);
                     }
                     else
@@ -1119,7 +1092,7 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    if (getResult.Exception != null)
+                    if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         throw getResult.Exception;
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1202,7 +1175,7 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    if (getResult.Exception != null)
+                    if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         throw getResult.Exception;
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1244,7 +1217,7 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    if (getResult.Exception != null)
+                    if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         throw getResult.Exception;
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1330,7 +1303,7 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    if (getResult.Exception != null)
+                    if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         throw getResult.Exception;
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1373,7 +1346,7 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    if (getResult.Exception != null)
+                    if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         throw getResult.Exception;
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1745,7 +1718,7 @@ namespace CouchbaseManager
                 string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
-                    getResult = bucket.Get<T>(keys);
+                    getResult = bucket.Get<T>(keys, TimeSpan.FromMilliseconds(SEARCH_REQUEST_TIMEOUT_DEFAULT_MILLISECONDS));
                 }
 
                 // Success until proven otherwise
@@ -1753,20 +1726,20 @@ namespace CouchbaseManager
 
                 foreach (var item in getResult)
                 {
-                    // Throw exception if there is one
-                    if (item.Value.Exception != null)
-                        throw item.Value.Exception;
-
                     // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
                     if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
                     {
-                        if (item.Value.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (item.Value.Status == Couchbase.IO.ResponseStatus.KeyNotFound || item.Value.Status == Couchbase.IO.ResponseStatus.OperationTimeout)
                         {
                             log.WarnFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
                         }
                         else
                         {
                             log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
+
+                            // Throw exception if there is one
+                            if (item.Value.Exception != null)
+                                throw item.Value.Exception;
                         }
 
                         status = item.Value.Status;
@@ -1827,7 +1800,7 @@ namespace CouchbaseManager
                 string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
-                    getResult = bucket.Get<string>(keys);
+                    getResult = bucket.Get<string>(keys, TimeSpan.FromMilliseconds(SEARCH_REQUEST_TIMEOUT_DEFAULT_MILLISECONDS));
                 }
 
                 // Success until proven otherwise
@@ -2247,6 +2220,139 @@ namespace CouchbaseManager
 
         #endregion
 
+
+        #region N1QL
+
+        public List<T> Query<T>(N1QLManager queryManager)
+        {
+            Exception exceptionToThrow = null;
+            List<T> result = new List<T>();
+
+            if (queryManager == null || string.IsNullOrEmpty(queryManager.statement))
+            {
+                return result;
+            }
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                var queryRequest = new QueryRequest();
+
+                #region Build QueryRequest
+
+                // .Statement
+                // replace {0} with bucket name - outside people are not supposed to know the bucket name, so they will use {0} instead
+                queryRequest.Statement(string.Format(queryManager.statement, bucketName));
+
+                // .AddNamedParameter
+                if (queryManager.namedParameters != null)
+                {
+                    queryRequest.AddNamedParameter(queryManager.namedParameters);
+                }
+
+                // .AddPositionalParameter
+                if (queryManager.positionalParameters != null)
+                {
+                    foreach (var parameter in queryManager.positionalParameters)
+                    {
+                        queryRequest.AddPositionalParameter(parameter);
+                    }
+                }
+
+                #endregion
+
+                IQueryResult<T> queryResponse;
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null)
+                {
+                    QueryType = KLogEnums.eDBQueryType.SELECT,
+                    Database = bucketName,
+                    Table = queryRequest.ToString()
+                })
+                {
+                    queryResponse = bucket.Query<T>(queryRequest);
+                }
+
+                // Checking the response
+                if (queryResponse != null)
+                {
+                    if (queryResponse.Success)
+                    {
+                        result = queryResponse.Rows;
+                    }
+
+                    #region Handle Errors / Exception
+
+                    if (queryResponse.Exception != null)
+                    {
+                        log.ErrorFormat("Exception when running N1QL query. Status = {0}, Statement = {1}, ex = {2}",
+                            queryResponse.Status, queryManager.statement, queryResponse.Exception);
+                    }
+
+                    if (queryResponse.Errors != null && queryResponse.Errors.Count > 0)
+                    {
+                        foreach (var error in queryResponse.Errors)
+                        {
+                            log.ErrorFormat("Error when running N1QL query. Status = {0}, error = {2}, Statement = {1},",
+                                queryResponse.Status, queryManager.statement, error.Message);
+                        }
+
+                        if (queryResponse.Status == QueryStatus.Fatal)
+                        {
+                            var error = queryResponse.Errors.Last();
+                            exceptionToThrow = new Exception(string.Format("Code = {0} Message = {1}",
+                                error.Code, error.Message));
+                        }
+                    }
+
+                    #endregion
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception when running N1QL query. Statement = {0}, ex = {1}",
+                    queryManager.statement, ex);
+            }
+
+            if (exceptionToThrow != null)
+            {
+                throw exceptionToThrow;
+            }
+
+            return result;
+        }
+
+        public T QuerySingleValue<T>(N1QLManager queryManager, string fieldName)
+        {
+            T result = default(T);
+
+            var queryResult = Query<dynamic>(queryManager);
+
+            if (queryResult != null && queryResult.Count > 0)
+            {
+                result = Convert.ChangeType(queryResult.First()[fieldName], typeof(T));
+            }
+
+            return result;
+        }
+
+        public List<T> QueryList<T>(N1QLManager queryManager, string fieldName)
+        {
+            List<T> result = new List<T>();
+
+            var queryResult = Query<dynamic>(queryManager);
+
+            if (queryResult != null)
+            {
+                foreach (var item in queryResult)
+                {
+                    result.Add(Convert.ChangeType(item[fieldName], typeof(T)));
+                }
+            }
+
+            return result;
+        }
+        #endregion
 
     }
 }
