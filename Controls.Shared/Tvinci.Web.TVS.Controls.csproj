@@ -147,6 +147,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Comment\dsComments.xsc">
       <DependentUpon>dsComments.xsd</DependentUpon>
     </None>

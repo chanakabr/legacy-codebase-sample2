@@ -234,6 +234,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Protocols\XSD\CategoriesTree.xsd">
     </None>
     <None Include="Protocols\XSD\ChannelsList.xsd">

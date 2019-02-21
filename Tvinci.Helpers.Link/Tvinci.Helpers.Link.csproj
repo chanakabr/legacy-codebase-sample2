@@ -121,6 +121,7 @@
     <Compile Include="QueryStringPair.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Configuration\Configuration.xsd" />
   </ItemGroup>
   <ItemGroup>

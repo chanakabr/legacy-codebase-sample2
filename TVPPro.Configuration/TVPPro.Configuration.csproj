@@ -159,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Admin\AdminData.xsd" />
+    <None Include="app.config" />
     <None Include="Media\MediaData.xsd" />
     <None Include="Omniture\Omniture.xsd">
       <SubType>Designer</SubType>

@@ -121,6 +121,7 @@
     <Content Include="Configuration\helper.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Configuration\MultiClientData.xsd" />
   </ItemGroup>
   <ItemGroup>

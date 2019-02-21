@@ -208,6 +208,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="MainMenu\MainMenuDS.xsc">
       <DependentUpon>MainMenuDS.xsd</DependentUpon>
     </None>
