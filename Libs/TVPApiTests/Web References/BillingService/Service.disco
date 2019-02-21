@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<discovery xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/disco/">
-  <contractRef ref="http://tvpapi-hk.prd.tvinci.com.tvincidns.com/v2_1/ws/billing/Service.asmx?wsdl" docRef="http://tvpapi-hk.prd.tvinci.com.tvincidns.com/v2_1/ws/billing/Service.asmx" xmlns="http://schemas.xmlsoap.org/disco/scl/" />
-  <soap address="http://tvpapi-hk.prd.tvinci.com.tvincidns.com/v2_1/ws/billing/Service.asmx" xmlns:q1="http://platform-us.tvinci.com/tvpapi/ws" binding="q1:BillingServiceSoap" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
-  <soap address="http://tvpapi-hk.prd.tvinci.com.tvincidns.com/v2_1/ws/billing/Service.asmx" xmlns:q2="http://platform-us.tvinci.com/tvpapi/ws" binding="q2:BillingServiceSoap12" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
-</discovery>
