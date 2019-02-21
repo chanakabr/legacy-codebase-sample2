@@ -770,7 +770,7 @@ namespace Core.Recordings
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
 
                         bool isNew = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_NEW", -1) == 1;
-                        Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId);
+                        Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId, false);
                         if (domainRecording.Status.Code != (int)eResponseStatus.OK)
                         {
                             log.DebugFormat("Recording is not valid for AddExternalRecording, recordID: {0}, DomainID: {1}, UserID: {2}", domainRecordingId, domainId, userId);

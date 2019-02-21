@@ -5486,9 +5486,9 @@ namespace Core.ConditionalAccess
             return domainProtectedRecordings;
         }
 
-        internal static Dictionary<long, Recording> GetDomainRecordingIdsToRecordingsMap(int groupID, long domainID, List<long> domainRecordingIds)
+        internal static Dictionary<long, Recording> GetDomainRecordingIdsToRecordingsMap(int groupID, long domainID, List<long> domainRecordingIds, bool shouldFilterViewableRecordingsOnly = true)
         {
-            var ret = GetDomainRecordings(groupID, domainID);
+            var ret = GetDomainRecordings(groupID, domainID, shouldFilterViewableRecordingsOnly);
 
             return ret == null
                 ? ret
@@ -5597,7 +5597,7 @@ namespace Core.ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
-        internal static Recording ValidateRecordID(int groupID, long domainID, long domainRecordingID)
+        internal static Recording ValidateRecordID(int groupID, long domainID, long domainRecordingID, bool shouldFilterViewableRecordingsOnly = true)
         {
             Recording recording = new Recording()
             {
@@ -5606,7 +5606,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingIdsToRecordingsMap(groupID, domainID, new List<long>() { domainRecordingID });
+                Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingIdsToRecordingsMap(groupID, domainID, new List<long>() { domainRecordingID }, shouldFilterViewableRecordingsOnly);
                 if (DomainRecordingIdToRecordingMap == null || DomainRecordingIdToRecordingMap.Count == 0 ||
                     !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID) || DomainRecordingIdToRecordingMap[domainRecordingID].RecordingStatus == TstvRecordingStatus.Deleted)
                 {
