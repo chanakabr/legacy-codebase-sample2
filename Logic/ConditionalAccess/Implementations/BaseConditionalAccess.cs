@@ -14636,7 +14636,7 @@ namespace Core.ConditionalAccess
                     {
                         if (recordingToUpdate.ViewableUntilDate.Value <= 0)
                         {
-                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidParameters, "ViewableUntilDate");
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidParameters, "ViewableUntilDate must be greater than 0");
                             return recording;
                         }
                     }
@@ -17022,7 +17022,7 @@ namespace Core.ConditionalAccess
                     long? externalViewableUntilDate = externalRecording.ViewableUntilDate;
                     if (externalViewableUntilDate <= 0)
                     {
-                        response.SetStatus((int)eResponseStatus.InvalidParameters, "ViewableUntilDate");
+                        response.SetStatus((int)eResponseStatus.InvalidParameters, "ViewableUntilDate must be greater than 0");
                         return response;
                     }
 
