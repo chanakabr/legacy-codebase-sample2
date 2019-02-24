@@ -90,7 +90,7 @@ namespace ApiObjects.Rules
 
         public AssetUserRuleFilterAction()
         {
-            this.Type = RuleActionType.Filter;
+            this.Type = RuleActionType.UserFilter;
         }
     }
 

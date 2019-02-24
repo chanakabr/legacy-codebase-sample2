@@ -425,38 +425,48 @@ namespace Core.Catalog
         {
             long userId = long.Parse(request.m_sSiteGuid);
 
-            var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true);
+            definitions.assetUserBlockRulePhrase = GetUserAssetRulesPhrase(request, group, ref definitions, groupId, RuleActionType.UserBlock, userId);
+
+            definitions.assetUserRuleFilterPhrase = GetUserAssetRulesPhrase(request, group, ref definitions, groupId, RuleActionType.UserFilter, userId);
+        }
+
+        internal static BooleanPhraseNode GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, 
+            RuleActionType ruleActionType, long userId)
+        {
+            BooleanPhraseNode phrase = null;
+            var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true, ruleActionType);
             if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)
             {
                 if (assetUserRulesResponse.HasObjects())
                 {
-                    StringBuilder notQuery = new StringBuilder();
-                    notQuery.Append("(or ");
+                    StringBuilder query = new StringBuilder();
+                    query.Append("(or ");
                     foreach (var rule in assetUserRulesResponse.Objects)
                     {
                         definitions.assetUserRuleIds.Add(rule.Id);
                         foreach (var condition in rule.Conditions)
                         {
-                            notQuery.AppendFormat(" {0}", condition.Ksql);
+                            query.AppendFormat(" {0}", condition.Ksql);
                         }
                     }
 
-                    notQuery.Append(")");
+                    query.Append(")");
 
-                    string notQueryString = notQuery.ToString();
+                    string queryString = query.ToString();
 
-                    BooleanPhraseNode notPhrase = null;
-                    BooleanPhrase.ParseSearchExpression(notQueryString, ref notPhrase);
+                    BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
 
-                    CatalogLogic.UpdateNodeTreeFields(request, ref notPhrase, definitions, group, groupId);
+                    CatalogLogic.UpdateNodeTreeFields(request, ref phrase, definitions, group, groupId);
 
-                    definitions.assetUserRulePhrase = notPhrase;
+                    return phrase;
                 }
             }
             else
             {
-                log.ErrorFormat("Failed to get asset user rules for userId = {0}, code = {1}", request.m_sSiteGuid, assetUserRulesResponse.Status.Code);
+                log.ErrorFormat("Failed to get asset user rules for userId = {0}, ruleAction:{1}, code = {2}", userId, ruleActionType.ToString(), assetUserRulesResponse.Status.Code);
             }
+
+            return phrase;
         }
 
         private List<string> GetDomainRecordings(UnifiedSearchDefinitions definitions, int groupId, long domainId, HashSet<long> specificRecordingIds)

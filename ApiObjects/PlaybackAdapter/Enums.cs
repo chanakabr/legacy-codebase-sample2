@@ -26,6 +26,6 @@
         BLOCK_PLAYBACK,
         APPLY_DISCOUNT_MODULE,
         APPLY_PLAYBACK_ADAPTER,
-        FILTER
+        USER_FILTER
     }
 }

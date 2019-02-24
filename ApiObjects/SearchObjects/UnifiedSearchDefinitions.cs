@@ -390,7 +390,14 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public BooleanPhraseNode assetUserRulePhrase;
+        public BooleanPhraseNode assetUserBlockRulePhrase;
+
+        /// <summary>
+        /// Asset user rule phrase to append to main query
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public BooleanPhraseNode assetUserRuleFilterPhrase;
 
         /// <summary>
         /// Asset user rule IDs to consider in personal cache
