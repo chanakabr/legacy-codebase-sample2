@@ -3486,14 +3486,16 @@ namespace Core.Api
                 try
                 {
                     // validate recording exists
-                    Recording recording = Core.ConditionalAccess.Utils.GetRecordingById(recordingId);
-                    if (recording == null)
+                    Dictionary<long, Recording> domainRecordingIdToRecordingMap = Core.ConditionalAccess.Utils.GetDomainRecordingIdsToRecordingsMap(groupId, domainId, new List<long>() { recordingId });
+                    if (domainRecordingIdToRecordingMap == null || !domainRecordingIdToRecordingMap.ContainsKey(recordingId))
                     {
-                        log.DebugFormat("No valid recording was returned from Utils.GetRecordingById");
+                        log.DebugFormat("No valid recording was returned from Utils.GetDomainRecordingIdsToRecordingsMap");
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
                         return response;
                     }
-                    
+
+                    var recording = domainRecordingIdToRecordingMap[recordingId];
+
                     // get epg
                     List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { { recording.EpgId } });
                     var epg = epgs.First();
