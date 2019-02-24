@@ -3499,11 +3499,11 @@ namespace Core.Api
                     // get epg
                     List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { { recording.EpgId } });
                     var epg = epgs.First();
-                    var mediaId = Convert.ToInt32(epg.media_id);
+                    var mediaId = (int)epg.LINEAR_MEDIA_ID;
 
                     //Check if geo-block applies
                     string ruleName;
-                    if (TvmRuleManager.CheckGeoBlockMedia(groupId, mediaId, ip, out ruleName))
+                    if (mediaId != 0 && TvmRuleManager.CheckGeoBlockMedia(groupId, mediaId, ip, out ruleName))
                     {
                         response.Rules.Add(new GenericRule() { Name = ruleName, RuleType = RuleType.Geo, Description = string.Empty });
                     }

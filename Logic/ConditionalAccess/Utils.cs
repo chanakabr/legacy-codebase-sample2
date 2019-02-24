@@ -7281,7 +7281,7 @@ namespace Core.ConditionalAccess
                                 case eAssetTypes.NPVR:
                                     {
                                         Domain domain = funcParams.ContainsKey("domain") ? funcParams["domain"] as Domain : null;
-                                        string udid = funcParams.ContainsKey("groupId") ? funcParams["udid"] as string : string.Empty;
+                                        string udid = funcParams.ContainsKey("udid") ? funcParams["udid"] as string : string.Empty;
                                         // check recording valid
                                         var recordingStatus = ValidateRecording(groupId.Value, domain, udid, userId, id, ref recording);
 
