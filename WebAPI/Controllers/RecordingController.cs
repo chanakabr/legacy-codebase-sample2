@@ -118,6 +118,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExceededQuota)]
         [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
         [Throws(eResponseStatus.InvalidAssetId)]
+        [Throws(eResponseStatus.InvalidParameters)]
         static public KalturaRecording Add(KalturaRecording recording)
         {
             KalturaRecording response = null;
@@ -334,6 +335,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.ExceededProtectionQuota)]
         [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
+        [Throws(eResponseStatus.InvalidParameters)]
         public static KalturaRecording Update(long id, KalturaRecording recording)
         {
             KalturaRecording response = null;
