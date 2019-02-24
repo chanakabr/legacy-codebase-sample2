@@ -1148,9 +1148,9 @@ namespace ElasticSearch.Searcher
 
             #region Asset User Rule
 
-            if (SearchDefinitions.assetUserRulePhrase != null)
+            if (SearchDefinitions.assetUserBlockRulePhrase != null)
             {
-                IESTerm notPhraseQuery = this.ConvertToQuery(SearchDefinitions.assetUserRulePhrase);
+                IESTerm notPhraseQuery = this.ConvertToQuery(SearchDefinitions.assetUserBlockRulePhrase);
 
                 if (queryTerm == null)
                 {
@@ -1170,6 +1170,34 @@ namespace ElasticSearch.Searcher
                         boolQuery = new BoolQuery();
                         boolQuery.AddChild(queryTerm, CutWith.AND);
                         boolQuery.AddNot(notPhraseQuery);
+
+                        queryTerm = boolQuery;
+                    }
+                }
+            }
+
+            if (SearchDefinitions.assetUserRuleFilterPhrase != null)
+            {
+                IESTerm phraseQuery = this.ConvertToQuery(SearchDefinitions.assetUserRuleFilterPhrase);
+
+                if (queryTerm == null)
+                {
+                    queryTerm = new BoolQuery();
+                    (queryTerm as BoolQuery).AddChild(phraseQuery, CutWith.AND);
+                }
+                else
+                {
+                    BoolQuery boolQuery = queryTerm as BoolQuery;
+
+                    if (boolQuery != null)
+                    {
+                        boolQuery.AddChild(phraseQuery, CutWith.AND);
+                    }
+                    else
+                    {
+                        boolQuery = new BoolQuery();
+                        boolQuery.AddChild(queryTerm, CutWith.AND);
+                        boolQuery.AddChild(phraseQuery, CutWith.AND);
 
                         queryTerm = boolQuery;
                     }
