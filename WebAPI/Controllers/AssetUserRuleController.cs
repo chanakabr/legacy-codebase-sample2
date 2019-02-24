@@ -35,8 +35,15 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            if(filter == null)
+            {
+                filter = new KalturaAssetUserRuleFilter();
+            }
+
             try
             {
+                //filter.Validate();
+
                 if (filter != null && filter.AttachedUserIdEqualCurrent.HasValue && filter.AttachedUserIdEqualCurrent.Value)
                 {
                     long userId = long.Parse(KS.GetFromRequest().UserId);

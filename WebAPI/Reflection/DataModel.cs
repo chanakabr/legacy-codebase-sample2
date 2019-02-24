@@ -722,6 +722,8 @@ namespace WebAPI.Reflection
                 case "KalturaAssetUserRuleFilter":
                     switch(property.Name)
                     {
+                        case "ActionsContainType":
+                            return "actionsContainType";
                         case "AttachedUserIdEqualCurrent":
                             return "attachedUserIdEqualCurrent";
                     }

@@ -12348,6 +12348,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(ActionsContainType.HasValue)
+            {
+                ret.Add("actionsContainType", "\"actionsContainType\": " + "\"" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "\"");
+            }
             if(AttachedUserIdEqualCurrent.HasValue)
             {
                 ret.Add("attachedUserIdEqualCurrent", "\"attachedUserIdEqualCurrent\": " + AttachedUserIdEqualCurrent.ToString().ToLower());
@@ -12360,6 +12364,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(ActionsContainType.HasValue)
+            {
+                ret.Add("actionsContainType", "<actionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "" + "</actionsContainType>");
+            }
             if(AttachedUserIdEqualCurrent.HasValue)
             {
                 ret.Add("attachedUserIdEqualCurrent", "<attachedUserIdEqualCurrent>" + AttachedUserIdEqualCurrent.ToString().ToLower() + "</attachedUserIdEqualCurrent>");

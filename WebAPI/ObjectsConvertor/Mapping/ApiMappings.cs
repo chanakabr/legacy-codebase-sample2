@@ -921,7 +921,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return RuleActionType.ApplyPlaybackAdapter;
                             break;
                         case KalturaRuleActionType.FILTER:
-                            return RuleActionType.Filter;
+                            return RuleActionType.UserFilter;
                             break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleAction value : {0}", kalturaRuleActionType.ToString()));
@@ -959,7 +959,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleActionType.ApplyPlaybackAdapter:
                             return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
                             break;
-                        case RuleActionType.Filter:
+                        case RuleActionType.UserFilter:
                             return KalturaRuleActionType.FILTER;
                             break;
                         default:
@@ -1648,7 +1648,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            return ApiObjects.PlaybackAdapter.RuleActionType.APPLY_PLAYBACK_ADAPTER;
                            break;
                        case KalturaRuleActionType.FILTER:
-                           return ApiObjects.PlaybackAdapter.RuleActionType.FILTER;
+                           return ApiObjects.PlaybackAdapter.RuleActionType.USER_FILTER;
                            break;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown kalturaRuleActionType value : {0}", kalturaRuleActionType.ToString()));
@@ -1686,7 +1686,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case ApiObjects.PlaybackAdapter.RuleActionType.APPLY_PLAYBACK_ADAPTER:
                             return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
                             break;
-                        case ApiObjects.PlaybackAdapter.RuleActionType.FILTER:
+                        case ApiObjects.PlaybackAdapter.RuleActionType.USER_FILTER:
                             return KalturaRuleActionType.FILTER;
                             break;
                         default:
