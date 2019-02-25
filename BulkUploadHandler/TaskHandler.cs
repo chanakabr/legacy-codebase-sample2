@@ -1,0 +1,48 @@
+﻿using ApiObjects.Catalog;
+using ApiObjects.Response;
+using Core.Catalog.CatalogManagement;
+using KLogMonitor;
+using Newtonsoft.Json;
+using RemoteTasksCommon;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MediaAssetBulkUploadHandler
+{
+    public class TaskHandler : ITaskHandler
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public string HandleTask(string data)
+        {
+            string result = "failure";
+
+            try
+            {
+                log.DebugFormat("starting BulkUpload task. data={0}.", data);
+                var request = JsonConvert.DeserializeObject<BulkUploadRequest>(data);
+                var processBulkUploadStatus = BulkUploadManager.ProcessBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, request.FileType, request.UploadTokenId);
+
+                if (processBulkUploadStatus == null || !processBulkUploadStatus.IsOkStatusCode())
+                {
+                    throw new Exception(string.Format("BulkUpload task did not finish successfully. {0}", processBulkUploadStatus != null ? processBulkUploadStatus.ToString() : string.Empty));
+                }
+                else
+                {
+                    result = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("An Exception was occurred in BulkUploadHandler.HandleTask. data={0}.", data), ex);
+                throw ex;
+            }
+
+            return result;
+        }
+    }
+}
