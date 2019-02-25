@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
+using Core.Catalog.CatalogManagement;
 
 public partial class adm_media_concurrency_tag_type_values : System.Web.UI.Page
 {
@@ -88,35 +89,66 @@ public partial class adm_media_concurrency_tag_type_values : System.Web.UI.Page
 
         string sTagTypeName = string.Empty;
         Int32 nTagTypeID = 0;
+        int groupId = LoginManager.GetLoginGroupID();
 
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select mtt.id, mtt.name from media_concurrency_rules mc, media_tags_types mtt where";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mc.id", "=", t.ToString());
-        selectQuery += "and mc.tag_type_id=mtt.id";
-
-        if (selectQuery.Execute("query", true) != null)
+        if (CatalogManager.DoesGroupUsesTemplates(groupId))
         {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select mtt.id, t.system_name from media_concurrency_rules mc, topics t where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mc.id", "=", t.ToString());
+            selectQuery += "and mc.tag_type_id=t.id";
+
+            if (selectQuery.Execute("query", true) != null)
             {
-                sTagTypeName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
-                nTagTypeID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    sTagTypeName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
+                    nTagTypeID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
 
-                DataRecordMultiField dr_tags = new DataRecordMultiField("tags", "id", "id", "media_concurrency_rules_values", "rule_id", "TAG_ID", true, "ltr", 60, "tags");
-                dr_tags.SetCollectionLength(20);
-                dr_tags.SetExtraWhere("TAG_TYPE_ID=" + nTagTypeID);
-                dr_tags.SetCollectionQuery("SELECT TOP 20 value as txt, ID as val from tags where tag_type_id=" + nTagTypeID);
-                dr_tags.Initialize(sTagTypeName, "adm_table_header_nbg", "FormInput", "VALUE", false);
+                    DataRecordMultiField dr_tags = new DataRecordMultiField("tags", "id", "id", "media_concurrency_rules_values", "rule_id", "TAG_ID", true, "ltr", 60, "tags");
+                    dr_tags.SetCollectionLength(20);
+                    dr_tags.SetExtraWhere("topic_id=" + nTagTypeID);
+                    dr_tags.SetCollectionQuery("SELECT TOP 20 value as txt, ID as val from tags where [status]=1 and topic_id=" + nTagTypeID);
+                    dr_tags.Initialize(sTagTypeName, "adm_table_header_nbg", "FormInput", "VALUE", false);
 
-                theRecord.AddRecord(dr_tags);
+                    theRecord.AddRecord(dr_tags);
+                }
             }
+            selectQuery.Finish();
+            selectQuery = null;
         }
-        selectQuery.Finish();
-        selectQuery = null;
+        else
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select mtt.id, mtt.name from media_concurrency_rules mc, media_tags_types mtt where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mc.id", "=", t.ToString());
+            selectQuery += "and mc.tag_type_id=mtt.id";
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    sTagTypeName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
+                    nTagTypeID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+
+                    DataRecordMultiField dr_tags = new DataRecordMultiField("tags", "id", "id", "media_concurrency_rules_values", "rule_id", "TAG_ID", true, "ltr", 60, "tags");
+                    dr_tags.SetCollectionLength(20);
+                    dr_tags.SetExtraWhere("TAG_TYPE_ID=" + nTagTypeID);
+                    dr_tags.SetCollectionQuery("SELECT TOP 20 value as txt, ID as val from tags where tag_type_id=" + nTagTypeID);
+                    dr_tags.Initialize(sTagTypeName, "adm_table_header_nbg", "FormInput", "VALUE", false);
+
+                    theRecord.AddRecord(dr_tags);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
-        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        dr_groups.SetValue(groupId.ToString());
         theRecord.AddRecord(dr_groups);
 
         string sTable = theRecord.GetTableHTML("adm_groups_rules_values.aspx?submited=1");

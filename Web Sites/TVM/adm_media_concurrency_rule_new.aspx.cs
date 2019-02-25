@@ -9,6 +9,8 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
+using Core.Catalog.CatalogManagement;
+using ApiObjects;
 
 public partial class adm_media_concurrency_rule_new : System.Web.UI.Page
 {
@@ -81,6 +83,7 @@ public partial class adm_media_concurrency_rule_new : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
+        int groupId = LoginManager.GetLoginGroupID();
         object t = null; ;
         if (Session["rule_id"] != null && Session["rule_id"].ToString() != "" && int.Parse(Session["rule_id"].ToString()) != 0)
             t = Session["rule_id"];
@@ -95,19 +98,28 @@ public partial class adm_media_concurrency_rule_new : System.Web.UI.Page
         dr_media_concurrency_limit.Initialize("Media Concurrency Limit", "adm_table_header_nbg", "FormInput", "media_concurrency_limit", false);
         theRecord.AddRecord(dr_media_concurrency_limit);
 
-        
+        DataRecordDropDownField dr_tag_type = null;
+        string query = string.Empty;
+        if (CatalogManager.DoesGroupUsesTemplates(groupId))
+        {
+            dr_tag_type = new DataRecordDropDownField("topics", "SYSTEM_NAME", "id", "", null, 60, true);
+            query = " select t.system_name as txt, t.id as id from topics where [status]=1 and topic_type_id="
+                        + (int)MetaType.Tag + " and group_id= " + groupId;
+        }
+        else
+        {
+            dr_tag_type = new DataRecordDropDownField("media_tags_types", "NAME", "id", "", null, 60, true);
+            query = " select (mtt.name + ' - ' + g.GROUP_NAME) as txt, mtt.id as id from media_tags_types  mtt inner	join groups g on		mtt.group_id = g.id " +
+                            " where	mtt.status =1 and	g.parent_group_id = " + groupId.ToString();
+        }
 
-        DataRecordDropDownField dr_tag_type = new DataRecordDropDownField("media_tags_types", "NAME", "id", "", null, 60, true);
-        string sQuery = " select (mtt.name + ' - ' + g.GROUP_NAME) as txt, mtt.id as id from media_tags_types  mtt inner	join groups g on		mtt.group_id = g.id "+
-                        " where	mtt.status =1 and	g.parent_group_id = " + LoginManager.GetLoginGroupID().ToString();
-        dr_tag_type.SetSelectsQuery(sQuery);
+        dr_tag_type.SetSelectsQuery(query);
         dr_tag_type.Initialize("Tag Type", "adm_table_header_nbg", "FormInput", "tag_type_id", false);
         theRecord.AddRecord(dr_tag_type);
 
-
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
-        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        dr_groups.SetValue(groupId.ToString());
         theRecord.AddRecord(dr_groups);
 
         DataRecordDropDownField restrictionPolicy = new DataRecordDropDownField("", "NAME", "ID", "", null, 60, true);
