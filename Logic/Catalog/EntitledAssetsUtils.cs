@@ -22,7 +22,7 @@ namespace Core.Catalog
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, int[] fileTypeIds,
-            OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null, CatalogManagement.CatalogGroupCache catalogGroupCache = null)
+            OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null, CatalogGroupCache catalogGroupCache = null)
         {
             List<BaseSearchObject> result = new List<BaseSearchObject>();
 

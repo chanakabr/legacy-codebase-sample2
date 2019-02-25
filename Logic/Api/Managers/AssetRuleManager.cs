@@ -8,6 +8,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using CouchbaseManager;
@@ -55,9 +56,10 @@ namespace Core.Api.Managers
                 {
                     groupId = pair.Key;
                     bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
-                    GroupsCacheManager.Group group = null;
-                    Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+                    Group group = null;
+                    CatalogGroupCache catalogGroupCache = null;
                     List<int> mediaTypes = null;
+
                     if (doesGroupUsesTemplates)
                     {
                         if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))

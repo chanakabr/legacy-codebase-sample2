@@ -71,10 +71,18 @@ namespace ApiObjects.Response
             }
         }
 
-        public void Set(int newCode, string newMessage)
+        public void Set(int newCode, string newMessage = null)
         {
             this.code = newCode;
-            this.message = newMessage;
+
+            if (string.IsNullOrEmpty(newMessage))
+            {
+                this.message = newCode.ToString();
+            }
+            else
+            {
+                this.message = newMessage;
+            }
         }
 
         public void AddArg(string key, string value)
@@ -90,6 +98,20 @@ namespace ApiObjects.Response
         public bool IsOkStatusCode()
         {
             return code == (int)eResponseStatus.OK;
+        }
+
+        /// <summary>
+        /// override Status.ToString()
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(string.Format("Code:{0}.", code));
+            sb.AppendLine(string.Format("Message:{0}.", message));
+            sb.AppendLine(string.Format("Args:{0}.", args != null && args.Count > 0 ? string.Join(",", args.Select(x => string.Format("Key:{0}, Value:{1}", x.key, x.value))) : string.Empty));
+            
+            return sb.ToString();
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ApiObjects.TimeShiftedTv;
 
-namespace Core.Catalog.CatalogManagement
+namespace Core.Catalog
 {
     public class LiveAsset: MediaAsset
     {

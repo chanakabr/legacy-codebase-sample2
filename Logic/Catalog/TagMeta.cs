@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -7,15 +8,21 @@ using System.Runtime.Serialization;
 namespace Core.Catalog
 {
     [DataContract]
+    [Serializable]
     public class TagMeta : IEquatable<TagMeta>
     {
         [DataMember]
+        [JsonProperty("m_sName")]
         public string m_sName;
+
         [DataMember]
+        [JsonProperty("m_sType")]
         public string m_sType;
+
         public TagMeta()
         {
         }
+
         public TagMeta(string sName, string sType)
         {
             m_sName = sName;
@@ -31,14 +38,24 @@ namespace Core.Catalog
                 m_sType.Equals(other.m_sType);
         }       
     }
+
     [DataContract]
+    [Serializable]
     public class Metas : IEquatable<Metas>
     {
         [DataMember]
+        [JsonProperty("m_oTagMeta")]
         public TagMeta m_oTagMeta;
+
         [DataMember]
+        [JsonProperty("m_sValue")]
         public string m_sValue;
+
         [DataMember]
+        [JsonProperty(PropertyName = "Value",
+                      TypeNameHandling = TypeNameHandling.Auto,
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public LanguageContainer[] Value;
 
         public Metas()
@@ -90,15 +107,24 @@ namespace Core.Catalog
             return true;
         }
     }
+
     [DataContract]
+    [Serializable]
     public class Tags : IEquatable<Tags>
     {
         [DataMember]
+        [JsonProperty("m_oTagMeta")]
         public TagMeta m_oTagMeta;
+
         [DataMember]
+        [JsonProperty("m_lValues")]
         public List<string> m_lValues;
 
         [DataMember]
+        [JsonProperty(PropertyName = "Values",
+                      TypeNameHandling = TypeNameHandling.Auto,
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<LanguageContainer[]> Values;
 
         public Tags()
@@ -126,7 +152,7 @@ namespace Core.Catalog
                 Values = new List<LanguageContainer[]>();
             }
         }
-
+        
         public bool Equals(Tags other)
         {
             if (other == null)
@@ -148,7 +174,7 @@ namespace Core.Catalog
             }
 
             return true;
-        }       
+        }
     }
 
     public class TagsComparer : IEqualityComparer<Tags>

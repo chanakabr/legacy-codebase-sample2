@@ -6,10 +6,10 @@ using System;
 using System.Linq;
 using ApiObjects;
 
-namespace Core.Catalog.CatalogManagement
+namespace Core.Catalog
 {
     [XmlRoot("feed")]
-    public class IngestFeed
+    public class IngestVODFeed
     {
         [XmlElement("export")]
         public IngestExport Export { get; set; }

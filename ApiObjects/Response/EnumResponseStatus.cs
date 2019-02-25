@@ -274,6 +274,7 @@ namespace ApiObjects.Response
         MetaIdsDuplication = 4079,
         AssetFilePPVNotExist = 4080,
         GroupDoesNotContainCurrency = 4081,
+        BulkUploadDoeasNotExist = 4082,
 
         #endregion
 

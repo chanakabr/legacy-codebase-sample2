@@ -20,6 +20,7 @@ namespace Core.Catalog.CatalogManagement
     public class IngestManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly XmlSerializer xmlIngestFeedSerializer = new XmlSerializer(typeof(IngestVODFeed));
 
         #region Consts
 
@@ -78,7 +79,7 @@ namespace Core.Catalog.CatalogManagement
                 Description = string.Empty
             };
 
-            IngestFeed feed = DeserializeXmlToFeed(xml, groupId, ref ingestResponse);
+            IngestVODFeed feed = DeserializeXmlToFeed(xml, groupId, ref ingestResponse);
             if (feed == null || feed.Export == null || feed.Export.MediaList == null || feed.Export.MediaList.Count == 0 ||
                 ingestResponse.IngestStatus.Code == (int)eResponseStatus.IllegalXml)
             {
@@ -230,6 +231,36 @@ namespace Core.Catalog.CatalogManagement
             HandleTagsTranslations(tagsTranslations, groupId, catalogGroupCache, ref ingestResponse);
 
             return ingestResponse;
+        }
+
+        public static Status UpsertMediaAsset(MediaAsset mediaAsset, int groupId)
+        {
+            // TODO SHIR - UpsertMediaAsset
+            if (mediaAsset.Id == 0)
+            {
+                //if (!InsertMediaAsset(mediaAsset, media, groupId, mediaFileTypes, groupDefaultRatio, groupRatioNamesToImageTypes, ref ingestResponse, i))
+                //{
+                //    return false;
+                //}
+            }
+            else
+            {
+                //if (!UpdateMediaAsset(mediaAsset, media, groupId, mediaFileTypes, TRUE.Equals(media.Erase), groupDefaultRatio, groupRatioNamesToImageTypes, ref ingestResponse, i))
+                //{
+                //    return false;
+                //}
+            }
+
+            // UpdateIndex
+            bool indexingResult = IndexManager.UpsertMedia(groupId, mediaAsset.Id);
+            if (!indexingResult)
+            {
+                log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after Ingest", mediaAsset.Id, groupId);
+            }
+
+            // invalidate asset
+            bool upsertMediaAssetSucsses = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)mediaAsset.Id);
+            return null;
         }
 
         private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations, int groupId, 
@@ -698,18 +729,17 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static IngestFeed DeserializeXmlToFeed(string xml, int groupId, ref IngestResponse ingestResponse)
+        private static IngestVODFeed DeserializeXmlToFeed(string xml, int groupId, ref IngestResponse ingestResponse)
         {
             Object deserializeObject = null;
 
             try
             {
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(IngestFeed));
                 using (StringReader stringReader = new StringReader(xml))
                 {
                     using (XmlTextReader xmlReader = new XmlTextReader(stringReader))
                     {
-                        deserializeObject = xmlSerializer.Deserialize(xmlReader);
+                        deserializeObject = xmlIngestFeedSerializer.Deserialize(xmlReader);
                     }
                 }
             }
@@ -726,14 +756,14 @@ namespace Core.Catalog.CatalogManagement
                 return null;
             }
 
-            if (deserializeObject == null || !(deserializeObject is IngestFeed))
+            if (deserializeObject == null || !(deserializeObject is IngestVODFeed))
             {
-                ingestResponse.IngestStatus.Set((int)eResponseStatus.IllegalXml, "TOEDO SHIE SET ERROR MSG");
+                ingestResponse.IngestStatus.Set((int)eResponseStatus.IllegalXml, "TODO - SET ERROR MSG");
                 log.ErrorFormat("XML file with wrong format: {0}. groupId:{1}.", xml, groupId);
                 return null;
             }
 
-            return deserializeObject as IngestFeed;
+            return deserializeObject as IngestVODFeed;
         }
 
         private static int GetMediaIdByCoGuid(int groupId, string coGuid)
@@ -748,7 +778,7 @@ namespace Core.Catalog.CatalogManagement
             return 0;
         }
 
-        public static DateTime GetDateTimeFromString(string date, DateTime defaultDate)
+        private static DateTime GetDateTimeFromString(string date, DateTime defaultDate)
         {
             try
             {
@@ -793,7 +823,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public static DateTime? ExtractDate(string dateTime, string format)
+        private static DateTime? ExtractDate(string dateTime, string format)
         {
             DateTime result;
             if (DateTime.TryParseExact(dateTime, format, null, System.Globalization.DateTimeStyles.None, out result))

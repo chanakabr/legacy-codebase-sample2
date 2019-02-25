@@ -2,15 +2,30 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 
-namespace Core.Catalog.CatalogManagement
+namespace Core.Catalog
 {
     public class CatalogGroupCache
     {
-        public LanguageObj DefaultLanguage { get; set; }
+        private LanguageObj defaultLanguage;
+        public LanguageObj DefaultLanguage
+        {
+            get
+            {
+                if (defaultLanguage == null || defaultLanguage.ID == 0)
+                {
+                    var defaultLanguageObj = LanguageMapById != null && LanguageMapById.Count > 0 ? LanguageMapById.Values.FirstOrDefault(x => x.IsDefault) : null;
+                    if (defaultLanguageObj != null && defaultLanguageObj.ID > 0)
+                    {
+                        defaultLanguage = new LanguageObj(defaultLanguageObj.ID, defaultLanguageObj.Name, defaultLanguageObj.Code, defaultLanguageObj.Direction, defaultLanguageObj.IsDefault, defaultLanguageObj.DisplayName);
+                    }
+                }
+
+                return defaultLanguage;
+            }
+        }
+        
         public Dictionary<string, LanguageObj> LanguageMapByCode { get; set; }
         public Dictionary<int, LanguageObj> LanguageMapById { get; set; }        
         public Dictionary<string, AssetStruct> AssetStructsMapBySystemName { get; set; }
@@ -27,7 +42,7 @@ namespace Core.Catalog.CatalogManagement
         /// </summary>
         public int DefaultRegion { get; set; }
 
-        public int DefaultRecommendationEngine { get; private set; }
+        public int DefaultRecommendationEngine { get; set; }
 
         /// <summary>
         /// The group's default recommendation engine
@@ -73,7 +88,7 @@ namespace Core.Catalog.CatalogManagement
 
         public CatalogGroupCache()
         {
-            DefaultLanguage = null;
+            defaultLanguage = null;
             LanguageMapByCode = new Dictionary<string, LanguageObj>(StringComparer.OrdinalIgnoreCase);
             LanguageMapById = new Dictionary<int, LanguageObj>();            
             AssetStructsMapBySystemName = new Dictionary<string, AssetStruct>(StringComparer.OrdinalIgnoreCase);
@@ -86,10 +101,10 @@ namespace Core.Catalog.CatalogManagement
         // TODO - Lior, move all language related properties in this class to seperate cache or invalidate catalogGroupCache when adding\updating languages (doesn't exist at the moment)
         public CatalogGroupCache(int groupId, List<LanguageObj> languages, List<AssetStruct> assetStructs, List<Topic> topics)
         {
-            LanguageObj defaultLanguage = languages.FirstOrDefault(x => x.IsDefault);
-            if (defaultLanguage != null && defaultLanguage.ID > 0)
+            LanguageObj defaultLanguageObj = languages.FirstOrDefault(x => x.IsDefault);
+            if (defaultLanguageObj != null && defaultLanguageObj.ID > 0)
             {
-                DefaultLanguage = new LanguageObj(defaultLanguage.ID, defaultLanguage.Name, defaultLanguage.Code, defaultLanguage.Direction, defaultLanguage.IsDefault, defaultLanguage.DisplayName);
+                defaultLanguage = new LanguageObj(defaultLanguageObj.ID, defaultLanguageObj.Name, defaultLanguageObj.Code, defaultLanguageObj.Direction, defaultLanguageObj.IsDefault, defaultLanguageObj.DisplayName);
             }
 
             LanguageMapByCode = new Dictionary<string, LanguageObj>(StringComparer.OrdinalIgnoreCase);
@@ -101,11 +116,11 @@ namespace Core.Catalog.CatalogManagement
                     if (!LanguageMapByCode.ContainsKey(langauge.Code))
                     {
                         LanguageMapByCode.Add(langauge.Code, langauge);
-                    }
 
-                    if (!LanguageMapById.ContainsKey(langauge.ID))
-                    {
-                        LanguageMapById.Add(langauge.ID, langauge);
+                        if (!LanguageMapById.ContainsKey(langauge.ID))
+                        {
+                            LanguageMapById.Add(langauge.ID, langauge);
+                        }
                     }
                 }
             }
@@ -119,11 +134,11 @@ namespace Core.Catalog.CatalogManagement
                     if (!AssetStructsMapBySystemName.ContainsKey(assetStruct.SystemName))
                     {
                         AssetStructsMapBySystemName.Add(assetStruct.SystemName, assetStruct);
-                    }
 
-                    if (!AssetStructsMapById.ContainsKey(assetStruct.Id))
-                    {
-                        AssetStructsMapById.Add(assetStruct.Id, assetStruct);
+                        if (!AssetStructsMapById.ContainsKey(assetStruct.Id))
+                        {
+                            AssetStructsMapById.Add(assetStruct.Id, assetStruct);
+                        }
                     }
                 }
             }
@@ -137,11 +152,11 @@ namespace Core.Catalog.CatalogManagement
                     if (!TopicsMapBySystemName.ContainsKey(topic.SystemName))
                     {
                         TopicsMapBySystemName.Add(topic.SystemName, topic);
-                    }
 
-                    if (!TopicsMapById.ContainsKey(topic.Id))
-                    {
-                        TopicsMapById.Add(topic.Id, topic);
+                        if (!TopicsMapById.ContainsKey(topic.Id))
+                        {
+                            TopicsMapById.Add(topic.Id, topic);
+                        }
                     }
                 }
             }
@@ -165,8 +180,8 @@ namespace Core.Catalog.CatalogManagement
         private static void SetCatalogGroupCacheDefaults(int groupId, CatalogGroupCache catalogGroupCache)
         {
             bool isRegionalizationEnabled, isGeoAvailabilityEnabled, isAssetUserRuleEnabled;
-            int defaultRegion, defaultRecommendationEngine, relatedRecommendationEngine, searchRecommendationEngine, relatedRecommendationEngineEnrichments, searchRecommendationEngineEnrichments;                        
-
+            int defaultRegion, defaultRecommendationEngine, relatedRecommendationEngine, searchRecommendationEngine, relatedRecommendationEngineEnrichments, searchRecommendationEngineEnrichments;      
+            
             CatalogDAL.GetGroupDefaultParameters(groupId, out isRegionalizationEnabled, out defaultRegion, out defaultRecommendationEngine, out relatedRecommendationEngine, out searchRecommendationEngine,
                                                 out relatedRecommendationEngineEnrichments, out searchRecommendationEngineEnrichments, out isGeoAvailabilityEnabled, out isAssetUserRuleEnabled);
             catalogGroupCache.IsRegionalizationEnabled = isRegionalizationEnabled;
@@ -179,6 +194,5 @@ namespace Core.Catalog.CatalogManagement
             catalogGroupCache.IsGeoAvailabilityWindowingEnabled = isGeoAvailabilityEnabled;
             catalogGroupCache.IsAssetUserRuleEnabled = isAssetUserRuleEnabled;
         }
-
     }
 }

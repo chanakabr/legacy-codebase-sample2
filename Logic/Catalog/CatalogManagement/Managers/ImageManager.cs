@@ -22,7 +22,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
-        private static GenericResponse<ImageType> CreateImageTypeResponseFromDataSet(DataSet ds)
+        private static GenericResponse<ApiObjects.Catalog.ImageType> CreateImageTypeResponseFromDataSet(DataSet ds)
         {
             GenericResponse<ImageType> response = new GenericResponse<ImageType>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -1419,7 +1419,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Dictionary<string, ImageType> GetGroupRatioNamesToImageTypes(int groupId)
+        public static Dictionary<string, ApiObjects.Catalog.ImageType> GetGroupRatioNamesToImageTypes(int groupId)
         {
             Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
 

@@ -1,52 +1,63 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Catalog.CatalogManagement
+namespace Core.Catalog
 {
+    [Serializable]
     public class Image
     {
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        [JsonProperty("Id")]
         public long Id { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        [JsonProperty("Version")]
         public int Version { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        [JsonProperty("ImageTypeId")]
         public long ImageTypeId { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        [JsonProperty("ImageObjectId")]
         public long ImageObjectId { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        [JsonProperty("ImageObjectType")]
         public eAssetImageType ImageObjectType { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        [JsonProperty("Status")]
         public eTableStatus Status { get; set; }
 
-        [ExcelTemplateAttribute(PropertyValueRequired = true)]
+        [JsonProperty("Url")]
         public string Url { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        [JsonProperty("ContentId")]
         public string ContentId { get; set; }
 
-        [ExcelTemplateAttribute(IgnoreWhenGeneratingTemplate = true)]
+        [JsonProperty("IsDefault")]
         public bool? IsDefault { get; set; }
 
-        // only used for backward compatibility of pic sizes
+        /// <summary>
+        /// only used for backward compatibility of pic sizes
+        /// </summary>
+        [JsonProperty("Height")]
         public int Height { get; set; }
 
-        // only used for backward compatibility of pic sizes
+        /// <summary>
+        /// only used for backward compatibility of pic sizes
+        /// </summary>
+        [JsonProperty("Width")]
         public int Width { get; set; }
 
+        [JsonProperty("RatioName")]
         public string RatioName { get; set; }
 
+        [JsonProperty("ReferenceTable")]
         public ImageReferenceTable ReferenceTable { get; set; }
 
+        [JsonProperty("ReferenceId")]
         public long ReferenceId { get; set; }
 
         public Image() { }

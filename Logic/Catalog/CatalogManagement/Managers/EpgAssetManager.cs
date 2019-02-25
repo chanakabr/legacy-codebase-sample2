@@ -561,6 +561,7 @@ namespace Core.Catalog.CatalogManagement
             return new EpgCB()
             {
                 EpgID = (ulong)epgAsset.Id,
+                ParentGroupID = groupId,
                 EpgIdentifier = epgAsset.EpgIdentifier,
                 ChannelID = channelId,
                 StartDate = epgAsset.StartDate ?? DateTime.MinValue,

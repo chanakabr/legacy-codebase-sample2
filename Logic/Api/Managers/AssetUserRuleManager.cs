@@ -5,6 +5,7 @@ using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using CouchbaseManager;
@@ -49,7 +50,7 @@ namespace Core.Api.Managers
             GenericListResponse<AssetUserRule> response = new GenericListResponse<AssetUserRule>();
             bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
             GroupsCacheManager.Group group = null;
-            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
                 if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -310,7 +311,7 @@ namespace Core.Api.Managers
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
             GroupsCacheManager.Group group = null;
-            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
                 if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -383,7 +384,7 @@ namespace Core.Api.Managers
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
             GroupsCacheManager.Group group = null;
-            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
                 if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))

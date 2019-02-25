@@ -13,6 +13,7 @@ using CachingProvider.LayeredCache;
 using Catalog.Response;
 using ConfigurationManager;
 using Core.Catalog.Cache;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification;
@@ -824,7 +825,7 @@ namespace Core.Catalog
                 else
                 {
                     // new image server - get group ratios
-                    List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(assetGroupId);
+                    var groupRatios = CatalogCache.Instance().GetGroupRatios(assetGroupId);
                     if (groupRatios == null || groupRatios.Count == 0)
                     {
                         log.ErrorFormat("group ratios were not found. GID {0}", assetGroupId);
@@ -1795,9 +1796,9 @@ namespace Core.Catalog
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();
 
-            if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
-                CatalogManagement.CatalogGroupCache catalogGroupCache;
+                CatalogGroupCache catalogGroupCache;
                 if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetParentMediaTypesAssociations", groupId);
@@ -2329,7 +2330,7 @@ namespace Core.Catalog
 
         /*Build the right MediaSearchRequest for a Search Related Media */
         public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes,
-                                                            string sSiteGuid, OrderObj orderObj, bool doesGroupUsesTemplates, CatalogManagement.CatalogGroupCache catalogGroupCache)
+                                                            string sSiteGuid, OrderObj orderObj, bool doesGroupUsesTemplates, CatalogGroupCache catalogGroupCache)
         {
             try
             {
@@ -2405,21 +2406,20 @@ namespace Core.Catalog
             }
         }
 
-        public static MediaSearchRequest BuildSearchRelatedRequestForOpcAccount(ref MediaSearchRequest mediaSearchRequest, int groupId, long mediaId, bool isMainLanguage, int languageId,
-                                                                                CatalogManagement.CatalogGroupCache catalogGroupCache)
+        public static MediaSearchRequest BuildSearchRelatedRequestForOpcAccount(ref MediaSearchRequest mediaSearchRequest, int groupId, long mediaId, bool isMainLanguage, int languageId, CatalogGroupCache catalogGroupCache)
         {
             try
             {
                 HashSet<string> metasToIgnore = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
                 metasToIgnore.Add(CatalogManagement.AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME);
                 metasToIgnore.Add(CatalogManagement.AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME);
-                GenericResponse<CatalogManagement.Asset> assetResponse = CatalogManagement.AssetManager.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
+                GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK || assetResponse.Object == null)
                 {
                     return null;
                 }
 
-                CatalogManagement.MediaAsset mediaAsset = assetResponse.Object as CatalogManagement.MediaAsset;
+                var mediaAsset = assetResponse.Object as MediaAsset;
                 if (mediaAsset == null)
                 {
                     return null;
@@ -6514,7 +6514,7 @@ namespace Core.Catalog
             int channelId = int.Parse(request.internalChannelID);
             int parentGroupID = request.m_nGroupID;
             Group group = null;
-            CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            CatalogGroupCache catalogGroupCache = null;
             if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
             {
                 channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets);
@@ -7035,7 +7035,7 @@ namespace Core.Catalog
             definitions.shouldSearchMedia = true; // related media search MEDIA ONLY
 
             Filter filter = new Filter();
-            CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildRelatedObject", groupId);
@@ -8001,7 +8001,7 @@ namespace Core.Catalog
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group, int groupId,
-                                                                                CatalogManagement.CatalogGroupCache catalogGroupCache = null, bool isSearchEntitlementInternal = true)
+                                                                                CatalogGroupCache catalogGroupCache = null, bool isSearchEntitlementInternal = true)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
             bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);

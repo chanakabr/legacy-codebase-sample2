@@ -53,7 +53,7 @@ namespace Core.Catalog
                 int parentGroupID = request.m_nGroupID;
                 GroupManager groupManager = null;
                 Group group = null;
-                CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+                CatalogGroupCache catalogGroupCache = null;
                 bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(parentGroupID);
                 if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
                 {
@@ -502,7 +502,7 @@ namespace Core.Catalog
         public static void BuildEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions, BaseRequest request, OrderObj order, int parentGroupID, Group group)
         {
             int[] fileTypes = null;
-            CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            CatalogGroupCache catalogGroupCache = null;
             bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(parentGroupID);
             List<int> linearChannelMediaTypes = new List<int>();
             if (doesGroupUsesTemplates)
@@ -588,7 +588,7 @@ namespace Core.Catalog
                 entitlementSearchDefinitions.fileTypes = new List<int>();
                 if (doesGroupUsesTemplates)
                 {
-                    GenericListResponse<CatalogManagement.MediaFileType> mediaFileTypesResponse = CatalogManagement.FileManager.GetMediaFileTypes(parentGroupID);
+                    GenericListResponse<MediaFileType> mediaFileTypesResponse = CatalogManagement.FileManager.GetMediaFileTypes(parentGroupID);
                     if (mediaFileTypesResponse != null && mediaFileTypesResponse.Status != null && mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK
                         && mediaFileTypesResponse.Objects != null && mediaFileTypesResponse.Objects.Count > 0)
                     {
