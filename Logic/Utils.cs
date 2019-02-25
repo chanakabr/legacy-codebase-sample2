@@ -416,7 +416,8 @@ namespace APILogic
                         groupId = funcParams["groupId"] as int?;
                         if (groupId.HasValue)
                         {
-                            DataSet ds = DAL.ApiDAL.Get_MCRulesByGroup(groupId.Value);
+                            bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId.Value);
+                            DataSet ds = DAL.ApiDAL.Get_MCRulesByGroup(groupId.Value, doesGroupUsesTemplates);
                             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                             {
                                 if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
