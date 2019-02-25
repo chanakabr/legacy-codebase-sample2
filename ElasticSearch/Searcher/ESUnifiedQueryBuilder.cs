@@ -30,6 +30,7 @@ namespace ElasticSearch.Searcher
         public const string PARENTAL_RULES_FIELD = "parental_rules";
         public const string USER_INTERESTS_FIELD = "user_interests";
         public const string ASSET_TYPE = "asset_type";
+        public const string RECORDING_ID = "recording_id";
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -1042,7 +1043,6 @@ namespace ElasticSearch.Searcher
                 if (root.type == BooleanNodeType.Leaf)
                 {
                     var leaf = root as BooleanLeaf;
-
                     // If it is contains - it is not exact and thus belongs to query
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
                         leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic ||
@@ -1073,14 +1073,11 @@ namespace ElasticSearch.Searcher
                     {
                         Stack<BooleanPhraseNode> stack = new Stack<BooleanPhraseNode>();
                         stack.Push(node);
-
                         bool isCurrentDone = false;
-
                         // Go DFS with stack until we find one "contains" leaf or until no more nodes are left
                         while (stack.Count > 0 && !isCurrentDone)
                         {
                             BooleanPhraseNode current = stack.Pop();
-
                             // If it is a leaf, check if it is a not-exact leaf or not
                             if (current.type == BooleanNodeType.Leaf)
                             {
@@ -1091,7 +1088,7 @@ namespace ElasticSearch.Searcher
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Phonetic ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Exists ||
-                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotExists || 
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotExists ||
                                     (current as BooleanLeaf).shouldLowercase)
                                 {
                                     queryRoots.Add(node);
@@ -1151,9 +1148,9 @@ namespace ElasticSearch.Searcher
 
             #region Asset User Rule
 
-            if (SearchDefinitions.assetUserRulePhrase != null)
+            if (SearchDefinitions.assetUserBlockRulePhrase != null)
             {
-                IESTerm notPhraseQuery = this.ConvertToQuery(SearchDefinitions.assetUserRulePhrase);
+                IESTerm notPhraseQuery = this.ConvertToQuery(SearchDefinitions.assetUserBlockRulePhrase);
 
                 if (queryTerm == null)
                 {
@@ -1173,6 +1170,34 @@ namespace ElasticSearch.Searcher
                         boolQuery = new BoolQuery();
                         boolQuery.AddChild(queryTerm, CutWith.AND);
                         boolQuery.AddNot(notPhraseQuery);
+
+                        queryTerm = boolQuery;
+                    }
+                }
+            }
+
+            if (SearchDefinitions.assetUserRuleFilterPhrase != null)
+            {
+                IESTerm phraseQuery = this.ConvertToQuery(SearchDefinitions.assetUserRuleFilterPhrase);
+
+                if (queryTerm == null)
+                {
+                    queryTerm = new BoolQuery();
+                    (queryTerm as BoolQuery).AddChild(phraseQuery, CutWith.AND);
+                }
+                else
+                {
+                    BoolQuery boolQuery = queryTerm as BoolQuery;
+
+                    if (boolQuery != null)
+                    {
+                        boolQuery.AddChild(phraseQuery, CutWith.AND);
+                    }
+                    else
+                    {
+                        boolQuery = new BoolQuery();
+                        boolQuery.AddChild(queryTerm, CutWith.AND);
+                        boolQuery.AddChild(phraseQuery, CutWith.AND);
 
                         queryTerm = boolQuery;
                     }
@@ -1205,7 +1230,7 @@ namespace ElasticSearch.Searcher
         /// (media id IN (...) OR epg id IN (...))
         /// </summary>
         /// <returns></returns>
-        public static string BuildGetUpdateDatesString(List<KeyValuePair<ApiObjects.eAssetTypes, string>> assets)
+        public static string BuildGetUpdateDatesString(List<KeyValuePair<ApiObjects.eAssetTypes, string>> assets, bool shouldIgnoreRecordings = false)
         {
             if (assets == null)
             {
@@ -1290,8 +1315,11 @@ namespace ElasticSearch.Searcher
                     }
                     case ApiObjects.eAssetTypes.NPVR:
                     {
-                        recordingIdsTerm.Value.Add(item.Value);
-                        shouldSearchRecordings = true;
+                        if (!shouldIgnoreRecordings)
+                        {
+                            recordingIdsTerm.Value.Add(item.Value);
+                            shouldSearchRecordings = true;
+                        }
                         break;
                     }
                     case ApiObjects.eAssetTypes.MEDIA:
@@ -1779,6 +1807,10 @@ namespace ElasticSearch.Searcher
                 {
                     term = BuildAssetTypeQuery(leaf);
                 }
+                else if (leaf.field == RECORDING_ID)
+                {
+                    term = BuildRecordingIdTerm(leaf);
+                }
                 else
                 {
                     bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
@@ -2034,6 +2066,55 @@ namespace ElasticSearch.Searcher
             }
 
             return (term);
+        }
+
+        private IESTerm BuildRecordingIdTerm(BooleanLeaf leaf)
+        {
+            IESTerm result = null;
+
+            if (leaf.operand == ApiObjects.ComparisonOperator.Equals)
+            {
+                string recordingId = "0";
+                string domainRecordingId = leaf.value.ToString();
+                if (SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
+                {
+                    recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
+                }
+
+                result = new ESTerm(true)
+                {
+                    Key = RECORDING_ID,
+                    Value = recordingId
+                };
+            }
+            else if (leaf.operand == ApiObjects.ComparisonOperator.In)
+            {
+                List<string> domainRecordingIds = Convert.ToString(leaf.value).Split(',').ToList();
+                List<string> recordingIds = new List<string>();
+
+                foreach (string domainRecordingId in domainRecordingIds)
+                {
+                    string recordingId = "0";
+                    if (SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
+                    {
+                        recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
+                        recordingIds.Add(recordingId);
+                    }
+                    else
+                    {
+                        recordingIds.Add("0");
+                    }
+                }
+
+                result = new ESTerms(true)
+                {
+                    Key = RECORDING_ID
+                };
+
+                (result as ESTerms).Value.AddRange(recordingIds);
+            }
+
+            return result;
         }
 
         private IESTerm BuildAssetTypeQuery(BooleanLeaf leaf)
@@ -2350,6 +2431,44 @@ namespace ElasticSearch.Searcher
             else
             {
                 value = leaf.value.ToString().ToLower();
+            }
+
+            if (leaf.field == RECORDING_ID)
+            {
+                List<string> domainRecordingIds = new List<string>();
+
+                if (leaf.value is IEnumerable<string>)
+                {
+                    domainRecordingIds = (leaf.value as IEnumerable<string>).Select(item => item.ToLower()).ToList();
+                }
+                else
+                {
+                    domainRecordingIds = leaf.value.ToString().ToLower().Split(',').ToList(); ;
+                }
+
+                List<string> recordingIds = new List<string>();
+
+                foreach (string domainRecordingId in domainRecordingIds)
+                {
+                    string recordingId = "0";
+                    if (SearchDefinitions.domainRecordingIdToRecordingIdMapping.ContainsKey(domainRecordingId))
+                    {
+                        recordingId = SearchDefinitions.domainRecordingIdToRecordingIdMapping[domainRecordingId];
+                        recordingIds.Add(recordingId);
+                    }
+                    else;
+                    {
+                        recordingIds.Add("0");
+                    }
+                }
+
+                term = new ESTerms(true)
+                {
+                    Key = RECORDING_ID
+                };
+
+                (term as ESTerms).Value.AddRange(recordingIds);
+                return (term);
             }
 
             // Create the term according to the comparison operator

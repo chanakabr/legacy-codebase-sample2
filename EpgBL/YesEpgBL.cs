@@ -189,7 +189,7 @@ namespace EpgBL
         public override void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate, int channelID)
         {
         }
-        public override EpgCB GetEpgCB(ulong nProgramID)
+        public override EpgCB GetEpgCB(ulong nProgramID, bool includeRecordingFallback = false)
         {
             return null;
         }

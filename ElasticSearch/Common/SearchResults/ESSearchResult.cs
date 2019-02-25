@@ -98,11 +98,5 @@ namespace ElasticSearch.Common.SearchResults
 
             return result;
         }
-        internal Dictionary<string, string> _hightlights;
-
-
-
-
-
     }
 }

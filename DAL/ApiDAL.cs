@@ -1507,11 +1507,12 @@ namespace DAL
             return null;
         }
 
-        public static DataSet Get_MCRulesByGroup(int groupId)
+        public static DataSet Get_MCRulesByGroup(int groupId, bool doesGroupUsesTemplates)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MCRulesByGroup");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@IsGroupOpcSupported", doesGroupUsesTemplates ? 1 : 0);
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null)
@@ -5407,8 +5408,8 @@ namespace DAL
                 sp.AddParameter("@deleteMediaPolicy", partnerConfig.DeleteMediaPolicy.Value);
             if (partnerConfig.MainCurrency.HasValue)
                 sp.AddParameter("@mainCurrency", partnerConfig.MainCurrency);
-            sp.AddParameter("@secondaryCurrencysExist", partnerConfig.SecondaryCurrencys != null && partnerConfig.SecondaryCurrencys.Count > 0 ? 1 : 0);
-            sp.AddIDListParameter<int>("@secondaryCurrencys", partnerConfig.SecondaryCurrencys, "Id");            
+            sp.AddParameter("@secondaryCurrencysExist", partnerConfig.SecondaryCurrencies != null && partnerConfig.SecondaryCurrencies.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<int>("@secondaryCurrencys", partnerConfig.SecondaryCurrencies, "Id");            
             if (partnerConfig.DowngradePolicy.HasValue)
                 sp.AddParameter("@downgradePolicy", partnerConfig.DowngradePolicy.Value);
             sp.AddParameter("@mailSettings", partnerConfig.MailSettings);
@@ -5425,6 +5426,16 @@ namespace DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             return sp.ExecuteDataSet();
+        }
+
+        public static DataTable GetAllLanguages()
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("GetAllLanguages");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            dt = sp.Execute();
+
+            return dt;
         }
     }
 }

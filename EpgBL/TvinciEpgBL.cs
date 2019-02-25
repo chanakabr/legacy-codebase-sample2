@@ -323,11 +323,21 @@ namespace EpgBL
 
         }
 
-        public override EpgCB GetEpgCB(ulong nProgramID)
+        public override EpgCB GetEpgCB(ulong nProgramID, bool includeRecordingFallback = false)
         {
-            EpgCB oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString());
-            oRes = (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null;
-            return oRes;
+            EpgCB oRes;
+
+            if (includeRecordingFallback)
+            {
+                var list = m_oEpgCouchbase.GetProgram(new List<string>() { nProgramID.ToString() });
+                oRes = list.FirstOrDefault();
+            }
+            else
+            {
+                oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString());
+            }
+
+            return (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null; ;
         }
 
         public override List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages)

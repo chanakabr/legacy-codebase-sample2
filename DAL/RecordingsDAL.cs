@@ -729,7 +729,7 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, DateTime? protectedUntilDate, long domainId, long userId)
+        public static DataTable AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, DateTime? protectedUntilDate, long domainId, long userId, long? externalViewableUntilDate)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddExternalRecording");
             sp.SetConnectionKey(RECORDING_CONNECTION);
@@ -749,6 +749,7 @@ namespace DAL
             sp.AddParameter("@ProtectedUntilDate", protectedUntilDate);
             sp.AddParameter("@ProtectedUntilEpoch", recording.ProtectedUntilDate.HasValue ? recording.ProtectedUntilDate.Value : 0);
             sp.AddParameter("@MetaData", recording.MetaDataAsJson);
+            sp.AddParameter("@ExternalExpiryDate", externalViewableUntilDate);
 
             return sp.Execute();
         }
@@ -1350,7 +1351,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool SetDomainsRecordings(long Id, DateTime? protectedUntilDate, long protectedUntilEpoch, string metaData)
+        public static bool SetDomainsRecordings(long Id, DateTime? protectedUntilDate, long protectedUntilEpoch, string metaData, long? externalViewableUntilDate)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_DomainsRecordings");
 
@@ -1359,6 +1360,7 @@ namespace DAL
             sp.AddParameter("@ProtectedUntilDate", protectedUntilDate);
             sp.AddParameter("@ProtectedUntilEpoch", protectedUntilEpoch);
             sp.AddParameter("@MetaData", metaData);
+            sp.AddParameter("@ExternalExpiryDate", externalViewableUntilDate);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }

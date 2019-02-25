@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CachingProvider.LayeredCache
 {
@@ -583,6 +580,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("DomainRecordings_domainId_{0}", domainId);
         }
 
+        public static string GetBusinessModuleRulesRulesByMediaKey(long mediaId)
+        {
+            return string.Format("business_module_rules_by_mediaId_{0}", mediaId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1129,6 +1131,9 @@ namespace CachingProvider.LayeredCache
 
         #endregion
 
-
+        public static string GetAllLanguageListKey()
+        {
+            return "allLanguageList";
+        }
     }
 }
