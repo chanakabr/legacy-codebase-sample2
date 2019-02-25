@@ -7,6 +7,7 @@ using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -30,9 +31,26 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "attachedUserIdEqualCurrent", IsNullable = true)]
         public bool? AttachedUserIdEqualCurrent { get; set; }
 
+        /// <summary>
+        /// Indicates which asset rule list to return by this KalturaRuleActionType.
+        /// </summary>
+        [DataMember(Name = "actionsContainType")]
+        [JsonProperty("actionsContainType")]
+        [XmlElement(ElementName = "actionsContainType")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaRuleActionType? ActionsContainType { get; set; }
+
         public override KalturaAssetUserRuleOrderBy GetDefaultOrderByValue()
         {
             return KalturaAssetUserRuleOrderBy.NONE;
+        }
+
+        internal void Validate()
+        {            
+            if (!ActionsContainType.HasValue || ActionsContainType.Value != KalturaRuleActionType.USER_BLOCK)
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.actionsContainType");
+            }
         }
     }
 }

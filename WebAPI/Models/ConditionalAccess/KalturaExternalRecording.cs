@@ -32,5 +32,14 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "metaData")]
         [SchemeProperty(RequiresPermission = (int)RequestType.UPDATE)]
         public SerializableDictionary<string, KalturaStringValue> MetaData { get; set; }
+
+        /// <summary>
+        /// Specifies until when the recording is available. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "expiryDate")]
+        [JsonProperty("expiryDate")]
+        [XmlElement(ElementName = "expiryDate", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long? ExpiryDate { get; set; }
     }
 }

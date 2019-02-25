@@ -722,8 +722,18 @@ namespace WebAPI.Reflection
                 case "KalturaAssetUserRuleFilter":
                     switch(property.Name)
                     {
+                        case "ActionsContainType":
+                            return "actionsContainType";
                         case "AttachedUserIdEqualCurrent":
                             return "attachedUserIdEqualCurrent";
+                    }
+                    break;
+                    
+                case "KalturaAssetUserRuleFilterAction":
+                    switch(property.Name)
+                    {
+                        case "ApplyOnChannel":
+                            return "applyOnChannel";
                     }
                     break;
                     
@@ -1636,6 +1646,8 @@ namespace WebAPI.Reflection
                     {
                         case "CodeIn":
                             return "codeIn";
+                        case "ExcludePartner":
+                            return "excludePartner";
                     }
                     break;
                     
@@ -2230,6 +2242,8 @@ namespace WebAPI.Reflection
                 case "KalturaExternalRecording":
                     switch(property.Name)
                     {
+                        case "ExpiryDate":
+                            return "expiryDate";
                         case "ExternalId":
                             return "externalId";
                         case "MetaData":
@@ -2388,8 +2402,8 @@ namespace WebAPI.Reflection
                             return "mainLanguage";
                         case "PartnerName":
                             return "partnerName";
-                        case "SecondaryCurrencys":
-                            return "secondaryCurrencys";
+                        case "SecondaryCurrencies":
+                            return "secondaryCurrencies";
                         case "SecondaryLanguages":
                             return "secondaryLanguages";
                     }
@@ -2916,6 +2930,8 @@ namespace WebAPI.Reflection
                     {
                         case "CodeIn":
                             return "codeIn";
+                        case "ExcludePartner":
+                            return "excludePartner";
                     }
                     break;
                     
@@ -5146,6 +5162,8 @@ namespace WebAPI.Reflection
                 case "KalturaSingleSegmentValue":
                     switch(property.Name)
                     {
+                        case "AffectedUsers":
+                            return "affectedUsers";
                         case "Id":
                             return "id";
                     }
@@ -7450,7 +7468,7 @@ namespace WebAPI.Reflection
                             
                         case "get":
                             RolesManager.ValidateActionPermitted("householdDevice", "get", false);
-                            return HouseholdDeviceController.Get();
+                            return HouseholdDeviceController.Get((string) methodParams[0]);
                             
                         case "getstatus":
                             RolesManager.ValidateActionPermitted("householdDevice", "getStatus", false);
@@ -13063,6 +13081,17 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "get":
+                            ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("udid", "householdDevice", "get") {
+                                    RequiresPermission = true,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                },
+                            });
                             return ret;
                             
                         case "getstatus":

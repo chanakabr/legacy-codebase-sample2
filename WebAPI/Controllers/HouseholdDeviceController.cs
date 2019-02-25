@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
@@ -174,10 +175,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns device registration status to the supplied household
         /// </summary>
+        /// <param name="udid">device id</param>
         /// <returns></returns><remarks>Possible status codes: 
         /// Device does not exist = 1019, Device not in household = 1003, Device exists in other household = 1016</remarks>
         [Action("get")]
         [ApiAuthorize]
+        [SchemeArgument("udid", RequiresPermission = true)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.DeviceNotExists)]
@@ -185,12 +188,18 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
         [Throws(eResponseStatus.AdapterNotExists)]
         [Throws(eResponseStatus.AdapterAppFailure)]
-        static public KalturaHouseholdDevice Get()
+        static public KalturaHouseholdDevice Get(string udid = null)
         {
             KalturaHouseholdDevice device = null;
 
             KS ks = KS.GetFromRequest();
-            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            int householdId = 0;
+            if (udid.IsNullOrEmptyOrWhiteSpace())
+            {
+                udid = KSUtils.ExtractKSPayload().UDID;
+                householdId = (int) HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
+            }
 
             if (string.IsNullOrEmpty(udid))
             {
@@ -200,12 +209,13 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                device = ClientsManager.DomainsClient().GetDevice(ks.GroupId, (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId), udid, ks.UserId);
+                device = ClientsManager.DomainsClient().GetDevice(ks.GroupId, householdId, udid, ks.UserId);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
             return device;
         }
 

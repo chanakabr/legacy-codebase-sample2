@@ -118,6 +118,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExceededQuota)]
         [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
         [Throws(eResponseStatus.InvalidAssetId)]
+        [Throws(eResponseStatus.InvalidParameters)]
         static public KalturaRecording Add(KalturaRecording recording)
         {
             KalturaRecording response = null;
@@ -190,7 +191,7 @@ namespace WebAPI.Controllers
 
                 Dictionary<string, string> metaDataFilter = null;
                 var externalFilter = filter as KalturaExternalRecordingFilter;
-                if (externalFilter != null)
+                if (externalFilter != null && externalFilter.MetaData != null)
                 {
                     metaDataFilter =
                         externalFilter.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
@@ -334,6 +335,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.ExceededProtectionQuota)]
         [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
+        [Throws(eResponseStatus.InvalidParameters)]
         public static KalturaRecording Update(long id, KalturaRecording recording)
         {
             KalturaRecording response = null;

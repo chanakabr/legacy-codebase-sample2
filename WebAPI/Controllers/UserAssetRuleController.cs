@@ -82,6 +82,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.RecordingNotFound)]
         static public KalturaUserAssetRuleListResponse List(KalturaUserAssetRuleFilter filter)
         {
             List<KalturaUserAssetRule> response = null;
@@ -111,6 +112,10 @@ namespace WebAPI.Controllers
                 {
                     // call client
                     response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                }
+                else if ((AssetType) filter.AssetTypeEqual == AssetType.npvr)
+                {
+                    response = ClientsManager.ApiClient().GetNPVRRules(groupId, userID, filter.getAssetId(), (int) HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
             }
             catch (ClientException ex)

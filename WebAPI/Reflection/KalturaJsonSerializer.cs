@@ -303,6 +303,26 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaAssetUserRuleFilterAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("applyOnChannel", "\"applyOnChannel\": " + ApplyOnChannel.ToString().ToLower());
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("applyOnChannel", "<applyOnChannel>" + ApplyOnChannel.ToString().ToLower() + "</applyOnChannel>");
+            return ret;
+        }
+    }
     public partial class KalturaBillingResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -1576,6 +1596,10 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(ExpiryDate.HasValue)
+            {
+                ret.Add("expiryDate", "\"expiryDate\": " + ExpiryDate);
+            }
             if(ExternalId != null)
             {
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
@@ -1593,6 +1617,10 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(ExpiryDate.HasValue)
+            {
+                ret.Add("expiryDate", "<expiryDate>" + ExpiryDate + "</expiryDate>");
+            }
             if(ExternalId != null)
             {
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
@@ -12348,6 +12376,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(ActionsContainType.HasValue)
+            {
+                ret.Add("actionsContainType", "\"actionsContainType\": " + "\"" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "\"");
+            }
             if(AttachedUserIdEqualCurrent.HasValue)
             {
                 ret.Add("attachedUserIdEqualCurrent", "\"attachedUserIdEqualCurrent\": " + AttachedUserIdEqualCurrent.ToString().ToLower());
@@ -12360,6 +12392,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(ActionsContainType.HasValue)
+            {
+                ret.Add("actionsContainType", "<actionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "" + "</actionsContainType>");
+            }
             if(AttachedUserIdEqualCurrent.HasValue)
             {
                 ret.Add("attachedUserIdEqualCurrent", "<attachedUserIdEqualCurrent>" + AttachedUserIdEqualCurrent.ToString().ToLower() + "</attachedUserIdEqualCurrent>");
@@ -13004,6 +13040,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("codeIn", "\"codeIn\": " + "\"" + EscapeJson(CodeIn) + "\"");
             }
+            if(ExcludePartner.HasValue)
+            {
+                ret.Add("excludePartner", "\"excludePartner\": " + ExcludePartner.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -13015,6 +13055,10 @@ namespace WebAPI.Models.API
             if(CodeIn != null)
             {
                 ret.Add("codeIn", "<codeIn>" + EscapeXml(CodeIn) + "</codeIn>");
+            }
+            if(ExcludePartner.HasValue)
+            {
+                ret.Add("excludePartner", "<excludePartner>" + ExcludePartner.ToString().ToLower() + "</excludePartner>");
             }
             return ret;
         }
@@ -13836,6 +13880,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("codeIn", "\"codeIn\": " + "\"" + EscapeJson(CodeIn) + "\"");
             }
+            if(ExcludePartner.HasValue)
+            {
+                ret.Add("excludePartner", "\"excludePartner\": " + ExcludePartner.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -13847,6 +13895,10 @@ namespace WebAPI.Models.API
             if(CodeIn != null)
             {
                 ret.Add("codeIn", "<codeIn>" + EscapeXml(CodeIn) + "</codeIn>");
+            }
+            if(ExcludePartner.HasValue)
+            {
+                ret.Add("excludePartner", "<excludePartner>" + ExcludePartner.ToString().ToLower() + "</excludePartner>");
             }
             return ret;
         }
@@ -13952,7 +14004,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && AssetType.HasValue)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && AssetType.HasValue)
             {
                 ret.Add("assetType", "\"assetType\": " + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"");
             }
@@ -13965,7 +14017,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("features", "\"features\": " + "\"" + EscapeJson(Features) + "\"");
             }
-            if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && FieldName.HasValue)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FieldName.HasValue)
             {
                 ret.Add("fieldName", "\"fieldName\": " + "\"" + Enum.GetName(typeof(KalturaMetaFieldName), FieldName) + "\"");
             }
@@ -13994,7 +14046,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("parentId", "\"parentId\": " + "\"" + EscapeJson(ParentId) + "\"");
             }
-            if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && PartnerId.HasValue)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && PartnerId.HasValue)
             {
                 ret.Add("partnerId", "\"partnerId\": " + PartnerId);
             }
@@ -14002,7 +14054,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(SystemName) + "\"");
             }
-            if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && Type.HasValue)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Type.HasValue)
             {
                 ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaMetaType), Type) + "\"");
             }
@@ -14015,7 +14067,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && AssetType.HasValue)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && AssetType.HasValue)
             {
                 ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</assetType>");
             }
@@ -14028,7 +14080,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("features", "<features>" + EscapeXml(Features) + "</features>");
             }
-            if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && FieldName.HasValue)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FieldName.HasValue)
             {
                 ret.Add("fieldName", "<fieldName>" + "" + Enum.GetName(typeof(KalturaMetaFieldName), FieldName) + "" + "</fieldName>");
             }
@@ -14053,7 +14105,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("parentId", "<parentId>" + EscapeXml(ParentId) + "</parentId>");
             }
-            if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && PartnerId.HasValue)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && PartnerId.HasValue)
             {
                 ret.Add("partnerId", "<partnerId>" + PartnerId + "</partnerId>");
             }
@@ -14061,7 +14113,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(SystemName) + "</systemName>");
             }
-            if(!DeprecatedAttribute.IsDeprecated("5.6.0.0", currentVersion) && Type.HasValue)
+            if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && Type.HasValue)
             {
                 ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaMetaType), Type) + "" + "</type>");
             }
@@ -21192,6 +21244,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("affectedUsers", "\"affectedUsers\": " + AffectedUsers);
             ret.Add("id", "\"id\": " + Id);
             return ret;
         }
@@ -21201,6 +21254,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("affectedUsers", "<affectedUsers>" + AffectedUsers + "</affectedUsers>");
             ret.Add("id", "<id>" + Id + "</id>");
             return ret;
         }
@@ -21464,9 +21518,9 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("partnerName", "\"partnerName\": " + "\"" + EscapeJson(PartnerName) + "\"");
             }
-            if(SecondaryCurrencys != null)
+            if(SecondaryCurrencies != null)
             {
-                ret.Add("secondaryCurrencys", "\"secondaryCurrencys\": " + "\"" + EscapeJson(SecondaryCurrencys) + "\"");
+                ret.Add("secondaryCurrencies", "\"secondaryCurrencies\": " + "\"" + EscapeJson(SecondaryCurrencies) + "\"");
             }
             if(SecondaryLanguages != null)
             {
@@ -21512,9 +21566,9 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("partnerName", "<partnerName>" + EscapeXml(PartnerName) + "</partnerName>");
             }
-            if(SecondaryCurrencys != null)
+            if(SecondaryCurrencies != null)
             {
-                ret.Add("secondaryCurrencys", "<secondaryCurrencys>" + EscapeXml(SecondaryCurrencys) + "</secondaryCurrencys>");
+                ret.Add("secondaryCurrencies", "<secondaryCurrencies>" + EscapeXml(SecondaryCurrencies) + "</secondaryCurrencies>");
             }
             if(SecondaryLanguages != null)
             {
