@@ -12,6 +12,7 @@ using ElasticSearch.Searcher;
 using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
 using ConfigurationManager;
+using Core.Catalog;
 
 namespace ElasticSearchHandler.Updaters
 {

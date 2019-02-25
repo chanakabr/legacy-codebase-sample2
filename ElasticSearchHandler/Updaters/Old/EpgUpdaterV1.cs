@@ -10,6 +10,7 @@ using KLogMonitor;
 using System.Reflection;
 using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
+using Core.Catalog;
 
 namespace ElasticSearchHandler.Updaters
 {

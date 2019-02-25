@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using EpgBL;
 using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
+using Core.Catalog;
 
 namespace ElasticSearchHandler.IndexBuilders
 {

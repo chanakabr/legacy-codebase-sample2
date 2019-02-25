@@ -15,6 +15,7 @@ using ApiObjects.Response;
 using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json.Linq;
+using Core.Catalog;
 
 namespace ElasticSearchHandler.IndexBuilders
 {

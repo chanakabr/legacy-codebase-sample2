@@ -15,6 +15,7 @@ using ApiObjects.Response;
 using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
 using ConfigurationManager;
+using Core.Catalog;
 
 namespace ElasticSearchHandler.IndexBuilders
 {

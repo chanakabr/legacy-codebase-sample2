@@ -13,6 +13,7 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
+using Core.Catalog;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
