@@ -105,5 +105,52 @@ namespace TVinciShared
 
             return default(T);
         }
+
+        /// <summary>
+        /// Convert comma separated string to collection.
+        /// </summary>
+        /// <typeparam name="U">Collection of T</typeparam>
+        /// <typeparam name="T">Type of items in collection</typeparam>
+        /// <param name="itemsIn">Comma separated string</param>
+        /// <returns></returns>
+        public static U GetItemsIn<U, T>(this string itemsIn, bool ignoreDefaultValueValidation = false) where T : IConvertible where U : ICollection<T>
+        {
+            U values = Activator.CreateInstance<U>();
+
+            if (!string.IsNullOrEmpty(itemsIn))
+            {
+                string[] stringValues = itemsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                Type t = typeof(T);
+
+                foreach (string stringValue in stringValues)
+                {
+                    T value;
+
+                    try
+                    {
+                        value = (T)Convert.ChangeType(stringValue, t);
+                    }
+                    catch (Exception)
+                    {
+                        // TODO - SET SOME ERROR
+                        continue;
+                    }
+
+                    if (value != null && (ignoreDefaultValueValidation || !value.Equals(default(T))))
+                    {
+                        if (!values.Contains(value))
+                        {
+                            values.Add(value);
+                        }
+                    }
+                    else
+                    {
+                        // TODO - SET SOME ERROR
+                    }
+                }
+            }
+
+            return values;
+        }
     }
 }

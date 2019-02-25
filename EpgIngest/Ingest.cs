@@ -28,10 +28,9 @@ namespace EpgIngest
         private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
         private const string EPGS_PROGRAM_MISSING_CRID = "Warning at EPG Program crid is empty {0}";
         private const string FAILED_DOWNLOAD_PIC = "Failed download pic";
-
-
-
+        
         #region Member
+
         private EpgChannels m_Channels;
         private BaseEpgBL oEpgBL;
         private List<LanguageObj> lLanguage = new List<LanguageObj>();
@@ -41,6 +40,7 @@ namespace EpgIngest
         private bool isTstvSettings = false;
         private bool isOpcAccount = false;
         private Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
+        
         #endregion
 
         public Ingest()
@@ -57,7 +57,7 @@ namespace EpgIngest
         {
             ingestResponse = new IngestResponse()
             {
-                IngestStatus = new ApiObjects.Response.Status() { Code = (int)ApiObjects.Response.eResponseStatus.Error, Message = ApiObjects.Response.eResponseStatus.Error.ToString() },
+                IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() },
                 AssetsStatus = new List<IngestAssetStatus>()
             };
 
@@ -69,7 +69,7 @@ namespace EpgIngest
                 log.ErrorFormat("Failed loading data: {0}. GID:{1}.", Data, groupId);
                 return false;
             }
-
+            
             oEpgBL = EpgBL.Utils.GetInstance(m_Channels.parentgroupid);
             lLanguage = Utils.GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
             // get mapping tags and metas 

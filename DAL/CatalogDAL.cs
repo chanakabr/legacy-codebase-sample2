@@ -17,7 +17,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-
 namespace Tvinci.Core.DAL
 {
     public class CatalogDAL : BaseDal
@@ -26,7 +25,7 @@ namespace Tvinci.Core.DAL
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
         private static readonly int CB_EPG_DOCUMENT_EXPIRY_DAYS = ApplicationConfiguration.EPGDocumentExpiry.IntValue;
         private static readonly int CB_PLAYCYCLE_DOC_EXPIRY_MIN = ApplicationConfiguration.PlayCycleDocumentExpiryMinutes.IntValue;
-
+        
         private static readonly string NAME_FIELD = "NAME";
         private static readonly string ASSET_TYPE_FIELD = "ASSET_TYPE";
         private static readonly string IS_TAG_FIELD = "IS_TAG";
@@ -5543,6 +5542,57 @@ namespace Tvinci.Core.DAL
             sp.AddIDListParameter("@tableReferenceIds", tableReferenceIds, "ID");
             return sp.Execute();
         }
+
+        private static string GetBulkUploadKey(long bulkUploadId)
+        {
+            return string.Format("bulk_upload_{0}", bulkUploadId);
+        }
+        
+        public static DataTable AddBulkUpload(BulkUpload bulkUploadToAdd, long userId)
+        {
+            StoredProcedure sp = new StoredProcedure("InsertBulkUpload");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@UploadTokenId", bulkUploadToAdd.UploadTokenId);
+            sp.AddParameter("@JobStatus", (int)bulkUploadToAdd.Status);
+            sp.AddParameter("@FileType", (int)bulkUploadToAdd.FileType);
+            sp.AddParameter("@JobAction", (int)bulkUploadToAdd.Action);
+            sp.AddParameter("@GroupId", bulkUploadToAdd.GroupId);
+            sp.AddParameter("@UpdaterId", userId);
+            return sp.Execute();
+        }
+
+        public static DataTable GetBulkUpload(int groupId, long bulkUploadId)
+        {
+            StoredProcedure sp = new StoredProcedure("GetBulkUpload");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@BulkUploadId", bulkUploadId);
+            return sp.Execute();
+        }
+
+        public static DataTable UpdateBulkUploadStatus(int groupId, long bulkUploadId, BulkUploadJobStatus Status, long userId)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateBulkUploadStatus");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@BulkUploadId", bulkUploadId);
+            sp.AddParameter("@StatusCode", (int)Status);
+            sp.AddParameter("@UpdaterId", userId);
+            return sp.Execute();
+        }
+
+        public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl = 0)
+        {
+            string bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
+            return UtilsDal.SaveObjectInCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl);
+        }
+
+        public static BulkUpload GetBulkUploadCB(long bulkUploadId)
+        {
+            string bulkUploadKey = GetBulkUploadKey(bulkUploadId);
+            return UtilsDal.GetObjectFromCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey);
+        }
+
         #endregion
     }
 }

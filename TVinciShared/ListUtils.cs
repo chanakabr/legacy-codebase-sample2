@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
 
 namespace TVinciShared
 {
@@ -59,21 +56,7 @@ namespace TVinciShared
 
             return keyValues;
         }
-
-        public static void AddRange(this Dictionary<string, object> current, Dictionary<string, object> other)
-        {
-            if (other != null)
-            {
-                foreach (var value in other)
-                {
-                    if (!current.ContainsKey(value.Key))
-                    {
-                        current.Add(value.Key, value.Value);
-                    }
-                }
-            }
-        }
-
+        
         public static bool TryAdd<T>(this Dictionary<string, T> current, string key, T value)
             where T : class
         {   
