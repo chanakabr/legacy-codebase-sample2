@@ -94,16 +94,15 @@ public partial class adm_media_concurrency_tag_type_values : System.Web.UI.Page
         if (CatalogManager.DoesGroupUsesTemplates(groupId))
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select mtt.id, t.system_name from media_concurrency_rules mc, topics t where";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mc.id", "=", t.ToString());
-            selectQuery += "and mc.tag_type_id=t.id";
+            selectQuery += "select t.id, t.system_name from topics t join media_concurrency_rules mcr on (mcr.tag_type_id=t.id) where t.[status]=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mcr.id", "=", t.ToString());
 
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                 for (int i = 0; i < nCount; i++)
                 {
-                    sTagTypeName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
+                    sTagTypeName = selectQuery.Table("query").DefaultView[i].Row["SYSTEM_NAME"].ToString();
                     nTagTypeID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
 
                     DataRecordMultiField dr_tags = new DataRecordMultiField("tags", "id", "id", "media_concurrency_rules_values", "rule_id", "TAG_ID", true, "ltr", 60, "tags");
