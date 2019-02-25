@@ -1507,11 +1507,12 @@ namespace DAL
             return null;
         }
 
-        public static DataSet Get_MCRulesByGroup(int groupId)
+        public static DataSet Get_MCRulesByGroup(int groupId, bool doesGroupUsesTemplates)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MCRulesByGroup");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@IsGroupOpcSupported", doesGroupUsesTemplates ? 1 : 0);
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null)
