@@ -10719,12 +10719,7 @@
         </member>
         <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Action">
             <summary>
-              API action name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.SecondaryCurrencies">
-            <summary>
-            A list of comma separated currency ids.
+            API action name
             </summary>
         </member>
         <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Parameter">
@@ -11203,9 +11198,9 @@
             Main currency
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.SecondaryCurrencys">
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.SecondaryCurrencies">
             <summary>
-            A list of comma separated currencys ids.
+            A list of comma separated currency ids.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.DowngradePolicy">
@@ -12024,16 +12019,6 @@
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaDiscountModule">
-          <summery>
-            Discount module
-          </summery>
-        </member>
-        <member name="P:WebAPI.Models.Segmentation.KalturaSingleSegmentValue.AffectedUsers">
-            <summary>
-            The amount of users that are being affected by this Segmentation type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Segmentation.KalturaMonetizationCondition">
             <summary>
             Discount module
             </summary>
@@ -12496,6 +12481,11 @@
         <member name="P:WebAPI.Models.Segmentation.KalturaSingleSegmentValue.Id">
             <summary>
             Id of segment
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaSingleSegmentValue.AffectedUsers">
+            <summary>
+            The amount of users that are being affected by this Segmentation type
             </summary>
         </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaMonetizationCondition">
