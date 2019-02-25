@@ -737,8 +737,7 @@ namespace Core.Api.Managers
                     {
                         foreach (var condition in networkRule.Conditions)
                         {
-                            var evalCondition = condition as RuleCondition<IConditionScope>;
-                            if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && evalCondition.Evaluate(conditionScope))
+                            if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && condition.Evaluate(conditionScope))
                             {
                                 blockingRule = networkRule;
                                 log.DebugFormat("CheckNetworkRules the asset: {0} block because of NetworkRule: {1}.", asset.Id, networkRule.Id);

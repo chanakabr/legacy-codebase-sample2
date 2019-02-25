@@ -7,25 +7,34 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Rules
 {
-    public abstract class RuleBaseCondition
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public abstract class RuleCondition
     {
         [JsonProperty("Type")]
         public RuleConditionType Type { get; protected set; }
 
         [JsonProperty("Description")]
         public string Description { get; set; }
+
+        public abstract bool Evaluate(IConditionScope scope);
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class RuleCondition<T> : RuleBaseCondition where T : IConditionScope
+    public abstract class RuleBaseCondition<T> : RuleCondition where T : IConditionScope
     {
-        public abstract bool Evaluate(T scope);
+        public override bool Evaluate(IConditionScope scope)
+        {
+            return DoEvaluate((T)scope);
+        }
+
+        protected abstract bool DoEvaluate(T scope);
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class NotRuleCondition<T> : RuleCondition<T> where T : IConditionScope
+    public abstract class NotRuleCondition<T> : RuleBaseCondition<T> where T : IConditionScope
     {
         [JsonProperty("Not")]
         public bool Not { get; set; }
@@ -33,7 +42,7 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class AssetRuleCondition<T> : RuleCondition<T> where T : IConditionScope
+    public abstract class AssetRuleCondition<T> : RuleBaseCondition<T> where T : IConditionScope
     {
     }
 
@@ -42,7 +51,7 @@ namespace ApiObjects.Rules
     public class OrCondition: AssetRuleCondition<IConditionScope>
     {
         [JsonProperty("Conditions", ItemTypeNameHandling = TypeNameHandling.All)]
-        public List<RuleBaseCondition> Conditions { get; set; }
+        public List<RuleCondition> Conditions { get; set; }
         
         [JsonProperty("Not")]
         public bool Not { get; set; }
@@ -52,13 +61,12 @@ namespace ApiObjects.Rules
             Type = RuleConditionType.Or;
         }
 
-        public override bool Evaluate(IConditionScope scope)
+        protected override bool DoEvaluate(IConditionScope scope)
         {
             bool isOneConditionEvaluate = false;
-            foreach (RuleBaseCondition condition in Conditions)
+            foreach (var condition in Conditions)
             {
-                var evalCondition = condition as RuleCondition<IConditionScope>;
-                if (evalCondition.Evaluate(scope))
+                if (condition.Evaluate(scope))
                 {
                     isOneConditionEvaluate = true;
                     break;
@@ -86,7 +94,7 @@ namespace ApiObjects.Rules
             Type = RuleConditionType.Asset;
         }
 
-        public override bool Evaluate(IAssetConditionScope scope)
+        protected override bool DoEvaluate(IAssetConditionScope scope)
         {
             if (scope.MediaId == 0)
             {
@@ -118,7 +126,7 @@ namespace ApiObjects.Rules
             this.Type = RuleConditionType.Country;
         }
 
-        public override bool Evaluate(IConditionScope scope)
+        protected override bool DoEvaluate(IConditionScope scope)
         {
             throw new NotImplementedException();
         }
@@ -161,7 +169,7 @@ namespace ApiObjects.Rules
             this.Type = RuleConditionType.IP_RANGE;
         }
 
-        public override bool Evaluate(IIpRangeConditionScope scope)
+        protected override bool DoEvaluate(IIpRangeConditionScope scope)
         {
             if (IpFrom <= scope.Ip && scope.Ip <= IpTo)
             {
@@ -174,7 +182,7 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BusinessModuleCondition : RuleCondition<IBusinessModuleConditionScope>
+    public class BusinessModuleCondition : RuleBaseCondition<IBusinessModuleConditionScope>
     {
         [JsonProperty("BusinessModuleId")]
         public long BusinessModuleId { get; set; }
@@ -187,7 +195,7 @@ namespace ApiObjects.Rules
             this.Type = RuleConditionType.BusinessModule;
         }
 
-        public override bool Evaluate(IBusinessModuleConditionScope scope)
+        protected override bool DoEvaluate(IBusinessModuleConditionScope scope)
         {
             return !scope.BusinessModuleType.HasValue || 
                     (BusinessModuleType == scope.BusinessModuleType.Value && (scope.BusinessModuleId == 0 || BusinessModuleId == 0 || BusinessModuleId == scope.BusinessModuleId));
@@ -210,7 +218,7 @@ namespace ApiObjects.Rules
             this.Type = RuleConditionType.Date;
         }
 
-        public override bool Evaluate(IDateConditionScope scope)
+        protected override bool DoEvaluate(IDateConditionScope scope)
         {
             if (!scope.FilterByDate)
             {
@@ -230,7 +238,7 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class SegmentsCondition : RuleCondition<ISegmentsConditionScope>
+    public class SegmentsCondition : RuleBaseCondition<ISegmentsConditionScope>
     {
         [JsonProperty("SegmentIds")]
         public List<long> SegmentIds { get; set; }
@@ -240,7 +248,7 @@ namespace ApiObjects.Rules
             this.Type = RuleConditionType.Segments;
         }
 
-        public override bool Evaluate(ISegmentsConditionScope scope)
+        protected override bool DoEvaluate(ISegmentsConditionScope scope)
         {
             if (!scope.FilterBySegments)
             {
@@ -274,7 +282,7 @@ namespace ApiObjects.Rules
             this.Type = RuleConditionType.Header;
         }
 
-        public override bool Evaluate(IHeaderConditionScope scope)
+        protected override bool DoEvaluate(IHeaderConditionScope scope)
         {
             bool isInHeaders = false;
             if (scope.Headers.ContainsKey(Key) && scope.Headers[Key].Equals(Value))

@@ -13,7 +13,7 @@ namespace ApiObjects.Rules
                       TypeNameHandling = TypeNameHandling.Auto, 
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<RuleBaseCondition> Conditions { get; set; }
+        public List<RuleCondition> Conditions { get; set; }
 
         [JsonProperty(PropertyName = "Actions",
                       TypeNameHandling = TypeNameHandling.Auto,
@@ -34,9 +34,8 @@ namespace ApiObjects.Rules
                 foreach (var condition in Conditions)
                 {
                     scope.RuleId = this.Id;
-                    var evalCondition = condition as RuleCondition<IConditionScope>;
                     
-                    if (!evalCondition.Evaluate(scope))
+                    if (!condition.Evaluate(scope))
                     {
                         return false;
                     }

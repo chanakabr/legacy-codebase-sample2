@@ -13,7 +13,7 @@ namespace ApiObjects.Rules
                       TypeNameHandling = TypeNameHandling.Auto, 
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<RuleBaseCondition> Conditions { get; set; }
+        public List<RuleCondition> Conditions { get; set; }
 
         [JsonProperty(PropertyName = "Actions",
                       TypeNameHandling = TypeNameHandling.Auto,
