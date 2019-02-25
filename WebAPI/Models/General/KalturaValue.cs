@@ -1,10 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.App_Start;
 
 namespace WebAPI.Models.General
 {
@@ -25,6 +28,6 @@ namespace WebAPI.Models.General
         [DataMember(Name = "description")]
         [XmlElement("description", IsNullable = true)]
         [JsonProperty("description")]
-        public string description { get; set; }
+        public string description { get; set; } 
     }
 }

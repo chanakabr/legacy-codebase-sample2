@@ -1,14 +1,17 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-
     /// <summary>
     /// Asset file details
     /// </summary>
@@ -30,8 +33,9 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public partial class KalturaMediaFile : KalturaAssetFile
     {
-
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+
+        #region Data Members
 
         /// <summary>
         /// Unique identifier for the asset
@@ -59,7 +63,6 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "type")]
         [SchemeProperty(ReadOnly = true)]
         public string Type { get; set; }
-
 
         /// <summary>
         /// Device types identifier as defined in the system
@@ -99,7 +102,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "altExternalId")]
         [JsonProperty(PropertyName = "altExternalId")]
-        [XmlElement(ElementName = "altExternalId")]        
+        [XmlElement(ElementName = "altExternalId")]
         public string AltExternalId { get; set; }
 
         /// <summary>
@@ -110,14 +113,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "billingType")]
         [JsonIgnore]
         [Deprecated(OPC_MERGE_VERSION)]
-        public string BillingType { get; set; } 
+        public string BillingType { get; set; }
 
         /// <summary>
         /// Quality
         /// </summary>
         [DataMember(Name = "quality")]
         [JsonProperty(PropertyName = "quality")]
-        [XmlElement(ElementName = "quality")]        
+        [XmlElement(ElementName = "quality")]
         [JsonIgnore]
         [Deprecated(OPC_MERGE_VERSION)]
         public string Quality { get; set; }
@@ -164,7 +167,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "ppvModules")]
         [JsonProperty(PropertyName = "ppvModules")]
         [XmlElement(ElementName = "ppvModules")]
-        [JsonIgnore]        
+        [JsonIgnore]
         public KalturaStringValueArray PPVModules { get; set; }
 
         /// <summary>
@@ -182,7 +185,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "fileSize")]
         [JsonProperty(PropertyName = "fileSize")]
-        [XmlElement(ElementName = "fileSize", IsNullable = true)]        
+        [XmlElement(ElementName = "fileSize", IsNullable = true)]
         public long? FileSize { get; set; }
 
         /// <summary>
@@ -238,7 +241,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "isDefaultLanguage")]
         [JsonProperty(PropertyName = "isDefaultLanguage")]
-        [XmlElement(ElementName = "isDefaultLanguage", IsNullable = true)]        
+        [XmlElement(ElementName = "isDefaultLanguage", IsNullable = true)]
         public bool? IsDefaultLanguage { get; set; }
 
         /// <summary>
@@ -290,6 +293,7 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "CatalogEndDate")]
         public long? CatalogEndDate { get; set; }
 
+        #endregion
     }
 
     /// <summary>
@@ -308,5 +312,4 @@ namespace WebAPI.Models.Catalog
         [XmlArrayItem("item")]
         public List<KalturaMediaFile> Files { get; set; }
     }
-
 }

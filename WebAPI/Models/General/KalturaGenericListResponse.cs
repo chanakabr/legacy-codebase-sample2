@@ -11,7 +11,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.General
 {
-    // TODO SHIR - AFTER APPROVE CHANGE ALL KalturaListResponse TO THIS ONE
     /// <summary>
     /// Generic response list
     /// </summary>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Upload
@@ -13,15 +14,15 @@ namespace WebAPI.Models.Upload
     /// Asset wrapper
     /// </summary>
     [Serializable]
-    public partial class KalturaBulkListResponse : KalturaListResponse
+    public partial class KalturaBulkUploadListResponse : KalturaListResponse
     {
         /// <summary>
-        /// bulk items
+        /// bulk upload items
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaBulk> Objects { get; set; }
+        public List<KalturaBulkUpload> Objects { get; set; }
     }
 }

@@ -1,10 +1,15 @@
-﻿using Jil;
+﻿using ApiObjects;
+using ApiObjects.Excel;
+using Core.Catalog.CatalogManagement;
+using Jil;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
@@ -19,10 +24,15 @@ namespace WebAPI.Models.Catalog
     [XmlInclude(typeof(KalturaRecordingAsset))]
     [XmlInclude(typeof(KalturaProgramAsset))]
     [XmlInclude(typeof(KalturaMediaAsset))]
-    abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable
+    abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable, IKalturaExcelableObject
     {
+        #region Consts
 
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+        
+        #endregion
+
+        #region Data Members
 
         /// <summary>
         /// Unique identifier for the asset
@@ -67,6 +77,7 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
         [SchemeProperty(ReadOnly = true)]
+        [ExcelProperty(Name = "image")]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
@@ -145,7 +156,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCdvr")]
         [JsonProperty(PropertyName = "enableCdvr")]
         [XmlElement(ElementName = "enableCdvr")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public bool? EnableCdvr { get; set; }
 
         /// <summary>
@@ -154,7 +165,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCatchUp")]
         [JsonProperty(PropertyName = "enableCatchUp")]
         [XmlElement(ElementName = "enableCatchUp")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public bool? EnableCatchUp { get; set; }
 
         /// <summary>
@@ -163,7 +174,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableStartOver")]
         [JsonProperty(PropertyName = "enableStartOver")]
         [XmlElement(ElementName = "enableStartOver")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public bool? EnableStartOver { get; set; }
 
         /// <summary>
@@ -172,7 +183,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableTrickPlay")]
         [JsonProperty(PropertyName = "enableTrickPlay")]
         [XmlElement(ElementName = "enableTrickPlay")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public bool? EnableTrickPlay { get; set; }
 
         /// <summary>
@@ -180,12 +191,14 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
-        [XmlElement(ElementName = "externalId")]        
+        [XmlElement(ElementName = "externalId")]
         public string ExternalId { get; set; }
 
+        #endregion
+        
         internal int getType()
         {
-            return Type.HasValue ? (int)Type : 0;
+            return Type.HasValue ? Type.Value : 0;
         }
 
         internal virtual void ValidateForInsert()
@@ -305,6 +318,17 @@ namespace WebAPI.Models.Catalog
                     }
                 }
             }            
+        }
+        
+        public Dictionary<string, object> GetExcelValues(int groupId)
+        {
+            Dictionary<string, object> excelValues = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelValues(groupId, this);   
+            return excelValues;
+        }
+
+        public virtual Dictionary<string, ExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null)
+        {
+            return null;
         }
     }
 }

@@ -25,7 +25,7 @@ namespace WebAPI.Clients
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         internal static U GetResponseFromWS<U, T>(U requestObject, Func<T, GenericResponse<T>> funcInWS)
-            where U : KalturaOTTObject
+            where U : KalturaOTTObject where T : class
         {
             U result = null;
             GenericResponse<T> response = null;
@@ -64,7 +64,7 @@ namespace WebAPI.Clients
         }
 
         internal static U GetResponseFromWS<U, T>(Func<GenericResponse<T>> funcInWS)
-            where U : KalturaOTTObject
+            where U : KalturaOTTObject where T : class
         {
             U result = null;
             GenericResponse<T> response = null;
@@ -108,7 +108,7 @@ namespace WebAPI.Clients
         /// <param name="funcInWS"></param>
         /// <returns></returns>
         internal static KalturaGenericListResponse<U> GetResponseListFromWS<U, T>(Func<GenericListResponse<T>> funcInWS)
-            where U : KalturaOTTObject
+            where U : KalturaOTTObject where T : class
         {
             KalturaGenericListResponse<U> result = new KalturaGenericListResponse<U>();
             GenericListResponse<T> response = null;
@@ -177,7 +177,7 @@ namespace WebAPI.Clients
         }
         
         internal static void GetResponseStatusFromWS<U, T>(Func<T, Status> funcInWS, U kalturaOTTObject)
-            where U : KalturaOTTObject
+            where U : KalturaOTTObject where T : class
         {
             Status status = null;
 

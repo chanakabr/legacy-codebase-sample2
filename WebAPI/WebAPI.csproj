@@ -75,6 +75,9 @@
       <HintPath>..\packages\DeepCloner.0.10.2\lib\net40\DeepCloner.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="EPPlus, Version=4.5.3.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.5.3.1\lib\net40\EPPlus.dll</HintPath>
+    </Reference>
     <Reference Include="Jil, Version=2.16.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Jil.2.16.0\lib\net45\Jil.dll</HintPath>
     </Reference>
@@ -186,6 +189,7 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.105.2.3\lib\net46\RestSharp.dll</HintPath>
     </Reference>
@@ -278,6 +282,7 @@
       <HintPath>..\packages\WebActivatorEx.2.0.6\lib\net40\WebActivatorEx.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="api.asmx" />
@@ -774,6 +779,7 @@
   <ItemGroup>
     <Compile Include="App_Start\AssetXmlFormatter.cs" />
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
+    <Compile Include="App_Start\ExcelFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="clear_cache.aspx.cs">
       <DependentUpon>clear_cache.aspx</DependentUpon>
@@ -790,7 +796,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetStructMetaController.cs" />
-    <Compile Include="Controllers\BulkController.cs" />
+    <Compile Include="Controllers\BulkUploadController.cs" />
     <Compile Include="Controllers\DrmProfileController.cs" />
     <Compile Include="Controllers\MediaFileController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
@@ -818,10 +824,11 @@
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\UserSegmentController.cs" />
+    <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
+    <Compile Include="Managers\Scheme\ExcelAttribute.cs" />
     <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
     <Compile Include="Models\API\KalturaTvmGeoRule.cs" />
     <Compile Include="Models\API\KalturaTvmRuleFilter.cs" />
-    <Compile Include="Models\API\KalturaShirCheckListResponse.cs" />
     <Compile Include="Models\API\KalturaTvmRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaTvmRule.cs" />
     <Compile Include="Models\API\KalturaBusinessModuleRuleFilter.cs" />
@@ -838,6 +845,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaCaptionPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecordingFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitationsListResponse.cs" />
+    <Compile Include="Models\General\KalturaResponseStatus.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
     <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />
     <Compile Include="Models\Partner\KalturaGeneralPartnerConfig.cs" />
@@ -860,7 +868,7 @@
     <Compile Include="Models\Segmentation\KalturaSegmentValues.cs" />
     <Compile Include="Models\Segmentation\KalturaUserDataCondition.cs" />
     <Compile Include="Models\Segmentation\KalturaUserSegment.cs" />
-    <Compile Include="Models\Upload\KalturaBulkFilter.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
     <Compile Include="Models\General\KalturaGenericListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaListResponse.cs" />
@@ -934,7 +942,6 @@
     <Compile Include="Managers\Models\CencCustomData.cs" />
     <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationBooleanCondition.cs" />
     <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationFieldEqualsCondition.cs" />
-    <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationCondition.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
@@ -991,8 +998,11 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
-    <Compile Include="Models\Upload\KalturaBulkListResponse.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadListResponse.cs" />
     <Compile Include="Models\Upload\KalturaBulkUpload.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadEntryData.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadJobData.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadResult.cs" />
     <Compile Include="Models\Upload\KalturaUploadToken.cs" />
     <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
     <Compile Include="Models\Users\KalturaSSOAdapterProfile.cs" />
@@ -1769,10 +1779,6 @@
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
       <Name>EventManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ExcelManager\ExcelManager.csproj">
-      <Project>{B244D457-C486-48A4-8BB2-7ECD008D4054}</Project>
-      <Name>ExcelManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\GoogleAPI\GoogleAPI.csproj">
       <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>
       <Name>GoogleAPI</Name>
@@ -1813,6 +1819,26 @@
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Microsoft.Office.Core">
+      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>8</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="VBIDE">
+      <Guid>{0002E157-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>5</VersionMajor>
+      <VersionMinor>3</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -1,4 +1,7 @@
 ﻿using ApiObjects;
+using ApiObjects.Excel;
+using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,6 +9,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 
@@ -18,7 +23,7 @@ namespace WebAPI.Models.Catalog
     public partial class KalturaMediaAsset : KalturaAsset
     {
         private const string OPC_MERGE_VERSION = "5.0.0.0";
-
+        
         /// <summary>
         /// External identifiers
         /// </summary>
@@ -134,5 +139,12 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("InheritancePolicy")]
         [XmlElement(ElementName = "InheritancePolicy", IsNullable = true)]
         public KalturaAssetInheritancePolicy? InheritancePolicy { get; set; }
+
+        public override Dictionary<string, ExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null)
+        {
+            Dictionary<string, ExcelColumn> excelColumns = new Dictionary<string, ExcelColumn>();
+            excelColumns.TryAddRange(MediaAsset.GetExcelColumns(groupId, data));
+            return excelColumns;
+        }
     }
 }

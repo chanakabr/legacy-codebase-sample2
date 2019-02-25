@@ -221,7 +221,7 @@ namespace Validator.Managers.Scheme
 
             // description
             string description = Scheme.getInstance().getDescription(property);
-            description = description.Trim();
+            description = description ?? description.Trim();
             if (string.IsNullOrEmpty(description))
             {
                 logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) has no description", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));

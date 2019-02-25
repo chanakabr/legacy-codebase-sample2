@@ -750,15 +750,23 @@ namespace Validator.Managers.Scheme
 
         internal string getDescription(PropertyInfo property)
         {
-            if (property.ReflectedType.IsGenericType)
+            try
             {
-                Regex regex = new Regex(@"^[^\[]+");
-                string name = regex.Match(property.ReflectedType.FullName).Value;
-                return getDescription(string.Format("//member[@name='P:{0}.{1}']", name, property.Name));
+                if (property.ReflectedType.IsGenericType)
+                {
+                    Regex regex = new Regex(@"^[^\[]+");
+                    string name = regex.Match(property.ReflectedType.FullName).Value;
+                    return getDescription(string.Format("//member[@name='P:{0}.{1}']", name, property.Name));
+                }
+                else
+                {
+                    return getDescription(string.Format("//member[@name='P:{0}.{1}']", property.ReflectedType, property.Name));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return getDescription(string.Format("//member[@name='P:{0}.{1}']", property.ReflectedType, property.Name));
+                return string.Empty;
+                //throw;
             }
         }
 

@@ -13,6 +13,7 @@ using System;
 using Newtonsoft.Json.Linq;
 using KLogMonitor;
 using System.Reflection;
+using TVinciShared;
 
 namespace WebAPI.Models.General
 {
@@ -24,10 +25,21 @@ namespace WebAPI.Models.General
         private string RequestLanguageCode;
         private string GroupDefaultLanguageCode;
 
+        /// <summary>
+        /// All values in different languages
+        /// </summary>
+        [DataMember(Name = "values")]
+        [JsonProperty("values")]
+        [XmlArray(ElementName = "values", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaTranslationToken> Values { get; set; }
+
+        #region Ctor's
+
         public KalturaMultilingualString(LanguageContainer[] values) : base(null)
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
-            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();            
+            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(values);
         }
 
@@ -35,8 +47,8 @@ namespace WebAPI.Models.General
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
-            
-            List <LanguageContainer> tempValuesList = values != null? new List<LanguageContainer>(values) : new List<LanguageContainer>();
+
+            List<LanguageContainer> tempValuesList = values != null ? new List<LanguageContainer>(values) : new List<LanguageContainer>();
 
             if (!string.IsNullOrEmpty(GroupDefaultLanguageCode) &&
                 !tempValuesList.Any(x => x.LanguageCode == GroupDefaultLanguageCode))
@@ -69,6 +81,8 @@ namespace WebAPI.Models.General
             tempValuesList.Add(new LanguageContainer(GroupDefaultLanguageCode, defaultLanguageValue, true));
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(tempValuesList);
         }
+
+        #endregion
 
         internal List<LanguageContainer> GetLanugageContainer()
         {
@@ -142,16 +156,7 @@ namespace WebAPI.Models.General
         {
             return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1)); ;
         }
-        
-        /// <summary>
-        /// All values in different languages
-        /// </summary>
-        [DataMember(Name = "values")]
-        [JsonProperty("values")]
-        [XmlArray(ElementName = "values", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaTranslationToken> Values { get; set; }
-
+       
         public override string ToString()
         {
             if (Values != null && Values.Count > 0)
