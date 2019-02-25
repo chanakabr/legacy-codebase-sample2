@@ -134,7 +134,7 @@ namespace Core.Catalog
             "epg_id",
             STATUS,
             "linear_media_id",
-            "recording_id"
+            ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID
         };
 
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
@@ -5978,8 +5978,8 @@ namespace Core.Catalog
                     }
                     ).ToList();
 
-                searchResultsList =
-                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems, request.m_nPageSize, request.m_nPageIndex);
+                searchResultsList = searcher.FillUpdateDates(request.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems,
+                                                             request.m_nPageSize, request.m_nPageIndex, true);
             }
             // If there is, go to ES and perform further filter
             else
@@ -7835,6 +7835,13 @@ namespace Core.Catalog
                             {
                                 throw new KalturaException("Unauthorized use of field status", (int)eResponseStatus.BadSearchRequest);
                             }
+                        }
+
+                        if (searchKeyLowered == ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID)
+                        {
+                            definitions.shouldSearchRecordings = true;
+                            // I mock a "in" operator so that the query builder will know it is a not-exact search
+                            leaf.operand = ComparisonOperator.In;
                         }
 
                         if (leaf.operand != ComparisonOperator.In)

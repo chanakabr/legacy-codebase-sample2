@@ -129,8 +129,8 @@ namespace Core.Catalog
             this.m_sUrl = assetFile.Url;
             this.m_sAltUrl = assetFile.AltStreamingCode;
             this.m_sBillingType = assetFile.BillingType.ToString();
-            this.m_nCdnID = (int)assetFile.CdnAdapaterProfileId;
-            this.m_nAltCdnID = (int)assetFile.AlternativeCdnAdapaterProfileId;            
+            this.m_nCdnID = assetFile.CdnAdapaterProfileId.HasValue ? (int)assetFile.CdnAdapaterProfileId : 0;
+            this.m_nAltCdnID = assetFile.AlternativeCdnAdapaterProfileId.HasValue ? (int)assetFile.AlternativeCdnAdapaterProfileId : 0;
             this.m_sCoGUID = assetFile.ExternalId;
             this.m_sAltCoGUID = assetFile.AltExternalId;
             this.m_sLanguage = assetFile.Language;

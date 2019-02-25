@@ -1,8 +1,10 @@
 ﻿using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
+using Core.Api.Managers;
 using Core.Catalog.Response;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
@@ -1119,6 +1121,12 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
+                Status status = CheckAssetUserRuleList(groupId, userId, currentAsset.Id);
+                if(status == null || status.Code == (int)eResponseStatus.NotAllowed)
+                {
+                    return result;
+                }               
+
                 // validate asset
                 XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate = null;
                 AssetStruct assetStruct = null;
@@ -1205,7 +1213,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
+        }        
 
         private static void UpdateAssetInheritancePolicy(int groupId, long userId, CatalogGroupCache catalogGroupCache, MediaAsset mediaAsset)
         {
@@ -1559,6 +1567,15 @@ namespace Core.Catalog.CatalogManagement
                                     {
                                         assets[id].blockedCountries.Add(countryId);
                                     }
+                                }
+                            }
+
+                            // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                            foreach (ApiObjects.SearchObjects.Media media in assets.Values)
+                            {
+                                if (media.allowedCountries.Count == 0)
+                                {
+                                    media.allowedCountries.Add(0);
                                 }
                             }
 
@@ -1947,6 +1964,54 @@ namespace Core.Catalog.CatalogManagement
             return parentAsset;
         }
 
+        private static Status DeleteMediaAsset(int groupId, long mediaId, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            Status status = CheckAssetUserRuleList(groupId, userId, mediaId);
+            if (status == null || status.Code == (int)eResponseStatus.NotAllowed)
+            {
+                return result;
+            }
+
+            if (CatalogDAL.DeleteMediaAsset(groupId, mediaId, userId))
+            {
+                result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                // Delete Index
+                bool indexingResult = IndexManager.DeleteMedia(groupId, (int)mediaId);
+                if (!indexingResult)
+                {
+                    log.ErrorFormat("Failed to delete media index for assetId: {0}, groupId: {1} after DeleteAsset", mediaId, groupId);
+                }
+            }
+            else
+            {
+                log.ErrorFormat("Failed to delete media asset with id: {0}, groupId: {1}", mediaId, groupId);
+            }
+
+            return result;
+        }
+
+        private static Status CheckAssetUserRuleList(int groupId, long userId, long mediaId)
+        {
+            Status status = new Status();  
+            // check if the user have allow(filter) rule
+            GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, RuleActionType.UserFilter);
+            if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
+            {
+                // check if asset allowed to user
+                List<AssetUserRule> mediaAssetUserRulesToUser = AssetUserRuleManager.GetMediaAssetUserRulesToUser(groupId, userId, mediaId, assetUserRulesToUser);
+                if (mediaAssetUserRulesToUser == null && mediaAssetUserRulesToUser.Count == 0)
+                {
+                    // return error user not allowed to  update asset
+                    log.DebugFormat("User {0} not allowed to update Asset {1}", userId, mediaId);
+                    status.Set((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                }
+            }
+
+            return status;
+        }
+
         #endregion
 
         #region Public Methods
@@ -2324,20 +2389,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.NPVR:
                         break;
                     case eAssetTypes.MEDIA:
-                        if (CatalogDAL.DeleteMediaAsset(groupId, id, userId))
-                        {
-                            result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                            // Delete Index
-                            bool indexingResult = IndexManager.DeleteMedia(groupId, (int)id);
-                            if (!indexingResult)
-                            {
-                                log.ErrorFormat("Failed to delete media index for assetId: {0}, groupId: {1} after DeleteAsset", id, groupId);
-                            }
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Failed to delete media asset with id: {0}, groupId: {1}", id, groupId);
-                        }
+                        result = DeleteMediaAsset(groupId, id, userId);                        
                         break;
                     default:
                     case eAssetTypes.UNKNOWN:

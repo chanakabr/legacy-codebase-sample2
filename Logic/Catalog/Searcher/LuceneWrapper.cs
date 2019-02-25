@@ -287,7 +287,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex)
+        public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex, bool shouldIgnoreRecordings = false)
         {
             throw new NotImplementedException();
         }

@@ -72,6 +72,7 @@ namespace ApiObjects.TimeShiftedTv
             this.CreateDate = record.CreateDate;
             this.UpdateDate = record.UpdateDate;
             this.Crid = record.Crid;
+            this.IsProtected = record.IsProtected;
             this.isExternalRecording = record.isExternalRecording;
         }
 

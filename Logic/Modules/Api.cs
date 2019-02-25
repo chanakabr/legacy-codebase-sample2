@@ -6,7 +6,6 @@ using ApiObjects.PlaybackAdapter;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
-using ApiObjects.SearchObjects;
 using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using Core.Api.Managers;
@@ -1201,6 +1200,11 @@ namespace Core.Api
             return api.GetEpgRules(groupId, siteGuid, epgId, channelMediaId, domainId, ip, orderBy);
         }
 
+        public static GenericRuleResponse GetNPVRRules(int groupId, string siteGuid, long recordingId, long domainId, string ip, GenericRuleOrderBy orderBy)
+        {
+            return api.GetNPVRRules(groupId, siteGuid, recordingId, domainId, ip, orderBy);
+        }
+
         public static ParentalRulesTagsResponse GetUserParentalRuleTags(int groupId, string siteGuid, long domainId)
         {
 
@@ -2222,7 +2226,7 @@ namespace Core.Api
             return Core.Api.api.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
         }
 
-        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter)
+        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, APILogic.ConditionalAccess.ConditionScope filter)
         {
             return Core.Api.api.GetBusinessModuleRules(groupId, filter);
         }
@@ -2271,6 +2275,38 @@ namespace Core.Api
         public static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
         {
             return api.GetGeneralPartnerConfiguration(groupId);
+        }
+
+        public static LanguageResponse GetAllLanguageList(int groupId)
+        {
+            LanguageResponse result = new LanguageResponse();
+            result.Languages = api.GetAllLanguages(groupId);
+            if (result.Languages == null)
+            {
+                result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            else
+            {
+                result.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return result;
+        }
+
+        public static CurrencyResponse GetCurrencyList(int groupId)
+        {
+            CurrencyResponse result = new CurrencyResponse();
+            result.Currencies = ConditionalAccess.Utils.GetCurrencyList(groupId);
+            if (result.Currencies == null)
+            {
+                result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            else
+            {
+                result.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return result;
         }
     }
 }

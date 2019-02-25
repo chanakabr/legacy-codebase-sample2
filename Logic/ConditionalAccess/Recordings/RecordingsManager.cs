@@ -755,12 +755,12 @@ namespace Core.Recordings
             }
         }
 
-        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, DateTime? protectedUntilDate, long domainId, long userId)
+        internal GenericResponse<ExternalRecording> AddExternalRecording(int groupId, ExternalRecording recording, DateTime viewableUntilDate, DateTime? protectedUntilDate, long domainId, long userId, long? externalViewableUntilDate)
         {
             GenericResponse<ExternalRecording> result = new GenericResponse<ExternalRecording>();
             try
             {
-                System.Data.DataTable dt = RecordingsDAL.AddExternalRecording(groupId, recording, viewableUntilDate, protectedUntilDate, domainId, userId);
+                System.Data.DataTable dt = RecordingsDAL.AddExternalRecording(groupId, recording, viewableUntilDate, protectedUntilDate, domainId, userId, externalViewableUntilDate);
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
                     long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "DOMAIN_RECORDING_ID");
@@ -770,7 +770,7 @@ namespace Core.Recordings
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
 
                         bool isNew = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_NEW", -1) == 1;
-                        Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId);
+                        Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId, false);
                         if (domainRecording.Status.Code != (int)eResponseStatus.OK)
                         {
                             log.DebugFormat("Recording is not valid for AddExternalRecording, recordID: {0}, DomainID: {1}, UserID: {2}", domainRecordingId, domainId, userId);

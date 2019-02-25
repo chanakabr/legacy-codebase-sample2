@@ -1,4 +1,5 @@
 ﻿using APILogic.Api.Managers;
+using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
@@ -57,6 +58,8 @@ namespace Core.Api.Managers
                     bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
                     Group group = null;
                     CatalogGroupCache catalogGroupCache = null;
+                    List<int> mediaTypes = null;
+
                     if (doesGroupUsesTemplates)
                     {
                         if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -64,10 +67,12 @@ namespace Core.Api.Managers
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
                             return result.Count;
                         }
+                        mediaTypes = catalogGroupCache.AssetStructsMapById.Values.Where(a => !a.IsProgramAssetStruct).Select(a => (int)a.Id).ToList();
                     }
                     else
                     {
                         group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                        mediaTypes = group.GetMediaTypes();
                     }
                                         
                     if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
@@ -84,7 +89,7 @@ namespace Core.Api.Managers
                             tasks[ruleIndex] = new Task<List<int>>((obj) =>
                             {
                                 contextData.Load();
-                                return DoActionOnRule(rules[(int)obj], groupId, group);
+                                return DoActionOnRule(rules[(int)obj], groupId, mediaTypes);
                             }, ruleIndex);
 
                             tasks[ruleIndex].Start();
@@ -137,7 +142,7 @@ namespace Core.Api.Managers
             return result.Count;
         }
 
-        private static List<int> DoActionOnRule(AssetRule rule, int groupId, Group group)
+        private static List<int> DoActionOnRule(AssetRule rule, int groupId, List<int> mediaTypes)
         {
             List<int> result = new List<int>();
 
@@ -148,8 +153,8 @@ namespace Core.Api.Managers
                 List<int> modifiedAssetIds = new List<int>();
 
                 // separate the country conditions and the ksql, 
-                List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Country).Select(c => (CountryCondition)c).ToList();
-                List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => (AssetCondition)c).ToList();
+                List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Country).Select(c => c as CountryCondition).ToList();
+                List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
 
                 string ksqlFilter = null;
 
@@ -201,7 +206,7 @@ namespace Core.Api.Managers
                             double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
                             actionKsqlFilter = string.Format("(and {0} start_date <= '{1}' allowed_countries != '{2}')", ksqlFilter, -1 * totalOffset, country);
 
-                            UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(group, actionKsqlFilter);
+                            UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, mediaTypes, actionKsqlFilter);
 
                             if (unifiedSearcjResponse != null)
                             {
@@ -236,7 +241,7 @@ namespace Core.Api.Managers
                                 actionKsqlFilter = string.Format("(and {0} blocked_countries != '{1}')", ksqlFilter, country);
                             }
 
-                            UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(group, actionKsqlFilter);
+                            UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, mediaTypes, actionKsqlFilter);
 
                             if (unifiedSearcjResponse != null)
                             {
@@ -357,7 +362,7 @@ namespace Core.Api.Managers
             return rules;
         }
 
-        private static UnifiedSearchResponse GetUnifiedSearchResponse(Group group, string ksql)
+        private static UnifiedSearchResponse GetUnifiedSearchResponse(int groupId, List<int> mediaTypes, string ksql)
         {
             // Initialize unified search request:
             // SignString/Signature (basic catalog parameters)
@@ -376,7 +381,7 @@ namespace Core.Api.Managers
             {
                 m_sSignature = sSignature,
                 m_sSignString = sSignString,
-                m_nGroupID = group.m_nParentGroupID,
+                m_nGroupID = groupId,
                 m_oFilter = new Core.Catalog.Filter()
                 {
                     m_bOnlyActiveMedia = true,
@@ -392,8 +397,8 @@ namespace Core.Api.Managers
                 },
                 filterQuery = ksql,
                 isInternalSearch = true,
-                assetTypes = group.GetMediaTypes(),
-                shouldIgnoreEndDate = shouldIgnoreEndDate
+                assetTypes = mediaTypes,
+                shouldIgnoreEndDate = shouldIgnoreEndDate,
             };
 
             // Call catalog
@@ -734,7 +739,8 @@ namespace Core.Api.Managers
                     {
                         foreach (var condition in networkRule.Conditions)
                         {
-                            if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && condition.Evaluate(conditionScope))
+                            var evalCondition = condition as RuleCondition<IConditionScope>;
+                            if ((condition.Type == RuleConditionType.Header || condition.Type == RuleConditionType.Or) && evalCondition.Evaluate(conditionScope))
                             {
                                 blockingRule = networkRule;
                                 log.DebugFormat("CheckNetworkRules the asset: {0} block because of NetworkRule: {1}.", asset.Id, networkRule.Id);

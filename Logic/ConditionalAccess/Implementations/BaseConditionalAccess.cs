@@ -14609,6 +14609,13 @@ namespace Core.ConditionalAccess
                     return recording;
                 }
 
+                if (recording.isExternalRecording != recordingToUpdate.isExternalRecording)
+                {
+                    log.DebugFormat("Recording type is not valid");
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, "Recording type is not valid");
+                    return recording;
+                }
+
                 if (recording.isExternalRecording)
                 {
                     // External recording handling
@@ -14617,24 +14624,35 @@ namespace Core.ConditionalAccess
                     string metaDataStr = GetUpdatedMetaDataStr(recording, recordingToUpdate);
 
                     bool shouldUpdate = !recordingToUpdate.IsProtected.Equals(recording.IsProtected)
-                                        || metaDataStr != null;
+                                        || metaDataStr != null
+                                        || recordingToUpdate.ViewableUntilDate.HasValue;
 
                     if (!shouldUpdate)
                     {
                         return recording;
                     }
 
+                    if (recordingToUpdate.ViewableUntilDate.HasValue)
+                    {
+                        if (recordingToUpdate.ViewableUntilDate.Value <= 0)
+                        {
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidParameters, "ViewableUntilDate must be greater than 0");
+                            return recording;
+                        }
+                    }
+
                     DateTime? protectedUntilDate = null;
                     long protectedUntilEpoch = 0;
+
                     if (recordingToUpdate.IsProtected)
                     {
                         protectedUntilDate = DateTime.UtcNow.AddYears(100);
                         protectedUntilEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate.Value);
                     }
 
-                    if (RecordingsDAL.SetDomainsRecordings(recording.Id, protectedUntilDate, protectedUntilEpoch, metaDataStr))
+                    if (RecordingsDAL.SetDomainsRecordings(recording.Id, protectedUntilDate, protectedUntilEpoch, metaDataStr, recordingToUpdate.ViewableUntilDate))
                     {
-                        UpdateRecordingSuccessed((recording as ExternalRecording), protectedUntilEpoch, (recordingToUpdate as ExternalRecording).MetaData);
+                        UpdateRecordingSuccessed((recording as ExternalRecording), protectedUntilEpoch, (recordingToUpdate as ExternalRecording).MetaData, recordingToUpdate.ViewableUntilDate);
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
                     }
                     else
@@ -14797,21 +14815,24 @@ namespace Core.ConditionalAccess
             return rec.MetaDataAsJson.Equals(update.MetaDataAsJson) ? null : update.MetaDataAsJson;
         }
 
-        private static void UpdateRecordingSuccessed(ExternalRecording recording, long protectedUntilEpoch,
-            Dictionary<string, string> metaData)
+        private static void UpdateRecordingSuccessed(ExternalRecording recording, long protectedUntilEpoch, Dictionary<string, string> metaData, long? externalViewableUntilDate)
         {
             if (metaData != null)
             {
                 recording.MetaData = metaData;
             }
 
-            UpdateRecordingSuccessed((Recording)recording, protectedUntilEpoch, metaData);
+            UpdateRecordingSuccessed((Recording)recording, protectedUntilEpoch, externalViewableUntilDate);
         }
 
-        private static void UpdateRecordingSuccessed(Recording recording, long protectedUntilEpoch,
-            Dictionary<string, string> metaData = null)
+        private static void UpdateRecordingSuccessed(Recording recording, long protectedUntilEpoch, long? externalViewableUntilDate = null)
         {
             recording.ProtectedUntilDate = protectedUntilEpoch;
+
+            if (externalViewableUntilDate.HasValue)
+            {
+                recording.ViewableUntilDate = externalViewableUntilDate;
+            }
 
             if (!recording.ViewableUntilDate.HasValue ||
                 (recording.ViewableUntilDate.HasValue &&
@@ -16998,16 +17019,24 @@ namespace Core.ConditionalAccess
                         externalRecording.ChannelId = channelId;
                     }
 
+                    long? externalViewableUntilDate = externalRecording.ViewableUntilDate;
+                    if (externalViewableUntilDate <= 0)
+                    {
+                        response.SetStatus((int)eResponseStatus.InvalidParameters, "ViewableUntilDate must be greater than 0");
+                        return response;
+                    }
+
                     DateTime viewableUntilDate = DateTime.UtcNow.AddYears(100);
                     externalRecording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
                     DateTime? protectedUntilDate = null;
+
                     if (isProtected)
                     {
                         externalRecording.ProtectedUntilDate = externalRecording.ViewableUntilDate;
                         protectedUntilDate = viewableUntilDate;
                     }
 
-                    response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId);
+                    response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId, externalViewableUntilDate);
                 }
                 else
                 {                    

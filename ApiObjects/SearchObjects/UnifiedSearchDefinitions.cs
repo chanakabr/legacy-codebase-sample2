@@ -390,7 +390,14 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public BooleanPhraseNode assetUserRulePhrase;
+        public BooleanPhraseNode assetUserBlockRulePhrase;
+
+        /// <summary>
+        /// Asset user rule phrase to append to main query
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public BooleanPhraseNode assetUserRuleFilterPhrase;
 
         /// <summary>
         /// Asset user rule IDs to consider in personal cache
@@ -410,6 +417,8 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public string preference;
+
+        public Dictionary<string, string> domainRecordingIdToRecordingIdMapping;
 
         #endregion
 
@@ -456,6 +465,7 @@ namespace ApiObjects.SearchObjects
             distinctGroup = new KeyValuePair<string, string>();
 
             recordingIdToSearchableRecordingMapping = new Dictionary<string, TimeShiftedTv.SearchableRecording>();
+            domainRecordingIdToRecordingIdMapping = new Dictionary<string, string>();
 
             PersonalData = new List<string>();
 

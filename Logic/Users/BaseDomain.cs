@@ -1747,8 +1747,17 @@ namespace Core.Users
                     // domains found
                     else
                     {
-                        // look for the supplied domain
-                        var domain = domains.Where(d => d.m_nDomainID == domainId).FirstOrDefault();
+                        Domain domain = null;
+                        if (domainId > 0)
+                        {
+                            // look for the supplied domain
+                            domain = domains.Where(d => d.m_nDomainID == domainId).FirstOrDefault();
+                        }
+                        else
+                        {
+                            domain = domains.First();
+                            userId = domain.m_masterGUIDs.First().ToString();
+                        }
 
                         // domain found - device registered
                         if (domain != null)
@@ -1780,6 +1789,7 @@ namespace Core.Users
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceExistsInOtherDomains, eResponseStatus.DeviceExistsInOtherDomains.ToString());
                         }
                     }
+
                 }
             }
             catch (Exception ex)

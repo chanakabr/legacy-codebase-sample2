@@ -44,7 +44,8 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, bool shouldGetGroupRulesFirst = false)
+        internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, bool shouldGetGroupRulesFirst = false, 
+            RuleActionType? ruleActionType = null)
         {
             GenericListResponse<AssetUserRule> response = new GenericListResponse<AssetUserRule>();
             bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
@@ -102,7 +103,7 @@ namespace Core.Api.Managers
                 {
                     response.SetStatus(eResponseStatus.OK, ASSET_USER_RULE_NOT_FOUND);
                     return response;
-                }
+                }                
 
                 Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
                 Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
@@ -127,11 +128,20 @@ namespace Core.Api.Managers
                 {
                     if (fullAssetUserRules != null && fullAssetUserRules.Count > 0)
                     {
-                        response.Objects = fullAssetUserRules.Values.ToList();
+                        if (ruleActionType.HasValue)
+                        {
+                            var tmpAssetUserList = fullAssetUserRules.Values.Where(x => x.Actions.Any(a => a.Type == ruleActionType.Value)).ToList();
+                            response.Objects = tmpAssetUserList;
+                        }
+                        else
+                        {
+                            response.Objects = fullAssetUserRules.Values.ToList();
+                        }
                     }
                 }
 
-                response.Status.Code = (int)eResponseStatus.OK;
+                response.Status.Code = (int)eResponseStatus.OK;              
+
                 if (response.Objects == null || response.Objects.Count == 0)
                 {
                     response.Status.Message = ASSET_USER_RULE_NOT_FOUND;
@@ -442,7 +452,8 @@ namespace Core.Api.Managers
             return response;
         }
 
-        public static List<AssetUserRule> GetMediaAssetUserRulesToUser(int groupId, long userId, long mediaId, GenericListResponse<AssetUserRule> userToAssetUserRules = null)
+        public static List<AssetUserRule> GetMediaAssetUserRulesToUser(int groupId, long userId, long mediaId, 
+            GenericListResponse<AssetUserRule> userToAssetUserRules = null)
         {
             List<AssetUserRule> rules = new List<AssetUserRule>();
 
@@ -450,14 +461,6 @@ namespace Core.Api.Managers
             {
                 try
                 {
-                    // check that have AssetUserRule for the group in general and return it
-                    var assetUserRuleList = GetAssetUserRuleList(groupId, null);
-
-                    if (assetUserRuleList == null || !assetUserRuleList.HasObjects())
-                    {
-                        return null;
-                    }
-
                     List<long> mediaAssetUserRuleIds = null;
                     string mediaAssetUserRulesKey = LayeredCacheKeys.GetMediaAssetUserRulesKey(groupId, mediaId);
 
@@ -468,8 +471,7 @@ namespace Core.Api.Managers
                                                                new Dictionary<string, object>()
                                                                {
                                                                    { "groupId", groupId },
-                                                                   { "mediaId", mediaId },
-                                                                   { "assetUserRules", assetUserRuleList.Objects }
+                                                                   { "mediaId", mediaId }                                                                   
                                                                },
                                                                groupId,
                                                                LayeredCacheConfigNames.MEDIA_ASSET_USER_RULES_LAYERED_CACHE_CONFIG_NAME,
@@ -648,36 +650,46 @@ namespace Core.Api.Managers
 
             try
             {
-                if (funcParams != null && funcParams.Count == 3)
+                if (funcParams != null && funcParams.Count == 2)
                 {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("assetUserRules"))
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
                     {
                         int? groupId = funcParams["groupId"] as int?;
                         long? mediaId = funcParams["mediaId"] as long?;
-                        List<AssetUserRule> mediaAssetUserRules = funcParams["assetUserRules"] as List<AssetUserRule>;
 
-                        UnifiedSearchResult[] medias;
-                        string filter = string.Empty;
+                        var assetUserRuleList = GetAssetUserRuleList(groupId.Value, null);
 
-                        if (groupId.HasValue && mediaId.HasValue && mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+                        if (assetUserRuleList == null || !assetUserRuleList.HasObjects())
                         {
-                            // find all asset ids that match the tag + tag value ==> if so save the rule id
-                            //build search for each tag and tag values
-                            Parallel.ForEach(mediaAssetUserRules, (rule) =>
-                            {
-                                if (rule.Conditions != null && rule.Conditions.Count > 0)
-                                {
-                                    filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);
-                                    medias = api.SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
-
-                                    if (medias != null && medias.Count() > 0)// there is a match 
-                                    {
-                                        ruleIds.Add(rule.Id);
-                                    }
-                                }
-                            });
-
                             result = true;
+                        }
+                        else
+                        {
+                            List<AssetUserRule> mediaAssetUserRules = assetUserRuleList.Objects;
+
+                            UnifiedSearchResult[] medias;
+                            string filter = string.Empty;
+
+                            if (groupId.HasValue && mediaId.HasValue && mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
+                            {
+                                // find all asset ids that match the tag + tag value ==> if so save the rule id
+                                //build search for each tag and tag values
+                                Parallel.ForEach(mediaAssetUserRules, (rule) =>
+                                {
+                                    if (rule.Conditions != null && rule.Conditions.Count > 0)
+                                    {
+                                        filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);
+                                        medias = api.SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+
+                                        if (medias != null && medias.Count() > 0)// there is a match 
+                                    {
+                                            ruleIds.Add(rule.Id);
+                                        }
+                                    }
+                                });
+
+                                result = true;
+                            }
                         }
                     }
                 }

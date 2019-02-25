@@ -2,6 +2,7 @@
 using ApiLogic;
 using APILogic;
 using APILogic.Api.Managers;
+using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -3473,6 +3474,105 @@ namespace Core.Api
             return response;
         }
 
+        public static GenericRuleResponse GetNPVRRules(int groupId, string siteGuid, long recordingId, long domainId, string ip, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
+        {
+            GenericRuleResponse response = new GenericRuleResponse
+            {
+                Status = api.ValidateUserAndDomain(groupId, siteGuid, (int)domainId)
+            };
+
+            if (response.Status.Code == (int)eResponseStatus.OK)
+            {
+                try
+                {
+                    // validate recording exists
+                    Dictionary<long, Recording> domainRecordingIdToRecordingMap = Core.ConditionalAccess.Utils.GetDomainRecordingIdsToRecordingsMap(groupId, domainId, new List<long>() { recordingId });
+                    if (domainRecordingIdToRecordingMap == null || !domainRecordingIdToRecordingMap.ContainsKey(recordingId))
+                    {
+                        log.DebugFormat("No valid recording was returned from Utils.GetDomainRecordingIdsToRecordingsMap");
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
+                        return response;
+                    }
+
+                    var recording = domainRecordingIdToRecordingMap[recordingId];
+
+                    // get epg
+                    List<EPGChannelProgrammeObject> epgs = Core.ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { { recording.EpgId } });
+                    var epg = epgs.First();
+                    var mediaId = (int)epg.LINEAR_MEDIA_ID;
+
+                    //Check if geo-block applies
+                    string ruleName;
+                    if (mediaId != 0 && TvmRuleManager.CheckGeoBlockMedia(groupId, mediaId, ip, out ruleName))
+                    {
+                        response.Rules.Add(new GenericRule() { Name = ruleName, RuleType = RuleType.Geo, Description = string.Empty });
+                    }
+
+                    //Check if user type match media user types
+                    if (!string.IsNullOrEmpty(siteGuid) && api.CheckMediaUserType(mediaId, int.Parse(siteGuid), groupId) == false)
+                    {
+                        response.Rules.Add(new GenericRule() { Name = "UserTypeBlock", RuleType = RuleType.UserType, Description = string.Empty });
+                    }
+
+                    ParentalRulesResponse parentalRulesResponse = api.GetParentalEPGRules(groupId, siteGuid, epg.EPG_ID, domainId, true);
+                    if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
+                    {
+                        foreach (ParentalRule rule in parentalRulesResponse.rules)
+                        {
+                            response.Rules.Add(new GenericRule()
+                            {
+                                Id = rule.id,
+                                Description = rule.description,
+                                Name = rule.name,
+                                RuleType = RuleType.Parental
+                            });
+                        }
+                    }
+
+                    AssetRule blockingRule;
+                    var networkRulesStatus = AssetRuleManager.CheckNetworkRules(
+                        new List<SlimAsset>() {new SlimAsset(mediaId, eAssetTypes.MEDIA)}, groupId, ip,
+                        out blockingRule);
+
+                    if (!networkRulesStatus.IsOkStatusCode())
+                    {
+                        response.Rules.Add(new GenericRule()
+                        {
+                            Id = blockingRule.Id,
+                            Description = blockingRule.Description,
+                            Name = blockingRule.Name,
+                            RuleType = RuleType.Network
+                        });
+                    }
+
+                    // order results
+                    switch (orderBy)
+                    {
+                        case GenericRuleOrderBy.NameAsc:
+                            response.Rules.OrderBy(r => r.Name).ToList();
+                            break;
+                        case GenericRuleOrderBy.NameDesc:
+                            response.Rules.OrderByDescending(r => r.Name).ToList();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    response.Status.Set((int)eResponseStatus.OK, "OK");
+                }
+                catch (Exception ex)
+                {
+                    response.Status.Set((int)eResponseStatus.Error, "Error");
+
+                    log.Error("GetNPVRRules - " + string.Format("Error in GetNPVRRules: group = {0}, user = {3}, recording = {4}, ex = {1}, ST = {2}",
+                        groupId, ex.Message, ex.StackTrace, siteGuid, recordingId),
+                        ex);
+                }
+            }
+
+            return response;
+        }
+        
         static public GroupOperator[] GetGroupOperators(int nGroupID, string sScope = "")
         {
             DataTable dt = DAL.ApiDAL.Get_GroupOperatorsDetails(nGroupID);
@@ -5437,7 +5537,7 @@ namespace Core.Api
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
 
-        public static ParentalRulesResponse GetParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId)
+        public static ParentalRulesResponse GetParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId, bool includeRecordingFallback = false)
         {
             List<ParentalRule> rules = null;
             ParentalRulesResponse response = new ParentalRulesResponse()
@@ -5466,7 +5566,7 @@ namespace Core.Api
                     // epg rules id 
                     string key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
                     bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "epgId", epgId },
-                                                                            { "groupParentalRules", groupsParentalRules } }, groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                                                                            { "groupParentalRules", groupsParentalRules }, {"includeRecordingFallback", includeRecordingFallback } }, groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
 
                     if (!cacheResult)
                     {
@@ -5536,17 +5636,19 @@ namespace Core.Api
 
             try
             {
-                if (funcParams != null && funcParams.Count == 3)
+                if (funcParams != null && funcParams.Count == 4)
                 {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("epgId") && funcParams.ContainsKey("groupParentalRules"))
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("epgId") && funcParams.ContainsKey("groupParentalRules") && funcParams.ContainsKey("includeRecordingFallback"))
                     {
                         int? groupId;
                         long? epgId;
                         List<ParentalRule> groupParentalRules = new List<ParentalRule>();
+                        bool includeRecordingFallback;
 
                         groupId = funcParams["groupId"] as int?;
                         epgId = funcParams["epgId"] as long?;
                         groupParentalRules = funcParams["groupParentalRules"] as List<ParentalRule>;
+                        includeRecordingFallback = (bool)funcParams["includeRecordingFallback"];
 
                         if (groupId.HasValue && epgId.HasValue && groupParentalRules != null && groupParentalRules.Count > 0)
                         {
@@ -5559,7 +5661,7 @@ namespace Core.Api
                             // get epg program from CB ==> check matches to tag type and values 
 
                             TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId.Value);  //assuming this is a Tvinci user - does not support yes Epg
-                            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgId.Value);
+                            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgId.Value, includeRecordingFallback);
                             if (epg != null)
                             {
                                 Dictionary<string, List<string>> tags = new Dictionary<string, List<string>>();
@@ -11322,49 +11424,55 @@ namespace Core.Api
 
             try
             {
-                LanguageResponse languageResponse = GetLanguageList(groupId, null);                
-
-                if(languageResponse != null && languageResponse.Languages != null)
+                // check for MainLanguage valid
+                if (partnerConfigToUpdate.MainLanguage.HasValue)
                 {
-                    // check for MainLanguage valid
-                    if (partnerConfigToUpdate.MainLanguage.HasValue && languageResponse.Languages.Count(x => x.ID == partnerConfigToUpdate.MainLanguage.Value) == 0)
+                    if (!IsValidLanguageId(groupId, partnerConfigToUpdate.MainLanguage.Value))
                     {
-                        log.ErrorFormat("Error while update generalPartnerConfig. MainLanguageId {0} not exist in groupId: {1}", partnerConfigToUpdate.MainLanguage.Value, groupId);
-                        response.Set((int)eResponseStatus.GroupDoesNotContainLanguage, eResponseStatus.GroupDoesNotContainLanguage.ToString());
-                        return response;
-                    }
-
-                    // check for SecondaryLanguages valid
-                    if (partnerConfigToUpdate.SecondaryLanguages != null && partnerConfigToUpdate.SecondaryLanguages.Count > 0 &&
-                        new HashSet<int>(languageResponse.Languages.Select(x => x.ID)).IsSupersetOf(partnerConfigToUpdate.SecondaryLanguages))
-                    {
-                        log.ErrorFormat("Error while update generalPartnerConfig. not all SecondaryLanguages {0} exist in groupId: {1}", string.Join(";", partnerConfigToUpdate.SecondaryLanguages), groupId);
-                        response.Set((int)eResponseStatus.GroupDoesNotContainLanguage, eResponseStatus.GroupDoesNotContainLanguage.ToString());
+                        log.ErrorFormat("Error while update generalPartnerConfig. MainLanguage {0}, groupId: {1}", partnerConfigToUpdate.MainLanguage.Value, groupId);
+                        response.Set((int)eResponseStatus.InvalidLanguage, eResponseStatus.InvalidLanguage.ToString());
                         return response;
                     }
                 }
 
-                CurrencyResponse currencyResponse = GetCurrencyList(groupId, null);
-
-                if (currencyResponse != null && currencyResponse.Currencies != null)
+                // check for SecondaryLanguages valid
+                if (partnerConfigToUpdate.SecondaryLanguages != null && partnerConfigToUpdate.SecondaryLanguages.Count > 0)
                 {
-                    // check for MainCurrency valid
-                    if (partnerConfigToUpdate.MainCurrency.HasValue && currencyResponse.Currencies.Count(x => x.m_nCurrencyID == partnerConfigToUpdate.MainCurrency.Value) == 0)
+                    foreach (var secondaryLanguageId in partnerConfigToUpdate.SecondaryLanguages)
                     {
-                        log.ErrorFormat("Error while update generalPartnerConfig. MainCurrencyId {0} not exist in groupId: {1}", partnerConfigToUpdate.MainCurrency.Value, groupId);
-                        response.Set((int)eResponseStatus.GroupDoesNotContainCurrency, eResponseStatus.GroupDoesNotContainCurrency.ToString());
-                        return response;
+                        if (!IsValidLanguageId(groupId, secondaryLanguageId))
+                        {
+                            log.ErrorFormat("Error while update generalPartnerConfig. SecondaryLanguageId {0}, groupId: {1}", secondaryLanguageId, groupId);
+                            response.Set((int)eResponseStatus.InvalidLanguage, eResponseStatus.InvalidLanguage.ToString());
+                            return response;
+                        }
                     }
+                }
 
-                    // check for SecondaryCurrencys valid
-                    if (partnerConfigToUpdate.SecondaryCurrencys != null && partnerConfigToUpdate.SecondaryCurrencys.Count > 0 &&
-                        new HashSet<int>(currencyResponse.Currencies.Select(x => x.m_nCurrencyID)).IsSupersetOf(partnerConfigToUpdate.SecondaryCurrencys))
+                // check for MainCurrency valid
+                if (partnerConfigToUpdate.MainCurrency.HasValue)
+                {
+                   if (!ConditionalAccess.Utils.IsValidCurrencyId(groupId, partnerConfigToUpdate.MainCurrency.Value))
                     {
-                        log.ErrorFormat("Error while update generalPartnerConfig. not all SecondaryCurrencys {0} exist in groupId: {1}", string.Join(";", partnerConfigToUpdate.SecondaryCurrencys), groupId);
-                        response.Set((int)eResponseStatus.GroupDoesNotContainCurrency, eResponseStatus.GroupDoesNotContainCurrency.ToString());
+                        log.ErrorFormat("Error while update generalPartnerConfig. MainCurrencyId {0}, groupId: {1}", partnerConfigToUpdate.MainCurrency.Value, groupId);
+                        response.Set((int)eResponseStatus.InvalidCurrency, eResponseStatus.InvalidCurrency.ToString());
                         return response;
                     }
                 }
+
+                // check for SecondaryCurrencys valid
+                if (partnerConfigToUpdate.SecondaryCurrencies != null && partnerConfigToUpdate.SecondaryCurrencies.Count > 0)
+                {
+                    foreach (var secondaryCurrencyId in partnerConfigToUpdate.SecondaryCurrencies)
+                    {
+                        if (!ConditionalAccess.Utils.IsValidCurrencyId(groupId, secondaryCurrencyId))
+                        {
+                            log.ErrorFormat("Error while update generalPartnerConfig. SecondaryCurrency {0}, groupId: {1}", secondaryCurrencyId, groupId);
+                            response.Set((int)eResponseStatus.InvalidCurrency, eResponseStatus.InvalidCurrency.ToString());
+                            return response;
+                        }
+                    }
+                }               
 
                 if( partnerConfigToUpdate.HouseholdLimitationModule.HasValue)
                 {
@@ -11383,6 +11491,12 @@ namespace Core.Api
                 {
                     log.ErrorFormat("Error while update generalPartnerConfig. groupId: {0}", groupId);
                     return response;
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
                 }
 
                 response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -11462,11 +11576,11 @@ namespace Core.Api
                         dt = ds.Tables[2];
                     if (dt.Rows.Count > 0)
                     {
-                        generalPartnerConfig.SecondaryCurrencys = new List<int>();
+                        generalPartnerConfig.SecondaryCurrencies = new List<int>();
 
                         foreach (DataRow dr in dt.Rows)
                         {
-                            generalPartnerConfig.SecondaryCurrencys.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
+                            generalPartnerConfig.SecondaryCurrencies.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
                         }
                     }
                 }
@@ -11477,6 +11591,57 @@ namespace Core.Api
             }
 
             return generalPartnerConfig;
+        }
+
+        public static List<LanguageObj> GetAllLanguages(int groupId)
+        {
+            List<LanguageObj> languages = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetAllLanguageListKey();
+
+                if (!LayeredCache.Instance.Get<List<LanguageObj>>(key,
+                                                              ref languages,
+                                                              APILogic.Utils.GetAllLanguagesList,
+                                                              new Dictionary<string, object>(),
+                                                              groupId,
+                                                              LayeredCacheConfigNames.GET_ALL_LANGUAGE_LIST_LAYERED_CACHE_CONFIG_NAME))
+                {
+                    log.ErrorFormat("Failed getting language list by Ids from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetAllLanguagesList for groupId: {0}, ex: {1}", groupId, ex);
+            }
+
+            return languages;
+        }
+
+        internal static bool IsValidLanguageId(int groupId, int languageId)
+        {
+            bool res = false;
+            if (languageId <= 0)
+            {
+                return res;
+            }
+
+            try
+            {
+                List<LanguageObj> languageList = GetAllLanguages(groupId);
+                if(languageList == null && languageList.Count == 0)
+                {
+                    return res;
+                }
+
+                res = languageList.Count(x => x.ID == languageId) > 0 ;                
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed IsValidLanguageId, groupId: {0}, languageId: {1}, ex: {2}", groupId, languageId, ex);
+            }
+
+            return res;
         }
     }
 }

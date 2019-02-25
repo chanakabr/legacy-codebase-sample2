@@ -15,7 +15,7 @@ namespace ApiObjects.Segmentation
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.UserSegmentTTL.IntValue;
+        public static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.UserSegmentTTL.IntValue;
 
         #region Members
 
@@ -351,8 +351,8 @@ namespace ApiObjects.Segmentation
                 }
 
                 // cleanup invalid and expired segments
-                List<long> segmentsToRemove = GetUserSegmentsToCleanup(groupId, userSegments.Segments.Values.ToList());
-                segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
+                //List<long> segmentsToRemove = GetUserSegmentsToCleanup(groupId, userSegments.Segments.Values.ToList());
+                //segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
                 bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTtl());
 

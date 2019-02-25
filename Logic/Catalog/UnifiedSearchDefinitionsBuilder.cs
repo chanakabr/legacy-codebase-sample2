@@ -302,23 +302,23 @@ namespace Core.Catalog
                 {
                     definitions.extraReturnFields.Add("epg_id");
 
-                    if (definitions.shouldGetDomainsRecordings)
+                    if (definitions.shouldGetDomainsRecordings && request.domainId > 0)
                     {
                         if (definitions.specificAssets == null)
                         {
                             definitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
                         }
 
-                        HashSet<string> domainRecordingIds = new HashSet<string>();
+                        HashSet<long> specificRecordingIds = new HashSet<long>();
                         List<string> recordingIds = new List<string>();
                         /* If there are previous specific assets - we need to map the list of domain recording ids
                          * to recording ids  and we narrow down the list to contain only the user's recordings */
                         if (request.domainId > 0 && definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
                         {
-                            domainRecordingIds = new HashSet<string>(definitions.specificAssets[eAssetTypes.NPVR]);
+                            specificRecordingIds = new HashSet<long>(definitions.specificAssets[eAssetTypes.NPVR].Select(x => long.Parse(x)));
                         }
 
-                        recordingIds = GetDomainRecordings(definitions, request.m_nGroupID, (long)request.domainId, domainRecordingIds);
+                        recordingIds = GetDomainRecordings(definitions, request.m_nGroupID, (long)request.domainId, specificRecordingIds);
                         
                         // If domain has at least one recording
                         if (recordingIds != null && recordingIds.Count > 0)
@@ -379,7 +379,7 @@ namespace Core.Catalog
 
                 #region Geo Availability
 
-                if (!request.isInternalSearch && (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled))
+                if (!definitions.isInternalSearch && (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled))
                 {
                     definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
                 }
@@ -425,44 +425,54 @@ namespace Core.Catalog
         {
             long userId = long.Parse(request.m_sSiteGuid);
 
-            var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true);
+            definitions.assetUserBlockRulePhrase = GetUserAssetRulesPhrase(request, group, ref definitions, groupId, RuleActionType.UserBlock, userId);
+
+            definitions.assetUserRuleFilterPhrase = GetUserAssetRulesPhrase(request, group, ref definitions, groupId, RuleActionType.UserFilter, userId);
+        }
+
+        internal static BooleanPhraseNode GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, 
+            RuleActionType ruleActionType, long userId)
+        {
+            BooleanPhraseNode phrase = null;
+            var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true, ruleActionType);
             if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)
             {
                 if (assetUserRulesResponse.HasObjects())
                 {
-                    StringBuilder notQuery = new StringBuilder();
-                    notQuery.Append("(or ");
+                    StringBuilder query = new StringBuilder();
+                    query.Append("(or ");
                     foreach (var rule in assetUserRulesResponse.Objects)
                     {
                         definitions.assetUserRuleIds.Add(rule.Id);
                         foreach (var condition in rule.Conditions)
                         {
-                            notQuery.AppendFormat(" {0}", condition.Ksql);
+                            query.AppendFormat(" {0}", condition.Ksql);
                         }
                     }
 
-                    notQuery.Append(")");
+                    query.Append(")");
 
-                    string notQueryString = notQuery.ToString();
+                    string queryString = query.ToString();
 
-                    BooleanPhraseNode notPhrase = null;
-                    BooleanPhrase.ParseSearchExpression(notQueryString, ref notPhrase);
+                    BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
 
-                    CatalogLogic.UpdateNodeTreeFields(request, ref notPhrase, definitions, group, groupId);
+                    CatalogLogic.UpdateNodeTreeFields(request, ref phrase, definitions, group, groupId);
 
-                    definitions.assetUserRulePhrase = notPhrase;
+                    return phrase;
                 }
             }
             else
             {
-                log.ErrorFormat("Failed to get asset user rules for userId = {0}, code = {1}", request.m_sSiteGuid, assetUserRulesResponse.Status.Code);
+                log.ErrorFormat("Failed to get asset user rules for userId = {0}, ruleAction:{1}, code = {2}", userId, ruleActionType.ToString(), assetUserRulesResponse.Status.Code);
             }
+
+            return phrase;
         }
 
-        private List<string> GetDomainRecordings(UnifiedSearchDefinitions definitions, int groupId, long domainId, HashSet<string> domainRecordingIds)
+        private List<string> GetDomainRecordings(UnifiedSearchDefinitions definitions, int groupId, long domainId, HashSet<long> specificRecordingIds)
         {
             List<string> result = new List<string>();
-
+            definitions.domainRecordingIdToRecordingIdMapping = new Dictionary<string, string>();
             ApiObjects.TimeShiftedTv.SearchableRecording[] domainSearchableRecordings = ConditionalAccess.Module.GetDomainSearchableRecordings(groupId, domainId);
 
             if (domainSearchableRecordings == null)
@@ -474,11 +484,16 @@ namespace Core.Catalog
             foreach (ApiObjects.TimeShiftedTv.SearchableRecording recording in domainSearchableRecordings)
             {
                 if (!definitions.recordingIdToSearchableRecordingMapping.ContainsKey(recording.RecordingId.ToString())
-                    && (domainRecordingIds.Count == 0 || domainRecordingIds.Contains(recording.DomainRecordingId)))
+                    && (specificRecordingIds.Count == 0 || specificRecordingIds.Contains(recording.RecordingId)))
                 {
                     definitions.recordingIdToSearchableRecordingMapping.Add(recording.RecordingId.ToString(), recording);
                     result.Add(recording.RecordingId.ToString());
                 }
+            }
+
+            if (definitions.recordingIdToSearchableRecordingMapping != null && definitions.recordingIdToSearchableRecordingMapping.Count > 0)
+            {
+                definitions.domainRecordingIdToRecordingIdMapping = definitions.recordingIdToSearchableRecordingMapping.ToDictionary(x => x.Value.DomainRecordingId, x => x.Key);
             }
 
             return result;
