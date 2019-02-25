@@ -294,34 +294,5 @@ namespace WebAPI.Models.General
             }
             return ret;
         }
-
-        internal override Dictionary<string, object> GetExcelValues(int groupId, Dictionary<string, object> data = null)
-        {
-            Dictionary<string, object> excelValues = new Dictionary<string, object>();
-
-            var baseExcelValues = base.GetExcelValues(groupId, data);
-            excelValues.TryAddRange(baseExcelValues);
-
-            if (Values != null && Values.Count > 0)
-            {
-                if (data == null)
-                {
-                    data = new Dictionary<string, object>();
-                }
-
-                if (!data.ContainsKey(KalturaTranslationToken.DEFALUT_LANGUAGE_CODE))
-                {
-                    data.Add(KalturaTranslationToken.DEFALUT_LANGUAGE_CODE, GroupDefaultLanguageCode);
-                }
-
-                foreach (var translationToken in this.Values)
-                {
-                    var translationTokenExcelValues = translationToken.GetExcelValues(groupId, data);
-                    excelValues.TryAddRange(translationTokenExcelValues);
-                }
-            }
-
-            return excelValues;
-        }
     }
 }

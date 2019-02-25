@@ -32,25 +32,15 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using WebAPI.Utils;
 using System.Drawing;
+using ApiObjects.Excel;
 
 namespace WebAPI.App_Start
 {
     public class ExcelFormatter : MediaTypeFormatter
     {
-        // TODO SHIR - NEED THAT??
-        private static readonly string excelTemplateDir = string.Format("{0}ExcelTemplates\\", AppDomain.CurrentDomain.BaseDirectory);
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string EXCEL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        private const string OTHER_LANG_FORMAT = "{0} ({1})";
-        internal const string DATE_FORMAT = "dd/MM/yyyy hh:mm:ss";
-
-        // col headers
-        private const string COLUMN_TYPE = "t";
-        private const string COLUMN_SYSTEM_NAME = "n";
-        private const string COLUMN_LANGUAGE = "l";
-        private const string ITEM_INDEX = "i";
         
         public ExcelFormatter()
         {
@@ -71,8 +61,7 @@ namespace WebAPI.App_Start
             return true;
         }
 
-        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content,
-                                                System.Net.TransportContext transportContext)
+        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, System.Net.TransportContext transportContext)
         {
             try
             {
@@ -80,29 +69,31 @@ namespace WebAPI.App_Start
                 {
                     // validate expected type was received
                     StatusWrapper restResultWrapper = value as StatusWrapper;
-
-                    if (restResultWrapper != null && restResultWrapper.Result != null && (restResultWrapper.Result is KalturaListResponse))
+                    if (restResultWrapper != null && restResultWrapper.Result != null && (restResultWrapper.Result is IKalturaExcelStructure))
                     {
-                        var listResponse = restResultWrapper.Result as KalturaAssetListResponse;
                         int? groupId;
                         string fileName;
 
-                        if (TryGetDataFromRequest(listResponse, out groupId, out fileName))
+                        if (TryGetDataFromRequest(out groupId, out fileName))
                         {
-                            var excelColumns = listResponse.GetExcelColumns(groupId.Value);
-                            if (excelColumns != null)
+                            var listResponse = restResultWrapper.Result as IKalturaExcelStructure;
+                            if (listResponse != null)
                             {
-                                // TODO SHIR - TALK WITH TAN TAN ABOUT THE OBJECTS..
-                                DataTable fullDataTable = GetDataTableByObjects(groupId.Value, listResponse.Objects, excelColumns);
-
-                                if (fullDataTable != null)
+                                var excelColumns = listResponse.GetExcelColumns(groupId.Value);
+                                if (excelColumns != null && excelColumns.Count > 0)
                                 {
-                                    var sheetName = "shir Sheet";
-                                    
-                                    HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
-                                    HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
+                                    DataTable fullDataTable = GetDataTableByObjects(groupId.Value, listResponse.GetObjects(), excelColumns);
 
-                                    return CreateExcel(writeStream, fileName, fullDataTable, sheetName, listResponse.GetExcelOverviewInstructions(), excelColumns.Values.ToList(), listResponse.GetExcelColumnsColors());
+                                    if (fullDataTable != null)
+                                    {
+                                        // TODO SHIR - ASK IDDO THE SHEET NAME
+                                        var sheetName = "shir Sheet";
+
+                                        HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
+                                        HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+                                        return CreateExcel(writeStream, fileName, fullDataTable, sheetName, listResponse.GetExcelOverviewInstructions(), excelColumns.Values.ToList(), listResponse.GetExcelColumnsColors());
+                                    }
                                 }
                             }
                         }
@@ -122,78 +113,48 @@ namespace WebAPI.App_Start
                 return Task.FromResult(writeStream);
             }
         }
-
-        public static string GetHiddenColumn(ExcelColumnType columnType, string systemName, string language = null, int? itemIndex = null)
-        {
-            Dictionary<string, string> dic = new Dictionary<string, string>()
-            {
-                { COLUMN_TYPE, columnType.ToString() },
-                { COLUMN_SYSTEM_NAME, systemName }
-            };
-
-            if (!string.IsNullOrEmpty(language))
-            {
-                dic.Add(COLUMN_LANGUAGE, language);
-            }
-
-            if (itemIndex.HasValue)
-            {
-                dic.Add(ITEM_INDEX, itemIndex.Value.ToString());
-            }
-
-            return dic.ToJSON();
-        }
         
-        public static string GetNonDefaultFriendlyColumnName(string columnName, string langCode)
-        {
-            return String.Format(OTHER_LANG_FORMAT, columnName, langCode);
-        }
-
-        private bool TryGetDataFromRequest(KalturaListResponse assetListResponse, out int? groupId, out string fileName)
+        private bool TryGetDataFromRequest(out int? groupId, out string fileName)
         {
             bool isResponseValid = false;
             groupId = null;
             fileName = null;
 
-            if (assetListResponse != null)
+            groupId = Utils.Utils.GetGroupIdFromRequest();
+            if (!groupId.HasValue || groupId.Value == 0)
             {
-                groupId = Utils.Utils.GetGroupIdFromRequest();
-                if (!groupId.HasValue || groupId.Value == 0)
-                {
-                    log.ErrorFormat("no group id");
-                    throw new RequestParserException(RequestParserException.PARTNER_INVALID);
-                }
-
-
-                if(HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] is IEnumerable)
-                {
-                    List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
-                    var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
-                    if (kalturaPersistedFilter != null)
-                    {
-                        fileName = (kalturaPersistedFilter as IKalturaPersistedFilter).Name;
-                        // TODO SHIR - VALIDATE FILE NAME ENDS WITH .xlsx
-                    }
-                }
-
-                if (string.IsNullOrEmpty(fileName))
-                {
-                    fileName = Guid.NewGuid().ToString();
-                }
-
-                isResponseValid = true;
+                log.ErrorFormat("no group id");
+                throw new RequestParserException(RequestParserException.PARTNER_INVALID);
             }
+
+            if (HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] is IEnumerable)
+            {
+                List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
+                var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
+                if (kalturaPersistedFilter != null)
+                {
+                    fileName = (kalturaPersistedFilter as IKalturaPersistedFilter).Name;
+                    // TODO SHIR - VALIDATE FILE NAME ENDS WITH .xlsx
+                }
+            }
+
+            if (string.IsNullOrEmpty(fileName))
+            {
+                fileName = Guid.NewGuid().ToString();
+            }
+
+            isResponseValid = true;
 
             return isResponseValid;
         }
 
-        private Task CreateExcel(Stream writeStream, string fileName, DataTable dt, string sheetName,  List<string> overviewInstructions, List<KalturaExcelColumn> columns, Dictionary<ExcelColumnType, Color> columnsColors)
+        private Task CreateExcel(Stream writeStream, string fileName, DataTable dt, string sheetName, List<string> overviewInstructions, List<ApiObjects.Excel.ExcelColumn> columns, Dictionary<ApiObjects.Excel.ExcelColumnType, Color> columnsColors)
         {
             using (ExcelPackage pack = new ExcelPackage(new FileInfo(fileName)))
             {
                 ExcelWorksheet excelWorksheet = pack.Workbook.Worksheets.Add(sheetName);
 
-                int hiddenRowIndex = 1;
+                int columnNameRowIndex = 1;
                 // Set overview instructions
                 if (overviewInstructions != null && overviewInstructions.Count > 0)
                 {
@@ -202,24 +163,28 @@ namespace WebAPI.App_Start
                         excelWorksheet.Cells[i, 1].Value = overviewInstructions[i - 1];
                     }
 
-                    hiddenRowIndex = overviewInstructions.Count + 2;
+                    columnNameRowIndex = overviewInstructions.Count + 2;
                 }
                 
-                excelWorksheet.Row(hiddenRowIndex).Hidden = true;
                 for (int i = 1; i <= columns.Count; i++)
                 {
-                    excelWorksheet.Cells[hiddenRowIndex, i].Value = columns[i -1].HiddenName;
-                    excelWorksheet.Cells[hiddenRowIndex + 1, i].Value = columns[i - 1].HelpText;
-                    excelWorksheet.Cells[hiddenRowIndex + 2, i].Value = columns[i - 1].FriendlyName;
+                    // set the column name
+                    excelWorksheet.Cells[columnNameRowIndex, i].Value = columns[i - 1].ToString();
+
+                    if (!string.IsNullOrEmpty(columns[i - 1].HelpText))
+                    {
+                        excelWorksheet.Cells[columnNameRowIndex, i].AddComment(columns[i - 1].HelpText, "HelpText");
+                    }
+
+                    excelWorksheet.Cells[columnNameRowIndex, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    excelWorksheet.Cells[columnNameRowIndex, i].Style.Font.Bold = true;
                     if (columnsColors != null && columnsColors.ContainsKey(columns[i - 1].ColumnType))
                     {
-                        excelWorksheet.Cells[hiddenRowIndex + 2, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        excelWorksheet.Cells[hiddenRowIndex + 2, i].Style.Fill.BackgroundColor.SetColor(columnsColors[columns[i - 1].ColumnType]);
+                        excelWorksheet.Cells[columnNameRowIndex, i].Style.Fill.BackgroundColor.SetColor(columnsColors[columns[i - 1].ColumnType]);
                     }
-                    excelWorksheet.Cells[hiddenRowIndex + 2, i].Style.Font.Bold = true;
                 }
 
-                excelWorksheet.Cells[hiddenRowIndex + 3, 1].LoadFromDataTable(dt, false, OfficeOpenXml.Table.TableStyles.Medium13);
+                excelWorksheet.Cells[columnNameRowIndex + 1, 1].LoadFromDataTable(dt, false, OfficeOpenXml.Table.TableStyles.Medium13);
                 
                 pack.SaveAs(writeStream);
 
@@ -227,7 +192,7 @@ namespace WebAPI.App_Start
             }
         }
 
-        private DataTable GetDataTableByObjects(int groupId, List<KalturaAsset> objects, Dictionary<string, KalturaExcelColumn> columns)
+        private DataTable GetDataTableByObjects(int groupId, List<IKalturaExcelableObject> objects, Dictionary<string, ApiObjects.Excel.ExcelColumn> columns)
         {
             DataTable dataTable = new DataTable();
             if (columns != null && columns.Count > 0)
@@ -239,11 +204,11 @@ namespace WebAPI.App_Start
 
                 if (objects != null && objects.Count > 0)
                 {
-                    foreach (var OTTObject in objects)
+                    foreach (var excelObject in objects)
                     {
                         try
                         {
-                            var excelValues = OTTObject.GetExcelValues(groupId);
+                            var excelValues = excelObject.GetExcelValues(groupId);
                             if (excelValues != null && excelValues.Count > 0)
                             {
                                 var row = dataTable.NewRow();
@@ -259,7 +224,7 @@ namespace WebAPI.App_Start
                         }
                         catch (Exception ex)
                         {
-                            log.Error(string.Format("Error in GetDataTableByObjects for object: {0}", OTTObject), ex);
+                            log.Error(string.Format("Error in GetDataTableByObjects for object: {0}", excelObject), ex);
                         }
                     }
                 }

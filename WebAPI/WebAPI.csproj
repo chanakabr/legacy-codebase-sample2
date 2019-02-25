@@ -808,7 +808,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetStructMetaController.cs" />
-    <Compile Include="Controllers\BulkController.cs" />
+    <Compile Include="Controllers\BulkUploadController.cs" />
     <Compile Include="Controllers\DrmProfileController.cs" />
     <Compile Include="Controllers\MediaFileController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
@@ -836,11 +836,11 @@
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\UserSegmentController.cs" />
+    <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
     <Compile Include="Managers\Scheme\ExcelAttribute.cs" />
     <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
     <Compile Include="Models\API\KalturaTvmGeoRule.cs" />
     <Compile Include="Models\API\KalturaTvmRuleFilter.cs" />
-    <Compile Include="Models\API\KalturaShirCheckListResponse.cs" />
     <Compile Include="Models\API\KalturaTvmRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaTvmRule.cs" />
     <Compile Include="Models\API\KalturaBusinessModuleRuleFilter.cs" />
@@ -857,6 +857,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaCaptionPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecordingFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitationsListResponse.cs" />
+    <Compile Include="Models\General\KalturaResponseStatus.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
     <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />
     <Compile Include="Models\Partner\KalturaGeneralPartnerConfig.cs" />
@@ -879,7 +880,7 @@
     <Compile Include="Models\Segmentation\KalturaSegmentValues.cs" />
     <Compile Include="Models\Segmentation\KalturaUserDataCondition.cs" />
     <Compile Include="Models\Segmentation\KalturaUserSegment.cs" />
-    <Compile Include="Models\Upload\KalturaBulkFilter.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaFilter.cs" />
     <Compile Include="Models\General\KalturaGenericListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructMetaListResponse.cs" />
@@ -953,7 +954,6 @@
     <Compile Include="Managers\Models\CencCustomData.cs" />
     <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationBooleanCondition.cs" />
     <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationFieldEqualsCondition.cs" />
-    <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationCondition.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
@@ -1010,8 +1010,11 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
-    <Compile Include="Models\Upload\KalturaBulkListResponse.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadListResponse.cs" />
     <Compile Include="Models\Upload\KalturaBulkUpload.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadEntryData.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadJobData.cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadResult.cs" />
     <Compile Include="Models\Upload\KalturaUploadToken.cs" />
     <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
     <Compile Include="Models\Users\KalturaSSOAdapterProfile.cs" />

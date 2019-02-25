@@ -25,7 +25,7 @@ namespace WebAPI.Models.Catalog
 
         internal HashSet<int> GetPartnerListTypeIn()
         {
-            return this.GetItemsIn<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn", true);
+            return this.GetItemsIn<HashSet<int>, int>(PartnerListTypeIn, "KalturaPersonalListSearchFilter.PartnerListTypeIn", false, true);
         }
     }
 }

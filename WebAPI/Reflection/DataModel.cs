@@ -883,21 +883,37 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaBulk":
+                case "KalturaBulkUpload":
                     switch(property.Name)
                     {
+                        case "Action":
+                            return "action";
                         case "CreateDate":
                             return "createDate";
                         case "Id":
                             return "id";
+                        case "Results":
+                            return "results";
                         case "Status":
                             return "status";
                         case "UpdateDate":
                             return "updateDate";
+                        case "UploadTokenId":
+                            return "uploadTokenId";
                     }
                     break;
                     
-                case "KalturaBulkFilter":
+                case "KalturaBulkUploadAssetResult":
+                    switch(property.Name)
+                    {
+                        case "ExternalId":
+                            return "externalId";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaBulkUploadFilter":
                     switch(property.Name)
                     {
                         case "StatusEqual":
@@ -905,11 +921,33 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaBulkListResponse":
+                case "KalturaBulkUploadJobData":
+                    switch(property.Name)
+                    {
+                        case "EntryData":
+                            return "entryData";
+                    }
+                    break;
+                    
+                case "KalturaBulkUploadListResponse":
                     switch(property.Name)
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaBulkUploadResult":
+                    switch(property.Name)
+                    {
+                        case "BulkUploadId":
+                            return "bulkUploadId";
+                        case "Index":
+                            return "index";
+                        case "ObjectId":
+                            return "objectId";
+                        case "Status":
+                            return "status";
                     }
                     break;
                     
@@ -4817,6 +4855,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaResponseStatus":
+                    switch(property.Name)
+                    {
+                        case "Code":
+                            return "code";
+                        case "Message":
+                            return "message";
+                    }
+                    break;
+                    
                 case "KalturaRule":
                     switch(property.Name)
                     {
@@ -6243,6 +6291,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("asset", "add", false);
                             return AssetController.Add((KalturaAsset) methodParams[0]);
                             
+                        case "addfrombulkupload":
+                            RolesManager.ValidateActionPermitted("asset", "addFromBulkUpload", false);
+                            return AssetController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaBulkUploadJobData) methodParams[1]);
+                            
                         case "autocomplete":
                             RolesManager.ValidateActionPermitted("asset", "autocomplete", false);
                             return AssetController.Autocomplete((string) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1], (List<KalturaIntegerValue>) methodParams[2], (Nullable<KalturaOrder>) methodParams[3], (Nullable<int>) methodParams[4]);
@@ -6525,16 +6577,12 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "bulk":
+                case "bulkupload":
                     switch(action)
                     {
                         case "list":
-                            RolesManager.ValidateActionPermitted("bulk", "list", false);
-                            return BulkController.List((KalturaBulkFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
-                            
-                        case "servelog":
-                            RolesManager.ValidateActionPermitted("bulk", "serveLog", false);
-                            return BulkController.ServeLog((long) methodParams[0]);
+                            RolesManager.ValidateActionPermitted("bulkUpload", "list", false);
+                            return BulkUploadController.List((KalturaBulkUploadFilter) methodParams[0]);
                             
                     }
                     break;
@@ -10267,6 +10315,18 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "addfrombulkupload":
+                            ret.Add("fileData", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(KalturaOTTFile),
+                            });
+                            ret.Add("bulkUploadJobData", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBulkUploadJobData),
+                            });
+                            return ret;
+                            
                         case "autocomplete":
                             ret.Add("query", new MethodParam(){
                                 NewName = newParamName,
@@ -11225,7 +11285,7 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "bulk":
+                case "bulkupload":
                     switch(action)
                     {
                         case "list":
@@ -11234,21 +11294,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaBulkFilter),
-                            });
-                            ret.Add("pager", new MethodParam(){
-                                NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaFilterPager),
-                            });
-                            return ret;
-                            
-                        case "servelog":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
+                                Type = typeof(KalturaBulkUploadFilter),
                             });
                             return ret;
                             

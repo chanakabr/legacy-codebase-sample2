@@ -32,10 +32,6 @@ namespace WebAPI.Managers.Models
         }
 
         [JsonProperty("actions")]
-        public List<NotificationAction> Actions
-        {
-            get;
-            set;
-        }
+        public List<NotificationAction> Actions { get; set; }
     }
 }

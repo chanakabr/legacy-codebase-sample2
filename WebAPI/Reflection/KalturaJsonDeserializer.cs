@@ -292,14 +292,41 @@ namespace WebAPI.Reflection
                 case "KalturaBooleanValue":
                     return new KalturaBooleanValue(parameters);
                     
-                case "KalturaBulk":
-                    return new KalturaBulk(parameters);
+                case "KalturaBulkUpload":
+                    return new KalturaBulkUpload(parameters);
                     
-                case "KalturaBulkFilter":
-                    return new KalturaBulkFilter(parameters);
+                case "KalturaBulkUploadAssetEntryData":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
-                case "KalturaBulkListResponse":
-                    return new KalturaBulkListResponse(parameters);
+                case "KalturaBulkUploadAssetResult":
+                    return new KalturaBulkUploadAssetResult(parameters);
+                    
+                case "KalturaBulkUploadEntryData":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaBulkUploadEpgEntryData":
+                    return new KalturaBulkUploadEpgEntryData(parameters);
+                    
+                case "KalturaBulkUploadExcelJobData":
+                    return new KalturaBulkUploadExcelJobData(parameters);
+                    
+                case "KalturaBulkUploadFilter":
+                    return new KalturaBulkUploadFilter(parameters);
+                    
+                case "KalturaBulkUploadJobData":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaBulkUploadListResponse":
+                    return new KalturaBulkUploadListResponse(parameters);
+                    
+                case "KalturaBulkUploadMediaEntryData":
+                    return new KalturaBulkUploadMediaEntryData(parameters);
+                    
+                case "KalturaBulkUploadResult":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaBulkUploadXmlJobData":
+                    return new KalturaBulkUploadXmlJobData(parameters);
                     
                 case "KalturaBumpersPlaybackPluginData":
                     return new KalturaBumpersPlaybackPluginData(parameters);
@@ -1290,6 +1317,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaRequestConfiguration":
                     return new KalturaRequestConfiguration(parameters);
+                    
+                case "KalturaResponseStatus":
+                    return new KalturaResponseStatus(parameters);
                     
                 case "KalturaRule":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -6584,6 +6614,53 @@ namespace WebAPI.Models.General
             }
         }
     }
+    public partial class KalturaResponseStatus
+    {
+        private static RuntimeSchemePropertyAttribute CodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaResponseStatus")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute MessageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaResponseStatus")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaResponseStatus(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("code") && parameters["code"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CodeSchemaProperty.Validate("code", parameters["code"]);
+                    }
+                    Code = (Int32) Convert.ChangeType(parameters["code"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("message") && parameters["message"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MessageSchemaProperty.Validate("message", parameters["message"]);
+                    }
+                    Message = (String) Convert.ChangeType(parameters["message"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaStringValue
     {
         public KalturaStringValue(Dictionary<string, object> parameters = null) : base(parameters)
@@ -9903,6 +9980,7 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBundleFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -9910,7 +9988,6 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaBundleFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -10210,6 +10287,7 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelExternalFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10217,7 +10295,6 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute UtcOffsetEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelExternalFilter")
         {
@@ -10264,6 +10341,7 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10271,7 +10349,6 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaChannelFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -10371,6 +10448,7 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelsFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10378,10 +10456,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute MediaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelsFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10389,7 +10467,6 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaChannelsFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -10607,6 +10684,7 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute ImageTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10614,10 +10692,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute ImageObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10625,7 +10703,6 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
@@ -11824,6 +11901,7 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute DrmProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
+            MinInteger = -1,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
@@ -11831,7 +11909,6 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = -1,
         };
         private static RuntimeSchemePropertyAttribute VideoCodecsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -12564,12 +12641,12 @@ namespace WebAPI.Models.Catalog
         {
             ReadOnly = false,
             InsertOnly = false,
-            MinInteger = 1,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaRelatedExternalFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12606,12 +12683,12 @@ namespace WebAPI.Models.Catalog
         {
             ReadOnly = false,
             InsertOnly = false,
-            MinInteger = 1,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaRelatedFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12814,12 +12891,12 @@ namespace WebAPI.Models.Catalog
         {
             ReadOnly = false,
             InsertOnly = false,
-            MinInteger = 1,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaTag(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12863,12 +12940,12 @@ namespace WebAPI.Models.Catalog
         {
             ReadOnly = false,
             InsertOnly = false,
-            MinInteger = 1,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaTagFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -13404,23 +13481,23 @@ namespace WebAPI.Models.API
         {
             ReadOnly = false,
             InsertOnly = false,
-            MinInteger = 0,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute DefaultRecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNPartnerSettings")
         {
             ReadOnly = false,
             InsertOnly = false,
-            MinInteger = 0,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         public KalturaCDNPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -15821,6 +15898,7 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
+            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -15828,10 +15906,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
+            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -15839,7 +15917,6 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute ProtectionPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -16429,6 +16506,7 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute AssetIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
         {
+            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -16436,10 +16514,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
         };
         private static RuntimeSchemePropertyAttribute AssetFileIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
         {
+            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -16447,7 +16525,6 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
         };
         public KalturaAssetFilePpvFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -21760,9 +21837,9 @@ namespace WebAPI.Models.Partner
 
 namespace WebAPI.Models.Upload
 {
-    public partial class KalturaBulk
+    public partial class KalturaBulkUpload
     {
-        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulk")
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -21772,7 +21849,7 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulk")
+        private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -21782,7 +21859,7 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulk")
+        private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -21792,7 +21869,7 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulk")
+        private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -21802,7 +21879,37 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
         };
-        public KalturaBulk(Dictionary<string, object> parameters = null) : base(parameters)
+        private static RuntimeSchemePropertyAttribute UploadTokenIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ResultsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaBulkUpload(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21822,7 +21929,7 @@ namespace WebAPI.Models.Upload
                     {
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
-                    Status = (KalturaBatchJobStatus) Enum.Parse(typeof(KalturaBatchJobStatus), parameters["status"].ToString(), true);
+                    Status = (KalturaBatchUploadJobStatus) Enum.Parse(typeof(KalturaBatchUploadJobStatus), parameters["status"].ToString(), true);
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
@@ -21840,25 +21947,147 @@ namespace WebAPI.Models.Upload
                     }
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("uploadTokenId") && parameters["uploadTokenId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UploadTokenIdSchemaProperty.Validate("uploadTokenId", parameters["uploadTokenId"]);
+                    }
+                    UploadTokenId = (String) Convert.ChangeType(parameters["uploadTokenId"], typeof(String));
+                }
+                if (parameters.ContainsKey("action") && parameters["action"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ActionSchemaProperty.Validate("action", parameters["action"]);
+                    }
+                    Action = (KalturaBatchUploadJobAction) Enum.Parse(typeof(KalturaBatchUploadJobAction), parameters["action"].ToString(), true);
+                }
+                if (parameters.ContainsKey("results") && parameters["results"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ResultsSchemaProperty.Validate("results", parameters["results"]);
+                    }
+                    if (parameters["results"] is JArray)
+                    {
+                        Results = buildList<KalturaBulkUploadResult>(typeof(KalturaBulkUploadResult), (JArray) parameters["results"]);
+                    }
+                    else if (parameters["results"] is IList)
+                    {
+                        Results = buildList(typeof(KalturaBulkUploadResult), parameters["results"] as object[]);
+                    }
+                }
             }
         }
     }
-    public partial class KalturaBulkFilter
+    public partial class KalturaBulkUploadAssetEntryData
     {
-        public KalturaBulkFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadAssetEntryData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaBulkUploadAssetResult
+    {
+        private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaBulkUploadAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        TypeSchemaProperty.Validate("type", parameters["type"]);
+                    }
+                    Type = (Int32) Convert.ChangeType(parameters["type"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
+                    }
+                    ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaBulkUploadEntryData
+    {
+        public KalturaBulkUploadEntryData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaBulkUploadEpgEntryData
+    {
+        public KalturaBulkUploadEpgEntryData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaBulkUploadExcelJobData
+    {
+        public KalturaBulkUploadExcelJobData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaBulkUploadFilter
+    {
+        public KalturaBulkUploadFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
                 if (parameters.ContainsKey("statusEqual") && parameters["statusEqual"] != null)
                 {
-                    StatusEqual = (KalturaBatchJobStatus) Enum.Parse(typeof(KalturaBatchJobStatus), parameters["statusEqual"].ToString(), true);
+                    StatusEqual = (KalturaBatchUploadJobStatus) Enum.Parse(typeof(KalturaBatchUploadJobStatus), parameters["statusEqual"].ToString(), true);
                 }
             }
         }
     }
-    public partial class KalturaBulkListResponse
+    public partial class KalturaBulkUploadJobData
     {
-        public KalturaBulkListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadJobData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("entryData") && parameters["entryData"] != null)
+                {
+                    if (parameters["entryData"] is JObject)
+                    {
+                        EntryData = (KalturaBulkUploadEntryData) Deserializer.deserialize(typeof(KalturaBulkUploadEntryData), ((JObject) parameters["entryData"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["entryData"] is IDictionary)
+                    {
+                        EntryData = (KalturaBulkUploadEntryData) Deserializer.deserialize(typeof(KalturaBulkUploadEntryData), (Dictionary<string, object>) parameters["entryData"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaBulkUploadListResponse
+    {
+        public KalturaBulkUploadListResponse(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21866,14 +22095,116 @@ namespace WebAPI.Models.Upload
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Objects = buildList<KalturaBulk>(typeof(KalturaBulk), (JArray) parameters["objects"]);
+                        Objects = buildList<KalturaBulkUpload>(typeof(KalturaBulkUpload), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Objects = buildList(typeof(KalturaBulk), parameters["objects"] as object[]);
+                        Objects = buildList(typeof(KalturaBulkUpload), parameters["objects"] as object[]);
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaBulkUploadMediaEntryData
+    {
+        public KalturaBulkUploadMediaEntryData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaBulkUploadResult
+    {
+        private static RuntimeSchemePropertyAttribute ObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IndexSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute BulkUploadIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaBulkUploadResult(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("objectId") && parameters["objectId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ObjectIdSchemaProperty.Validate("objectId", parameters["objectId"]);
+                    }
+                    ObjectId = (Int64) Convert.ChangeType(parameters["objectId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("index") && parameters["index"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IndexSchemaProperty.Validate("index", parameters["index"]);
+                    }
+                    Index = (Int32) Convert.ChangeType(parameters["index"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("bulkUploadId") && parameters["bulkUploadId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        BulkUploadIdSchemaProperty.Validate("bulkUploadId", parameters["bulkUploadId"]);
+                    }
+                    BulkUploadId = (Int64) Convert.ChangeType(parameters["bulkUploadId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        StatusSchemaProperty.Validate("status", parameters["status"]);
+                    }
+                    if (parameters["status"] is JObject)
+                    {
+                        Status = (KalturaResponseStatus) Deserializer.deserialize(typeof(KalturaResponseStatus), ((JObject) parameters["status"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["status"] is IDictionary)
+                    {
+                        Status = (KalturaResponseStatus) Deserializer.deserialize(typeof(KalturaResponseStatus), (Dictionary<string, object>) parameters["status"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaBulkUploadXmlJobData
+    {
+        public KalturaBulkUploadXmlJobData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaUploadToken

@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Response;
 using KLogMonitor;
 using System;
@@ -19,6 +20,7 @@ using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using WebAPI.Models.Upload;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -1305,5 +1307,39 @@ namespace WebAPI.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Add new bulk upload batch job Conversion profile id can be specified in the API.
+        /// </summary>
+        /// <param name="fileData">fileData</param>
+        /// <param name="bulkUploadJobData">bulkUploadJobData</param>
+        /// <returns>created bulkUpload Id</returns>
+        [Action("addFromBulkUpload")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public static long AddFromBulkUpload(KalturaOTTFile fileData, KalturaBulkUploadJobData bulkUploadJobData)
+        {
+            // validate that bulkUploadData is KalturaBulkUploadExcelJobData.
+            if (bulkUploadJobData is KalturaBulkUploadExcelJobData && bulkUploadJobData.EntryData is KalturaBulkUploadMediaEntryData)
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                long userId = Utils.Utils.GetUserIdFromKs();
+
+                // Add UploadToken by using UploadManager to create new upload token.
+                var uploadToken = UploadManager.AddUploadToken(null, groupId);
+
+                // TODO SHIR - ASK IRA IF FILEDATA IS EVER BEEN DELETED from iis (guy saids that we need to add task that doing it)? 
+                // (dont we should delete file data from server -> we saved the file in new location..)
+                // Update new UploadToken file path from fileData. 
+                var finalUploadToken = UploadManager.UploadUploadToken(uploadToken.Id, fileData.path, groupId);
+
+                var kalturaBulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, uploadToken.Id, userId, KalturaBatchUploadJobAction.Upsert, FileType.Excel);
+                
+                return kalturaBulkUpload.Id;
+            }
+
+            // TODO SHIR - THROW Not supported for OTHER TYPES
+            throw new NotImplementedException(); 
+        }
     }
 }

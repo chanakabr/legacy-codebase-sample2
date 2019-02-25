@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
+using ApiObjects.Excel;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using AutoMapper;
@@ -25,6 +26,7 @@ using WebAPI.Models.Api;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
+using WebAPI.Models.Upload;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
@@ -3244,11 +3246,11 @@ namespace WebAPI.Clients
         {
             KalturaRatioListResponse result = new KalturaRatioListResponse();
 
-            Func<GenericListResponse<Core.Catalog.CatalogManagement.Ratio>> getRatiosFunc = () =>
+            Func<GenericListResponse<Core.Catalog.Ratio>> getRatiosFunc = () =>
                Core.Catalog.CatalogManagement.ImageManager.GetRatios(groupId);
 
             KalturaGenericListResponse<KalturaRatio> response =
-                ClientUtils.GetResponseListFromWS<KalturaRatio, Core.Catalog.CatalogManagement.Ratio>(getRatiosFunc);
+                ClientUtils.GetResponseListFromWS<KalturaRatio, Core.Catalog.Ratio>(getRatiosFunc);
 
             result.Ratios = response.Objects;
             result.TotalCount = response.TotalCount;
@@ -3340,7 +3342,7 @@ namespace WebAPI.Clients
 
             try
             {
-                Core.Catalog.CatalogManagement.Ratio requestRatio = AutoMapper.Mapper.Map<Core.Catalog.CatalogManagement.Ratio>(ratio);
+                var requestRatio = AutoMapper.Mapper.Map<Core.Catalog.Ratio>(ratio);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.ImageManager.AddRatio(groupId, userId, requestRatio);
@@ -3377,7 +3379,7 @@ namespace WebAPI.Clients
 
             try
             {
-                Core.Catalog.CatalogManagement.Ratio requestRatio = AutoMapper.Mapper.Map<Core.Catalog.CatalogManagement.Ratio>(ratio);
+                var requestRatio = AutoMapper.Mapper.Map<Core.Catalog.Ratio>(ratio);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.ImageManager.UpdateRatio(groupId, userId, requestRatio, ratioId);
@@ -3999,5 +4001,36 @@ namespace WebAPI.Clients
 
             return response;
         }
+
+        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string uploadTokenId, long userId, KalturaBatchUploadJobAction kalturaBatchUploadJobAction, FileType fileType)
+        {
+            // TODO SHIR - MAP all KalturaBulkUpload new objects
+            var action = AutoMapper.Mapper.Map<BulkUploadJobAction>(kalturaBatchUploadJobAction);
+            
+            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, uploadTokenId, userId, action, fileType);
+            KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
+            
+            // TODO SHIR - THROW Not supported for OTHER TYPES
+            throw new NotImplementedException();
+        }
+
+        internal Dictionary<string, object> GetExcelValues(int groupId, IKalturaExcelableObject kalturaExcelableObject)
+        {
+            Dictionary<string, object> excelValues = null;
+            try
+            {
+                var excelableObject = AutoMapper.Mapper.Map<IExcelObject>(kalturaExcelableObject);
+                excelValues = excelableObject.GetExcelValues(groupId);
+                
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while GetExcelValues from inner object.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return excelValues;
+        }
     }
+
 }

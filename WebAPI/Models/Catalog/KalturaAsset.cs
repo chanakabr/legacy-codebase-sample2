@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Excel;
 using Core.Catalog.CatalogManagement;
 using Jil;
 using Newtonsoft.Json;
@@ -23,24 +24,12 @@ namespace WebAPI.Models.Catalog
     [XmlInclude(typeof(KalturaRecordingAsset))]
     [XmlInclude(typeof(KalturaProgramAsset))]
     [XmlInclude(typeof(KalturaMediaAsset))]
-    abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable
+    abstract public partial class KalturaAsset : KalturaOTTObject, KalturaIAssetable, IKalturaExcelableObject
     {
         #region Consts
 
         private const string OPC_MERGE_VERSION = "5.0.0.0";
-
-        internal static readonly HashSet<string> BASIC_METAS = new HashSet<string>()
-        {
-            AssetManager.STATUS_META_SYSTEM_NAME,
-            AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME,
-            AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME,
-            AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
-            AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME
-        };
-
-        // ASSET EXCEL COLUMNS
-        internal const string TYPE = "Type";
-
+        
         #endregion
 
         #region Data Members
@@ -330,95 +319,16 @@ namespace WebAPI.Models.Catalog
                 }
             }            
         }
-
-        internal override Dictionary<string, object> GetExcelValues(int groupId, Dictionary<string, object> data = null)
+        
+        public Dictionary<string, object> GetExcelValues(int groupId)
         {
-            Dictionary<string, object> excelValues = new Dictionary<string, object>();
-
-            var baseExcelValues = base.GetExcelValues(groupId, data);
-            excelValues.TryAddRange(baseExcelValues);
-
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-            {
-                return excelValues;
-            }
-
-            var type = ExcelFormatter.GetHiddenColumn(ExcelColumnType.Basic, TYPE);
-            excelValues.TryAdd(type, this.getType());
-
-            var externalId = ExcelFormatter.GetHiddenColumn(ExcelColumnType.Basic, AssetManager.EXTERNAL_ID_META_SYSTEM_NAME);
-            excelValues.TryAdd(externalId, this.ExternalId);
-
-            if (this.MediaFiles != null)
-            {
-                for (int i = 0; i < this.MediaFiles.Count; i++)
-                {
-                    var mediaFileExcelValues =
-                        this.MediaFiles[0].GetExcelValues(groupId, new Dictionary<string, object>() { { KalturaMediaFile.MEDIA_FILE_INDEX, i } });
-                    excelValues.TryAddRange(mediaFileExcelValues);
-                }
-            }
-
-            if (this.Tags != null)
-            {
-                foreach (var tag in Tags)
-                {
-                    if (tag.Value != null)
-                    {
-                        excelValues.TryAddRange(tag.Value.GetExcelValues(groupId, new Dictionary<string, object>() { { KalturaMultilingualStringValueArray.TAG_SYSTEM_NAME, tag.Key } }));
-                    }
-                }
-            }
-
-            // TODO SHIR - CHECK IF NEED DIFFERENT IN BASICS?
-            //Dictionary<string, KalturaValue> basicMetasToValue = new Dictionary<string, KalturaValue>();
-            if (this.Metas != null)
-            {
-                foreach (var meta in this.Metas)
-                {
-                    var topic = catalogGroupCache.TopicsMapBySystemName[meta.Key];
-                    //if (!BASIC_METAS.Contains(topic.SystemName))
-                    //{
-                    excelValues.TryAddRange(meta.Value.GetExcelValues(groupId,
-                                                                      new Dictionary<string, object>()
-                                                                      {
-                                                                                  { KalturaValue.TOPIC_TYPE, topic.Type },
-                                                                                  { KalturaValue.TOPIC_SYSTEM_NAME, topic.SystemName }
-                                                                      }));
-                    //}
-                    //else
-                    //{
-                    //    basicMetasToValue.Add(topic.SystemName, meta.Value);
-                    //}
-                }
-            }
-
-            if (this.Name != null)
-            {
-                excelValues.TryAddRange(Name.GetExcelValues(groupId,
-                                                            new Dictionary<string, object>()
-                                                            {
-                                                                    { KalturaValue.TOPIC_TYPE, MetaType.MultilingualString },
-                                                                    { KalturaValue.TOPIC_SYSTEM_NAME, AssetManager.NAME_META_SYSTEM_NAME }
-                                                            }));
-            }
-
-            if (this.Description != null)
-            {
-                excelValues.TryAddRange(Description.GetExcelValues(groupId,
-                                                            new Dictionary<string, object>()
-                                                            {
-                                                                    { KalturaValue.TOPIC_TYPE, MetaType.MultilingualString },
-                                                                    { KalturaValue.TOPIC_SYSTEM_NAME, AssetManager.DESCRIPTION_META_SYSTEM_NAME }
-                                                            }));
-            }
-
-            // TODO SHIR - ASK IRA ABOUT THE DATES
-            //row[GetColHiddenName(ColumnType.Basic, START_DATE)] = this.StartDate;
-            //row[GetColHiddenName(ColumnType.Basic, END_DATE)] = this.EndDate;
-
+            Dictionary<string, object> excelValues = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelValues(groupId, this);   
             return excelValues;
+        }
+
+        public virtual Dictionary<string, ExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null)
+        {
+            return null;
         }
     }
 }

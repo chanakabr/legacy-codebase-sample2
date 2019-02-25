@@ -244,7 +244,7 @@ namespace WebAPI.Models.General
         /// <param name="itemsIn">Comma separated string</param>
         /// <param name="propertyName">The property name of comma separated string (for error message)</param>
         /// <returns></returns>
-        internal U GetItemsIn<U, T>(string itemsIn, string propertyName, bool checkDuplicate = false) where T : IConvertible where U : ICollection<T>
+        public U GetItemsIn<U, T>(string itemsIn, string propertyName, bool checkDuplicate = false, bool ignoreDefaultValueValidation = false) where T : IConvertible where U : ICollection<T>
         {
             U values = Activator.CreateInstance<U>();
 
@@ -262,10 +262,10 @@ namespace WebAPI.Models.General
                     }
                     catch (Exception)
                     {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, propertyName);
+                        throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, propertyName, t.Name);
                     }
 
-                    if (value != null && !value.Equals(default(T)))
+                    if (value != null && (ignoreDefaultValueValidation || !value.Equals(default(T))))
                     {
                         if (!values.Contains(value))
                         {
@@ -285,11 +285,6 @@ namespace WebAPI.Models.General
 
             return values;
         }
-
-        internal virtual Dictionary<string, object> GetExcelValues(int groupId, Dictionary<string, object> data = null)
-        {
-            return null;
-        }
     }
 
     /// <summary>
@@ -302,11 +297,7 @@ namespace WebAPI.Models.General
             path = filepath;
         }
 
-        public string path 
-        {
-            get;
-            set;
-        }
+        public string path { get; set; }
     }
 
     public partial class KalturaOTTObjectSupportNullable : KalturaOTTObject

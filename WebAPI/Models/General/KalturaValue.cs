@@ -22,9 +22,6 @@ namespace WebAPI.Models.General
     [XmlInclude(typeof(KalturaLongValue))]    
     public abstract partial class KalturaValue : KalturaOTTObject
     {
-        internal const string TOPIC_TYPE = "TOPIC_TYPE";
-        internal const string TOPIC_SYSTEM_NAME = "TOPIC_SYSTEM_NAME";
-
         /// <summary>
         /// Description
         /// </summary>
@@ -32,33 +29,5 @@ namespace WebAPI.Models.General
         [XmlElement("description", IsNullable = true)]
         [JsonProperty("description")]
         public string description { get; set; } 
-
-        internal static ExcelColumnType? GetExcelMetaColumnType(MetaType metaType)
-        {
-            switch (metaType)
-            {
-                case MetaType.String:
-                    return ExcelColumnType.MetaText;
-                    break;
-                case MetaType.Number:
-                    return ExcelColumnType.MetaNumber;
-                    break;
-                case MetaType.Bool:
-                    return ExcelColumnType.MetaBool;
-                    break;
-                case MetaType.Tag:
-                    return ExcelColumnType.Tag;
-                    break;
-                case MetaType.DateTime:
-                    return ExcelColumnType.MetaDate;
-                    break;
-                case MetaType.MultilingualString:
-                    return ExcelColumnType.MetaMultilingual;
-                    break;
-                case MetaType.All:
-                default:
-                    return null;
-            }
-        }
     }
 }

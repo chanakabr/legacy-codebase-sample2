@@ -24,6 +24,7 @@ using WebAPI.ObjectsConvertor.Mapping.Utils;
 using WebAPI.Utils;
 using AutoMapper.Configuration;
 using TVinciShared;
+using ApiObjects.Excel;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -511,9 +512,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region New Asset (OPC)
+            //TODO SHIR CreateMap<IKalturaBulkUploadObject, IBulkUploadObject>();
+            //cfg.CreateMap<IKalturaBulkUploadObject, IBulkUploadObject>();
 
+            cfg.CreateMap<IKalturaExcelableObject, IExcelObject>();
+                //.IncludeBase<IKalturaBulkUploadObject, IBulkUploadObject>();
+            
             //KalturaAsset to Asset
             cfg.CreateMap<KalturaAsset, Asset>()
+                .IncludeBase<IKalturaExcelableObject, IExcelObject>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
@@ -821,14 +828,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Ratio
 
-            cfg.CreateMap<Core.Catalog.CatalogManagement.Ratio, KalturaRatio>()
+            cfg.CreateMap<Core.Catalog.Ratio, KalturaRatio>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height))
               .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width))
               .ForMember(dest => dest.PrecisionPrecentage, opt => opt.MapFrom(src => src.PrecisionPrecentage));
 
-            cfg.CreateMap<KalturaRatio, Core.Catalog.CatalogManagement.Ratio>()
+            cfg.CreateMap<KalturaRatio, Core.Catalog.Ratio>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height))
@@ -839,7 +846,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Image
 
-            cfg.CreateMap<Core.Catalog.CatalogManagement.Image, KalturaImage>()
+            cfg.CreateMap<Core.Catalog.Image, KalturaImage>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
               .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
@@ -850,7 +857,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ImageObjectType, opt => opt.ResolveUsing(src => ConvertImageObjectType(src.ImageObjectType)))
               .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
-            cfg.CreateMap<KalturaImage, Core.Catalog.CatalogManagement.Image>()
+            cfg.CreateMap<KalturaImage, Core.Catalog.Image>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
               .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
@@ -891,30 +898,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CatalogEndDate)))
                  ;
 
-            //File 
+            //File
             cfg.CreateMap<KalturaMediaFile, AssetFile>()
-                 .ForMember(dest => dest.AdditionalData, opt => opt.MapFrom(src => src.AdditionalData))
-                 .ForMember(dest => dest.AltExternalId, opt => opt.MapFrom(src => src.AltExternalId))
-                 .ForMember(dest => dest.AltStreamingCode, opt => opt.MapFrom(src => src.AltStreamingCode))
-                 .ForMember(dest => dest.AlternativeCdnAdapaterProfileId, opt => opt.MapFrom(src => src.AlternativeCdnAdapaterProfileId))
-                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
-                 .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.BillingType))
-                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                 .ForMember(dest => dest.EndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.EndDate)))
-                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
-                 .ForMember(dest => dest.ExternalStoreId, opt => opt.MapFrom(src => src.ExternalStoreId))
-                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                 .ForMember(dest => dest.IsDefaultLanguage, opt => opt.MapFrom(src => src.IsDefaultLanguage))
-                 .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
-                 .ForMember(dest => dest.OrderNum, opt => opt.MapFrom(src => src.OrderNum))
-                 .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))
-                 .ForMember(dest => dest.StartDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.StartDate)))
-                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
-                 .ForMember(dest => dest.CdnAdapaterProfileId, opt => opt.MapFrom(src => src.CdnAdapaterProfileId))
-                 .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
-                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
-                 .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)))
-                 ;
+                .ForMember(dest => dest.AdditionalData, opt => opt.MapFrom(src => src.AdditionalData))
+                .ForMember(dest => dest.AltExternalId, opt => opt.MapFrom(src => src.AltExternalId))
+                .ForMember(dest => dest.AltStreamingCode, opt => opt.MapFrom(src => src.AltStreamingCode))
+                .ForMember(dest => dest.AlternativeCdnAdapaterProfileId, opt => opt.MapFrom(src => src.AlternativeCdnAdapaterProfileId))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.BillingType))
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+                .ForMember(dest => dest.EndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.EndDate)))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.ExternalStoreId, opt => opt.MapFrom(src => src.ExternalStoreId))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsDefaultLanguage, opt => opt.MapFrom(src => src.IsDefaultLanguage))
+                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
+                .ForMember(dest => dest.OrderNum, opt => opt.MapFrom(src => src.OrderNum))
+                .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))
+                .ForMember(dest => dest.StartDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.StartDate)))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.CdnAdapaterProfileId, opt => opt.MapFrom(src => src.CdnAdapaterProfileId))
+                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)));
 
             #endregion
         }
