@@ -42,7 +42,7 @@ namespace Core.Catalog
             ratio = picRatio;
         }
 
-        public Picture(int groupId, CatalogManagement.Image image, string imageTypeName, string picRatio, PicSize picSize = null)
+        public Picture(int groupId, Image image, string imageTypeName, string picRatio, PicSize picSize = null)
         {
             this.id = image.ContentId;
             this.ratio = picRatio;

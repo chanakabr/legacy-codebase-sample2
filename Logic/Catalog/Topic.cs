@@ -1,11 +1,11 @@
 ﻿using ApiObjects;
+using ApiObjects.Excel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Core.Catalog.CatalogManagement
+namespace Core.Catalog
 {
     public class Topic
     {

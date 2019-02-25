@@ -1,6 +1,6 @@
 ﻿using ApiObjects.Response;
 
-namespace Core.Catalog.CatalogManagement
+namespace Core.Catalog
 {
     public class Ratio
     {

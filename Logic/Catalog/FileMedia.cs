@@ -96,8 +96,6 @@ namespace Core.Catalog
             m_sCoGUID = sCoGUID;
             initializeAdvertisingMembers();
             CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate.Value : new DateTime(2099, 1, 1);
-
-
         }
 
         public FileMedia(Int32 nFileId, double nDuration, string sFormatFile, string sUrl, string sBillingType, int nCdnID, 
@@ -122,7 +120,7 @@ namespace Core.Catalog
 
         }
 
-        public FileMedia(CatalogManagement.AssetFile assetFile, CatalogManagement.MediaFileType fileType)
+        public FileMedia(AssetFile assetFile, MediaFileType fileType)
         {
             this.m_nFileId = (int)assetFile.Id;
             this.m_nMediaID = (int)assetFile.AssetId;                        

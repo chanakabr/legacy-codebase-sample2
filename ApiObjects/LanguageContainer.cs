@@ -1,13 +1,22 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Runtime.Serialization;
 
 namespace ApiObjects
 {
     [Serializable]
     public class LanguageContainer : IEquatable<LanguageContainer>
     {
-
+        [DataMember]
+        [JsonProperty("LanguageCode")]
         public string LanguageCode { get; set; }
+
+        [DataMember]
+        [JsonProperty("Value")]
         public string Value { get; set; }
+
+        [DataMember]
+        [JsonProperty("IsDefault")]
         public bool IsDefault { get; set; }
 
         public LanguageContainer()

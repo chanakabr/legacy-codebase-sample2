@@ -1,0 +1,534 @@
+﻿using APILogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.Catalog;
+using ApiObjects.Excel;
+using Core.Catalog.CatalogManagement;
+using Newtonsoft.Json;
+using QueueWrapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using TVinciShared;
+
+namespace Core.Catalog
+{
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class MediaAsset : Asset, IBulkUploadObject, IExcelStructure
+    {
+        #region Consts
+
+        public string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
+        public string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
+        
+        public const string MEDIA_TYPE = "MEDIA_TYPE";
+
+        // ASSET EXCEL COLUMNS
+        private const string MEDIA_ASSET_TYPE = "Media Asset Type";
+        private const string GEO_RULE_ID = "GeoBlockRuleId";
+        private const string DEVICE_RULE_ID = "DeviceRuleId";
+        private const string FILES = "FILES";
+
+        #endregion
+
+        #region Data Members
+
+        [ExcelColumn(ExcelColumnType.Meta, AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [JsonProperty("CatalogStartDate")]
+        public DateTime? CatalogStartDate { get; set; }
+
+        [ExcelColumn(ExcelColumnType.Meta, AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [JsonProperty("FinalEndDate")]
+        public DateTime? FinalEndDate { get; set; }
+
+        [ExcelColumn(ExcelColumnType.Basic, MEDIA_ASSET_TYPE, IsMandatory = true)]
+        [JsonProperty("MediaType")]
+        public MediaType MediaType { get; set; }
+
+        [JsonProperty("EntryId")]
+        public string EntryId { get; set; }
+
+        [ExcelColumn(ExcelColumnType.Rule, DEVICE_RULE_ID)]
+        [JsonProperty("DeviceRuleId")]
+        public int? DeviceRuleId { get; set; }
+
+        [ExcelColumn(ExcelColumnType.Rule, GEO_RULE_ID)]
+        [JsonProperty("GeoBlockRuleId")]
+        public int? GeoBlockRuleId { get; set; }
+
+        [ExcelColumn(ExcelColumnType.File, FILES)]
+        [JsonProperty(PropertyName = "Files",
+                      TypeNameHandling = TypeNameHandling.Auto,
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
+        public List<AssetFile> Files { get; set; }
+
+        [JsonProperty("UserTypes")]
+        public string UserTypes { get; set; }
+
+        [ExcelColumn(ExcelColumnType.Meta, AssetManager.STATUS_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [JsonProperty("IsActive")]
+        public bool? IsActive { get; set; }
+
+        [JsonProperty("MediaAssetType")]
+        public MediaAssetType MediaAssetType { get; set; }
+
+        [JsonProperty("InheritancePolicy")]
+        public AssetInheritancePolicy? InheritancePolicy { get; set; }
+        
+        #endregion
+
+        #region Ctor's
+
+        public MediaAsset()
+            : base()
+        {
+            this.CatalogStartDate = null;
+            this.FinalEndDate = null;
+            this.MediaType = new MediaType();
+            this.EntryId = string.Empty;
+            this.DeviceRuleId = null;
+            this.GeoBlockRuleId = null;
+            this.Files = new List<AssetFile>();
+            this.UserTypes = string.Empty;
+            this.IsActive = null;
+            this.MediaAssetType = MediaAssetType.Media;
+        }
+
+        public MediaAsset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages,
+                        DateTime? createDate, DateTime? updateDate, DateTime? startDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Image> images, string coGuid, bool isActive,
+                        DateTime? catalogStartDate, DateTime? finalEndDate, MediaType mediaType, string entryId, int? deviceRuleId, int? geoBlockRuleId, List<AssetFile> files, string userTypes, AssetInheritancePolicy assetInheritancePolicy)
+            : base(id, assetType, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, startDate, updateDate, endDate, metas, tags, images, coGuid)
+        {
+            this.CatalogStartDate = catalogStartDate;
+            if (this.CatalogStartDate.HasValue)
+            {
+                this.Metas.Add(new Metas(new TagMeta(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()), this.CatalogStartDate.Value.ToString()));
+            }
+
+            this.FinalEndDate = finalEndDate;
+            if (this.FinalEndDate.HasValue)
+            {
+                this.Metas.Add(new Metas(new TagMeta(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()), this.FinalEndDate.Value.ToString()));
+            }
+
+            this.MediaType = new MediaType(mediaType.m_sTypeName, mediaType.m_nTypeID);
+            this.EntryId = entryId;
+            this.DeviceRuleId = deviceRuleId;
+            this.GeoBlockRuleId = geoBlockRuleId;
+            this.Files = files != null ? new List<AssetFile>(files) : new List<AssetFile>();
+            this.UserTypes = userTypes;
+            this.IsActive = isActive;
+            this.MediaAssetType = MediaAssetType.Media;
+            this.InheritancePolicy = assetInheritancePolicy;
+        }
+
+        public MediaAsset(MediaAsset mediaAssetToCopy)
+            : base(mediaAssetToCopy)
+        {
+            this.CatalogStartDate = mediaAssetToCopy.CatalogStartDate;
+            this.FinalEndDate = mediaAssetToCopy.FinalEndDate;
+            this.MediaType = new MediaType(mediaAssetToCopy.MediaType.m_sTypeName, mediaAssetToCopy.MediaType.m_nTypeID);
+            this.EntryId = mediaAssetToCopy.EntryId;
+            this.DeviceRuleId = mediaAssetToCopy.DeviceRuleId;
+            this.GeoBlockRuleId = mediaAssetToCopy.GeoBlockRuleId;
+            this.Files = mediaAssetToCopy.Files != null ? new List<AssetFile>(mediaAssetToCopy.Files) : new List<AssetFile>();
+            this.UserTypes = mediaAssetToCopy.UserTypes;
+            this.IsActive = mediaAssetToCopy.IsActive;
+            this.MediaAssetType = mediaAssetToCopy.MediaAssetType;
+            this.InheritancePolicy = mediaAssetToCopy.InheritancePolicy;
+        }
+
+        public MediaAsset(int groupId, Response.MediaObj mediaObj)
+            : base(mediaObj)
+        {
+            this.CatalogStartDate = mediaObj.m_dCatalogStartDate;
+            this.FinalEndDate = mediaObj.m_dFinalDate;
+            this.MediaType = new MediaType(mediaObj.m_oMediaType.m_sTypeName, mediaObj.m_oMediaType.m_nTypeID);
+            this.EntryId = mediaObj.EntryId;
+            if (!string.IsNullOrEmpty(mediaObj.DeviceRule))
+            {
+                this.DeviceRuleId = (int?)TvmRuleManager.GetDeviceRuleId(groupId, mediaObj.DeviceRule);
+            }
+
+            if (!string.IsNullOrEmpty(mediaObj.GeoblockRule))
+            {
+                this.GeoBlockRuleId = (int?)TvmRuleManager.GetGeoBlockRuleId(groupId, mediaObj.GeoblockRule);
+            }
+
+            this.Files = new List<AssetFile>();
+            this.UserTypes = string.Empty;
+            this.IsActive = mediaObj.IsActive;
+            this.MediaAssetType = string.IsNullOrEmpty(mediaObj.m_ExternalIDs) ? MediaAssetType.Media : MediaAssetType.Linear;
+        }
+
+        #endregion
+
+        #region IExcel Methods
+        
+        public override Dictionary<string, object> GetExcelValues(int groupId)
+        {
+            Dictionary<string, object> excelValues = new Dictionary<string, object>();
+            var baseExcelValues = base.GetExcelValues(groupId);
+            excelValues.TryAddRange(baseExcelValues);
+
+            if (this.MediaType != null)
+            {
+                if (string.IsNullOrEmpty(this.MediaType.m_sTypeName) && this.MediaType.m_nTypeID > 0)
+                {
+                    CatalogGroupCache catalogGroupCache;
+                    if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        if (catalogGroupCache.AssetStructsMapById.ContainsKey(this.MediaType.m_nTypeID))
+                        {
+                            this.MediaType.m_sTypeName = catalogGroupCache.AssetStructsMapById[this.MediaType.m_nTypeID].SystemName;
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(this.MediaType.m_sTypeName))
+                {
+                    var excelColumn = ExcelColumn.GetFullColumnName(MEDIA_ASSET_TYPE, null, null, true);
+                    excelValues.TryAdd(excelColumn, this.MediaType.m_sTypeName);
+                }
+            }
+            
+            if (this.CatalogStartDate.HasValue)
+            {
+                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+                excelValues.TryAdd(excelColumn, this.CatalogStartDate);
+            }
+
+            if (this.FinalEndDate.HasValue)
+            {
+                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+                excelValues.TryAdd(excelColumn, this.FinalEndDate);
+            }
+
+            foreach (var file in Files)
+            {
+                excelValues.TryAddRange(file.GetExcelValues(groupId));
+            }
+
+            if (this.DeviceRuleId.HasValue)
+            {
+                var excelColumn = ExcelColumn.GetFullColumnName(DEVICE_RULE_ID);
+                excelValues.TryAdd(excelColumn, this.DeviceRuleId);
+            }
+
+            if (this.GeoBlockRuleId.HasValue)
+            {
+                var excelColumn = ExcelColumn.GetFullColumnName(GEO_RULE_ID);
+                excelValues.TryAdd(excelColumn, this.GeoBlockRuleId);
+            }
+
+            if (this.IsActive.HasValue)
+            {
+                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.STATUS_META_SYSTEM_NAME, null, null, true);
+                excelValues.TryAdd(excelColumn, this.IsActive);
+            }
+
+            return excelValues;
+        }
+
+        private static Dictionary<string, ExcelColumn> excelColumns = new Dictionary<string, ExcelColumn>();
+
+        public static Dictionary<string, ExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null)
+        {
+            if (excelColumns != null && excelColumns.Count > 0)
+            {
+                return excelColumns;
+            }
+            
+            if (data != null && data.ContainsKey(MEDIA_TYPE))
+            {
+                int? mediaType = data[MEDIA_TYPE] as int?;
+
+                if (mediaType.HasValue)
+                {
+                    CatalogGroupCache catalogGroupCache;
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        return excelColumns;
+                    }
+
+                    if (!catalogGroupCache.AssetStructsMapById.ContainsKey(mediaType.Value))
+                    {
+                        return excelColumns;
+                    }
+
+                    var systemNameToExcelAttribute = ExcelManager.GetSystemNameToProperyData(typeof(MediaAsset));
+
+                    // mediaType
+                    if (systemNameToExcelAttribute.ContainsKey(MEDIA_ASSET_TYPE))
+                    {
+                        var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[MEDIA_ASSET_TYPE], MEDIA_ASSET_TYPE);
+                        excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                    }
+                    
+                    // EXTERNAL_ID
+                    if (systemNameToExcelAttribute.ContainsKey(Asset.EXTERNAL_ASSET_ID))
+                    {
+                        var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[Asset.EXTERNAL_ASSET_ID], Asset.EXTERNAL_ASSET_ID);
+                        excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                    }
+                    
+                    // METAS AND TAGS
+                    if (systemNameToExcelAttribute.ContainsKey(Asset.METAS) && systemNameToExcelAttribute.ContainsKey(Asset.TAGS))
+                    {
+                        var assetStruct = catalogGroupCache.AssetStructsMapById[mediaType.Value];
+                        var topics = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
+                            .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key));
+
+                        Dictionary<string, string> uniqueMetasToHelpText = new Dictionary<string, string>();
+
+                        var languages = catalogGroupCache.LanguageMapByCode.OrderByDescending(x => x.Value.IsDefault);
+                        foreach (var lang in languages)
+                        {
+                            foreach (var topic in topics)
+                            {
+                                string language = null;
+                                if (!lang.Value.IsDefault)
+                                {
+                                    if (topic.Value.Type != MetaType.MultilingualString)
+                                    {
+                                        continue;
+                                    }
+
+                                    language = lang.Value.Code;
+                                }
+
+                                if (systemNameToExcelAttribute.ContainsKey(topic.Value.SystemName) && 
+                                    systemNameToExcelAttribute[topic.Value.SystemName].Item1.IsUniqueMeta)
+                                {
+                                    uniqueMetasToHelpText.TryAdd(topic.Value.SystemName, topic.Value.HelpText);
+                                    continue;
+                                }
+                                
+                                var topicAttribute = topic.Value.Type == MetaType.Tag ? systemNameToExcelAttribute[Asset.TAGS] : systemNameToExcelAttribute[Asset.METAS];
+                                var topicColumn = ExcelManager.GetExcelColumnByAttribute(topicAttribute, topic.Value.SystemName, language, topic.Value.HelpText);
+                                excelColumns.TryAdd(topicColumn.ToString(), topicColumn);
+                            }
+                        }
+
+                        // Uniqe Metas (status and dates)
+                        foreach (var uniqeMeta in uniqueMetasToHelpText)
+                        {
+                            var uniqeMetaColumn = 
+                                ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[uniqeMeta.Key],
+                                                                       uniqeMeta.Key,
+                                                                       null,
+                                                                       uniqueMetasToHelpText[uniqeMeta.Key]);
+                            excelColumns.TryAdd(uniqeMetaColumn.ToString(), uniqeMetaColumn);
+                        }
+                    }
+
+                    // IMAGES
+                    if (systemNameToExcelAttribute.ContainsKey(Asset.IMAGES))
+                    {
+                        var imageTypeListResponse = ImageManager.GetImageTypes(groupId, false, null);
+                        if (!imageTypeListResponse.HasObjects())
+                        {
+                            // TODO SHIR - ASK IDDO WHAT TODO IF THERE IS NO IMAGE_TYPES
+                            return excelColumns;
+                        }
+                        else
+                        {
+                            foreach (var imageType in imageTypeListResponse.Objects)
+                            {
+                                var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[Asset.IMAGES], imageType.SystemName, null, imageType.HelpText, Asset.IMAGES);
+                                excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                            }
+                        }
+                    }
+
+                    // FILES
+                    if (systemNameToExcelAttribute.ContainsKey(FILES))
+                    {
+                        var mediaFileTypesListResponse = FileManager.GetMediaFileTypes(groupId);
+                        if (!mediaFileTypesListResponse.HasObjects())
+                        {
+                            // TODO SHIR - ASK IDDO WHAT TODO IF THERE IS NO MEDIA_FILE_TYPES
+                            return excelColumns;
+                        }
+                        else
+                        {
+                            var fileSystemNameToExcelAttribute = ExcelManager.GetSystemNameToProperyData(typeof(AssetFile));
+                            foreach (var mediaFileType in mediaFileTypesListResponse.Objects)
+                            {
+                                foreach (var fileAttribute in fileSystemNameToExcelAttribute)
+                                {
+                                    var excelColumn = ExcelManager.GetExcelColumnByAttribute(fileAttribute.Value, mediaFileType.Name, null, mediaFileType.Description, fileAttribute.Key);
+                                    excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                                }
+                            }
+                        }
+                    }
+                   
+                    // RULES
+                    if (systemNameToExcelAttribute.ContainsKey(MediaAsset.GEO_RULE_ID))
+                    {
+                        var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[MediaAsset.GEO_RULE_ID], MediaAsset.GEO_RULE_ID);
+                        excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                    }
+
+                    if (systemNameToExcelAttribute.ContainsKey(MediaAsset.DEVICE_RULE_ID))
+                    {
+                        var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[MediaAsset.DEVICE_RULE_ID], MediaAsset.DEVICE_RULE_ID);
+                        excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                    }
+                }
+            }
+
+            return excelColumns;
+        }
+        
+        Dictionary<string, ExcelColumn> IExcelStructure.GetExcelColumns(int groupId, Dictionary<string, object> data = null)
+        {
+            return MediaAsset.GetExcelColumns(groupId, data);
+        }
+        
+        public override void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns)
+        {
+            CatalogGroupCache catalogGroupCache;
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                return;
+            }
+            
+            HashSet<string> fileTypesSystemName = new HashSet<string>();
+            Dictionary<string, List<LanguageContainer>> dicMetas = new Dictionary<string, List<LanguageContainer>>();
+            Dictionary<string, ImageType> groupRatioNamesToImageTypes = ImageManager.GetGroupRatioNamesToImageTypes(groupId);
+
+            foreach (var columnValue in columnNamesToValues)
+            {
+                if (columns.ContainsKey(columnValue.Key))
+                {
+                    switch (columns[columnValue.Key].ColumnType)
+                    {
+                        case ExcelColumnType.Meta:
+                            SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.DefaultLanguage.Code, ref dicMetas);
+                            break;
+                        case ExcelColumnType.Tag:
+                            SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, catalogGroupCache);
+                            break;
+                        case ExcelColumnType.Image:
+                            SetImageByExcelValues(columnValue, columns[columnValue.Key], groupRatioNamesToImageTypes);
+                            break;
+                        case ExcelColumnType.Basic:
+                            SetBasicByExcelValues(columnValue, catalogGroupCache);
+                            break;
+                        case ExcelColumnType.File:
+                            var fileSystemName = columns[columnValue.Key].SystemName;
+                            if (!fileTypesSystemName.Contains(fileSystemName))
+                            {
+                                fileTypesSystemName.Add(fileSystemName);
+                                var fileValues = columnNamesToValues.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
+                                var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
+                                SetFileByExcelValues(groupId, fileValues, fileColumns);
+                            }
+                            break;
+                        case ExcelColumnType.Rule:
+                            SetRuleByExcelValues(columnValue);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            foreach (var item in dicMetas)
+            {
+                Metas metas = new Metas();
+                if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(item.Key))
+                {
+                    metas.m_oTagMeta = new TagMeta()
+                    {
+                        m_sName = item.Key,
+                        m_sType = catalogGroupCache.TopicsMapBySystemName[item.Key].Type.ToString()
+                    };
+                }
+
+                var defaultValue = item.Value.FirstOrDefault(x => x.IsDefault);
+                if (defaultValue != null)
+                {
+                    metas.m_sValue = defaultValue.Value;
+                }
+
+                metas.Value = item.Value.ToArray();
+                this.Metas.Add(metas);
+            }
+        }
+
+        private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns)
+        {
+            if (fileValues != null && fileValues.Count > 0 && fileColumns != null && fileColumns.Count > 0)
+            {
+                var file = new AssetFile();
+                file.SetExcelValues(groupId, fileValues, fileColumns);
+                Files.Add(file);
+            }
+        }
+        
+        private void SetRuleByExcelValues(KeyValuePair<string, object> columnValue)
+        {
+            if (columnValue.Key.Equals(GEO_RULE_ID))
+            {
+                this.GeoBlockRuleId = StringUtils.TryConvertTo<int>(columnValue.Value.ToString());
+            }
+            else if (columnValue.Key.Equals(DEVICE_RULE_ID))
+            {
+                this.DeviceRuleId = StringUtils.TryConvertTo<int>(columnValue.Value.ToString());
+            }
+        }
+        
+        private void SetBasicByExcelValues(KeyValuePair<string, object> columnValue, CatalogGroupCache catalogGroupCache)
+        {
+            // mediaType
+            if (columnValue.Key.Equals(MEDIA_ASSET_TYPE))
+            {
+                this.MediaType.m_sTypeName = columnValue.Value.ToString();
+                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(this.MediaType.m_sTypeName))
+                {
+                    this.MediaType.m_nTypeID = (int)catalogGroupCache.AssetStructsMapBySystemName[this.MediaType.m_sTypeName].Id;
+                }
+            }
+            // EXTERNAL_ID
+            else if (columnValue.Key.Equals(Asset.EXTERNAL_ASSET_ID))
+            {
+                this.CoGuid = columnValue.Value.ToString();
+            }
+        }
+
+        #endregion
+
+        #region IBulkUploadObject Methods
+
+        public BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadJobStatus status)
+        {
+            BulkUploadMediaAssetResult bulkUploadAssetResult = new BulkUploadMediaAssetResult()
+            {
+
+                BulkUploadId = bulkUploadId,
+                ObjectId = Id,
+                Status = new ApiObjects.Response.Status((int)status, status.ToString()),
+                ExternalId = this.CoGuid,
+                Type = this.MediaType != null ? this.MediaType.m_nTypeID : (int?)null
+            };
+
+            return bulkUploadAssetResult;
+        }
+
+        public bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex)
+        {
+            GenericCeleryQueue queue = new GenericCeleryQueue();
+            var data = new BulkUploadObjectData<MediaAsset>(this.DistributedTask, groupId, userId, bulkUploadId, jobAction, resultIndex, this);
+            bool enqueueSuccessful = queue.Enqueue(data, string.Format(this.RoutingKey, groupId));
+
+            return enqueueSuccessful;
+        }
+        
+        #endregion
+    }
+}

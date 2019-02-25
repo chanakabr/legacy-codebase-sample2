@@ -1295,7 +1295,7 @@ namespace Core.Catalog
                 HashSet<string> allMetas = new HashSet<string>();
                 HashSet<string> allTags = new HashSet<string>();
                 bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
-                CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+                CatalogGroupCache catalogGroupCache = null;
 
                 if (!doesGroupUsesTemplates)
                 {

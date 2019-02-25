@@ -108,13 +108,13 @@ namespace Core.Catalog.Cache
             }
         }
 
-        public List<Ratio> GetGroupRatios(int groupID)
+        public List<ApiObjects.Ratio> GetGroupRatios(int groupID)
         {
-            List<Ratio> ratios = null;
+            List<ApiObjects.Ratio> ratios = null;
             try
             {
                 string sKey = "GroupRatios_" + groupID.ToString();
-                ratios = Get<List<Ratio>>(sKey);
+                ratios = Get<List<ApiObjects.Ratio>>(sKey);
 
                 if (ratios == null || ratios.Count == 0)
                 {

@@ -1,12 +1,12 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using Core.Catalog.CatalogManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Core.Catalog.CatalogManagement
+namespace Core.Catalog
 {
     public class AssetStruct
     {
@@ -22,7 +22,6 @@ namespace Core.Catalog.CatalogManagement
         /// Asset Struct Meta list (the key is the metaID)
         /// </summary>
         public Dictionary<long, AssetStructMeta> AssetStructMetas { get; set; }
-
         public HashSet<string> Features { get; set; }
         public long? ParentId { get; set; }
         public long? ConnectingMetaId { get; set; }

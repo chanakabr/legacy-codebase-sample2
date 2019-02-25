@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using DAL;
 using KLogMonitor;

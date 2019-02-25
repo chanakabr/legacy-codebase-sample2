@@ -77,6 +77,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
@@ -99,6 +100,8 @@
     <Compile Include="Base\BaseSupportsNullable.cs" />
     <Compile Include="Billing\TransactionUnifiedRenewalDetails.cs" />
     <Compile Include="Billing\TransactionUnifiedRenewalRequest.cs" />
+    <Compile Include="Catalog\BulkUpload.cs" />
+    <Compile Include="Catalog\BulkUploadResult.cs" />
     <Compile Include="Catalog\ImageType.cs" />
     <Compile Include="Compensation.cs" />
     <Compile Include="AdminAccountObj.cs" />
@@ -133,6 +136,10 @@
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
+    <Compile Include="Excel\ExcelColumn.cs" />
+    <Compile Include="Excel\ExcelManager.cs" />
+    <Compile Include="Excel\IExcelObject.cs" />
+    <Compile Include="Excel\IExcelStructure.cs" />
     <Compile Include="GeneralPartnerConfig.cs" />
     <Compile Include="PlaybackAdapter\AccessControlMessage.cs" />
     <Compile Include="PlaybackAdapter\AssetFile.cs" />
@@ -157,6 +164,8 @@
     <Compile Include="Notification\MailNotificationAdapter.cs" />
     <Compile Include="Notification\UserData.cs" />
     <Compile Include="PersonalListItem.cs" />
+    <Compile Include="QueueObjects\BulkUploadObjectData.cs" />
+    <Compile Include="QueueObjects\BulkUploadData.cs" />
     <Compile Include="QueueObjects\InheritanceData.cs" />
     <Compile Include="QueueObjects\RenewUnifiedData.cs" />
     <Compile Include="Response\GenericListResponse.cs" />

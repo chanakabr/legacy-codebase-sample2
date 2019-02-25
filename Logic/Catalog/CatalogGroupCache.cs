@@ -2,11 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 
-namespace Core.Catalog.CatalogManagement
+namespace Core.Catalog
 {
     public class CatalogGroupCache
     {
@@ -182,8 +180,8 @@ namespace Core.Catalog.CatalogManagement
         private static void SetCatalogGroupCacheDefaults(int groupId, CatalogGroupCache catalogGroupCache)
         {
             bool isRegionalizationEnabled, isGeoAvailabilityEnabled, isAssetUserRuleEnabled;
-            int defaultRegion, defaultRecommendationEngine, relatedRecommendationEngine, searchRecommendationEngine, relatedRecommendationEngineEnrichments, searchRecommendationEngineEnrichments;                        
-
+            int defaultRegion, defaultRecommendationEngine, relatedRecommendationEngine, searchRecommendationEngine, relatedRecommendationEngineEnrichments, searchRecommendationEngineEnrichments;      
+            
             CatalogDAL.GetGroupDefaultParameters(groupId, out isRegionalizationEnabled, out defaultRegion, out defaultRecommendationEngine, out relatedRecommendationEngine, out searchRecommendationEngine,
                                                 out relatedRecommendationEngineEnrichments, out searchRecommendationEngineEnrichments, out isGeoAvailabilityEnabled, out isAssetUserRuleEnabled);
             catalogGroupCache.IsRegionalizationEnabled = isRegionalizationEnabled;

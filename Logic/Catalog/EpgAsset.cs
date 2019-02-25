@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using TVinciShared;
 
-namespace Core.Catalog.CatalogManagement
+namespace Core.Catalog
 {
     public class EpgAsset : Asset
     {
