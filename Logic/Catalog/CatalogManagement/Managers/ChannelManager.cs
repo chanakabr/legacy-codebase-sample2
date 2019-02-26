@@ -18,6 +18,7 @@ namespace Core.Catalog.CatalogManagement
     public class ChannelManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const int EPG_ASSET_TYPE = 0;
 
         #region Private Methods
 
@@ -131,7 +132,13 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (DataRow drMediaType in mediaTypes)
                 {
-                    channel.m_nMediaType.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                    int mediaTypeId = ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID");
+                    if (mediaTypeId == APILogic.CRUD.KSQLChannelsManager.EPG_ASSET_TYPE)
+                    {
+                        mediaTypeId = EPG_ASSET_TYPE;
+                    }
+
+                    channel.m_nMediaType.Add(mediaTypeId);
                 }
             }
 
@@ -384,13 +391,18 @@ namespace Core.Catalog.CatalogManagement
 
                 List<int> groupAssetTypes = new List<int>(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x));
                 // add epg type for backward compatibility
-                groupAssetTypes.Add(APILogic.CRUD.KSQLChannelsManager.EPG_ASSET_TYPE);
+                groupAssetTypes.Add(EPG_ASSET_TYPE);
                 List<int> noneGroupAssetTypes = new List<int>(channel.m_nMediaType.Except(groupAssetTypes));
                 if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
                 {
                     result.Set((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
                                     eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
                     return result;
+                }
+                else if (channel.m_nMediaType.Contains(EPG_ASSET_TYPE))
+                {
+                    channel.m_nMediaType.Remove(EPG_ASSET_TYPE);
+                    channel.m_nMediaType.Add(APILogic.CRUD.KSQLChannelsManager.EPG_ASSET_TYPE);
                 }
             }
             catch (Exception ex)
