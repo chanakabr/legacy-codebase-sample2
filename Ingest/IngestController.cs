@@ -103,7 +103,7 @@ namespace Ingest
                                 Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
                                 if (CatalogManager.DoesGroupUsesTemplates(groupID))
                                 {
-                                    groupRatioNamesToImageTypes = ImageManager.GetGroupRatioNamesToImageTypes(groupID);
+                                    groupRatioNamesToImageTypes = ImageManager.GetImageTypesMapBySystemName(groupID);
                                 }
                                 isSucceeded = ingest.Initialize(request.Data, groupID, CatalogManager.DoesGroupUsesTemplates(groupID), groupRatioNamesToImageTypes, out ingestResponse);
                                 if (isSucceeded)
