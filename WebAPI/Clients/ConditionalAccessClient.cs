@@ -138,7 +138,8 @@ namespace WebAPI.Clients
             return entitlements;
         }
 
-        public Models.ConditionalAccess.KalturaBillingTransactionListResponse GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size, KalturaTransactionHistoryOrderBy orderBy)
+        public Models.ConditionalAccess.KalturaBillingTransactionListResponse GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size,
+                                                                                    KalturaTransactionHistoryOrderBy orderBy, DateTime startDate, DateTime endDate)
         {
             Models.ConditionalAccess.KalturaBillingTransactionListResponse transactions = null;
             BillingTransactions response = null;
@@ -149,7 +150,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetUserBillingHistory(groupId, userid, page_number, page_size, wsOrderBy);
+                    response = Core.ConditionalAccess.Module.GetUserBillingHistory(groupId, userid, page_number, page_size, wsOrderBy, startDate, endDate);
                 }
             }
             catch (Exception ex)

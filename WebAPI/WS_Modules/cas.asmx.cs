@@ -486,7 +486,7 @@ namespace WS_ConditionalAccess
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.GetUserBillingHistory(nGroupID, sSiteGUID, nStartIndex, nNumberOfItems, orderBy);
+                return Core.ConditionalAccess.Module.GetUserBillingHistory(nGroupID, sSiteGUID, nStartIndex, nNumberOfItems, orderBy, DateTime.MinValue, DateTime.MaxValue);
             }
             else
             {
