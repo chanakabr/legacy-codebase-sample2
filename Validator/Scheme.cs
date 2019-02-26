@@ -21,6 +21,7 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using WebAPI.Utils;
 using TVinciShared;
+using WebAPI.Models.API;
 
 namespace Validator.Managers.Scheme
 {
@@ -154,6 +155,7 @@ namespace Validator.Managers.Scheme
             LoadType(typeof(KalturaApiExceptionArg));
             LoadType(typeof(KalturaClientConfiguration));
             LoadType(typeof(KalturaRequestConfiguration));
+            LoadType(typeof(KalturaResponseType));
 
             foreach (Type controller in controllers)
             {

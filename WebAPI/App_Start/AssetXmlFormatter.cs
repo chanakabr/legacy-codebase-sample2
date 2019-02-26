@@ -20,18 +20,19 @@ using TVinciShared;
 using WebAPI.Models.Renderers;
 using KLogMonitor;
 using System.Reflection;
+using WebAPI.Utils;
+using WebAPI.Models.API;
 
 namespace WebAPI.App_Start
 {
-    public class AssetXmlFormatter : MediaTypeFormatter
+    public class AssetXmlFormatter : BaseFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public AssetXmlFormatter()
+        public AssetXmlFormatter() : base(KalturaResponseType.ASSET_XML, "application/xml")
         {
-            MediaTypeMappings.Add(new QueryStringMapping("format", "30", "application/xml"));
         }
-
+        
         public override bool CanReadType(Type type)
         {
             if (type == (Type)null)

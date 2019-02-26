@@ -826,6 +826,7 @@
     <Compile Include="Controllers\UserSegmentController.cs" />
     <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
     <Compile Include="Managers\Scheme\ExcelAttribute.cs" />
+    <Compile Include="Models\API\KalturaResponseType.cs" />
     <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
     <Compile Include="Models\API\KalturaTvmGeoRule.cs" />
     <Compile Include="Models\API\KalturaTvmRuleFilter.cs" />
@@ -1575,6 +1576,7 @@
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />
     <Compile Include="Utils\HouseholdUtils.cs" />
+    <Compile Include="Utils\BaseFormatter.cs" />
     <Compile Include="Utils\JsonPFormatter.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Managers\PlaybackAdapterManager.cs" />

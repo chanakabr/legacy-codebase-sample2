@@ -22,6 +22,7 @@ using WebAPI.App_Start;
 using WebAPI.Reflection;
 using Newtonsoft.Json.Linq;
 using WebAPI.Managers;
+using WebAPI.Models.API;
 
 namespace WebAPI.Utils
 {
@@ -29,18 +30,9 @@ namespace WebAPI.Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private readonly Options _jilOptions;
-
-        public JsonPFormatter()
+        public JsonPFormatter() : base(KalturaResponseType.JSONP)
         {
-            _jilOptions = new Options(dateFormat: DateTimeFormat.SecondsSinceUnixEpoch, excludeNulls: true, includeInherited: true);
-            SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
             MediaTypeMappings.Add(new QueryStringMapping("responseFormat", "jsonp", "application/json"));
-
-            SupportedEncodings.Add(new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true));
-            SupportedEncodings.Add(new UnicodeEncoding(bigEndian: false, byteOrderMark: true, throwOnInvalidBytes: true));
-
-            jsonManager = JsonManager.GetInstance();
         }
 
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, TransportContext transportContext)

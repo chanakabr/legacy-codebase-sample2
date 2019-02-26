@@ -33,19 +33,18 @@ using OfficeOpenXml.Style;
 using WebAPI.Utils;
 using System.Drawing;
 using ApiObjects.Excel;
+using WebAPI.Models.API;
 
 namespace WebAPI.App_Start
 {
-    public class ExcelFormatter : MediaTypeFormatter
+    public class ExcelFormatter : BaseFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string EXCEL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        
-        public ExcelFormatter()
+
+        public ExcelFormatter() : base(KalturaResponseType.EXCEL, EXCEL_CONTENT_TYPE)
         {
-            SupportedMediaTypes.Add(new MediaTypeHeaderValue(EXCEL_CONTENT_TYPE));
-            MediaTypeMappings.Add(new QueryStringMapping("format", "31", EXCEL_CONTENT_TYPE));
         }
 
         public override bool CanReadType(Type type)

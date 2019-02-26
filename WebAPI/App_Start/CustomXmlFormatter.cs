@@ -17,16 +17,15 @@ using System.Collections;
 using System.Web;
 using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
+using WebAPI.Utils;
+using WebAPI.Models.API;
 
 namespace WebAPI.App_Start
 {
-    public class CustomXmlFormatter : MediaTypeFormatter
+    public class CustomXmlFormatter : BaseFormatter
     {
-        public CustomXmlFormatter()
+        public CustomXmlFormatter() : base(KalturaResponseType.XML, new string[] { "application/xml", "text/xml" })
         {
-            SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/xml"));
-            SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/xml"));
-            MediaTypeMappings.Add(new QueryStringMapping("format", "2", "application/xml"));
         }
 
         public override bool CanReadType(Type type)

@@ -22,26 +22,18 @@ using WebAPI.App_Start;
 using WebAPI.Reflection;
 using Newtonsoft.Json.Linq;
 using WebAPI.Managers;
+using WebAPI.Models.API;
 
 namespace WebAPI.Utils
 {
-    public class JilFormatter : MediaTypeFormatter
+    public class JilFormatter : BaseFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private readonly Options _jilOptions;
-
         protected JsonManager jsonManager;
 
-        public JilFormatter()
+        public JilFormatter(KalturaResponseType fortmat = KalturaResponseType.JSON) : base(fortmat, "application/json")
         {
-            _jilOptions = new Options(dateFormat: DateTimeFormat.SecondsSinceUnixEpoch, excludeNulls: true, includeInherited: true);
-            SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
-            MediaTypeMappings.Add(new QueryStringMapping("format", "1", "application/json"));
-
-            SupportedEncodings.Add(new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true));
-            SupportedEncodings.Add(new UnicodeEncoding(bigEndian: false, byteOrderMark: true, throwOnInvalidBytes: true));
-
             jsonManager = JsonManager.GetInstance();
         }
 
