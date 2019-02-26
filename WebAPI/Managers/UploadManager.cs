@@ -128,6 +128,33 @@ namespace WebAPI.Managers
 
             return new KalturaUploadToken(cbUploadToken);
         }
+
+        internal static string SaveFile(long id, string pathInIIS, int groupId)
+        {
+            // TODO SHIR - SaveFile ask guy how to save file and load it by id 
+            // first lib id / 1000000 and sec lib is id / 1000
+            string fileURL = null;
+            FileInfo fileInfo = new FileInfo(pathInIIS);
+            switch (ApplicationConfiguration.FileUpload.UploadType)
+            {
+                case FileUploadConfiguration.eFileUploadType.FileSystem:
+                    //fileURL = FileSystemUploader.Instance.UploadFile(fileInfo, id);
+                    break;
+                case FileUploadConfiguration.eFileUploadType.S3:
+                    //fileURL = S3Uploader.Instance.UploadFile(fileInfo, id);
+                    break;
+            }
+            if (!string.IsNullOrEmpty(fileURL))
+            {
+                log.DebugFormat("file id:{0}, is save in the new url:{1} by type:{2}", id, fileURL, ApplicationConfiguration.FileUpload.UploadType);
+            }
+            else
+            {
+                // throw error for saving file
+            }
+            
+            return null;
+        }
     }
 
     public abstract class BaseUploader
@@ -196,8 +223,7 @@ namespace WebAPI.Managers
         {
             for (int i = 0; i < NumberOfRetries; i++)
             {
-                using (var client =
-                    new AmazonS3Client(AccessKey, SecretKey, Amazon.RegionEndpoint.GetBySystemName(Region)))
+                using (var client = new AmazonS3Client(AccessKey, SecretKey, Amazon.RegionEndpoint.GetBySystemName(Region)))
                 {
                     try
                     {

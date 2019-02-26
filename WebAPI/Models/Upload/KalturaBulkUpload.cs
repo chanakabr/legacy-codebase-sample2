@@ -52,6 +52,7 @@ namespace WebAPI.Models.Upload
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
+        // TODO SHIR - DELETE USE CURRENT ID
         /// <summary>
         /// Upload Token Id
         /// </summary>

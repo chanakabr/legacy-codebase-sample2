@@ -26,28 +26,37 @@ namespace WebAPI.Models.Catalog
     {
         private static readonly List<string> OVERVIEW_INSTRUCTIONS = new List<string>()
         {
-            "//Templae Overview",
-            "//The first row shows (Label) ((identifier)) - (Field Type)",
-            "// Label is the friendly field name. It can only be edited via the Operator Console UI",
-            "// Identifier is the system name. It can not be edited via this form",
-            "// Columns marked in * are required",
-            "// Field Types:",
-            "// Text fields are strings (example: The Godfather)",
-            "// Numeric fields are integers and suppot a single value (example: 3600). Double integers are accepted (example 7.9)",
-            "// Switch values should be TRUE or FALSE",
-            "// Tags should be seperated by commas (example: drama, action, family)",
-            "// Date&Time (format: dd/MM/yyyy hh:mm:ss)",
-            "// The help text can be edited via the Operator Console"
-        };
+            "//Template Overview",
+            "//Batch upload to OPC is limited to 200 media assets per file",
+            "//The media asset information is grouped and color-coded by OPC tabs: Metadata, Availability, Images, Playback Files, Rules",
+            "//The first two columns indicate the media asset type. If you are updating an existing media asset, do not modify these columns",
+            "//To create a new asset, enter the media asset type name (column A) and an asterisk (*) in column B",
+            "//To create a new asset with a specific External ID, enter your chosen ID in column B",
+            "//The first row of the media asset table includes the field identifier and field type (example: Name (Text Field))",
+            "//Secondary languages are marked with “:“. (example: Name:spanish (Text Field))",
+            "//You may edit this template to only include the fields you wish to update, but columns marked with * are mandatory",
+            "//Field types information:",
+            "//Text fields are strings (example: The Godfather)",
+            "//Numeric fields are integers single value is supported (example: 3600). Double integers are also accepted (example 7.9)",
+            "//Switch values should be TRUE or FALSE",
+            "//Tags should be separated by commas (example: drama, action, family)",
+            "//Date&Time (format: dd/mm/yyyy hh:mm:ss)",
+            "//Playback file types columns include the file identifier and the field type as it appears in OPC (example: AndroidMain:External Id)",
+            "//Image types columns include the image identifier and the field type as it appears in OPC (example: BoxCoverEnglish:Image URL)",
+            "//PPV for file types can be updated using the PPV name separated by “;”. (example: [PPV name];[PPVname]. PPV with dates[PPV1];[Start];[End];[PPV2];[Start];[End]…)",
+            "//Image columns are generated with no value by default. If you wish to update an image, enter the URL in the appropriate Image URL column",
+            "//For rules, provide the rule name as it appears in OPC."
+       };
 
         private static readonly Dictionary<ExcelColumnType, Color> COLUMNS_COLORS = new Dictionary<ExcelColumnType, Color>()
         {
-            { ExcelColumnType.Basic, Color.Orange },
-            { ExcelColumnType.Meta, Color.Green },
-            { ExcelColumnType.Tag, Color.Green },
-            { ExcelColumnType.File, Color.Blue },
-            { ExcelColumnType.Image, Color.Gray },
-            { ExcelColumnType.Rule, Color.Yellow }
+            { ExcelColumnType.Basic, Color.Red },
+            { ExcelColumnType.Meta, Color.FromArgb(51, 204, 51) }, // green
+            { ExcelColumnType.Tag, Color.FromArgb(51, 204, 51) }, // green
+            { ExcelColumnType.AvailabilityMeta, Color.FromArgb(255, 153, 0) }, //orange
+            { ExcelColumnType.File,  Color.FromArgb(0, 204, 255) }, // Cyan
+            { ExcelColumnType.Image, Color.FromArgb(204, 0, 102) }, // Purple
+            { ExcelColumnType.Rule, Color.FromArgb(255, 234, 0) } // Yellow
         };
 
         /// <summary>

@@ -59,18 +59,27 @@ namespace WebAPI.Models.API
 
         internal void Validate()
         {
-            if (KalturaRuleConditionType.COUNTRY != ConditionsContainType &&
-                KalturaRuleConditionType.CONCURRENCY != ConditionsContainType &&
-                KalturaRuleConditionType.IP_RANGE != ConditionsContainType)
+            if (KalturaRuleConditionType.BUSINESS_MODULE == ConditionsContainType ||
+                KalturaRuleConditionType.SEGMENTS == ConditionsContainType ||
+                KalturaRuleConditionType.DATE == ConditionsContainType ||
+                KalturaRuleConditionType.OR == ConditionsContainType ||
+                KalturaRuleConditionType.HEADER == ConditionsContainType)
             {
-                if (KalturaRuleConditionType.ASSET != ConditionsContainType)
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.conditionsContainType");
-                }
-                else if (!ActionsContainType.HasValue || ActionsContainType.Value != KalturaRuleActionType.BLOCK)
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.actionsContainType");
-                }
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.conditionsContainType");
+            }
+
+            if (KalturaRuleConditionType.ASSET == ConditionsContainType &&
+                !ActionsContainType.HasValue || 
+                (ActionsContainType.HasValue &&
+                 (ActionsContainType.Value == KalturaRuleActionType.START_DATE_OFFSET ||
+                  ActionsContainType.Value == KalturaRuleActionType.END_DATE_OFFSET ||
+                  ActionsContainType.Value == KalturaRuleActionType.USER_BLOCK ||
+                  ActionsContainType.Value == KalturaRuleActionType.ALLOW_PLAYBACK ||
+                  ActionsContainType.Value == KalturaRuleActionType.BLOCK_PLAYBACK ||
+                  ActionsContainType.Value == KalturaRuleActionType.APPLY_DISCOUNT_MODULE ||
+                  ActionsContainType.Value == KalturaRuleActionType.FILTER)))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.actionsContainType");
             }
             
             if (AssetApplied != null)

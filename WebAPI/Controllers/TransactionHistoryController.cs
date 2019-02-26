@@ -45,30 +45,31 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                DateTime startDate = new DateTime(1753, 1, 1);
+                DateTime endDate = DateTime.MaxValue;
+
+                if (filter.StartDateGreaterThanOrEqual.HasValue)
+                {
+                    startDate = filter.StartDateGreaterThanOrEqual.Value;
+                }
+
+                if (filter.EndDateLessThanOrEqual.HasValue)
+                {
+                    endDate = filter.EndDateLessThanOrEqual.Value;
+                }
 
                 switch (filter.EntityReferenceEqual)
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy);
+                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, startDate, endDate);
                             break;
                         }
                     case KalturaEntityReferenceBy.household:
                         {
                             bool isDeprecated = !DeprecatedAttribute.IsDeprecated("4.8.0.0", (Version)HttpContext.Current.Items[Filters.RequestParser.REQUEST_VERSION]); // fix for userFullName and userId disapearing from response since 4.8.0.0
 
-                            DateTime startDate = new DateTime(1753, 1, 1);
-                            DateTime endDate = DateTime.MaxValue;
 
-                            if (filter.StartDateGreaterThanOrEqual.HasValue)
-                            {
-                                startDate = filter.StartDateGreaterThanOrEqual.Value;
-                            }
-
-                            if (filter.EndDateLessThanOrEqual.HasValue)
-                            {
-                                endDate = filter.EndDateLessThanOrEqual.Value;
-                            }
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
                                 groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isDeprecated);
@@ -110,28 +111,30 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                DateTime startDate = new DateTime(1753, 1, 1);
+                DateTime endDate = DateTime.MaxValue;
+
+                if (filter.StartDate.HasValue)
+                {
+                    startDate = filter.StartDate.Value;
+                }
+
+                if (filter.EndDate.HasValue)
+                {
+                    endDate = filter.EndDate.Value;
+                }
 
                 switch (filter.By)
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, filter.getPageIndex(), filter.getPageSize(), KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC);
+                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, filter.getPageIndex(), filter.getPageSize(),
+                                                                                        KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC, startDate, endDate);
                             break;
                         }
                     case KalturaEntityReferenceBy.household:
                         {
-                            DateTime startDate = new DateTime(1753, 1, 1);
-                            DateTime endDate = DateTime.MaxValue;
 
-                            if (filter.StartDate.HasValue)
-                            {
-                                startDate = filter.StartDate.Value;
-                            }
-
-                            if (filter.EndDate.HasValue)
-                            {
-                                endDate = filter.EndDate.Value;
-                            }
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
                                 groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, filter.getPageIndex(), filter.getPageSize(), KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC, true);

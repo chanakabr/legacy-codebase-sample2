@@ -263,6 +263,10 @@ namespace WebAPI.Exceptions
             "You've configured a negative buffer value in the TimeShiftedTvPartnerr settings");
         public static ClientExceptionType CDNPARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.CDNPartnerSettingsNotFound, "CDNPartner Settings Not Found", "The system didn't find any CDN partner -related settings for the group account");
         public static ClientExceptionType PERMISSION_NAME_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PermissionNameNotExists, "Permission Name Not Exists");
+        public static ClientExceptionType ASSET_RULE_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetRuleNotExists, "Asset rule doesn't exist");
+        public static ClientExceptionType ASSET_USER_RULE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetUserRuleDoesNotExists, "Asset user rule does not exist");
+        public static ClientExceptionType USER_ALREADY_ATTACHED_TO_ASSET_USER_RULE = new ClientExceptionType(eResponseStatus.UserAlreadyAttachedToAssetUserRule, "User already attached to this AssetUserRule");
+        public static ClientExceptionType ASSET_USER_RULES_OPERATIONS_DISABLE = new ClientExceptionType(eResponseStatus.AssetUserRulesOperationsDisable, "AssetUserRule operations are disabled for this partner");         
         public static ClientExceptionType ROLE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RoleDoesNotExists, "Role Does Not Exists");
 
         // Billing 6000 - 6999

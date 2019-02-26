@@ -199,6 +199,8 @@ namespace WebAPI.App_Start
             {
                 foreach (var col in columns)
                 {
+                    // TODO SHIR - GET REAL PROP TYPE TO SET IN EXCEL
+                    //dataTable.Columns.Add(col.Key, col.Value.Property.PropertyType);
                     dataTable.Columns.Add(col.Key);
                 }
 
