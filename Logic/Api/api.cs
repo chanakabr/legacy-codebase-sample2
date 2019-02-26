@@ -3531,7 +3531,7 @@ namespace Core.Api
 
                     AssetRule blockingRule;
                     var networkRulesStatus = AssetRuleManager.CheckNetworkRules(
-                        new List<SlimAsset>() {new SlimAsset(mediaId, eAssetTypes.MEDIA)}, groupId, ip,
+                        new List<SlimAsset>() {new SlimAsset(mediaId, eAssetTypes.MEDIA), new SlimAsset(recording.EpgId, eAssetTypes.NPVR) }, groupId, ip,
                         out blockingRule);
 
                     if (!networkRulesStatus.IsOkStatusCode())
