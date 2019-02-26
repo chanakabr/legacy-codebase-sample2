@@ -65,11 +65,11 @@ namespace Core.Catalog
         [JsonProperty("UpdateDate")]
         public DateTime? UpdateDate { get; set; }
 
-        [ExcelColumn(ExcelColumnType.Meta, AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, IsMandatory =true, IsUniqueMeta = true)]
+        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, IsMandatory =true, IsUniqueMeta = true)]
         [JsonProperty("StartDate")]
         public DateTime? StartDate { get; set; }
 
-        [ExcelColumn(ExcelColumnType.Meta, AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
         [JsonProperty("EndDate")]
         public DateTime? EndDate { get; set; }
 
@@ -391,14 +391,14 @@ namespace Core.Catalog
             this.Tags.Add(new Tags(tagMeta, values, languageContainers));
         }
 
-        protected void SetImageByExcelValues(KeyValuePair<string, object> columnValue, ExcelColumn excelColumn, Dictionary<string, ImageType> groupRatioNamesToImageTypes)
+        protected void SetImageByExcelValues(KeyValuePair<string, object> columnValue, ExcelColumn excelColumn, Dictionary<string, ImageType> imageTypesMapBySystemName)
         {
-            if (groupRatioNamesToImageTypes.ContainsKey(excelColumn.SystemName))
+            if (imageTypesMapBySystemName.ContainsKey(excelColumn.SystemName))
             {
                 Image image = new Image()
                 {
                     Url = columnValue.Value.ToString(),
-                    ImageTypeId = groupRatioNamesToImageTypes[excelColumn.SystemName].Id
+                    ImageTypeId = imageTypesMapBySystemName[excelColumn.SystemName].Id
                 };
                 Images.Add(image);
             }

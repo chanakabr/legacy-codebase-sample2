@@ -96,7 +96,7 @@ namespace Core.Catalog.CatalogManagement
             // get data for group
             GenericListResponse<MediaFileType> mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
             string groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
-            Dictionary<string, ImageType> groupRatioNamesToImageTypes = ImageManager.GetGroupRatioNamesToImageTypes(groupId);
+            Dictionary<string, ImageType> groupRatioNamesToImageTypes = ImageManager.GetImageTypesMapBySystemName(groupId);
             Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations = new Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>>();
 
             for (int i = 0; i < feed.Export.MediaList.Count; i++)

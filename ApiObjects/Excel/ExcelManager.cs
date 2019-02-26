@@ -79,6 +79,8 @@ namespace ApiObjects.Excel
         // TODO SHIR - TALK WITH ARTHUR ABOUT HOW TO GET THE FILE (BY PATH, uploadTokenId, BYTE[] ETC..)
         public static GenericListResponse<IBulkUploadExcelObject> Deserialize(string uploadTokenId)
         {
+            IExcelStructure m = null;
+            //m.GetExcelColumns()
             // TODO SHIR - Deserialize EXCEL
             return null;
         }

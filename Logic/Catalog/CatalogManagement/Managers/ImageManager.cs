@@ -945,7 +945,7 @@ namespace Core.Catalog.CatalogManagement
                     pics = new Dictionary<long, Image>();
                     epgPics = new Dictionary<long, Image>();
 
-                    var ratioNamesToImageTypes = GetGroupRatioNamesToImageTypes(groupId);
+                    var ratioNamesToImageTypes = GetImageTypesMapBySystemName(groupId);
 
                     foreach (var pic in epgCB.pictures)
                     {
@@ -1419,7 +1419,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Dictionary<string, ApiObjects.Catalog.ImageType> GetGroupRatioNamesToImageTypes(int groupId)
+        public static Dictionary<string, ApiObjects.Catalog.ImageType> GetImageTypesMapBySystemName(int groupId)
         {
             Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
 

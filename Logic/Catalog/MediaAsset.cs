@@ -34,11 +34,11 @@ namespace Core.Catalog
 
         #region Data Members
 
-        [ExcelColumn(ExcelColumnType.Meta, AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
         [JsonProperty("CatalogStartDate")]
         public DateTime? CatalogStartDate { get; set; }
 
-        [ExcelColumn(ExcelColumnType.Meta, AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
         [JsonProperty("FinalEndDate")]
         public DateTime? FinalEndDate { get; set; }
 
@@ -67,7 +67,7 @@ namespace Core.Catalog
         [JsonProperty("UserTypes")]
         public string UserTypes { get; set; }
 
-        [ExcelColumn(ExcelColumnType.Meta, AssetManager.STATUS_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.STATUS_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
         [JsonProperty("IsActive")]
         public bool? IsActive { get; set; }
 
@@ -232,6 +232,7 @@ namespace Core.Catalog
             return excelValues;
         }
 
+        // TODO SHIR - SET INVALIDATION KEYS for excelColumns
         private static Dictionary<string, ExcelColumn> excelColumns = new Dictionary<string, ExcelColumn>();
 
         public static Dictionary<string, ExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null)
@@ -399,7 +400,7 @@ namespace Core.Catalog
             
             HashSet<string> fileTypesSystemName = new HashSet<string>();
             Dictionary<string, List<LanguageContainer>> dicMetas = new Dictionary<string, List<LanguageContainer>>();
-            Dictionary<string, ImageType> groupRatioNamesToImageTypes = ImageManager.GetGroupRatioNamesToImageTypes(groupId);
+            Dictionary<string, ImageType> imageTypesMapBySystemName = ImageManager.GetImageTypesMapBySystemName(groupId);
 
             foreach (var columnValue in columnNamesToValues)
             {
@@ -414,7 +415,7 @@ namespace Core.Catalog
                             SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, catalogGroupCache);
                             break;
                         case ExcelColumnType.Image:
-                            SetImageByExcelValues(columnValue, columns[columnValue.Key], groupRatioNamesToImageTypes);
+                            SetImageByExcelValues(columnValue, columns[columnValue.Key], imageTypesMapBySystemName);
                             break;
                         case ExcelColumnType.Basic:
                             SetBasicByExcelValues(columnValue, catalogGroupCache);

@@ -83,6 +83,7 @@ namespace ApiObjects.Excel
     {
         Basic,
         Meta,
+        AvailabilityMeta,
         Tag,
         File,
         Image,
