@@ -117,18 +117,9 @@ namespace WebAPI.Models.API
                 condition.Validate();
             }
 
-            if (!orConditionExist && !countryConditionExist && !concurrencyConditionExist && !ipRangeConditionExist && !headerConditionExist )
+            if (!orConditionExist && !countryConditionExist && !concurrencyConditionExist && !ipRangeConditionExist && !headerConditionExist && !assetConditionExist)
             {
-                if (assetConditionExist && this.Actions != null && Actions.Count > 0)
-                {
-                    KalturaApplyPlaybackAdapterAction applyPlaybackAdapterAction = Actions[0] as KalturaApplyPlaybackAdapterAction;
-                    if (applyPlaybackAdapterAction == null)
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
-                    }
-                }
-                else
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
             }
 
             ValidateActions();
