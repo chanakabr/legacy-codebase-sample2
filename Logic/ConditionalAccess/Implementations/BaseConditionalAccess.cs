@@ -7583,13 +7583,13 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems, TransactionHistoryOrderBy orderBy)
+        public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems, TransactionHistoryOrderBy orderBy,
+                                                                 DateTime startDate, DateTime endDate)
         {
             BillingTransactions res = null;
             try
-            {
-                DateTime minDate = new DateTime(2000, 1, 1);
-                res = GetUserBillingHistoryExt(sUserGUID, minDate, DateTime.MaxValue, nStartIndex, nNumberOfItems, orderBy);
+            {                
+                res = GetUserBillingHistoryExt(sUserGUID, startDate, endDate, nStartIndex, nNumberOfItems, orderBy);
             }
             catch (Exception ex)
             {

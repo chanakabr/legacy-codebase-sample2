@@ -438,7 +438,8 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static BillingTransactions GetUserBillingHistory(int groupID, string sSiteGUID, Int32 nStartIndex, Int32 nNumberOfItems, TransactionHistoryOrderBy orderBy)
+        public static BillingTransactions GetUserBillingHistory(int groupID, string sSiteGUID, Int32 nStartIndex, Int32 nNumberOfItems,
+                                                                TransactionHistoryOrderBy orderBy, DateTime startDate, DateTime endDate)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
@@ -447,7 +448,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetUserBillingHistory(sSiteGUID, nStartIndex, nNumberOfItems, orderBy);
+                return t.GetUserBillingHistory(sSiteGUID, nStartIndex, nNumberOfItems, orderBy, startDate, endDate);
             }
             else
             {
