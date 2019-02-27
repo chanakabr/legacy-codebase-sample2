@@ -15,6 +15,9 @@ namespace Core.Catalog
     {
         #region Consts
 
+        public string DistributedTask { get { return null; } }
+        public string RoutingKey { get { return null; } }
+
         // MEDIA FILE EXCEL COLUMNS
         private const string CDN_LOCATION = "CDN Location";
         private const string EXTERNAL_ID = "externalId";
@@ -103,7 +106,7 @@ namespace Core.Catalog
         [ExcelColumn(ExcelColumnType.File, CATALOG_END_DATE)]
         [JsonProperty("CatalogEndDate")]
         public DateTime? CatalogEndDate { get; set; }
-
+        
         [JsonProperty("type")]
         private string type;
 
@@ -240,6 +243,16 @@ namespace Core.Catalog
             // Url = mediaFile.CdnCode,
             //AltExternalId = mediaFile.AltCoGuid,
             this.IsActive = true;
+        }
+
+        public BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status)
+        {
+            return null;
+        }
+
+        public bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex)
+        {
+            return false;
         }
 
         #endregion

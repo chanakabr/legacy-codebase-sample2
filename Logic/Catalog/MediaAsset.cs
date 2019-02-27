@@ -15,12 +15,12 @@ namespace Core.Catalog
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class MediaAsset : Asset, IBulkUploadObject, IExcelStructure
+    public class MediaAsset : Asset, IExcelStructure
     {
         #region Consts
 
-        public string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
-        public string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
+        public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
+        public override string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
         
         public const string MEDIA_TYPE = "MEDIA_TYPE";
 
@@ -506,22 +506,21 @@ namespace Core.Catalog
 
         #region IBulkUploadObject Methods
 
-        public BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadJobStatus status)
+        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status)
         {
             BulkUploadMediaAssetResult bulkUploadAssetResult = new BulkUploadMediaAssetResult()
             {
-
+                ObjectId = Id > 0 ? Id : (long?)null,
                 BulkUploadId = bulkUploadId,
-                ObjectId = Id,
-                Status = new ApiObjects.Response.Status((int)status, status.ToString()),
-                ExternalId = this.CoGuid,
-                Type = this.MediaType != null ? this.MediaType.m_nTypeID : (int?)null
+                Status = status,
+                Type = this.MediaType != null && this.MediaType.m_nTypeID > 0 ? this.MediaType.m_nTypeID : (int?)null,
+                ExternalId = this.CoGuid
             };
 
             return bulkUploadAssetResult;
         }
-
-        public bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex)
+        
+        public override bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex)
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
             var data = new BulkUploadObjectData<MediaAsset>(this.DistributedTask, groupId, userId, bulkUploadId, jobAction, resultIndex, this);

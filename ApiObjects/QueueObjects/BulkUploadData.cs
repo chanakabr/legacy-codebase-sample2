@@ -29,33 +29,20 @@ namespace ApiObjects
         [JsonProperty("user_id")]
         private long UserId { get; set; }
 
-        [DataMember]
-        [JsonProperty("file_type")]
-        private FileType FileType { get; set; }
-
-        // TODO SHIR - TALK WITH ARTHUR ABOUT HOW TO GET THE FILE (BY PATH, uploadTokenId, BYTE[] ETC..)
-        [DataMember]
-        [JsonProperty("upload_token_id")]
-        private string UploadTokenId { get; set; }
-
         #endregion
 
-        public BulkUploadData(int groupId, long bulkUploadId, long userId, FileType fileType, string uploadTokenId)
+        public BulkUploadData(int groupId, long bulkUploadId, long userId)
             : base(Guid.NewGuid().ToString(), TASK)
         {
             // Basic member initialization
             this.GroupId = groupId;
             this.BulkUploadId = bulkUploadId;
             this.UserId = userId;
-            this.FileType = fileType;
-            this.UploadTokenId = uploadTokenId;
             this.args = new List<object>()
             {
                 groupId,
                 bulkUploadId,
                 userId,
-                FileType,
-                uploadTokenId,
                 base.RequestId
             };
         }

@@ -274,7 +274,7 @@ namespace ApiObjects.Response
         MetaIdsDuplication = 4079,
         AssetFilePPVNotExist = 4080,
         GroupDoesNotContainCurrency = 4081,
-        BulkUploadDoeasNotExist = 4082,
+        BulkUploadDoesNotExist = 4082,
 
         #endregion
 
@@ -319,6 +319,12 @@ namespace ApiObjects.Response
         CanNotDeleteDefaultParentalRule = 5037,
         RoleDoesNotExists = 5038,
         InvalidLanguage = 5039,
+        FileDoesNotExists = 5040,
+        FileAlreadyExists = 5041,
+        ErrorSavingFile = 5042,
+        FileIdNotInTheRightLength = 5043,
+        EnqueueFailed = 5044,
+
         #endregion
 
         #region Billing 6000 - 6999
