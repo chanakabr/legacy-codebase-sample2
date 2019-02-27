@@ -150,7 +150,7 @@ namespace WebAPI.Exceptions
         //Catalog 4000 - 4999
         public static ClientExceptionType MEDIA_CONCURRENCY_LIMITATION = new ClientExceptionType(eResponseStatus.MediaConcurrencyLimitation, "Media Concurrency Limitation", "Media concurrency limitation (according to DLM configuration)");
         public static ClientExceptionType CONCURRENCY_LIMITATION = new ClientExceptionType(eResponseStatus.ConcurrencyLimitation, "Concurrency Limitation", "Concurrency limitation (according to DLM configuration)");
-        public static ClientExceptionType BAD_SEARCH_REQUEST = new ClientExceptionType(eResponseStatus.BadSearchRequest, "Unified Search request has something invalid, either one of the data parameters or one of the field values in KSQL query.", ""); 
+        public static ClientExceptionType BAD_SEARCH_REQUEST = new ClientExceptionType(eResponseStatus.BadSearchRequest, "Unified Search request has something invalid, either one of the data parameters or one of the field values in KSQL query.", "");
         public static ClientExceptionType INDEX_MISSING = new ClientExceptionType(eResponseStatus.IndexMissing, "Index Missing", "Relevant ElasticSearch index doesn't exist, either because it wasn't built or some other error.");
         public static ClientExceptionType SYNTAX_ERROR = new ClientExceptionType(eResponseStatus.SyntaxError, "Syntax Error", "KSQL query string contains a syntax error. It is not in the correct and expected format.");
         public static ClientExceptionType INVALID_SEARCH_FIELD = new ClientExceptionType(eResponseStatus.InvalidSearchField, "KSQL - at least one field name doesn't exist as a meta, tag or reserved keyword", "");
@@ -183,13 +183,13 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_ASSET_STRUCT_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, "System Name Can Not Be Changed",
                                                                                                                         "can not change predefined asset struct name");
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedAssetStruct, "Predefined Asset Struct Can not be deleted",
-                                                                                                            "can not delete predefined asset struct");        
+                                                                                                            "can not delete predefined asset struct");
         public static ClientExceptionType META_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaSystemNameAlreadyInUse, "System Name Already Used", "The meta system name is already in use");
         public static ClientExceptionType INVALID_MULTIPLE_VALUE_FOR_META_DATA_TYPE = new ClientExceptionType(eResponseStatus.InvalidMutlipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
         public static ClientExceptionType META_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaDoesNotExist, "Invalid Meta Id", "The specified meta id does not exist");
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_META_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedMetaSystemName, "System Name Can Not Be Changed",
                                                                                                                         "can not change predefined meta name");
-        public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_META= new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedMeta, "Predefined meta Can not be deleted",
+        public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_META = new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedMeta, "Predefined meta Can not be deleted",
                                                                                                             "can not delete predefined meta");
         public static ClientExceptionType ASSET_STRUCT_MISSING_BASIC_META_IDS = new ClientExceptionType(eResponseStatus.AssetStructMissingBasicMetaIds, "Missing Basic Meta Ids", "One or more of the basic meta ids was not sent");
         public static ClientExceptionType ASSET_EXTERNAL_ID_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.AssetExternalIdMustBeUnique, "The Specified External Id Must Be Unique");
@@ -221,7 +221,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType TAG_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.TagDoesNotExist, "Tag Does Not Exist");
         public static ClientExceptionType TAG_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.TagAlreadyInUse, "Tag Already In Use");
 
-        public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");        
+        public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");
         public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore up until 64 characters", "feature");
         public static ApiExceptionType DEFUALT_LANGUAGE_MUST_BE_SENT = new ApiExceptionType(StatusCode.DefaultLanguageMustBeSent, "Default language must be one of the values sent for @object@", "object");
         public static ApiExceptionType GROUP_DOES_NOT_CONTAIN_LANGUAGE = new ApiExceptionType(StatusCode.GroupDoesNotContainLanguage, "language: @lng@ is not part of group supported languages", "lng");
@@ -262,12 +262,12 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NEGATIVE_BUFFER_SENT = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNegativeBufferSent, "Time Shifted Tv Partner Settings Negative Buffer Sent",
             "You've configured a negative buffer value in the TimeShiftedTvPartnerr settings");
         public static ClientExceptionType CDNPARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.CDNPartnerSettingsNotFound, "CDNPartner Settings Not Found", "The system didn't find any CDN partner -related settings for the group account");
-        public static ClientExceptionType PERMISSION_NAME_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PermissionNameNotExists, "Permission Name Not Exists");
-        public static ClientExceptionType ASSET_RULE_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetRuleNotExists, "Asset rule doesn't exist");
-        public static ClientExceptionType ASSET_USER_RULE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetUserRuleDoesNotExists, "Asset user rule does not exist");
-        public static ClientExceptionType USER_ALREADY_ATTACHED_TO_ASSET_USER_RULE = new ClientExceptionType(eResponseStatus.UserAlreadyAttachedToAssetUserRule, "User already attached to this AssetUserRule");
-        public static ClientExceptionType ASSET_USER_RULES_OPERATIONS_DISABLE = new ClientExceptionType(eResponseStatus.AssetUserRulesOperationsDisable, "AssetUserRule operations are disabled for this partner");         
-        public static ClientExceptionType ROLE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RoleDoesNotExists, "Role Does Not Exists");
+        public static ClientExceptionType PERMISSION_NAME_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PermissionNameNotExists, "", "Permission Name Not Exists");
+        public static ClientExceptionType ASSET_RULE_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetRuleNotExists, "", "Asset rule doesn't exist");
+        public static ClientExceptionType ASSET_USER_RULE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetUserRuleDoesNotExists, "", "Asset user rule does not exist");
+        public static ClientExceptionType USER_ALREADY_ATTACHED_TO_ASSET_USER_RULE = new ClientExceptionType(eResponseStatus.UserAlreadyAttachedToAssetUserRule, "", "User already attached to this AssetUserRule");
+        public static ClientExceptionType ASSET_USER_RULES_OPERATIONS_DISABLE = new ClientExceptionType(eResponseStatus.AssetUserRulesOperationsDisable, "", "AssetUserRule operations are disabled for this partner");
+        public static ClientExceptionType ROLE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RoleDoesNotExists, "", "Role Does Not Exists");
 
         // Billing 6000 - 6999
         public static ClientExceptionType INCORRECT_PRICE = new ClientExceptionType(eResponseStatus.IncorrectPrice, "Incorrect Price", "The price shown for the item in the request is not the actual price.");
@@ -301,7 +301,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType UNKNOWN_PAYMENT_GATEWAY_RESPONSE = new ClientExceptionType(eResponseStatus.UnknownPaymentGatewayResponse, "Unknown Payment Gateway Response", "An unknown error occurred with the Payment Gateway adapter.");
         public static ClientExceptionType PAYMENT_GATEWAY_ADAPTER_USER_KNOWN = new ClientExceptionType(eResponseStatus.PaymentGatewayAdapterUserKnown, "Payment Gateway Adapter User Known", "");
         public static ClientExceptionType PAYMENT_GATEWAY_ADAPTER_REASON_UNKNOWN = new ClientExceptionType(eResponseStatus.PaymentGatewayAdapterReasonUnknown, "Payment Gateway Adapter Reason Unknown", "");
-        public static ClientExceptionType SIGNATURE_DOES_NOT_MATCH = new ClientExceptionType(eResponseStatus.SignatureDoesNotMatch, "Signature Does Not Match", "The payment method signatures don't match."); 
+        public static ClientExceptionType SIGNATURE_DOES_NOT_MATCH = new ClientExceptionType(eResponseStatus.SignatureDoesNotMatch, "Signature Does Not Match", "The payment method signatures don't match.");
         public static ClientExceptionType ERROR_UPDATING_PENDING_TRANSACTION = new ClientExceptionType(eResponseStatus.ErrorUpdatingPendingTransaction, "Error Updating Pending Transaction", "An error occurred when updating the pending transaction.");
         public static ClientExceptionType PAYMENT_GATEWAY_TRANSACTION_NOT_FOUND = new ClientExceptionType(eResponseStatus.PaymentGatewayTransactionNotFound, "Payment Gateway Transaction Not Found", "The requested Payment Gateway transaction was not found.");
         public static ClientExceptionType PAYMENT_GATEWAY_TRANSACTION_IS_NOT_PENDING = new ClientExceptionType(eResponseStatus.PaymentGatewayTransactionIsNotPending, "Payment Gateway Transaction Is Not Pending", "This transaction isn't in a Pending state.");
@@ -368,7 +368,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MODULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.ModuleNotExists, "Module Not Exists", "The PPV module doesn't exist in the database");
         public static ClientExceptionType PRICE_PLAN_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PricePlanDoesNotExist, "Price plan does not exist", "The price plan doesn't exist in the database");
         public static ClientExceptionType PRICE_DETAILS_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PriceDetailsDoesNotExist, "Price details does not exist", "The price details doesn't exist in the database");
-                
+
         // Adapters 10000-10999
         public static ClientExceptionType ADAPTER_NOT_EXISTS = new ClientExceptionType(eResponseStatus.AdapterNotExists, "Adapter Not Exists", "The adapter you're trying to connect doesn't exist");
         public static ClientExceptionType ADAPTER_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.AdapterIdentifierRequired, "Adapter Identifier Required", "The mandatory adapter ID field is missing from the request");
@@ -397,7 +397,7 @@ namespace WebAPI.Exceptions
         [XmlArrayItem("item")]
         new public KalturaApiExceptionArg[] Args { get; set; }
 
-        private HttpStatusCode FailureHttpCode;        
+        private HttpStatusCode FailureHttpCode;
 
         public class ExceptionType
         {
@@ -420,7 +420,7 @@ namespace WebAPI.Exceptions
                 this.statusCode = statusCode;
                 this.description = description;
             }
-        }        
+        }
 
         public class ApiExceptionType : ExceptionType
         {
@@ -496,7 +496,7 @@ namespace WebAPI.Exceptions
             {
 
             }
-            public int code { get; set; }            
+            public int code { get; set; }
             public HttpError error { get; set; }
             public HttpStatusCode failureHttpCode { get; set; }
             public KalturaApiExceptionArg[] arguments { get; set; }
@@ -515,7 +515,7 @@ namespace WebAPI.Exceptions
         public ApiException(ClientExternalException ex)
             : this(ex.ApiExceptionType, ex.ExternalCode, ex.ExternalMessage)
         {
-        }    
+        }
 
         public ApiException(ClientException ex, HttpStatusCode httpStatusCode)
             : this(ex.Code, ex.ExceptionMessage, null, httpStatusCode)
@@ -533,7 +533,7 @@ namespace WebAPI.Exceptions
             : this((int)eResponseStatus.Error, eResponseStatus.Error.ToString(), null, httpStatusCode)
         {
             FailureHttpCode = httpStatusCode;
-        }        
+        }
 
         protected ApiException(ApiException ex)
             : this(ex.Code, ex.Message)
@@ -551,7 +551,7 @@ namespace WebAPI.Exceptions
                 StatusCode = HttpStatusCode.OK,
                 Content = new ObjectContent(typeof(ExceptionPayload), new ExceptionPayload()
                 {
-                    error = new HttpError(new Exception(message), true),                    
+                    error = new HttpError(new Exception(message), true),
                     code = code,
                     failureHttpCode = httpStatusCode,
                     arguments = args
