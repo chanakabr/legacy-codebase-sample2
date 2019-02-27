@@ -506,7 +506,7 @@ namespace Core.Api.Managers
             {
                 // check if asset allowed to user
                 List<AssetUserRule> mediaAssetUserRulesToUser = AssetUserRuleManager.GetMediaAssetUserRulesToUser(groupId, userId, mediaId, assetUserRulesToUser);
-                if (mediaAssetUserRulesToUser == null && mediaAssetUserRulesToUser.Count == 0)
+                if (mediaAssetUserRulesToUser != null && mediaAssetUserRulesToUser.Count == 0)
                 {
                     // return error user not allowed to  update asset
                     log.DebugFormat("User {0} not allowed to update Asset {1}", userId, mediaId);

@@ -1123,6 +1123,7 @@ namespace Core.Catalog.CatalogManagement
                 Status status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, currentAsset.Id);
                 if(status == null || status.Code == (int)eResponseStatus.NotAllowed)
                 {
+                    result.SetStatus(eResponseStatus.NotAllowed);
                     return result;
                 }               
 
