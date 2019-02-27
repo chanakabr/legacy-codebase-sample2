@@ -4012,16 +4012,11 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string uploadTokenId, long userId, KalturaBatchUploadJobAction kalturaBatchUploadJobAction, FileType fileType)
+        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string filePath, long userId, Type objectType, FileType fileType)
         {
-            // TODO SHIR - MAP all KalturaBulkUpload new objects
-            var action = AutoMapper.Mapper.Map<BulkUploadJobAction>(kalturaBatchUploadJobAction);
-            
-            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, uploadTokenId, userId, action, fileType);
+            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, filePath, userId, objectType, BulkUploadJobAction.Upsert, fileType);
             KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
-            
-            // TODO SHIR - THROW Not supported for OTHER TYPES
-            throw new NotImplementedException();
+            return result;
         }
 
         internal Dictionary<string, object> GetExcelValues(int groupId, IKalturaExcelableObject kalturaExcelableObject)

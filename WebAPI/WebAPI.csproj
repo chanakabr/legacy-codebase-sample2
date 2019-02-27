@@ -60,10 +60,6 @@
       <HintPath>..\packages\AutoMapper.7.0.1\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="AWSSDK, Version=2.0.2.3, Culture=neutral, PublicKeyToken=9f476d3089b52be3, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvmcore\External\AWSSDK.dll</HintPath>
-    </Reference>
     <Reference Include="ComponentSpace.SAML2, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvmcore\External\ComponentSpace.SAML2.dll</HintPath>
@@ -825,7 +821,6 @@
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\UserSegmentController.cs" />
     <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
-    <Compile Include="Managers\Scheme\ExcelAttribute.cs" />
     <Compile Include="Models\API\KalturaResponseType.cs" />
     <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
     <Compile Include="Models\API\KalturaTvmGeoRule.cs" />
@@ -846,7 +841,6 @@
     <Compile Include="Models\ConditionalAccess\KalturaCaptionPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecordingFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitationsListResponse.cs" />
-    <Compile Include="Models\General\KalturaResponseStatus.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
     <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />
     <Compile Include="Models\Partner\KalturaGeneralPartnerConfig.cs" />
@@ -883,7 +877,7 @@
     <Compile Include="Models\Catalog\KalturaAssetFileTypeQuality.cs" />
     <Compile Include="Models\Catalog\KalturaChannelListResponse.cs" />
     <Compile Include="Managers\Models\UploadToken.cs" />
-    <Compile Include="Managers\UploadManager.cs" />
+    <Compile Include="Managers\UploadTokenManager.cs" />
     <Compile Include="Models\Catalog\KalturaUploadedFileTokenResource.cs" />
     <Compile Include="Models\Catalog\KalturaUrlResource.cs" />
     <Compile Include="Models\Catalog\KalturaContentResource.cs" />
@@ -1001,7 +995,6 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
     <Compile Include="Models\Upload\KalturaBulkUploadListResponse.cs" />
     <Compile Include="Models\Upload\KalturaBulkUpload.cs" />
-    <Compile Include="Models\Upload\KalturaBulkUploadEntryData.cs" />
     <Compile Include="Models\Upload\KalturaBulkUploadJobData.cs" />
     <Compile Include="Models\Upload\KalturaBulkUploadResult.cs" />
     <Compile Include="Models\Upload\KalturaUploadToken.cs" />
@@ -1569,6 +1562,7 @@
     <Compile Include="Reflection\KalturaJsonDeserializer.cs" />
     <Compile Include="Reflection\KalturaJsonSerializer.cs" />
     <Compile Include="Reflection\MethodParam.cs" />
+    <Compile Include="Utils\BaseFormatter.cs" />
     <Compile Include="Utils\CatalogUtils.cs" />
     <Compile Include="Utils\CommonStrings.cs" />
     <Compile Include="Utils\DrmUtils.cs" />
@@ -1576,7 +1570,6 @@
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />
     <Compile Include="Utils\HouseholdUtils.cs" />
-    <Compile Include="Utils\BaseFormatter.cs" />
     <Compile Include="Utils\JsonPFormatter.cs" />
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Managers\PlaybackAdapterManager.cs" />

@@ -23,7 +23,8 @@ namespace WebAPI.Models.Catalog
 
         public override string GetUrl(int groupId)
         {
-            var ut = UploadManager.GetUploadToken(Token, groupId);
+            // TODO SHIR - TANTAN
+            var ut = UploadTokenManager.GetUploadToken(Token, groupId);
             return ut.FileUrl;
         }
     }

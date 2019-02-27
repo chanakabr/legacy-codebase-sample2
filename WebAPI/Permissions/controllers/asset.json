@@ -184,6 +184,18 @@
       "service": "Asset",
       "action": "RemoveMetasAndTags",
       "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_RemoveMetasAndTags",
+      "service": "Asset",
+      "action": "RemoveMetasAndTags",
+      "type": "Action"
     }
   ],
   "type": "Action"

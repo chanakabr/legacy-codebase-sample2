@@ -26,13 +26,40 @@ namespace WebAPI.Models.Upload
         public long Id { get; set; }
 
         /// <summary>
+        /// File Name
+        /// </summary>
+        [DataMember(Name = "fileName")]
+        [JsonProperty("fileName")]
+        [XmlElement(ElementName = "fileName")]
+        [SchemeProperty(ReadOnly = true)]
+        public string FileName { get; set; }
+
+        /// <summary>
         /// Status
         /// </summary>
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
         [SchemeProperty(ReadOnly = true)]
-        public KalturaBatchUploadJobStatus Status { get; set; }
+        public KalturaBulkUploadJobStatus Status { get; set; }
+
+        /// <summary>
+        /// Action
+        /// </summary>
+        [DataMember(Name = "action")]
+        [JsonProperty("action")]
+        [XmlElement(ElementName = "action")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaBulkUploadJobAction Action { get; set; }
+
+        /// <summary>
+        /// Total number of objects in file
+        /// </summary>
+        [DataMember(Name = "numOfObjects")]
+        [XmlElement("numOfObjects", IsNullable = true)]
+        [JsonProperty("numOfObjects")]
+        [SchemeProperty(ReadOnly = true)]
+        public int? NumOfObjects { get; set; }
 
         /// <summary>
         /// Specifies when was the bulk action created. Date and time represented as epoch
@@ -51,25 +78,6 @@ namespace WebAPI.Models.Upload
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
-
-        // TODO SHIR - DELETE USE CURRENT ID
-        /// <summary>
-        /// Upload Token Id
-        /// </summary>
-        [DataMember(Name = "uploadTokenId")]
-        [JsonProperty("uploadTokenId")]
-        [XmlElement(ElementName = "uploadTokenId")]
-        [SchemeProperty(ReadOnly = true)]
-        public string UploadTokenId { get; set; }
-
-        /// <summary>
-        /// Action
-        /// </summary>
-        [DataMember(Name = "action")]
-        [JsonProperty("action")]
-        [XmlElement(ElementName = "action")]
-        [SchemeProperty(ReadOnly = true)]
-        public KalturaBatchUploadJobAction Action { get; set; }
         
         /// <summary>
         /// A list of results
@@ -82,25 +90,27 @@ namespace WebAPI.Models.Upload
         public List<KalturaBulkUploadResult> Results { get; set; }
     }
 
-    public enum KalturaBatchUploadJobStatus
+    // TODO SHIR - CREATE NEW STATUS BY SPEC
+    public enum KalturaBulkUploadJobStatus
     {
-        PENDING = 0,
-        QUEUED = 1,
-        PROCESSING = 2,
-        PROCESSED = 3,
-        MOVEFILE = 4,
-        FINISHED = 5,
-        FAILED = 6,
-        ABORTED = 7,
-        RETRY = 9,
-        FATAL = 10,
-        DONT_PROCESS = 11,
-        FINISHED_PARTIALLY = 12
+        PENDING = 1,
+        UPLOADED = 2,
+        QUEUED = 3,
+        //PROCESSING = 2,
+        //PROCESSED = 3,
+        //MOVEFILE = 4,
+        //FINISHED = 5,
+        //FAILED = 6,
+        //ABORTED = 7,
+        //RETRY = 9,
+        //FATAL = 10,
+        //DONT_PROCESS = 11,
+        //FINISHED_PARTIALLY = 12
     }
 
-    public enum KalturaBatchUploadJobAction
+    public enum KalturaBulkUploadJobAction
     {
-        Upsert = 0,
-        Delete = 1
+        Upsert = 1,
+        Delete = 2
     }
 }

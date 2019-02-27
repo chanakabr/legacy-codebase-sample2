@@ -5353,34 +5353,6 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
-    public partial class KalturaResponseStatus
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            ret.Add("code", "\"code\": " + Code);
-            if(Message != null)
-            {
-                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-            ret.Add("code", "<code>" + Code + "</code>");
-            if(Message != null)
-            {
-                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
-            }
-            return ret;
-        }
-    }
     public partial class KalturaStringValue
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -21674,20 +21646,24 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaBatchUploadJobAction), Action) + "\"");
+            ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobAction), Action) + "\"");
             ret.Add("createDate", "\"createDate\": " + CreateDate);
+            if(FileName != null)
+            {
+                ret.Add("fileName", "\"fileName\": " + "\"" + EscapeJson(FileName) + "\"");
+            }
             ret.Add("id", "\"id\": " + Id);
+            if(NumOfObjects.HasValue)
+            {
+                ret.Add("numOfObjects", "\"numOfObjects\": " + NumOfObjects);
+            }
             if(Results != null)
             {
                 propertyValue = "[" + String.Join(", ", Results.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("results", "\"results\": " + propertyValue);
             }
-            ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaBatchUploadJobStatus), Status) + "\"");
+            ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), Status) + "\"");
             ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
-            if(UploadTokenId != null)
-            {
-                ret.Add("uploadTokenId", "\"uploadTokenId\": " + "\"" + EscapeJson(UploadTokenId) + "\"");
-            }
             return ret;
         }
         
@@ -21696,38 +21672,24 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaBatchUploadJobAction), Action) + "" + "</action>");
+            ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobAction), Action) + "" + "</action>");
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            if(FileName != null)
+            {
+                ret.Add("fileName", "<fileName>" + EscapeXml(FileName) + "</fileName>");
+            }
             ret.Add("id", "<id>" + Id + "</id>");
+            if(NumOfObjects.HasValue)
+            {
+                ret.Add("numOfObjects", "<numOfObjects>" + NumOfObjects + "</numOfObjects>");
+            }
             if(Results != null)
             {
                 propertyValue = Results.Count > 0 ? "<item>" + String.Join("</item><item>", Results.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("results", "<results>" + propertyValue + "</results>");
             }
-            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaBatchUploadJobStatus), Status) + "" + "</status>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), Status) + "" + "</status>");
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
-            if(UploadTokenId != null)
-            {
-                ret.Add("uploadTokenId", "<uploadTokenId>" + EscapeXml(UploadTokenId) + "</uploadTokenId>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaBulkUploadAssetEntryData
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
             return ret;
         }
     }
@@ -21742,7 +21704,10 @@ namespace WebAPI.Models.Upload
             {
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
             }
-            ret.Add("type", "\"type\": " + Type);
+            if(Type.HasValue)
+            {
+                ret.Add("type", "\"type\": " + Type);
+            }
             return ret;
         }
         
@@ -21755,43 +21720,10 @@ namespace WebAPI.Models.Upload
             {
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
             }
-            ret.Add("type", "<type>" + Type + "</type>");
-            return ret;
-        }
-    }
-    public partial class KalturaBulkUploadEntryData
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-            return ret;
-        }
-    }
-    public partial class KalturaBulkUploadEpgEntryData
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
+            if(Type.HasValue)
+            {
+                ret.Add("type", "<type>" + Type + "</type>");
+            }
             return ret;
         }
     }
@@ -21822,7 +21754,7 @@ namespace WebAPI.Models.Upload
             string propertyValue;
             if(StatusEqual.HasValue)
             {
-                ret.Add("statusEqual", "\"statusEqual\": " + "\"" + Enum.GetName(typeof(KalturaBatchUploadJobStatus), StatusEqual) + "\"");
+                ret.Add("statusEqual", "\"statusEqual\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "\"");
             }
             return ret;
         }
@@ -21834,7 +21766,7 @@ namespace WebAPI.Models.Upload
             string propertyValue;
             if(StatusEqual.HasValue)
             {
-                ret.Add("statusEqual", "<statusEqual>" + "" + Enum.GetName(typeof(KalturaBatchUploadJobStatus), StatusEqual) + "" + "</statusEqual>");
+                ret.Add("statusEqual", "<statusEqual>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "" + "</statusEqual>");
             }
             return ret;
         }
@@ -21846,11 +21778,6 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(EntryData != null)
-            {
-                propertyValue = EntryData.ToJson(currentVersion, omitObsolete);
-                ret.Add("entryData", "\"entryData\": " + propertyValue);
-            }
             return ret;
         }
         
@@ -21859,11 +21786,6 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(EntryData != null)
-            {
-                propertyValue = EntryData.ToXml(currentVersion, omitObsolete);
-                ret.Add("entryData", "<entryData>" + propertyValue + "</entryData>");
-            }
             return ret;
         }
     }
@@ -21895,7 +21817,7 @@ namespace WebAPI.Models.Upload
             return ret;
         }
     }
-    public partial class KalturaBulkUploadMediaEntryData
+    public partial class KalturaBulkUploadMediaAssetResult
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -21921,13 +21843,20 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("bulkUploadId", "\"bulkUploadId\": " + BulkUploadId);
-            ret.Add("index", "\"index\": " + Index);
-            ret.Add("objectId", "\"objectId\": " + ObjectId);
-            if(Status != null)
+            if(ErrorCode.HasValue)
             {
-                propertyValue = Status.ToJson(currentVersion, omitObsolete);
-                ret.Add("status", "\"status\": " + propertyValue);
+                ret.Add("errorCode", "\"errorCode\": " + ErrorCode);
             }
+            if(ErrorMessage != null)
+            {
+                ret.Add("errorMessage", "\"errorMessage\": " + "\"" + EscapeJson(ErrorMessage) + "\"");
+            }
+            ret.Add("index", "\"index\": " + Index);
+            if(ObjectId.HasValue)
+            {
+                ret.Add("objectId", "\"objectId\": " + ObjectId);
+            }
+            ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadResultStatus), Status) + "\"");
             return ret;
         }
         
@@ -21937,13 +21866,20 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("bulkUploadId", "<bulkUploadId>" + BulkUploadId + "</bulkUploadId>");
-            ret.Add("index", "<index>" + Index + "</index>");
-            ret.Add("objectId", "<objectId>" + ObjectId + "</objectId>");
-            if(Status != null)
+            if(ErrorCode.HasValue)
             {
-                propertyValue = Status.ToXml(currentVersion, omitObsolete);
-                ret.Add("status", "<status>" + propertyValue + "</status>");
+                ret.Add("errorCode", "<errorCode>" + ErrorCode + "</errorCode>");
             }
+            if(ErrorMessage != null)
+            {
+                ret.Add("errorMessage", "<errorMessage>" + EscapeXml(ErrorMessage) + "</errorMessage>");
+            }
+            ret.Add("index", "<index>" + Index + "</index>");
+            if(ObjectId.HasValue)
+            {
+                ret.Add("objectId", "<objectId>" + ObjectId + "</objectId>");
+            }
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaBulkUploadResultStatus), Status) + "" + "</status>");
             return ret;
         }
     }

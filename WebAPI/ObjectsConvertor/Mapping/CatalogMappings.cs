@@ -25,6 +25,7 @@ using WebAPI.Utils;
 using AutoMapper.Configuration;
 using TVinciShared;
 using ApiObjects.Excel;
+using WebAPI.Models.Upload;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -512,11 +513,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region New Asset (OPC)
-            //TODO SHIR CreateMap<IKalturaBulkUploadObject, IBulkUploadObject>();
-            //cfg.CreateMap<IKalturaBulkUploadObject, IBulkUploadObject>();
 
-            cfg.CreateMap<IKalturaExcelableObject, IExcelObject>();
-                //.IncludeBase<IKalturaBulkUploadObject, IBulkUploadObject>();
+            cfg.CreateMap<IKalturaExcelableObject, IExcelObject>()
+                .IncludeBase<IKalturaBulkUploadObject, IBulkUploadObject>();
             
             //KalturaAsset to Asset
             cfg.CreateMap<KalturaAsset, Asset>()
@@ -921,6 +920,86 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)));
+
+            #endregion
+
+            #region BulkUpload
+
+            cfg.CreateMap<IKalturaBulkUploadObject, IBulkUploadObject>();
+
+            // BulkUpload to KalturaBulkUpload
+            cfg.CreateMap<BulkUpload, KalturaBulkUpload>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.FileName, opt => opt.MapFrom(src => src.FileName))
+               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+               .ForMember(dest => dest.NumOfObjects, opt => opt.MapFrom(src => src.NumOfObjects))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
+               .ForMember(dest => dest.Results, opt => opt.MapFrom(src => src.Results));
+
+            cfg.CreateMap<BulkUploadJobStatus, KalturaBulkUploadJobStatus>()
+               .ConvertUsing(bulkUploadJobStatus =>
+               {
+                   switch (bulkUploadJobStatus)
+                   {
+                       case BulkUploadJobStatus.PENDING:
+                           return KalturaBulkUploadJobStatus.PENDING;
+                       case BulkUploadJobStatus.UPLOADED:
+                           return KalturaBulkUploadJobStatus.UPLOADED;
+                       case BulkUploadJobStatus.QUEUED:
+                           return KalturaBulkUploadJobStatus.QUEUED;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown bulkUploadJobStatus value : {0}", bulkUploadJobStatus.ToString()));
+                   }
+               });
+
+            cfg.CreateMap<BulkUploadJobAction, KalturaBulkUploadJobAction>()
+               .ConvertUsing(bulkUploadJobAction =>
+               {
+                   switch (bulkUploadJobAction)
+                   {
+                       case BulkUploadJobAction.Upsert:
+                           return KalturaBulkUploadJobAction.Upsert;
+                       case BulkUploadJobAction.Delete:
+                           return KalturaBulkUploadJobAction.Delete;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown bulkUploadJobAction value : {0}", bulkUploadJobAction.ToString()));
+                           break;
+                   }
+               });
+
+            cfg.CreateMap<BulkUploadResult, KalturaBulkUploadResult>()
+              .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
+              .ForMember(dest => dest.Index, opt => opt.MapFrom(src => src.Index))
+              .ForMember(dest => dest.BulkUploadId, opt => opt.MapFrom(src => src.BulkUploadId))
+              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+              .ForMember(dest => dest.ErrorCode, opt => opt.MapFrom(src => src.ErrorCode))
+              .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.ErrorMessage));
+
+            cfg.CreateMap<BulkUploadResultStatus, KalturaBulkUploadResultStatus>()
+                .ConvertUsing(bulkUploadResultStatus =>
+                {
+                    switch (bulkUploadResultStatus)
+                    {
+                        case BulkUploadResultStatus.ERROR:
+                            return KalturaBulkUploadResultStatus.ERROR;
+                        case BulkUploadResultStatus.OK:
+                            return KalturaBulkUploadResultStatus.OK;
+                        case BulkUploadResultStatus.IN_PROGRESS:
+                            return KalturaBulkUploadResultStatus.IN_PROGRESS;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown bulkUploadResultStatus value : {0}", bulkUploadResultStatus.ToString()));
+                    }
+                });
+
+            cfg.CreateMap<BulkUploadAssetResult, KalturaBulkUploadAssetResult>()
+                .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId));
+
+            cfg.CreateMap<BulkUploadMediaAssetResult, KalturaBulkUploadMediaAssetResult>()
+               .IncludeBase<BulkUploadAssetResult, KalturaBulkUploadAssetResult>();
 
             #endregion
         }

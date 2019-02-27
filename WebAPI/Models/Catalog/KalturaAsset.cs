@@ -77,7 +77,6 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
         [SchemeProperty(ReadOnly = true)]
-        [ExcelProperty(Name = "image")]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
