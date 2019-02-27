@@ -2188,7 +2188,7 @@
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
             ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
-            ExceededQuota = 3042, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
+            ExceededQuota = 3042, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024, InvalidParameters = 7010</remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.List(WebAPI.Models.ConditionalAccess.KalturaRecordingFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -8469,6 +8469,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.SupportSegmentBasedOrdering">
             <summary>
             Specifies whether the assets in this channel will be ordered based on their match to the user's segments (see BEO-5524)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.AssetUserRuleId">
+            <summary>
+            Asset user rule identifier 
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaIAssetable">

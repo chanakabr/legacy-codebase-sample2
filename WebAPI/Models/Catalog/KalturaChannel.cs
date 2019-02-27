@@ -192,6 +192,16 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty()]
         public bool SupportSegmentBasedOrdering { get; set; }
 
+
+        /// <summary>
+        /// Asset user rule identifier 
+        /// </summary>
+        [DataMember(Name = "assetUserRuleId")]
+        [JsonProperty("assetUserRuleId")]
+        [XmlElement(ElementName = "assetUserRuleId")]
+        [SchemeProperty()]
+        public long AssetUserRuleId { get; set; }
+
         internal virtual void ValidateForInsert()
         {
             if (string.IsNullOrEmpty(SystemName))

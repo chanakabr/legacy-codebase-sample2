@@ -9313,6 +9313,7 @@ namespace WebAPI.Models.Catalog
                     ret.Add("asset_types", "\"asset_types\": " + propertyValue);
                 }
             }
+            ret.Add("assetUserRuleId", "\"assetUserRuleId\": " + AssetUserRuleId);
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
             if(propertyValue != null)
@@ -9403,6 +9404,7 @@ namespace WebAPI.Models.Catalog
                 ret.Add("asset_types", "<asset_types>" + propertyValue + "</asset_types>");
                 }
             }
+            ret.Add("assetUserRuleId", "<assetUserRuleId>" + AssetUserRuleId + "</assetUserRuleId>");
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FilterExpression != null)

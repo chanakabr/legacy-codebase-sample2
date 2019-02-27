@@ -393,6 +393,26 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
                             
+                            long userId;
+                            if (long.TryParse(userID, out userId))
+                            {
+                                KalturaAssetUserRuleListResponse rules = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, KalturaRuleActionType.FILTER);                                
+                                if (rules != null && rules.Objects != null && rules.Objects.Count > 0)
+                                {
+                                    KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), 
+                                        udid, language, 0, 1, string.Format("media_id = '{0}'", id), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
+
+                                    if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
+                                    {
+                                        return assetListResponse.Objects[0];
+                                    }
+                                    else
+                                    {
+                                        throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
+                                    }
+                                }
+                            }
+
                             response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);
                         }
 
@@ -1175,6 +1195,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
+        //[Throws(eResponseStatus.NotAllowed)]
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
@@ -1211,6 +1232,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
+        //[Throws(eResponseStatus.NotAllowed)]        
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaAsset Update(long id, KalturaAsset asset)
         {
