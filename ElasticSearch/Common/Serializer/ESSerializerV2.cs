@@ -1,12 +1,8 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GroupsCacheManager;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace ElasticSearch.Common
 {
@@ -1657,6 +1653,13 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.not_analyzed,
                 format = DATE_FORMAT
             });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "asset_user_rule_id",
+                type = eESFieldType.INTEGER,
+                index = eMappingIndex.not_analyzed,
+                null_value = "0"
+            });
 
             result = mappingObj.ToString();
 
@@ -1676,6 +1679,7 @@ namespace ElasticSearch.Common
             json["is_active"] = JToken.FromObject(channel.m_nIsActive);
             json["create_date"] = JToken.FromObject(channel.CreateDate.Value.ToString("yyyyMMddHHmmss"));
             json["update_date"] = JToken.FromObject(channel.UpdateDate.Value.ToString("yyyyMMddHHmmss"));
+            json["asset_user_rule_id"] = JToken.FromObject(channel.AssetUserRuleId);
 
             result = json.ToString(Newtonsoft.Json.Formatting.None);
 

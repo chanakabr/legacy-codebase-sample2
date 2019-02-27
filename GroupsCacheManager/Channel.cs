@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using Newtonsoft.Json;
+﻿using ApiObjects;
 using ApiObjects.SearchObjects;
-using ApiObjects;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace GroupsCacheManager
 {
@@ -102,6 +100,9 @@ namespace GroupsCacheManager
         
         [DataMember]
         public bool SupportSegmentBasedOrdering { get; set; }
+
+        [DataMember]
+        public long AssetUserRuleId { get; set; }
 
         #endregion
 
