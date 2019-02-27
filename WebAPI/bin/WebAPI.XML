@@ -9238,6 +9238,11 @@
             List of comma separated media file IDs
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.AdapterData">
+            <summary>
+            adapter data
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Context">
             <summary>
             Playback context type
