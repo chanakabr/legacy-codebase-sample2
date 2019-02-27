@@ -1078,7 +1078,6 @@ namespace DAL
                 int.TryParse(userId, out nSiteGuid);
 
                 var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-                var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
 
                 if (lMediaIDs.Count == 0)
                 {
@@ -1101,7 +1100,6 @@ namespace DAL
 
                     // Irena - make sure doc type is right
                     bool markResult = mediaMarkManager.Remove(documentKey);
-                    bool hitResult = mediaHitManager.Remove(documentKey);
                     Thread.Sleep(r.Next(50));
 
                     if (!markResult || !hitResult)
