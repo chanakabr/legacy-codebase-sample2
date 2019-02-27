@@ -3,17 +3,11 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
 using Core.Catalog.Request;
-using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Net;
-using System.Web;
-using System.ServiceModel;
 
 namespace Core.Catalog
 {
@@ -76,7 +70,11 @@ namespace Core.Catalog
             {
                 if (doesGroupUsesTemplates)
                 {
-                    GenericListResponse<Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(groupId, true, string.Empty, userBundles.channels, 0, userBundles.channels.Count, ChannelOrderBy.Id, OrderDir.ASC, false);
+                    long userId = 0;
+                    long.TryParse(request.m_sSiteGuid, out userId);
+
+                    GenericListResponse<Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(groupId, true, string.Empty, 
+                        userBundles.channels, 0, userBundles.channels.Count, ChannelOrderBy.Id, OrderDir.ASC, false, userId);
                     if (channelRes.HasObjects())
                     {
                         allChannels.AddRange(channelRes.Objects);

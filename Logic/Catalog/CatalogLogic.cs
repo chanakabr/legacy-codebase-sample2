@@ -6517,7 +6517,10 @@ namespace Core.Catalog
             CatalogGroupCache catalogGroupCache = null;
             if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
             {
-                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets);
+                long userId = 0;
+                long.TryParse(request.m_sSiteGuid, out userId);
+
+                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets, userId);
                 if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetInternalChannelAssets", request.m_nGroupID);

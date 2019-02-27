@@ -1,29 +1,18 @@
 ﻿using ApiObjects;
-using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
 using ApiObjects.Rules;
-using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
 using Core.Catalog;
-using Core.Catalog.Request;
 using Core.Catalog.Response;
-using CouchbaseManager;
 using DAL;
-using GroupsCacheManager;
 using KLogMonitor;
-using KlogMonitorHelper;
 using Newtonsoft.Json;
-using ScheduledTasks;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using TVinciShared;
 
 namespace Core.Api.Managers
 {
@@ -506,6 +495,45 @@ namespace Core.Api.Managers
             }
 
             return rules;
+        }
+
+        public static Status CheckAssetUserRuleList(int groupId, long userId, long mediaId)
+        {
+            Status status = new Status();
+            // check if the user have allow(filter) rule
+            GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, RuleActionType.UserFilter);
+            if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
+            {
+                // check if asset allowed to user
+                List<AssetUserRule> mediaAssetUserRulesToUser = AssetUserRuleManager.GetMediaAssetUserRulesToUser(groupId, userId, mediaId, assetUserRulesToUser);
+                if (mediaAssetUserRulesToUser == null && mediaAssetUserRulesToUser.Count == 0)
+                {
+                    // return error user not allowed to  update asset
+                    log.DebugFormat("User {0} not allowed to update Asset {1}", userId, mediaId);
+                    status.Set((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                }
+            }
+
+            return status;
+        }
+
+        public static long GetAssetUserRule(int groupId, long userId, bool isApplayOnChannel = false)
+        {
+            long assetUserRuleId = 0;
+            // check if the user have allow(filter) rule
+            GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, RuleActionType.UserFilter);
+            if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects() && assetUserRulesToUser.Objects.Count > 0 &&
+                assetUserRulesToUser.Objects[0].Actions != null && assetUserRulesToUser.Objects[0].Actions.Count > 0)
+            {
+                // check if rule applay on channel 
+                AssetUserRuleFilterAction assetUserRuleFilterAction = assetUserRulesToUser.Objects[0].Actions[0] as AssetUserRuleFilterAction;
+                if (assetUserRuleFilterAction != null && assetUserRuleFilterAction.ApplyOnChannel)
+                {
+                    assetUserRuleId = assetUserRulesToUser.Objects[0].Id;
+                }
+            }
+
+            return assetUserRuleId;
         }
 
         #endregion

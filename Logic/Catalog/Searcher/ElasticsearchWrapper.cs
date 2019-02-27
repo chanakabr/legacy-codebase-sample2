@@ -1,24 +1,22 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
+using Catalog.Response;
+using ConfigurationManager;
+using Core.Catalog.Cache;
+using Core.Catalog.Response;
+using ElasticSearch.Common;
+using ElasticSearch.Searcher;
+using GroupsCacheManager;
+using KLogMonitor;
+using KlogMonitorHelper;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
-using ElasticSearch.Searcher;
-using ElasticSearch.Common;
-using System.Collections;
-using System.Collections.Concurrent;
-using Core.Catalog.Cache;
-using GroupsCacheManager;
-using Core.Catalog.Response;
-using KLogMonitor;
 using System.Reflection;
-using KlogMonitorHelper;
-using Catalog.Response;
-using Core.Catalog.CatalogManagement;
-using ConfigurationManager;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Core.Catalog
 {
@@ -38,6 +36,7 @@ namespace Core.Catalog
         protected const string CHANNEL_SEARCH_IS_ACTIVE_VALUE = "1";
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
+        protected const string CHANNEL_ASSET_USER_RULE_ID = "asset_user_rule_id";
         protected ElasticSearchApi m_oESApi;
 
         public ElasticsearchWrapper()
@@ -3166,9 +3165,11 @@ namespace Core.Catalog
             }
 
             QueryFilter queryFilter = null;
+            BaseFilterCompositeType filterSettings = null;
+
             if (!definitions.isAllowedToViewInactiveAssets)
             {
-                BaseFilterCompositeType filterSettings = new FilterCompositeType(CutWith.AND);
+                filterSettings = new FilterCompositeType(CutWith.AND);
                 filterSettings.AddChild(new ESTerm(true)
                 {
                     Key = CHANNEL_SEARCH_IS_ACTIVE,
@@ -3176,6 +3177,29 @@ namespace Core.Catalog
                 });
 
                 queryFilter = new QueryFilter() { FilterSettings = filterSettings };
+            }
+
+            if (definitions.AssetUserRuleId > 0)
+            {
+                if (queryFilter == null)
+                {
+                    filterSettings = new FilterCompositeType(CutWith.AND);
+                    filterSettings.AddChild(new ESTerm(true)
+                    {
+                        Key = CHANNEL_ASSET_USER_RULE_ID,
+                        Value = definitions.AssetUserRuleId.ToString()
+                    });
+
+                    queryFilter = new QueryFilter() { FilterSettings = filterSettings };
+                }
+                else
+                {
+                    queryFilter.FilterSettings.AddChild(new ESTerm(true)
+                    {
+                        Key = CHANNEL_ASSET_USER_RULE_ID,
+                        Value = definitions.AssetUserRuleId.ToString()
+                    });
+                }
             }
 
             FilteredQuery filteredQuery = new FilteredQuery()

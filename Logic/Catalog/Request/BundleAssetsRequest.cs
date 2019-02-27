@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.Reflection;
-using System.Data;
-using TVinciShared;
-using Tvinci.Core.DAL;
-using System.Threading.Tasks;
+﻿using ApiObjects.Catalog;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using System.Collections.Concurrent;
 using Core.Catalog.Cache;
-using GroupsCacheManager;
 using Core.Catalog.Response;
+using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
-using ApiObjects.Response;
-using ApiObjects.Catalog;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Core.Catalog.Request
 {
@@ -76,8 +72,12 @@ namespace Core.Catalog.Request
                     List<GroupsCacheManager.Channel> allChannels = new List<GroupsCacheManager.Channel>();
                     if (doesGroupUsesTemplates)
                     {
-                        GenericListResponse<GroupsCacheManager.Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(parentGroupId, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id,
-                                                                                                                                        ApiObjects.SearchObjects.OrderDir.ASC, false);
+                        long userId = 0;
+                        long.TryParse(m_sSiteGuid, out userId);
+
+                        GenericListResponse<GroupsCacheManager.Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(
+                            parentGroupId, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id, 
+                            ApiObjects.SearchObjects.OrderDir.ASC, false, userId);
                         if (channelRes.HasObjects())
                         {
                             allChannels.AddRange(channelRes.Objects);
