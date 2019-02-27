@@ -1,17 +1,11 @@
 ﻿using ApiObjects.Catalog;
 using ApiObjects.Response;
-using Catalog.Response;
-using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using KLogMonitor;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaAssetBulkUploadHandler
 {

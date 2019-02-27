@@ -32,14 +32,15 @@ namespace FileUploadHandler
                 if (!string.IsNullOrEmpty(m_sRegion))
                     amazonS3Config.RegionEndpoint = RegionEndpoint.GetBySystemName(m_sRegion);
 
-                using (IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
+                using (var client = new AmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
                 {
-                    PutObjectRequest request = new PutObjectRequest();
-
-                    request.InputStream = ms;
-                    request.BucketName = m_sAddress;
-                    request.Key = m_sPrefix + "/" + fileName;
-                    request.CannedACL = S3CannedACL.PublicRead;
+                    PutObjectRequest request = new PutObjectRequest
+                    {
+                        InputStream = ms,
+                        BucketName = m_sAddress,
+                        Key = m_sPrefix + "/" + fileName,
+                        CannedACL = S3CannedACL.PublicRead
+                    };
 
                     PutObjectResponse putObjectResponse = client.PutObject(request);
 

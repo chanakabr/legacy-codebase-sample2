@@ -25,7 +25,7 @@ namespace MediaAssetBulkUploadHandler
             {
                 log.DebugFormat("starting BulkUpload task. data={0}.", data);
                 var request = JsonConvert.DeserializeObject<BulkUploadRequest>(data);
-                var processBulkUploadStatus = BulkUploadManager.ProcessBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, request.FileType, request.UploadTokenId);
+                var processBulkUploadStatus = BulkUploadManager.ProcessBulkUpload(request.GroupID, request.UserId, request.BulkUploadId);
 
                 if (processBulkUploadStatus == null || !processBulkUploadStatus.IsOkStatusCode())
                 {

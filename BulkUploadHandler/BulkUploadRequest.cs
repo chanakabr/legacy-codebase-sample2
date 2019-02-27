@@ -19,12 +19,5 @@ namespace MediaAssetBulkUploadHandler
 
         [JsonProperty("user_id")]
         public long UserId { get; set; }
-
-        [JsonProperty("file_type")]
-        public FileType FileType { get; set; }
-
-        // TODO SHIR - TALK WITH ARTHUR ABOUT HOW TO GET THE FILE (BY PATH, uploadTokenId, BYTE[] ETC..)
-        [JsonProperty("upload_token_id")]
-        public string UploadTokenId { get; set; }
     }
 }
