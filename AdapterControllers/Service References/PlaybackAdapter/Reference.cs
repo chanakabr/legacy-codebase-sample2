@@ -84,6 +84,9 @@ namespace AdapterControllers.PlaybackAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string AdapterDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long AdapterIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -111,6 +114,19 @@ namespace AdapterControllers.PlaybackAdapter {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AdapterData {
+            get {
+                return this.AdapterDataField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.AdapterDataField, value) != true)) {
+                    this.AdapterDataField = value;
+                    this.RaisePropertyChanged("AdapterData");
+                }
             }
         }
         

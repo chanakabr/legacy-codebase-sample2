@@ -19,15 +19,15 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://localhost:86/PlaybackAdapter/Service.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://localhost/playbackAdapter/Service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="899f5dbb-7748-47a4-8427-1c584e4b1001" SourceId="1" SourceUrl="http://localhost:86/PlaybackAdapter/Service.svc?wsdl" />
-    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="21edc196-befd-4536-80bb-4e6f19f273cd" SourceId="1" SourceUrl="http://localhost:86/PlaybackAdapter/Service.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="1c9826f7-d37a-4929-b268-bd9e8e6f0099" SourceId="1" SourceUrl="http://localhost:86/PlaybackAdapter/Service.svc?disco" />
-    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="0082b563-f0f0-4bf3-9e05-16c8b38e3714" SourceId="1" SourceUrl="http://localhost:86/PlaybackAdapter/Service.svc?xsd=xsd3" />
-    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="c57f5791-fc48-48ab-bc04-dda5a2dab521" SourceId="1" SourceUrl="http://localhost:86/PlaybackAdapter/Service.svc?xsd=xsd1" />
-    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="318bf78d-4746-4d3c-b064-214bdbc25b7b" SourceId="1" SourceUrl="http://localhost:86/PlaybackAdapter/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service4.xsd" MetadataType="Schema" ID="99ac7059-9491-4a93-9a3c-f177b798c80f" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service41.xsd" MetadataType="Schema" ID="d4e9a1aa-233f-4721-b319-01186f8dfcf9" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service42.xsd" MetadataType="Schema" ID="152f9f87-9c07-4b72-9e62-8586a5c4a297" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service43.xsd" MetadataType="Schema" ID="feb5557a-7024-4f9f-8d5d-fda6282443c2" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service1.disco" MetadataType="Disco" ID="c1b6c007-6b21-4cbc-a0c3-d941e9f96131" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?disco" />
+    <MetadataFile FileName="Service1.wsdl" MetadataType="Wsdl" ID="76199cf8-472f-4e45-86d1-b6fd6e3c48ab" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?wsdl" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
