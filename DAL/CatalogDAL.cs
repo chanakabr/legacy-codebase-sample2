@@ -5552,12 +5552,11 @@ namespace Tvinci.Core.DAL
         {
             StoredProcedure sp = new StoredProcedure("InsertBulkUpload");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@UploadTokenId", bulkUploadToAdd.UploadTokenId);
-            sp.AddParameter("@JobStatus", (int)bulkUploadToAdd.Status);
-            sp.AddParameter("@FileType", (int)bulkUploadToAdd.FileType);
-            sp.AddParameter("@JobAction", (int)bulkUploadToAdd.Action);
-            sp.AddParameter("@GroupId", bulkUploadToAdd.GroupId);
-            sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@status", (int)bulkUploadToAdd.Status);
+            sp.AddParameter("@action", (int)bulkUploadToAdd.Action);
+            sp.AddParameter("@fileType", (int)bulkUploadToAdd.FileType);
+            sp.AddParameter("@groupId", bulkUploadToAdd.GroupId);
+            sp.AddParameter("@updaterId", userId);
             return sp.Execute();
         }
 
@@ -5570,14 +5569,16 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable UpdateBulkUploadStatus(int groupId, long bulkUploadId, BulkUploadJobStatus Status, long userId)
+        public static DataTable UpdateBulkUploadStatus(int groupId, string fileName, long bulkUploadId, BulkUploadJobStatus status, long userId, int? numOfObjects)
         {
             StoredProcedure sp = new StoredProcedure("UpdateBulkUploadStatus");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@BulkUploadId", bulkUploadId);
-            sp.AddParameter("@StatusCode", (int)Status);
-            sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@bulkUploadId", bulkUploadId);
+            sp.AddParameter("@statusCode", (int)status);
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@fileName", fileName);
+            sp.AddParameter("@numOfObjects", numOfObjects);
             return sp.Execute();
         }
 
