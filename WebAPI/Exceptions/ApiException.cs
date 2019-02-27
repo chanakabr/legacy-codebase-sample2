@@ -326,6 +326,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CONFLICT = new ClientExceptionType(eResponseStatus.Conflict, "Conflict", "A conflict has occurred.");
         public static ClientExceptionType MIN_FRIENDS_LIMITATION = new ClientExceptionType(eResponseStatus.MinFriendsLimitation, "Min Friends Limitation", "Minimum friends limitation");
         public static ClientExceptionType INVALID_PARAMETERS = new ClientExceptionType(eResponseStatus.InvalidParameters, "", "Invalid Parameters");
+        public static ClientExceptionType NOT_ALLOWED = new ClientExceptionType(eResponseStatus.NotAllowed, "", "Not Allowed");
 
         // notification 8000-8999
         public static ClientExceptionType NO_NOTIFICATION_SETTINGS_SENT = new ClientExceptionType(eResponseStatus.NoNotificationSettingsSent, "Internal error occurred", "The updated or new notification settings weren't received by the Web service because of an internal error.");
