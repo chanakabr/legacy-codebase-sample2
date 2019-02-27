@@ -16644,10 +16644,10 @@ namespace Core.ConditionalAccess
 
         public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, 
                                                           string mediaProtocol, PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice,
-                                                          UrlType urlType)
+                                                          UrlType urlType, string adapterData)
         {
             return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, 
-                                                      out filePrice, urlType);
+                                                      out filePrice, urlType, adapterData);
         }
 
         public PlayContextType? FilterNotAllowedServices(long domainId, PlayContextType context)
