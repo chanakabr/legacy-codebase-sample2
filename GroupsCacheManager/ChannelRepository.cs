@@ -572,6 +572,7 @@ namespace GroupsCacheManager
             }
 
             channel.SupportSegmentBasedOrdering = ODBCWrapper.Utils.ExtractBoolean(rowData, "SUPPORT_SEGMENT_BASED_ORDERING");
+            channel.AssetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(rowData, "ASSET_RULE_ID");
 
             return channel;
         }
