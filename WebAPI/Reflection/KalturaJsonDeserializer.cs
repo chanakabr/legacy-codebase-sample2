@@ -10134,6 +10134,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute AssetUserRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaChannel(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -10299,6 +10309,14 @@ namespace WebAPI.Models.Catalog
                         SupportSegmentBasedOrderingSchemaProperty.Validate("supportSegmentBasedOrdering", parameters["supportSegmentBasedOrdering"]);
                     }
                     SupportSegmentBasedOrdering = (Boolean) Convert.ChangeType(parameters["supportSegmentBasedOrdering"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("assetUserRuleId") && parameters["assetUserRuleId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssetUserRuleIdSchemaProperty.Validate("assetUserRuleId", parameters["assetUserRuleId"]);
+                    }
+                    AssetUserRuleId = (Int64) Convert.ChangeType(parameters["assetUserRuleId"], typeof(Int64));
                 }
             }
         }

@@ -47,7 +47,8 @@ namespace WebAPI.Models.API
 
         internal void Validate()
         {            
-            if (!ActionsContainType.HasValue || ActionsContainType.Value != KalturaRuleActionType.USER_BLOCK)
+            if (!ActionsContainType.HasValue || 
+                !(ActionsContainType.Value == KalturaRuleActionType.USER_BLOCK || ActionsContainType.Value == KalturaRuleActionType.FILTER))
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.actionsContainType");
             }

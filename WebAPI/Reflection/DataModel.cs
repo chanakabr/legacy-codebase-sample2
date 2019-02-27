@@ -1128,6 +1128,8 @@ namespace WebAPI.Reflection
                     {
                         case "AssetTypes":
                             return "assetTypes";
+                        case "AssetUserRuleId":
+                            return "assetUserRuleId";
                         case "CreateDate":
                             return "createDate";
                         case "Description":
