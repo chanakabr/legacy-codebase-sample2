@@ -2801,7 +2801,7 @@ namespace Core.Catalog
                     case ePlayType.MEDIA:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, mediaTypeId);
                         userMediaMark.AssetType = eAssetTypes.MEDIA;
-                        CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, finishedPercentThreshold, isLinearChannel);
+                        CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, isLinearChannel);
                         break;
                     case ePlayType.NPVR:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.NPVR);
@@ -9121,7 +9121,6 @@ namespace Core.Catalog
 
             List <WatchHistory> usersWatchHistory = new List<WatchHistory>();
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
-            var mediaHitsManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIA_HITS);
 
             totalItems = 0;
 
