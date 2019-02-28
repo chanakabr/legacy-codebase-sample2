@@ -12,7 +12,7 @@ ADD . ws_ingest
 RUN nuget restore ws_ingest/ws_ingest.sln
 RUN msbuild /p:Configuration=Release ws_ingest/ws_ingest.sln
 
-RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/Ingest ws_ingest/Ingest/Ingest.csproj
+RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/Ingest /p:Profile=ingest ws_ingest/Ingest/Ingest.csproj
 
 
 
