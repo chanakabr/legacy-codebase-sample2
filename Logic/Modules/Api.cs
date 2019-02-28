@@ -2263,7 +2263,7 @@ namespace Core.Api
         }
 
         public static GenericResponse<PlaybackContext> GetPlaybackContext(long adapterId, int groupId, string userId, string udid, string ip,
-                                                                          PlaybackContext playbackContext, string adapterData)            
+                                                                          PlaybackContext playbackContext, Dictionary<string, string> adapterData)            
         {
             return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext, adapterData);
         }
