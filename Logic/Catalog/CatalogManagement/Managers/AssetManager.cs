@@ -34,7 +34,8 @@ namespace Core.Catalog.CatalogManagement
         public const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
         public const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
         public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        
+        public const string ACTION_IS_NOT_ALLOWED = "Action is not allowed";
+
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -1121,9 +1122,9 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 Status status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, currentAsset.Id);
-                if(status == null || status.Code == (int)eResponseStatus.NotAllowed)
+                if(status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
                 {
-                    result.SetStatus(eResponseStatus.NotAllowed);
+                    result.SetStatus(eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
                     return result;
                 }               
 
@@ -1969,8 +1970,9 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             Status status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, mediaId);
-            if (status == null || status.Code == (int)eResponseStatus.NotAllowed)
+            if (status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
             {
+                result.Set((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
                 return result;
             }
 

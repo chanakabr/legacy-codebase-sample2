@@ -509,8 +509,8 @@ namespace Core.Api.Managers
                 if (mediaAssetUserRulesToUser != null && mediaAssetUserRulesToUser.Count == 0)
                 {
                     // return error user not allowed to  update asset
-                    log.DebugFormat("User {0} not allowed to update Asset {1}", userId, mediaId);
-                    status.Set((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                    log.DebugFormat("User {0} not allowed for Asset {1}", userId, mediaId);
+                    status.Set((int)eResponseStatus.ActionIsNotAllowed, eResponseStatus.ActionIsNotAllowed.ToString());
                 }
             }
 
