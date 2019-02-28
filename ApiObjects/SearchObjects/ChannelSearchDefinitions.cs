@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ApiObjects.SearchObjects
 {
@@ -17,6 +13,7 @@ namespace ApiObjects.SearchObjects
         public ChannelOrderBy OrderBy { get; set; }
         public OrderDir OrderDirection { get; set; }
         public bool isAllowedToViewInactiveAssets { get; set; }
+        public long AssetUserRuleId { get; set; }
     }
 
     public enum ChannelOrderBy

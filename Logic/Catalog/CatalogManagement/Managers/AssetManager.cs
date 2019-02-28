@@ -1,7 +1,6 @@
 ﻿using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Response;
-using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using Core.Api.Managers;
@@ -35,7 +34,8 @@ namespace Core.Catalog.CatalogManagement
         public const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
         public const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
         public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        
+        public const string ACTION_IS_NOT_ALLOWED = "Action is not allowed";
+
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -1121,9 +1121,10 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
-                Status status = CheckAssetUserRuleList(groupId, userId, currentAsset.Id);
-                if(status == null || status.Code == (int)eResponseStatus.NotAllowed)
+                Status status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, currentAsset.Id);
+                if(status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
                 {
+                    result.SetStatus(eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
                     return result;
                 }               
 
@@ -1968,9 +1969,10 @@ namespace Core.Catalog.CatalogManagement
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            Status status = CheckAssetUserRuleList(groupId, userId, mediaId);
-            if (status == null || status.Code == (int)eResponseStatus.NotAllowed)
+            Status status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, mediaId);
+            if (status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
             {
+                result.Set((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
                 return result;
             }
 
@@ -1990,26 +1992,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
-
-        private static Status CheckAssetUserRuleList(int groupId, long userId, long mediaId)
-        {
-            Status status = new Status();  
-            // check if the user have allow(filter) rule
-            GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, RuleActionType.UserFilter);
-            if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
-            {
-                // check if asset allowed to user
-                List<AssetUserRule> mediaAssetUserRulesToUser = AssetUserRuleManager.GetMediaAssetUserRulesToUser(groupId, userId, mediaId, assetUserRulesToUser);
-                if (mediaAssetUserRulesToUser == null && mediaAssetUserRulesToUser.Count == 0)
-                {
-                    // return error user not allowed to  update asset
-                    log.DebugFormat("User {0} not allowed to update Asset {1}", userId, mediaId);
-                    status.Set((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
-                }
-            }
-
-            return status;
         }
 
         #endregion
@@ -2202,12 +2184,27 @@ namespace Core.Catalog.CatalogManagement
                                 int isAllowed = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ALLOWED");
                                 if (isAllowed > 0)
                                 {
-                                    assets[(int)mediaId].allowedCountries.Add(countryId);
+                                    foreach (var asset in assets.Values)
+                                    {
+                                        asset.allowedCountries.Add(countryId);
+                                    }
                                 }
                                 else
                                 {
-                                    assets[(int)mediaId].blockedCountries.Add(countryId);
+                                    foreach (var asset in assets.Values)
+                                    {
+                                        asset.blockedCountries.Add(countryId);
+                                    }
                                 }
+                            }
+                        }
+
+                        // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                        foreach (var asset in assets.Values)
+                        {
+                            if (asset.allowedCountries.Count == 0)
+                            {
+                                asset.allowedCountries.Add(0);
                             }
                         }
                     }

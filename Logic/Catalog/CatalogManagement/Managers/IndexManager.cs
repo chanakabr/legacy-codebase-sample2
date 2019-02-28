@@ -260,7 +260,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static bool UpsertChannel(int groupId, int channelId, Channel channel = null)
+        public static bool UpsertChannel(int groupId, int channelId, Channel channel = null, long userId = 0)
         {
             bool result = false;
             ElasticSearch.Common.ESSerializerV2 esSerializer = new ElasticSearch.Common.ESSerializerV2();
@@ -277,7 +277,7 @@ namespace Core.Catalog.CatalogManagement
                 if (channel == null)
                 {
                     // isAllowedToViewInactiveAssets = true because only operator can cause upsert of channel
-                    channel = ChannelManager.GetChannelById(groupId, channelId, true);
+                    channel = ChannelManager.GetChannelById(groupId, channelId, true, userId); 
                     if (channel == null)
                     {
                         log.ErrorFormat("failed to get channel object for groupId: {0}, channelId: {1} when calling UpsertChannel", groupId, channelId);

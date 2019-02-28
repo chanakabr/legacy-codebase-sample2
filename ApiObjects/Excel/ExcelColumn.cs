@@ -60,6 +60,7 @@ namespace ApiObjects.Excel
         }
     }
 
+    [AttributeUsage(AttributeTargets.Property)]
     public class ExcelColumnAttribute : Attribute
     {
         public ExcelColumnType ColumnType { get; private set; }
@@ -72,11 +73,6 @@ namespace ApiObjects.Excel
             this.ColumnType = columnType;
             this.SystemName = systemName;
         }
-    }
-
-    public class ExcelValueAttribute : Attribute
-    {
-
     }
 
     public enum ExcelColumnType

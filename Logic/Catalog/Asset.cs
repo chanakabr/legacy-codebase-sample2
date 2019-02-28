@@ -18,6 +18,9 @@ namespace Core.Catalog
     {
         #region Consts
 
+        public virtual string DistributedTask { get { return null; } }
+        public virtual string RoutingKey { get { return null; } }
+
         protected const string EXTERNAL_ASSET_ID = "External Asset ID ";
         protected const string METAS = "METAS";
         protected const string TAGS = "TAGS";
@@ -98,7 +101,7 @@ namespace Core.Catalog
         [XmlElement("co_guid")]
         [JsonProperty("CoGuid")]
         public string CoGuid { get; set; }
-
+        
         #endregion
 
         #region Ctor's
@@ -403,7 +406,17 @@ namespace Core.Catalog
                 Images.Add(image);
             }
         }
-        
+
+        public virtual BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status)
+        {
+            return null;
+        }
+
+        public virtual bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex)
+        {
+            return false;
+        }
+
         #endregion
     }
 }

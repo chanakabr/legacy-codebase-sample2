@@ -9,7 +9,7 @@ namespace ApiObjects
 {
     public interface IBulkUploadObject
     {
-        BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadJobStatus status);
+        BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status);
         string DistributedTask { get; }
         string RoutingKey { get; }
         bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex);

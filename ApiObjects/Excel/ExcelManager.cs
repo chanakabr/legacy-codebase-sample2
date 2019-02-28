@@ -3,6 +3,7 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -34,11 +35,7 @@ namespace ApiObjects.Excel
 
         List<IKalturaExcelableObject> GetObjects();
     }
-
-    public interface IBulkUploadExcelObject : IBulkUploadObject, IExcelObject
-    {
-    }
-
+    
     public class ExcelManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -77,7 +74,7 @@ namespace ApiObjects.Excel
         //}
         
         // TODO SHIR - TALK WITH ARTHUR ABOUT HOW TO GET THE FILE (BY PATH, uploadTokenId, BYTE[] ETC..)
-        public static GenericListResponse<IBulkUploadExcelObject> Deserialize(string uploadTokenId)
+        public static GenericListResponse<IExcelObject> Deserialize(Stream fileStream)
         {
             IExcelStructure m = null;
             //m.GetExcelColumns()

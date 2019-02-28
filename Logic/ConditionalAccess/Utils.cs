@@ -5114,7 +5114,13 @@ namespace Core.ConditionalAccess
         {
             foreach (var recording in dic.Values)
             {
-                recording.RecordingStatus = SetRecordingStatus(recording.EpgStartDate, recording.EpgEndDate);
+                if (recording.RecordingStatus == TstvRecordingStatus.OK 
+                    || recording.RecordingStatus == TstvRecordingStatus.Recorded 
+                    || recording.RecordingStatus == TstvRecordingStatus.Recording 
+                    || recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                {
+                    recording.RecordingStatus = SetRecordingStatus(recording.EpgStartDate, recording.EpgEndDate);
+                }
             }
         }
 

@@ -2,7 +2,6 @@
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
-using ApiObjects.PlaybackAdapter;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
@@ -1911,9 +1910,9 @@ namespace Core.Api
 
         #region AssetUserRule
         
-        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId)
+        public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, RuleActionType? ruleActionType)
         {
-            return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId);
+            return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, ruleActionType);
         }
         
         public static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
@@ -2262,8 +2261,8 @@ namespace Core.Api
 
         }
 
-        public static GenericResponse<PlaybackContext> GetPlaybackContext(long adapterId, int groupId, string userId, string udid, string ip,
-                                                                          PlaybackContext playbackContext, Dictionary<string, string> adapterData)            
+        public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackContext(long adapterId, int groupId, string userId, string udid, string ip,
+                                                                          ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, Dictionary<string, string> adapterData)
         {
             return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext, adapterData);
         }
