@@ -1,7 +1,12 @@
 ﻿ARG BUILD_TAG=latest
 ARG IIS_TAG=windowsservercore-ltsc2019
-FROM kaltura/phoenix-build:${BUILD_TAG} AS builder
+FROM 870777418594.dkr.ecr.eu-west-1.amazonaws.com/core:${BUILD_TAG} AS builder
 SHELL ["powershell"]
+
+ADD . tvpapi_rest
+
+RUN nuget restore tvpapi_rest/TVPProAPIs.sln
+RUN msbuild /p:Configuration=Release tvpapi_rest/TVPProAPIs.sln
 
 RUN tvpapi_rest\Generator\bin\Release\Generator.exe
 RUN mv KalturaClient.xml tvpapi_rest\WebAPI\clientlibs\KalturaClient.xml
