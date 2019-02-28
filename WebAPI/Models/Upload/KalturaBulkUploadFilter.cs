@@ -28,7 +28,7 @@ namespace WebAPI.Models.Upload
         [DataMember(Name = "statusEqual")]
         [JsonProperty("statusEqual")]
         [XmlElement(ElementName = "statusEqual", IsNullable = true)]
-        public KalturaBatchUploadJobStatus? StatusEqual { get; set; }
+        public KalturaBulkUploadJobStatus? StatusEqual { get; set; }
 
         public override KalturaBulkUploadOrderBy GetDefaultOrderByValue()
         {

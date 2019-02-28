@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ConfigurationManager;
+using ConfigurationManager.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -14,7 +16,6 @@ namespace WebAPI.Utils
 {
     public class Utils
     {
-
         internal static int GetLanguageId(int groupId, string language)
         {
             // get all group languages

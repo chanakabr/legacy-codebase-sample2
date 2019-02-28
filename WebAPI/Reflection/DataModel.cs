@@ -900,16 +900,18 @@ namespace WebAPI.Reflection
                             return "action";
                         case "CreateDate":
                             return "createDate";
+                        case "FileName":
+                            return "fileName";
                         case "Id":
                             return "id";
+                        case "NumOfObjects":
+                            return "numOfObjects";
                         case "Results":
                             return "results";
                         case "Status":
                             return "status";
                         case "UpdateDate":
                             return "updateDate";
-                        case "UploadTokenId":
-                            return "uploadTokenId";
                     }
                     break;
                     
@@ -931,14 +933,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaBulkUploadJobData":
-                    switch(property.Name)
-                    {
-                        case "EntryData":
-                            return "entryData";
-                    }
-                    break;
-                    
                 case "KalturaBulkUploadListResponse":
                     switch(property.Name)
                     {
@@ -952,6 +946,10 @@ namespace WebAPI.Reflection
                     {
                         case "BulkUploadId":
                             return "bulkUploadId";
+                        case "ErrorCode":
+                            return "errorCode";
+                        case "ErrorMessage":
+                            return "errorMessage";
                         case "Index":
                             return "index";
                         case "ObjectId":
@@ -1128,6 +1126,8 @@ namespace WebAPI.Reflection
                     {
                         case "AssetTypes":
                             return "assetTypes";
+                        case "AssetUserRuleId":
+                            return "assetUserRuleId";
                         case "CreateDate":
                             return "createDate";
                         case "Description":
@@ -4871,16 +4871,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaResponseStatus":
-                    switch(property.Name)
-                    {
-                        case "Code":
-                            return "code";
-                        case "Message":
-                            return "message";
-                    }
-                    break;
-                    
                 case "KalturaRule":
                     switch(property.Name)
                     {
@@ -6311,7 +6301,7 @@ namespace WebAPI.Reflection
                             
                         case "addfrombulkupload":
                             RolesManager.ValidateActionPermitted("asset", "addFromBulkUpload", false);
-                            return AssetController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaBulkUploadJobData) methodParams[1]);
+                            return AssetController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaBulkUploadJobData) methodParams[2]);
                             
                         case "autocomplete":
                             RolesManager.ValidateActionPermitted("asset", "autocomplete", false);
@@ -10337,6 +10327,11 @@ namespace WebAPI.Reflection
                             ret.Add("fileData", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(KalturaOTTFile),
+                            });
+                            ret.Add("assetType", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
                             });
                             ret.Add("bulkUploadJobData", new MethodParam(){
                                 NewName = newParamName,

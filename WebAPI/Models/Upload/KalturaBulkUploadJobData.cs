@@ -16,13 +16,6 @@ namespace WebAPI.Models.Upload
     [Serializable]
     public abstract partial class KalturaBulkUploadJobData : KalturaOTTObject
     {
-        /// <summary>
-        /// EntryData
-        /// </summary>
-        [DataMember(Name = "entryData")]
-        [JsonProperty("entryData")]
-        [XmlElement(ElementName = "entryData", IsNullable = true)]
-        public KalturaBulkUploadEntryData EntryData { get; set; }
     }
 
     /// <summary>

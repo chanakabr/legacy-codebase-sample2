@@ -11,6 +11,13 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Upload
 {
+    public enum KalturaBulkUploadResultStatus
+    {
+        ERROR = 1,
+        OK = 2,
+        IN_PROGRESS = 3
+    }
+
     /// <summary>
     /// Bulk Upload Result
     /// </summary>
@@ -22,9 +29,9 @@ namespace WebAPI.Models.Upload
         /// </summary>
         [DataMember(Name = "objectId")]
         [JsonProperty("objectId")]
-        [XmlElement(ElementName = "objectId")]
+        [XmlElement(ElementName = "objectId", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public long ObjectId { get; set; }
+        public long? ObjectId { get; set; }
 
         /// <summary>
         /// result index
@@ -51,10 +58,28 @@ namespace WebAPI.Models.Upload
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
         [SchemeProperty(ReadOnly = true)]
-        public KalturaResponseStatus Status { get; set; }
+        public KalturaBulkUploadResultStatus Status { get; set; }
+        
+        /// <summary>
+        /// Error Code
+        /// </summary>
+        [DataMember(Name = "errorCode")]
+        [XmlElement("errorCode", IsNullable = true)]
+        [JsonProperty("errorCode")]
+        [SchemeProperty(ReadOnly = true)]
+        public int? ErrorCode { get; set; }
+
+        /// <summary>
+        /// Error Message
+        /// </summary>
+        [DataMember(Name = "errorMessage")]
+        [XmlElement("errorMessage")]
+        [JsonProperty("errorMessage")]
+        [SchemeProperty(ReadOnly = true)]
+        public string ErrorMessage { get; set; }
     }
 
-    public partial class KalturaBulkUploadAssetResult : KalturaBulkUploadResult
+    public abstract partial class KalturaBulkUploadAssetResult : KalturaBulkUploadResult
     {
         /// <summary>
         /// Identifies the asset type (EPG, Recording, Movie, TV Series, etc). 
@@ -62,9 +87,9 @@ namespace WebAPI.Models.Upload
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
+        [XmlElement(ElementName = "type", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public int Type { get; set; }
+        public int? Type { get; set; }
 
         /// <summary>
         /// External identifier for the asset
@@ -74,5 +99,9 @@ namespace WebAPI.Models.Upload
         [XmlElement(ElementName = "externalId")]
         [SchemeProperty(ReadOnly = true)]
         public string ExternalId { get; set; }
+    }
+
+    public partial class KalturaBulkUploadMediaAssetResult : KalturaBulkUploadAssetResult
+    {
     }
 }
