@@ -4060,6 +4060,8 @@ namespace WebAPI.Reflection
                 case "KalturaPlaybackContextOptions":
                     switch(property.Name)
                     {
+                        case "AdapterData":
+                            return "adapterData";
                         case "AssetFileIds":
                             return "assetFileIds";
                         case "Context":

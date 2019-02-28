@@ -4178,11 +4178,12 @@ namespace WebAPI.Clients
         }
         #endregion
 
-        internal KalturaPlaybackContext GetPlaybackAdapterContext(long adapterId, int groupId, string userId, string udid, string ip,
-                                                                KalturaPlaybackContext kalturaPlaybackContext, string adapterData)
+        internal KalturaPlaybackContext GetPlaybackAdapterContext(long adapterId, int groupId, string userId, string udid, string ip, KalturaPlaybackContext kalturaPlaybackContext,
+                                                                SerializableDictionary<string, KalturaStringValue> adapterData)
         {
+            Dictionary<string, string> playbackAdapterData = ApiMappings.ConvertSerializeableDictionary(adapterData);
             Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext getPlaybackContext) =>
-             Core.Api.Module.GetPlaybackContext(adapterId, groupId, userId, udid, ip, getPlaybackContext, adapterData);
+             Core.Api.Module.GetPlaybackContext(adapterId, groupId, userId, udid, ip, getPlaybackContext, playbackAdapterData);
 
             KalturaPlaybackContext result =
                 ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
