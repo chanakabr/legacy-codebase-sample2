@@ -344,6 +344,25 @@ namespace Core.ConditionalAccess
             return mapper;
         }
 
+        internal static int GetMediaIdByFildId(int groupId, int mediaFileId)
+        {
+            int mediaId = 0;
+            try
+            {
+                MeidaMaper[] mapper = GetMediaMapper(groupId, new int[1] { mediaFileId });
+                if (mapper != null && mapper.Length == 1)
+                {
+                    mediaId = mapper[0].m_nMediaID;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetMediaIdByFildId for groupId: {0}, mediaFileId: {1}", groupId, mediaFileId), ex);
+            }
+
+            return mediaId;
+        }
+
         internal static int GetMediaFileTypeID(int nGroupID, int nMediaFileID)
         {
             return Api.Module.GetMediaFileTypeID(nGroupID, nMediaFileID);
@@ -5543,6 +5562,57 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        internal static Dictionary<string, ExternalRecording> GetDomainExternalRecordings(int groupId, long domainId, bool shouldFilterViewableRecordingsOnly = true)
+        {
+            Dictionary<long, Recording> domainRecordingIdToRecordingMap = null;
+            Dictionary<string, ExternalRecording> domainExternalRecordingIdToRecordingMap = new Dictionary<string, ExternalRecording>();
+
+            try
+            {
+                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
+
+                if (LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap, GetDomainRecordingsFromDB, funcParams, groupId,
+                                        LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId) }, true)
+                    && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
+                {
+                    SetRecordingStatus(domainRecordingIdToRecordingMap);
+
+                    Dictionary<long, Recording> recordingsToCopy = new Dictionary<long, Recording>();
+                    if (shouldFilterViewableRecordingsOnly)
+                    {
+                        long epoc = DateTime.UtcNow.ToUtcUnixTimestampSeconds();
+                        if (domainRecordingIdToRecordingMap.Any(x => !x.Value.ViewableUntilDate.HasValue || (x.Value.ViewableUntilDate.HasValue && x.Value.ViewableUntilDate.Value > epoc)))
+                        {
+                            recordingsToCopy = domainRecordingIdToRecordingMap.Where(x => !x.Value.ViewableUntilDate.HasValue
+                                                || (x.Value.ViewableUntilDate.HasValue && x.Value.ViewableUntilDate.Value > epoc)).ToDictionary(x => x.Key, x => x.Value);
+                        }
+                    }
+                    else
+                    {
+                        recordingsToCopy = domainRecordingIdToRecordingMap;
+                    }
+
+                    if (recordingsToCopy != null)
+                    {
+                        foreach (KeyValuePair<long, Recording> recToCopy in recordingsToCopy)
+                        {
+                            if (recToCopy.Value.isExternalRecording)
+                            {
+                                ExternalRecording externalRecording = new ExternalRecording(recToCopy.Value as ExternalRecording);
+                                domainExternalRecordingIdToRecordingMap[externalRecording.ExternalDomainRecordingId] = externalRecording;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed GetDomainExternalRecordings, groupId: {0}, domainId: {1}", groupId, domainId), ex);
+            }
+
+            return domainExternalRecordingIdToRecordingMap;
+        }
+
         private static Tuple<Dictionary<long, Recording>, bool> GetDomainRecordingsFromDB(Dictionary<string, object> arg)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
@@ -7188,8 +7258,8 @@ namespace Core.ConditionalAccess
             return status;
         }
 
-        internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, string assetId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol,
-            PlayContextType context, List<long> fileIds, bool filterOnlyByIds = false)
+        internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol,
+                                                                    PlayContextType context, List<long> fileIds, bool filterOnlyByIds = false)
         {
             List<MediaFile> files = null;
 
@@ -7260,7 +7330,7 @@ namespace Core.ConditionalAccess
             bool res = false;
             Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status> tupleResults = null;
             long mediaId = 0;
-            Recording recording = null;
+            Recording recording = null;            
             EPGChannelProgrammeObject program = null;
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
@@ -7269,12 +7339,14 @@ namespace Core.ConditionalAccess
                 {
                     if (funcParams.ContainsKey("assetId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType") && funcParams.ContainsKey("userId"))
                     {
-                        long id;
+                        long id = 0;
                         string assetId = funcParams["assetId"] as string;
                         int? groupId = funcParams["groupId"] as int?;
                         eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
                         string userId = funcParams["userId"] as string;
-                        if (!string.IsNullOrEmpty(assetId) && long.TryParse(assetId, out id) && groupId.HasValue && assetType.HasValue && !string.IsNullOrEmpty(userId))
+                        bool isExternalRecordingAccount = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EXTERNAL_RECORDINGS);
+                        if (!string.IsNullOrEmpty(assetId) && (isExternalRecordingAccount || long.TryParse(assetId, out id))
+                            && groupId.HasValue && assetType.HasValue && !string.IsNullOrEmpty(userId))
                         {
                             switch (assetType)
                             {
@@ -7283,23 +7355,38 @@ namespace Core.ConditionalAccess
                                         Domain domain = funcParams.ContainsKey("domain") ? funcParams["domain"] as Domain : null;
                                         string udid = funcParams.ContainsKey("udid") ? funcParams["udid"] as string : string.Empty;
                                         // check recording valid
-                                        var recordingStatus = ValidateRecording(groupId.Value, domain, udid, userId, id, ref recording);
-
-                                        if (recordingStatus.Code != (int)eResponseStatus.OK)
+                                        ApiObjects.Response.Status validateStatus = null;                                        
+                                        if (isExternalRecordingAccount)
                                         {
-                                            log.ErrorFormat("recording is not valid - recordingId = {0}", assetId);
-                                            status = new ApiObjects.Response.Status(recordingStatus.Code, recordingStatus.Message);
-                                        }
-
-                                        List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId.Value, new List<long> { recording.EpgId });
-                                        if (epgs != null && epgs.Count > 0)
-                                        {
-                                            program = epgs[0];
-                                            mediaId = program.LINEAR_MEDIA_ID;
+                                            ExternalRecording externalRecording = null;
+                                            validateStatus = ValidateExternalRecording(groupId.Value, domain, udid, userId, assetId, ref externalRecording);
+                                            if (externalRecording != null)
+                                            {
+                                                recording = externalRecording;
+                                            }
                                         }
                                         else
                                         {
-                                            status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
+                                            validateStatus = ValidateRecording(groupId.Value, domain, udid, userId, id, ref recording);
+                                        }
+
+                                        if (validateStatus.Code != (int)eResponseStatus.OK)
+                                        {
+                                            log.ErrorFormat("recording is not valid - recordingId = {0}", assetId);
+                                            status = new ApiObjects.Response.Status(validateStatus.Code, validateStatus.Message);
+                                        }
+                                        else
+                                        {
+                                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId.Value, new List<long> { recording.EpgId });
+                                            if (epgs != null && epgs.Count > 0)
+                                            {
+                                                program = epgs[0];
+                                                mediaId = program.LINEAR_MEDIA_ID;
+                                            }
+                                            else
+                                            {
+                                                status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
+                                            }
                                         }
                                     }
                                     break;
@@ -7404,6 +7491,31 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("Recording status is not valid for playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, recording = {4}, recordingStatus = {5}",
                     groupId, userId, domain.m_nDomainID, domainRecordingId, recording.Id, recording.RecordingStatus);
                 response = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, "Recording status is not valid");
+                return response;
+            }
+
+            return response;
+        }
+
+        internal static ApiObjects.Response.Status ValidateExternalRecording(int groupId, Domain domain, string udid, string userId, string  domainExternalRecordingId, ref ExternalRecording recording)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            // get device brand ID - and make sure the device is in the domain
+            if (!Utils.IsDeviceInDomain(domain, udid))
+            {
+                log.ErrorFormat("Device not in the user's domain. groupId = {0}, userId = {1}, domainId = {2}, domainExternalRecordingId = {3}, udid = {4}",
+                    groupId, userId, domain.m_nDomainID, domainExternalRecordingId, udid);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in the user's domain");
+                return response;
+            }
+
+            // validate external recording, since its external and we may not be updated, we don't filter out recordings
+            Dictionary<string, ExternalRecording> domainExternalRecordings = Utils.GetDomainExternalRecordings(groupId, domain.m_nDomainID, false);
+            if (domainExternalRecordings == null || domainExternalRecordings.Count == 0 || !domainExternalRecordings.ContainsKey(domainExternalRecordingId) || domainExternalRecordings[domainExternalRecordingId] == null)
+            {
+                log.ErrorFormat("Recording does not exist. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}", groupId, userId, domain.m_nDomainID, domainExternalRecordingId);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, "Recording was not found");
                 return response;
             }
 

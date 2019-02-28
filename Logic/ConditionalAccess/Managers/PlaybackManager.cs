@@ -98,10 +98,20 @@ namespace Core.ConditionalAccess
                 long mediaId;
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
+                bool isExternalRecordingIgnoreMode = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EXTERNAL_RECORDINGS) && assetType == eAssetTypes.NPVR;
                 response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);
+                // Allow to continue for external recording (and asset type = NPVR) since we may not be updated on them in real time
                 if (response.Status.Code != (int)eResponseStatus.OK)
                 {
-                    return response;
+                    if (isExternalRecordingIgnoreMode && fileIds != null && fileIds.Count > 0)
+                    {
+
+                        mediaId = Utils.GetMediaIdByFildId(groupId, (int)fileIds[0]);
+                    }
+                    else
+                    {
+                        return response;
+                    }
                 }
                 
                 MediaObj epgChannelLinearMedia = null;
@@ -110,14 +120,6 @@ namespace Core.ConditionalAccess
                 // Recording
                 if (assetType == eAssetTypes.NPVR)
                 {
-                    long longAssetId = 0;
-                    long.TryParse(assetId, out longAssetId);
-                    response.Status = Utils.ValidateRecording(groupId, domain, udid, userId, longAssetId, ref recording);
-                    if (response.Status.Code != (int)eResponseStatus.OK)
-                    {
-                        return response;
-                    }
-
                     epgChannelLinearMedia = Utils.GetMediaById(groupId, (int)mediaId);
 
                     // get TSTV settings
@@ -150,7 +152,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
                 
-                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
                 Dictionary<long, AdsControlData> assetFileIdsAds = new Dictionary<long, AdsControlData>();
 
                 if (files != null && files.Count > 0)
@@ -218,7 +220,7 @@ namespace Core.ConditionalAccess
                             }
                             else if (assetType == eAssetTypes.NPVR)
                             {
-                                concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, int.Parse(assetId), (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR);
+                                concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, (int)mediaId, (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR);
                             }
                             else
                             {
@@ -265,29 +267,34 @@ namespace Core.ConditionalAccess
                             if (urlType == UrlType.direct)
                             {
                                 // get adapter
-                                bool isDefaultAdapter = false;
-                                CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(groupId, file.CdnId, assetType, ref isDefaultAdapter);
+                                bool isDefaultAdapter = false;                                
                                 PlayManifestResponse playManifestResponse = null;
-                                int assetIdInt = int.Parse(assetId);
-
-                                switch (assetType)
+                                if (!isExternalRecordingIgnoreMode)
                                 {
-                                    case eAssetTypes.EPG:
-                                        playManifestResponse = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, context);
-                                        break;
-                                    case eAssetTypes.NPVR:
-                                        playManifestResponse = GetRecordingLicensedLink(cas, groupId, userId, recording, file, udid, ip, adapterResponse);
-                                        break;
-                                    case eAssetTypes.MEDIA:
-                                        playManifestResponse = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse);
-                                        break;
-                                    default:
-                                        break;
+                                    CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(groupId, file.CdnId, assetType, ref isDefaultAdapter);
+                                    int assetIdInt = int.Parse(assetId);
+                                    switch (assetType)
+                                    {
+                                        case eAssetTypes.EPG:
+                                            playManifestResponse = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, context);
+                                            break;
+                                        case eAssetTypes.NPVR:
+                                            playManifestResponse = GetRecordingLicensedLink(cas, groupId, userId, recording, file, udid, ip, adapterResponse);
+                                            break;
+                                        case eAssetTypes.MEDIA:
+                                            playManifestResponse = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse);
+                                            break;
+                                        default:
+                                            break;
+                                    }
                                 }
 
                                 if (response.Status.Code == (int)eResponseStatus.OK)
                                 {
-                                    file.DirectUrl = playManifestResponse.Url;
+                                    if (playManifestResponse != null)
+                                    {
+                                        file.DirectUrl = playManifestResponse.Url;
+                                    }
 
                                     if (context != PlayContextType.Download)
                                     {
@@ -401,7 +408,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetId, assetType, mediaId, null, null, playContextType, new List<long>() { fileId }, true);
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetType, mediaId, null, null, playContextType, new List<long>() { fileId }, true);
 
                 if (files == null || files.Count == 0)
                 {
@@ -751,7 +758,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
                 if (files != null && files.Count > 0)
                 {
                     MediaFileItemPricesContainer[] prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, true, string.Empty, udid, ip);

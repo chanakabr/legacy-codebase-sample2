@@ -34,7 +34,7 @@ namespace Core.ConditionalAccess
             }
             ItemPriceContainer itemPriceContainer = price.m_oItemPrices[0];
 
-            int mediaId = GetMediaIdByFildId(groupId, mediaFileId);
+            int mediaId = Utils.GetMediaIdByFildId(groupId, mediaFileId);
             if (mediaId == 0)
             {
                 return;
@@ -550,25 +550,6 @@ namespace Core.ConditionalAccess
             }
 
             return lastUseWithCredit;
-        }
-
-        private static int GetMediaIdByFildId(int groupId, int mediaFileId)
-        {
-            int mediaId = 0;
-            try
-            {
-                MeidaMaper[] mapper = Utils.GetMediaMapper(groupId, new int[1] { mediaFileId });
-                if (mapper != null && mapper.Length == 1)
-                {
-                    mediaId = mapper[0].m_nMediaID;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetMediaIdByFildId for groupId: {0}, mediaFileId: {1}", groupId, mediaFileId), ex);
-            }
-
-            return mediaId;
         }
 
         private static List<string> GetDomainLastUseWithCreditInvalidationKeys(int groupId, long domainId, int mediaId)
