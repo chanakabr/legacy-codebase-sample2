@@ -2184,12 +2184,27 @@ namespace Core.Catalog.CatalogManagement
                                 int isAllowed = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ALLOWED");
                                 if (isAllowed > 0)
                                 {
-                                    assets[(int)mediaId].allowedCountries.Add(countryId);
+                                    foreach (var asset in assets.Values)
+                                    {
+                                        asset.allowedCountries.Add(countryId);
+                                    }
                                 }
                                 else
                                 {
-                                    assets[(int)mediaId].blockedCountries.Add(countryId);
+                                    foreach (var asset in assets.Values)
+                                    {
+                                        asset.blockedCountries.Add(countryId);
+                                    }
                                 }
+                            }
+                        }
+
+                        // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                        foreach (var asset in assets.Values)
+                        {
+                            if (asset.allowedCountries.Count == 0)
+                            {
+                                asset.allowedCountries.Add(0);
                             }
                         }
                     }
