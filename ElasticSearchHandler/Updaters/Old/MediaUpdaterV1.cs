@@ -139,6 +139,12 @@ namespace ElasticSearchHandler.Updaters
                         {
                             foreach (int languageId in mediaDictionary[mediaId].Keys)
                             {
+                                // Sunny: In case language does not exist for group for some reason...
+                                if (group.GetLanguage(languageId) == null)
+                                {
+                                    continue;
+                                }
+
                                 Media media = mediaDictionary[mediaId][languageId];
 
                                 if (media != null)
