@@ -1195,7 +1195,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
-        //[Throws(eResponseStatus.NotAllowed)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
@@ -1232,7 +1232,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
-        //[Throws(eResponseStatus.NotAllowed)]        
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaAsset Update(long id, KalturaAsset asset)
         {
