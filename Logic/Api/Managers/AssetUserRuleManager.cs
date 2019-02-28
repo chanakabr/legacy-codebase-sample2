@@ -536,6 +536,24 @@ namespace Core.Api.Managers
             return assetUserRuleId;
         }
 
+        public static GenericResponse<AssetUserRule> GetAssetUserRuleByRuleId(int groupId, long ruleId)
+        {
+            GenericResponse<AssetUserRule> response = new GenericResponse<AssetUserRule>();
+            // check if AssetUserRule exists in CB
+            AssetUserRule assetUserRule = ApiDAL.GetAssetUserRuleCB(ruleId);
+            if (assetUserRule == null || assetUserRule.Id == 0 || assetUserRule.GroupId != groupId)
+            {
+                response.SetStatus((int)eResponseStatus.AssetUserRuleDoesNotExists, ASSET_USER_RULE_DOES_NOT_EXIST);
+            }
+            else
+            {
+                response.Object = assetUserRule;
+                response.SetStatus(eResponseStatus.OK);
+            }
+
+            return response;
+        }
+
         #endregion
 
         #region Private Methods

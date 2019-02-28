@@ -7324,9 +7324,10 @@ namespace Core.Catalog
 
             #region Asset User Rule
 
-            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
-            {
-                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId);
+            long userId = 0;
+            if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
+            {                
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, userId);
             }
 
             #endregion
@@ -8414,10 +8415,16 @@ namespace Core.Catalog
 
             #region Asset User Rule
 
-            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+            if( channel.AssetUserRuleId > 0)
             {
-                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId);
+                UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId, channel.AssetUserRuleId);
             }
+
+            long userId = 0;
+            if( long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
+            {                
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, userId);
+            }            
 
             #endregion
 
