@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Amazon;
 using Amazon.S3;
-using System.IO;
 using Amazon.S3.Model;
-using System.Threading;
-using Amazon;
-using System.Security.Cryptography;
 using KLogMonitor;
+using System;
+using System.IO;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
 
 namespace Uploader
 {
@@ -59,12 +57,13 @@ namespace Uploader
 
                     using (IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
                     {
-                        PutObjectRequest request = new PutObjectRequest();
-
-                        request.InputStream = fs;
-                        request.BucketName = m_sAddress;
-                        request.Key = m_sPrefix + "/" + fileInf.Name;
-                        request.CannedACL = S3CannedACL.PublicRead;
+                        PutObjectRequest request = new PutObjectRequest
+                        {
+                            InputStream = fs,
+                            BucketName = m_sAddress,
+                            Key = m_sPrefix + "/" + fileInf.Name,
+                            CannedACL = S3CannedACL.PublicRead
+                        };
 
                         PutObjectResponse putObjectResponse = client.PutObject(request);
 
