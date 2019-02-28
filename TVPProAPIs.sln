@@ -126,10 +126,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PermissionsManager", "..\Co
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BB5EE93A-9128-4339-8040-5EA834D2BDD1}"
 	ProjectSection(SolutionItems) = preProject
-		Dockerfile.Build = Dockerfile.Build
+		Dockerfile = Dockerfile
 		Dockerfile.ConfigurationValidator = Dockerfile.ConfigurationValidator
 		Dockerfile.Docs = Dockerfile.Docs
-		Dockerfile.Phoenix = Dockerfile.Phoenix
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -865,7 +864,7 @@ Global
 		{F5591A02-7C44-476F-B447-A63F39B2D731} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal

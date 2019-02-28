@@ -1,0 +1,16 @@
+{
+  "permission_items": [ 
+    { 
+      "permissions": [
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaChannel_AssetUserRuleId_Write",
+      "object": "KalturaChannel",
+      "parameter": "assetUserRuleId",
+      "action": "WRITE",
+      "type": "Parameter"
+    }     
+  ],
+  "type": "Parameter"
+}

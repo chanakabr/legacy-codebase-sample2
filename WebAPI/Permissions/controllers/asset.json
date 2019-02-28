@@ -184,6 +184,18 @@
       "service": "Asset",
       "action": "RemoveMetasAndTags",
       "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "Asset_AddFromBulkUpload",
+      "service": "Asset",
+      "action": "AddFromBulkUpload",
+      "type": "Action"
     }
   ],
   "type": "Action"

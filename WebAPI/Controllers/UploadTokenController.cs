@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                return UploadManager.AddUploadToken(uploadToken, groupId);
+                return UploadTokenManager.AddUploadToken(groupId);
             }
             catch (ClientException ex)
             {
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                return UploadManager.UploadUploadToken(uploadTokenId, fileData.path, groupId);
+                return UploadTokenManager.UploadUploadToken(uploadTokenId, fileData.path, groupId);
             }
             catch (ClientException ex)
             {

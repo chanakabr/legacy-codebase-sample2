@@ -5,6 +5,7 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Web;
@@ -392,6 +393,26 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
                             
+                            long userId;
+                            if (long.TryParse(userID, out userId))
+                            {
+                                KalturaAssetUserRuleListResponse rules = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, KalturaRuleActionType.FILTER);                                
+                                if (rules != null && rules.Objects != null && rules.Objects.Count > 0)
+                                {
+                                    KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), 
+                                        udid, language, 0, 1, string.Format("media_id = '{0}'", id), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
+
+                                    if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
+                                    {
+                                        return assetListResponse.Objects[0];
+                                    }
+                                    else
+                                    {
+                                        throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
+                                    }
+                                }
+                            }
+
                             response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);
                         }
 
@@ -1174,6 +1195,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
@@ -1210,6 +1232,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaAsset Update(long id, KalturaAsset asset)
         {
@@ -1311,35 +1334,61 @@ namespace WebAPI.Controllers
         /// Add new bulk upload batch job Conversion profile id can be specified in the API.
         /// </summary>
         /// <param name="fileData">fileData</param>
+        /// <param name="assetType">assetType</param>
         /// <param name="bulkUploadJobData">bulkUploadJobData</param>
-        /// <returns>created bulkUpload Id</returns>
+        /// <returns>created bulkUpload</returns>
         [Action("addFromBulkUpload")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.FileDoesNotExists)]
+        [Throws(eResponseStatus.FileAlreadyExists)]
+        [Throws(eResponseStatus.BulkUploadDoesNotExist)]
+        [Throws(eResponseStatus.InvalidFileType)]
+        [Throws(eResponseStatus.ErrorSavingFile)]
+        [Throws(eResponseStatus.FileIdNotInTheRightLength)]
+        [Throws(StatusCode.TypeNotSupported)]
+        [Throws(StatusCode.ArgumentCannotBeEmpty)]
+        [Throws(StatusCode.EnumValueNotSupported)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public static long AddFromBulkUpload(KalturaOTTFile fileData, KalturaBulkUploadJobData bulkUploadJobData)
+        public static KalturaBulkUpload AddFromBulkUpload(KalturaOTTFile fileData, KalturaAssetType assetType, KalturaBulkUploadJobData bulkUploadJobData)
         {
-            // validate that bulkUploadData is KalturaBulkUploadExcelJobData.
-            if (bulkUploadJobData is KalturaBulkUploadExcelJobData && bulkUploadJobData.EntryData is KalturaBulkUploadMediaEntryData)
+            KalturaBulkUpload bulkUpload = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                long userId = Utils.Utils.GetUserIdFromKs();
+                if (fileData == null || string.IsNullOrEmpty(fileData.path))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fileData");
+                }
 
-                // Add UploadToken by using UploadManager to create new upload token.
-                var uploadToken = UploadManager.AddUploadToken(null, groupId);
-
-                // TODO SHIR - ASK IRA IF FILEDATA IS EVER BEEN DELETED from iis (guy saids that we need to add task that doing it)? 
-                // (dont we should delete file data from server -> we saved the file in new location..)
-                // Update new UploadToken file path from fileData. 
-                var finalUploadToken = UploadManager.UploadUploadToken(uploadToken.Id, fileData.path, groupId);
-
-                var kalturaBulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, uploadToken.Id, userId, KalturaBatchUploadJobAction.Upsert, FileType.Excel);
+                if (bulkUploadJobData == null)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkUploadJobData");
+                }
                 
-                return kalturaBulkUpload.Id;
+                if (bulkUploadJobData is KalturaBulkUploadExcelJobData)
+                {
+                    if (assetType != KalturaAssetType.media)
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "assetType", assetType.ToString());
+                    }
+                    
+                    bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.path, userId, typeof(KalturaMediaAsset), FileType.Excel); 
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "bulkUploadJobData", bulkUploadJobData.objectType);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
             }
 
-            // TODO SHIR - THROW Not supported for OTHER TYPES
-            throw new NotImplementedException(); 
+            return bulkUpload;
         }
     }
 }

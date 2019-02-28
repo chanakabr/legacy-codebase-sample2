@@ -3510,7 +3510,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, List<int> specificChannelIds, int pageIndex, int pageSize,
-                                                            KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets)
+                                                            KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets, long userId)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             GenericListResponse<GroupsCacheManager.Channel> response = null;
@@ -3559,7 +3559,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds, pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds, 
+                        pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets, userId);
                 }
             }
             catch (Exception ex)
@@ -3605,16 +3606,15 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannel GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets)
+        internal KalturaChannel GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
         {
             GenericResponse<GroupsCacheManager.Channel> response = null;
-            KalturaChannel result = null;
-
+            KalturaChannel result = null;            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannel(groupId, channelId, isAllowedToViewInactiveAssets);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannel(groupId, channelId, isAllowedToViewInactiveAssets, true, userId);
                 }
             }
             catch (Exception ex)
@@ -3886,7 +3886,8 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteChannelFunc); ;
         }
 
-        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets)
+        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, 
+            KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets, long userId)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             GenericListResponse<GroupsCacheManager.Channel> response = null;
@@ -3935,7 +3936,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, 
+                        orderBy, orderDirection, isAllowedToViewInactiveAssets, userId);
                 }
             }
             catch (Exception ex)
@@ -4012,16 +4014,11 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string uploadTokenId, long userId, KalturaBatchUploadJobAction kalturaBatchUploadJobAction, FileType fileType)
+        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string filePath, long userId, Type objectType, FileType fileType)
         {
-            // TODO SHIR - MAP all KalturaBulkUpload new objects
-            var action = AutoMapper.Mapper.Map<BulkUploadJobAction>(kalturaBatchUploadJobAction);
-            
-            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, uploadTokenId, userId, action, fileType);
+            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, filePath, userId, objectType, BulkUploadJobAction.Upsert, fileType);
             KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
-            
-            // TODO SHIR - THROW Not supported for OTHER TYPES
-            throw new NotImplementedException();
+            return result;
         }
 
         internal Dictionary<string, object> GetExcelValues(int groupId, IKalturaExcelableObject kalturaExcelableObject)

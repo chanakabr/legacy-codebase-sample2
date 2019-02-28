@@ -38,20 +38,21 @@ namespace WebAPI.Controllers
             if(filter == null)
             {
                 filter = new KalturaAssetUserRuleFilter();
+                filter.ActionsContainType = KalturaRuleActionType.USER_BLOCK; // default
             }
 
             try
             {
-                //filter.Validate();
+                filter.Validate();
 
                 if (filter != null && filter.AttachedUserIdEqualCurrent.HasValue && filter.AttachedUserIdEqualCurrent.Value)
                 {
                     long userId = long.Parse(KS.GetFromRequest().UserId);
-                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId);
+                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, filter.ActionsContainType.Value);
                 }
                 else
                 {
-                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId);
+                    response = ClientsManager.ApiClient().GetAssetUserRules(groupId, null, filter.ActionsContainType.Value);
                 }
             }
             catch (ClientException ex)
