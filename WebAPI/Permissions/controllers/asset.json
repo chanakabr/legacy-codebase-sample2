@@ -192,9 +192,9 @@
         "Administrator"
       ],
       "excluded_permissions": [],
-      "name": "Asset_RemoveMetasAndTags",
+      "name": "Asset_AddFromBulkUpload",
       "service": "Asset",
-      "action": "RemoveMetasAndTags",
+      "action": "AddFromBulkUpload",
       "type": "Action"
     }
   ],
