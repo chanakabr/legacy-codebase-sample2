@@ -143,7 +143,7 @@ namespace TVinciShared
             
             return fileUrlResponse;
         }
-
+        
         private string GetFileName(string id, string fileExtension)
         {
             return (id + fileExtension);
@@ -236,43 +236,7 @@ namespace TVinciShared
             saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Could not save file:{0} to S3", fileName));
             return saveResponse;
         }
-
-        private GenericResponse<Stream> GetStream(string fileName, FileInfo fileInfo, string subDir)
-        {
-            // TODO SHIR - FINISH GetStream
-            GenericResponse<Stream> streamResponse = new GenericResponse<Stream>();
-            for (int i = 0; i < NumberOfRetries; i++)
-            {
-                using (var client = new AmazonS3Client(AccessKey, SecretKey, Amazon.RegionEndpoint.GetBySystemName(Region)))
-                {
-                    try
-                    {
-                        using (var fileTransferUtility = new TransferUtility(client))
-                        {
-                            var fileTransferUtilityOpenStreamRequest = new TransferUtilityOpenStreamRequest
-                            {
-                                BucketName = BucketName,
-                                Key = fileName
-                            };
-                            streamResponse.Object = fileTransferUtility.OpenStream(fileTransferUtilityOpenStreamRequest);
-                            streamResponse.SetStatus(eResponseStatus.OK);
-                            return streamResponse;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error(string.Format("An Exception was occurred in Save file to S3, attempt: {0}/{1}. fileName:{2}, fileInfo.FullName:{3}, subDir:{4}.",
-                                                i + 1, NumberOfRetries, fileName, fileInfo.FullName, subDir), ex);
-                        streamResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Error while save file:{0} to S3", fileName));
-                        return streamResponse;
-                    }
-                }
-            }
-
-            streamResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Could not save file:{0} to S3", fileName));
-            return streamResponse;
-        }
-
+        
         protected override GenericResponse<string> GetSubDir(string id, string typeName)
         {
             GenericResponse<string> subDirResponse = new GenericResponse<string>()

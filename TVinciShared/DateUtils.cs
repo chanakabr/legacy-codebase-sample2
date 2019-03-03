@@ -385,5 +385,16 @@ namespace TVinciShared
 
             return 0;
         }
+
+        public static DateTime? ExtractDate(string dateTime, string format)
+        {
+            DateTime result;
+            if (DateTime.TryParseExact(dateTime, format, null, System.Globalization.DateTimeStyles.None, out result))
+            {
+                return result;
+            }
+
+            return null;
+        }
     }
 }

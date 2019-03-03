@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
@@ -5569,7 +5570,6 @@ namespace Tvinci.Core.DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@status", (int)bulkUploadToAdd.Status);
             sp.AddParameter("@action", (int)bulkUploadToAdd.Action);
-            sp.AddParameter("@fileType", (int)bulkUploadToAdd.FileType);
             sp.AddParameter("@groupId", bulkUploadToAdd.GroupId);
             sp.AddParameter("@updaterId", userId);
             return sp.Execute();

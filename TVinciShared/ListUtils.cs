@@ -20,7 +20,7 @@ namespace TVinciShared
             IEnumerable<T> output = null;
 
             illegalRequest = false;
-
+            
             if (pageSize < 0 || pageIndex < 0)
             {
                 // illegal parameters

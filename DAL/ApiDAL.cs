@@ -5247,7 +5247,6 @@ namespace DAL
         public static DataTable AddBusinessModuleRule(int groupId, string name, string description)
         {
             DataTable dt = null;
-
             try
             {
                 StoredProcedure sp = new StoredProcedure("InsertBusinessModuleRule");
