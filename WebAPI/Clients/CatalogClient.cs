@@ -277,8 +277,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteAssetFunc);
         }
 
-        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, 
-            string language, bool isAllowedToViewInactiveAssets)
+        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isAllowedToViewInactiveAssets)
         {
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
@@ -287,44 +286,40 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
+                    KalturaAssetListResponse assetListResponse = null;
+                    bool opcAccount = DoesGroupUsesTemplates(groupId);
 
-
-                    if (DoesGroupUsesTemplates(groupId))
+                    if (isAllowedToViewInactiveAssets)
                     {
-                        eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                        response = AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
+                        if (opcAccount)
+                        {
+                            eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
+                            response = AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
+                        }
+                        else
+                        {
+
+                            assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
+                        }
                     }
                     else
                     {
-                        KalturaAssetListResponse assetListResponse = null;
-                        if (isAllowedToViewInactiveAssets)
-                        {
-                            assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
-                        }
-                        else
-                        {
-                            assetListResponse = SearchAssets(groupId, siteGuid, domainId, udid, language, 0, 1, string.Format("media_id = '{0}'", id), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
-                        }
+                        assetListResponse = SearchAssets(groupId, siteGuid, domainId, udid, language, 0, 1, string.Format("media_id = '{0}'", id), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
+                    }
 
-                        if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
-                        {
-                            return assetListResponse.Objects[0];
-                        }
-                        else
-                        {
-                            throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
-                        }
+                    if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
+                    {
+                        return assetListResponse.Objects[0];
+                    }
+                    else if (response == null)
+                    {
+                        throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                     }
                 }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
             if (response.Status.Code != (int)StatusCode.OK)

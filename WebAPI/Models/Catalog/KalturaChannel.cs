@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -198,9 +199,9 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assetUserRuleId")]
         [JsonProperty("assetUserRuleId")]
-        [XmlElement(ElementName = "assetUserRuleId")]
-        [SchemeProperty()]
-        public long AssetUserRuleId { get; set; }
+        [XmlElement(ElementName = "assetUserRuleId")]        
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        public long? AssetUserRuleId { get; set; }
 
         internal virtual void ValidateForInsert()
         {

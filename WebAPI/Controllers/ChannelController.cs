@@ -225,6 +225,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public KalturaChannel Update(int id, KalturaChannel channel)
         {
             KalturaChannel response = null;

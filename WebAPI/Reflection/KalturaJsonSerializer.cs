@@ -2010,6 +2010,11 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(AdapterData != null)
+            {
+                propertyValue = "{" + String.Join(", ", AdapterData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("adapterData", "\"adapterData\": " + propertyValue);
+            }
             if(AssetFileIds != null)
             {
                 ret.Add("assetFileIds", "\"assetFileIds\": " + "\"" + EscapeJson(AssetFileIds) + "\"");
@@ -2035,6 +2040,11 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(AdapterData != null)
+            {
+                propertyValue = AdapterData.Count > 0 ? "<item>" + String.Join("</item><item>", AdapterData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("adapterData", "<adapterData>" + propertyValue + "</adapterData>");
+            }
             if(AssetFileIds != null)
             {
                 ret.Add("assetFileIds", "<assetFileIds>" + EscapeXml(AssetFileIds) + "</assetFileIds>");
@@ -9313,7 +9323,10 @@ namespace WebAPI.Models.Catalog
                     ret.Add("asset_types", "\"asset_types\": " + propertyValue);
                 }
             }
-            ret.Add("assetUserRuleId", "\"assetUserRuleId\": " + AssetUserRuleId);
+            if(AssetUserRuleId.HasValue)
+            {
+                ret.Add("assetUserRuleId", "\"assetUserRuleId\": " + AssetUserRuleId);
+            }
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
             if(propertyValue != null)
@@ -9404,7 +9417,10 @@ namespace WebAPI.Models.Catalog
                 ret.Add("asset_types", "<asset_types>" + propertyValue + "</asset_types>");
                 }
             }
-            ret.Add("assetUserRuleId", "<assetUserRuleId>" + AssetUserRuleId + "</assetUserRuleId>");
+            if(AssetUserRuleId.HasValue)
+            {
+                ret.Add("assetUserRuleId", "<assetUserRuleId>" + AssetUserRuleId + "</assetUserRuleId>");
+            }
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && FilterExpression != null)
