@@ -39,6 +39,14 @@ namespace WebAPI.Models.ConditionalAccess
         public string AssetFileIds { get; set; }
 
         /// <summary>
+        /// key/value map field for extra data
+        /// </summary>
+        [DataMember(Name = "adapterData")]
+        [JsonProperty("adapterData")]
+        [XmlElement(ElementName = "adapterData")]        
+        public SerializableDictionary<string, KalturaStringValue> AdapterData { get; set; }
+
+        /// <summary>
         /// Playback context type
         /// </summary>
         [DataMember(Name = "context")]
