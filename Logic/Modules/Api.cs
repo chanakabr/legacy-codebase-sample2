@@ -2261,9 +2261,10 @@ namespace Core.Api
 
         }
 
-        public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackContext(long adapterId, int groupId, string userId, string udid, string ip, ApiObjects.PlaybackAdapter.PlaybackContext playbackContext)            
+        public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackContext(long adapterId, int groupId, string userId, string udid, string ip,
+                                                                          ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, Dictionary<string, string> adapterData)
         {
-            return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext);
+            return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext, adapterData);
         }
 
         public static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
