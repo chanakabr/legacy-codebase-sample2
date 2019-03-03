@@ -280,28 +280,6 @@ namespace ElasticSearchHandler
                             }
                         }
                     }
-                    
-                    if (group.m_oMetasValuesByGroupId != null)
-                    {
-                        foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
-                        {
-                            foreach (KeyValuePair<string, string> meta in metaMap)
-                            {
-                                string nullValue;
-                                eESFieldType metaType;
-                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
-
-                                if (!metas.ContainsKey(meta.Value))
-                                {
-                                    metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                                }
-                                else
-                                {
-                                    log.ErrorFormat("Duplicate media meta found for group {0} name {1}", groupId, meta.Value);
-                                }
-                            }
-                        }
-                    }
 
                     if (group.m_oMetasValuesByGroupId != null)
                     {
