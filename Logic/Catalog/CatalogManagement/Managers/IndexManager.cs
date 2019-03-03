@@ -277,7 +277,13 @@ namespace Core.Catalog.CatalogManagement
                 if (channel == null)
                 {
                     // isAllowedToViewInactiveAssets = true because only operator can cause upsert of channel
-                    channel = ChannelManager.GetChannelById(groupId, channelId, true, userId); 
+                    GenericResponse<Channel> response = ChannelManager.GetChannelById(groupId, channelId, true, userId);
+                    if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return result;
+                    }
+
+                    channel = response.Object;
                     if (channel == null)
                     {
                         log.ErrorFormat("failed to get channel object for groupId: {0}, channelId: {1} when calling UpsertChannel", groupId, channelId);

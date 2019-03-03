@@ -6520,7 +6520,13 @@ namespace Core.Catalog
                 long userId = 0;
                 long.TryParse(request.m_sSiteGuid, out userId);
 
-                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets, userId);
+                GenericResponse<GroupsCacheManager.Channel> response = ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets, userId);
+                if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return response.Status;
+                }
+
+                channel = response.Object;
                 if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetInternalChannelAssets", request.m_nGroupID);

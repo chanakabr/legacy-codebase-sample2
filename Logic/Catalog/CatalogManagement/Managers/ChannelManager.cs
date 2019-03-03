@@ -418,27 +418,29 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        internal static Channel GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
+        internal static  GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
         {
-            Channel channel = null;
+            GenericResponse<Channel> response = new GenericResponse<Channel>();
             List<Channel> channels = GetChannels(groupId, new List<int>() { channelId }, isAllowedToViewInactiveAssets);
             if (channels != null && channels.Count == 1)
             {
-                channel = channels.First();
+                response.Object = channels.First();
                 long ruleId = 0;
                 if (userId > 0)
                 {
                     ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
                 }
 
-                if (ruleId > 0 && channel.AssetUserRuleId != ruleId)
+                if (ruleId > 0 && response.Object.AssetUserRuleId != ruleId)
                 {
                     log.DebugFormat("User {0} not allowed on channel {1}. ruleId {2}.", userId, channelId, ruleId);
-                    return null;
+                    response.SetStatus(eResponseStatus.ActionIsNotAllowed);
+                    response.Object = null;
+                    return response;
                 }
             }
-
-            return channel;
+            response.SetStatus(eResponseStatus.OK);
+            return response;
         }
 
         #endregion
@@ -707,7 +709,13 @@ namespace Core.Catalog.CatalogManagement
                 if (!isForMigration)
                 {
                     //isAllowedToViewInactiveAssets = true because only operator can update channel
-                    Channel currentChannel = GetChannelById(groupId, channelId, true, userId);
+                    response = GetChannelById(groupId, channelId, true, userId);
+                    if(response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return response; 
+                    }                     
+
+                    Channel currentChannel = response.Object;
                     if (currentChannel == null || currentChannel.m_nChannelTypeID != channelToUpdate.m_nChannelTypeID)
                     {
                         response.SetStatus(eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
@@ -891,7 +899,12 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                response.Object = GetChannelById(groupId, channelId, isAllowedToViewInactiveAssets, userId);
+                response = GetChannelById(groupId, channelId, isAllowedToViewInactiveAssets, userId);
+                if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return response;
+                }
+
                 if (response.Object != null)
                 {
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
