@@ -8421,9 +8421,9 @@ namespace Core.Catalog
 
             #region Asset User Rule
 
-            if( channel.AssetUserRuleId > 0)
+            if( channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
-                UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId, channel.AssetUserRuleId);
+                UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId, channel.AssetUserRuleId.Value);
             }
 
             long userId = 0;
