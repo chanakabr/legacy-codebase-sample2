@@ -455,6 +455,7 @@ namespace Core.Catalog
             {
                 newPhrase = userPhraseNode;
             }
+
             return newPhrase;
         }
 
@@ -505,21 +506,12 @@ namespace Core.Catalog
             {
                 if (assetUserRulesResponse.HasObjects())
                 {
-                    StringBuilder query = new StringBuilder();
-                    query.Append("(or ");
-                    foreach (var rule in assetUserRulesResponse.Objects)
-                    {
-                        definitions.assetUserRuleIds.Add(rule.Id);
-                        foreach (var condition in rule.Conditions)
-                        {
-                            query.AppendFormat(" {0}", condition.Ksql);
-                        }
-                    }
+                    var rulesList = assetUserRulesResponse.Objects;
+                    List<long> rulesIds;
+                    string queryString;
+                    GetQueryStringFromAssetUserRules(rulesList, out rulesIds, out queryString);
 
-                    query.Append(")");
-
-                    string queryString = query.ToString();
-
+                    definitions.assetUserRuleIds.AddRange(rulesIds);
                     BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
 
                     CatalogLogic.UpdateNodeTreeFields(request, ref phrase, definitions, group, groupId);
@@ -533,6 +525,25 @@ namespace Core.Catalog
             }
 
             return phrase;
+        }
+
+        public static void GetQueryStringFromAssetUserRules(List<ApiObjects.Rules.AssetUserRule> rulesList, out List<long> rulesIds, out string queryString)
+        {
+            rulesIds = new List<long>();
+            StringBuilder query = new StringBuilder();
+            query.Append("(or ");
+            foreach (var rule in rulesList)
+            {
+                rulesIds.Add(rule.Id);
+                foreach (var condition in rule.Conditions)
+                {
+                    query.AppendFormat(" {0}", condition.Ksql);
+                }
+            }
+
+            query.Append(")");
+
+            queryString = query.ToString();
         }
 
         private List<string> GetDomainRecordings(UnifiedSearchDefinitions definitions, int groupId, long domainId, HashSet<long> specificRecordingIds)

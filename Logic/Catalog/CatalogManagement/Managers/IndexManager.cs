@@ -3,6 +3,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api.Managers;
 using Core.Catalog.Cache;
 using Core.Catalog.Request;
 using ElasticSearch.Common;
@@ -16,6 +17,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 
@@ -360,13 +362,14 @@ namespace Core.Catalog.CatalogManagement
             ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
             List<string> mediaAliases = esApi.GetAliases(groupId.ToString());
             List<string> epgAliases = esApi.GetAliases(string.Format("{0}_epg", groupId));
+
             try
             {
                 if (mediaAliases != null && mediaAliases.Count > 0)
                 {
                     if (channel != null)
                     {
-                        result = UpdateChannelPercolator(esApi, channel, new List<int>() { groupId }, mediaAliases, epgAliases);
+                        result = UpdateChannelPercolator(esApi, channel, groupId, mediaAliases, epgAliases);
                     }
                     else
                     {
@@ -385,7 +388,7 @@ namespace Core.Catalog.CatalogManagement
 
                             if (channelToUpdate != null)
                             {
-                                result = result && UpdateChannelPercolator(esApi, channelToUpdate, group.m_nSubGroup, mediaAliases, epgAliases);
+                                result = result && UpdateChannelPercolator(esApi, channelToUpdate, groupId, mediaAliases, epgAliases);
                             }
                         }
                     }
@@ -768,7 +771,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static MediaSearchObj BuildBaseChannelSearchObject(Channel channel, List<int> lSubGroups)
+        public static MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
         {
             ApiObjects.SearchObjects.MediaSearchObj searchObject = new ApiObjects.SearchObjects.MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
@@ -826,7 +829,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        private static bool UpdateChannelPercolator(ElasticSearchApi esApi, Channel channel, List<int> subGroupIds, List<string> mediaAliases, List<string> epgAliases)
+        private static bool UpdateChannelPercolator(ElasticSearchApi esApi, Channel channel, int groupId, List<string> mediaAliases, List<string> epgAliases)
         {
             bool result = false;
             if (channel != null)
@@ -836,8 +839,26 @@ namespace Core.Catalog.CatalogManagement
 
                 string channelQuery = string.Empty;
 
-                if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                
+                if ((channel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
+                    (channel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUsesTemplates && channel.AssetUserRuleId > 0))
                 {
+                    if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.AssetUserRuleId > 0)
+                    {
+                        StringBuilder builder = new StringBuilder();
+                        builder.Append("(or ");
+
+                        foreach (var item in channel.m_lChannelTags)
+                        {
+                            builder.AppendFormat("media_id='{0}' ", item.m_lValue);
+                        }
+
+                        builder.Append(")");
+
+                        channel.filterQuery = builder.ToString();
+                    }
+
                     UnifiedSearchDefinitions definitions = BuildSearchDefinitions(channel, true);
 
                     isMedia = definitions.shouldSearchMedia;
@@ -855,7 +876,7 @@ namespace Core.Catalog.CatalogManagement
                     };
 
                     mediaQueryParser.m_nGroupID = channel.m_nGroupID;
-                    MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(channel, subGroupIds);
+                    MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(channel);
 
                     mediaQueryParser.oSearchObject = mediaSearchObject;
                     channelQuery = mediaQueryParser.BuildSearchQueryString(true);
@@ -883,7 +904,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes)
+        public static UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
@@ -923,6 +944,52 @@ namespace Core.Catalog.CatalogManagement
             definitions.shouldUseStartDateForMedia = false;
             definitions.shouldUseFinalEndDate = false;
 
+            GroupManager groupManager = new GroupManager();
+
+            Group group = groupManager.GetGroup(channel.m_nParentGroupID);
+
+            if (group == null)
+            {
+                log.Error("Error - Could not load group from cache in GetGroupMedias");
+            }
+
+            BaseRequest dummyRequest = new BaseRequest()
+            {
+                domainId = 0,
+                m_nGroupID = channel.m_nParentGroupID,
+                m_nPageIndex = 0,
+                m_nPageSize = 0,
+                m_oFilter = new Filter(),
+                m_sSiteGuid = string.Empty,
+                m_sUserIP = string.Empty
+            };
+
+            if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
+            {
+                var assetUserRule = AssetUserRuleManager.GetAssetUserRuleByRuleId(channel.m_nGroupID, channel.AssetUserRuleId.Value);
+
+                if (assetUserRule != null && assetUserRule.Status != null && assetUserRule.Status.Code == (int)eResponseStatus.OK && assetUserRule.Object != null)
+                {
+                    BooleanPhraseNode phrase = null;
+
+                    var rulesIds = new List<long>();
+                    string queryString = string.Empty;
+
+                    UnifiedSearchDefinitionsBuilder.GetQueryStringFromAssetUserRules(new List<ApiObjects.Rules.AssetUserRule>()
+                    {
+                        assetUserRule.Object
+                    },
+                    out rulesIds,
+                    out queryString);
+
+                    BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
+
+                    CatalogLogic.UpdateNodeTreeFields(dummyRequest, ref phrase, definitions, group, group.m_nParentGroupID);
+
+                    definitions.assetUserRuleFilterPhrase = phrase;
+                }
+            }
+
             if (!string.IsNullOrEmpty(channel.filterQuery))
             {
                 BooleanPhraseNode filterTree = null;
@@ -936,26 +1003,6 @@ namespace Core.Catalog.CatalogManagement
                 {
                     definitions.filterPhrase = filterTree;
                 }
-
-                GroupManager groupManager = new GroupManager();
-
-                Group group = groupManager.GetGroup(channel.m_nParentGroupID);
-
-                if (group == null)
-                {
-                    log.Error("Error - Could not load group from cache in GetGroupMedias");
-                }
-
-                BaseRequest dummyRequest = new BaseRequest()
-                {
-                    domainId = 0,
-                    m_nGroupID = channel.m_nParentGroupID,
-                    m_nPageIndex = 0,
-                    m_nPageSize = 0,
-                    m_oFilter = new Filter(),
-                    m_sSiteGuid = string.Empty,
-                    m_sUserIP = string.Empty
-                };
 
                 CatalogLogic.UpdateNodeTreeFields(dummyRequest,
                     ref definitions.filterPhrase, definitions, group, channel.m_nParentGroupID);
