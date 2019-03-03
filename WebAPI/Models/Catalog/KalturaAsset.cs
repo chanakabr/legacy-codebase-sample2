@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.Excel;
 using Core.Catalog.CatalogManagement;
 using Jil;
 using Newtonsoft.Json;
@@ -323,11 +322,6 @@ namespace WebAPI.Models.Catalog
         {
             Dictionary<string, object> excelValues = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelValues(groupId, this);   
             return excelValues;
-        }
-
-        public virtual Dictionary<string, ExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null)
-        {
-            return null;
         }
     }
 }

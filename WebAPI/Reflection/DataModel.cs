@@ -915,6 +915,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBulkUploadAssetData":
+                    switch(property.Name)
+                    {
+                        case "TypeId":
+                            return "typeId";
+                    }
+                    break;
+                    
                 case "KalturaBulkUploadAssetResult":
                     switch(property.Name)
                     {
@@ -6301,7 +6309,7 @@ namespace WebAPI.Reflection
                             
                         case "addfrombulkupload":
                             RolesManager.ValidateActionPermitted("asset", "addFromBulkUpload", false);
-                            return AssetController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaBulkUploadJobData) methodParams[2]);
+                            return AssetController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaBulkUploadJobData) methodParams[1], (KalturaBulkUploadAssetData) methodParams[2]);
                             
                         case "autocomplete":
                             RolesManager.ValidateActionPermitted("asset", "autocomplete", false);
@@ -6495,6 +6503,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("assetStruct", "delete", false);
                             return AssetStructController.Delete((long) methodParams[0]);
                             
+                        case "get":
+                            RolesManager.ValidateActionPermitted("assetStruct", "get", false);
+                            return AssetStructController.Get((long) methodParams[0]);
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("assetStruct", "list", false);
                             return AssetStructController.List((KalturaAssetStructFilter) methodParams[0]);
@@ -6588,6 +6600,10 @@ namespace WebAPI.Reflection
                 case "bulkupload":
                     switch(action)
                     {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("bulkUpload", "get", false);
+                            return BulkUploadController.Get((long) methodParams[0]);
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("bulkUpload", "list", false);
                             return BulkUploadController.List((KalturaBulkUploadFilter) methodParams[0]);
@@ -10328,15 +10344,15 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(KalturaOTTFile),
                             });
-                            ret.Add("assetType", new MethodParam(){
-                                NewName = newParamName,
-                                IsEnum = true,
-                                Type = typeof(KalturaAssetType),
-                            });
                             ret.Add("bulkUploadJobData", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaBulkUploadJobData),
+                            });
+                            ret.Add("bulkUploadAssetData", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBulkUploadAssetData),
                             });
                             return ret;
                             
@@ -11093,6 +11109,13 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -11301,6 +11324,13 @@ namespace WebAPI.Reflection
                 case "bulkupload":
                     switch(action)
                     {
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,

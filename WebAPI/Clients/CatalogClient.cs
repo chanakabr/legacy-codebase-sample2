@@ -1,6 +1,6 @@
 ﻿using ApiObjects;
+using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
-using ApiObjects.Excel;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using AutoMapper;
@@ -17,6 +17,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -146,6 +147,17 @@ namespace WebAPI.Clients
         {
             Func<Status> deleteAssetStructFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteAssetStructFunc);
+        }
+
+        public KalturaAssetStruct GetAssetStruct(int groupId, long id)
+        {
+            Func<GenericResponse<AssetStruct>> getAssetStructFunc = () =>
+               Core.Catalog.CatalogManagement.CatalogManager.GetAssetStruct(groupId, id);
+
+            KalturaAssetStruct response =
+                ClientUtils.GetResponseFromWS<KalturaAssetStruct, AssetStruct>(getAssetStructFunc);
+
+            return response;
         }
 
         public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaDataType? type, KalturaMetaOrderBy? orderBy,
@@ -4019,11 +4031,24 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string filePath, long userId, Type objectType, FileType fileType)
+        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string filePath, long userId, Type objectType, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData)
         {
-            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, filePath, userId, objectType, BulkUploadJobAction.Upsert, fileType);
+            var bulkUploadJobData = AutoMapper.Mapper.Map<BulkUploadJobData>(jobData);
+            var bulkUploadObjectData = AutoMapper.Mapper.Map<BulkUploadObjectData>(objectData);
+
+            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, filePath, userId, objectType, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData);
             KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
             return result;
+        }
+
+        public KalturaBulkUpload GetBulkUpload(int groupId, long id)
+        {
+            Func<GenericResponse<BulkUpload>> getBulkUploadFunc = () => BulkUploadManager.GetBulkUpload(groupId, id);
+
+            KalturaBulkUpload response =
+                ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadFunc);
+
+            return response;
         }
 
         internal Dictionary<string, object> GetExcelValues(int groupId, IKalturaExcelableObject kalturaExcelableObject)
@@ -4044,5 +4069,4 @@ namespace WebAPI.Clients
             return excelValues;
         }
     }
-
 }

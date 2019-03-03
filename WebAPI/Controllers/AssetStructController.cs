@@ -179,5 +179,31 @@ namespace WebAPI.Controllers
 
             return result;
         }
+
+        /// <summary>
+        ///  Get AssetStruct by ID
+        /// </summary>
+        /// <param name="id">ID to get</param>
+        /// <returns></returns>
+        [Action("get")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        static public KalturaAssetStruct Get(long id)
+        {
+            KalturaAssetStruct response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetAssetStruct(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

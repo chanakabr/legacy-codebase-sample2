@@ -1334,9 +1334,9 @@ namespace WebAPI.Controllers
         /// Add new bulk upload batch job Conversion profile id can be specified in the API.
         /// </summary>
         /// <param name="fileData">fileData</param>
-        /// <param name="assetType">assetType</param>
         /// <param name="bulkUploadJobData">bulkUploadJobData</param>
-        /// <returns>created bulkUpload</returns>
+        /// <param name="bulkUploadAssetData">bulkUploadAssetData</param>
+        /// <returns></returns>
         [Action("addFromBulkUpload")]
         [ApiAuthorize]
         [Throws(eResponseStatus.FileDoesNotExists)]
@@ -1348,9 +1348,11 @@ namespace WebAPI.Controllers
         [Throws(StatusCode.TypeNotSupported)]
         [Throws(StatusCode.ArgumentCannotBeEmpty)]
         [Throws(StatusCode.EnumValueNotSupported)]
+        [Throws(eResponseStatus.BulkUploadResultIsMissing)]
+        [Throws(eResponseStatus.IllegalExcelFile)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public static KalturaBulkUpload AddFromBulkUpload(KalturaOTTFile fileData, KalturaAssetType assetType, KalturaBulkUploadJobData bulkUploadJobData)
+        public static KalturaBulkUpload AddFromBulkUpload(KalturaOTTFile fileData, KalturaBulkUploadJobData bulkUploadJobData, KalturaBulkUploadAssetData bulkUploadAssetData)
         {
             KalturaBulkUpload bulkUpload = null;
 
@@ -1368,15 +1370,15 @@ namespace WebAPI.Controllers
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkUploadJobData");
                 }
+
+                if (bulkUploadAssetData == null)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkUploadAssetData");
+                }
                 
                 if (bulkUploadJobData is KalturaBulkUploadExcelJobData)
                 {
-                    if (assetType != KalturaAssetType.media)
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "assetType", assetType.ToString());
-                    }
-                    
-                    bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.path, userId, typeof(KalturaMediaAsset), FileType.Excel); 
+                    bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.path, userId, typeof(KalturaMediaAsset), bulkUploadJobData, bulkUploadAssetData); 
                 }
                 else
                 {

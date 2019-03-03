@@ -1,4 +1,6 @@
-﻿using ConfigurationManager;
+﻿using ApiObjects.BulkUpload;
+using ConfigurationManager;
+using Core.Catalog;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
@@ -14,7 +17,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public partial class KalturaAssetStruct : KalturaOTTObject// TODO SHIR IMPLEMENT FOR TEMPLATE, IKalturaExcelStructure
+    public partial class KalturaAssetStruct : KalturaOTTObject, IKalturaExcelStructure// TODO SHIR - add to dr - assetstruct.get
     {
         /// <summary>
         /// Asset Struct id 
@@ -117,6 +120,17 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "connectedParentMetaId", IsNullable = true)]
         public long? ConnectedParentMetaId { get; set; }
 
+        public ExcelStructure GetExcelStructure(int groupId)
+        {
+            var data = new Dictionary<string, object>()
+            {
+                { BulkUploadAssetData.MEDIA_TYPE, Id }
+            };
+
+            var excelStructur = MediaAsset.GetExcelStructure(groupId, data);
+            return excelStructur;
+        }
+        
         public bool Validate()
         {
             // validate metaIds

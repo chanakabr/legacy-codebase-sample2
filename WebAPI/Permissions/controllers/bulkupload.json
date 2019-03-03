@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "BulkUpload_Get",
+      "service": "BulkUpload",
+      "action": "Get",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

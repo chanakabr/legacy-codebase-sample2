@@ -24,8 +24,9 @@ using WebAPI.ObjectsConvertor.Mapping.Utils;
 using WebAPI.Utils;
 using AutoMapper.Configuration;
 using TVinciShared;
-using ApiObjects.Excel;
 using WebAPI.Models.Upload;
+using WebAPI.App_Start;
+using ApiObjects.BulkUpload;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -948,17 +949,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
                {
                    switch (bulkUploadJobStatus)
                    {
-                       case BulkUploadJobStatus.PENDING:
-                           return KalturaBulkUploadJobStatus.PENDING;
-                       case BulkUploadJobStatus.UPLOADED:
-                           return KalturaBulkUploadJobStatus.UPLOADED;
-                       case BulkUploadJobStatus.QUEUED:
-                           return KalturaBulkUploadJobStatus.QUEUED;
+                       case BulkUploadJobStatus.Pending:
+                           return KalturaBulkUploadJobStatus.Pending;
+                       case BulkUploadJobStatus.Uploaded:
+                           return KalturaBulkUploadJobStatus.Uploaded;
+                       case BulkUploadJobStatus.Queued:
+                           return KalturaBulkUploadJobStatus.Queued;
+                       case BulkUploadJobStatus.Parsing:
+                           return KalturaBulkUploadJobStatus.Parsing;
+                       case BulkUploadJobStatus.Processing:
+                           return KalturaBulkUploadJobStatus.Processing;
+                       case BulkUploadJobStatus.Processed:
+                           return KalturaBulkUploadJobStatus.Processed;
+                       case BulkUploadJobStatus.Success:
+                           return KalturaBulkUploadJobStatus.Success;
+                       case BulkUploadJobStatus.Partial:
+                           return KalturaBulkUploadJobStatus.Partial;
+                       case BulkUploadJobStatus.Failed:
+                           return KalturaBulkUploadJobStatus.Failed;
+                       case BulkUploadJobStatus.Fatal:
+                           return KalturaBulkUploadJobStatus.Fatal;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown bulkUploadJobStatus value : {0}", bulkUploadJobStatus.ToString()));
                    }
                });
-
+            
             cfg.CreateMap<BulkUploadJobAction, KalturaBulkUploadJobAction>()
                .ConvertUsing(bulkUploadJobAction =>
                {
@@ -987,12 +1002,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     switch (bulkUploadResultStatus)
                     {
-                        case BulkUploadResultStatus.ERROR:
-                            return KalturaBulkUploadResultStatus.ERROR;
-                        case BulkUploadResultStatus.OK:
-                            return KalturaBulkUploadResultStatus.OK;
-                        case BulkUploadResultStatus.IN_PROGRESS:
-                            return KalturaBulkUploadResultStatus.IN_PROGRESS;
+                        case BulkUploadResultStatus.Error:
+                            return KalturaBulkUploadResultStatus.Error;
+                        case BulkUploadResultStatus.Ok:
+                            return KalturaBulkUploadResultStatus.Ok;
+                        case BulkUploadResultStatus.InProgress:
+                            return KalturaBulkUploadResultStatus.InProgress;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown bulkUploadResultStatus value : {0}", bulkUploadResultStatus.ToString()));
                     }
@@ -1005,6 +1020,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<BulkUploadMediaAssetResult, KalturaBulkUploadMediaAssetResult>()
                .IncludeBase<BulkUploadAssetResult, KalturaBulkUploadAssetResult>();
+
+            cfg.CreateMap<KalturaBulkUploadJobData, BulkUploadJobData>();
+
+            cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
+               .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
+            
+            cfg.CreateMap<KalturaBulkUploadObjectData, BulkUploadObjectData>();
+
+            cfg.CreateMap<KalturaBulkUploadAssetData, BulkUploadAssetData>()
+               .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
+               .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId));
 
             #endregion
         }

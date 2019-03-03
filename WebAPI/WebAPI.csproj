@@ -761,6 +761,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Permissions\controllers\businessmodulerule.json" />
+    <Content Include="Permissions\controllers\bulkupload.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml">
       <SubType>Designer</SubType>
     </None>
@@ -993,6 +996,7 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
+    <Compile Include="Models\Upload\KalturaBulkUploadObjectData.cs" />
     <Compile Include="Models\Upload\KalturaBulkUploadListResponse.cs" />
     <Compile Include="Models\Upload\KalturaBulkUpload.cs" />
     <Compile Include="Models\Upload\KalturaBulkUploadJobData.cs" />

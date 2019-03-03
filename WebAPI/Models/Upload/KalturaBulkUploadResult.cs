@@ -13,9 +13,9 @@ namespace WebAPI.Models.Upload
 {
     public enum KalturaBulkUploadResultStatus
     {
-        ERROR = 1,
-        OK = 2,
-        IN_PROGRESS = 3
+        Error = 1,
+        Ok = 2,
+        InProgress = 3
     }
 
     /// <summary>

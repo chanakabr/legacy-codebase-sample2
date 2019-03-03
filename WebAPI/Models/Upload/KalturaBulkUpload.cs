@@ -90,22 +90,19 @@ namespace WebAPI.Models.Upload
         public List<KalturaBulkUploadResult> Results { get; set; }
     }
 
-    // TODO SHIR - CREATE NEW STATUS BY SPEC
+    // TODO SHIR - add to dr
     public enum KalturaBulkUploadJobStatus
     {
-        PENDING = 1,
-        UPLOADED = 2,
-        QUEUED = 3,
-        //PROCESSING = 2,
-        //PROCESSED = 3,
-        //MOVEFILE = 4,
-        //FINISHED = 5,
-        //FAILED = 6,
-        //ABORTED = 7,
-        //RETRY = 9,
-        //FATAL = 10,
-        //DONT_PROCESS = 11,
-        //FINISHED_PARTIALLY = 12
+        Pending = 1,
+        Uploaded = 2,
+        Queued = 3,
+        Parsing = 4,
+        Processing = 5,
+        Processed = 6,
+        Success = 7,
+        Partial = 8,
+        Failed = 9,
+        Fatal = 10
     }
 
     public enum KalturaBulkUploadJobAction

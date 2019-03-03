@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -15,7 +16,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     /// <summary>
-    /// Bulk Upload service is used to manage bulk actions
+    /// Bulk Upload service is used to manage and monitor bulk actions
     /// </summary>
     [Service("bulkUpload")]
     public class BulkUploadController: IKalturaController
@@ -46,12 +47,32 @@ namespace WebAPI.Controllers
 
             return response;
         }
-        
-        // TODO SHIR - Get KalturaBulkUpload
-        //// Permissions: ?
-        //// Get KalturaBulkUpload by Id
-        //public static KalturaBulkUpload Get(long ida)
-        //{
-        //}
+
+        // TODO SHIR - ADD TO DR
+        /// <summary>
+        /// Get BulkUpload by ID
+        /// </summary>
+        /// <param name="id">ID to get</param>
+        /// <returns></returns>
+        [Action("get")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.BulkUploadDoesNotExist)]
+        static public KalturaBulkUpload Get(long id)
+        {
+            KalturaBulkUpload response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetBulkUpload(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

@@ -40,6 +40,18 @@
       "service": "AssetStruct",
       "action": "Update",
       "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetStruct_Get",
+      "service": "AssetStruct",
+      "action": "Get",
+      "type": "Action"
     }
   ],
   "type": "Action"

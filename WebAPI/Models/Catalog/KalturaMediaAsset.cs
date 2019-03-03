@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.Excel;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
@@ -139,12 +138,5 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("InheritancePolicy")]
         [XmlElement(ElementName = "InheritancePolicy", IsNullable = true)]
         public KalturaAssetInheritancePolicy? InheritancePolicy { get; set; }
-
-        public override Dictionary<string, ExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null)
-        {
-            Dictionary<string, ExcelColumn> excelColumns = new Dictionary<string, ExcelColumn>();
-            excelColumns.TryAddRange(MediaAsset.GetExcelColumns(groupId, data));
-            return excelColumns;
-        }
     }
 }
