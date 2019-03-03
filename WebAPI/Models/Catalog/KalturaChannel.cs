@@ -201,7 +201,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("assetUserRuleId")]
         [XmlElement(ElementName = "assetUserRuleId")]        
         [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
-        public long AssetUserRuleId { get; set; }
+        public long? AssetUserRuleId { get; set; }
 
         internal virtual void ValidateForInsert()
         {
