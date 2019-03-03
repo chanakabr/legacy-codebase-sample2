@@ -839,6 +839,12 @@ namespace ElasticSearch.Common
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
+                name = "user_types",
+                index = eMappingIndex.not_analyzed,
+                type = eESFieldType.INTEGER
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
                 name = "start_date",
                 index = eMappingIndex.not_analyzed,
                 type = eESFieldType.DATE,
