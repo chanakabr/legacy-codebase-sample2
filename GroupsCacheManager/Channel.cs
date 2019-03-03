@@ -102,7 +102,7 @@ namespace GroupsCacheManager
         public bool SupportSegmentBasedOrdering { get; set; }
 
         [DataMember]
-        public long AssetUserRuleId { get; set; }
+        public long? AssetUserRuleId { get; set; }
 
         #endregion
 
