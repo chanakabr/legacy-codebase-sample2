@@ -1123,5 +1123,4 @@ namespace ApiObjects
         Pics = 0,
         EpgPics = 1
     }
-
 }

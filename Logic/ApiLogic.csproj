@@ -93,6 +93,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvmcore\External\PerceptiveMCAPI.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="SimpleInjector, Version=4.4.3.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
       <HintPath>..\packages\SimpleInjector.4.4.3\lib\net45\SimpleInjector.dll</HintPath>
     </Reference>
@@ -180,6 +181,7 @@
     <Compile Include="Billing\WinPLCSMS.cs" />
     <Compile Include="Billing\WinPLSMSHelper.cs" />
     <Compile Include="Catalog\AdProvider.cs" />
+    <Compile Include="Catalog\Asset.cs" />
     <Compile Include="Catalog\AssetFile.cs" />
     <Compile Include="Catalog\AssetStruct.cs" />
     <Compile Include="Catalog\AssetStructMeta.cs" />
@@ -188,12 +190,14 @@
     <Compile Include="Catalog\BaseObject.cs" />
     <Compile Include="Catalog\Bootstrapper.cs" />
     <Compile Include="Catalog\Branding.cs" />
+    <Compile Include="Catalog\BulkUploadAssetData.cs" />
     <Compile Include="Catalog\Cache\CatalogCache.cs" />
     <Compile Include="Catalog\Cache\EntitlementDefinitionsCache.cs" />
     <Compile Include="Catalog\Cache\ParentalRulesTagsCache.cs" />
     <Compile Include="Catalog\CatalogGroupCache.cs" />
     <Compile Include="Catalog\CatalogLogic.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\AssetManager.cs" />
+    <Compile Include="Catalog\CatalogManagement\Managers\BulkAssetManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\BulkUploadManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\ChannelManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\EpgAssetManager.cs" />
@@ -201,7 +205,6 @@
     <Compile Include="Catalog\CatalogManagement\Managers\IngestManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\IndexManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\CatalogManager.cs" />
-    <Compile Include="Catalog\Asset.cs" />
     <Compile Include="Catalog\ChannelViewsResult.cs" />
     <Compile Include="Catalog\Controller\IngestController.cs" />
     <Compile Include="Catalog\Crowdsourcing.cs" />

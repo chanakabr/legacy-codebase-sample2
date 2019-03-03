@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace ApiObjects.Excel
+namespace ApiObjects.BulkUpload
 {
     public class ExcelColumn
     {
@@ -59,7 +56,7 @@ namespace ApiObjects.Excel
             return sb.ToString();
         }
     }
-
+    
     [AttributeUsage(AttributeTargets.Property)]
     public class ExcelColumnAttribute : Attribute
     {

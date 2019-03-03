@@ -1,5 +1,4 @@
-﻿using ApiObjects.Catalog;
-using ApiObjects.Excel;
+﻿using ApiObjects.BulkUpload;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,16 +6,8 @@ using System.Runtime.Serialization;
 
 namespace ApiObjects
 {
-    public interface IBulkUploadObject
-    {
-        BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status);
-        string DistributedTask { get; }
-        string RoutingKey { get; }
-        bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex);
-    }
-    
     [Serializable]
-    public class BulkUploadObjectData<T>: BaseCeleryData where T : class, IBulkUploadObject
+    public class BulkUploadItemData<T>: BaseCeleryData where T : class, IBulkUploadObject
     {
         #region Data Members
 
@@ -42,7 +33,7 @@ namespace ApiObjects
 
         #endregion
 
-        public BulkUploadObjectData(string task, int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex, T objectData)
+        public BulkUploadItemData(string task, int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex, T objectData)
             : base(Guid.NewGuid().ToString(), task)
         {
             // Basic member initialization

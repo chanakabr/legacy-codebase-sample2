@@ -275,6 +275,7 @@ namespace ApiObjects.Response
         AssetFilePPVNotExist = 4080,
         GroupDoesNotContainCurrency = 4081,
         BulkUploadDoesNotExist = 4082,
+        BulkUploadResultIsMissing = 4083,
 
         #endregion
 
@@ -324,6 +325,7 @@ namespace ApiObjects.Response
         ErrorSavingFile = 5042,
         FileIdNotInTheRightLength = 5043,
         EnqueueFailed = 5044,
+        IllegalExcelFile = 5045,
 
         #endregion
 

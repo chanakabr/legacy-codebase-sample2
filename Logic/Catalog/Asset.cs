@@ -1,12 +1,11 @@
 ﻿using ApiObjects;
+using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
-using ApiObjects.Excel;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using TVinciShared;
 
@@ -407,7 +406,7 @@ namespace Core.Catalog
             }
         }
 
-        public virtual BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status)
+        public virtual BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index)
         {
             return null;
         }

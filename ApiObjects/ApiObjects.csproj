@@ -70,15 +70,21 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EPPlus, Version=4.5.3.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.5.3.1\lib\net40\EPPlus.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\tvpapi_rest\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -100,8 +106,11 @@
     <Compile Include="Base\BaseSupportsNullable.cs" />
     <Compile Include="Billing\TransactionUnifiedRenewalDetails.cs" />
     <Compile Include="Billing\TransactionUnifiedRenewalRequest.cs" />
-    <Compile Include="Catalog\BulkUpload.cs" />
-    <Compile Include="Catalog\BulkUploadResult.cs" />
+    <Compile Include="BulkUpload\BulkUpload.cs" />
+    <Compile Include="BulkUpload\BulkUploadJobData.cs" />
+    <Compile Include="BulkUpload\BulkUploadObjectData.cs" />
+    <Compile Include="BulkUpload\ExcelManager.cs" />
+    <Compile Include="BulkUpload\IBulkUploadObject.cs" />
     <Compile Include="Catalog\ImageType.cs" />
     <Compile Include="Compensation.cs" />
     <Compile Include="AdminAccountObj.cs" />
@@ -136,10 +145,9 @@
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
-    <Compile Include="Excel\ExcelColumn.cs" />
-    <Compile Include="Excel\ExcelManager.cs" />
-    <Compile Include="Excel\IExcelObject.cs" />
-    <Compile Include="Excel\IExcelStructure.cs" />
+    <Compile Include="BulkUpload\BulkUploadResult.cs" />
+    <Compile Include="BulkUpload\ExcelColumn.cs" />
+    <Compile Include="BulkUpload\ExcelStructure.cs" />
     <Compile Include="GeneralPartnerConfig.cs" />
     <Compile Include="PlaybackAdapter\AccessControlMessage.cs" />
     <Compile Include="PlaybackAdapter\AssetFile.cs" />
@@ -164,7 +172,7 @@
     <Compile Include="Notification\MailNotificationAdapter.cs" />
     <Compile Include="Notification\UserData.cs" />
     <Compile Include="PersonalListItem.cs" />
-    <Compile Include="QueueObjects\BulkUploadObjectData.cs" />
+    <Compile Include="QueueObjects\BulkUploadItemData.cs" />
     <Compile Include="QueueObjects\BulkUploadData.cs" />
     <Compile Include="QueueObjects\InheritanceData.cs" />
     <Compile Include="QueueObjects\RenewUnifiedData.cs" />
@@ -590,6 +598,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="BulkUploadCore\" />
     <Folder Include="MediaIndexingObjects\" />
   </ItemGroup>
   <ItemGroup>

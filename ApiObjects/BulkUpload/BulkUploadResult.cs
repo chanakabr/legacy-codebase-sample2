@@ -2,13 +2,13 @@
 using Newtonsoft.Json;
 using System;
 
-namespace ApiObjects.Catalog
+namespace ApiObjects.BulkUpload
 {
     public enum BulkUploadResultStatus
     {
-        ERROR = 1,
-        OK = 2,
-        IN_PROGRESS = 3
+        Error = 1,
+        Ok = 2,
+        InProgress = 3
     }
 
     [Serializable]
@@ -45,9 +45,13 @@ namespace ApiObjects.Catalog
             return base.ToString();
         }
 
+        /// <summary>
+        /// Set the status to Error and update error code and message
+        /// </summary>
+        /// <param name="errorStatus"></param>
         public void SetError(Status errorStatus)
         {
-            this.Status = BulkUploadResultStatus.ERROR;
+            this.Status = BulkUploadResultStatus.Error;
             if (errorStatus != null)
             {
                 this.ErrorCode = errorStatus.Code;

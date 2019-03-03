@@ -1747,6 +1747,51 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static GenericResponse<AssetStruct> GetAssetStruct(int groupId, long assetStructId)
+        {
+            GenericResponse<AssetStruct> response = new GenericResponse<AssetStruct>();
+
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStruct", groupId);
+                    return response;
+                }
+
+                bool isProgramStruct = false;
+                if (assetStructId == 0 || assetStructId == catalogGroupCache.ProgramAssetStructId)
+                {
+                    assetStructId = catalogGroupCache.ProgramAssetStructId;
+                    isProgramStruct = true;
+                }
+
+                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+                {
+                    response.SetStatus(eResponseStatus.AssetStructDoesNotExist);
+                }
+                else
+                {
+                    response.Object = catalogGroupCache.AssetStructsMapById[assetStructId];
+                    response.SetStatus(eResponseStatus.OK);
+                }
+
+                if (isProgramStruct)
+                {
+                    response.Object.Id = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("An Exception was occurred in GetAssetStruct. groupId:{0}, assetStructId:{1}.",
+                                        groupId, assetStructId), ex);
+                response.SetStatus(eResponseStatus.Error);
+            }
+
+            return response;
+        }
+
         public static GenericListResponse<Topic> GetTopicsByIds(int groupId, List<long> ids, MetaType type)
         {
             GenericListResponse<Topic> response = new GenericListResponse<Topic>();

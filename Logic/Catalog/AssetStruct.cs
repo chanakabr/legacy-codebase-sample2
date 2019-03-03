@@ -158,6 +158,5 @@ namespace Core.Catalog
 
             return sb.ToString();
         }
-
     }
 }
