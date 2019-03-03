@@ -89,7 +89,7 @@ namespace AdapterControllers
         }
 
         public ApiObjects.PlaybackAdapter.PlaybackContext GetPlaybackContext(int groupId, PlaybackProfile adapter, string userId, string udid,
-            string ip, ApiObjects.PlaybackAdapter.PlaybackContext kalturaPlaybackContext)
+            string ip, ApiObjects.PlaybackAdapter.PlaybackContext kalturaPlaybackContext, Dictionary<string, string> adapterData)
         {
             ApiObjects.PlaybackAdapter.PlaybackContext playbackContext = null;
 
@@ -114,6 +114,14 @@ namespace AdapterControllers
             {
 
                 AdapterControllers.PlaybackAdapter.AdapterPlaybackContext adapterPlaybackContext = ParsePlaybackContextToAdapterContext(kalturaPlaybackContext);
+                List<KeyValue> playbackAdapterData = new List<KeyValue>();
+                if (adapterData != null && adapterData.Count > 0)
+                {
+                    foreach (KeyValuePair<string, string> pair in adapterData)
+                    {
+                        playbackAdapterData.Add(new KeyValue() { Key = pair.Key, Value = pair.Value });
+                    }
+                }
 
                 PlaybackAdapter.AdapterPlaybackContextOptions contextOption = new PlaybackAdapter.AdapterPlaybackContextOptions()
                 {
@@ -123,7 +131,8 @@ namespace AdapterControllers
                     PartnerId = groupId,
                     Udid = udid,
                     TimeStamp = unixTimestamp,
-                    Signature = System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                    Signature = System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))),
+                    AdapterData = playbackAdapterData.ToArray()
                 };
 
                 PlaybackAdapter.PlaybackAdapterResponse adapterResponse = GetAdapterPlaybackContext(adapterClient, contextOption);

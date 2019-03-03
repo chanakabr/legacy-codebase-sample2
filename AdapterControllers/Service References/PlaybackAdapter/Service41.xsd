@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/PlaybackAdapter" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost:86/PlaybackAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:import schemaLocation="http://localhost/playbackAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
   <xs:complexType name="AdapterPlaybackContextOptions">
     <xs:sequence>
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="AdapterData" nillable="true" type="q1:ArrayOfKeyValue" />
       <xs:element minOccurs="0" name="AdapterId" type="xs:long" />
       <xs:element minOccurs="0" name="IP" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="PartnerId" type="xs:int" />
@@ -207,7 +208,7 @@
   <xs:complexType name="PlaybackAdapterResponse">
     <xs:sequence>
       <xs:element minOccurs="0" name="PlaybackContext" nillable="true" type="tns:AdapterPlaybackContext" />
-      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="Status" nillable="true" type="q1:AdapterStatus" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="Status" nillable="true" type="q2:AdapterStatus" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="PlaybackAdapterResponse" nillable="true" type="tns:PlaybackAdapterResponse" />

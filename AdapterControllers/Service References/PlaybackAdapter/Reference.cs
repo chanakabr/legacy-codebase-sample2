@@ -84,6 +84,9 @@ namespace AdapterControllers.PlaybackAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private AdapterControllers.PlaybackAdapter.KeyValue[] AdapterDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long AdapterIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -111,6 +114,19 @@ namespace AdapterControllers.PlaybackAdapter {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public AdapterControllers.PlaybackAdapter.KeyValue[] AdapterData {
+            get {
+                return this.AdapterDataField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.AdapterDataField, value) != true)) {
+                    this.AdapterDataField = value;
+                    this.RaisePropertyChanged("AdapterData");
+                }
             }
         }
         
@@ -310,6 +326,67 @@ namespace AdapterControllers.PlaybackAdapter {
                 if ((object.ReferenceEquals(this.SourcesField, value) != true)) {
                     this.SourcesField = value;
                     this.RaisePropertyChanged("Sources");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="KeyValue", Namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models")]
+    [System.SerializableAttribute()]
+    public partial class KeyValue : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string KeyField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ValueField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Key {
+            get {
+                return this.KeyField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.KeyField, value) != true)) {
+                    this.KeyField = value;
+                    this.RaisePropertyChanged("Key");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Value {
+            get {
+                return this.ValueField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ValueField, value) != true)) {
+                    this.ValueField = value;
+                    this.RaisePropertyChanged("Value");
                 }
             }
         }
