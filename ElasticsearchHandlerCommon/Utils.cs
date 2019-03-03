@@ -15,6 +15,7 @@ using Tvinci.Core.DAL;
 using Core.Catalog.Request;
 using Core.Catalog;
 using ConfigurationManager;
+using Core.Api.Managers;
 
 namespace ElasticsearchTasksCommon
 {
@@ -373,89 +374,7 @@ namespace ElasticsearchTasksCommon
         }
 
         #region Channels
-
-      
-        public static UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes)
-        {
-            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-
-            definitions.groupId = channel.m_nGroupID;
-
-            if (useMediaTypes)
-            {
-                definitions.mediaTypes = new List<int>(channel.m_nMediaType);
-            }
-
-            if (channel.m_nMediaType != null)
-            {
-                // Nothing = all
-                if (channel.m_nMediaType.Count == 0)
-                {
-                    definitions.shouldSearchEpg = true;
-                    definitions.shouldSearchMedia = true;
-                }
-                else
-                {
-                    if (channel.m_nMediaType.Contains(Channel.EPG_ASSET_TYPE))
-                    {
-                        definitions.shouldSearchEpg = true;
-                    }
-
-                    // If there's anything besides EPG
-                    if (channel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
-                    {
-                        definitions.shouldSearchMedia = true;
-                    }
-                }
-            }
-
-            definitions.permittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
-            definitions.order = new OrderObj();
-
-            definitions.shouldUseStartDateForMedia = false;
-            definitions.shouldUseFinalEndDate = false;
-
-            if (!string.IsNullOrEmpty(channel.filterQuery))
-            {
-                BooleanPhraseNode filterTree = null;
-                var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
-
-                if (parseStatus.Code != (int)eResponseStatus.OK)
-                {
-                    throw new KalturaException(parseStatus.Message, parseStatus.Code);
-                }
-                else
-                {
-                    definitions.filterPhrase = filterTree;
-                }
-
-                GroupManager groupManager = new GroupManager();
-
-                Group group = groupManager.GetGroup(channel.m_nParentGroupID);
-
-                if (group == null)
-                {
-                    log.Error("Error - Could not load group from cache in GetGroupMedias");
-                }
-
-                var dummyRequest = new BaseRequest()
-                {
-                    domainId = 0,
-                    m_nGroupID = channel.m_nParentGroupID,
-                    m_nPageIndex = 0,
-                    m_nPageSize = 0,
-                    m_oFilter = new Filter(),
-                    m_sSiteGuid = string.Empty,
-                    m_sUserIP = string.Empty
-                };
-
-                CatalogLogic.UpdateNodeTreeFields(dummyRequest,
-                    ref definitions.filterPhrase, definitions, group, channel.m_nParentGroupID);
-            }
-
-            return definitions;
-        }
-
+        
         public static string GetPermittedWatchRules(int groupId)
         {
             DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(groupId, null);

@@ -254,12 +254,13 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         string channelQuery = string.Empty;
 
-                        if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                        if ((currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
+                           (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUsesTemplates && currentChannel.AssetUserRuleId > 0))
                         {
                             // Only if it this channel is relevant to EPG, build its query
                             if (currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
                             {
-                                UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, false);
+                                UnifiedSearchDefinitions definitions = IndexManager.BuildSearchDefinitions(currentChannel, false);
 
                                 unifiedQueryBuilder.SearchDefinitions = definitions;
                                 channelQuery = unifiedQueryBuilder.BuildSearchQueryString();

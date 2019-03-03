@@ -251,7 +251,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         string channelQuery = string.Empty;
 
-                        if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                        if ((currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
+                           (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUsesTemplates && currentChannel.AssetUserRuleId > 0))
                         {
                             try
                             {
@@ -260,7 +261,7 @@ namespace ElasticSearchHandler.IndexBuilders
                                     (currentChannel.m_nMediaType != null && currentChannel.m_nMediaType.Count > 0 &&
                                     currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0))
                                 {
-                                    UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
+                                    UnifiedSearchDefinitions definitions = IndexManager.BuildSearchDefinitions(currentChannel, true);
 
                                     unifiedQueryBuilder.SearchDefinitions = definitions;
                                     channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);

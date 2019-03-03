@@ -220,12 +220,27 @@ namespace ElasticSearchHandler.IndexBuilders
                         {
                             log.DebugFormat("BuildChannelQueries - Current channel  = {0}", currentChannel.m_nChannelID);
 
-
-                            if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                            if ((currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
+                               (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUsesTemplates && currentChannel.AssetUserRuleId > 0))
                             {
                                 try
                                 {
-                                    UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
+                                    if (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && currentChannel.AssetUserRuleId > 0)
+                                    {
+                                        StringBuilder builder = new StringBuilder();
+                                        builder.Append("(or ");
+
+                                        foreach (var item in currentChannel.m_lChannelTags)
+                                        {
+                                            builder.AppendFormat("media_id='{0}' ", item.m_lValue);
+                                        }
+
+                                        builder.Append(")");
+
+                                        currentChannel.filterQuery = builder.ToString();
+                                    }
+
+                                    UnifiedSearchDefinitions definitions = IndexManager.BuildSearchDefinitions(currentChannel, true);
 
                                     unifiedQueryBuilder.SearchDefinitions = definitions;
                                     channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);
@@ -242,7 +257,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             else
                             {
                                 mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
-                                MediaSearchObj mediaSearchObject = IndexManager.BuildBaseChannelSearchObject(currentChannel, null);
+                                MediaSearchObj mediaSearchObject = IndexManager.BuildBaseChannelSearchObject(currentChannel);
 
                                 mediaQueryParser.oSearchObject = mediaSearchObject;
                                 channelQuery = mediaQueryParser.BuildSearchQueryString(true);

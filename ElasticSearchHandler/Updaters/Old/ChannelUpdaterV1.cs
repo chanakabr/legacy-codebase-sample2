@@ -8,6 +8,7 @@ using System.Text;
 using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;
+using Core.Catalog.CatalogManagement;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -169,6 +170,8 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(m_nGroupID);
+
             List<string> mediaAliases = esApi.GetAliases(m_nGroupID.ToString());
             List<string> epgAliases = esApi.GetAliases(string.Format("{0}_epg", m_nGroupID));
 
@@ -185,9 +188,10 @@ namespace ElasticSearchHandler.Updaters
 
                         string channelQuery = string.Empty;
 
-                        if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                        if ((channel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
+                            (channel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUsesTemplates && channel.AssetUserRuleId > 0))
                         {
-                            UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(channel, true);
+                            UnifiedSearchDefinitions definitions = IndexManager.BuildSearchDefinitions(channel, true);
 
                             isMedia = definitions.shouldSearchMedia;
                             isEpg = definitions.shouldSearchEpg;

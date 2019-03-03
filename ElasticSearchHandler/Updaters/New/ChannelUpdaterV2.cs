@@ -97,7 +97,6 @@ namespace ElasticSearchHandler.Updaters
         private bool UpdateChannel(List<int> channelIds)
         {
             return IndexManager.UpdateChannelPercolator(m_nGroupID, channelIds);
-
         }
     }
 }
