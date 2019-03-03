@@ -259,56 +259,6 @@ namespace Core.Catalog.CatalogManagement
 
             return res;
 ;
-        }       
-
-        private static Status ValidateMediaFileExternalIdUniqueness(int groupId, AssetFile assetFile)
-        {
-            Status status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
-
-            if (!string.IsNullOrEmpty(assetFile.ExternalId) && !string.IsNullOrEmpty(assetFile.AltExternalId) && assetFile.ExternalId.ToLower() == assetFile.AltExternalId.ToLower())
-            {
-                status.Code = (int)eResponseStatus.ExternaldAndAltExternalIdMustBeUnique;
-                status.Message = eResponseStatus.ExternaldAndAltExternalIdMustBeUnique.ToString();
-                return status;
-            }
-
-            DataSet ds = CatalogDAL.GetMediaFilesByExternalIdAndAltExternalId(groupId, assetFile.ExternalId, assetFile.AltExternalId);
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                long id = 0;
-                if (ds.Tables[0].Rows.Count > 0)
-                {
-                    // get all mediaFiles with  ExternalId
-                    foreach (DataRow dr in ds.Tables[0].Rows)
-                    {
-                        id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                        if (id != assetFile.Id)
-                        {
-                            status.Code = (int)eResponseStatus.MediaFileExternalIdMustBeUnique;
-                            status.Message = eResponseStatus.MediaFileExternalIdMustBeUnique.ToString();
-                            return status;
-                        }
-                    }
-                }
-
-                // get all mediaFiles with  AltExternalId
-                if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-                {
-                    foreach (DataRow dr in ds.Tables[1].Rows)
-                    {
-                        id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                        if (id != assetFile.Id)
-                        {
-                            status.Code = (int)eResponseStatus.MediaFileAltExternalIdMustBeUnique;
-                            status.Message = eResponseStatus.MediaFileAltExternalIdMustBeUnique.ToString();
-                            return status;
-                        }
-                    }
-                }
-            }
-
-            return status;
         }
 
         private static void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate)
@@ -585,13 +535,6 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
                 }
-                
-                // validate ExternalId and AltExternalId  are unique 
-                result.SetStatus(ValidateMediaFileExternalIdUniqueness(groupId, assetFileToAdd));
-                if (result.Status.Code != (int)eResponseStatus.OK)
-                {
-                    return result;
-                }
 
                 // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId     
                 Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.AlternativeCdnAdapaterProfileId);
@@ -743,13 +686,6 @@ namespace Core.Catalog.CatalogManagement
                 if (string.IsNullOrEmpty(assetFileToUpdate.AltExternalId) && !string.IsNullOrEmpty(currentAssetFile.AltExternalId))
                 {
                     assetFileToUpdate.AltExternalId = currentAssetFile.AltExternalId;
-                }
-
-                // validate ExternalId and AltExternalId  are unique 
-                result.SetStatus(ValidateMediaFileExternalIdUniqueness(groupId, assetFileToUpdate));
-                if (result.Status.Code != (int)eResponseStatus.OK)
-                {
-                    return result;
                 }
 
                 // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId     
