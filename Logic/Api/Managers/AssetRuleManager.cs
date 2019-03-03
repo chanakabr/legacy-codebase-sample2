@@ -667,7 +667,7 @@ namespace Core.Api.Managers
             return assetsToCheck;
         }
 
-        internal static List<SlimAsset> GetNpvrAssetsForValidation(int groupId, long epgId, long epgChannelId = 0, int mediaFileId = 0)
+        internal static List<SlimAsset> GetNpvrAssetsForValidation(int groupId, long epgId, long epgChannelId = 0, int mediaFileId = 0, int linearMediaId = 0)
         {
             if (epgId == 0)
             {
@@ -678,9 +678,8 @@ namespace Core.Api.Managers
             {
                 new SlimAsset(epgId, eAssetTypes.NPVR)
             };
-
-            int linearMediaId = 0;
-            if (epgChannelId != 0)
+            
+            if (epgChannelId != 0 && linearMediaId == 0)
             {
                 var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, epgChannelId);
                 if (linearChannelSettings != null)
@@ -688,7 +687,7 @@ namespace Core.Api.Managers
                     linearMediaId = (int)linearChannelSettings.linearMediaId;
                 }
             }
-            else if (mediaFileId != 0)
+            else if (mediaFileId != 0 && linearMediaId == 0)
             {
                 string mainUrl = string.Empty;
                 string altUrl = string.Empty;

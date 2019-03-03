@@ -98,14 +98,14 @@ namespace Core.ConditionalAccess
                 long mediaId;
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
-                bool isExternalRecordingIgnoreMode = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EXTERNAL_RECORDINGS) && assetType == eAssetTypes.NPVR;
+                bool isExternalRecordingIgnoreMode = assetType == eAssetTypes.NPVR && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EXTERNAL_RECORDINGS);
                 response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);
                 // Allow to continue for external recording (and asset type = NPVR) since we may not be updated on them in real time
                 if (response.Status.Code != (int)eResponseStatus.OK)
                 {
                     if (isExternalRecordingIgnoreMode && fileIds != null && fileIds.Count > 0)
                     {
-
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         mediaId = Utils.GetMediaIdByFildId(groupId, (int)fileIds[0]);
                     }
                     else
@@ -136,7 +136,11 @@ namespace Core.ConditionalAccess
 
                     if (recording != null)
                     {
-                        assetsToCheck = AssetRuleManager.GetNpvrAssetsForValidation(groupId, recording.EpgId, recording.ChannelId);
+                        assetsToCheck = new List<SlimAsset>() { new SlimAsset(recording.EpgId, eAssetTypes.NPVR) };
+                        if (mediaId > 0)
+                        {
+                            assetsToCheck.Add(new SlimAsset(mediaId, eAssetTypes.MEDIA));
+                        }
                     }
                 }
                 else
