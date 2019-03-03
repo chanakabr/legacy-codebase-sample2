@@ -503,14 +503,14 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // validate device rule id
-            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !TvmRuleManager.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
+            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value < 0 || !TvmRuleManager.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
             {
                 result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
                 return result;
             }
 
             // validate geoblock rule id
-            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value <= 0 || !TvmRuleManager.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
+            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value < 0 || !TvmRuleManager.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
             {
                 result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
                 return result;
@@ -2184,12 +2184,27 @@ namespace Core.Catalog.CatalogManagement
                                 int isAllowed = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ALLOWED");
                                 if (isAllowed > 0)
                                 {
-                                    assets[(int)mediaId].allowedCountries.Add(countryId);
+                                    foreach (var asset in assets.Values)
+                                    {
+                                        asset.allowedCountries.Add(countryId);
+                                    }
                                 }
                                 else
                                 {
-                                    assets[(int)mediaId].blockedCountries.Add(countryId);
+                                    foreach (var asset in assets.Values)
+                                    {
+                                        asset.blockedCountries.Add(countryId);
+                                    }
                                 }
+                            }
+                        }
+
+                        // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                        foreach (var asset in assets.Values)
+                        {
+                            if (asset.allowedCountries.Count == 0)
+                            {
+                                asset.allowedCountries.Add(0);
                             }
                         }
                     }

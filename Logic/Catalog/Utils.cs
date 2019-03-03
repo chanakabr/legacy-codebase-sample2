@@ -1834,7 +1834,7 @@ namespace Core.Catalog
             return new Tuple<Dictionary<string, MediaObj>, bool>(result, res);
         }
 
-        private static List<ProgramObj> GetProgramFromCache(int groupId, List<long> ids, Filter filter)
+        internal static List<ProgramObj> GetProgramFromCache(int groupId, List<long> ids, Filter filter)
         {
             List<ProgramObj> result = null;
             try

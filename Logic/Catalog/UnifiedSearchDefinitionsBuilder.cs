@@ -13,6 +13,7 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects;
 using ConfigurationManager;
+using Core.Api.Managers;
 
 namespace Core.Catalog
 {
@@ -388,9 +389,10 @@ namespace Core.Catalog
 
                 #region Asset User Rule
 
-                if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+                long userId = 0;
+                if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
                 {
-                    GetUserAssetRulesPhrase(request, group, ref definitions, request.m_nGroupID);
+                    GetUserAssetRulesPhrase(request, group, ref definitions, request.m_nGroupID, userId);
                 }
 
                 #endregion
@@ -421,13 +423,78 @@ namespace Core.Catalog
             return definitions;
         }
 
-        internal static void GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId)
+        internal static void GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, long userId)
         {
-            long userId = long.Parse(request.m_sSiteGuid);
-
             definitions.assetUserBlockRulePhrase = GetUserAssetRulesPhrase(request, group, ref definitions, groupId, RuleActionType.UserBlock, userId);
 
-            definitions.assetUserRuleFilterPhrase = GetUserAssetRulesPhrase(request, group, ref definitions, groupId, RuleActionType.UserFilter, userId);
+            BooleanPhraseNode userPhraseNode = GetUserAssetRulesPhrase(request, group, ref definitions, groupId, RuleActionType.UserFilter, userId);
+            definitions.assetUserRuleFilterPhrase = UnionBooleanPhraseNode(definitions.assetUserRuleFilterPhrase, userPhraseNode);          
+        }       
+
+        private static BooleanPhraseNode UnionBooleanPhraseNode(BooleanPhraseNode channelPhraseNode, BooleanPhraseNode userPhraseNode)
+        {
+            BooleanPhraseNode newPhrase = null;
+
+            if (channelPhraseNode != null)
+            {
+                if (userPhraseNode != null)
+                {
+                    List<BooleanPhraseNode> nodes = new List<BooleanPhraseNode>()
+                    {
+                        userPhraseNode,
+                        channelPhraseNode
+                    };
+                    newPhrase = new BooleanPhrase(nodes, eCutType.And);
+                }
+                else
+                {
+                    newPhrase = channelPhraseNode;
+                }
+            }
+            else if (userPhraseNode != null)
+            {
+                newPhrase = userPhraseNode;
+            }
+
+            return newPhrase;
+        }
+
+        internal static void GetChannelUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, long ruleId)
+        {
+            BooleanPhraseNode phrase = null;
+            var assetUserRulesResponse = AssetUserRuleManager.GetAssetUserRuleByRuleId(request.m_nGroupID, ruleId);
+            if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)
+            {
+                if (assetUserRulesResponse.Object != null)
+                {
+                    // check if rule applay on channel 
+                    ApiObjects.Rules.AssetUserRuleFilterAction assetUserRuleFilterAction = assetUserRulesResponse.Object.Actions[0] as ApiObjects.Rules.AssetUserRuleFilterAction;
+                    if (assetUserRuleFilterAction != null && assetUserRuleFilterAction.ApplyOnChannel)
+                    {
+                        StringBuilder query = new StringBuilder();
+                        query.Append("(or ");
+                        definitions.assetUserRuleIds.Add(assetUserRulesResponse.Object.Id);
+                        foreach (var condition in assetUserRulesResponse.Object.Conditions)
+                        {
+                            query.AppendFormat(" {0}", condition.Ksql);
+                        }
+
+                        query.Append(")");
+
+                        string queryString = query.ToString();
+
+                        BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
+
+                        CatalogLogic.UpdateNodeTreeFields(request, ref phrase, definitions, group, groupId);
+
+                        definitions.assetUserRuleFilterPhrase = phrase;
+                    }
+                }
+            }
+            else
+            {
+                log.ErrorFormat("Failed to get asset user rule {0}, code = {1}", ruleId, assetUserRulesResponse.Status.Code);
+            }            
         }
 
         internal static BooleanPhraseNode GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, 
@@ -439,21 +506,12 @@ namespace Core.Catalog
             {
                 if (assetUserRulesResponse.HasObjects())
                 {
-                    StringBuilder query = new StringBuilder();
-                    query.Append("(or ");
-                    foreach (var rule in assetUserRulesResponse.Objects)
-                    {
-                        definitions.assetUserRuleIds.Add(rule.Id);
-                        foreach (var condition in rule.Conditions)
-                        {
-                            query.AppendFormat(" {0}", condition.Ksql);
-                        }
-                    }
+                    var rulesList = assetUserRulesResponse.Objects;
+                    List<long> rulesIds;
+                    string queryString;
+                    GetQueryStringFromAssetUserRules(rulesList, out rulesIds, out queryString);
 
-                    query.Append(")");
-
-                    string queryString = query.ToString();
-
+                    definitions.assetUserRuleIds.AddRange(rulesIds);
                     BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
 
                     CatalogLogic.UpdateNodeTreeFields(request, ref phrase, definitions, group, groupId);
@@ -467,6 +525,25 @@ namespace Core.Catalog
             }
 
             return phrase;
+        }
+
+        public static void GetQueryStringFromAssetUserRules(List<ApiObjects.Rules.AssetUserRule> rulesList, out List<long> rulesIds, out string queryString)
+        {
+            rulesIds = new List<long>();
+            StringBuilder query = new StringBuilder();
+            query.Append("(or ");
+            foreach (var rule in rulesList)
+            {
+                rulesIds.Add(rule.Id);
+                foreach (var condition in rule.Conditions)
+                {
+                    query.AppendFormat(" {0}", condition.Ksql);
+                }
+            }
+
+            query.Append(")");
+
+            queryString = query.ToString();
         }
 
         private List<string> GetDomainRecordings(UnifiedSearchDefinitions definitions, int groupId, long domainId, HashSet<long> specificRecordingIds)

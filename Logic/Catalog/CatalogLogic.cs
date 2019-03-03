@@ -6520,7 +6520,13 @@ namespace Core.Catalog
                 long userId = 0;
                 long.TryParse(request.m_sSiteGuid, out userId);
 
-                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets, userId);
+                GenericResponse<GroupsCacheManager.Channel> response = ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets, userId);
+                if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return response.Status;
+                }
+
+                channel = response.Object;
                 if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetInternalChannelAssets", request.m_nGroupID);
@@ -7324,9 +7330,10 @@ namespace Core.Catalog
 
             #region Asset User Rule
 
-            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
-            {
-                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId);
+            long userId = 0;
+            if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
+            {                
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, userId);
             }
 
             #endregion
@@ -8414,10 +8421,16 @@ namespace Core.Catalog
 
             #region Asset User Rule
 
-            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && request.m_sSiteGuid != "0")
+            if( channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
-                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId);
+                UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId, channel.AssetUserRuleId.Value);
             }
+
+            long userId = 0;
+            if( long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
+            {                
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, userId);
+            }            
 
             #endregion
 
