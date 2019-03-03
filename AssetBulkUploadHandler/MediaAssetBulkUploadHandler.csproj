@@ -7,8 +7,8 @@
     <ProjectGuid>{AA34DD58-9337-4241-A976-45F8CB4701B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AssetBulkUploadHandler</RootNamespace>
-    <AssemblyName>AssetBulkUploadHandler</AssemblyName>
+    <RootNamespace>MediaAssetBulkUploadHandler</RootNamespace>
+    <AssemblyName>MediaAssetBulkUploadHandler</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
