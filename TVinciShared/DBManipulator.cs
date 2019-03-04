@@ -1016,7 +1016,7 @@ namespace TVinciShared
                                     selectQuery3.SetConnectionKey(sConnectionKey);
                                     selectQuery3 += "select g.TAGS_NOTIFY_URL from groups g where ";
                                     selectQuery3 += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", collectionTableGroupId);
-                                    if (sExtraFieldVal != "")
+                                    if (sExtraFieldVal != "" && (string.IsNullOrEmpty(sExtraFieldName) || sExtraFieldName != "topic_id"))
                                         sTagType = ODBCWrapper.Utils.GetTableSingleVal("media_tags_types", "name", int.Parse(sExtraFieldVal)).ToString();
                                     if (selectQuery3.Execute("query", true) != null)
                                     {
