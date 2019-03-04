@@ -389,12 +389,34 @@ namespace TVinciShared
         public static DateTime? ExtractDate(string dateTime, string format)
         {
             DateTime result;
-            if (DateTime.TryParseExact(dateTime, format, null, System.Globalization.DateTimeStyles.None, out result))
+            if (DateTime.TryParseExact(dateTime, format, null, DateTimeStyles.None, out result))
             {
                 return result;
             }
 
             return null;
+        }
+
+        public static DateTime? Parse(DateTime? date, string format)
+        {
+            if (date.HasValue)
+            {
+                DateTime parseDate;
+                string stringDate = date.Value.ToString(format);
+                if (!DateTime.TryParse(stringDate, out parseDate))
+                {
+                    DateTime.TryParseExact(stringDate, format, null, DateTimeStyles.None, out parseDate);
+                }
+
+                if (parseDate.IsDefault())
+                {
+                    return date;
+                }
+
+                return parseDate;
+            }
+
+            return date;
         }
     }
 }
