@@ -226,17 +226,19 @@ namespace Core.Catalog
                     excelValues.TryAdd(excelColumn, this.MediaType.m_sTypeName);
                 }
             }
-            
-            if (this.CatalogStartDate.HasValue)
+
+            DateTime? catalogStartDate = GetBasicMetaDate(this.CatalogStartDate, AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME);
+            if (catalogStartDate.HasValue)
             {
                 var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-                excelValues.TryAdd(excelColumn, this.CatalogStartDate);
+                excelValues.TryAdd(excelColumn, catalogStartDate);
             }
 
-            if (this.FinalEndDate.HasValue)
+            DateTime? finalEndDate = GetBasicMetaDate(this.FinalEndDate, AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME);
+            if (finalEndDate.HasValue)
             {
                 var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-                excelValues.TryAdd(excelColumn, this.FinalEndDate);
+                excelValues.TryAdd(excelColumn, finalEndDate);
             }
 
             foreach (var file in Files)
@@ -264,7 +266,30 @@ namespace Core.Catalog
 
             return excelValues;
         }
-        
+
+        private DateTime? GetBasicMetaDate(DateTime? date, string metaDateSystemName)
+        {
+            DateTime? basicMetaDate = null;
+            if (date.HasValue)
+            {
+                basicMetaDate = date;
+            }
+            else if (this.Metas != null && this.Metas.Count > 0)
+            {
+                var metaDate = Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.Equals(metaDateSystemName));
+                if (metaDate != null)
+                {
+                    DateTime assetDate;
+                    if (DateTime.TryParse(metaDate.m_sValue, out assetDate))
+                    {
+                        basicMetaDate = assetDate;
+                    }
+                }
+            }
+
+            return basicMetaDate;
+        }
+
         public static ExcelStructure GetExcelStructure(int groupId, Dictionary<string, object> data = null)
         {
             // TODO SHIR - SET in layered cache by MEDIA_TYPE and groupId
@@ -272,7 +297,7 @@ namespace Core.Catalog
             
             if (data != null && data.ContainsKey(BulkUploadAssetData.MEDIA_TYPE))
             {
-                int? mediaType = data[BulkUploadAssetData.MEDIA_TYPE] as int?;
+                long? mediaType = data[BulkUploadAssetData.MEDIA_TYPE] as long?;
 
                 if (mediaType.HasValue)
                 {
@@ -318,6 +343,11 @@ namespace Core.Catalog
                         {
                             foreach (var topic in topics)
                             {
+                                if (topic.Value.SystemName.Equals(AssetManager.EXTERNAL_ID_META_SYSTEM_NAME))
+                                {
+                                    continue;
+                                }
+
                                 string language = null;
                                 if (!lang.Value.IsDefault)
                                 {

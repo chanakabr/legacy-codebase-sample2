@@ -15,7 +15,7 @@ namespace ApiObjects.BulkUpload
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         // formats
-        public const string DATE_FORMAT = "dd/MM/yyyy hh:mm:ss";
+        public const string DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
         private const string SAPARATOR = ":";
 
         // col headers

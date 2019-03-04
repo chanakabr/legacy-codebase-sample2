@@ -12,7 +12,7 @@ namespace Core.Catalog
         public const string MEDIA_TYPE = "MEDIA_TYPE";
 
         [JsonProperty("TypeId")]
-        public int TypeId { get; set; }
+        public long TypeId { get; set; }
 
         public override IBulkUploadObject CreateObjectInstance()
         {
