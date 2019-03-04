@@ -9,8 +9,6 @@ namespace Core.Catalog
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadAssetData : BulkUploadObjectData
     {
-        public const string MEDIA_TYPE = "MEDIA_TYPE";
-
         [JsonProperty("TypeId")]
         public long TypeId { get; set; }
 
@@ -20,14 +18,14 @@ namespace Core.Catalog
             return excelObject;
         }
         
-        public override ExcelStructure GetExcelStructure(int groupId)
+        public override IBulkUploadStructure GetStructure()
         {
-            var data = new Dictionary<string, object>()
+            AssetStruct assetStruct = new AssetStruct
             {
-                { MEDIA_TYPE, TypeId }
+                Id = TypeId
             };
-            
-            return MediaAsset.GetExcelStructure(groupId, data);
+
+            return assetStruct;
         }
     }
 }

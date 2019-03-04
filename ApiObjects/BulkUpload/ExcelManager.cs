@@ -44,42 +44,45 @@ namespace ApiObjects.BulkUpload
                         {
                             foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
                             {
-                                var excelStructure = objectData.GetExcelStructure(groupId);
-                                if (excelStructure == null)
+                                IExcelStructure structure = objectData.GetStructure() as IExcelStructure;
+                                if (structure != null)
                                 {
-                                    // TODO SHIR - SET SOME ERROR
-                                }
-
-                                int columnNameRowIndex = excelStructure.OverviewInstructions.Count > 0 ? excelStructure.OverviewInstructions.Count + 2 : 1;
-                                
-                                var columnNamesToValues = new Dictionary<string, object>();
-                                for (int row = columnNameRowIndex + 1; row <= worksheet.Dimension.End.Row; row++)
-                                {
-                                    for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+                                    var excelStructure = structure.GetExcelStructure(groupId);
+                                    if (excelStructure == null)
                                     {
-                                        var column = worksheet.Cells[columnNameRowIndex, col].Value;
-                                        if (column != null && 
-                                            !string.IsNullOrEmpty(column.ToString()) && 
-                                            !columnNamesToValues.ContainsKey(column.ToString()) && 
-                                            worksheet.Cells[row, col].Value != null)
+                                        // TODO SHIR - SET SOME ERROR
+                                    }
+                                    else
+                                    {
+                                        int columnNameRowIndex = excelStructure.OverviewInstructions.Count > 0 ? excelStructure.OverviewInstructions.Count + 2 : 1;
+
+                                        var columnNamesToValues = new Dictionary<string, object>();
+                                        for (int row = columnNameRowIndex + 1; row <= worksheet.Dimension.End.Row; row++)
                                         {
-                                            //add the cell data to the List
-                                            columnNamesToValues.Add(column.ToString(), worksheet.Cells[row, col].Value);
+                                            for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
+                                            {
+                                                var column = worksheet.Cells[columnNameRowIndex, col].Value;
+                                                if (column != null &&
+                                                    !string.IsNullOrEmpty(column.ToString()) &&
+                                                    !columnNamesToValues.ContainsKey(column.ToString()) &&
+                                                    worksheet.Cells[row, col].Value != null)
+                                                {
+                                                    //add the cell data to the List
+                                                    columnNamesToValues.Add(column.ToString(), worksheet.Cells[row, col].Value);
+                                                }
+                                            }
+                                        }
+                                        
+                                        var excelObject = objectData.CreateObjectInstance() as IExcelObject;
+                                        if (excelObject != null)
+                                        {
+                                            excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
+                                            // TODO SHIR - VALIDATE THE OBJECT IS OK - HAVE ALL MANDATOY VALUES
+
+                                            excelObjects.Objects.Add(excelObject);
                                         }
                                     }
                                 }
-
-                                var objectInstance = objectData.CreateObjectInstance();
-                                if (objectInstance == null || !typeof(IExcelObject).IsAssignableFrom(objectInstance.GetType()))
-                                {
-                                    // TODO SHIR - SET SOME ERROR
-                                }
-
-                                var excelObject = objectInstance as IExcelObject;
-                                excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
-                                // TODO SHIR - VALIDATE THE OBJECT IS OK - HAVE ALL MANDATOY VALUES
-
-                                excelObjects.Objects.Add(excelObject);
                             }
                         }
                     }

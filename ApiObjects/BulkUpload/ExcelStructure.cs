@@ -3,20 +3,6 @@ using System.Drawing;
 
 namespace ApiObjects.BulkUpload
 {
-    public interface IExcelStructure
-    {
-        /// <summary>
-        /// return the columns of the excel in their display order
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        //Dictionary<string, ExcelColumn> GetExcelColumns(int groupId, Dictionary<string, object> data = null);
-        //List<string> GetExcelOverviewInstructions();
-        //Dictionary<ExcelColumnType, Color> GetExcelColumnsColors();
-        ExcelStructure GetExcelStructure(int groupId, Dictionary<string, object> data = null);
-    }
-
     public class ExcelStructure
     {
         public List<string> OverviewInstructions { get; private set; }

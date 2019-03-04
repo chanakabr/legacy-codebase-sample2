@@ -110,7 +110,11 @@
     <Compile Include="BulkUpload\BulkUploadJobData.cs" />
     <Compile Include="BulkUpload\BulkUploadObjectData.cs" />
     <Compile Include="BulkUpload\ExcelManager.cs" />
+    <Compile Include="BulkUpload\IBulkUploadStructure.cs" />
     <Compile Include="BulkUpload\IBulkUploadObject.cs" />
+    <Compile Include="BulkUpload\BulkUploadResult.cs" />
+    <Compile Include="BulkUpload\ExcelColumn.cs" />
+    <Compile Include="BulkUpload\ExcelStructure.cs" />
     <Compile Include="Catalog\ImageType.cs" />
     <Compile Include="Compensation.cs" />
     <Compile Include="AdminAccountObj.cs" />
@@ -145,9 +149,6 @@
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
-    <Compile Include="BulkUpload\BulkUploadResult.cs" />
-    <Compile Include="BulkUpload\ExcelColumn.cs" />
-    <Compile Include="BulkUpload\ExcelStructure.cs" />
     <Compile Include="GeneralPartnerConfig.cs" />
     <Compile Include="PlaybackAdapter\AccessControlMessage.cs" />
     <Compile Include="PlaybackAdapter\AssetFile.cs" />
@@ -598,7 +599,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="BulkUploadCore\" />
     <Folder Include="MediaIndexingObjects\" />
   </ItemGroup>
   <ItemGroup>

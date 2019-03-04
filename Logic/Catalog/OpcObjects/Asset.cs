@@ -20,10 +20,10 @@ namespace Core.Catalog
         public virtual string DistributedTask { get { return null; } }
         public virtual string RoutingKey { get { return null; } }
 
-        protected const string EXTERNAL_ASSET_ID = "External Asset ID ";
-        protected const string METAS = "METAS";
-        protected const string TAGS = "TAGS";
-        protected const string IMAGES = "Image URL";
+        public const string EXTERNAL_ASSET_ID = "External Asset ID ";
+        public const string METAS = "METAS";
+        public const string TAGS = "TAGS";
+        public const string IMAGES = "Image URL";
 
         #endregion
 

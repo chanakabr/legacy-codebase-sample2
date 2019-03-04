@@ -8,8 +8,7 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadObjectData
     {
-        // TODO SHIR - ask TANTAN HOW TO REMOVE FROM HERE TO BulkUploadExcelJobData
-        public abstract ExcelStructure GetExcelStructure(int groupId);
+        public abstract IBulkUploadStructure GetStructure();
         public abstract IBulkUploadObject CreateObjectInstance();
     }
 }
