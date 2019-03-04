@@ -1389,7 +1389,7 @@ namespace Tvinci.Core.DAL
         public static int GetLastMediaPosition(int mediaID, int userID)
         {
             string key = UtilsDal.GetUserMediaMarkDocKey(userID.ToString(), mediaID);
-            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIA_HITS, key, true);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key, true);
 
             if (umm != null)
             {
@@ -1402,7 +1402,7 @@ namespace Tvinci.Core.DAL
         public static int GetLastNpvrPosition(string NpvrID, int userID)
         {
             string key = UtilsDal.GetUserNpvrMarkDocKey(userID, NpvrID);
-            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIA_HITS, key, true);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key, true);
 
             if (umm != null)
             {
@@ -2137,25 +2137,19 @@ namespace Tvinci.Core.DAL
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
-            var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
+            var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+
             bool shouldUpdateLocation = false;
             bool hitSuccess = false;
 
             while (limitRetries >= 0 && !hitSuccess)
             {
-                shouldUpdateLocation = UpdateOrInsertUsersMediaMarkOrHit(mediaHitManager, ref limitRetries, r, mmKey, ref hitSuccess, userNpvrMark);
+                shouldUpdateLocation = UpdateOrInsertUsersMediaMarkOrHit(mediaMarkManager, ref limitRetries, r, mmKey, ref hitSuccess, userNpvrMark);
             }
 
             if (isFirstPlay || shouldUpdateLocation)
             {
-                var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
                 bool markSuccess = false;
-                limitRetries = RETRY_LIMIT;
-                while (limitRetries >= 0 && !markSuccess)
-                {
-                    UpdateOrInsertUsersMediaMarkOrHit(mediaMarkManager, ref limitRetries, r, mmKey, ref markSuccess, userNpvrMark);
-
-                }
 
                 limitRetries = RETRY_LIMIT;
                 markSuccess = false;

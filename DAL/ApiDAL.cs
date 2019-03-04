@@ -1102,7 +1102,7 @@ namespace DAL
                     bool markResult = mediaMarkManager.Remove(documentKey);
                     Thread.Sleep(r.Next(50));
 
-                    if (!markResult || !hitResult)
+                    if (!markResult)
                     {
                         retVal = false;
                         return retVal;
@@ -4355,19 +4355,17 @@ namespace DAL
             try
             {
                 var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-                var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
 
                 Random r = new Random();
 
                 foreach (string documentKey in assetHistoryKeys)
                 {
                     bool markResult = mediaMarkManager.Remove(documentKey);
-                    bool hitResult = mediaHitManager.Remove(documentKey);
                     Thread.Sleep(r.Next(50));
 
-                    if (!markResult || !hitResult)
+                    if (!markResult)
                     {
-                        log.ErrorFormat("Failed to remove asset history key = {0}, markResult = {1}, hitResult = {2}", documentKey, markResult, hitResult);
+                        log.ErrorFormat("Failed to remove asset history key = {0}, markResult = {1}", documentKey, markResult);
                     }
                 }
 
