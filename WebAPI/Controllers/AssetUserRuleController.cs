@@ -122,7 +122,9 @@ namespace WebAPI.Controllers
                     assetUserRule.ValidateActions();
                 }
 
-                response = ClientsManager.ApiClient().UpdateAssetUserRule(groupId, id, assetUserRule);
+                long userId = 0;
+                long.TryParse(KS.GetFromRequest().UserId, out userId);
+                response = ClientsManager.ApiClient().UpdateAssetUserRule(groupId, id, assetUserRule, userId);
             }
             catch (ClientException ex)
             {
@@ -146,7 +148,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                ClientsManager.ApiClient().DeleteAssetUserRule(groupId, id);
+                long userId = 0;
+                long.TryParse(KS.GetFromRequest().UserId, out userId);
+                ClientsManager.ApiClient().DeleteAssetUserRule(groupId, id, userId);
             }
             catch (ClientException ex)
             {
