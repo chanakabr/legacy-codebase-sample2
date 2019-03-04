@@ -3,6 +3,7 @@ using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Response;
 using DAL;
 using KLogMonitor;
@@ -184,7 +185,7 @@ namespace Core.Api.Managers
             return response;
         }
 
-        internal static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate)
+        internal static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate, long userId)
         {
             GenericResponse<AssetUserRule> response = new GenericResponse<AssetUserRule>();
             assetUserRuleToUpdate.Id = assetUserRuleId;
@@ -201,17 +202,46 @@ namespace Core.Api.Managers
                     return response;
                 }
 
+                bool needToRemoveFromChannel = false;
+                // check if old vs. updated rule applay on channel 
+                AssetUserRuleFilterAction oldsAssetUserRuleFilterAction = oldAssetUserRule.Actions[0] as AssetUserRuleFilterAction;
+                AssetUserRuleFilterAction updatedAssetUserRuleFilterAction = assetUserRuleToUpdate.Actions[0] as AssetUserRuleFilterAction;
+                if (oldsAssetUserRuleFilterAction != null && updatedAssetUserRuleFilterAction != null)
+                {
+                    if (oldsAssetUserRuleFilterAction.ApplyOnChannel != updatedAssetUserRuleFilterAction.ApplyOnChannel &&
+                        updatedAssetUserRuleFilterAction.ApplyOnChannel == false)
+                    {
+                        needToRemoveFromChannel = true;                        
+                    }                    
+                }
+                else if (oldsAssetUserRuleFilterAction != null && updatedAssetUserRuleFilterAction == null)
+                {
+                    if (oldsAssetUserRuleFilterAction.ApplyOnChannel)
+                    {
+                        needToRemoveFromChannel = true;
+                    }
+                }               
+
                 // before saving AssetUserRule fill name,description,actions,conditions in case they are empty
                 assetUserRuleToUpdate.FillEmpty(oldAssetUserRule);
 
-                // update asset user rule in DB
+                //update asset user rule in DB
                 if (!ApiDAL.UpdateAssetRule(groupId, assetUserRuleToUpdate.Id, assetUserRuleToUpdate.Name, assetUserRuleToUpdate.Description))
                 {
                     response.SetStatus(eResponseStatus.Error, ASSET_USER_RULE_FAILED_UPDATE);
                     return response;
                 }
 
-                // update asset user rule in CB           
+                // need to remove the rule from channel
+                if (needToRemoveFromChannel)
+                {
+                    if (!ChannelManager.TryRemoveAssetRuleIdFromChannel(groupId, assetUserRuleId, userId))
+                    {
+                        log.ErrorFormat("Failed RemoveAssetRuleIdFromChannel. groupId {0}, assetUserRuleId {1}", groupId, assetUserRuleId);
+                    }
+                }
+
+                //update asset user rule in CB
                 if (!ApiDAL.SaveAssetUserRuleCB(assetUserRuleToUpdate))
                 {
                     log.ErrorFormat("Error while saving AssetUserRule. groupId: {0}, assetUserRuleId:{1}", groupId, assetUserRuleToUpdate.Id);
@@ -234,7 +264,7 @@ namespace Core.Api.Managers
             return response;
         }
 
-        internal static Status DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        internal static Status DeleteAssetUserRule(int groupId, long assetUserRuleId, long userId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -260,6 +290,20 @@ namespace Core.Api.Managers
                     response.Code = (int)eResponseStatus.Error;
                     response.Message = DELETE_ASSET_USER_RULE_FAILED;
                     return response;
+                }
+
+                if (assetUserRule.Actions != null && assetUserRule.Actions.Count > 0)
+                {
+                    // check if rule applay on channel 
+                    AssetUserRuleFilterAction assetUserRuleFilterAction = assetUserRule.Actions[0] as AssetUserRuleFilterAction;
+                    if (assetUserRuleFilterAction != null && assetUserRuleFilterAction.ApplyOnChannel)
+                    {
+                        // need to remove the rule from channel
+                        if(!ChannelManager.TryRemoveAssetRuleIdFromChannel(groupId, assetUserRule.Id, userId))
+                        {
+                            log.ErrorFormat("Failed RemoveAssetRuleIdFromChannel. groupId {0}, assetUserRuleId {1}", groupId, assetUserRule.Id);
+                        }
+                    }
                 }
 
                 // delete assetUserRule from CB

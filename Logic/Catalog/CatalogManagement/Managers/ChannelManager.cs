@@ -90,7 +90,7 @@ namespace Core.Catalog.CatalogManagement
 
             channel.NamesInOtherLanguages = new List<LanguageContainer>();
             if (nameTranslations != null && nameTranslations.Count > 0)
-            {                
+            {
                 foreach (DataRow nameDr in nameTranslations)
                 {
                     string code3 = ODBCWrapper.Utils.GetSafeStr(nameDr, "CODE3");
@@ -169,7 +169,7 @@ namespace Core.Catalog.CatalogManagement
             int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_dir"]) - 1;
             channel.m_OrderObject.m_eOrderDir =
                 (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), orderDirection);
-            channel.m_OrderObject.m_bIsSlidingWindowField = channel.m_OrderObject.isSlidingWindowFromRestApi = ODBCWrapper.Utils.GetIntSafeVal(dr["IsSlidingWindow"]) == 1;            
+            channel.m_OrderObject.m_bIsSlidingWindowField = channel.m_OrderObject.isSlidingWindowFromRestApi = ODBCWrapper.Utils.GetIntSafeVal(dr["IsSlidingWindow"]) == 1;
             channel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(dr["SlidingWindowPeriod"]);
 
             #endregion
@@ -212,7 +212,7 @@ namespace Core.Catalog.CatalogManagement
                             if (manualMedias != null && manualMedias.Count > 0)
                             {
                                 channel.m_lManualMedias = manualMedias.OrderBy(x => x.m_nOrderNum).ToList();
-                                channel.m_lChannelTags = channel.m_lManualMedias.Select(x => new SearchValue() { m_sKey = "media_id", m_lValue = new List<string>() { x.m_sMediaId } }).ToList();                                
+                                channel.m_lChannelTags = channel.m_lManualMedias.Select(x => new SearchValue() { m_sKey = "media_id", m_lValue = new List<string>() { x.m_sMediaId } }).ToList();
                             }
                         }
 
@@ -258,7 +258,7 @@ namespace Core.Catalog.CatalogManagement
             oChannel.m_OrderObject.m_eOrderBy = (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), nOrderBy);
             if (!string.IsNullOrEmpty(orderByValue))
             {
-                oChannel.m_OrderObject.m_sOrderValue = orderByValue;                
+                oChannel.m_OrderObject.m_sOrderValue = orderByValue;
             }
         }
 
@@ -405,7 +405,7 @@ namespace Core.Catalog.CatalogManagement
                     channel.m_nMediaType.Add(APILogic.CRUD.KSQLChannelsManager.EPG_ASSET_TYPE);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 log.ErrorFormat("failed ValidateChannelMediaTypes for groupId: {0} when calling UpdateChannel", groupId);
                 result.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -414,11 +414,22 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static List<Channel> SearchChannelByAssetUserId(int groupId, long ruleId)
+        {
+            List<Channel> channels = null;
+            GenericListResponse<Channel> response = SearchChannels(groupId, true, string.Empty, null, 0, 500, ChannelOrderBy.Id, OrderDir.ASC, false, 0, ruleId);
+            if (response != null && response.HasObjects())
+            {
+                channels  = response.Objects.Where(x => x.AssetUserRuleId == ruleId).ToList();
+            }
+            return channels;
+        }
+
         #endregion
 
         #region Internal Methods
 
-        internal static  GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
+        internal static GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
             List<Channel> channels = GetChannels(groupId, new List<int>() { channelId }, isAllowedToViewInactiveAssets);
@@ -443,6 +454,33 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        internal static bool TryRemoveAssetRuleIdFromChannel(int groupId, long ruleId, long userId)
+        {
+            bool result = false;
+
+            GenericListResponse<Channel> response = new GenericListResponse<Channel>();
+            List<Channel> channels = SearchChannelByAssetUserId(groupId, ruleId);
+            if( channels != null)
+            { 
+                GenericResponse<Channel> channelResponse = null;
+                foreach (var channel in channels)
+                {
+                    // remove rule
+                    channel.AssetUserRuleId = 0;
+                    // update channel
+                    channelResponse = UpdateChannel(groupId, channel.m_nChannelID, channel, userId);
+                    if (channelResponse != null && channelResponse.Status != null && channelResponse.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Error while RemoveAssetRuleIdFromChannel. groupId {0}, channel {1}, rule {2}, user {3}", groupId, channel.m_nChannelID, ruleId, userId);
+                    }
+                }
+
+                result = true;
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Public Methods
@@ -464,7 +502,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public static GenericListResponse<Channel> SearchChannels(int groupId, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
-            ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets , long userId)
+            ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets, long userId, long assetUserRuleId = 0)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
@@ -476,7 +514,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // get userRules action filter && ApplyOnChannel
-                long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                assetUserRuleId = assetUserRuleId == 0 ? AssetUserRuleManager.GetAssetUserRule(groupId, userId, true) : assetUserRuleId;
 
                 ChannelSearchDefinitions definitions = new ChannelSearchDefinitions()
                 {
@@ -503,7 +541,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }        
+        }
 
         public static GenericResponse<Channel> AddChannel(int groupId, Channel channelToAdd, long userId)
         {
@@ -571,7 +609,7 @@ namespace Core.Catalog.CatalogManagement
                             return response;
                         }
                     }
-                    
+
                     // validate medias exist for manual channel only
                     if (channelToAdd.m_nChannelTypeID == (int)ChannelType.Manual && channelToAdd.m_lManualMedias != null && channelToAdd.m_lManualMedias.Count > 0)
                     {
@@ -609,7 +647,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                List <KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
                 if (channelToAdd.NamesInOtherLanguages != null && channelToAdd.NamesInOtherLanguages.Count > 0)
                 {
                     foreach (LanguageContainer language in channelToAdd.NamesInOtherLanguages)
@@ -641,10 +679,10 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.InsertChannel(
-                    groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription, 
+                    groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription,
                     channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
                     (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, isSlidingWindow, slidingWindowPeriod, channelToAdd.m_nChannelTypeID,
-                    channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription, 
+                    channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
                     mediaIdsToOrderNum, userId, channelToAdd.SupportSegmentBasedOrdering, channelToAdd.AssetUserRuleId);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
@@ -660,7 +698,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
                     }
-                }                
+                }
 
                 if (response.Object != null && response.Object.m_nChannelID > 0)
                 {
@@ -710,10 +748,10 @@ namespace Core.Catalog.CatalogManagement
                 {
                     //isAllowedToViewInactiveAssets = true because only operator can update channel
                     response = GetChannelById(groupId, channelId, true, userId);
-                    if(response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
+                    if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
-                        return response; 
-                    }                     
+                        return response;
+                    }
 
                     Channel currentChannel = response.Object;
                     if (currentChannel == null || currentChannel.m_nChannelTypeID != channelToUpdate.m_nChannelTypeID)
@@ -759,7 +797,7 @@ namespace Core.Catalog.CatalogManagement
                             return response;
                         }
                     }
-                    
+
                     // validate medias exist for manual channel only
                     if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual && channelToUpdate.m_lManualMedias != null)
                     {
@@ -869,7 +907,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after UpdateChannel",
                                                 channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
-                        }                                                    
+                        }
                     }
                 }
                 else
@@ -885,7 +923,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, bool shouldCheckGroupUsesTemplates = true, 
+        public static GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, bool shouldCheckGroupUsesTemplates = true,
             long userId = 0)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
@@ -919,7 +957,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         response.SetStatus(eResponseStatus.ObjectNotExist, "KSQL Channel with given ID does not exist");
                     }
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -941,12 +979,12 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //check if channel exists - isAllowedToViewInactiveAssets = true becuase only operator can delete channel
-                GenericResponse<Channel> channelResponse = GetChannel(groupId, channelId, true, false, userId);                
+                GenericResponse<Channel> channelResponse = GetChannel(groupId, channelId, true, false, userId);
                 if (channelResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response = channelResponse.Status;
                     return response;
-                }                
+                }
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Object.m_nChannelTypeID, userId))
                 {
@@ -1001,7 +1039,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, 
+        public static GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize,
             ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets, long userId)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
@@ -1016,7 +1054,7 @@ namespace Core.Catalog.CatalogManagement
                 List<int> channelIds = Utils.GetChannelsContainingMedia(groupId, (int)mediaId);
                 if (channelIds != null && channelIds.Count > 0)
                 {
-                    result = SearchChannels(groupId, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection, 
+                    result = SearchChannels(groupId, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection,
                         isAllowedToViewInactiveAssets, userId);
                 }
                 else

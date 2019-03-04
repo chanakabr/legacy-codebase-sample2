@@ -1920,14 +1920,14 @@ namespace Core.Api
             return AssetUserRuleManager.AddAssetUserRule(groupId, assetUserRuleToAdd);
         }
         
-        public static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate)
+        public static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate, long userId)
         {
-            return AssetUserRuleManager.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate);
+            return AssetUserRuleManager.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate, userId);
         }
         
-        public static Status DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        public static Status DeleteAssetUserRule(int groupId, long assetUserRuleId, long userId)
         {
-            return AssetUserRuleManager.DeleteAssetUserRule(groupId, assetUserRuleId);
+            return AssetUserRuleManager.DeleteAssetUserRule(groupId, assetUserRuleId, userId);
         }
         
         public static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
