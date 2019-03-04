@@ -546,7 +546,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => eAssetTypes.MEDIA))
-                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => ConvertInheritancePolicy(src.InheritancePolicy)));
+                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => ConvertInheritancePolicy(src.InheritancePolicy)))
+                .ForMember(dest => dest.Files, opt => opt.MapFrom(src => src.MediaFiles));
 
             //KalturaLiveAsset to LiveAsset
             cfg.CreateMap<KalturaLiveAsset, LiveAsset>()
@@ -903,27 +904,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //File
             cfg.CreateMap<KalturaMediaFile, AssetFile>()
-                .ForMember(dest => dest.AdditionalData, opt => opt.MapFrom(src => src.AdditionalData))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.AltExternalId, opt => opt.MapFrom(src => src.AltExternalId))
+                .ForMember(dest => dest.ExternalStoreId, opt => opt.MapFrom(src => src.ExternalStoreId))
+                .ForMember(dest => dest.CdnAdapaterProfileId, opt => opt.MapFrom(src => src.CdnAdapaterProfileId))
                 .ForMember(dest => dest.AltStreamingCode, opt => opt.MapFrom(src => src.AltStreamingCode))
                 .ForMember(dest => dest.AlternativeCdnAdapaterProfileId, opt => opt.MapFrom(src => src.AlternativeCdnAdapaterProfileId))
-                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.AdditionalData, opt => opt.MapFrom(src => src.AdditionalData))
                 .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.BillingType))
-                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                .ForMember(dest => dest.EndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.EndDate)))
-                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
-                .ForMember(dest => dest.ExternalStoreId, opt => opt.MapFrom(src => src.ExternalStoreId))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.IsDefaultLanguage, opt => opt.MapFrom(src => src.IsDefaultLanguage))
-                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
                 .ForMember(dest => dest.OrderNum, opt => opt.MapFrom(src => src.OrderNum))
+                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
+                .ForMember(dest => dest.IsDefaultLanguage, opt => opt.MapFrom(src => src.IsDefaultLanguage))
                 .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))
                 .ForMember(dest => dest.StartDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.StartDate)))
-                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
-                .ForMember(dest => dest.CdnAdapaterProfileId, opt => opt.MapFrom(src => src.CdnAdapaterProfileId))
-                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
+                .ForMember(dest => dest.EndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.EndDate)))
+                .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
-                .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)));
+                .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)))
+                .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => GetPPVModule(src.PPVModules)));
 
             #endregion
 
@@ -2615,6 +2618,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return ppvModules;
+        }
+
+        public static string GetPPVModule(KalturaStringValueArray ppvModules)
+        {
+            string ppvModule = null;
+            if (ppvModules != null && ppvModules.Objects != null && ppvModules.Objects.Count > 0)
+            {
+                var stringValue = ppvModules.Objects.FirstOrDefault();
+                if (stringValue != null)
+                {
+                    ppvModule = stringValue.value;
+                }
+            }
+
+            return ppvModule;
         }
     }
 }
