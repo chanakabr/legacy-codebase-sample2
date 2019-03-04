@@ -151,12 +151,12 @@ namespace Core.Catalog
         {
             Dictionary<string, object> excelValues = new Dictionary<string, object>();
 
-            if (string.IsNullOrEmpty(this.type))
+            if (string.IsNullOrEmpty(this.type) && this.TypeId.HasValue)
             {
                 var mediaFileTypesListResponse = FileManager.GetMediaFileTypes(groupId);
                 if (mediaFileTypesListResponse.HasObjects())
                 {
-                    var mediaFileType = mediaFileTypesListResponse.Objects.FirstOrDefault(x => x.Name.Equals(this.TypeId));
+                    var mediaFileType = mediaFileTypesListResponse.Objects.FirstOrDefault(x => x.Id == this.TypeId.Value);
                     if (mediaFileType != null)
                     {
                         this.type = mediaFileType.Name;
@@ -278,8 +278,7 @@ namespace Core.Catalog
                 }
             }
 
-            //this.AssetId = assetId;
-            if (!string.IsNullOrEmpty(this.type))
+            if (!string.IsNullOrEmpty(this.type) && !this.TypeId.HasValue)
             {
                 var mediaFileTypesListResponse = FileManager.GetMediaFileTypes(groupId);
                 if (mediaFileTypesListResponse.HasObjects())
