@@ -95,7 +95,7 @@ namespace WebAPI.App_Start
                 {
                     // validate expected type was received
                     StatusWrapper restResultWrapper = value as StatusWrapper;
-                    if (restResultWrapper != null && restResultWrapper.Result != null && (restResultWrapper.Result is IKalturaExcelStructure))
+                    if (restResultWrapper != null && restResultWrapper.Result != null)
                     {
                         int? groupId;
                         string fileName;
@@ -109,15 +109,12 @@ namespace WebAPI.App_Start
                                 if (excelStructure != null)
                                 {
                                     DataTable fullDataTable = null;
-                                    if (restResultWrapper.Result is IKalturaExcelableListResponse)
+                                    var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
+                                    if (excelableListResponse != null)
                                     {
-                                        var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
-                                        if (excelableListResponse != null)
-                                        {
-                                            fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
-                                        }
+                                        fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
                                     }
-                                    
+
                                     HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
                                     HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
 
@@ -136,10 +133,9 @@ namespace WebAPI.App_Start
                     }
                 }
             }
-            catch (Exception ex)
+            catch (ClientException ex)
             {
-                log.Error(string.Format("Error while formatting object to Excel. object type:{0}, value:{1}", type.Name, value), ex);
-                ErrorUtils.HandleWSException(ex);
+                ErrorUtils.HandleClientException(ex);
             }
            
             using (TextWriter streamWriter = new StreamWriter(writeStream))
