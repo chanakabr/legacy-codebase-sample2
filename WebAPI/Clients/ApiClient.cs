@@ -3821,10 +3821,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetUserRule UpdateAssetUserRule(int groupId, long assetUserRuleId, KalturaAssetUserRule assetUserRule)
+        internal KalturaAssetUserRule UpdateAssetUserRule(int groupId, long assetUserRuleId, KalturaAssetUserRule assetUserRule, long userId)
         {
             Func<AssetUserRule, GenericResponse<AssetUserRule>> updateAssetUserRuleFunc = (AssetUserRule assetUserRuleToUpdate) =>
-                Core.Api.Module.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate);
+                Core.Api.Module.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate, userId);
 
             KalturaAssetUserRule result =
                 ClientUtils.GetResponseFromWS<KalturaAssetUserRule, AssetUserRule>(assetUserRule, updateAssetUserRuleFunc);
@@ -3832,9 +3832,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal void DeleteAssetUserRule(int groupId, long assetUserRuleId)
+        internal void DeleteAssetUserRule(int groupId, long assetUserRuleId, long userId)
         {
-            Func<Status> deleteAssetUserRuleFunc = () => Core.Api.Module.DeleteAssetUserRule(groupId, assetUserRuleId);
+            Func<Status> deleteAssetUserRuleFunc = () => Core.Api.Module.DeleteAssetUserRule(groupId, assetUserRuleId, userId);
             ClientUtils.GetResponseStatusFromWS(deleteAssetUserRuleFunc);
         }
 
