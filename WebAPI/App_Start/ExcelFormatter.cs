@@ -34,6 +34,7 @@ using WebAPI.Utils;
 using System.Drawing;
 using WebAPI.Models.API;
 using ApiObjects.BulkUpload;
+using WebAPI.Managers;
 
 namespace WebAPI.App_Start
 {
@@ -63,7 +64,7 @@ namespace WebAPI.App_Start
 
         private const string EXCEL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         private const string EXCEL_SHEET_NAME = "OPC Batch Template";
-        private string EXCEL_EXTENTION = ".xlsx";
+        public const string EXCEL_EXTENTION = ".xlsx";
 
         public ExcelFormatter() : base(KalturaResponseType.EXCEL, EXCEL_CONTENT_TYPE)
         {
@@ -118,7 +119,15 @@ namespace WebAPI.App_Start
 
                                     return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
                                 }
+                                else
+                                {
+                                    log.DebugFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
+                                }
                             }
+                        }
+                        else
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
                         }
                     }
                 }
@@ -128,7 +137,7 @@ namespace WebAPI.App_Start
                 log.Error(string.Format("Error while formatting object to Excel. object type:{0}, value:{1}", type.Name, value), ex);
                 ErrorUtils.HandleWSException(ex);
             }
-
+           
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
                 HttpContext.Current.Response.ContentType = "application/json";
@@ -156,30 +165,22 @@ namespace WebAPI.App_Start
                 var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
                 if (kalturaPersistedFilter != null)
                 {
+                    // TODO SHIR - ADD TO DR, file name must be added
                     fileName = (kalturaPersistedFilter as IKalturaPersistedFilter).Name;
-                    var index = fileName.LastIndexOf('.');
-                    if (index == -1)
+                    if (string.IsNullOrEmpty(fileName))
                     {
-                        // TODO SHIR - THROW EXCEPTION FOR INVALID FILE NAME
-                        //throw new RequestParserException(RequestParserException.PARTNER_INVALID);
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "Filter.name");
                     }
 
-                    var fileExtention = fileName.Substring(index, fileName.Length - index);
-                    if (!fileExtention.ToLower().Equals(EXCEL_EXTENTION))
+                    if (!fileName.EndsWith(EXCEL_EXTENTION))
                     {
-                        // TODO SHIR - THROW EXCEPTION FOR INVALID FILE NAME
-                        //throw new RequestParserException(RequestParserException.PARTNER_INVALID);
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Filter.name");
                     }
+
+                    isResponseValid = true;
                 }
             }
-
-            if (string.IsNullOrEmpty(fileName))
-            {
-                fileName = Guid.NewGuid().ToString();
-            }
-
-            isResponseValid = true;
-
+            
             return isResponseValid;
         }
 
@@ -236,10 +237,21 @@ namespace WebAPI.App_Start
             DataTable dataTable = new DataTable();
             if (columns != null && columns.Count > 0)
             {
+                var defaultType = typeof(string);
                 foreach (var col in columns)
                 {
-                    // TODO SHIR - GET REAL PROP TYPE TO SET IN EXCEL
-                    //dataTable.Columns.Add(col.Key, col.Value.Property.PropertyType);
+                    // TODO SHIR - SET TYPE
+                    //Type columnType = defaultType;
+                    //if (col.Value.Property != null)
+                    //{
+                    //    columnType = col.Value.Property.PropertyType.GetRealType();
+                    //    if (columnType.IsClass && !columnType.IsSealed)
+                    //    {
+                    //        columnType = defaultType;
+                    //    }
+                    //}
+
+                    //dataTable.Columns.Add(col.Key, columnType);
                     dataTable.Columns.Add(col.Key);
                 }
 
@@ -257,6 +269,14 @@ namespace WebAPI.App_Start
                                 {
                                     if (dataTable.Columns.Contains(excelValue.Key))
                                     {
+                                        //var value = excelValue.Value;
+                                        //if (dataTable.Columns[excelValue.Key].DataType.Equals(typeof(DateTime)) ||
+                                        //    dataTable.Columns[excelValue.Key].DataType.Equals(typeof(DateTime?)))
+                                        //{
+                                        //    value = DateUtils.Parse(value as DateTime?, ExcelManager.DATE_FORMAT);
+                                        //}
+                                        
+                                        //row[excelValue.Key] = value;
                                         row[excelValue.Key] = excelValue.Value;
                                     }
                                 }

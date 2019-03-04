@@ -25,7 +25,7 @@ namespace WebAPI.Models.Upload
         [DataMember(Name = "typeId")]
         [JsonProperty(PropertyName = "typeId")]
         [XmlElement(ElementName = "typeId")]
-        [SchemeProperty(MinInteger = 2)]
-        public int TypeId { get; set; }
+        [SchemeProperty(MinLong = 2)]
+        public long TypeId { get; set; }
     }
 }

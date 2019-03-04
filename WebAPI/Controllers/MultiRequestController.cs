@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
                                 valueList.Add(value);
                                 if (valueList.Count == 1)
                                 {
-                                    Type realType = GetRealType(typesToPropertyInfosMap[itemType][propertyValueName].PropertyType);
+                                    Type realType = typesToPropertyInfosMap[itemType][propertyValueName].PropertyType.GetRealType();
                                     propertyType = typeof(List<>).MakeGenericType(realType);
                                 }
                             }
@@ -176,7 +176,7 @@ namespace WebAPI.Controllers
 
                 if (typesToPropertyInfosMap.ContainsKey(parameterType) && typesToPropertyInfosMap[parameterType].ContainsKey(token))
                 {
-                    propertyType = GetRealType(typesToPropertyInfosMap[parameterType][token].PropertyType);
+                    propertyType = typesToPropertyInfosMap[parameterType][token].PropertyType.GetRealType();
                     result = typesToPropertyInfosMap[parameterType][token].GetValue(parameter);
                     found = true;
                 }
@@ -195,7 +195,7 @@ namespace WebAPI.Controllers
                             typesToPropertyInfosMap[parameterType].Add(token, propertyInfo);
                         }
 
-                        propertyType = GetRealType(propertyInfo.PropertyType);
+                        propertyType = propertyInfo.PropertyType.GetRealType();
                         result = propertyInfo.GetValue(parameter);
                         found = true;
                     }
@@ -301,24 +301,14 @@ namespace WebAPI.Controllers
 
             return false;
         }
-
-        private static Type GetRealType(Type itemType)
-        {
-            Type realType = Nullable.GetUnderlyingType(itemType);
-            if (realType == null)
-            {
-                realType = itemType;
-            }
-            return realType;
-        }
-
+        
         private static object GetConvertedValue(Type itemType, string propertyName, KalturaSkipOperators skipOperator, string valueToConvert, Type propertyType = null)
         {
             if (propertyType != null || (typesToPropertyInfosMap.ContainsKey(itemType) && typesToPropertyInfosMap[itemType].ContainsKey(propertyName)))
             {
                 if (propertyType == null)
                 {
-                    propertyType = GetRealType(typesToPropertyInfosMap[itemType][propertyName].PropertyType);
+                    propertyType = typesToPropertyInfosMap[itemType][propertyName].PropertyType.GetRealType();
                 }
                 
                 if (!ValidateOperator(propertyType, skipOperator))

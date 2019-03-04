@@ -11,6 +11,7 @@ using System.Text;
 using System.Web;
 using System.Web.Http;
 using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -1364,6 +1365,11 @@ namespace WebAPI.Controllers
                 if (fileData == null || string.IsNullOrEmpty(fileData.path))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fileData");
+                }
+
+                if (!fileData.path.EndsWith(ExcelFormatter.EXCEL_EXTENTION))
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fileData.path");
                 }
 
                 if (bulkUploadJobData == null)

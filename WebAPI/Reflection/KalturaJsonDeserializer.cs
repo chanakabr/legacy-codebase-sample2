@@ -21976,7 +21976,7 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 2,
+            MinLong = 2,
         };
         public KalturaBulkUploadAssetData(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -21990,7 +21990,7 @@ namespace WebAPI.Models.Upload
                     {
                         TypeIdSchemaProperty.Validate("typeId", parameters["typeId"]);
                     }
-                    TypeId = (Int32) Convert.ChangeType(parameters["typeId"], typeof(Int32));
+                    TypeId = (Int64) Convert.ChangeType(parameters["typeId"], typeof(Int64));
                 }
             }
         }
