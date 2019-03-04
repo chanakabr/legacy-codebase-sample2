@@ -2351,7 +2351,7 @@ namespace DAL
 
                     foreach (DataRow row in dt.Rows)
                     {
-                        userIds.Add(Utils.GetLongSafeVal(row, "ID"));
+                        userIds.Add(Utils.GetLongSafeVal(row, "USER_ID"));
                     }
                 }
             }

@@ -31,19 +31,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <HintPath>..\..\tvpapi_rest\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
+      <HintPath>..\..\Core\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <HintPath>..\..\tvpapi_rest\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
+      <HintPath>..\..\Core\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
     <Reference Include="Couchbase.NetClient, Version=2.7.4.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <HintPath>..\..\tvpapi_rest\packages\CouchbaseNetClient.2.7.4\lib\net452\Couchbase.NetClient.dll</HintPath>
+      <HintPath>..\..\Core\packages\CouchbaseNetClient.2.7.4\lib\net452\Couchbase.NetClient.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OpenTracing, Version=0.12.0.0, Culture=neutral, PublicKeyToken=61503406977abdaf, processorArchitecture=MSIL">
-      <HintPath>..\..\tvpapi_rest\packages\OpenTracing.0.12.0\lib\net45\OpenTracing.dll</HintPath>
+      <HintPath>..\..\Core\packages\OpenTracing.0.12.0\lib\net45\OpenTracing.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

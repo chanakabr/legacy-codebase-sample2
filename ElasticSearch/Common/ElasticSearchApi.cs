@@ -614,31 +614,34 @@ namespace ElasticSearch.Common
             // Find out if there are errors
             try
             {
-                var json = JObject.Parse(response);
-
-                if (json != null)
+                if (!string.IsNullOrEmpty(response))
                 {
-                    var errors = json["errors"];
+                    var json = JObject.Parse(response);
 
-                    //json["items"][0].First.First.ToString()
-                    // If there are errors, report it
-                    if (errors != null && Convert.ToBoolean(errors))
+                    if (json != null)
                     {
-                        var items = json["items"];
+                        var errors = json["errors"];
 
-                        var type = typeof(T);
-
-                        foreach (var item in items)
+                        //json["items"][0].First.First.ToString()
+                        // If there are errors, report it
+                        if (errors != null && Convert.ToBoolean(errors))
                         {
-                            if (item.First != null && item.First.First != null)
-                            {
-                                var itemError = item.First.First["error"];
-                                var id = item.First.First["_id"];
+                            var items = json["items"];
 
-                                if (itemError != null)
+                            var type = typeof(T);
+
+                            foreach (var item in items)
+                            {
+                                if (item.First != null && item.First.First != null)
                                 {
-                                    invalidRecords.Add(new KeyValuePair<string, string>(id.ToString(), itemError.ToString()));
-                                    log.ErrorFormat("Failed indexing percolator for channel {0} because of error {1}", id, itemError.ToString());
+                                    var itemError = item.First.First["error"];
+                                    var id = item.First.First["_id"];
+
+                                    if (itemError != null)
+                                    {
+                                        invalidRecords.Add(new KeyValuePair<string, string>(id.ToString(), itemError.ToString()));
+                                        log.ErrorFormat("Failed indexing percolator for channel {0} because of error {1}", id, itemError.ToString());
+                                    }
                                 }
                             }
                         }
