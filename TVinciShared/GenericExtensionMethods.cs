@@ -43,5 +43,32 @@ namespace TVinciShared
 
             return (T?)value;
         }
+
+        public static Type GetRealType(this Type type)
+        {
+            var realType = type;
+            if (Nullable.GetUnderlyingType(type) != null)
+            {
+                realType = type.GetGenericArguments()[0];
+            }
+
+            if (realType.IsArray)
+            {
+                realType = realType.GetElementType();
+            }
+            else if (realType.IsGenericType)
+            {
+                //if List
+                if (realType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    realType = realType.GetGenericArguments()[0];
+                }
+                else if (realType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                {
+                    realType = realType.GetGenericArguments()[1];
+                }
+            }
+            return realType;
+        }
     }
 }
