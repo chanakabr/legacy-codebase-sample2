@@ -3,3 +3,4 @@ Ingest/bin/
 packages/
 /.vs
 *.user
+settings.json
