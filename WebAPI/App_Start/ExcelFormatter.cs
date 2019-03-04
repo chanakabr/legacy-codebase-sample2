@@ -48,7 +48,11 @@ namespace WebAPI.App_Start
         Dictionary<string, object> GetExcelValues(int groupId);
     }
 
-    public interface IKalturaExcelStructure
+    public interface IKalturaBulkUploadStructure
+    {
+    }
+
+    public interface IKalturaExcelStructure : IKalturaBulkUploadStructure
     {
         ExcelStructure GetExcelStructure(int groupId);
     }

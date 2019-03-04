@@ -14,6 +14,7 @@ using System.Xml.Serialization;
 using TVinciShared;
 using WebAPI.App_Start;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -37,13 +38,15 @@ namespace WebAPI.Models.Catalog
         {
             if (Objects == null || Objects.Count == 0)
             {
-                return null;
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "objects");
             }
 
             var duplicates = Objects.GroupBy(x => x.getType()).Select(x => x.Key).ToList();
             if (duplicates.Count > 1)
             {
-                return null;
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, 
+                                              "type:" + duplicates[0].ToString(), 
+                                              "type:" + duplicates[1].ToString());
             }
             
             KalturaAssetStruct kalturaAssetStruct = new KalturaAssetStruct()

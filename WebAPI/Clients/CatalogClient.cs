@@ -4063,5 +4063,22 @@ namespace WebAPI.Clients
 
             return excelValues;
         }
+
+        internal ExcelStructure GetExcelStructure(int groupId, IKalturaExcelStructure kalturaExcelStructure)
+        {
+            ExcelStructure excelStructure = null;
+            try
+            {
+                var iExcelStructure = AutoMapper.Mapper.Map<IExcelStructure>(kalturaExcelStructure);
+                excelStructure = iExcelStructure.GetExcelStructure(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while GetExcelStructure from inner object.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return excelStructure;
+        }
     }
 }

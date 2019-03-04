@@ -49,17 +49,19 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public KalturaUploadToken Upload(string uploadTokenId, KalturaOTTFile fileData)
         {
+            KalturaUploadToken uploadToken = null;
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                return UploadTokenManager.UploadUploadToken(uploadTokenId, fileData.path, groupId);
+                uploadToken = UploadTokenManager.UploadUploadToken(uploadTokenId, fileData.path, groupId);
             }
             catch (ClientException ex)
             {
-                throw new ApiException(ex);
+                ErrorUtils.HandleClientException(ex);
             }
-        }
 
+            return uploadToken;
+        }
     }
 }

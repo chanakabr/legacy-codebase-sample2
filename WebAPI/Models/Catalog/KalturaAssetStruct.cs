@@ -122,13 +122,8 @@ namespace WebAPI.Models.Catalog
 
         public ExcelStructure GetExcelStructure(int groupId)
         {
-            var data = new Dictionary<string, object>()
-            {
-                { BulkUploadAssetData.MEDIA_TYPE, Id }
-            };
-
-            var excelStructur = MediaAsset.GetExcelStructure(groupId, data);
-            return excelStructur;
+            var excelStructure = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelStructure(groupId, this);
+            return excelStructure;
         }
         
         public bool Validate()
