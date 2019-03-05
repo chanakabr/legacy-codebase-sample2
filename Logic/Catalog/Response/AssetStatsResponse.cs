@@ -132,6 +132,14 @@ namespace Core.Catalog.Response
             }
         }
 
-
+        internal void CopyFrom(AssetStatsResult assetStats)
+        {
+            this.m_buzzAverScore = assetStats.m_buzzAverScore;
+            this.m_dRate = assetStats.m_dRate;
+            this.m_nAssetID = assetStats.m_nAssetID;
+            this.m_nLikes = assetStats.m_nLikes;
+            this.m_nViews = assetStats.m_nViews;
+            this.m_nVotes = assetStats.m_nVotes;
+        }
     }
 }
