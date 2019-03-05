@@ -21,7 +21,7 @@ namespace MediaAssetBulkUploadHandler
 
             try
             {
-                log.DebugFormat("starting AssetBulkUpload task. data={0}.", data);
+                log.DebugFormat("starting MediaAssetBulkUpload task. data={0}.", data);
                 var request = JsonConvert.DeserializeObject<MediaAssetBulkUploadRequest>(data);
                 var bulkUploadResponse = BulkUploadManager.GetBulkUpload(request.GroupID, request.BulkUploadId);
                 if (!bulkUploadResponse.HasObject())
