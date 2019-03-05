@@ -179,6 +179,13 @@ namespace WebAPI.App_Start
 
                     isResponseValid = true;
                 }
+
+                var id = requestMethodParameters.FirstOrDefault();
+                if (id != null)
+                {
+                    fileName = id.ToString() + EXCEL_EXTENTION;
+                    isResponseValid = true;
+                }
             }
             
             return isResponseValid;
