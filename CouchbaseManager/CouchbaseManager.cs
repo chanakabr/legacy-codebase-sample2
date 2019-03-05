@@ -1403,7 +1403,7 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null)
+                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
                     throw setResult.Exception;
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1446,7 +1446,7 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null)
+                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
                     throw setResult.Exception;
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1490,7 +1490,7 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null)
+                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
                     throw setResult.Exception;
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1553,7 +1553,7 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null)
+                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
                     throw setResult.Exception;
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1602,7 +1602,7 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null)
+                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
                     throw setResult.Exception;
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
