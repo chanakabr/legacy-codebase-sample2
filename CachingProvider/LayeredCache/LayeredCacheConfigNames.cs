@@ -97,6 +97,7 @@ namespace CachingProvider.LayeredCache
         public const string GROUP_WATCH_PERMISSION_RULES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPermittedWatchRules";        
         public const string API_GET_MEDIA_FILE_TYPE = "GetMediaFileTypeID";
         public const string API_GET_MAPPED_MEDIA_FILES = "GetMappedMediaFiles";
+        public const string ASSET_STATS_CONFIG_NAME = "AssetStats";
 
         #endregion
 
