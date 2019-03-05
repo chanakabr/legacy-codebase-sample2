@@ -2695,19 +2695,22 @@ namespace Core.Catalog
                     }
                 }
 
-                UserMediaMark userMediaMark;
+                UserMediaMark userMediaMark = null;
                 switch (playType)
                 {
                     case ePlayType.MEDIA:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, mediaTypeId);
+                        userMediaMark.AssetType = eAssetTypes.MEDIA;
                         CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, finishedPercentThreshold, isLinearChannel);
                         break;
                     case ePlayType.NPVR:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.NPVR);
+                        userMediaMark.AssetType = eAssetTypes.NPVR;
                         CatalogDAL.UpdateOrInsertUsersNpvrMark(userMediaMark, isFirstPlay);
                         break;
                     case ePlayType.EPG:
                         userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.EPG);
+                        userMediaMark.AssetType = eAssetTypes.EPG;
                         CatalogDAL.UpdateOrInsertUsersEpgMark(userMediaMark, isFirstPlay);
                         break;
                     default:
@@ -2725,6 +2728,7 @@ namespace Core.Catalog
                 finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
             }
 
+            log.DebugFormat("finishedPercentThreshold value is: {0}", finishedPercentThreshold);
             return finishedPercentThreshold;
         }
 
@@ -4207,7 +4211,39 @@ namespace Core.Catalog
                         else
                         {
                             /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
-                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+
+                            if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
+                            {
+                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+                            }
+                            else
+                            {
+                                Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetMediaStatsKey(x), x => x.ToString());
+                                Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
+                                Dictionary<string, object> funcParameters = new Dictionary<string, object>()
+                                    {
+                                        { "assetsIds", lAssetIDs },
+                                        { "statsType", StatsType.MEDIA },
+                                        { "groupId", nGroupID },
+                                        { "mapping", assetIdToAssetStatsMapping },
+                                    };
+
+                                bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap, 
+                                    ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+
+                                if (!success)
+                                {
+                                    log.ErrorFormat("Failed getting stats for medias {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
+                                }
+                                else
+                                {
+                                    foreach (var assetStats in results.Values)
+                                    {
+                                        assetIdToAssetStatsMapping[assetStats.m_nAssetID].CopyFrom(assetStats);
+                                    }
+                                }
+                            }
+
                         }
 
                         break;
@@ -4293,7 +4329,57 @@ namespace Core.Catalog
                             else
                             {
                                 /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
-                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+
+                                if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
+                                {
+                                    GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+                                }
+                                else
+                                {
+                                    Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetEPGStatsKey(x), x => x.ToString());
+                                    Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
+                                    Dictionary<string, object> funcParameters = new Dictionary<string, object>()
+                                    {
+                                        { "assetsIds", lAssetIDs },
+                                        { "statsType", StatsType.EPG },
+                                        { "groupId", nGroupID },
+                                        { "mapping", assetIdToAssetStatsMapping },
+                                    };
+
+                                    bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
+                                        ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+
+                                    if (!success)
+                                    {
+                                        log.ErrorFormat("Failed getting stats for epgs {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
+                                    }
+                                    else
+                                    {
+                                        foreach (var assetStats in results.Values)
+                                        {
+                                            assetIdToAssetStatsMapping[assetStats.m_nAssetID].CopyFrom(assetStats);
+                                        }
+                                    }
+                                    //foreach (var assetId in lAssetIDs)
+                                    //{
+                                    //    Dictionary<string, object> funcParameters = new Dictionary<string, object>()
+                                    //{
+                                    //    { "assetId", assetId },
+                                    //    { "statsType", StatsType.EPG },
+                                    //    { "groupId", nGroupID },
+                                    //    { "mapping", assetIdToAssetStatsMapping },
+                                    //};
+
+                                    //    AssetStatsResult assetStatsResult = null;
+                                    //    bool success = LayeredCache.Instance.Get<AssetStatsResult>(LayeredCacheKeys.GetEPGStatsKey(assetId), ref assetStatsResult, GetAssetStats, funcParameters,
+                                    //        nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+
+                                    //    if (!success)
+                                    //    {
+                                    //        log.ErrorFormat("Failed getting stats for EPG {0} group {1}", assetId, nGroupID);
+                                    //    }
+                                    //}
+                                }
                             }
                         }
 
@@ -4307,6 +4393,101 @@ namespace Core.Catalog
             } // switch
 
             return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
+        }
+
+        private static Tuple<AssetStatsResult, bool> GetAssetStats(Dictionary<string, object> funcParams)
+        {
+            AssetStatsResult result = null;
+            bool success = false;
+
+            try
+            {
+                if (funcParams != null &&
+                    funcParams.ContainsKey("assetId") && funcParams.ContainsKey("statsType") &&
+                    funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mapping"))
+                {
+                    int assetId = Convert.ToInt32(funcParams["assetId"]);
+                    int groupId = Convert.ToInt32(funcParams["groupId"]);
+                    StatsType statsType = (StatsType)funcParams["statsType"];
+                    Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
+                    
+                    GetDataForGetAssetStatsFromES(groupId, new List<int>() { assetId }, DateTime.MinValue, DateTime.MaxValue, statsType, mapping);
+
+                    if (mapping.ContainsKey(assetId))
+                    {
+                        result = mapping[assetId];
+                        success = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting asset stats result. ex = {0}", ex);
+            }
+
+            return new Tuple<AssetStatsResult, bool>(result, success);
+        }
+
+        private static Tuple<Dictionary<string, AssetStatsResult>, bool> GetAssetsStats(Dictionary<string, object> funcParams)
+        {
+            Dictionary<string, AssetStatsResult> result = null;
+            bool success = false;
+
+            try
+            {
+                if (funcParams != null &&
+                    funcParams.ContainsKey("assetsIds") && funcParams.ContainsKey("statsType") &&
+                    funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mapping"))
+                {
+                    List<int> assetIds = null;
+
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        assetIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        assetIds = funcParams["assetsIds"] as List<int>;
+                    }
+                    
+                    int groupId = Convert.ToInt32(funcParams["groupId"]);
+                    StatsType statsType = (StatsType)funcParams["statsType"];
+                    Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
+
+                    GetDataForGetAssetStatsFromES(groupId, assetIds, DateTime.MinValue, DateTime.MaxValue, statsType, mapping);
+
+                    result = new Dictionary<string, AssetStatsResult>();
+
+                    foreach (var assetId in assetIds)
+                    {
+                        if (mapping.ContainsKey(assetId))
+                        {
+                            string key = string.Empty;
+
+                            switch (statsType)
+                            {
+                                case StatsType.MEDIA:
+                                    key = LayeredCacheKeys.GetMediaStatsKey(assetId);
+                                    break;
+                                case StatsType.EPG:
+                                    key = LayeredCacheKeys.GetEPGStatsKey(assetId);
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            result[key] = mapping[assetId];
+                        }
+                    }
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting assets stats result. ex = {0}", ex);
+            }
+
+            return new Tuple<Dictionary<string, AssetStatsResult>, bool>(result, success);
         }
 
         private static AssetStatsResult.SocialPartialAssetStatsResult GetSocialAssetStats(int groupId, int assetId, StatsType statsTypes,
@@ -8926,7 +9107,9 @@ namespace Core.Catalog
             List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays,
             ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
-            List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
+            log.DebugFormat("Start GetUserWatchHistory for user {0} in groupId {1}", siteGuid, groupId);
+
+            List <WatchHistory> usersWatchHistory = new List<WatchHistory>();
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIA_HITS);
 
@@ -8950,17 +9133,42 @@ namespace Core.Catalog
                         staleState = CouchbaseManager.ViewStaleState.Ok;
                     }
                 }
+                
+                string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(siteGuid);
+                var allUserAssetMarks = mediaMarksManager.Get<UserMediaMarks>(documentKey);
 
-                // get view results
-                CouchbaseManager.ViewManager viewManager = new CouchbaseManager.ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                if (allUserAssetMarks == null)
                 {
-                    startKey = new object[] { long.Parse(siteGuid), minFilterdate },
-                    endKey = new object[] { long.Parse(siteGuid), maxFilterDate },
-                    staleState = staleState,
-                    asJson = true
-                };
+                    allUserAssetMarks = new UserMediaMarks();
+                }
 
-                List<WatchHistory> unFilteredresult = mediaMarksManager.View<WatchHistory>(viewManager);
+                var dateFilteredResult = allUserAssetMarks.mediaMarks.Where(mark => mark.CreatedAt > minFilterdate && mark.CreatedAt < maxFilterDate);
+
+                List<WatchHistory> unFilteredresult = new List<WatchHistory>();
+                List<string> mediaMarkKeys = CatalogDAL.ConvertUserMediaMarksToKeys(siteGuid, dateFilteredResult);
+                var mediaMarkLogsDictionary = mediaMarksManager.GetValues<MediaMarkLog>(mediaMarkKeys, true, true);
+                var mediaMarkLogs = mediaMarkLogsDictionary.Values;
+
+                int userId = 0;
+                int.TryParse(siteGuid, out userId);
+
+                unFilteredresult = mediaMarkLogs.Select(mediaMarkLog =>
+                {
+                    int recordingId = 0;
+                    int.TryParse(mediaMarkLog.LastMark.NpvrID, out recordingId);
+                    
+                    return new WatchHistory()
+                    {
+                        AssetId = mediaMarkLog.LastMark.AssetID.ToString(),
+                        Duration = mediaMarkLog.LastMark.FileDuration,
+                        AssetTypeId = mediaMarkLog.LastMark.AssetTypeId,
+                        LastWatch = mediaMarkLog.LastMark.CreatedAtEpoch,
+                        Location = mediaMarkLog.LastMark.Location,
+                        RecordingId = recordingId,
+                        UserID = userId
+                    };
+                }
+                ).ToList();
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
@@ -8983,14 +9191,15 @@ namespace Core.Catalog
                             shouldUseStartDateForEpg = true,
                             shouldUseFinalEndDate = true,
                             shouldUseStartDateForMedia = true,
-                            shouldAddIsActiveTerm = true
+                            shouldAddIsActiveTerm = true,
+                            //shouldIgnoreDeviceRuleID = true
                         };
 
                         int elasticSearchPageSize = 0;
 
                         List<string> listOfMedia = unFilteredresult.Where(
                             x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR && x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
-                                .Select(x => x.AssetId).ToList();
+                                .Select(x => x.AssetId.ToString()).ToList();
 
                         if (listOfMedia.Count > 0)
                         {
@@ -9000,6 +9209,7 @@ namespace Core.Catalog
                         }
 
                         // From the unfiltered list get only the recordings;
+                        //unFilteredresult = mediaMarksManager.GetValues<MediaMarkLog>(
 
                         List<string> listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
                             .Select(x =>
@@ -9137,7 +9347,7 @@ namespace Core.Catalog
                         {
                             if (!currentResult.IsFinishedWatching)
                             {
-                                string key = GetWatchHistoryCouchbaseKey(currentResult);
+                                string key = CatalogDAL.GetWatchHistoryCouchbaseKey(currentResult);
 
                                 keysToGetLocation.Add(key);
                             }
@@ -9151,7 +9361,7 @@ namespace Core.Catalog
                             {
                                 foreach (var currentResult in unFilteredresult)
                                 {
-                                    string key = GetWatchHistoryCouchbaseKey(currentResult);
+                                    string key = CatalogDAL.GetWatchHistoryCouchbaseKey(currentResult);
 
                                     if (mediaHitsDictionary.ContainsKey(key))
                                     {
@@ -9200,35 +9410,6 @@ namespace Core.Catalog
             return usersWatchHistory;
         }
 
-        private static string GetWatchHistoryCouchbaseKey(WatchHistory currentResult)
-        {
-            string assetType = string.Empty;
-
-            switch (currentResult.AssetTypeId)
-            {
-                case (int)eAssetTypes.EPG:
-                    {
-                        assetType = "epg";
-                        break;
-                    }
-
-                case (int)eAssetTypes.NPVR:
-                    {
-                        assetType = "npvr";
-                        break;
-                    }
-                case (int)eAssetTypes.MEDIA:
-                default:
-                    {
-                        assetType = "m";
-                        break;
-                    }
-
-            }
-
-            string key = string.Format("u{0}_{1}{2}", currentResult.UserID, assetType, currentResult.AssetId);
-            return key;
-        }
 
         public static void WriteNewWatcherMediaActionLog(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID, int nGroupID,
                                                         int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID)
