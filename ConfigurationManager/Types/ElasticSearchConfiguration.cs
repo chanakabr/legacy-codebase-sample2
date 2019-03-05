@@ -23,7 +23,7 @@ namespace ConfigurationManager
             };
             URLV1 = new StringConfigurationValue("url_v1", this)
             {
-                DefaultValue = "http://elasticsearch:9200",
+                DefaultValue = "",
                 OriginalKey = "ES_URL_V1",
             };
             URLV2 = new StringConfigurationValue("url_v2", this)
