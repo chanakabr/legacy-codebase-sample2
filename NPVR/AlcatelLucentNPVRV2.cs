@@ -765,7 +765,7 @@ namespace NPVR
 
                     if (args.LookupCriteria != null && args.LookupCriteria.Count > 0)
                     {
-                        urlParams.Add(new KeyValuePair<string, string>(ALU_LOOKUP_CRITERIA, string.Join(",", args.LookupCriteria.Select(x => x.ToString().ToLower()))));
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_LOOKUP_CRITERIA, string.Join(",", args.LookupCriteria)));
                     }
 
                     string url = BuildRestCommand(ALU_CREATE_ACCOUNT_COMMAND, ALU_ENDPOINT_SERIES, urlParams);
