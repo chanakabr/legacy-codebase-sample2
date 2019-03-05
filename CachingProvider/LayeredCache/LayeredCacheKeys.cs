@@ -578,6 +578,16 @@ namespace CachingProvider.LayeredCache
         public static string GetDomainRecordingsKey(long domainId)
         {
             return string.Format("DomainRecordings_domainId_{0}", domainId);
+		}
+		
+        public static string GetMediaStatsKey(int assetId)
+        {
+            return string.Format("MediaStats_{0}", assetId);
+        }
+
+        public static string GetEPGStatsKey(int assetId)
+        {
+            return string.Format("EPGStats_{0}", assetId);
         }
 
         public static string GetBusinessModuleRulesRulesByMediaKey(long mediaId)

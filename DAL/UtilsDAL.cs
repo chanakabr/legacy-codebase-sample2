@@ -25,7 +25,7 @@ namespace DAL
         private const int NUM_OF_TRIES = 3;
 
         #region Generic Methods
-        
+
         public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key, bool serializeToString = false)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
@@ -86,7 +86,7 @@ namespace DAL
 
             return responseT;
         }
-        
+
         public static List<T> GetObjectListFromCB<T>(eCouchbaseBucket couchbaseBucket, List<string> keys, bool serializeToString = false)
         {
             if (keys == null || keys.Count == 0)
@@ -136,7 +136,7 @@ namespace DAL
 
             return null;
         }
-        
+
         public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, bool serializeToString = false, uint expirationTTL = 0)
         {
             if (objectToSave != null)
@@ -174,7 +174,7 @@ namespace DAL
                                 return true;
                             }
                         }
-                        
+
                         numOfTries++;
                         log.ErrorFormat("Error while SaveObjectInCBy. number of tries: {0}/{1}. key: {2}.",
                                         numOfTries, NUM_OF_INSERT_TRIES, key);
@@ -262,6 +262,16 @@ namespace DAL
         #endregion
 
         #region Keys
+
+        public static string GetUserMonthlyMediaMarksDocKey(string userId, DateTime createdAt)
+        {
+            return string.Format("u{0}_t{1}", userId, createdAt.ToString("yyyyMM"));
+        }
+
+        public static string GetUserAllAssetMarksDocKey(string userId)
+        {
+            return string.Format("u{0}", userId);
+        }
 
         public static string GetUserMediaMarkDocKey(string siteUserGuid, int mediaId)
         {
