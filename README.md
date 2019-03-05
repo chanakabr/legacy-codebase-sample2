@@ -1,25 +1,36 @@
 # Phoenix
 
 ## Deployment instructions:
+	
+1) Build Core
+	```
+	cd ..\Core
+	docker build -t kaltura/core:dev --build-arg DOTNET_FRAMEWORK_TAG=4.7.2-sdk --build-arg BRANCH=master --build-arg BITBUCKET_TOKEN=<username>:<password> --build-arg API_VERSION=v5_2_0 .
+	docker tag kaltura/core:dev 870777418594.dkr.ecr.eu-west-1.amazonaws.com/core:dev
+	docker push 870777418594.dkr.ecr.eu-west-1.amazonaws.com/core:dev
+	cd ..\tvpapi_rest
+	```
 
-1) Build documentation
+2) Build Phoenix
+	```
+	docker build -t kaltura/phoenix:dev --build-arg BUILD_TAG=dev --build-arg IIS_TAG=windowsservercore .
+	docker tag kaltura/phoenix:dev 870777418594.dkr.ecr.eu-west-1.amazonaws.com/dev-phoenix:dev
+	docker push 870777418594.dkr.ecr.eu-west-1.amazonaws.com/dev-phoenix:dev
+	```
+
+3) Build Web-Services
+	```
+	docker build -t kaltura/web-services -f Dockerfile.WebServices --build-arg BUILD_TAG=dev --build-arg IIS_TAG=windowsservercore .
+	```
+
+4) Build documentation
 	```
 	docker build -t kaltura/phoenix-doc -f Dockerfile.Docs .
 	```
-	
-2) Build sources
-	```
-	docker build -t kaltura/phoenix-build -f Dockerfile.Build --build-arg DOTNET_FRAMEWORK_TAG=4.7.2-sdk --build-arg BRANCH=master --build-arg BITBUCKET_TOKEN=<username>:<password> --build-arg GITHUB_TOKEN=<token> .
-	```
 
-3) Build Phoenix
+5) Build Configuration Validator
 	```
-	docker build -t kaltura/phoenix-build -f Dockerfile.Phoenix --build-arg IIS_TAG=windowsservercore .
-	```
-
-3) Build Configuration Validator
-	```
-	docker build -t kaltura/phoenix-build -f Dockerfile.ConfigurationValidator --build-arg WINDOWS_TAG=ltsc2016 .
+	docker build -t kaltura/phoenixconfiguration-validator -f Dockerfile.ConfigurationValidator --build-arg WINDOWS_TAG=ltsc2016 .
 	```
 
 
