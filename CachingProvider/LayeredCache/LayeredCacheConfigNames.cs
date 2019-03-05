@@ -101,6 +101,7 @@ namespace CachingProvider.LayeredCache
         public const string API_GET_MAPPED_MEDIA_FILES = "GetMappedMediaFiles";
         public const string GET_ALL_EPG_PICTURES = "GetAllEpgPictures";
         public const string GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME = "GetDomainRecordingsLayeredCacheConfigName";
+        public const string ASSET_STATS_CONFIG_NAME = "AssetStats";
 
         #endregion
 
