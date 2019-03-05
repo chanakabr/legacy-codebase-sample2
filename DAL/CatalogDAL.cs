@@ -1468,7 +1468,7 @@ namespace Tvinci.Core.DAL
                     foreach (var assetAndLocation in userMediaMarks)
                     {
                         nMediaID = assetAndLocation.AssetId;
-                        lastDate = ODBCWrapper.Utils.UnixTimestampToDateTime(assetAndLocation.CreatedAt);
+                        lastDate = Utils.UtcUnixTimestampSecondsToDateTime(assetAndLocation.CreatedAt);
 
                         UserMediaMark objUserMediaMark = new UserMediaMark
                         {
