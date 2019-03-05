@@ -6311,7 +6311,7 @@ namespace TvinciImporter
 
                 if (string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPassword) || string.IsNullOrEmpty(casURL))
                 {
-                    log.ErrorFormat("Failed UpdateRecordingsOfEPGs, sWSUserName/sWSPassword/casURL is invalid for epgIds: {0}", string.Join(",", epgIds));
+                    log.ErrorFormat("Failed UpdateRecordingsOfEPGs, sWSUserName/sWSPassword/casURL [{0}] is invalid for epgIds: {1}", casURL, string.Join(",", epgIds));
                     return;
                 }
 
