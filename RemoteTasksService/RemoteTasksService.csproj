@@ -191,9 +191,17 @@
       <Project>{4dacac2d-5673-466f-8133-40da97130d85}</Project>
       <Name>ActionRuleHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AssetBulkUploadHandler\MediaAssetBulkUploadHandler.csproj">
+      <Project>{aa34dd58-9337-4241-a976-45f8cb4701b5}</Project>
+      <Name>MediaAssetBulkUploadHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AssetInheritanceHandler\AssetInheritanceHandler.csproj">
       <Project>{9bcf734b-320b-49a4-a4a5-678273845623}</Project>
       <Name>AssetInheritanceHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BulkUploadHandler\BulkUploadHandler.csproj">
+      <Project>{f875946d-d06d-4f01-9df3-a2493af8901a}</Project>
+      <Name>BulkUploadHandler</Name>
     </ProjectReference>
     <ProjectReference Include="..\ElasticSearchHandler\ElasticSearchHandler.csproj">
       <Project>{338e6394-a9e9-4d5c-8a6a-95797f6c429f}</Project>
