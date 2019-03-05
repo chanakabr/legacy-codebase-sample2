@@ -128,6 +128,9 @@ namespace ConfigurationManager
         public static NumericConfigurationValue EPGDeleteBulkSize;
         public static BooleanConfigurationValue AllowUnknownCountry;
         public static FileUploadConfiguration FileUpload;
+        public static BooleanConfigurationValue ShouldSubscriptionOverlapConsiderDLM;
+        public static NumericConfigurationValue MediaMarksListLength;
+        public static NumericConfigurationValue MediaMarksTTL;
 
         #endregion
 
@@ -566,6 +569,21 @@ namespace ConfigurationManager
                 DefaultValue = false
             };
             FileUpload = new FileUploadConfiguration("fileUpload");
+            ShouldSubscriptionOverlapConsiderDLM = new BooleanConfigurationValue("should_subscription_overlap_consider_dlm")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false
+            };
+            MediaMarksListLength = new NumericConfigurationValue("media_marks_list_limit")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 300
+            };
+            MediaMarksTTL = new NumericConfigurationValue("media_marks_ttl_days")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 90
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -671,7 +689,10 @@ namespace ConfigurationManager
                     ExcludeTemplatesImplementation,
                     UserSegmentTTL,
                     EPGDeleteBulkSize,
-                    AllowUnknownCountry
+                    AllowUnknownCountry,
+                    ShouldSubscriptionOverlapConsiderDLM,
+                    MediaMarksListLength,
+                    MediaMarksTTL
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

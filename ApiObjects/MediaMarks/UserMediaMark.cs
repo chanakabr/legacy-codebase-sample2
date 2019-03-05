@@ -46,6 +46,9 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("mediaConcurrencyRuleIds")]
         public List<int> MediaConcurrencyRuleIds { get; set; }
 
+        [JsonProperty("assetType")]
+        public eAssetTypes AssetType { get; set; }
+
         public UserMediaMark()
         {
             // default values to members from joker version
