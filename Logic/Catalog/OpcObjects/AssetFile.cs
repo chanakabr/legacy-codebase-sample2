@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.CDNAdapter;
+using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
@@ -386,7 +387,7 @@ namespace Core.Catalog
             this.IsActive = true;
         }
 
-        public BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index)
+        public BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus)
         {
             return null;
         }

@@ -2,6 +2,7 @@
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
+using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using QueueWrapper;
@@ -298,6 +299,9 @@ namespace Core.Catalog
                         case ExcelColumnType.Rule:
                             SetRuleByExcelValues(columnValue);
                             break;
+                        case ExcelColumnType.AvailabilityMeta:
+                            SetAvailabilityMetaByExcelValues(columnValue);
+                            break;
                         default:
                             break;
                     }
@@ -327,6 +331,41 @@ namespace Core.Catalog
             }
         }
 
+        private void SetAvailabilityMetaByExcelValues(KeyValuePair<string, object> columnValue)
+        {
+            // StartDate
+            var startDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+            if (columnValue.Key.Equals(startDateColumnName))
+            {
+                this.StartDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
+                return;
+            }
+
+            // EndDate
+            var endDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+            if (columnValue.Key.Equals(endDateColumnName))
+            {
+                this.EndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
+                return;
+            }
+
+            // CatalogStartDate
+            var catalogStartDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+            if (columnValue.Key.Equals(catalogStartDateColumnName))
+            {
+                this.CatalogStartDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
+                return;
+            }
+
+            // FinalEndDate
+            var finalEndDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+            if (columnValue.Key.Equals(finalEndDateColumnName))
+            {
+                this.FinalEndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
+                return;
+            }
+        }
+
         private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns)
         {
             if (fileValues != null && fileValues.Count > 0 && fileColumns != null && fileColumns.Count > 0)
@@ -351,19 +390,24 @@ namespace Core.Catalog
         
         private void SetBasicByExcelValues(KeyValuePair<string, object> columnValue, CatalogGroupCache catalogGroupCache)
         {
-            // mediaType
-            if (columnValue.Key.Equals(MEDIA_ASSET_TYPE))
+            // MediaType
+            var mediaTypeColumnName = ExcelColumn.GetFullColumnName(MEDIA_ASSET_TYPE, null, null, true);
+            if (columnValue.Key.Equals(mediaTypeColumnName))
             {
                 this.MediaType.m_sTypeName = columnValue.Value.ToString();
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(this.MediaType.m_sTypeName))
                 {
                     this.MediaType.m_nTypeID = (int)catalogGroupCache.AssetStructsMapBySystemName[this.MediaType.m_sTypeName].Id;
                 }
+                return;
             }
+
             // EXTERNAL_ID
-            else if (columnValue.Key.Equals(Asset.EXTERNAL_ASSET_ID))
+            var externalIdColumnName = ExcelColumn.GetFullColumnName(EXTERNAL_ASSET_ID, null, null, true);
+            if (columnValue.Key.Equals(externalIdColumnName))
             {
                 this.CoGuid = columnValue.Value.ToString();
+                return;
             }
         }
 
@@ -371,7 +415,7 @@ namespace Core.Catalog
 
         #region IBulkUploadObject Methods
 
-        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index)
+        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus)
         {
             BulkUploadMediaAssetResult bulkUploadAssetResult = new BulkUploadMediaAssetResult()
             {
@@ -380,9 +424,13 @@ namespace Core.Catalog
                 BulkUploadId = bulkUploadId,
                 Status = status,
                 Type = this.MediaType != null && this.MediaType.m_nTypeID > 0 ? this.MediaType.m_nTypeID : (int?)null,
-                ExternalId = this.CoGuid
+                ExternalId = string.IsNullOrEmpty(this.CoGuid) ? null : this.CoGuid
             };
 
+            if (errorStatus != null)
+            {
+                bulkUploadAssetResult.SetError(errorStatus);
+            }
             return bulkUploadAssetResult;
         }
         

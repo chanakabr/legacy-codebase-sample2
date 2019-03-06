@@ -24,9 +24,9 @@ namespace ApiObjects.BulkUpload
         private const string COLUMN_LANGUAGE = "l";
         private const string ITEM_INDEX = "i";
 
-        public static GenericListResponse<IExcelObject> Deserialize(int groupId, string fileUrl, BulkUploadObjectData objectData)
+        public static GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(int groupId, string fileUrl, BulkUploadObjectData objectData)
         {
-            GenericListResponse<IExcelObject> excelObjects = new GenericListResponse<IExcelObject>();
+            var excelObjects = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
             try
             {
                 using (var webClient = new WebClient())
@@ -56,9 +56,11 @@ namespace ApiObjects.BulkUpload
                                     {
                                         int columnNameRowIndex = excelStructure.OverviewInstructions.Count > 0 ? excelStructure.OverviewInstructions.Count + 2 : 1;
 
-                                        var columnNamesToValues = new Dictionary<string, object>();
+                                        
                                         for (int row = columnNameRowIndex + 1; row <= worksheet.Dimension.End.Row; row++)
                                         {
+                                            var columnNamesToValues = new Dictionary<string, object>();
+                                            var status = new Status((int)eResponseStatus.OK);
                                             for (int col = worksheet.Dimension.Start.Column; col <= worksheet.Dimension.End.Column; col++)
                                             {
                                                 var column = worksheet.Cells[columnNameRowIndex, col].Value;
@@ -70,16 +72,26 @@ namespace ApiObjects.BulkUpload
                                                     //add the cell data to the List
                                                     columnNamesToValues.Add(column.ToString(), worksheet.Cells[row, col].Value);
                                                 }
-                                            }
-                                        }
-                                        
-                                        var excelObject = objectData.CreateObjectInstance() as IExcelObject;
-                                        if (excelObject != null)
-                                        {
-                                            excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
-                                            // TODO SHIR - VALIDATE THE OBJECT IS OK - HAVE ALL MANDATOY VALUES
+                                                else if (excelStructure.ExcelColumns.ContainsKey(column.ToString()) &&
+                                                         excelStructure.ExcelColumns[column.ToString()].IsMandatory)
+                                                {
+                                                    status.Set((int)eResponseStatus.MandatoryValueIsMissing, string.Format("Mandatory Value:{0} Is Missing", column.ToString()));
+                                                    break;
+                                                }
 
-                                            excelObjects.Objects.Add(excelObject);
+                                                // TODO SHIR - VALIDATE THE OBJECT IS OK - that the value is ok
+                                            }
+
+                                            var excelObject = objectData.CreateObjectInstance() as IExcelObject;
+                                            if (excelObject != null)
+                                            {
+                                                if (status.IsOkStatusCode())
+                                                {
+                                                    excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
+                                                }
+
+                                                excelObjects.Objects.Add(new Tuple<Status, IBulkUploadObject>(status, excelObject));
+                                            }
                                         }
                                     }
                                 }

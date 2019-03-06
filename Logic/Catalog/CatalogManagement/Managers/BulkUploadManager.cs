@@ -140,7 +140,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // parse file to objects list (with validation)
-            GenericListResponse<IBulkUploadObject> objectsListResponse = new GenericListResponse<IBulkUploadObject>();
+            var objectsListResponse = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
             if (bulkUploadResponse.Object.JobData != null && bulkUploadResponse.Object.ObjectData != null)
             {
                 objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(groupId, bulkUploadResponse.Object.FileName, bulkUploadResponse.Object.ObjectData);
@@ -175,7 +175,20 @@ namespace Core.Catalog.CatalogManagement
             for (int i = 0; i < objectsListResponse.Objects.Count; i++)
             {
                 // create new result in status IN_PROGRESS
-                var bulkUploadResult = objectsListResponse.Objects[i].GetNewBulkUploadResult(bulkUploadResponse.Object.Id, BulkUploadResultStatus.InProgress, i);
+                var resultStatus = BulkUploadResultStatus.InProgress;
+                Status errorStatus = null;
+                if (objectsListResponse.Objects[i].Item1.Code != (int)eResponseStatus.OK)
+                {
+                    resultStatus = BulkUploadResultStatus.Error;
+                    errorStatus = objectsListResponse.Objects[i].Item1;
+                }
+
+                var bulkUploadResult = objectsListResponse.Objects[i].Item2.GetNewBulkUploadResult(bulkUploadResponse.Object.Id, resultStatus, i, errorStatus);
+                if (bulkUploadResult == null)
+                {
+                    log.ErrorFormat("bulkUploadResult is null for bulkUploadId:{0}, index:{1}", bulkUploadResponse.Object.Id, i);
+                    continue;
+                }
 
                 // add current result to bulkUpload results list and update it in DB.
                 bulkUploadResponse = UpdateBulkUpload(groupId, userId, bulkUploadId, bulkUploadResponse.Object.Status, bulkUploadResult);
@@ -190,14 +203,17 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
-                if (objectsListResponse.Objects[i].Enqueue(groupId, userId, bulkUploadId, bulkUploadResponse.Object.Action, i))
+                if (resultStatus == BulkUploadResultStatus.InProgress)
                 {
-                    log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
-                }
-                else
-                {
-                    log.DebugFormat("Failed enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
+                    // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
+                    if (objectsListResponse.Objects[i].Item2.Enqueue(groupId, userId, bulkUploadId, bulkUploadResponse.Object.Action, i))
+                    {
+                        log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Failed enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
+                    }
                 }
             }
 
