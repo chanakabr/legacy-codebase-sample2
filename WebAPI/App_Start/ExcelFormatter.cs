@@ -38,7 +38,6 @@ using WebAPI.Managers;
 
 namespace WebAPI.App_Start
 {
-    // TODO SHIR - ADD TO DR
     public interface IKalturaBulkUploadObject
     {
     }
@@ -165,7 +164,6 @@ namespace WebAPI.App_Start
                 var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
                 if (kalturaPersistedFilter != null)
                 {
-                    // TODO SHIR - ADD TO DR, file name must be added
                     fileName = (kalturaPersistedFilter as IKalturaPersistedFilter).Name;
                     if (string.IsNullOrEmpty(fileName))
                     {

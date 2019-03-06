@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Upload
 {
     /// <summary>
-    /// instractions for upload data type
+    /// instructions for upload data (the data file type, how to read the file, etc)
     /// </summary>
     [Serializable]
     public abstract partial class KalturaBulkUploadJobData : KalturaOTTObject
@@ -19,7 +19,7 @@ namespace WebAPI.Models.Upload
     }
 
     /// <summary>
-    /// instractions for upload data type with Excel
+    /// instructions for upload data type with Excel
     /// </summary>
     [Serializable]
     public partial class KalturaBulkUploadExcelJobData : KalturaBulkUploadJobData
@@ -27,7 +27,7 @@ namespace WebAPI.Models.Upload
     }
 
     /// <summary>
-    /// instractions for upload data type with xml
+    /// instructions for upload data type with xml
     /// </summary>
     [Serializable]
     public partial class KalturaBulkUploadXmlJobData : KalturaBulkUploadJobData

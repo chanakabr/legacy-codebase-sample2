@@ -11,11 +11,17 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Upload
 {
+    /// <summary>
+    /// indicates the object type in the bulk file
+    /// </summary>
     public abstract partial class KalturaBulkUploadObjectData : KalturaOTTObject
     {
         
     }
 
+    /// <summary>
+    /// indicates the asset object type in the bulk file
+    /// </summary>
     public partial class KalturaBulkUploadAssetData : KalturaBulkUploadObjectData
     {
         /// <summary>
