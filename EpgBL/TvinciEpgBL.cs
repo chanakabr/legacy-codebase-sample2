@@ -860,7 +860,10 @@ namespace EpgBL
                         }
 
                         oProgram.EPG_PICTURES = finalEpgPicture; // Reassignment epg pictures
-                        oProgram.PIC_URL = CompletePicURLForBackSupport(oProgram.PIC_URL, pictures[progGroup]);
+                        if (!string.IsNullOrEmpty(oProgram.PIC_URL) && pictures != null && pictures.Count > 0 && pictures.ContainsKey(progGroup))
+                        {
+                            oProgram.PIC_URL = CompletePicURLForBackSupport(oProgram.PIC_URL, pictures[progGroup]);
+                        }
                     }
                 }
             }
@@ -912,7 +915,10 @@ namespace EpgBL
                     }
 
                     oProgram.EPG_PICTURES = finalEpgPicture; // Reassignment epg pictures
-                    oProgram.PIC_URL = CompletePicURLForBackSupport(oProgram.PIC_URL, pictures[group]);
+                    if (!string.IsNullOrEmpty(oProgram.PIC_URL) && pictures != null && pictures.Count > 0 && pictures.ContainsKey(group))
+                    {
+                        oProgram.PIC_URL = CompletePicURLForBackSupport(oProgram.PIC_URL, pictures[group]);
+                    }
                 }
             }
             catch (Exception ex)
