@@ -21790,10 +21790,10 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(StatusEqual.HasValue)
-            {
-                ret.Add("statusEqual", "\"statusEqual\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "\"");
-            }
+            //if(StatusEqual.HasValue)
+            //{
+            //    ret.Add("statusEqual", "\"statusEqual\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "\"");
+            //}
             if(UserIdEqualCurrent.HasValue)
             {
                 ret.Add("userIdEqualCurrent", "\"userIdEqualCurrent\": " + UserIdEqualCurrent.ToString().ToLower());
@@ -21806,10 +21806,10 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(StatusEqual.HasValue)
-            {
-                ret.Add("statusEqual", "<statusEqual>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "" + "</statusEqual>");
-            }
+            //if(StatusEqual.HasValue)
+            //{
+            //    ret.Add("statusEqual", "<statusEqual>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "" + "</statusEqual>");
+            //}
             if(UserIdEqualCurrent.HasValue)
             {
                 ret.Add("userIdEqualCurrent", "<userIdEqualCurrent>" + UserIdEqualCurrent.ToString().ToLower() + "</userIdEqualCurrent>");

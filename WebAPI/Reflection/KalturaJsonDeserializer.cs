@@ -22054,10 +22054,10 @@ namespace WebAPI.Models.Upload
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("statusEqual") && parameters["statusEqual"] != null)
-                {
-                    StatusEqual = (KalturaBulkUploadJobStatus) Enum.Parse(typeof(KalturaBulkUploadJobStatus), parameters["statusEqual"].ToString(), true);
-                }
+                //if (parameters.ContainsKey("statusEqual") && parameters["statusEqual"] != null)
+                //{
+                //    StatusEqual = (KalturaBulkUploadJobStatus) Enum.Parse(typeof(KalturaBulkUploadJobStatus), parameters["statusEqual"].ToString(), true);
+                //}
                 if (parameters.ContainsKey("userIdEqualCurrent") && parameters["userIdEqualCurrent"] != null)
                 {
                     UserIdEqualCurrent = (Boolean) Convert.ChangeType(parameters["userIdEqualCurrent"], typeof(Boolean));
