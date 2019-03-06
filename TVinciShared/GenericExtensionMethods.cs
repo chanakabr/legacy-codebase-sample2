@@ -47,7 +47,7 @@ namespace TVinciShared
         public static Type GetRealType(this Type type)
         {
             var realType = type;
-            if (Nullable.GetUnderlyingType(type) != null)
+            if (type.IsNullableType())
             {
                 realType = type.GetGenericArguments()[0];
             }
@@ -69,6 +69,24 @@ namespace TVinciShared
                 }
             }
             return realType;
+        }
+
+        public static bool IsNullableType(this Type type)
+        {
+            return Nullable.GetUnderlyingType(type) != null;
+        }
+
+        public static object TryConvertTo(this object value, Type type)
+        {
+            try
+            {
+                var convertedValue = Convert.ChangeType(value, type);
+                return convertedValue;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }
