@@ -13,8 +13,7 @@ namespace WebAPI.Models.Upload
     public enum KalturaBulkUploadOrderBy
     {
         NONE,
-        UPDATE_DATE,
-        STATUS
+        CREATE_DATE
     }
 
     /// <summary>
@@ -29,6 +28,15 @@ namespace WebAPI.Models.Upload
         [JsonProperty("statusEqual")]
         [XmlElement(ElementName = "statusEqual", IsNullable = true)]
         public KalturaBulkUploadJobStatus? StatusEqual { get; set; }
+
+        /// <summary>
+        /// Indicates if to get the asset user rule list for the attached user or for the entire group
+        /// </summary>
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [DataMember(Name = "userIdEqualCurrent")]
+        [JsonProperty("userIdEqualCurrent")]
+        [XmlElement(ElementName = "userIdEqualCurrent", IsNullable = true)]
+        public bool? UserIdEqualCurrent { get; set; }
 
         public override KalturaBulkUploadOrderBy GetDefaultOrderByValue()
         {

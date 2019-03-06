@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        public static KalturaBulkUploadListResponse List(KalturaBulkUploadFilter filter = null)
+        public static KalturaBulkUploadListResponse List(KalturaBulkUploadFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaBulkUploadListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -48,7 +48,6 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        // TODO SHIR - ADD TO DR
         /// <summary>
         /// Get BulkUpload by ID
         /// </summary>

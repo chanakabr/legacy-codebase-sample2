@@ -21794,6 +21794,10 @@ namespace WebAPI.Models.Upload
             {
                 ret.Add("statusEqual", "\"statusEqual\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "\"");
             }
+            if(UserIdEqualCurrent.HasValue)
+            {
+                ret.Add("userIdEqualCurrent", "\"userIdEqualCurrent\": " + UserIdEqualCurrent.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -21805,6 +21809,10 @@ namespace WebAPI.Models.Upload
             if(StatusEqual.HasValue)
             {
                 ret.Add("statusEqual", "<statusEqual>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "" + "</statusEqual>");
+            }
+            if(UserIdEqualCurrent.HasValue)
+            {
+                ret.Add("userIdEqualCurrent", "<userIdEqualCurrent>" + UserIdEqualCurrent.ToString().ToLower() + "</userIdEqualCurrent>");
             }
             return ret;
         }

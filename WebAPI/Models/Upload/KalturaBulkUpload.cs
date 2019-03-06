@@ -90,7 +90,6 @@ namespace WebAPI.Models.Upload
         public List<KalturaBulkUploadResult> Results { get; set; }
     }
 
-    // TODO SHIR - add to dr
     public enum KalturaBulkUploadJobStatus
     {
         Pending = 1,

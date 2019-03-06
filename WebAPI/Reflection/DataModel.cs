@@ -938,6 +938,8 @@ namespace WebAPI.Reflection
                     {
                         case "StatusEqual":
                             return "statusEqual";
+                        case "UserIdEqualCurrent":
+                            return "userIdEqualCurrent";
                     }
                     break;
                     
@@ -6608,7 +6610,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("bulkUpload", "list", false);
-                            return BulkUploadController.List((KalturaBulkUploadFilter) methodParams[0]);
+                            return BulkUploadController.List((KalturaBulkUploadFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -11340,6 +11342,13 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaBulkUploadFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

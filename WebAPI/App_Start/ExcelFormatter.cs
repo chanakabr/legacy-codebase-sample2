@@ -179,12 +179,14 @@ namespace WebAPI.App_Start
 
                     isResponseValid = true;
                 }
-
-                var id = requestMethodParameters.FirstOrDefault();
-                if (id != null)
+                else
                 {
-                    fileName = id.ToString() + EXCEL_EXTENTION;
-                    isResponseValid = true;
+                    var id = requestMethodParameters.FirstOrDefault();
+                    if (id != null)
+                    {
+                        fileName = id.ToString() + EXCEL_EXTENTION;
+                        isResponseValid = true;
+                    }
                 }
             }
             
@@ -258,8 +260,8 @@ namespace WebAPI.App_Start
                     //    }
                     //}
 
-                    //dataTable.Columns.Add(col.Key, columnType);
-                    dataTable.Columns.Add(col.Key);
+                    dataTable.Columns.Add(col.Key, defaultType);
+                    //dataTable.Columns.Add(col.Key);
                 }
 
                 if (objects != null && objects.Count > 0)
@@ -276,15 +278,22 @@ namespace WebAPI.App_Start
                                 {
                                     if (dataTable.Columns.Contains(excelValue.Key))
                                     {
-                                        //var value = excelValue.Value;
-                                        //if (dataTable.Columns[excelValue.Key].DataType.Equals(typeof(DateTime)) ||
-                                        //    dataTable.Columns[excelValue.Key].DataType.Equals(typeof(DateTime?)))
-                                        //{
-                                        //    value = DateUtils.Parse(value as DateTime?, ExcelManager.DATE_FORMAT);
-                                        //}
-                                        
-                                        //row[excelValue.Key] = value;
-                                        row[excelValue.Key] = excelValue.Value;
+                                        object value = null;
+
+                                        if (columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime)) ||
+                                            columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime?)))
+                                        {
+                                            value = (excelValue.Value as DateTime?).Value.ToString(ExcelManager.DATE_FORMAT);
+                                        }
+                                        else
+                                        {
+                                            value = excelValue.Value;
+                                        }
+                                       
+                                        if (value != null)
+                                        {
+                                            row[excelValue.Key] = value;
+                                        }
                                     }
                                 }
                                 dataTable.Rows.Add(row);
