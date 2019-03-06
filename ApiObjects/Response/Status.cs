@@ -71,17 +71,31 @@ namespace ApiObjects.Response
             }
         }
 
-        public void Set(int newCode, string newMessage = null)
+        public void Set(int errorCode, string errorMessage)
         {
-            this.code = newCode;
+            this.code = errorCode;
 
-            if (string.IsNullOrEmpty(newMessage))
+            if (string.IsNullOrEmpty(errorMessage))
             {
-                this.message = newCode.ToString();
+                this.message = errorCode.ToString();
             }
             else
             {
-                this.message = newMessage;
+                this.message = errorMessage;
+            }
+        }
+
+        public void Set(eResponseStatus responseStatus, string responseMessage = null)
+        {
+            this.code = (int)responseStatus;
+
+            if (string.IsNullOrEmpty(responseMessage))
+            {
+                this.message = responseStatus.ToString();
+            }
+            else
+            {
+                this.message = responseMessage;
             }
         }
 
