@@ -76,23 +76,15 @@ namespace ApiObjects
             set;
         }
 
+        [DataMember]
+        public long? AssetUserRuleId { get; set; }
+
         #endregion
 
         public ExternalChannel()
         {
 
-        }
-
-        public ExternalChannel(ExternalChannel externalChannel)
-        {
-            this.ID = externalChannel.ID;
-            this.Name = externalChannel.Name;
-            this.ExternalIdentifier = externalChannel.ExternalIdentifier;
-            this.RecommendationEngineId = externalChannel.RecommendationEngineId;
-            this.FilterExpression = externalChannel.FilterExpression;
-            this.Enrichments = externalChannel.Enrichments;
-            this.IsActive = externalChannel.IsActive;
-        }
+        }     
 
     }
 }

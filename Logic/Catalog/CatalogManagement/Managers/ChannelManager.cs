@@ -18,7 +18,7 @@ namespace Core.Catalog.CatalogManagement
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int EPG_ASSET_TYPE = 0;
-
+        private const string ACTION_IS_NOT_ALLOWED = "Action is not allowed";
         #region Private Methods
 
         private static List<Channel> GetChannelListFromDs(DataSet ds)
@@ -669,14 +669,26 @@ namespace Core.Catalog.CatalogManagement
                 int? isSlidingWindow = channelToAdd.m_OrderObject.m_bIsSlidingWindowField ? 1 : 0;
                 int? slidingWindowPeriod = channelToAdd.m_OrderObject.lu_min_period_id;
 
-                if (channelToAdd.AssetUserRuleId <= 0)
+
+                long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                if (channelToAdd.AssetUserRuleId.HasValue && channelToAdd.AssetUserRuleId.Value > 0)
                 {
-                    long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                    if (assetUserRuleId > 0 && assetUserRuleId != channelToAdd.AssetUserRuleId)
+                    {
+                        log.DebugFormat("User {0} not allowed on channel. ruleId {1}.", userId, assetUserRuleId);
+
+                        response.SetStatus(eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
+                        return response;
+                    }
+                }
+
+                if (channelToAdd.AssetUserRuleId == null || (channelToAdd.AssetUserRuleId.HasValue && channelToAdd.AssetUserRuleId.Value <= 0))
+                {
                     if (assetUserRuleId > 0)
                     {
                         channelToAdd.AssetUserRuleId = assetUserRuleId;
                     }
-                }
+                }                
 
                 DataSet ds = CatalogDAL.InsertChannel(
                     groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription,

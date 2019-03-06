@@ -111,7 +111,6 @@ namespace Core.Api
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
 
         private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
-
         #endregion
 
         protected api() { }
@@ -7571,7 +7570,7 @@ namespace Core.Api
         #endregion
 
         #region External Channels
-        public static ExternalChannelResponse InsertExternalChannel(int groupID, ExternalChannel externalChannel)
+        public static ExternalChannelResponse InsertExternalChannel(int groupId, ExternalChannel externalChannel, long userId)
         {
             ExternalChannelResponse response = new ExternalChannelResponse();
 
@@ -7579,42 +7578,42 @@ namespace Core.Api
             {
                 if (externalChannel == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoExternalChannelToInsert, NO_EXTERNAL_CHANNEL_TO_INSERT);
+                    response.Status = new Status((int)eResponseStatus.NoExternalChannelToInsert, NO_EXTERNAL_CHANNEL_TO_INSERT);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(externalChannel.Name))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(externalChannel.ExternalIdentifier))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
                     return response;
                 }
 
                 //check External Identiifer uniqueness 
-                ExternalChannel returnExternalChannel = CatalogDAL.GetExternalChannelInternalID(groupID, externalChannel.ExternalIdentifier);
+                ExternalChannel returnExternalChannel = CatalogDAL.GetExternalChannelInternalID(groupId, externalChannel.ExternalIdentifier);
 
                 if (returnExternalChannel != null && returnExternalChannel.ID > 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
                 }
 
                 if (externalChannel.RecommendationEngineId <= 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecommendationEngineIdentifierRequired, RECOMMENDATION_ENGINE_ID_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.RecommendationEngineIdentifierRequired, RECOMMENDATION_ENGINE_ID_REQUIRED);
                     return response;
                 }
 
-                RecommendationEngine recommendationEngine = CatalogDAL.GetRecommendationEngine(groupID, externalChannel.RecommendationEngineId);
+                RecommendationEngine recommendationEngine = CatalogDAL.GetRecommendationEngine(groupId, externalChannel.RecommendationEngineId);
 
                 if (recommendationEngine == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecommendationEngineNotExist, RECOMMENDATION_ENGINE_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.RecommendationEngineNotExist, RECOMMENDATION_ENGINE_NOT_EXIST);
                     return response;
                 }
 
@@ -7628,80 +7627,113 @@ namespace Core.Api
                         // If the used enrichment is not available
                         if (!availableEnrichments.Contains(currentEnrichment))
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InactiveExternalChannelEnrichment,
+                            response.Status = new Status((int)eResponseStatus.InactiveExternalChannelEnrichment,
                                 string.Format("External channel enrichment {0} is inactive", currentEnrichment.ToString()));
                             return response;
                         }
                     }
                 }
 
-                externalChannel.GroupId = groupID;
+                externalChannel.GroupId = groupId;
 
-                response.ExternalChannel = CatalogDAL.InsertExternalChannel(groupID, externalChannel);
+                long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+
+                if (externalChannel.AssetUserRuleId.HasValue && externalChannel.AssetUserRuleId.Value > 0)
+                {
+                    if (assetUserRuleId > 0 && assetUserRuleId != externalChannel.AssetUserRuleId)
+                    {
+                        log.DebugFormat("User {0} not allowed on channel. ruleId {1}.", userId, assetUserRuleId);
+                        response.Status = new Status((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
+                        return response;
+                    }
+                }
+
+                if (externalChannel.AssetUserRuleId == null || (externalChannel.AssetUserRuleId.HasValue && externalChannel.AssetUserRuleId.Value <= 0))
+                {
+                    if (assetUserRuleId > 0)
+                    {
+                        externalChannel.AssetUserRuleId = assetUserRuleId;
+                    }
+                }               
+
+                response.ExternalChannel = CatalogDAL.InsertExternalChannel(groupId, externalChannel);
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new external channel insert");
+                    response.Status = new Status((int)eResponseStatus.OK, "new external channel insert");
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to insert new external channel");
+                    response.Status = new Status((int)eResponseStatus.Error, "fail to insert new external channel");
                 }
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}", groupID), ex);
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
             return response;
         }
 
-        public static ApiObjects.Response.Status DeleteExternalChannel(int groupID, int externalChannelId)
+        public static Status DeleteExternalChannel(int groupId, int externalChannelId, long userId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
-
                 if (externalChannelId == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ExternalChannelIdentifierRequired, EXTERNAL_CHANNEL_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.ExternalChannelIdentifierRequired, EXTERNAL_CHANNEL_ID_REQUIRED);
                     return response;
                 }
 
                 //check external channel exist
-                ExternalChannel originalExternalChannel = CatalogDAL.GetExternalChannelById(groupID, externalChannelId);
+                ExternalChannel originalExternalChannel = CatalogDAL.GetExternalChannelById(groupId, externalChannelId);
                 if (originalExternalChannel == null || externalChannelId <= 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
+                    response = new Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
                     return response;
                 }
 
-                bool isSet = CatalogDAL.DeleteExternalChannel(groupID, externalChannelId);
+                // check if channael allowed
+                long ruleId = 0;
+                if (userId > 0)
+                {
+                    ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                }
+
+                if (ruleId > 0 && originalExternalChannel.AssetUserRuleId != ruleId)
+                {
+                    log.DebugFormat("User {0} not allowed on (external) channel {1}. ruleId {2}.", userId, externalChannelId, ruleId);
+                    response.Set((int)eResponseStatus.ActionIsNotAllowed,ACTION_IS_NOT_ALLOWED);                    
+                    return response;
+                }
+
+                bool isSet = CatalogDAL.DeleteExternalChannel(groupId, externalChannelId);
                 if (isSet)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "external channel deleted");
+                    response = new Status((int)eResponseStatus.OK, "external channel deleted");
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
+                    response = new Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
                 }
 
                 string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                 {
-                    string.Format("{0}_external_channel_{1}_{2}", version, groupID, externalChannelId)
+                    string.Format("{0}_external_channel_{1}_{2}", version, groupId, externalChannelId)
                 };
 
-                QueueUtils.UpdateCache(groupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+                QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}, externalChannelId={1}", groupID, externalChannelId), ex);
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, externalChannelId={1}", groupId, externalChannelId), ex);
             }
             return response;
         }
 
-        public static ExternalChannelResponse SetExternalChannel(int groupID, ExternalChannel externalChannel)
+        public static ExternalChannelResponse SetExternalChannel(int groupId, ExternalChannel externalChannel, long userId)
         {
             ExternalChannelResponse response = new ExternalChannelResponse();
 
@@ -7709,41 +7741,54 @@ namespace Core.Api
             {
                 if (externalChannel == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoExternalChannelToUpdate, NO_EXTERNAL_CHANNEL_TO_UPDTAE);
+                    response.Status = new Status((int)eResponseStatus.NoExternalChannelToUpdate, NO_EXTERNAL_CHANNEL_TO_UPDTAE);
                     return response;
                 }
 
                 if (externalChannel.ID == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalChannelIdentifierRequired, EXTERNAL_CHANNEL_ID_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.ExternalChannelIdentifierRequired, EXTERNAL_CHANNEL_ID_REQUIRED);
                     return response;
                 }
                 if (string.IsNullOrEmpty(externalChannel.Name))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(externalChannel.ExternalIdentifier))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
                     return response;
                 }
 
                 //check external channel exist
-                ExternalChannel originalExternalChannel = CatalogDAL.GetExternalChannelById(groupID, externalChannel.ID);
+                ExternalChannel originalExternalChannel = CatalogDAL.GetExternalChannelById(groupId, externalChannel.ID);
                 if (originalExternalChannel == null || externalChannel.ID <= 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
+                    return response;
+                }
+
+                long ruleId = 0;
+                if (userId > 0)
+                {
+                    ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                }
+
+                if (ruleId > 0 && originalExternalChannel.AssetUserRuleId != ruleId)
+                {
+                    log.DebugFormat("User {0} not allowed on channel {1}. ruleId {2}.", userId, originalExternalChannel.ID, ruleId);
+                    response.Status = new Status((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
                     return response;
                 }
 
                 //check External Identifier uniqueness 
-                ExternalChannel returnExternalChannel = CatalogDAL.GetExternalChannelInternalID(groupID, externalChannel.ExternalIdentifier);
+                ExternalChannel returnExternalChannel = CatalogDAL.GetExternalChannelInternalID(groupId, externalChannel.ExternalIdentifier);
 
                 if (returnExternalChannel != null && returnExternalChannel.ID > 0 && externalChannel.ID != returnExternalChannel.ID)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
                 }
 
@@ -7757,38 +7802,38 @@ namespace Core.Api
                         // If the used enrichment is not available
                         if (!availableEnrichments.Contains(currentEnrichment))
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InactiveExternalChannelEnrichment,
+                            response.Status = new Status((int)eResponseStatus.InactiveExternalChannelEnrichment,
                                 string.Format("External channel enrichment {0} is inactive", currentEnrichment.ToString()));
                             return response;
                         }
                     }
                 }
 
-                externalChannel.GroupId = groupID;
+                externalChannel.GroupId = groupId;
 
-                response.ExternalChannel = CatalogDAL.SetExternalChannel(groupID, externalChannel);
+                response.ExternalChannel = CatalogDAL.SetExternalChannel(groupId, externalChannel);
 
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "external channel set changes");
+                    response.Status = new Status((int)eResponseStatus.OK, "external channel set changes");
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "external channel failed set changes");
+                    response.Status = new Status((int)eResponseStatus.Error, "external channel failed set changes");
                 }
 
                 string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                 {
-                    string.Format("{0}_external_channel_{1}_{2}", version, groupID, externalChannel.ID)
+                    string.Format("{0}_external_channel_{1}_{2}", version, groupId, externalChannel.ID)
                 };
 
-                QueueUtils.UpdateCache(groupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+                QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}", groupID), ex);
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
             return response;
         }
@@ -7801,43 +7846,57 @@ namespace Core.Api
                 response.ExternalChannels = CatalogDAL.GetExternalChannel(groupID);
                 if (response.ExternalChannels == null || response.ExternalChannels.Count == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no external channels related to group");
+                    response.Status = new Status((int)eResponseStatus.OK, "no external channels related to group");
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
                 response = new ExternalChannelResponseList();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}", groupID), ex);
             }
 
             return response;
         }
 
-        public static ExternalChannelResponseList ListExternalChannels(int groupID)
+        public static ExternalChannelResponseList ListExternalChannels(int groupId, long userId)
         {
             ExternalChannelResponseList response = new ExternalChannelResponseList();
             try
             {
-                response.ExternalChannels = CatalogDAL.ListExternalChannel(groupID);
+                response.ExternalChannels = CatalogDAL.ListExternalChannel(groupId);
+
                 if (response.ExternalChannels == null || response.ExternalChannels.Count == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no external channels related to group");
+                    response.Status = new Status((int)eResponseStatus.OK, "no external channels related to group");
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    // get userRules action filter && ApplyOnChannel
+                    long ruleId = 0;
+                    if (userId > 0)
+                    {
+                        ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                    }
+
+                    if (ruleId > 0)
+                    {
+                        // return only channels allowed to user
+                        response.ExternalChannels = response.ExternalChannels.Where(x => x.AssetUserRuleId == ruleId).ToList();
+                    }
+
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
                 response = new ExternalChannelResponseList();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}", groupID), ex);
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
 
             return response;
@@ -7851,18 +7910,18 @@ namespace Core.Api
         {
             BulkExportTaskResponse response = new BulkExportTaskResponse()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
             if (string.IsNullOrEmpty(externalKey))
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AliasRequired, ALIAS_REQUIRED);
+                response.Status = new Status((int)eResponseStatus.AliasRequired, ALIAS_REQUIRED);
                 return response;
             }
 
             if (string.IsNullOrEmpty(notificationUrl))
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExportNotificationUrlRequired, EXPORT_NOTIFICATION_URL_REQUIRED);
+                response.Status = new Status((int)eResponseStatus.ExportNotificationUrlRequired, EXPORT_NOTIFICATION_URL_REQUIRED);
                 return response;
             }
 
@@ -7870,7 +7929,7 @@ namespace Core.Api
 
             if (frequency < frequencyMinValue)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExportFrequencyMinValue, string.Format(EXPORT_FREQUENCY_MIN_VALUE_FORMAT, frequencyMinValue));
+                response.Status = new Status((int)eResponseStatus.ExportFrequencyMinValue, string.Format(EXPORT_FREQUENCY_MIN_VALUE_FORMAT, frequencyMinValue));
                 return response;
             }
 
@@ -7879,7 +7938,7 @@ namespace Core.Api
                 var tasks = DAL.ApiDAL.GetBulkExportTasks(null, new List<string>() { externalKey }, groupId);
                 if (tasks != null && tasks.Count > 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AliasMustBeUnique, ALIAS_ALREADY_EXISTS);
+                    response.Status = new Status((int)eResponseStatus.AliasMustBeUnique, ALIAS_ALREADY_EXISTS);
                     return response;
                 }
 
@@ -7891,7 +7950,7 @@ namespace Core.Api
 
                 if (response.Task != null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     // insert new message to tasks queue (for celery)
                     EnqueueExportTask(groupId, response.Task.Id, version);
                 }

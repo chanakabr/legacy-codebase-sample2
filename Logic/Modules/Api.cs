@@ -1376,19 +1376,19 @@ namespace Core.Api
 
         #region External Channel
         public static ExternalChannelResponse
-            InsertExternalChannel(int groupId, ExternalChannel externalChannel)
+            InsertExternalChannel(int groupId, ExternalChannel externalChannel, long userId)
         {
-            return Core.Api.api.InsertExternalChannel(groupId, externalChannel);
+            return api.InsertExternalChannel(groupId, externalChannel, userId);
         }
 
-        public static ApiObjects.Response.Status DeleteExternalChannel(int groupId, int externalChannelId)
+        public static ApiObjects.Response.Status DeleteExternalChannel(int groupId, int externalChannelId, long userId)
         {
-            return Core.Api.api.DeleteExternalChannel(groupId, externalChannelId);
+            return api.DeleteExternalChannel(groupId, externalChannelId, userId);
         }
 
-        public static ExternalChannelResponse SetExternalChannel(int groupId, ExternalChannel externalChannel)
+        public static ExternalChannelResponse SetExternalChannel(int groupId, ExternalChannel externalChannel, long userId)
         {
-            return Core.Api.api.SetExternalChannel(groupId, externalChannel);
+            return api.SetExternalChannel(groupId, externalChannel, userId);
         }
 
         public static ExternalChannelResponseList GetExternalChannels(int groupId)
@@ -1396,9 +1396,9 @@ namespace Core.Api
             return Core.Api.api.GetExternalChannels(groupId);
         }
 
-        public static ExternalChannelResponseList ListExternalChannels(int groupId)
+        public static ExternalChannelResponseList ListExternalChannels(int groupId, long userId)
         {
-            return Core.Api.api.ListExternalChannels(groupId);
+            return api.ListExternalChannels(groupId, userId);
         }
         #endregion
 
