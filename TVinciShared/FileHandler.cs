@@ -343,7 +343,7 @@ namespace TVinciShared
 
         protected override string GetUrl(string subDir, string fileName)
         {
-            return string.Format("{0}{1}{2}", PublicUrl, subDir.Replace("\\", "/"), fileName);
+            return string.Format("{0}{1}/{2}", PublicUrl, subDir.Replace("\\", "/"), fileName);
         }
     }
 }
