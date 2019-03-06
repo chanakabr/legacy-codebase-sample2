@@ -18,7 +18,6 @@ namespace ApiObjects.BulkUpload
         Fatal = 10
     }
 
-    // TODO SHIR - CHECK IF NEED THIS
     public enum BulkUploadJobAction
     {
         Upsert = 1,

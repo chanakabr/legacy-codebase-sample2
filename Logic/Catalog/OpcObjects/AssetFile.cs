@@ -270,7 +270,12 @@ namespace Core.Catalog
             {
                 if (columns.ContainsKey(columnValue.Key))
                 {
-                    columns[columnValue.Key].Property.SetValue(this, columnValue.Value);
+                    var realType = columns[columnValue.Key].Property.PropertyType.GetRealType();
+                    var convertedValue = columnValue.Value.TryConvertTo(realType);
+                    if (convertedValue != null)
+                    {
+                        columns[columnValue.Key].Property.SetValue(this, convertedValue);
+                    }
                 }
 
                 if (string.IsNullOrEmpty(this.type))

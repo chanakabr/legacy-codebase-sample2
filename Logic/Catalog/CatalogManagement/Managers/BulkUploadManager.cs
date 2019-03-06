@@ -18,7 +18,6 @@ namespace Core.Catalog.CatalogManagement
     public class BulkUploadManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        // TODO SHIR -  PUT IN DR
         private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success
 
         public static GenericResponse<BulkUpload> GetBulkUpload(int groupId, long bulkUploadId)

@@ -55,7 +55,6 @@ namespace ApiObjects.BulkUpload
                                     else
                                     {
                                         int columnNameRowIndex = excelStructure.OverviewInstructions.Count > 0 ? excelStructure.OverviewInstructions.Count + 2 : 1;
-
                                         
                                         for (int row = columnNameRowIndex + 1; row <= worksheet.Dimension.End.Row; row++)
                                         {
@@ -75,11 +74,9 @@ namespace ApiObjects.BulkUpload
                                                 else if (excelStructure.ExcelColumns.ContainsKey(column.ToString()) &&
                                                          excelStructure.ExcelColumns[column.ToString()].IsMandatory)
                                                 {
-                                                    status.Set((int)eResponseStatus.MandatoryValueIsMissing, string.Format("Mandatory Value:{0} Is Missing", column.ToString()));
+                                                    status.Set(eResponseStatus.ExcelMandatoryValueIsMissing, string.Format("Mandatory Value:{0} Is Missing", column.ToString()));
                                                     break;
                                                 }
-
-                                                // TODO SHIR - VALIDATE THE OBJECT IS OK - that the value is ok
                                             }
 
                                             var excelObject = objectData.CreateObjectInstance() as IExcelObject;
@@ -87,7 +84,23 @@ namespace ApiObjects.BulkUpload
                                             {
                                                 if (status.IsOkStatusCode())
                                                 {
-                                                    excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
+                                                    // TODO SHIR - VALIDATE THAT THE MEDIA_TYPE IN EXCEL IS LIKE MEDIA_TYPE IN objectData
+                                                    try
+                                                    {
+                                                        excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
+                                                    }
+                                                    catch (ArgumentException ex)
+                                                    {
+                                                        log.Error(string.Format("An ArgumentException was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
+                                                                                groupId, string.Join(",", columnNamesToValues), ex));
+                                                        status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Invalid Argument Value, Error:{0}", ex.Message));
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        log.Error(string.Format("An Exception was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
+                                                                                groupId, string.Join(",", columnNamesToValues), ex));
+                                                        status.Set(eResponseStatus.Error, "Could not set Excel Values for this object");
+                                                    }
                                                 }
 
                                                 excelObjects.Objects.Add(new Tuple<Status, IBulkUploadObject>(status, excelObject));
