@@ -765,6 +765,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Permissions\controllers\tvmrule.json" />
+    <Content Include="Permissions\objects\kalturachannel.json" />
+    <Content Include="Permissions\objects\kalturaexternalchannelprofile.json" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml">
       <SubType>Designer</SubType>
     </None>

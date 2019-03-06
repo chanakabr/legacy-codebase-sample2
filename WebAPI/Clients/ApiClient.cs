@@ -2170,7 +2170,7 @@ namespace WebAPI.Clients
         #endregion
 
         #region ExternalChannel
-        internal KalturaExternalChannelProfile InsertExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel)
+        internal KalturaExternalChannelProfile InsertExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel, long userId)
         {
             ExternalChannelResponse response = null;
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
@@ -2180,7 +2180,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     ExternalChannel request = Mapper.Map<ExternalChannel>(externalChannel);
-                    response = Core.Api.Module.InsertExternalChannel(groupId, request);
+                    response = Core.Api.Module.InsertExternalChannel(groupId, request, userId);
                 }
             }
             catch (Exception ex)
@@ -2204,20 +2204,17 @@ namespace WebAPI.Clients
             return kalturaExternalChannelProfile;
         }
 
-        internal KalturaExternalChannelProfile SetExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel)
+        internal KalturaExternalChannelProfile SetExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel, long userId)
         {
             ExternalChannelResponse response = null;
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
-
-
-
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     ExternalChannel request = Mapper.Map<ExternalChannel>(externalChannel);
-                    response = Core.Api.Module.SetExternalChannel(groupId, request);
+                    response = Core.Api.Module.SetExternalChannel(groupId, request, userId);
                 }
             }
             catch (Exception ex)
@@ -2240,7 +2237,7 @@ namespace WebAPI.Clients
             return kalturaExternalChannelProfile;
         }
 
-        internal bool DeleteExternalChannel(int groupId, int externalChannelId)
+        internal bool DeleteExternalChannel(int groupId, int externalChannelId , long userId)
         {
             Status response = null;
 
@@ -2248,7 +2245,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.DeleteExternalChannel(groupId, externalChannelId);
+                    response = Core.Api.Module.DeleteExternalChannel(groupId, externalChannelId, userId);
                 }
             }
             catch (Exception ex)
@@ -2270,18 +2267,16 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal List<KalturaExternalChannelProfile> GetExternalChannels(int groupId)
+        internal List<KalturaExternalChannelProfile> GetExternalChannels(int groupId, long userId)
         {
             List<Models.API.KalturaExternalChannelProfile> kalturaExternalChannelList = null;
             ExternalChannelResponseList response = null;
-
-
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.ListExternalChannels(groupId);
+                    response = Core.Api.Module.ListExternalChannels(groupId, userId);
                 }
             }
             catch (Exception ex)
