@@ -65,6 +65,7 @@ namespace MediaAssetBulkUploadHandler
                     else
                     {
                         bulkUploadResponse.Object.Results[request.ResultIndex].Status = BulkUploadResultStatus.Ok;
+                        bulkUploadResponse.Object.Results[request.ResultIndex].ObjectId = request.ObjectData.Id;
                         // TODO SHIR - ASK IDDO WHAT TO DO WHIT ERRORS ON IMAGES AND FILES
                     }
 
