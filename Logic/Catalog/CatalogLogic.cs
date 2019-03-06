@@ -9240,7 +9240,7 @@ namespace Core.Catalog
                         Duration = mediaMarkLog.LastMark.FileDuration,
                         AssetTypeId = mediaMarkLog.LastMark.AssetTypeId,
                         LastWatch = mediaMarkLog.LastMark.CreatedAtEpoch,
-                        Location = mediaMarkLog.LastMark.Location,
+                        Location = mediaMarkLog.LastMark.AssetAction.ToLower().Equals("finish") ? mediaMarkLog.LastMark.FileDuration : mediaMarkLog.LastMark.Location,
                         RecordingId = recordingId,
                         UserID = userId
                     };
