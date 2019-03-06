@@ -155,24 +155,24 @@ namespace TVinciShared
             Status validationStatus = new Status((int)eResponseStatus.Error);
             if (fileInfo != null && !fileInfo.Exists)
             {
-                validationStatus.Set((int)eResponseStatus.FileDoesNotExists, string.Format("file:{0} does not exists.", fileInfo.Name));
+                validationStatus.Set(eResponseStatus.FileDoesNotExists, string.Format("file:{0} does not exists.", fileInfo.Name));
                 return validationStatus;
             }
             
             if (!objectType.IsClass || !objectType.Name.StartsWith("Kaltura"))
             {
-                validationStatus.Set((int)eResponseStatus.InvalidFileType, string.Format("File's objectType value must be of type KalturaOTTObject. objectType={0}", objectType.ToString()));
+                validationStatus.Set(eResponseStatus.InvalidFileType, string.Format("File's objectType value must be of type KalturaOTTObject. objectType={0}", objectType.ToString()));
                 return validationStatus;
             }
 
             typeName = objectType.Name.Substring(7, objectType.Name.Length - 7);
             if (string.IsNullOrEmpty(typeName))
             {
-                validationStatus.Set((int)eResponseStatus.InvalidFileType, string.Format("File's objectType.Name minimum length is 8. objectType.Name={0}", objectType.Name));
+                validationStatus.Set(eResponseStatus.InvalidFileType, string.Format("File's objectType.Name minimum length is 8. objectType.Name={0}", objectType.Name));
                 return validationStatus;
             }
 
-            validationStatus.Set((int)eResponseStatus.OK);
+            validationStatus.Set(eResponseStatus.OK);
             return validationStatus;
         }
     }
