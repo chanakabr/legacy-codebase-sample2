@@ -2214,6 +2214,8 @@ namespace WebAPI.Reflection
                 case "KalturaExternalChannelProfile":
                     switch(property.Name)
                     {
+                        case "AssetUserRuleId":
+                            return "assetUserRuleId";
                         case "Enrichments":
                             return "enrichments";
                         case "ExternalIdentifier":

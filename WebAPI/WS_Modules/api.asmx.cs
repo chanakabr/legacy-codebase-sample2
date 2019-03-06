@@ -1,4 +1,15 @@
-﻿using System;
+﻿using APILogic;
+using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
+using ApiObjects.BulkExport;
+using ApiObjects.Response;
+using ApiObjects.Roles;
+using ApiObjects.Rules;
+using ApiObjects.TimeShiftedTv;
+using Core.Catalog.Response;
+using KLogMonitor;
+using ScheduledTasks;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -6,19 +17,6 @@ using System.Web;
 using System.Web.Services;
 using System.Xml;
 using System.Xml.Serialization;
-using APILogic;
-//using APILogic.Catalog;
-using ApiObjects;
-using ApiObjects.BulkExport;
-using ApiObjects.Response;
-using ApiObjects.Roles;
-using ApiObjects.Rules;
-using KLogMonitor;
-using ApiObjects.TimeShiftedTv;
-using ScheduledTasks;
-using Core.Catalog.Response;
-using ApiObjects.AssetLifeCycleRules;
-
 
 namespace WS_API
 {
@@ -3268,7 +3266,7 @@ namespace WS_API
 
             if (groupID != 0)
             {
-                return Core.Api.Module.InsertExternalChannel(groupID, externalChannel);
+                return Core.Api.Module.InsertExternalChannel(groupID, externalChannel, 0);
             }
             else
             {
@@ -3289,7 +3287,7 @@ namespace WS_API
 
             if (groupID != 0)
             {
-                return Core.Api.Module.DeleteExternalChannel(groupID, externalChannelId);
+                return Core.Api.Module.DeleteExternalChannel(groupID, externalChannelId, 0);
             }
             else
             {
@@ -3311,7 +3309,7 @@ namespace WS_API
 
             if (groupID != 0)
             {
-                return Core.Api.Module.SetExternalChannel(groupID, externalChannel);
+                return Core.Api.Module.SetExternalChannel(groupID, externalChannel, 0);
             }
             else
             {
@@ -3355,7 +3353,7 @@ namespace WS_API
 
             if (groupID != 0)
             {
-                return Core.Api.Module.ListExternalChannels(groupID);
+                return Core.Api.Module.ListExternalChannels(groupID, 0);
             }
             else
             {

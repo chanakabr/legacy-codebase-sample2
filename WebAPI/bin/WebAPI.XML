@@ -6174,6 +6174,11 @@
             Enrichments
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaExternalChannelProfile.AssetUserRuleId">
+            <summary>
+            Asset user rule identifier 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaGenericRule">
             <summary>
             Generic rule - representing different type of rules (Parental, Geo, User Type, Device)

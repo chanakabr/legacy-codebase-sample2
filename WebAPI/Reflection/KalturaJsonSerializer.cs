@@ -13478,6 +13478,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(AssetUserRuleId.HasValue)
+            {
+                ret.Add("assetUserRuleId", "\"assetUserRuleId\": " + AssetUserRuleId);
+            }
             if(Enrichments != null)
             {
                 propertyValue = "[" + String.Join(", ", Enrichments.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13531,6 +13535,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(AssetUserRuleId.HasValue)
+            {
+                ret.Add("assetUserRuleId", "<assetUserRuleId>" + AssetUserRuleId + "</assetUserRuleId>");
+            }
             if(Enrichments != null)
             {
                 propertyValue = Enrichments.Count > 0 ? "<item>" + String.Join("</item><item>", Enrichments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
