@@ -51,7 +51,7 @@ namespace Core.Catalog.Request
         }
 
         public DevicePlayData GetOrCreateDevicePlayData(int mediaId, MediaPlayActions action, int groupId, bool isLinearChannel, ePlayType playType, int domainId,  
-                                                        long recordingId, int platform, int countryId, eExpirationTTL ttl = eExpirationTTL.Short)
+                                                        long recordingId, int platform, int countryId, eExpirationTTL ttl = eExpirationTTL.Short, bool isReportingMode = false)
         {
             DevicePlayData currDevicePlayData = null;
             int userId = StringUtils.ConvertTo<int>(this.m_sSiteGuid);
@@ -66,7 +66,10 @@ namespace Core.Catalog.Request
                     domainId = UsersDal.GetUserDomainID(m_sSiteGuid);
                 }
 
-                deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
+                if (!isReportingMode)
+                {
+                    deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
+                }
             }
 
             if (IsReportingMode)
