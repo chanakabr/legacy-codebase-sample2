@@ -221,7 +221,14 @@ namespace Core.Catalog.Request
                         }
                         else
                         {
-                            playCycleKey = CatalogDAL.GetOrInsertPlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
+                            if (!this.m_oMediaPlayRequestData.IsReportingMode)
+                            {
+                                playCycleKey = CatalogDAL.GetOrInsertPlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
+                            }
+                            else
+                            {
+                                playCycleKey = Guid.NewGuid().ToString();
+                            }
                         }
 
                         // since by default we used to write this log, we don't write it only if the account specified not to write it
@@ -365,7 +372,7 @@ namespace Core.Catalog.Request
             eExpirationTTL ttl = this.GetDevicePlayDataTTL(mediaPlayAction);
 
             var currDevicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(mediaId, mediaPlayAction, this.m_nGroupID, isLinearChannel, ePlayType.MEDIA,
-                                                                                       this.domainId, 0, platform, countryId, ttl);
+                                                                                       this.domainId, 0, platform, countryId, ttl, isReportingMode);
 
             if (currDevicePlayData == null)
             {
