@@ -284,7 +284,7 @@ namespace ApiObjects.Segmentation
             var pagedKeys = keys.Skip(pageIndex * pageSize).Take(pageSize);
 
             // get all segmentation types from CB
-            var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(keys, false, true);
+            var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(keys, true, true);
 
 
             DateTime now = DateTime.UtcNow;

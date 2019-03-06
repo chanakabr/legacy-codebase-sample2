@@ -503,17 +503,21 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // validate device rule id
-            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value < 0 || !TvmRuleManager.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
+            if (asset.DeviceRuleId.HasValue && asset.DeviceRuleId.Value != 0)
             {
-                result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
-                return result;
+                if (asset.DeviceRuleId.Value < 0 || !TvmRuleManager.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value))
+                {
+                    return new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
+                }
             }
 
             // validate geoblock rule id
-            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value < 0 || !TvmRuleManager.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
+            if (asset.GeoBlockRuleId.HasValue && asset.GeoBlockRuleId.Value != 0)
             {
-                result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
-                return result;
+                if (asset.GeoBlockRuleId.Value < 0 || !TvmRuleManager.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value))
+                {
+                    return new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
+                }
             }
 
             return result;

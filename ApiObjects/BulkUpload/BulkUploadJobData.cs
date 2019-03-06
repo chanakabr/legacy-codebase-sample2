@@ -9,7 +9,7 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadJobData
     {
-        public abstract GenericListResponse<IBulkUploadObject> Deserialize(int groupId, string fileUrl, BulkUploadObjectData objectData);
+        public abstract GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(int groupId, string fileUrl, BulkUploadObjectData objectData);
     }
 
     /// <summary>
@@ -19,9 +19,9 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadExcelJobData : BulkUploadJobData
     {
-        public override GenericListResponse<IBulkUploadObject> Deserialize(int groupId, string fileUrl, BulkUploadObjectData objectData)
+        public override GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(int groupId, string fileUrl, BulkUploadObjectData objectData)
         {
-            GenericListResponse<IBulkUploadObject> response = new GenericListResponse<IBulkUploadObject>();
+            var response = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
             var excelResults = ExcelManager.Deserialize(groupId, fileUrl, objectData);
             if (!excelResults.IsOkStatusCode())
             {
@@ -30,6 +30,7 @@ namespace ApiObjects.BulkUpload
             else
             {
                 response.Objects.AddRange(excelResults.Objects);
+                response.SetStatus(eResponseStatus.OK);
             }
             
             return response;
