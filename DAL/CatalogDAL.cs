@@ -3670,6 +3670,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@filterExpression", externalChannel.FilterExpression);
             int enrichments = GetEnrichments(externalChannel.Enrichments);
             sp.AddParameter("@enrichments", enrichments);
+            sp.AddParameter("@assetRuleId", externalChannel.AssetUserRuleId);
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -3711,6 +3712,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@filterExpression", externalChannel.FilterExpression);
             int enrichments = GetEnrichments(externalChannel.Enrichments);
             sp.AddParameter("@enrichments", enrichments);
+            sp.AddParameter("@assetRuleId", externalChannel.AssetUserRuleId);
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -3744,6 +3746,7 @@ namespace Tvinci.Core.DAL
             result.IsActive = isActive == 1 ? true : false;
             int enrichmentsVal = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENRICHMENTS");
             result.Enrichments = SetEnrichments(enrichmentsVal);
+            result.AssetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ASSET_RULE_ID");
             return result;
         }
 
