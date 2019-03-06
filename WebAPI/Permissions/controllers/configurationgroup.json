@@ -2,7 +2,10 @@
   "permission_items": [
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "OPC_PREF_VIEW",
+        "OPC_PREF_MNG",
+        "ADMIN_SET_MNG"
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroup_Get",
@@ -12,7 +15,10 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "OPC_PREF_VIEW",
+        "OPC_PREF_MNG",
+        "ADMIN_SET_MNG"
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroup_List",
@@ -22,7 +28,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "OPC_PREF_MNG",
+        "ADMIN_SET_MNG"
       ],
       "excluded_permissions": [],
       "name": "ConfigurationGroup_Add",

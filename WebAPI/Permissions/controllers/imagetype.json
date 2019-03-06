@@ -3,7 +3,8 @@
     {
       "permissions": [
         "IMAGETYPE_MNG",
-        "IMAGETYPE_VIEW"
+        "IMAGETYPE_VIEW",
+        "MEDIAFILETYPE_VIEW"
       ],
       "excluded_permissions": [],
       "name": "ImageType_List",

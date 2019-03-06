@@ -100,7 +100,7 @@
       "name": "ADMIN_MNG",
       "users_group": ""
     },
-        {
+    {
       "name": "MANAGER_MNG",
       "users_group": ""
     },
@@ -118,6 +118,66 @@
     },
     {
       "name": "RULES_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "ASSETS_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "BSC_ASSETS_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "ASSETS_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "COLLECTIONS_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "COLLECTIONS_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "EXT_COLLECTIONS_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "EXT_COLLECTIONS_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "USER_SEG_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "USER_SEG_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "TARGET_OFFER_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "TARGET_OFFER_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "GROUP_CONFIG_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "OPC_PREF_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "OPC_PREF_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "ADMIN_SET_MNG",
       "users_group": ""
     }
   ]

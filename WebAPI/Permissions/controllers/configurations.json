@@ -4,7 +4,10 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "OPC_PREF_VIEW",
+        "OPC_PREF_MNG",
+        "ADMIN_SET_MNG"
       ],
       "excluded_permissions": [],
       "name": "Configurations_ServeByDevice",
@@ -34,7 +37,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "OPC_PREF_MNG",
+        "ADMIN_SET_MNG"
       ],
       "excluded_permissions": [],
       "name": "Configurations_Add",
@@ -54,7 +59,10 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "OPC_PREF_VIEW",
+        "OPC_PREF_MNG",
+        "ADMIN_SET_MNG"
       ],
       "excluded_permissions": [],
       "name": "Configurations_Get",

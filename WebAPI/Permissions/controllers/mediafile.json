@@ -4,7 +4,10 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "ASSETS_VIEW",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "MediaFile_List",
@@ -14,7 +17,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "MediaFile_Add",
@@ -24,7 +29,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "MediaFile_Delete",
@@ -34,7 +41,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "MediaFile_Update",

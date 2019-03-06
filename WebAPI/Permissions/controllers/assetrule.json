@@ -26,7 +26,9 @@
       "permissions": [
         "Operator",
         "RULES_MNG",
-        "RULES_VIEW"
+        "RULES_VIEW",
+        "ASSETS_VIEW",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "AssetRule_List",

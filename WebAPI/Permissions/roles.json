@@ -48,8 +48,14 @@
         "MY_USER_MNG",
         "TEAM_VIEW",
         "RULES_VIEW",
-		"PLAYBACK_PPV",
-		"PLAYBACK_SUBSCRIPTION"
+        "PLAYBACK_PPV",
+        "PLAYBACK_SUBSCRIPTION",
+        "ASSETS_MNG",
+        "COLLECTIONS_MNG",
+        "EXT_COLLECTIONS_MNG",
+        "USER_SEG_MNG",
+        "TARGET_OFFER_MNG",
+        "OPC_PREF_VIEW"
       ],
       "excluded_permissions": [],
       "name": "Operator"
@@ -66,7 +72,15 @@
         "MEDIAFILETYPE_MNG",
         "MANAGER_MNG",
         "TEAM_VIEW",
-        "RULES_MNG"
+        "RULES_MNG",
+        "ASSETS_MNG",
+        "COLLECTIONS_MNG",
+        "EXT_COLLECTIONS_MNG",
+        "USER_SEG_MNG",
+        "TARGET_OFFER_MNG",
+        "GROUP_CONFIG_MNG",
+        "OPC_PREF_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "Manager"
@@ -84,7 +98,16 @@
         "MEDIAFILETYPE_MNG",
         "ADMIN_MNG",
         "TEAM_VIEW",
-        "RULES_MNG"
+        "RULES_MNG",
+        "ASSETS_MNG",
+        "COLLECTIONS_MNG",
+        "EXT_COLLECTIONS_MNG",
+        "USER_SEG_MNG",
+        "TARGET_OFFER_MNG",
+        "GROUP_CONFIG_MNG",
+        "OPC_PREF_MNG",
+        "ADMIN_SET_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "Administrator"
@@ -111,6 +134,18 @@
         "CANCEL_SUBSCRIPTION"
       ],
       "name": "DefaultSuspendedRole"
+    },
+    {
+      "permissions": [
+        "BSC_ASSETS_MNG",
+        "COLLECTIONS_MNG",
+        "EXT_COLLECTIONS_MNG",
+        "OPC_PREF_VIEW",
+        "TEAM_VIEW",
+        "MY_USER_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "ExternalEditor"
     }
   ]
 }

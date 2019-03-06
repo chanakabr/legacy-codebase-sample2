@@ -4,7 +4,9 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "COLLECTIONS_VIEW",
+        "COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Channel_Get",
@@ -16,7 +18,9 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "COLLECTIONS_VIEW",
+        "COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Channel_List",
@@ -26,7 +30,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Channel_Add",
@@ -36,7 +41,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Channel_Delete",
@@ -46,7 +52,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Channel_Update",

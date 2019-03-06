@@ -2,7 +2,8 @@
   "permission_items": [
     {
       "permissions": [
-        "Manager"
+        "Manager",
+        "GROUP_CONFIG_MNG"
       ],
       "excluded_permissions": [],
       "name": "PartnerConfiguration_Update",
@@ -12,7 +13,8 @@
     },
     {
       "permissions": [
-        "Manager"
+        "Manager",
+        "GROUP_CONFIG_MNG"
       ],
       "excluded_permissions": [],
       "name": "PartnerConfiguration_List",
