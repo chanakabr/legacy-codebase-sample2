@@ -1701,11 +1701,13 @@ namespace CouchbaseManager
                 IDictionary<string, string> jsonValues = this.GetValues<string>(keys, shouldAllowPartialQuery);
 
                 if (jsonValues != null)
+                {
                     result = new Dictionary<string, T>();
 
-                // Convert all strings to objects
-                foreach (var jsonValue in jsonValues)
-                    result.Add(jsonValue.Key, JsonToObject<T>(jsonValue.Value));
+                    // Convert all strings to objects
+                    foreach (var jsonValue in jsonValues)
+                        result.Add(jsonValue.Key, JsonToObject<T>(jsonValue.Value));
+                }
 
                 return result;
             }
