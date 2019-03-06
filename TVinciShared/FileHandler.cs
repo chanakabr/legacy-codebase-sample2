@@ -323,7 +323,7 @@ namespace TVinciShared
                 return subDirResponse;
             }
 
-            subDirResponse.Object = string.Format("{0}\\", typeName, id.Substring(0, 3), id.Substring(3, 3));
+            subDirResponse.Object = string.Format("{0}\\{1}\\{2}", typeName, id.Substring(0, 3), id.Substring(3, 3));
             subDirResponse.SetStatus(eResponseStatus.OK);
             return subDirResponse;
         }
