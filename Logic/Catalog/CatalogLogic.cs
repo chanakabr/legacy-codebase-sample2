@@ -2771,7 +2771,7 @@ namespace Core.Catalog
 
             if (devicePlayData.DomainId > 0)
             {
-                if (devicePlayData.DeviceFamilyId == 0)
+                if (!isReportingMode && devicePlayData.DeviceFamilyId == 0)
                 {
                     devicePlayData.DeviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(devicePlayData.DomainId, groupId, devicePlayData.UDID);
                 }
@@ -2779,7 +2779,7 @@ namespace Core.Catalog
                 ePlayType playType = devicePlayData.GetPlayType();
 
                 // UpdateOrInsertOrDeleteDevicePlayData
-                if (playType == ePlayType.MEDIA || playType == ePlayType.NPVR || playType == ePlayType.EPG)
+                if (!isReportingMode && (playType == ePlayType.MEDIA || playType == ePlayType.NPVR || playType == ePlayType.EPG))
                 {
                     devicePlayData.AssetAction = action.ToString();
                     devicePlayData.TimeStamp = DateTime.UtcNow.ToUnixTimestamp();
