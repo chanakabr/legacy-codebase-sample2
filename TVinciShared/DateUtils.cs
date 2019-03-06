@@ -396,27 +396,5 @@ namespace TVinciShared
 
             return null;
         }
-
-        public static DateTime? Parse(DateTime? date, string format)
-        {
-            if (date.HasValue)
-            {
-                DateTime parseDate;
-                string stringDate = date.Value.ToString(format);
-                if (!DateTime.TryParse(stringDate, out parseDate))
-                {
-                    DateTime.TryParseExact(stringDate, format, null, DateTimeStyles.None, out parseDate);
-                }
-
-                if (parseDate.IsDefault())
-                {
-                    return date;
-                }
-
-                return parseDate;
-            }
-
-            return date;
-        }
     }
 }
