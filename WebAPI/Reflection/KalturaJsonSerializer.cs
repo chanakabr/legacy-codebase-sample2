@@ -21798,10 +21798,18 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            //if(StatusEqual.HasValue)
-            //{
-            //    ret.Add("statusEqual", "\"statusEqual\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "\"");
-            //}
+            if(DateComparisonType.HasValue)
+            {
+                ret.Add("dateComparisonType", "\"dateComparisonType\": " + "\"" + Enum.GetName(typeof(KalturaDateComparisonType), DateComparisonType) + "\"");
+            }
+            if(StatusIn != null)
+            {
+                ret.Add("statusIn", "\"statusIn\": " + "\"" + EscapeJson(StatusIn) + "\"");
+            }
+            if(UploadedOnEqual.HasValue)
+            {
+                ret.Add("uploadedOnEqual", "\"uploadedOnEqual\": " + UploadedOnEqual);
+            }
             if(UserIdEqualCurrent.HasValue)
             {
                 ret.Add("userIdEqualCurrent", "\"userIdEqualCurrent\": " + UserIdEqualCurrent.ToString().ToLower());
@@ -21814,10 +21822,18 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            //if(StatusEqual.HasValue)
-            //{
-            //    ret.Add("statusEqual", "<statusEqual>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "" + "</statusEqual>");
-            //}
+            if(DateComparisonType.HasValue)
+            {
+                ret.Add("dateComparisonType", "<dateComparisonType>" + "" + Enum.GetName(typeof(KalturaDateComparisonType), DateComparisonType) + "" + "</dateComparisonType>");
+            }
+            if(StatusIn != null)
+            {
+                ret.Add("statusIn", "<statusIn>" + EscapeXml(StatusIn) + "</statusIn>");
+            }
+            if(UploadedOnEqual.HasValue)
+            {
+                ret.Add("uploadedOnEqual", "<uploadedOnEqual>" + UploadedOnEqual + "</uploadedOnEqual>");
+            }
             if(UserIdEqualCurrent.HasValue)
             {
                 ret.Add("userIdEqualCurrent", "<userIdEqualCurrent>" + UserIdEqualCurrent.ToString().ToLower() + "</userIdEqualCurrent>");

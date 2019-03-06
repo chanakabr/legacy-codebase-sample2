@@ -936,8 +936,12 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadFilter":
                     switch(property.Name)
                     {
-                        case "StatusEqual":
-                            return "statusEqual";
+                        case "DateComparisonType":
+                            return "dateComparisonType";
+                        case "StatusIn":
+                            return "statusIn";
+                        case "UploadedOnEqual":
+                            return "uploadedOnEqual";
                         case "UserIdEqualCurrent":
                             return "userIdEqualCurrent";
                     }
