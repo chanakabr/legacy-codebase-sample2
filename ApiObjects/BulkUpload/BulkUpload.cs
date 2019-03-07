@@ -34,6 +34,9 @@ namespace ApiObjects.BulkUpload
         [JsonProperty("FileName")]
         public string FileName { get; set; }
 
+        [JsonProperty("FileObjectType")]
+        public string FileObjectType { get; set; }
+
         [JsonProperty("Status")]
         public BulkUploadJobStatus Status { get; set; }
 
@@ -51,6 +54,9 @@ namespace ApiObjects.BulkUpload
 
         [JsonProperty("UpdateDate")]
         public DateTime UpdateDate { get; set; }
+
+        [JsonProperty("UpdaterId")]
+        public long UpdaterId { get; set; }
         
         [JsonProperty(PropertyName = "Results",
                      TypeNameHandling = TypeNameHandling.Auto,

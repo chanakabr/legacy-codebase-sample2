@@ -1123,4 +1123,11 @@ namespace ApiObjects
         Pics = 0,
         EpgPics = 1
     }
+
+    public enum DateComparisonType
+    {
+        GreaterThanOrEqual = 1,
+        LessThanOrEqual = 2,
+        Equal = 3
+    }
 }

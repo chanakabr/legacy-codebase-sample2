@@ -17,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TVinciShared;
 
 namespace Core.Catalog
 {
@@ -1297,7 +1298,7 @@ namespace Core.Catalog
                                 searchResultsList.Clear();
 
                                 bool illegalRequest = false;
-                                assetIds = TVinciShared.ListUtils.Page<long>(orderedIds, pageSize, pageIndex, out illegalRequest).ToList();
+                                assetIds = orderedIds.Page(pageSize, pageIndex, out illegalRequest).ToList();
 
                                 if (!illegalRequest)
                                 {
@@ -1553,15 +1554,14 @@ namespace Core.Catalog
             }
 
             bool illegalRequest = false;
-            var pagedBuckets = TVinciShared.ListUtils.Page<ESAggregationBucket>(orderedBuckets, pageSize, pageIndex, out illegalRequest).ToList();
+            var pagedBuckets = orderedBuckets.Page(pageSize, pageIndex, out illegalRequest);
 
             // replace the original list with the ordered list
-            aggregationResult.Aggregations[distinctGroup.Key].buckets = pagedBuckets;
+            aggregationResult.Aggregations[distinctGroup.Key].buckets = pagedBuckets.ToList();
         }
 
-        private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
-            int groupId, OrderDir orderDirection,
-            Dictionary<int, string> associationTags, Dictionary<int, int> mediaTypeParent)
+        private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets, int groupId, ApiObjects.SearchObjects.OrderDir orderDirection, Dictionary<int, string> associationTags, 
+                                                 Dictionary<int, int> mediaTypeParent)
         {
             if (assets == null || assets.Count == 0)
             {
@@ -1781,7 +1781,7 @@ namespace Core.Catalog
                 int id = int.Parse(currentId.Key);
 
                 // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                if (orderDirection == OrderDir.DESC)
+                if (orderDirection == ApiObjects.SearchObjects.OrderDir.DESC)
                 {
                     sortedList.Insert(0, id);
                 }
@@ -1801,7 +1801,7 @@ namespace Core.Catalog
                 if (!alreadyContainedIds.Contains(currentId))
                 {
                     // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                    if (orderDirection == OrderDir.ASC)
+                    if (orderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
                     {
                         sortedList.Insert(0, currentId);
                     }
@@ -1825,7 +1825,7 @@ namespace Core.Catalog
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <returns></returns>
-        public List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection,
+        public List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection,
             DateTime? startDate = null, DateTime? endDate = null)
         {
             List<long> sortedList = null;
@@ -2091,7 +2091,7 @@ namespace Core.Catalog
                 if (alreadyContainedIds == null || !alreadyContainedIds.Contains(currentId))
                 {
                     // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                    if (orderDirection == OrderDir.ASC)
+                    if (orderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
                     {
                         sortedList.Insert(0, currentId);
                     }
@@ -2114,7 +2114,7 @@ namespace Core.Catalog
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
         private static void ProcessCountDictionaryResults(ConcurrentDictionary<string, ConcurrentDictionary<string, int>> statsDictionary,
-            OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
+            ApiObjects.SearchObjects.OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
             if (statsDictionary != null && statsDictionary.Count > 0)
             {
@@ -2137,7 +2137,7 @@ namespace Core.Catalog
                         if (int.TryParse(currentValue.Key, out currentId))
                         {
                             // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                            if (orderDirection == OrderDir.ASC)
+                            if (orderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
                             {
                                 sortedList.Insert(0, currentId);
                             }
@@ -2162,7 +2162,7 @@ namespace Core.Catalog
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
         private static void ProcessRatingsAggregationsResult(ConcurrentDictionary<string, List<StatisticsAggregationResult>> statisticsDictionary,
-            OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
+            ApiObjects.SearchObjects.OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
             if (statisticsDictionary != null && statisticsDictionary.Count > 0)
             {
@@ -2183,7 +2183,7 @@ namespace Core.Catalog
                         // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
                         if (int.TryParse(result.key, out currentId))
                         {
-                            if (orderDirection == OrderDir.ASC)
+                            if (orderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
                             {
                                 sortedList.Insert(0, currentId);
                             }
@@ -2373,7 +2373,7 @@ namespace Core.Catalog
             }
 
             bool illegalRequest = false;
-            var pagedList = TVinciShared.ListUtils.Page(validAssets, pageSize, pageIndex, out illegalRequest);
+            var pagedList = validAssets.Page(pageSize, pageIndex, out illegalRequest);
 
             //if (!illegalRequest)
             //{
@@ -2777,7 +2777,7 @@ namespace Core.Catalog
             filteredQuery.ESSort.Add(new ESOrderObj()
             {
                 m_sOrderValue = "value",
-                m_eOrderDir = OrderDir.ASC
+                m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
             });
 
             filteredQuery.ReturnFields.Clear();

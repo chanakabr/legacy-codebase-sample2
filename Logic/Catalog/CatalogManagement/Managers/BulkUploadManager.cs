@@ -26,8 +26,8 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataTable dt = CatalogDAL.GetBulkUpload(groupId, bulkUploadId);
-                BulkUpload bulkUpload = CreateBulkUploadFromDataTable(dt);
-                if (bulkUpload == null)
+                response.Object = CreateBulkUploadFromDataTable(dt);
+                if (response.Object == null)
                 {
                     response.SetStatus(eResponseStatus.BulkUploadDoesNotExist);
                     return response;
@@ -36,17 +36,85 @@ namespace Core.Catalog.CatalogManagement
                 BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUploadId);
                 if (bulkUploadWithResults != null || bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
                 {
-                    bulkUpload.Results = bulkUploadWithResults.Results;
-                    bulkUpload.JobData = bulkUploadWithResults.JobData;
-                    bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
+                    response.Object.Results = bulkUploadWithResults.Results;
+                    response.Object.JobData = bulkUploadWithResults.JobData;
+                    response.Object.ObjectData = bulkUploadWithResults.ObjectData;
                 }
 
-                response.Object = bulkUpload;
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("An Exception was occurred in GetBulkUpload. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUploadId), ex);
+                response.SetStatus(eResponseStatus.Error);
+            }
+
+            return response;
+        }
+
+        public static GenericListResponse<BulkUpload> GetBulkUploads(int groupId, string fileObjectType, HashSet<BulkUploadJobStatus> statusIn, long? userId, DateTime? uploadDate, DateComparisonType? dateComparisonType)
+        {
+            var response = new GenericListResponse<BulkUpload>();
+            try
+            {
+                var fileObjectTypeName = FileHandler.Instance.GetFileObjectTypeName(fileObjectType);
+                if (!fileObjectTypeName.HasObject())
+                {
+                    response.SetStatus(fileObjectTypeName.Status);
+                    return response;
+                }
+
+                DataTable dt = CatalogDAL.GetBulkUploadsList(groupId, fileObjectTypeName.Object);
+                IEnumerable<BulkUpload> bulkUploads = CreateBulkUploadsFromDataTable(dt);
+
+                if (bulkUploads != null)
+                {
+                    if (userId.HasValue)
+                    {
+                        bulkUploads = bulkUploads.Where(x => x.UpdaterId == userId.Value);
+                    }
+
+                    if (statusIn != null && statusIn.Count > 0)
+                    {
+                        bulkUploads = bulkUploads.Where(x => statusIn.Contains(x.Status));
+                    }
+
+                    if (dateComparisonType.HasValue && uploadDate.HasValue)
+                    {
+                        switch (dateComparisonType.Value)
+                        {
+                            case DateComparisonType.GreaterThanOrEqual:
+                                bulkUploads = bulkUploads.Where(x => x.CreateDate >= uploadDate.Value);
+                                break;
+                            case DateComparisonType.LessThanOrEqual:
+                                bulkUploads = bulkUploads.Where(x => x.CreateDate <= uploadDate.Value);
+                                break;
+                            case DateComparisonType.Equal:
+                                bulkUploads = bulkUploads.Where(x => x.CreateDate == uploadDate.Value);
+                                break;
+                        }
+                    }
+
+                    foreach (var bulkUpload in bulkUploads)
+                    {
+                        BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUpload.Id);
+                        if (bulkUploadWithResults != null || bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
+                        {
+                            bulkUpload.Results = bulkUploadWithResults.Results;
+                            bulkUpload.JobData = bulkUploadWithResults.JobData;
+                            bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
+                        }
+                    }
+
+                    response.Objects.AddRange(bulkUploads);
+                }
+                
+                response.SetStatus(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("An Exception was occurred in GetBulkUploads. groupId:{0}, userId:{1}, uploadDate:{2}, dateComparisonType:{3}.",
+                                        groupId, userId, uploadDate, dateComparisonType), ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
@@ -94,7 +162,8 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                response = UpdateBulkUpload(groupId, userId, response.Object.Id, BulkUploadJobStatus.Uploaded, null, saveFileResponse.Object);
+                var objectTypeName = FileHandler.Instance.GetFileObjectTypeName(objectType.Name);
+                response = UpdateBulkUpload(groupId, userId, response.Object.Id, BulkUploadJobStatus.Uploaded, null, saveFileResponse.Object, objectTypeName.Object);
 
                 if (!response.HasObject())
                 {
@@ -167,7 +236,7 @@ namespace Core.Catalog.CatalogManagement
             }
             else
             {
-                bulkUploadResponse = UpdateBulkUpload(groupId, userId, bulkUploadId, BulkUploadJobStatus.Processing, null, null, bulkUploadResponse.Object.NumOfObjects);
+                bulkUploadResponse = UpdateBulkUpload(groupId, userId, bulkUploadId, BulkUploadJobStatus.Processing, null, null, null, bulkUploadResponse.Object.NumOfObjects);
             }
 
             // run over all deserialized bulkUpload objects
@@ -221,12 +290,12 @@ namespace Core.Catalog.CatalogManagement
             return bulkUploadResponse.Status;
         }
 
-        public static GenericResponse<BulkUpload> UpdateBulkUpload(int groupId, long userId, long bulkUploadId, BulkUploadJobStatus status, BulkUploadResult result = null, string fileName = null, int? numOfObjects = null)
+        public static GenericResponse<BulkUpload> UpdateBulkUpload(int groupId, long userId, long bulkUploadId, BulkUploadJobStatus status, BulkUploadResult result = null, string fileName = null, string objectTypeName = null, int? numOfObjects = null)
         {
             GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
             try
             {
-                var dt = CatalogDAL.UpdateBulkUploadStatus(groupId, fileName, bulkUploadId, status, userId, numOfObjects);
+                var dt = CatalogDAL.UpdateBulkUploadStatus(groupId, fileName, objectTypeName, bulkUploadId, status, userId, numOfObjects);
                 response.Object = CreateBulkUploadFromDataTable(dt);
                 if (response.Object == null)
                 {
@@ -322,33 +391,68 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        private static List<BulkUpload> CreateBulkUploadsFromDataTable(DataTable dt)
+        {
+            List<BulkUpload> bulkUploads = null;
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                bulkUploads = new List<BulkUpload>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    var bulkUpload = CreateBulkUploadFromRow(row);
+                    if (bulkUpload != null)
+                    {
+                        bulkUploads.Add(bulkUpload);
+                    }
+                }
+                
+            }
+
+            return bulkUploads;
+        }
+
         private static BulkUpload CreateBulkUploadFromDataTable(DataTable dt)
         {
             BulkUpload bulkUpload = null;
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
-                
+                bulkUpload = CreateBulkUploadFromRow(dt.Rows[0]);
+            }
+
+            return bulkUpload;
+        }
+
+        private static BulkUpload CreateBulkUploadFromRow(DataRow row)
+        {
+            BulkUpload bulkUpload = null;
+
+            if (row != null)
+            {
+                long id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID");
+
                 if (id > 0)
                 {
                     bulkUpload = new BulkUpload()
                     {
                         Id = id,
-                        FileName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FILE_NAME"),
-                        Status = (BulkUploadJobStatus)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS"),
-                        Action = (BulkUploadJobAction)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ACTION"),
-                        NumOfObjects = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "NUM_OF_OBJECTS"),
-                        GroupId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "GROUP_ID"),
-                        CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE"),
-                        UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "UPDATE_DATE")
+                        FileName = ODBCWrapper.Utils.GetSafeStr(row, "FILE_NAME"),
+                        Status = (BulkUploadJobStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
+                        Action = (BulkUploadJobAction)ODBCWrapper.Utils.GetIntSafeVal(row, "ACTION"),
+                        NumOfObjects = ODBCWrapper.Utils.GetNullableInt(row, "NUM_OF_OBJECTS"),
+                        GroupId = ODBCWrapper.Utils.GetLongSafeVal(row, "GROUP_ID"),
+                        CreateDate = ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE"),
+                        UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(row, "UPDATE_DATE"),
+                        UpdaterId = ODBCWrapper.Utils.GetLongSafeVal(row, "UPDATER_ID"),
+                        FileObjectType = ODBCWrapper.Utils.GetSafeStr(row, "FILE_OBJECT_TYPE")
                     };
                 }
             }
 
             return bulkUpload;
         }
-        
+
         private static bool EnqueueBulkUpload(int groupId, BulkUpload bulkUploadToEnqueue, long userId)
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
