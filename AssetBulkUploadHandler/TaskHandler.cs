@@ -17,8 +17,6 @@ namespace MediaAssetBulkUploadHandler
 
         public string HandleTask(string data)
         {
-            string result = "failure";
-
             try
             {
                 log.DebugFormat("starting MediaAssetBulkUpload task. data={0}.", data);
@@ -26,12 +24,16 @@ namespace MediaAssetBulkUploadHandler
                 var bulkUploadResponse = BulkUploadManager.GetBulkUpload(request.GroupID, request.BulkUploadId);
                 if (!bulkUploadResponse.HasObject())
                 {
-                    // TODO SHIR - RETURN ERROR eResponseStatus.BulkUploadDoesNotExist
+                    var errorMassage = string.Format("{0} for BulkUploadId:{1}.", eResponseStatus.BulkUploadDoesNotExist.ToString(), request.BulkUploadId);
+                    log.Error(errorMassage);
+                    return errorMassage;
                 }
 
                 if (request.ResultIndex >= bulkUploadResponse.Object.Results.Count)
                 {
-                    // TODO SHIR - RETURN ERROR eResponseStatus.BulkUploadResultIsMissing
+                    var errorMassage = string.Format("{0} for BulkUploadId:{1}, ResultIndex:{2}.", eResponseStatus.BulkUploadResultIsMissing.ToString(), request.BulkUploadId, request.ResultIndex);
+                    log.Error(errorMassage);
+                    return errorMassage;
                 }
 
                 if (request.ObjectData != null)
@@ -44,7 +46,7 @@ namespace MediaAssetBulkUploadHandler
                     {
                         request.ObjectData.Id = BulkAssetManager.GetMediaIdByCoGuid(request.GroupID, request.ObjectData.CoGuid);
                     }
-                    
+                    log.DebugFormat("before request.ObjectData.Id:{0}", request.ObjectData.Id);
                     GenericListResponse<Status> jobActionResponse = new GenericListResponse<Status>();
                     switch (request.JobAction)
                     {
@@ -57,6 +59,10 @@ namespace MediaAssetBulkUploadHandler
                             break;
                     }
 
+                    // TODO SHIR - CHECK IF THIS IS WORKS
+                    log.DebugFormat("after request.ObjectData.Id:{0}", request.ObjectData.Id);
+                    bulkUploadResponse.Object.Results[request.ResultIndex].ObjectId = request.ObjectData.Id;
+
                     if (!jobActionResponse.IsOkStatusCode())
                     {
                         bulkUploadResponse.Object.Results[request.ResultIndex].SetError(jobActionResponse.Status);
@@ -64,26 +70,28 @@ namespace MediaAssetBulkUploadHandler
                     else
                     {
                         bulkUploadResponse.Object.Results[request.ResultIndex].Status = BulkUploadResultStatus.Ok;
-                        bulkUploadResponse.Object.Results[request.ResultIndex].ObjectId = request.ObjectData.Id;
                         // TODO SHIR - ASK IDDO WHAT TO DO WHIT ERRORS ON IMAGES AND FILES
                     }
 
                     bulkUploadResponse = BulkUploadManager.UpdateBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, bulkUploadResponse.Object.Status, bulkUploadResponse.Object.Results[request.ResultIndex]);
                     if (!bulkUploadResponse.HasObject())
-                    { 
-
-                        throw new Exception(string.Format("MediaAssetBulkUpload task did not finish successfully. {0}", jobActionResponse != null ? jobActionResponse.ToString() : string.Empty));
+                    {
+                        var errorMassage = string.Format("MediaAssetBulkUpload task did not finish successfully. {0}", jobActionResponse != null ? jobActionResponse.ToString() : string.Empty);
+                        log.Error(errorMassage);
+                        throw new Exception(errorMassage);
                     }
                     else
                     {
-                        result = "success";
+                        return "success";
                     }
                 }
                 else
                 {
                     var bulkUploadResult = bulkUploadResponse.Object.Results[request.ResultIndex];
                     bulkUploadResult.SetError(new Status((int)eResponseStatus.BulkUploadResultIsMissing, "BulkUploadResult Is Missing"));
-                    bulkUploadResponse = BulkUploadManager.UpdateBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, bulkUploadResponse.Object.Status, bulkUploadResult);
+                    log.ErrorFormat("bulkUploadResult:{0}", bulkUploadResult.ToString());
+                    BulkUploadManager.UpdateBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, bulkUploadResponse.Object.Status, bulkUploadResult);
+                    return "BulkUploadResult Is Missing";
                 }
             }
             catch (Exception ex)
@@ -91,8 +99,6 @@ namespace MediaAssetBulkUploadHandler
                 log.Error(string.Format("An Exception was occurred in MediaAssetBulkUploadHandler.HandleTask. data={0}.", data), ex);
                 throw ex;
             }
-
-            return result;
         }
 
         private Dictionary<int, Tuple<AssetFile, string>> GetAssetFiles(List<AssetFile> files)

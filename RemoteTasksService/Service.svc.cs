@@ -30,11 +30,10 @@ namespace RemoteTasksService
             try
             {
                 string actionImplementation = string.Empty;
-
+                string requestId = string.Empty;
                 if (request != null)
                 {
                     // update request ID
-                    string requestId = string.Empty;
                     if (ExtractRequestID(request.data, ref requestId))
                         if (!KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY, requestId))
                             log.ErrorFormat("Error while trying to update request ID. request: {0}, req_id: {1}", JsonConvert.SerializeObject(request), requestId);
@@ -44,7 +43,7 @@ namespace RemoteTasksService
                         ExtractActionImplementation(request.data, ref actionImplementation);
                 }
 
-                log.DebugFormat("Info - Add Task Request Started: {0}, data: {1}", request.task, request.data);
+                log.DebugFormat("Info - Add Task Request Started: {0}, requestId:{1}, data: {2}", request.task, requestId, request.data);
 
                 // get task handler name (with/without action)
                 string taskHandlerName = string.Empty;
