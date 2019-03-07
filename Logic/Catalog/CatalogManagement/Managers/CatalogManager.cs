@@ -531,9 +531,10 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static GenericListResponse<ApiObjects.SearchObjects.TagValue> CreateTagListResponseFromDataSet(DataSet ds)
+        private static GenericResponse<ApiObjects.SearchObjects.TagValue> CreateTagValueFromDataSet(DataSet ds)
         {
-            GenericListResponse<ApiObjects.SearchObjects.TagValue> response = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
+            var response = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+            response.SetStatus(eResponseStatus.TagDoesNotExist);
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -545,7 +546,11 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> tagTranslations = (from row in translations
                                                          select row).ToList();
-                        response.Objects.Add(CreateTag(id, dt.Rows[0], tagTranslations));
+                        response.Object = CreateTag(id, dt.Rows[0], tagTranslations);
+                        if (response.Object != null)
+                        {
+                            response.SetStatus(eResponseStatus.OK);
+                        }
                     }
                     else
                     {
@@ -553,20 +558,6 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
                 }
-                else
-                {
-                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
-                    return response;
-                }
-
-                if (response.Objects != null)
-                {
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            else
-            {
-                response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
             }
 
             return response;
@@ -2332,11 +2323,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
-                GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse = CreateTagListResponseFromDataSet(ds);
-                result.Object = tagListResponse.Objects.FirstOrDefault();
-                result.SetStatus(tagListResponse.Status);
+                result = CreateTagValueFromDataSet(ds);
 
-                if (result.Status.Code != (int)eResponseStatus.OK)
+                if (!result.HasObject())
                 {
                     return result;
                 }
@@ -2354,19 +2343,30 @@ namespace Core.Catalog.CatalogManagement
 
         public static GenericResponse<ApiObjects.SearchObjects.TagValue> UpdateTag(int groupId, long id, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId)
         {
-            GenericResponse<ApiObjects.SearchObjects.TagValue> result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+            var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
 
             try
             {
-                GenericListResponse<ApiObjects.SearchObjects.TagValue> tagByIdListResponse = GetTagListResponseById(groupId, id);
-                result.Object = tagByIdListResponse.Objects.FirstOrDefault();
-                result.SetStatus(tagByIdListResponse.Status);
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTag", groupId);
+                    return result;
+                }
 
-                if (result.Status.Code != (int)eResponseStatus.OK)
+                result = GetTagById(groupId, id);
+                if (!result.HasObject())
                 {
                     return result;
                 }
 
+                tagToUpdate.TagsInOtherLanguages = tagToUpdate.TagsInOtherLanguages.Union(result.Object.TagsInOtherLanguages, new LanguageContainerComparer()).ToList();
+                if (!result.Object.IsNeedToUpdate(tagToUpdate))
+                {
+                    result.SetStatus(eResponseStatus.NoValuesToUpdate);
+                    return result;
+                }
+                
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 bool shouldUpdateOtherNames = false;
                 if (tagToUpdate.TagsInOtherLanguages != null)
@@ -2378,32 +2378,21 @@ namespace Core.Catalog.CatalogManagement
                         languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
                     }
                 }
-
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTag", groupId);
-                    return result;
-                }
-
+                
                 if (catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
                 {
                     bool topic = catalogGroupCache.TopicsMapById.ContainsKey(tagToUpdate.topicId);
                     if (!topic)
                     {
-                        result.Status.Code = (int)eResponseStatus.TopicNotFound;
-                        result.Status.Message = eResponseStatus.TopicNotFound.ToString();
+                        result.SetStatus(eResponseStatus.TopicNotFound);
                         log.ErrorFormat("Error at UpdateTag. TopicId not found. GroupId: {0}", groupId);
                         return result;
                     }
                 }
 
                 DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
-                tagByIdListResponse = CreateTagListResponseFromDataSet(ds);
-                result.Object = tagByIdListResponse.Objects.FirstOrDefault();
-                result.SetStatus(tagByIdListResponse.Status);
-
-                if (result.Status.Code != (int)eResponseStatus.OK)
+                result = CreateTagValueFromDataSet(ds);
+                if (!result.HasObject())
                 {
                     return result;
                 }
@@ -2427,50 +2416,47 @@ namespace Core.Catalog.CatalogManagement
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
         {
-            GenericResponse<ApiObjects.SearchObjects.TagValue> tagResponse = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+            var tagResponse = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
 
-            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                GenericListResponse<ApiObjects.SearchObjects.TagValue> tagListResponse = GetTagListResponseById(groupId, tagId);
-                tagResponse.Object = tagListResponse.Objects.FirstOrDefault();
-                tagResponse.SetStatus(tagListResponse.Status);
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteTag", groupId);
+                    return tagResponse.Status;
+                }
 
-                if (tagResponse.Status.Code != (int)eResponseStatus.OK)
+                tagResponse = GetTagById(groupId, tagId);
+                if (!tagResponse.HasObject())
                 {
                     return tagResponse.Status;
                 }
 
                 if (CatalogDAL.DeleteTag(groupId, tagId, userId))
                 {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    CatalogGroupCache catalogGroupCache;
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                    {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteTag", groupId);
-                        return result;
-                    }
-
                     ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                    result = wrapper.DeleteTag(groupId, catalogGroupCache, tagId);
-
-                    if (result.Code != (int)eResponseStatus.OK)
+                    tagResponse.SetStatus(wrapper.DeleteTag(groupId, catalogGroupCache, tagId));
+                    if (!tagResponse.HasObject())
                     {
-                        return result;
+                        return tagResponse.Status;
                     }
 
                     if (!InvalidateCacheAndUpdateIndexForTagAssets(groupId, tagId, true, userId))
                     {
                         log.ErrorFormat("Failed to InvalidateCacheAndUpdateIndexForTagAssets after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagId);
                     }
+
+                    tagResponse.SetStatus(eResponseStatus.OK);
                 }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed DeleteTag for groupId: {0} and tagId: {1}", groupId, tagId), ex);
+                tagResponse.SetStatus(eResponseStatus.Error);
             }
 
-            return result;
+            return tagResponse.Status;
         }
 
         /// <summary>
@@ -2479,18 +2465,18 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="groupId"></param>
         /// <param name="tagId"></param>
         /// <returns></returns>
-        public static GenericListResponse<ApiObjects.SearchObjects.TagValue> GetTagListResponseById(int groupId, long tagId)
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> GetTagById(int groupId, long tagId)
         {
-            GenericListResponse<ApiObjects.SearchObjects.TagValue> result = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
+            var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
 
             try
             {
                 DataSet ds = CatalogDAL.GetTag(groupId, tagId);
-                result = CreateTagListResponseFromDataSet(ds);
+                result = CreateTagValueFromDataSet(ds);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetTagListResponseById for groupId: {0} and tagId: {1}", groupId, tagId), ex);
+                log.Error(string.Format("Failed GetTagById for groupId: {0} and tagId: {1}", groupId, tagId), ex);
             }
 
             return result;
@@ -2539,7 +2525,11 @@ namespace Core.Catalog.CatalogManagement
                 if (!tagIds.Contains(tagValue.tagId))
                 {
                     tagIds.Add(tagValue.tagId);
-                    result.Objects.AddRange(GetTagListResponseById(groupId, tagValue.tagId).Objects);
+                    var tagResponse = GetTagById(groupId, tagValue.tagId);
+                    if (tagResponse.HasObject())
+                    {
+                        result.Objects.Add(tagResponse.Object);
+                    }
                 }
             }
 

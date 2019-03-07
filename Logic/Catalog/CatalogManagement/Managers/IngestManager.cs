@@ -262,10 +262,11 @@ namespace Core.Catalog.CatalogManagement
                         else
                         {
                             tagValueToUpsert.tagId = tagValues.Objects[0].tagId;
-                            
+
                             var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValueToUpsert.tagId, tagValueToUpsert, USER_ID);
-                            if (updateTagResponse != null && !updateTagResponse.HasObject())
+                            if (!updateTagResponse.HasObject())
                             {
+                                
                                 string errorMsg = string.Format("HandleTagsTranslations-UpdateTag faild. topicName: {0}, topicId: {1}, tagValue: {2}, tagId: {3}, updateTagStatus: {4}.",
                                                                 topic.Key, catalogTopic.Id, tag.Key, tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
                                 ingestResponse.AddError(errorMsg);

@@ -276,6 +276,7 @@ namespace ApiObjects.Response
         GroupDoesNotContainCurrency = 4081,
         BulkUploadDoesNotExist = 4082,
         BulkUploadResultIsMissing = 4083,
+        NoValuesToUpdate = 4084,
 
         #endregion
 

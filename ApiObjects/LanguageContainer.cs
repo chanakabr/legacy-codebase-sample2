@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace ApiObjects
@@ -56,5 +57,20 @@ namespace ApiObjects
                 Value.Equals(other.Value) &&
                 IsDefault == other.IsDefault;
         }       
+    }
+
+    public class LanguageContainerComparer : IEqualityComparer<LanguageContainer>
+    {
+        public bool Equals(LanguageContainer lc1, LanguageContainer lc2)
+        {
+            return lc1.LanguageCode.Equals(lc2.LanguageCode) &&
+                   lc1.Value.Equals(lc2.Value) &&
+                   lc1.IsDefault == lc2.IsDefault;
+        }
+
+        public int GetHashCode(LanguageContainer lc)
+        {
+            return lc.GetHashCode();
+        }
     }
 }

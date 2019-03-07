@@ -40,5 +40,34 @@ namespace ApiObjects.SearchObjects
             sb.AppendFormat("updateDate: {0}", updateDate);
             return sb.ToString();
         }
+        
+        public bool IsNeedToUpdate(TagValue other)
+        {
+            if (other == null)
+                return false;
+
+            if (this.tagId != other.tagId)
+                return false;
+
+            if (this.topicId != other.topicId || this.languageId != other.languageId || !this.value.ToLower().Equals(other.value.ToLower()))
+                return true;
+            
+            if (other.TagsInOtherLanguages != null && other.TagsInOtherLanguages.Count > 0)
+            {
+                if (this.TagsInOtherLanguages == null || this.TagsInOtherLanguages.Count < other.TagsInOtherLanguages.Count)
+                    return true;
+
+                Dictionary<string, string> otherTagsInOtherLanguages = other.TagsInOtherLanguages.ToDictionary(x => x.LanguageCode, x => x.Value.ToLower());
+
+                foreach (var currTagInOtherLang in this.TagsInOtherLanguages)
+                {
+                   if (otherTagsInOtherLanguages.ContainsKey(currTagInOtherLang.LanguageCode) &&
+                       !otherTagsInOtherLanguages[currTagInOtherLang.LanguageCode].Equals(currTagInOtherLang.Value.ToLower()))
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
