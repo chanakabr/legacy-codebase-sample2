@@ -4757,7 +4757,7 @@ namespace DAL
             return result;
         }
 
-        public static int InsertPermission(string name, int type, string usersGroup)
+        public static int InsertPermission(string name, int type, string usersGroup, string friendlyName)
         {
             int result = 0;
 
@@ -4767,13 +4767,14 @@ namespace DAL
             storedProcedure.AddParameter("@name", name);
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
+            storedProcedure.AddParameter("@friendlyName", friendlyName);
 
             result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
             
             return result;
         }
 
-        public static bool UpdatePermission(int id, string name, int type, string usersGroup)
+        public static bool UpdatePermission(int id, string name, int type, string usersGroup,string friendlyName)
         {
             bool result = false;
 
@@ -4783,6 +4784,7 @@ namespace DAL
             storedProcedure.AddParameter("@name", name);
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
+            storedProcedure.AddParameter("@friendlyName", friendlyName);
 
             int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
