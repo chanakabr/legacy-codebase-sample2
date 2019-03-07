@@ -38,6 +38,9 @@ namespace PermissionsManager
         [JsonProperty("users_group")]
         public string UsersGroup { get; set; }
 
+        [JsonProperty("friendly_name")]
+        public string FriendlyName { get; set; }
+
         public FilePermission(GroupPermission original)
         {
             if (original != null)
@@ -47,6 +50,7 @@ namespace PermissionsManager
                 this.PermissionItems = original.PermissionItems;
                 this.GroupId = original.GroupId;
                 this.UsersGroup = original.UsersGroup;
+                this.FriendlyName = original.FriendlyName;
             }
         }
     }
