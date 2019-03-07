@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using Newtonsoft.Json;
 using System;
+using System.Text;
 
 namespace ApiObjects.BulkUpload
 {
@@ -41,8 +42,25 @@ namespace ApiObjects.BulkUpload
         
         public override string ToString()
         {
-            // TODO SHIR - BulkUploadResult ToString
-            return base.ToString();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("BulkUploadId:{0}, Index:{1}, Status:{2}", BulkUploadId, Index, Status);
+
+            if (ObjectId.HasValue)
+            {
+                sb.AppendFormat("ObjectId:{0}", ObjectId);
+            }
+
+            if (ErrorCode.HasValue)
+            {
+                sb.AppendFormat("ErrorCode:{0}", ErrorCode);
+            }
+
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                sb.AppendFormat("ErrorMessage:{0}", ErrorMessage);
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>
