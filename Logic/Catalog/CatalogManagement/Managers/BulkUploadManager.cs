@@ -19,14 +19,15 @@ namespace Core.Catalog.CatalogManagement
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success
+        private const double MIN_RECORD_DAYS_TO_WATCH = 60;
 
-        public static GenericResponse<BulkUpload> GetBulkUpload(int groupId, long bulkUploadId)
+        public static GenericResponse<BulkUpload> GetBulkUpload(long bulkUploadId)
         {
             GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
             try
             {
-                DataTable dt = CatalogDAL.GetBulkUpload(groupId, bulkUploadId);
-                response.Object = CreateBulkUploadFromDataTable(dt);
+                DataTable dt = CatalogDAL.GetBulkUpload(bulkUploadId);
+                response.Object = CreateBulkUploadFromDataTable(dt, 0);
                 if (response.Object == null)
                 {
                     response.SetStatus(eResponseStatus.BulkUploadDoesNotExist);
@@ -45,14 +46,14 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in GetBulkUpload. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUploadId), ex);
+                log.Error(string.Format("An Exception was occurred in GetBulkUpload. bulkUploadId:{0}.", bulkUploadId), ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
             return response;
         }
 
-        public static GenericListResponse<BulkUpload> GetBulkUploads(int groupId, string fileObjectType, HashSet<BulkUploadJobStatus> statusIn, long? userId, DateTime? uploadDate, DateComparisonType? dateComparisonType)
+        public static GenericListResponse<BulkUpload> GetBulkUploads(int groupId, string fileObjectType, long? userId, DateTime? uploadDate)
         {
             var response = new GenericListResponse<BulkUpload>();
             try
@@ -64,38 +65,22 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                DataTable dt = CatalogDAL.GetBulkUploadsList(groupId, fileObjectTypeName.Object);
-                IEnumerable<BulkUpload> bulkUploads = CreateBulkUploadsFromDataTable(dt);
+                if (!uploadDate.HasValue)
+                {
+                    uploadDate = DateTime.UtcNow.AddDays(-MIN_RECORD_DAYS_TO_WATCH);
+                }
 
-                if (bulkUploads != null)
+                DataTable dt = CatalogDAL.GetBulkUploadsList(groupId, fileObjectTypeName.Object, uploadDate.Value);
+                response.Objects = CreateBulkUploadsFromDataTable(dt, groupId);
+
+                if (response.Objects != null)
                 {
                     if (userId.HasValue)
                     {
-                        bulkUploads = bulkUploads.Where(x => x.UpdaterId == userId.Value);
+                        response.Objects = response.Objects.Where(x => x.UpdaterId == userId.Value).ToList();
                     }
-
-                    if (statusIn != null && statusIn.Count > 0)
-                    {
-                        bulkUploads = bulkUploads.Where(x => statusIn.Contains(x.Status));
-                    }
-
-                    if (dateComparisonType.HasValue && uploadDate.HasValue)
-                    {
-                        switch (dateComparisonType.Value)
-                        {
-                            case DateComparisonType.GreaterThanOrEqual:
-                                bulkUploads = bulkUploads.Where(x => x.CreateDate >= uploadDate.Value);
-                                break;
-                            case DateComparisonType.LessThanOrEqual:
-                                bulkUploads = bulkUploads.Where(x => x.CreateDate <= uploadDate.Value);
-                                break;
-                            case DateComparisonType.Equal:
-                                bulkUploads = bulkUploads.Where(x => x.CreateDate == uploadDate.Value);
-                                break;
-                        }
-                    }
-
-                    foreach (var bulkUpload in bulkUploads)
+                    
+                    foreach (var bulkUpload in response.Objects)
                     {
                         BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUpload.Id);
                         if (bulkUploadWithResults != null || bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
@@ -105,16 +90,14 @@ namespace Core.Catalog.CatalogManagement
                             bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
                         }
                     }
-
-                    response.Objects.AddRange(bulkUploads);
                 }
                 
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in GetBulkUploads. groupId:{0}, userId:{1}, uploadDate:{2}, dateComparisonType:{3}.",
-                                        groupId, userId, uploadDate, dateComparisonType), ex);
+                log.Error(string.Format("An Exception was occurred in GetBulkUploads. groupId:{0}, fileObjectType:{1}, userId:{2}, uploadDate:{3}.",
+                                        groupId, fileObjectType, userId, uploadDate), ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
@@ -127,16 +110,10 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // create new BulkUpload (with no results)
-                response.Object = new BulkUpload()
-                {
-                    Status = BulkUploadJobStatus.Pending,
-                    Action = action,
-                    GroupId = groupId
-                };
-
+               
                 // save the new BulkUpload in DB
-                DataTable dt = CatalogDAL.AddBulkUpload(response.Object, userId);
-                response.Object = CreateBulkUploadFromDataTable(dt);
+                DataTable dt = CatalogDAL.AddBulkUpload(groupId, userId, action);
+                response.Object = CreateBulkUploadFromDataTable(dt, groupId);
                 if (response.Object == null)
                 {
                     response.SetStatus(eResponseStatus.BulkUploadDoesNotExist);
@@ -211,7 +188,7 @@ namespace Core.Catalog.CatalogManagement
             var objectsListResponse = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
             if (bulkUploadResponse.Object.JobData != null && bulkUploadResponse.Object.ObjectData != null)
             {
-                objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(groupId, bulkUploadResponse.Object.FileName, bulkUploadResponse.Object.ObjectData);
+                objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(groupId, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
                 if (!objectsListResponse.IsOkStatusCode())
                 {
                     UpdateBulkUpload(groupId, userId, bulkUploadId, BulkUploadJobStatus.Failed);
@@ -290,13 +267,13 @@ namespace Core.Catalog.CatalogManagement
             return bulkUploadResponse.Status;
         }
 
-        public static GenericResponse<BulkUpload> UpdateBulkUpload(int groupId, long userId, long bulkUploadId, BulkUploadJobStatus status, BulkUploadResult result = null, string fileName = null, string objectTypeName = null, int? numOfObjects = null)
+        public static GenericResponse<BulkUpload> UpdateBulkUpload(int groupId, long userId, long bulkUploadId, BulkUploadJobStatus status, BulkUploadResult result = null, string fileURL = null, string fileObjectType = null, int? numOfObjects = null)
         {
             GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
             try
             {
-                var dt = CatalogDAL.UpdateBulkUploadStatus(groupId, fileName, objectTypeName, bulkUploadId, status, userId, numOfObjects);
-                response.Object = CreateBulkUploadFromDataTable(dt);
+                var dt = CatalogDAL.UpdateBulkUpload(bulkUploadId, status, userId, fileURL, fileObjectType, numOfObjects);
+                response.Object = CreateBulkUploadFromDataTable(dt, groupId);
                 if (response.Object == null)
                 {
                     response.SetStatus(eResponseStatus.BulkUploadDoesNotExist);
@@ -391,7 +368,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static List<BulkUpload> CreateBulkUploadsFromDataTable(DataTable dt)
+        private static List<BulkUpload> CreateBulkUploadsFromDataTable(DataTable dt, int groupId)
         {
             List<BulkUpload> bulkUploads = null;
 
@@ -400,7 +377,7 @@ namespace Core.Catalog.CatalogManagement
                 bulkUploads = new List<BulkUpload>();
                 foreach (DataRow row in dt.Rows)
                 {
-                    var bulkUpload = CreateBulkUploadFromRow(row);
+                    var bulkUpload = CreateBulkUploadFromRow(row, groupId);
                     if (bulkUpload != null)
                     {
                         bulkUploads.Add(bulkUpload);
@@ -412,19 +389,19 @@ namespace Core.Catalog.CatalogManagement
             return bulkUploads;
         }
 
-        private static BulkUpload CreateBulkUploadFromDataTable(DataTable dt)
+        private static BulkUpload CreateBulkUploadFromDataTable(DataTable dt, int groupId)
         {
             BulkUpload bulkUpload = null;
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                bulkUpload = CreateBulkUploadFromRow(dt.Rows[0]);
+                bulkUpload = CreateBulkUploadFromRow(dt.Rows[0], groupId);
             }
 
             return bulkUpload;
         }
 
-        private static BulkUpload CreateBulkUploadFromRow(DataRow row)
+        private static BulkUpload CreateBulkUploadFromRow(DataRow row, int groupId)
         {
             BulkUpload bulkUpload = null;
 
@@ -437,15 +414,14 @@ namespace Core.Catalog.CatalogManagement
                     bulkUpload = new BulkUpload()
                     {
                         Id = id,
-                        FileName = ODBCWrapper.Utils.GetSafeStr(row, "FILE_NAME"),
+                        FileURL = ODBCWrapper.Utils.GetSafeStr(row, "FILE_URL"),
                         Status = (BulkUploadJobStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
                         Action = (BulkUploadJobAction)ODBCWrapper.Utils.GetIntSafeVal(row, "ACTION"),
                         NumOfObjects = ODBCWrapper.Utils.GetNullableInt(row, "NUM_OF_OBJECTS"),
-                        GroupId = ODBCWrapper.Utils.GetLongSafeVal(row, "GROUP_ID"),
+                        GroupId = groupId,
                         CreateDate = ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE"),
                         UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(row, "UPDATE_DATE"),
-                        UpdaterId = ODBCWrapper.Utils.GetLongSafeVal(row, "UPDATER_ID"),
-                        FileObjectType = ODBCWrapper.Utils.GetSafeStr(row, "FILE_OBJECT_TYPE")
+                        UpdaterId = ODBCWrapper.Utils.GetLongSafeVal(row, "UPDATER_ID")
                     };
                 }
             }

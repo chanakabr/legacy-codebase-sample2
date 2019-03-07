@@ -31,12 +31,9 @@ namespace ApiObjects.BulkUpload
         [JsonProperty("Id")]
         public long Id { get; set; }
 
-        [JsonProperty("FileName")]
-        public string FileName { get; set; }
-
-        [JsonProperty("FileObjectType")]
-        public string FileObjectType { get; set; }
-
+        [JsonProperty("FileURL")]
+        public string FileURL { get; set; }
+        
         [JsonProperty("Status")]
         public BulkUploadJobStatus Status { get; set; }
 
@@ -73,10 +70,6 @@ namespace ApiObjects.BulkUpload
         public BulkUpload()
         {
             Results = new List<BulkUploadResult>();
-        }
-
-        public BulkUpload(long Id, string UploadTokenId) : base()
-        {
         }
     }
 }
