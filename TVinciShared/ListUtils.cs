@@ -15,10 +15,9 @@ namespace TVinciShared
         /// <param name="pageIndex"></param>
         /// <param name="illegalRequest"></param>
         /// <returns></returns>
-        public static IEnumerable<T> Page<T>(IEnumerable<T> original, int pageSize, int pageIndex, out bool illegalRequest)
+        public static IEnumerable<T> Page<T>(this IEnumerable<T> original, int pageSize, int pageIndex, out bool illegalRequest)
         {
-            IEnumerable<T> output = null;
-
+            IEnumerable<T>  output = null;
             illegalRequest = false;
             
             if (pageSize < 0 || pageIndex < 0)

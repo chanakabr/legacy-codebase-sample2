@@ -21,6 +21,8 @@ namespace TVinciShared
         protected abstract string GetUrl(string subDir, string fileName);
 
         public bool ShouldDeleteSourceFile { get; protected set; }
+        private const string KALTURA = "Kaltura";
+
         private static FileHandler _instance;
         public static FileHandler Instance
         {
@@ -61,11 +63,10 @@ namespace TVinciShared
         public GenericResponse<string> SaveFile(string id, FileInfo fileInfo, Type objectType)
         {
             GenericResponse<string> saveFileResponse = new GenericResponse<string>();
-            string typeName;
-            var validationStatus = Validate(objectType, out typeName, fileInfo);
-            if (validationStatus.Code == (int)eResponseStatus.OK)
+            var validationResponse = Validate(objectType, fileInfo);
+            if (validationResponse.HasObject())
             {
-                saveFileResponse = GetSubDir(id, typeName);
+                saveFileResponse = GetSubDir(id, validationResponse.Object);
                 if (saveFileResponse.HasObject())
                 {
                     saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), fileInfo, saveFileResponse.Object);
@@ -73,7 +74,7 @@ namespace TVinciShared
             }
             else
             {
-                saveFileResponse.SetStatus(validationStatus);
+                saveFileResponse.SetStatus(validationResponse.Status);
             }
 
             return saveFileResponse;
@@ -82,11 +83,10 @@ namespace TVinciShared
         public GenericResponse<string> SaveFile(long id, FileInfo fileInfo, Type objectType)
         {
             GenericResponse<string> saveFileResponse = new GenericResponse<string>();
-            string typeName;
-            var validationStatus = Validate(objectType, out typeName, fileInfo);
-            if (validationStatus.Code == (int)eResponseStatus.OK)
+            var validationResponse = Validate(objectType, fileInfo);
+            if (validationResponse.HasObject())
             {
-                saveFileResponse = GetSubDir(id, typeName);
+                saveFileResponse = GetSubDir(id, validationResponse.Object);
                 if (saveFileResponse.HasObject())
                 {
                     saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), fileInfo, saveFileResponse.Object);
@@ -94,54 +94,10 @@ namespace TVinciShared
             }
             else
             {
-                saveFileResponse.SetStatus(validationStatus);
+                saveFileResponse.SetStatus(validationResponse.Status);
             }
 
             return saveFileResponse;
-        }
-
-        public GenericResponse<string> GetFileUrl(string id, Type objectType, string fileExtension)
-        {
-            GenericResponse<string> fileUrlResponse = new GenericResponse<string>();
-            string typeName;
-            var validationStatus = Validate(objectType, out typeName);
-            if (validationStatus.Code == (int)eResponseStatus.OK)
-            {
-                fileUrlResponse = GetSubDir(id, typeName);
-                if (fileUrlResponse.HasObject())
-                {
-                    fileUrlResponse.Object = GetUrl(fileUrlResponse.Object, GetFileName(id.ToString(), fileExtension));
-                    fileUrlResponse.SetStatus(eResponseStatus.OK);
-                }
-            }
-            else
-            {
-                fileUrlResponse.SetStatus(validationStatus);
-            }
-
-            return fileUrlResponse;
-        }
-
-        public GenericResponse<string> GetFileUrl(long id, Type objectType, string fileExtension)
-        {
-            GenericResponse<string> fileUrlResponse = new GenericResponse<string>();
-            string typeName;
-            var validationStatus = Validate(objectType, out typeName);
-            if (validationStatus.Code == (int)eResponseStatus.OK)
-            {
-                fileUrlResponse = GetSubDir(id, typeName);
-                if (fileUrlResponse.HasObject())
-                {
-                    fileUrlResponse.Object = GetUrl(fileUrlResponse.Object, GetFileName(id.ToString(), fileExtension));
-                    fileUrlResponse.SetStatus(eResponseStatus.OK);
-                }
-            }
-            else
-            {
-                fileUrlResponse.SetStatus(validationStatus);
-            }
-            
-            return fileUrlResponse;
         }
         
         private string GetFileName(string id, string fileExtension)
@@ -149,31 +105,50 @@ namespace TVinciShared
             return (id + fileExtension);
         }
 
-        private Status Validate(Type objectType, out string typeName, FileInfo fileInfo = null) 
+        private GenericResponse<string> Validate(Type objectType, FileInfo fileInfo = null) 
         {
-            typeName = null;
-            Status validationStatus = new Status((int)eResponseStatus.Error);
+            var validationStatus = new GenericResponse<string>();
             if (fileInfo != null && !fileInfo.Exists)
             {
-                validationStatus.Set(eResponseStatus.FileDoesNotExists, string.Format("file:{0} does not exists.", fileInfo.Name));
-                return validationStatus;
-            }
-            
-            if (!objectType.IsClass || !objectType.Name.StartsWith("Kaltura"))
-            {
-                validationStatus.Set(eResponseStatus.InvalidFileType, string.Format("File's objectType value must be of type KalturaOTTObject. objectType={0}", objectType.ToString()));
+                validationStatus.SetStatus(eResponseStatus.FileDoesNotExists, string.Format("file:{0} does not exists.", fileInfo.Name));
                 return validationStatus;
             }
 
-            typeName = objectType.Name.Substring(7, objectType.Name.Length - 7);
-            if (string.IsNullOrEmpty(typeName))
+            if (objectType == null || !objectType.IsClass || objectType.IsAbstract)
             {
-                validationStatus.Set(eResponseStatus.InvalidFileType, string.Format("File's objectType.Name minimum length is 8. objectType.Name={0}", objectType.Name));
+                validationStatus.SetStatus(eResponseStatus.InvalidFileType);
                 return validationStatus;
             }
 
-            validationStatus.Set(eResponseStatus.OK);
+            validationStatus = GetFileObjectTypeName(objectType.Name);
             return validationStatus;
+        }
+
+        public GenericResponse<string> GetFileObjectTypeName(string objectTypeName)
+        {
+            var response = new GenericResponse<string>();
+
+            if (string.IsNullOrEmpty(objectTypeName))
+            {
+                response.SetStatus(eResponseStatus.InvalidFileType, "File's objectType name cannot be empty");
+                return response;
+            }
+
+            if (!objectTypeName.StartsWith(KALTURA))
+            {
+                response.SetStatus(eResponseStatus.InvalidFileType, string.Format("File's objectType value must be type of KalturaOTTObject. objectType.Name={0}", objectTypeName));
+                return response;
+            }
+
+            response.Object = objectTypeName.Substring(KALTURA.Length);
+            if (string.IsNullOrEmpty(response.Object))
+            {
+                response.SetStatus(eResponseStatus.InvalidFileType, string.Format("File's objectType.Name minimum length is {0}. objectType.Name={1}", KALTURA.Length + 1, objectTypeName));
+                return response;
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+            return response;
         }
     }
 

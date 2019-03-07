@@ -5705,36 +5705,45 @@ namespace Tvinci.Core.DAL
             return string.Format("bulk_upload_{0}", bulkUploadId);
         }
         
-        public static DataTable AddBulkUpload(BulkUpload bulkUploadToAdd, long userId)
+        public static DataTable AddBulkUpload(int groupId, long userId, BulkUploadJobAction action)
         {
             StoredProcedure sp = new StoredProcedure("InsertBulkUpload");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@status", (int)bulkUploadToAdd.Status);
-            sp.AddParameter("@action", (int)bulkUploadToAdd.Action);
-            sp.AddParameter("@groupId", bulkUploadToAdd.GroupId);
+            sp.AddParameter("@status", (int)BulkUploadJobStatus.Pending);
+            sp.AddParameter("@action", (int)action);
+            sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@updaterId", userId);
             return sp.Execute();
         }
 
-        public static DataTable GetBulkUpload(int groupId, long bulkUploadId)
+        public static DataTable GetBulkUpload(long bulkUploadId)
         {
             StoredProcedure sp = new StoredProcedure("GetBulkUpload");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@BulkUploadId", bulkUploadId);
             return sp.Execute();
         }
 
-        public static DataTable UpdateBulkUploadStatus(int groupId, string fileName, long bulkUploadId, BulkUploadJobStatus status, long userId, int? numOfObjects)
+        public static DataTable UpdateBulkUpload(long bulkUploadId, BulkUploadJobStatus status, long userId, string fileURL, string fileObjectType, int? numOfObjects)
         {
-            StoredProcedure sp = new StoredProcedure("UpdateBulkUploadStatus");
+            StoredProcedure sp = new StoredProcedure("UpdateBulkUpload");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@bulkUploadId", bulkUploadId);
             sp.AddParameter("@statusCode", (int)status);
             sp.AddParameter("@updaterId", userId);
-            sp.AddParameter("@fileName", fileName);
+            sp.AddParameter("@fileURL", fileURL);
+            sp.AddParameter("@fileObjectType", fileObjectType);
             sp.AddParameter("@numOfObjects", numOfObjects);
+            return sp.Execute();
+        }
+
+        public static DataTable GetBulkUploadsList(int groupId, string fileObjectType, DateTime createDate)
+        {
+            StoredProcedure sp = new StoredProcedure("GetBulkUploadsList");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@fileObjectType", fileObjectType);
+            sp.AddParameter("@since_date", createDate);
             return sp.Execute();
         }
 
