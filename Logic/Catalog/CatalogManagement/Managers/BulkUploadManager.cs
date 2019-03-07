@@ -272,88 +272,94 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
             try
             {
-                var dt = CatalogDAL.UpdateBulkUpload(bulkUploadId, status, userId, fileURL, fileObjectType, numOfObjects);
-                response.Object = CreateBulkUploadFromDataTable(dt, groupId);
-                if (response.Object == null)
+                response = GetBulkUpload(groupId, bulkUploadId);
+                if (!response.HasObject())
+                {
+                    return response;
+                }
+
+                response.Object.Status = status;
+                response.Object.UpdaterId = userId;
+                
+                // check if need to update result
+                if (result != null)
+                {
+                    if (response.Object.Results == null)
+                    {
+                        response.Object.Results = new List<BulkUploadResult>();
+                    }
+
+                    // set result 
+                    if (result.Index == response.Object.Results.Count)
+                    {
+                        response.Object.Results.Add(result);
+                    }
+                    else if (result.Index >= 0 && result.Index < response.Object.Results.Count)
+                    {
+                        response.Object.Results[result.Index] = result;
+                    }
+                    // check if other results are missing and add them with error 
+                    else if (result.Index > response.Object.Results.Count)
+                    {
+                        var emptyResult = Activator.CreateInstance(result.GetType());
+                        if (emptyResult != null && emptyResult is BulkUploadResult)
+                        {
+                            var resultError = new Status((int)eResponseStatus.BulkUploadResultIsMissing, eResponseStatus.BulkUploadResultIsMissing.ToString());
+                            var emptyBulkUploadResult = emptyResult as BulkUploadResult;
+                            emptyBulkUploadResult.Index = response.Object.Results.Count;
+                            emptyBulkUploadResult.BulkUploadId = bulkUploadId;
+                            emptyBulkUploadResult.SetError(resultError);
+                            response.Object.Results.Add(emptyBulkUploadResult);
+
+                            while (result.Index > response.Object.Results.Count)
+                            {
+                                emptyBulkUploadResult.Index = response.Object.Results.Count;
+                                response.Object.Results.Add(emptyBulkUploadResult);
+                            }
+                            response.Object.Results.Add(result);
+                        }
+                    }
+                }
+
+                uint ttl = 0;
+                if (response.Object.NumOfObjects != 0 &&
+                    response.Object.NumOfObjects == response.Object.Results.Count)
+                {
+                    if (response.Object.Results.All(x => x.Status == BulkUploadResultStatus.Ok))
+                    {
+                        response.Object.Status = BulkUploadJobStatus.Success;
+                    }
+                    else if (response.Object.Results.All(x => x.Status == BulkUploadResultStatus.Ok || x.Status == BulkUploadResultStatus.Error))
+                    {
+                        response.Object.Status = BulkUploadJobStatus.Partial;
+                    }
+                }
+
+                if (response.Object.Status == BulkUploadJobStatus.Success ||
+                    response.Object.Status == BulkUploadJobStatus.Partial ||
+                    response.Object.Status == BulkUploadJobStatus.Failed ||
+                    response.Object.Status == BulkUploadJobStatus.Fatal)
+                {
+                    ttl = BULK_UPLOAD_CB_TTL;
+                }
+
+                var dt = CatalogDAL.UpdateBulkUpload(bulkUploadId, response.Object.Status, userId, fileURL, fileObjectType, numOfObjects);
+                var updatedBulkUpload = CreateBulkUploadFromDataTable(dt, groupId);
+                if (updatedBulkUpload == null)
                 {
                     response.SetStatus(eResponseStatus.BulkUploadDoesNotExist);
                     return response;
                 }
 
-                var bulkUploadCB = CatalogDAL.GetBulkUploadCB(bulkUploadId);
-                if (bulkUploadCB != null)
+                response.Object.UpdaterId = updatedBulkUpload.UpdaterId;
+                response.Object.FileURL = updatedBulkUpload.FileURL;
+                response.Object.NumOfObjects = updatedBulkUpload.NumOfObjects;
+                response.Object.UpdateDate = updatedBulkUpload.UpdateDate;
+
+                if (!CatalogDAL.SaveBulkUploadCB(response.Object, ttl))
                 {
-                    response.Object.Results = bulkUploadCB.Results;
-                    response.Object.JobData = bulkUploadCB.JobData;
-                    response.Object.ObjectData = bulkUploadCB.ObjectData;
-
-                    // check if need to update result
-                    if (result != null)
-                    {
-                        if (response.Object.Results == null)
-                        {
-                            response.Object.Results = new List<BulkUploadResult>();
-                        }
-
-                        // set result 
-                        if (result.Index == response.Object.Results.Count)
-                        {
-                            response.Object.Results.Add(result);
-                        }
-                        else if (result.Index >= 0 && result.Index < response.Object.Results.Count)
-                        {
-                            response.Object.Results[result.Index] = result;
-                        }
-                        // check if other results are missing and add them with error 
-                        else if (result.Index > response.Object.Results.Count)
-                        {
-                            var emptyResult = Activator.CreateInstance(result.GetType());
-                            if (emptyResult != null && emptyResult is BulkUploadResult)
-                            {
-                                var resultError = new Status((int)eResponseStatus.BulkUploadResultIsMissing, eResponseStatus.BulkUploadResultIsMissing.ToString());
-                                var emptyBulkUploadResult = emptyResult as BulkUploadResult;
-                                emptyBulkUploadResult.Index = response.Object.Results.Count;
-                                emptyBulkUploadResult.BulkUploadId = bulkUploadId;
-                                emptyBulkUploadResult.SetError(resultError);
-                                response.Object.Results.Add(emptyBulkUploadResult);
-
-                                while (result.Index > response.Object.Results.Count)
-                                {
-                                    emptyBulkUploadResult.Index = response.Object.Results.Count;
-                                    response.Object.Results.Add(emptyBulkUploadResult);
-                                }
-                                response.Object.Results.Add(result);
-                            }
-                        }
-                    }
-
-                    uint ttl = 0;
-                    if (response.Object.NumOfObjects != 0 &&
-                        response.Object.NumOfObjects == response.Object.Results.Count)
-                    {
-                        if (response.Object.Results.All(x => x.Status == BulkUploadResultStatus.Ok))
-                        {
-                            response.Object.Status = BulkUploadJobStatus.Success;
-                        }
-                        else if (response.Object.Results.All(x => x.Status == BulkUploadResultStatus.Ok || x.Status == BulkUploadResultStatus.Error))
-                        {
-                            response.Object.Status = BulkUploadJobStatus.Partial;
-                        }
-                    }
-
-                    if (response.Object.Status == BulkUploadJobStatus.Success || 
-                        response.Object.Status == BulkUploadJobStatus.Partial ||
-                        response.Object.Status == BulkUploadJobStatus.Failed ||
-                        response.Object.Status == BulkUploadJobStatus.Fatal)
-                    {
-                        ttl = BULK_UPLOAD_CB_TTL;
-                    }
-
-                    if (!CatalogDAL.SaveBulkUploadCB(response.Object, ttl))
-                    {
-                        log.ErrorFormat("Error while saving BulkUpload to CB. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUploadId);
-                        return response;
-                    }
+                    log.ErrorFormat("Error while saving BulkUpload to CB. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUploadId);
+                    return response;
                 }
 
                 response.SetStatus(eResponseStatus.OK);
