@@ -72,10 +72,11 @@ namespace WebAPI.Controllers
         static public KalturaBulkUpload Get(long id)
         {
             KalturaBulkUpload response = null;
-            
+            int groupId = KS.GetFromRequest().GroupId;
+
             try
             {
-                response = ClientsManager.CatalogClient().GetBulkUpload(id);
+                response = ClientsManager.CatalogClient().GetBulkUpload(groupId, id);
             }
             catch (ClientException ex)
             {

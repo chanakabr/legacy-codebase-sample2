@@ -4036,9 +4036,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaBulkUpload GetBulkUpload(long id)
+        public KalturaBulkUpload GetBulkUpload(int groupId, long id)
         {
-            Func<GenericResponse<BulkUpload>> getBulkUploadFunc = () => BulkUploadManager.GetBulkUpload(id);
+            Func<GenericResponse<BulkUpload>> getBulkUploadFunc = () => BulkUploadManager.GetBulkUpload(groupId, id);
 
             KalturaBulkUpload response =
                 ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadFunc);
