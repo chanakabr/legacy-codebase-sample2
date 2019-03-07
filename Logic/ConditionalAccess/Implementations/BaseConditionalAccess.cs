@@ -7505,6 +7505,7 @@ namespace Core.ConditionalAccess
 
                     if (paymentGatewayTransaction != null)
                     {
+                        res.ExternalTransactionId = paymentGatewayTransaction.ExternalTransactionId;
                         res.m_sPaymentMethodExtraDetails += string.Format(", PaymentMethod:{0}, PaymentDetails:{1}",
                             paymentGatewayTransaction.PaymentMethod, paymentGatewayTransaction.PaymentDetails);
                     }

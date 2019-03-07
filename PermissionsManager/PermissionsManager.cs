@@ -237,7 +237,9 @@ namespace PermissionsManager
 
                         int sourceType = Convert.ToInt32(sourceRow["type"]);
                         object sourceUsersGroupObject = sourceRow["users_group"];
+                        object friendlyNameGroupObject = sourceRow["friendly_name"];
                         string sourceUsersGroup = null;
+                        string friendlyName = friendlyNameGroupObject != null && friendlyNameGroupObject != DBNull.Value ? Convert.ToString(friendlyNameGroupObject) : string.Empty;
 
                         if (sourceUsersGroupObject != null && sourceUsersGroupObject != DBNull.Value)
                         {
@@ -247,7 +249,7 @@ namespace PermissionsManager
                         // not found - it is new, insert
                         if (destinationRow == null)
                         {
-                            int newId = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup);
+                            int newId = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup, friendlyName);
 
                             permissionsDictionary[sourceName] = newId;
 
@@ -260,13 +262,15 @@ namespace PermissionsManager
                             int destinationId = Convert.ToInt32(destinationRow["id"]);
                             int destinationType = ExtractValue<int>(destinationRow, "type");
                             string destinationUsersGroup = ExtractValue<string>(destinationRow, "users_group");
+                            string destinationFriendlyName = ExtractValue<string>(destinationRow, "friendly_name");
 
                             if (
                                 destinationType != sourceType ||
-                                destinationUsersGroup != sourceUsersGroup
+                                destinationUsersGroup != sourceUsersGroup ||
+                                destinationFriendlyName != friendlyName
                                 )
                             {
-                                bool actionResult = ApiDAL.UpdatePermission(destinationId, sourceName, sourceType, sourceUsersGroup);
+                                bool actionResult = ApiDAL.UpdatePermission(destinationId, sourceName, sourceType, sourceUsersGroup, friendlyName);
 
                                 log.InfoFormat("!!UPDATE!! Table : {0} Destination Id : {1} name : {2} type : {3} users group : {4}", PERMISSION,
                                     destinationId, sourceName, sourceType, sourceUsersGroup);
@@ -1117,10 +1121,10 @@ namespace PermissionsManager
                     {
                         var filePermission = dictionaryPermissionsFromFiles[permission.Name];
 
-                        // if permission exists both in file and in DB - check if update is required (only users_group is relevant)
-                        if (permission.UsersGroup != filePermission.UsersGroup)
+                        // if permission exists both in file and in DB - check if update is required (only users_group, friendly_name are relevant)
+                        if (permission.UsersGroup != filePermission.UsersGroup || permission.FriendlyName != filePermission.FriendlyName)
                         {
-                            ApiDAL.UpdatePermission((int)permission.Id, filePermission.Name, (int)ePermissionType.Group, filePermission.UsersGroup);
+                            ApiDAL.UpdatePermission((int)permission.Id, filePermission.Name, (int)ePermissionType.Group, filePermission.UsersGroup, filePermission.FriendlyName);
                             log.InfoFormat("!! UPDATE !! Permissions - id {0} name {1}", permission.Id, permission.Name);
                         }
                     }
@@ -1144,7 +1148,7 @@ namespace PermissionsManager
                     if (!dictionaryPermissionsFromDatabase.ContainsKey(permission.Name))
                     {
                         // if not, it is new and should be added
-                        int newId = ApiDAL.InsertPermission(permission.Name, (int)ePermissionType.Group, permission.UsersGroup);
+                        int newId = ApiDAL.InsertPermission(permission.Name, (int)ePermissionType.Group, permission.UsersGroup, permission.FriendlyName);
                         permission.Id = newId;
 
                         log.InfoFormat("!! INSERT !! Permissions - id {0} name {1}", permission.Id, permission.Name);

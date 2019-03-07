@@ -39,6 +39,7 @@ namespace Core.ConditionalAccess
         public Int32 m_nPurchaseID;
         public string m_sRemarks;
         public BillingPriceType billingPriceType;
+        public string ExternalTransactionId;
 
         public BillingTransactionContainer()
         {
