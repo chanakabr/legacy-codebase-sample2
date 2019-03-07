@@ -190,6 +190,15 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "billingPriceType")]
         [SchemeProperty(ReadOnly = true)]
         public KalturaBillingPriceType billingPriceType { get; set; }
+
+        /// <summary>
+        ///External Transaction Id
+        /// </summary>
+        [DataMember(Name = "externalTransactionId")]
+        [JsonProperty("externalTransactionId")]
+        [XmlElement(ElementName = "externalTransactionId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string ExternalTransactionId { get; set; }
     }
 
     /// <summary>

@@ -2073,6 +2073,16 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ExternalTransactionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaBillingTransaction(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -2317,6 +2327,14 @@ namespace WebAPI.Models.ConditionalAccess
                         billingPriceTypeSchemaProperty.Validate("billingPriceType", parameters["billingPriceType"]);
                     }
                     billingPriceType = (KalturaBillingPriceType) Enum.Parse(typeof(KalturaBillingPriceType), parameters["billingPriceType"].ToString(), true);
+                }
+                if (parameters.ContainsKey("externalTransactionId") && parameters["externalTransactionId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ExternalTransactionIdSchemaProperty.Validate("externalTransactionId", parameters["externalTransactionId"]);
+                    }
+                    ExternalTransactionId = (String) Convert.ChangeType(parameters["externalTransactionId"], typeof(String));
                 }
             }
         }
@@ -18065,7 +18083,6 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlan")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -18073,6 +18090,7 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaPricePlan(Dictionary<string, object> parameters = null) : base(parameters)
         {

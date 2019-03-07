@@ -824,6 +824,8 @@ namespace WebAPI.Reflection
                 case "KalturaBillingTransaction":
                     switch(property.Name)
                     {
+                        case "ExternalTransactionId":
+                            return "externalTransactionId";
                         case "purchaseID":
                             return "purchaseId";
                     }
