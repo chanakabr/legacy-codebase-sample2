@@ -1324,10 +1324,7 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = invalidationKeyCacheConfig.GetICachingService();
                 if (cache != null)
                 {
-                    ulong version = 0;
-                    long getResult = 0;
-                    cache.GetWithVersion<long>(key, out version, ref getResult);
-                    res = cache.SetWithVersion<long>(key, valueToUpdate, version, invalidationKeyCacheConfig.TTL);
+                    res = cache.SetWithVersion<long>(key, valueToUpdate, 0, invalidationKeyCacheConfig.TTL);
                 }
             }
             catch (Exception ex)
