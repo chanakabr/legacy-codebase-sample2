@@ -2369,7 +2369,8 @@ namespace Core.Catalog.CatalogManagement
 
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 bool shouldUpdateOtherNames = false;
-                if (tagToUpdate.TagsInOtherLanguages != null)
+
+                if (tagToUpdate.TagsInOtherLanguages != null && tagToUpdate.TagsInOtherLanguages.Count > 0)
                 {
                     shouldUpdateOtherNames = true;
                     languageCodeToName = new List<KeyValuePair<string, string>>();
