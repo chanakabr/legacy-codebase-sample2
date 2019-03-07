@@ -938,12 +938,10 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadFilter":
                     switch(property.Name)
                     {
-                        case "DateComparisonType":
-                            return "dateComparisonType";
-                        case "StatusIn":
-                            return "statusIn";
-                        case "UploadedOnEqual":
-                            return "uploadedOnEqual";
+                        case "CreateDateGreaterThanOrEqual":
+                            return "createDateGreaterThanOrEqual";
+                        case "FileObjectNameEqual":
+                            return "fileObjectNameEqual";
                         case "UserIdEqualCurrent":
                             return "userIdEqualCurrent";
                     }
@@ -11346,8 +11344,6 @@ namespace WebAPI.Reflection
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaBulkUploadFilter),
                             });

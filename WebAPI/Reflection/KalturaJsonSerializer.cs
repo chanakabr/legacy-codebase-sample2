@@ -21806,17 +21806,13 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(DateComparisonType.HasValue)
+            if(CreateDateGreaterThanOrEqual.HasValue)
             {
-                ret.Add("dateComparisonType", "\"dateComparisonType\": " + "\"" + Enum.GetName(typeof(KalturaDateComparisonType), DateComparisonType) + "\"");
+                ret.Add("createDateGreaterThanOrEqual", "\"createDateGreaterThanOrEqual\": " + CreateDateGreaterThanOrEqual);
             }
-            if(StatusIn != null)
+            if(FileObjectNameEqual != null)
             {
-                ret.Add("statusIn", "\"statusIn\": " + "\"" + EscapeJson(StatusIn) + "\"");
-            }
-            if(UploadedOnEqual.HasValue)
-            {
-                ret.Add("uploadedOnEqual", "\"uploadedOnEqual\": " + UploadedOnEqual);
+                ret.Add("fileObjectNameEqual", "\"fileObjectNameEqual\": " + "\"" + EscapeJson(FileObjectNameEqual) + "\"");
             }
             if(UserIdEqualCurrent.HasValue)
             {
@@ -21830,17 +21826,13 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(DateComparisonType.HasValue)
+            if(CreateDateGreaterThanOrEqual.HasValue)
             {
-                ret.Add("dateComparisonType", "<dateComparisonType>" + "" + Enum.GetName(typeof(KalturaDateComparisonType), DateComparisonType) + "" + "</dateComparisonType>");
+                ret.Add("createDateGreaterThanOrEqual", "<createDateGreaterThanOrEqual>" + CreateDateGreaterThanOrEqual + "</createDateGreaterThanOrEqual>");
             }
-            if(StatusIn != null)
+            if(FileObjectNameEqual != null)
             {
-                ret.Add("statusIn", "<statusIn>" + EscapeXml(StatusIn) + "</statusIn>");
-            }
-            if(UploadedOnEqual.HasValue)
-            {
-                ret.Add("uploadedOnEqual", "<uploadedOnEqual>" + UploadedOnEqual + "</uploadedOnEqual>");
+                ret.Add("fileObjectNameEqual", "<fileObjectNameEqual>" + EscapeXml(FileObjectNameEqual) + "</fileObjectNameEqual>");
             }
             if(UserIdEqualCurrent.HasValue)
             {

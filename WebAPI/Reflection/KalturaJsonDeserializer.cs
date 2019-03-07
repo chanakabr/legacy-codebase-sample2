@@ -18083,6 +18083,7 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlan")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -18090,7 +18091,6 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaPricePlan(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -22090,17 +22090,13 @@ namespace WebAPI.Models.Upload
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("uploadedOnEqual") && parameters["uploadedOnEqual"] != null)
+                if (parameters.ContainsKey("fileObjectNameEqual") && parameters["fileObjectNameEqual"] != null)
                 {
-                    UploadedOnEqual = (Int64) Convert.ChangeType(parameters["uploadedOnEqual"], typeof(Int64));
+                    FileObjectNameEqual = (String) Convert.ChangeType(parameters["fileObjectNameEqual"], typeof(String));
                 }
-                if (parameters.ContainsKey("dateComparisonType") && parameters["dateComparisonType"] != null)
+                if (parameters.ContainsKey("createDateGreaterThanOrEqual") && parameters["createDateGreaterThanOrEqual"] != null)
                 {
-                    DateComparisonType = (KalturaDateComparisonType) Enum.Parse(typeof(KalturaDateComparisonType), parameters["dateComparisonType"].ToString(), true);
-                }
-                if (parameters.ContainsKey("statusIn") && parameters["statusIn"] != null)
-                {
-                    StatusIn = (String) Convert.ChangeType(parameters["statusIn"], typeof(String));
+                    CreateDateGreaterThanOrEqual = (Int64) Convert.ChangeType(parameters["createDateGreaterThanOrEqual"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("userIdEqualCurrent") && parameters["userIdEqualCurrent"] != null)
                 {
