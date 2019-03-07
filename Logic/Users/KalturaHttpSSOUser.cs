@@ -288,7 +288,11 @@ namespace Core.Users
             user.Phone = userData.m_oBasicData.m_sPhone;
             user.Address = userData.m_oBasicData.m_sAddress;
             user.UserState = (eUserState)(int)userData.m_eUserState;
-            user.DynamicData = userData.m_oDynamicData.m_sUserData.ToDictionary(k => k.m_sDataType, k => k.m_sValue);
+            if (userData.m_oDynamicData != null && userData.m_oDynamicData.m_sUserData != null)
+            {
+                user.DynamicData = userData.m_oDynamicData.m_sUserData.ToDictionary(k => k.m_sDataType, k => k.m_sValue);
+            }
+
             user.SuspensionState = (eHouseholdSuspensionState)(int)userData.m_eSuspendState;
             user.UserType = new SSOAdapterUserType();
             user.UserType.Id = userData.m_oBasicData.m_UserType.ID ?? 0;
