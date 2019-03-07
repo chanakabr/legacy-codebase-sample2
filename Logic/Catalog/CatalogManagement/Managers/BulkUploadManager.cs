@@ -329,6 +329,10 @@ namespace Core.Catalog.CatalogManagement
                     {
                         response.Object.Status = BulkUploadJobStatus.Success;
                     }
+                    else if (response.Object.Results.All(x => x.Status == BulkUploadResultStatus.Error))
+                    {
+                        response.Object.Status = BulkUploadJobStatus.Failed;
+                    }
                     else if (response.Object.Results.All(x => x.Status == BulkUploadResultStatus.Ok || x.Status == BulkUploadResultStatus.Error))
                     {
                         response.Object.Status = BulkUploadJobStatus.Partial;
