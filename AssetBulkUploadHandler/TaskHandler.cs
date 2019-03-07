@@ -59,7 +59,6 @@ namespace MediaAssetBulkUploadHandler
 
                     if (!jobActionResponse.IsOkStatusCode())
                     {
-                        bulkUploadResponse.Object.Results[request.ResultIndex].Status = BulkUploadResultStatus.Error;
                         bulkUploadResponse.Object.Results[request.ResultIndex].SetError(jobActionResponse.Status);
                     }
                     else
@@ -82,8 +81,9 @@ namespace MediaAssetBulkUploadHandler
                 }
                 else
                 {
-                    // TODO SHIR - ASK IDDO WHAT TO DO IF NO OBJECT 
-                    bulkUploadResponse = BulkUploadManager.UpdateBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, BulkUploadJobStatus.Fatal);
+                    var bulkUploadResult = bulkUploadResponse.Object.Results[request.ResultIndex];
+                    bulkUploadResult.SetError(new Status((int)eResponseStatus.BulkUploadResultIsMissing, "BulkUploadResult Is Missing"));
+                    bulkUploadResponse = BulkUploadManager.UpdateBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, bulkUploadResponse.Object.Status, bulkUploadResult);
                 }
             }
             catch (Exception ex)
