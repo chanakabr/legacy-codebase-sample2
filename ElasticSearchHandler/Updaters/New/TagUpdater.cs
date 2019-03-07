@@ -121,25 +121,19 @@ namespace ElasticSearchHandler.Updaters
                     case eAction.On:
                     case eAction.Update:
                         {
-                            GenericListResponse<ApiObjects.SearchObjects.TagValue> tagValues = CatalogManager.GetTagListResponseById(groupId, id);
-
-                            if (tagValues == null || tagValues.Status == null || tagValues.Status.Code != (int)eResponseStatus.OK)
+                            var tagValue = CatalogManager.GetTagById(groupId, id);
+                            if (!tagValue.HasObject())
                             {
                                 result = false;
                                 log.ErrorFormat("Update tag with id {0} failed", id);
                             }
                             else
                             {
-                                foreach (var tagValue in tagValues.Objects)
+                                var status = wrapper.UpdateTag(groupId, catalogGroupCache, tagValue.Object);
+                                if (!status.IsOkStatusCode())
                                 {
-                                    var status = wrapper.UpdateTag(groupId, catalogGroupCache, tagValue);
-
-                                    if (status == null || status.Code != (int)eResponseStatus.OK)
-                                    {
-                                        result = false;
-                                        log.ErrorFormat("Update tag with id {0} failed", id);
-                                    }
-
+                                    result = false;
+                                    log.ErrorFormat("Update tag with id {0} failed", id);
                                 }
                             }
 
