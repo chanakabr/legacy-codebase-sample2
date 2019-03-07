@@ -21,13 +21,13 @@ namespace Core.Catalog.CatalogManagement
         private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success
         private const double MIN_RECORD_DAYS_TO_WATCH = 60;
 
-        public static GenericResponse<BulkUpload> GetBulkUpload(long bulkUploadId)
+        public static GenericResponse<BulkUpload> GetBulkUpload(int groupId, long bulkUploadId)
         {
             GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
             try
             {
                 DataTable dt = CatalogDAL.GetBulkUpload(bulkUploadId);
-                response.Object = CreateBulkUploadFromDataTable(dt, 0);
+                response.Object = CreateBulkUploadFromDataTable(dt, groupId);
                 if (response.Object == null)
                 {
                     response.SetStatus(eResponseStatus.BulkUploadDoesNotExist);
