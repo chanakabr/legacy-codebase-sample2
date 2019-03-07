@@ -191,7 +191,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.actionDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtActionDate)))
                .ForMember(dest => dest.startDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtStartDate)))
                .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dtEndDate)))
-
                .ForMember(dest => dest.billingAction, opt => opt.MapFrom(src => src.m_eBillingAction))
                .ForMember(dest => dest.itemType, opt => opt.MapFrom(src => src.m_eItemType))
                .ForMember(dest => dest.paymentMethod, opt => opt.ResolveUsing(src => ConvertPaymentMethod(src.m_ePaymentMethod)))
@@ -204,7 +203,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.remarks, opt => opt.MapFrom(src => src.m_sRemarks))
                .ForMember(dest => dest.paymentMethodExtraDetails, opt => opt.MapFrom(src => src.m_sPaymentMethodExtraDetails))
                .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_Price))
-               ;
+               .ForMember(dest => dest.ExternalTransactionId, opt => opt.MapFrom(src => src.ExternalTransactionId));
 
             #endregion
 
@@ -282,7 +281,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UserID, opt => opt.MapFrom(src => src.SiteGuid))
                .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.UserFullName))
                .ForMember(dest => dest.billingPriceType, opt => opt.MapFrom(src => src.billingPriceType))
-               ;
+               .ForMember(dest => dest.ExternalTransactionId, opt => opt.MapFrom(src => src.ExternalTransactionId));
 
 
             #endregion

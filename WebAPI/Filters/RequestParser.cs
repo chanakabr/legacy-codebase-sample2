@@ -318,7 +318,7 @@ namespace WebAPI.Filters
         public KeyValuePair<string, object> ParseFormField(byte[] fieldBytes)
         {
             Regex rgxName = new Regex("Content-Disposition: form-data; name=\"?([^\" ]+)\"?", RegexOptions.IgnoreCase);
-            Regex rgxFileName = new Regex("filename=\"?([^\" ]+)\"?", RegexOptions.IgnoreCase);
+            Regex rgxFileName = new Regex("filename=\"?([^\"]+)\"?", RegexOptions.IgnoreCase);
 
             string fieldStr = Encoding.UTF8.GetString(fieldBytes);
             string[] fieldLines = fieldStr.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);

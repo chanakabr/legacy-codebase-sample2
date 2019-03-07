@@ -410,6 +410,10 @@ namespace WebAPI.Models.ConditionalAccess
                     ret.Add("end_date", "\"end_date\": " + endDate);
                 }
             }
+            if(ExternalTransactionId != null)
+            {
+                ret.Add("externalTransactionId", "\"externalTransactionId\": " + "\"" + EscapeJson(ExternalTransactionId) + "\"");
+            }
             if(isRecurring.HasValue)
             {
                 ret.Add("isRecurring", "\"isRecurring\": " + isRecurring.ToString().ToLower());
@@ -522,6 +526,10 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                 ret.Add("end_date", "<end_date>" + endDate + "</end_date>");
                 }
+            }
+            if(ExternalTransactionId != null)
+            {
+                ret.Add("externalTransactionId", "<externalTransactionId>" + EscapeXml(ExternalTransactionId) + "</externalTransactionId>");
             }
             if(isRecurring.HasValue)
             {
