@@ -266,12 +266,24 @@ namespace Core.Catalog
 
         public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns)
         {
+            var dateTimeType = typeof(DateTime);
+            var nullableDateTimeType = typeof(DateTime?);
+
             foreach (var columnValue in columnNamesToValues)
             {
                 if (columns.ContainsKey(columnValue.Key))
                 {
                     var realType = columns[columnValue.Key].Property.PropertyType.GetRealType();
-                    var convertedValue = columnValue.Value.TryConvertTo(realType);
+                    object convertedValue;
+                    if (realType == dateTimeType || realType == nullableDateTimeType)
+                    {
+                        convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
+                    }
+                    else
+                    {
+                        convertedValue = columnValue.Value.TryConvertTo(realType);
+                    }
+                    
                     if (convertedValue != null)
                     {
                         columns[columnValue.Key].Property.SetValue(this, convertedValue);

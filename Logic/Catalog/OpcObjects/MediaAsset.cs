@@ -258,6 +258,8 @@ namespace Core.Catalog
         
         public override void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns)
         {
+            this.AssetType = eAssetTypes.MEDIA;
+
             CatalogGroupCache catalogGroupCache;
             if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
