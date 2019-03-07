@@ -945,7 +945,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // BulkUpload to KalturaBulkUpload
             cfg.CreateMap<BulkUpload, KalturaBulkUpload>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.FileName, opt => opt.MapFrom(src => src.FileName))
+               .ForMember(dest => dest.FileName, opt => opt.MapFrom(src => src.FileURL))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                .ForMember(dest => dest.NumOfObjects, opt => opt.MapFrom(src => src.NumOfObjects))

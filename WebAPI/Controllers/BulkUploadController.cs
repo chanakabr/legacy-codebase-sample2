@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -29,16 +30,28 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        public static KalturaBulkUploadListResponse List(KalturaBulkUploadFilter filter = null, KalturaFilterPager pager = null)
+        public static KalturaBulkUploadListResponse List(KalturaBulkUploadFilter filter, KalturaFilterPager pager = null)
         {
             KalturaBulkUploadListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
+            
+            if (pager == null)
+            {
+                pager = new KalturaFilterPager();
+            }
 
             try
             {
-                // TODO SHIR - List KalturaBulkUploadListResponse
-                throw new NotImplementedException();
-                //response = ClientsManager.CatalogClient().ListBulkUpload(groupId, filter, pager);
+                filter.Validate();
+
+                long? userId = null;
+                if (filter.UserIdEqualCurrent.HasValue && filter.UserIdEqualCurrent.Value)
+                {
+                    userId = Utils.Utils.GetUserIdFromKs();
+                }
+
+                var uploadDate = DateUtils.UtcUnixTimestampSecondsToDateTime(filter.CreateDateGreaterThanOrEqual);
+                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.FileObjectNameEqual, userId, uploadDate, filter.OrderBy, pager.getPageSize(), pager.getPageIndex());
             }
             catch (ClientException ex)
             {
@@ -59,12 +72,10 @@ namespace WebAPI.Controllers
         static public KalturaBulkUpload Get(long id)
         {
             KalturaBulkUpload response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
+            
             try
             {
-                response = ClientsManager.CatalogClient().GetBulkUpload(groupId, id);
+                response = ClientsManager.CatalogClient().GetBulkUpload(id);
             }
             catch (ClientException ex)
             {

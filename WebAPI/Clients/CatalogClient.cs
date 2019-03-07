@@ -119,7 +119,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-
+        
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
             Func<AssetStruct, GenericResponse<AssetStruct>> addAssetStructFunc = (AssetStruct assetStructToAdd) =>
@@ -4036,14 +4036,51 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaBulkUpload GetBulkUpload(int groupId, long id)
+        public KalturaBulkUpload GetBulkUpload(long id)
         {
-            Func<GenericResponse<BulkUpload>> getBulkUploadFunc = () => BulkUploadManager.GetBulkUpload(groupId, id);
+            Func<GenericResponse<BulkUpload>> getBulkUploadFunc = () => BulkUploadManager.GetBulkUpload(id);
 
             KalturaBulkUpload response =
                 ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadFunc);
 
             return response;
+        }
+
+        internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string fileObjectType, long? userId, DateTime? uploadDate, KalturaBulkUploadOrderBy orderBy, int pageSize, int pageIndex)
+        {
+            Func<GenericListResponse<BulkUpload>> getBulkUploadsFunc = () =>
+              BulkUploadManager.GetBulkUploads(groupId, fileObjectType, userId, uploadDate);
+
+            KalturaGenericListResponse<KalturaBulkUpload> response =
+                ClientUtils.GetResponseListFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadsFunc);
+
+            switch (orderBy)
+            {
+                case KalturaBulkUploadOrderBy.UPDATE_DATE_ASC:
+                    response.Objects = response.Objects.OrderBy(x => x.UpdateDate).ToList();
+                    break;
+                case KalturaBulkUploadOrderBy.UPDATE_DATE_DESC:
+                    response.Objects = response.Objects.OrderByDescending(x => x.UpdateDate).ToList();
+                    break;
+                default:
+                    break;
+            }
+
+            KalturaBulkUploadListResponse result = new KalturaBulkUploadListResponse() { TotalCount = 0 };
+            bool illegalRequest;
+            var pagedObjects = response.Objects.Page(pageSize, pageIndex, out illegalRequest);
+
+            if (illegalRequest)
+            {
+                result.Objects.AddRange(response.Objects);
+            }
+            else
+            {
+                result.Objects.AddRange(pagedObjects);
+            }
+            
+            result.TotalCount = response.TotalCount;
+            return result;
         }
 
         internal Dictionary<string, object> GetExcelValues(int groupId, IKalturaExcelableObject kalturaExcelableObject)

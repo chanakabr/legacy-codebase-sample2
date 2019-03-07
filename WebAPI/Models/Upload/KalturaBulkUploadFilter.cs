@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,8 @@ namespace WebAPI.Models.Upload
     public enum KalturaBulkUploadOrderBy
     {
         NONE,
-        UPDATE_DATE
+        UPDATE_DATE_ASC,
+        UPDATE_DATE_DESC,
     }
 
     /// <summary>
@@ -23,30 +25,21 @@ namespace WebAPI.Models.Upload
     public partial class KalturaBulkUploadFilter : KalturaFilter<KalturaBulkUploadOrderBy>
     {
         /// <summary>
-        /// upload date to search within.
+        /// File's objectType name (must be type of KalturaOTTObject)
         /// </summary>
-        [DataMember(Name = "uploadedOnEqual")]
-        [JsonProperty("uploadedOnEqual")]
-        [XmlElement(ElementName = "uploadedOnEqual", IsNullable = true)]
-        public long? UploadedOnEqual { get; set; }
+        [DataMember(Name = "fileObjectNameEqual")]
+        [JsonProperty("fileObjectNameEqual")]
+        [XmlElement(ElementName = "fileObjectNameEqual")]
+        public string FileObjectNameEqual { get; set; }
 
         /// <summary>
-        /// Date Comparison Type.
+        /// upload date to search within (search in the last 60 days)
         /// </summary>
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [DataMember(Name = "dateComparisonType")]
-        [JsonProperty("dateComparisonType")]
-        [XmlElement(ElementName = "dateComparisonType", IsNullable = true)]
-        public KalturaDateComparisonType? DateComparisonType { get; set; }
-
-        /// <summary>
-        /// List of KalturaBulkUploadJobStatus to search within.
-        /// </summary>
-        [DataMember(Name = "statusIn")]
-        [JsonProperty("statusIn")]
-        [XmlElement(ElementName = "statusIn", IsNullable = true)]
-        public string StatusIn { get; set; }
-
+        [DataMember(Name = "createDateGreaterThanOrEqual")]
+        [JsonProperty("createDateGreaterThanOrEqual")]
+        [XmlElement(ElementName = "createDateGreaterThanOrEqual", IsNullable = true)]
+        public long? CreateDateGreaterThanOrEqual { get; set; }
+        
         /// <summary>
         /// Indicates if to get the BulkUpload list that created by current user or by the entire group.
         /// </summary>
@@ -63,14 +56,9 @@ namespace WebAPI.Models.Upload
 
         internal void Validate()
         {
-            if (UploadedOnEqual.HasValue && !DateComparisonType.HasValue)
+            if (string.IsNullOrEmpty(FileObjectNameEqual))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "dateComparisonType");
-            }
-
-            if (DateComparisonType.HasValue && !UploadedOnEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "uploadedOnEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "objectTypeName");
             }
         }
     }
