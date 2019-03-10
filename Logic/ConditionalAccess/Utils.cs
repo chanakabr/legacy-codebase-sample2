@@ -7526,7 +7526,7 @@ namespace Core.ConditionalAccess
             }
             else
             {
-                recording = domainExternalRecordings.First().Value;
+                recording = domainExternalRecordings[domainExternalRecordingId];
             }
 
             return response;
