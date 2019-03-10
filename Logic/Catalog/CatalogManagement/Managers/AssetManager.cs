@@ -2202,14 +2202,14 @@ namespace Core.Catalog.CatalogManagement
                                 }
                             }
                         }
+                    }
 
-                        // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
-                        foreach (var asset in assets.Values)
+                    // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                    foreach (var asset in assets.Values)
+                    {
+                        if (asset.allowedCountries.Count == 0)
                         {
-                            if (asset.allowedCountries.Count == 0)
-                            {
-                                asset.allowedCountries.Add(0);
-                            }
+                            asset.allowedCountries.Add(0);
                         }
                     }
 
