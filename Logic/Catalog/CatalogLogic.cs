@@ -6580,34 +6580,34 @@ namespace Core.Catalog
 
                             break;
                         }
-                    case ExternalRecommendationEngineEnrichment.NPVRSupport:
-                        {
-                            if (request is ExternalChannelRequest)
-                            {
-                                log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-                                    (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
-                            }
-                            break;
-                        }
-                    case ExternalRecommendationEngineEnrichment.Catchup:
-                        {
-                            if (request is ExternalChannelRequest)
-                            {
-                                log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-                                    (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
-                            }
+                    //case ExternalRecommendationEngineEnrichment.NPVRSupport:
+                    //    {
+                    //        if (request is ExternalChannelRequest)
+                    //        {
+                    //            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                    //                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                    //        }
+                    //        break;
+                    //    }
+                    //case ExternalRecommendationEngineEnrichment.Catchup:
+                    //    {
+                    //        if (request is ExternalChannelRequest)
+                    //        {
+                    //            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                    //                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                    //        }
 
-                            break;
-                        }
-                    case ExternalRecommendationEngineEnrichment.Parental:
-                        {
-                            if (request is ExternalChannelRequest)
-                            {
-                                log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-                                    (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
-                            }
-                            break;
-                        }
+                    //        break;
+                    //    }
+                    //case ExternalRecommendationEngineEnrichment.Parental:
+                    //    {
+                    //        if (request is ExternalChannelRequest)
+                    //        {
+                    //            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                    //                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                    //        }
+                    //        break;
+                    //    }
                     case ExternalRecommendationEngineEnrichment.DTTRegion:
                         {
                             // External ID of region of current domain
@@ -6626,16 +6626,16 @@ namespace Core.Catalog
 
                             break;
                         }
-                    case ExternalRecommendationEngineEnrichment.AtHome:
-                        {
-                            if (request is ExternalChannelRequest)
-                            {
-                                log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
-                                    (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
-                            }
+                    //case ExternalRecommendationEngineEnrichment.AtHome:
+                    //    {
+                    //        if (request is ExternalChannelRequest)
+                    //        {
+                    //            log.ErrorFormat("GetEnrichments - channel {0} has unsupported enirchment {1} / {2} defined",
+                    //                (request as ExternalChannelRequest).internalChannelID, (int)enrichment, enrichment.ToString());
+                    //        }
 
-                            break;
-                        }
+                    //        break;
+                    //    }
                     default:
                         {
                             if (request is ExternalChannelRequest)
