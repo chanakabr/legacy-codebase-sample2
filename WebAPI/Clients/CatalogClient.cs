@@ -4046,10 +4046,10 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string fileObjectType, long? userId, DateTime? uploadDate, KalturaBulkUploadOrderBy orderBy, int pageSize, int pageIndex)
+        internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string fileObjectType, long? userId, DateTime? uploadDate, bool shouldGetOnGoingBulkUploads, KalturaBulkUploadOrderBy orderBy, int pageSize, int pageIndex)
         {
             Func<GenericListResponse<BulkUpload>> getBulkUploadsFunc = () =>
-              BulkUploadManager.GetBulkUploads(groupId, fileObjectType, userId, uploadDate);
+              BulkUploadManager.GetBulkUploads(groupId, fileObjectType, userId, uploadDate, shouldGetOnGoingBulkUploads);
 
             KalturaGenericListResponse<KalturaBulkUpload> response =
                 ClientUtils.GetResponseListFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadsFunc);

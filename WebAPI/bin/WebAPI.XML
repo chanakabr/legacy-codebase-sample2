@@ -12428,6 +12428,11 @@
             Indicates if to get the BulkUpload list that created by current user or by the entire group.
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.ShouldGetOnGoingBulkUploads">
+            <summary>
+            Indicates if to get the BulkUpload list that are stil in OnGoing process or finished.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadObjectData">
             <summary>
             indicates the object type in the bulk file

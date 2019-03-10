@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
                 }
 
                 var uploadDate = DateUtils.UtcUnixTimestampSecondsToDateTime(filter.CreateDateGreaterThanOrEqual);
-                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.FileObjectNameEqual, userId, uploadDate, filter.OrderBy, pager.getPageSize(), pager.getPageIndex());
+                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.FileObjectNameEqual, userId, uploadDate, filter.ShouldGetOnGoingBulkUploads, filter.OrderBy, pager.getPageSize(), pager.getPageIndex());
             }
             catch (ClientException ex)
             {

@@ -942,6 +942,8 @@ namespace WebAPI.Reflection
                             return "createDateGreaterThanOrEqual";
                         case "FileObjectNameEqual":
                             return "fileObjectNameEqual";
+                        case "ShouldGetOnGoingBulkUploads":
+                            return "shouldGetOnGoingBulkUploads";
                         case "UserIdEqualCurrent":
                             return "userIdEqualCurrent";
                     }

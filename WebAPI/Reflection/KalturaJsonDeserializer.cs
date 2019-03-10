@@ -18083,7 +18083,6 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlan")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -18091,6 +18090,7 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaPricePlan(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -22101,6 +22101,10 @@ namespace WebAPI.Models.Upload
                 if (parameters.ContainsKey("userIdEqualCurrent") && parameters["userIdEqualCurrent"] != null)
                 {
                     UserIdEqualCurrent = (Boolean) Convert.ChangeType(parameters["userIdEqualCurrent"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("shouldGetOnGoingBulkUploads") && parameters["shouldGetOnGoingBulkUploads"] != null)
+                {
+                    ShouldGetOnGoingBulkUploads = (Boolean) Convert.ChangeType(parameters["shouldGetOnGoingBulkUploads"], typeof(Boolean));
                 }
             }
         }

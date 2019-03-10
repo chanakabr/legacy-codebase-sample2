@@ -49,6 +49,15 @@ namespace WebAPI.Models.Upload
         [XmlElement(ElementName = "userIdEqualCurrent", IsNullable = true)]
         public bool? UserIdEqualCurrent { get; set; }
 
+        /// <summary>
+        /// Indicates if to get the BulkUpload list that are stil in OnGoing process or finished.
+        /// </summary>
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [DataMember(Name = "shouldGetOnGoingBulkUploads")]
+        [JsonProperty("shouldGetOnGoingBulkUploads")]
+        [XmlElement(ElementName = "shouldGetOnGoingBulkUploads")]
+        public bool ShouldGetOnGoingBulkUploads { get; set; }
+
         public override KalturaBulkUploadOrderBy GetDefaultOrderByValue()
         {
             return KalturaBulkUploadOrderBy.NONE;

@@ -21814,6 +21814,7 @@ namespace WebAPI.Models.Upload
             {
                 ret.Add("fileObjectNameEqual", "\"fileObjectNameEqual\": " + "\"" + EscapeJson(FileObjectNameEqual) + "\"");
             }
+            ret.Add("shouldGetOnGoingBulkUploads", "\"shouldGetOnGoingBulkUploads\": " + ShouldGetOnGoingBulkUploads.ToString().ToLower());
             if(UserIdEqualCurrent.HasValue)
             {
                 ret.Add("userIdEqualCurrent", "\"userIdEqualCurrent\": " + UserIdEqualCurrent.ToString().ToLower());
@@ -21834,6 +21835,7 @@ namespace WebAPI.Models.Upload
             {
                 ret.Add("fileObjectNameEqual", "<fileObjectNameEqual>" + EscapeXml(FileObjectNameEqual) + "</fileObjectNameEqual>");
             }
+            ret.Add("shouldGetOnGoingBulkUploads", "<shouldGetOnGoingBulkUploads>" + ShouldGetOnGoingBulkUploads.ToString().ToLower() + "</shouldGetOnGoingBulkUploads>");
             if(UserIdEqualCurrent.HasValue)
             {
                 ret.Add("userIdEqualCurrent", "<userIdEqualCurrent>" + UserIdEqualCurrent.ToString().ToLower() + "</userIdEqualCurrent>");
