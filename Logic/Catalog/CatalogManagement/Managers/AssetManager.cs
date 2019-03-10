@@ -162,9 +162,9 @@ namespace Core.Catalog.CatalogManagement
                 return null;
             }
 
-            // Files table            
+            // Files table
             List<AssetFile> files = null;
-            if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+            if (isForIndex && ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
             {
                 files = FileManager.CreateAssetFileListResponseFromDataTable(groupId, ds.Tables[3]);
                 // get only active files
@@ -1567,13 +1567,21 @@ namespace Core.Catalog.CatalogManagement
                                     {
                                         int countryId = ODBCWrapper.Utils.GetIntSafeVal(row, "COUNTRY_ID");
                                         int isAllowed = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ALLOWED");
+
                                         if (isAllowed > 0)
                                         {
-                                            assets[id].allowedCountries.Add(countryId);
+
+                                            foreach (var asset in assets.Values)
+                                            {
+                                                asset.allowedCountries.Add(countryId);
+                                            }
                                         }
                                         else
                                         {
-                                            assets[id].blockedCountries.Add(countryId);
+                                            foreach (var asset in assets.Values)
+                                            {
+                                                asset.blockedCountries.Add(countryId);
+                                            }
                                         }
                                     }
                                 }
