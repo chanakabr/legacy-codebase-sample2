@@ -584,7 +584,7 @@ namespace DAL
             ret.nMediaID = nMediaID;
             ret.sSiteGUID = userID;
 
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);//CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             string docKey = UtilsDal.GetUserMediaMarkDocKey(userID, nMediaID);
 
             var data = cbManager.Get<string>(docKey);
