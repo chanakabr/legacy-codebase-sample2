@@ -1,19 +1,17 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Response;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
-using System.IO;
-using System.Data;
-using Tvinci.Core.DAL;
-using System.Linq;
-using ApiObjects.Catalog;
 using TVinciShared;
-using Core.Catalog.Cache;
-using APILogic.Api.Managers;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -264,9 +262,8 @@ namespace Core.Catalog.CatalogManagement
                             tagValueToUpsert.tagId = tagValues.Objects[0].tagId;
 
                             var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValueToUpsert.tagId, tagValueToUpsert, USER_ID);
-                            if (!updateTagResponse.HasObject())
+                            if (!updateTagResponse.HasObject() && updateTagResponse.Status.Code != (int)eResponseStatus.NoValuesToUpdate)
                             {
-                                
                                 string errorMsg = string.Format("HandleTagsTranslations-UpdateTag faild. topicName: {0}, topicId: {1}, tagValue: {2}, tagId: {3}, updateTagStatus: {4}.",
                                                                 topic.Key, catalogTopic.Id, tag.Key, tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
                                 ingestResponse.AddError(errorMsg);
