@@ -46,7 +46,7 @@ namespace MediaAssetBulkUploadHandler
                     {
                         request.ObjectData.Id = BulkAssetManager.GetMediaIdByCoGuid(request.GroupID, request.ObjectData.CoGuid);
                     }
-                    log.DebugFormat("before request.ObjectData.Id:{0}", request.ObjectData.Id);
+                    
                     GenericListResponse<Status> jobActionResponse = new GenericListResponse<Status>();
                     switch (request.JobAction)
                     {
@@ -58,9 +58,7 @@ namespace MediaAssetBulkUploadHandler
                         case BulkUploadJobAction.Delete:
                             break;
                     }
-
-                    // TODO SHIR - CHECK IF THIS IS WORKS
-                    log.DebugFormat("after request.ObjectData.Id:{0}", request.ObjectData.Id);
+                    
                     bulkUploadResponse.Object.Results[request.ResultIndex].ObjectId = request.ObjectData.Id;
 
                     if (!jobActionResponse.IsOkStatusCode())
@@ -70,7 +68,15 @@ namespace MediaAssetBulkUploadHandler
                     else
                     {
                         bulkUploadResponse.Object.Results[request.ResultIndex].Status = BulkUploadResultStatus.Ok;
+                        
                         // TODO SHIR - ASK IDDO WHAT TO DO WHIT ERRORS ON IMAGES AND FILES
+                        foreach (var warning in jobActionResponse.Objects)
+                        {
+                            log.WarnFormat("MediaAssetBulkUpload errors in image or file, result:{0}, error:{1}", 
+                                           bulkUploadResponse.Object.Results[request.ResultIndex].ToString(), warning.ToString());
+                            //bulkUploadResponse.Object.Results[request.ResultIndex].SetError(warning);
+                            break;
+                        }
                     }
 
                     bulkUploadResponse = BulkUploadManager.UpdateBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, bulkUploadResponse.Object.Status, bulkUploadResponse.Object.Results[request.ResultIndex]);
