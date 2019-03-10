@@ -1,19 +1,11 @@
 ﻿using ApiObjects;
-using ElasticSearch.Common;
-using GroupsCacheManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using KLogMonitor;
-using System.Reflection;
-using ElasticSearch.Searcher;
-using KlogMonitorHelper;
-using Core.Catalog.CatalogManagement;
-using Newtonsoft.Json.Linq;
 using ApiObjects.Response;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 namespace ElasticSearchHandler.Updaters
 {
     public class TagUpdater : IElasticSearchUpdater
@@ -121,7 +113,7 @@ namespace ElasticSearchHandler.Updaters
                     case eAction.On:
                     case eAction.Update:
                         {
-                            var tagValue = CatalogManager.GetTagById(groupId, id);
+                            var tagValue = CatalogManager.GetTagById(groupId, id, catalogGroupCache.DefaultLanguage.ID);
                             if (!tagValue.HasObject())
                             {
                                 result = false;
