@@ -4072,11 +4072,11 @@ namespace WebAPI.Clients
 
             if (illegalRequest)
             {
-                result.Objects.AddRange(response.Objects);
+                result.Objects = response.Objects;
             }
             else
             {
-                result.Objects.AddRange(pagedObjects);
+                result.Objects = new List<KalturaBulkUpload>(pagedObjects);
             }
             
             result.TotalCount = response.TotalCount;
