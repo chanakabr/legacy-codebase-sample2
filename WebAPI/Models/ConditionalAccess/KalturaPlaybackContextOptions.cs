@@ -101,10 +101,13 @@ namespace WebAPI.Models.ConditionalAccess
                 }
             }
 
-            int validAssetId = 0;
-            if (!int.TryParse(assetId, out validAssetId) || validAssetId == 0)
+            if (!assetType.Equals(Catalog.KalturaAssetType.recording))
             {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "assetId");
+                int validAssetId = 0;
+                if (!int.TryParse(assetId, out validAssetId) || validAssetId == 0)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "assetId");
+                }
             }
         }
     }
