@@ -118,7 +118,7 @@ namespace ApiObjects.MediaMarks
                 FileDuration = fileDuration,
                 AssetAction = this.AssetAction,
                 AssetTypeId = assetTypeId,
-                CreatedAtEpoch = this.TimeStamp,
+                CreatedAtEpoch = this.CreatedAt,
                 MediaConcurrencyRuleIds = this.MediaConcurrencyRuleIds
             };
         }
