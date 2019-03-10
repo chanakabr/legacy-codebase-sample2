@@ -5737,13 +5737,13 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable GetBulkUploadsList(int groupId, string fileObjectType, DateTime createDate)
+        public static DataTable GetBulkUploadsList(int groupId, string fileObjectType, List<int> statusesIn)
         {
             StoredProcedure sp = new StoredProcedure("GetBulkUploadsList");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@fileObjectType", fileObjectType);
-            sp.AddParameter("@since_date", createDate);
+            sp.AddIDListParameter<int>("@statusesIn", statusesIn, "id");
             return sp.Execute();
         }
 

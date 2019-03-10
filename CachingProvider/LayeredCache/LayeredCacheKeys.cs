@@ -1049,6 +1049,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_{0}", GetDomainRecordingsKey(domainId));
         }
 
+        public static string GetBulkUploadsKey(int groupId, string fileObjectType, bool isOnGoing)
+        {
+            return string.Format("bulk_uploads_groupId_{0}_fileObjectType_{1}_isOnGoing_{2}", groupId, fileObjectType, isOnGoing);
+        }
+
+        public static string GetBulkUploadsInvalidationKey(int groupId, string fileObjectType, bool isOnGoing)
+        {
+            return string.Format("invalidationKey_{0}", GetBulkUploadsKey(groupId, fileObjectType, isOnGoing));
+        }
+
         #endregion
 
         #region Domains
