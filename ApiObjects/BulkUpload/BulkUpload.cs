@@ -33,7 +33,10 @@ namespace ApiObjects.BulkUpload
 
         [JsonProperty("FileURL")]
         public string FileURL { get; set; }
-        
+
+        [JsonProperty("FileObjectType")]
+        public string FileObjectType { get; set; }
+
         [JsonProperty("Status")]
         public BulkUploadJobStatus Status { get; set; }
 

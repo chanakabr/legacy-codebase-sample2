@@ -12,6 +12,7 @@ using TVinciShared;
 using System.Linq;
 using System.IO;
 using ApiObjects.BulkUpload;
+using CachingProvider.LayeredCache;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -20,6 +21,24 @@ namespace Core.Catalog.CatalogManagement
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success
         private const double MIN_RECORD_DAYS_TO_WATCH = 60;
+
+        public static readonly List<int> OnGoingBulkUploadJobStatuses = new List<int>()
+        {
+            (int)BulkUploadJobStatus.Pending,
+            (int)BulkUploadJobStatus.Uploaded,
+            (int)BulkUploadJobStatus.Queued,
+            (int)BulkUploadJobStatus.Parsing,
+            (int)BulkUploadJobStatus.Processing,
+            (int)BulkUploadJobStatus.Processed
+        };
+
+        public static readonly List<int> FinishBulkUploadJobStatuses = new List<int>()
+        {
+            (int)BulkUploadJobStatus.Success,
+            (int)BulkUploadJobStatus.Partial,
+            (int)BulkUploadJobStatus.Failed,
+            (int)BulkUploadJobStatus.Fatal
+        };
 
         public static GenericResponse<BulkUpload> GetBulkUpload(int groupId, long bulkUploadId)
         {
@@ -52,8 +71,8 @@ namespace Core.Catalog.CatalogManagement
 
             return response;
         }
-
-        public static GenericListResponse<BulkUpload> GetBulkUploads(int groupId, string fileObjectType, long? userId, DateTime? uploadDate)
+        
+        public static GenericListResponse<BulkUpload> GetBulkUploads(int groupId, string fileObjectType, long? userId, DateTime? uploadDate, bool shouldGetOnGoingBulkUploads)
         {
             var response = new GenericListResponse<BulkUpload>();
             try
@@ -65,21 +84,41 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                if (!uploadDate.HasValue)
+                var bulkUploads = new List<BulkUpload>();
+                string bulkUploadsKey = LayeredCacheKeys.GetBulkUploadsKey(groupId, fileObjectTypeName.Object, shouldGetOnGoingBulkUploads);
+                string bulkUploadsInvalidationKey = LayeredCacheKeys.GetBulkUploadsInvalidationKey(groupId, fileObjectTypeName.Object, shouldGetOnGoingBulkUploads);
+
+                if (!LayeredCache.Instance.Get(bulkUploadsKey,
+                                               ref bulkUploads,
+                                               GetBulkUploadsFromCache,
+                                               new Dictionary<string, object>()
+                                               {
+                                                   { "groupId", groupId },
+                                                   { "fileObjectType", fileObjectType },
+                                                   { "shouldGetOnGoingBulkUploads", shouldGetOnGoingBulkUploads }
+                                               },
+                                               groupId,
+                                               LayeredCacheConfigNames.GET_ALL_ASSET_RULES,
+                                               new List<string>() { bulkUploadsInvalidationKey }))
                 {
-                    uploadDate = DateTime.UtcNow.AddDays(-MIN_RECORD_DAYS_TO_WATCH);
+                    log.ErrorFormat("GetBulkUploads - GetBulkUploadsFromCache - Failed get data from cache. groupId: {0}", groupId);
+                    return response;
+                }
+                
+                response.Objects = bulkUploads;
+
+                if (uploadDate.HasValue)
+                {
+                    response.Objects = response.Objects.Where(x => x.CreateDate >= uploadDate.Value).ToList();
                 }
 
-                DataTable dt = CatalogDAL.GetBulkUploadsList(groupId, fileObjectTypeName.Object, uploadDate.Value);
-                response.Objects = CreateBulkUploadsFromDataTable(dt, groupId);
-
-                if (response.Objects != null)
+                if (userId.HasValue)
                 {
-                    if (userId.HasValue)
-                    {
-                        response.Objects = response.Objects.Where(x => x.UpdaterId == userId.Value).ToList();
-                    }
-                    
+                    response.Objects = response.Objects.Where(x => x.UpdaterId == userId.Value).ToList();
+                }
+
+                if (!shouldGetOnGoingBulkUploads)
+                {
                     foreach (var bulkUpload in response.Objects)
                     {
                         BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUpload.Id);
@@ -109,9 +148,7 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
             try
             {
-                // create new BulkUpload (with no results)
-               
-                // save the new BulkUpload in DB
+                // create and save the new BulkUpload in DB (with no results)
                 DataTable dt = CatalogDAL.AddBulkUpload(groupId, userId, action);
                 response.Object = CreateBulkUploadFromDataTable(dt, groupId);
                 if (response.Object == null)
@@ -278,6 +315,12 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
+                bool shouldSetInvalidationKey = false;
+                if (response.Object.Status != status)
+                {
+                    shouldSetInvalidationKey = true;
+                }
+
                 response.Object.Status = status;
                 response.Object.UpdaterId = userId;
                 
@@ -320,8 +363,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-
-                uint ttl = 0;
+                
                 if (response.Object.NumOfObjects != 0 &&
                     response.Object.NumOfObjects == response.Object.Results.Count)
                 {
@@ -337,8 +379,14 @@ namespace Core.Catalog.CatalogManagement
                     {
                         response.Object.Status = BulkUploadJobStatus.Partial;
                     }
+
+                    if (response.Object.Status != status)
+                    {
+                        shouldSetInvalidationKey = true;
+                    }
                 }
 
+                uint ttl = 0;
                 if (response.Object.Status == BulkUploadJobStatus.Success ||
                     response.Object.Status == BulkUploadJobStatus.Partial ||
                     response.Object.Status == BulkUploadJobStatus.Failed ||
@@ -359,11 +407,24 @@ namespace Core.Catalog.CatalogManagement
                 response.Object.FileURL = updatedBulkUpload.FileURL;
                 response.Object.NumOfObjects = updatedBulkUpload.NumOfObjects;
                 response.Object.UpdateDate = updatedBulkUpload.UpdateDate;
+                response.Object.FileObjectType = updatedBulkUpload.FileObjectType;
 
                 if (!CatalogDAL.SaveBulkUploadCB(response.Object, ttl))
                 {
                     log.ErrorFormat("Error while saving BulkUpload to CB. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUploadId);
                     return response;
+                }
+
+                if (shouldSetInvalidationKey)
+                {
+                    if (ttl == 0)
+                    {
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBulkUploadsInvalidationKey(groupId, response.Object.FileObjectType, true));
+                    }
+                    else
+                    {
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBulkUploadsInvalidationKey(groupId, response.Object.FileObjectType, false));
+                    }
                 }
 
                 response.SetStatus(eResponseStatus.OK);
@@ -431,7 +492,8 @@ namespace Core.Catalog.CatalogManagement
                         GroupId = groupId,
                         CreateDate = ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE"),
                         UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(row, "UPDATE_DATE"),
-                        UpdaterId = ODBCWrapper.Utils.GetLongSafeVal(row, "UPDATER_ID")
+                        UpdaterId = ODBCWrapper.Utils.GetLongSafeVal(row, "UPDATER_ID"),
+                        FileObjectType = ODBCWrapper.Utils.GetSafeStr(row, "FILE_OBJECT_TYPE")
                     };
                 }
             }
@@ -454,6 +516,47 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return enqueueSuccessful;
+        }
+
+        private static Tuple<List<BulkUpload>, bool> GetBulkUploadsFromCache(Dictionary<string, object> funcParams)
+        {
+            List<BulkUpload> bulkUploadList = new List<BulkUpload>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("fileObjectType") && funcParams.ContainsKey("shouldGetOnGoingBulkUploads"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        string fileObjectType = funcParams["fileObjectType"] as string;
+                        bool? shouldGetOnGoingBulkUploads = funcParams["shouldGetOnGoingBulkUploads"] as bool?;
+                        if (groupId.HasValue && !string.IsNullOrEmpty(fileObjectType) && shouldGetOnGoingBulkUploads.HasValue)
+                        {
+                            var statusesIn = new List<int>();
+                            if (shouldGetOnGoingBulkUploads.Value)
+                            {
+                                statusesIn = OnGoingBulkUploadJobStatuses;
+                            }
+                            else
+                            {
+                                statusesIn = FinishBulkUploadJobStatuses;
+                            }
+                            
+                            DataTable dt = CatalogDAL.GetBulkUploadsList(groupId.Value, fileObjectType, statusesIn);
+                            bulkUploadList = CreateBulkUploadsFromDataTable(dt, groupId.Value);
+                            log.DebugFormat("GetBulkUploadsFromCache success, params: {0}.", string.Join(";", funcParams.Keys));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                bulkUploadList = null;
+                log.Error(string.Format("GetBulkUploadsFromCache faild, params: {0}.", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<BulkUpload>, bool>(bulkUploadList, bulkUploadList != null);
         }
     }
 }
