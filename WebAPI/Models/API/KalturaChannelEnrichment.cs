@@ -18,11 +18,7 @@ namespace WebAPI.Models.API
         DeviceType = 16,
         UTCOffset = 32,
         Language = 64,
-        NPVRSupport = 128,
-        Catchup = 256,
-        Parental = 512,
         DTTRegion = 1024,
-        AtHome = 2048
     }
 
     /// <summary>
