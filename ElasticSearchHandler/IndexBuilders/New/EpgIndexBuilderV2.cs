@@ -485,18 +485,23 @@ namespace ElasticSearchHandler.IndexBuilders
                         string serializedEpg = SerializeEPGObject(epg, suffix, doesGroupUsesTemplates);
                         string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
 
-                        string ttl = string.Format("{0}m", Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes));
+                        double totalMinutes = Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes);
 
-                        bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                        if (totalMinutes > 0)
                         {
-                            docID = GetDocumentId(epg),
-                            document = serializedEpg,
-                            index = index,
-                            Operation = eOperation.index,
-                            routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                            type = epgType,
-                            ttl = ttl
-                        });
+                            string ttl = string.Format("{0}m", totalMinutes);
+                            
+                            bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                            {
+                                docID = GetDocumentId(epg),
+                                document = serializedEpg,
+                                index = index,
+                                Operation = eOperation.index,
+                                routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
+                                type = epgType,
+                                ttl = ttl
+                            });
+                        }
                     }
 
                     // If we exceeded maximum size of bulk 
