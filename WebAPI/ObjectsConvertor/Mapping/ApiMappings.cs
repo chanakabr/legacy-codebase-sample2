@@ -3235,7 +3235,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     if (!string.IsNullOrEmpty(pair.Key))
                     {
-                        if (!dict.ContainsKey(pair.Key))
+                        if (!res.ContainsKey(pair.Key))
                         {
                             res.Add(pair.Key, pair.Value.value);
                         }
