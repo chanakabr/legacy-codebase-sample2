@@ -58,7 +58,7 @@ namespace WebAPI.Models.Upload
         {
             if (string.IsNullOrEmpty(FileObjectNameEqual))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "objectTypeName");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fileObjectNameEqual");
             }
         }
     }
