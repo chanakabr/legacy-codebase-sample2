@@ -1489,105 +1489,114 @@ namespace Core.Catalog.CatalogManagement
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
                 {
                     int id = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ID", 0);
-                    if (id > 0 && !groupAssetsMap.ContainsKey(id))
+
+                    try
                     {
-                        DataSet assetDataset = new DataSet();
-                        DataTable basicDataTable = ds.Tables[0].Clone();
-                        basicDataTable.ImportRow(basicDataRow);
-                        assetDataset.Tables.Add(basicDataTable);
-                        if (metas.Any())
+                        if (id > 0 && !groupAssetsMap.ContainsKey(id))
                         {
-                            EnumerableRowCollection<DataRow> assetMetas = (from row in metas
-                                                                           where (Int64)row["ASSET_ID"] == id
-                                                                           select row);
-                            if (assetMetas != null && assetMetas.Any())
+                            DataSet assetDataset = new DataSet();
+                            DataTable basicDataTable = ds.Tables[0].Clone();
+                            basicDataTable.ImportRow(basicDataRow);
+                            assetDataset.Tables.Add(basicDataTable);
+                            if (metas.Any())
                             {
-                                assetDataset.Tables.Add(assetMetas.CopyToDataTable());
-                            }
-                            else
-                            {
-                                assetDataset.Tables.Add(ds.Tables[1].Clone());
-                            }
-                        }
-
-                        if (tags.Any())
-                        {
-                            EnumerableRowCollection<DataRow> assetTags = (from row in tags
-                                                                          where (Int64)row["ASSET_ID"] == id
-                                                                          select row);
-                            if (assetTags != null && assetTags.Any())
-                            {
-                                assetDataset.Tables.Add(assetTags.CopyToDataTable());
-                            }
-                            else
-                            {
-                                assetDataset.Tables.Add(ds.Tables[2].Clone());
-                            }
-                        }
-
-                        // add table for files so CreateMediaAsset will work
-                        assetDataset.Tables.Add(new DataTable());
-
-                        // add table for images so CreateMediaAsset will work
-                        assetDataset.Tables.Add(new DataTable());
-
-                        if (assetUpdateDate.Any())
-                        {
-                            EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
-                                                                                   where (Int64)row["ID"] == id
-                                                                                   select row);
-                            if (assetUpdateDateRow != null && assetUpdateDateRow.Any())
-                            {
-                                assetDataset.Tables.Add(assetUpdateDateRow.CopyToDataTable());
-                            }
-                            else
-                            {
-                                assetDataset.Tables.Add(ds.Tables[5].Clone());
-                            }
-                        }
-
-                        MediaAsset mediaAsset = CreateMediaAsset(groupId, id, assetDataset, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList(), true);
-                        if (mediaAsset != null)
-                        {
-                            EnumerableRowCollection<DataRow> assetFileTypes = null;
-                            if (fileTypes.Any())
-                            {
-                                assetFileTypes = (from row in fileTypes
-                                                  where (Int64)row["MEDIA_ID"] == id
-                                                  select row);
-                            }
-
-                            Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache);
-                            if (geoAvailability.ContainsKey(id))
-                            {
-                                foreach (DataRow row in geoAvailability[id])
+                                EnumerableRowCollection<DataRow> assetMetas = (from row in metas
+                                                                               where (Int64)row["ASSET_ID"] == id
+                                                                               select row);
+                                if (assetMetas != null && assetMetas.Any())
                                 {
-                                    int countryId = ODBCWrapper.Utils.GetIntSafeVal(row, "COUNTRY_ID");
-                                    int isAllowed = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ALLOWED");
-                                    if (isAllowed > 0)
-                                    {
-                                        assets[id].allowedCountries.Add(countryId);
-                                    }
-                                    else
-                                    {
-                                        assets[id].blockedCountries.Add(countryId);
-                                    }
+                                    assetDataset.Tables.Add(assetMetas.CopyToDataTable());
+                                }
+                                else
+                                {
+                                    assetDataset.Tables.Add(ds.Tables[1].Clone());
                                 }
                             }
 
-                            // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
-                            foreach (ApiObjects.SearchObjects.Media media in assets.Values)
+                            if (tags.Any())
                             {
-                                if (media.allowedCountries.Count == 0)
+                                EnumerableRowCollection<DataRow> assetTags = (from row in tags
+                                                                              where (Int64)row["ASSET_ID"] == id
+                                                                              select row);
+                                if (assetTags != null && assetTags.Any())
                                 {
-                                    media.allowedCountries.Add(0);
+                                    assetDataset.Tables.Add(assetTags.CopyToDataTable());
+                                }
+                                else
+                                {
+                                    assetDataset.Tables.Add(ds.Tables[2].Clone());
                                 }
                             }
 
-                            groupAssetsMap.Add((int)mediaAsset.Id, assets);
+                            // add table for files so CreateMediaAsset will work
+                            assetDataset.Tables.Add(new DataTable());
+
+                            // add table for images so CreateMediaAsset will work
+                            assetDataset.Tables.Add(new DataTable());
+
+                            if (assetUpdateDate.Any())
+                            {
+                                EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
+                                                                                       where (Int64)row["ID"] == id
+                                                                                       select row);
+                                if (assetUpdateDateRow != null && assetUpdateDateRow.Any())
+                                {
+                                    assetDataset.Tables.Add(assetUpdateDateRow.CopyToDataTable());
+                                }
+                                else
+                                {
+                                    assetDataset.Tables.Add(ds.Tables[5].Clone());
+                                }
+                            }
+
+                            MediaAsset mediaAsset = CreateMediaAsset(groupId, id, assetDataset, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList(), true);
+                            if (mediaAsset != null)
+                            {
+                                EnumerableRowCollection<DataRow> assetFileTypes = null;
+                                if (fileTypes.Any())
+                                {
+                                    assetFileTypes = (from row in fileTypes
+                                                      where (Int64)row["MEDIA_ID"] == id
+                                                      select row);
+                                }
+
+                                Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache);
+                                if (geoAvailability.ContainsKey(id))
+                                {
+                                    foreach (DataRow row in geoAvailability[id])
+                                    {
+                                        int countryId = ODBCWrapper.Utils.GetIntSafeVal(row, "COUNTRY_ID");
+                                        int isAllowed = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ALLOWED");
+                                        if (isAllowed > 0)
+                                        {
+                                            assets[id].allowedCountries.Add(countryId);
+                                        }
+                                        else
+                                        {
+                                            assets[id].blockedCountries.Add(countryId);
+                                        }
+                                    }
+                                }
+
+                                // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                                foreach (ApiObjects.SearchObjects.Media media in assets.Values)
+                                {
+                                    if (media.allowedCountries.Count == 0)
+                                    {
+                                        media.allowedCountries.Add(0);
+                                    }
+                                }
+
+                                groupAssetsMap.Add((int)mediaAsset.Id, assets);
+                            }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error when creating group media map from data set - for media id {0} ; group {1} ; error = {2}", id, groupId, ex);
+                    }
                 }
+
             }
             catch (Exception ex)
             {
