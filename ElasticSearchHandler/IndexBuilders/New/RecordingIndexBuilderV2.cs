@@ -66,7 +66,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     return;
                 }
 
-                languages = group.GetLangauges();
+                languages = catalogGroupCache.LanguageMapByCode.Values.ToList();
             }
             else
             {
