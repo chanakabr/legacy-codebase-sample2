@@ -98,7 +98,7 @@ namespace Core.Catalog.CatalogManagement
                                                    { "shouldGetOnGoingBulkUploads", shouldGetOnGoingBulkUploads }
                                                },
                                                groupId,
-                                               LayeredCacheConfigNames.GET_ALL_ASSET_RULES,
+                                               LayeredCacheConfigNames.GET_BULK_UPLOADS_FROM_CACHE,
                                                new List<string>() { bulkUploadsInvalidationKey }))
                 {
                     log.ErrorFormat("GetBulkUploads - GetBulkUploadsFromCache - Failed get data from cache. groupId: {0}", groupId);
