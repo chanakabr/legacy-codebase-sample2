@@ -36,7 +36,7 @@ namespace Core.Catalog
         [JsonProperty("AssetType")]
         public eAssetTypes AssetType { get; set; }
 
-        [ExcelColumn(ExcelColumnType.Meta, AssetManager.NAME_META_SYSTEM_NAME, IsMandatory = true)]
+        [ExcelColumn(ExcelColumnType.Meta, AssetManager.NAME_META_SYSTEM_NAME)]
         [JsonProperty("Name")]
         public string Name { get; set; }
 
@@ -365,13 +365,42 @@ namespace Core.Catalog
                 isDefaultLanguage = true;
             }
 
-            if (dicMetas.ContainsKey(excelColumn.SystemName))
+            string nameColName = ExcelColumn.GetFullColumnName(AssetManager.NAME_META_SYSTEM_NAME, excelColumn.Language);
+            string descriptionColName = ExcelColumn.GetFullColumnName(AssetManager.DESCRIPTION_META_SYSTEM_NAME);
+            
+            if (columnValue.Key.Equals(nameColName))
             {
-                dicMetas[excelColumn.SystemName].Add(new LanguageContainer(excelColumn.Language, columnValue.Value.ToString(), isDefaultLanguage));
+                if (string.IsNullOrEmpty(excelColumn.Language))
+                {
+                    this.Name = columnValue.Value as string;
+                }
+                else
+                {
+                    this.NamesWithLanguages.Add(new LanguageContainer(excelColumn.Language, columnValue.Value as string));
+                    
+                }
+            }
+            else if (columnValue.Key.Equals(descriptionColName))
+            {
+                if (string.IsNullOrEmpty(excelColumn.Language))
+                {
+                    this.Description = columnValue.Value as string;
+                }
+                else
+                {
+                    this.DescriptionsWithLanguages.Add(new LanguageContainer(excelColumn.Language, columnValue.Value as string));
+                }
             }
             else
             {
-                dicMetas.Add(excelColumn.SystemName, new List<LanguageContainer>() { new LanguageContainer(excelColumn.Language, columnValue.Value.ToString(), isDefaultLanguage) });
+                if (dicMetas.ContainsKey(excelColumn.SystemName))
+                {
+                    dicMetas[excelColumn.SystemName].Add(new LanguageContainer(excelColumn.Language, columnValue.Value.ToString(), isDefaultLanguage));
+                }
+                else
+                {
+                    dicMetas.Add(excelColumn.SystemName, new List<LanguageContainer>() { new LanguageContainer(excelColumn.Language, columnValue.Value.ToString(), isDefaultLanguage) });
+                }
             }
         }
 
