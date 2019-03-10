@@ -1,15 +1,14 @@
 {
-  "permission_items": [ 
+  "permission_items": [
     {
       "permissions": [
-        "Operator",
         "COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
-      "name": "KalturaChannel_AssetUserRuleId_Write",
+      "name": "KalturaChannel_AssetUserRuleId_Insert",
       "object": "KalturaChannel",
       "parameter": "assetUserRuleId",
-      "action": "WRITE",
+      "action": "INSERT",
       "type": "Parameter"
     }     
   ],
