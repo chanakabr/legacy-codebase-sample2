@@ -3648,10 +3648,10 @@ namespace Core.ConditionalAccess
                         {
                             //todo
                             int mf = 0;
-                            string[] missKeyArray = missKey.Replace("validate_fileId_groupId_", "").Split('_');
-                            if (missKeyArray != null && missKeyArray.Count() > 0)
+                            string[] missKeyArray = missKey.Split('_');
+                            if (missKeyArray != null && missKeyArray.Count() > 2)
                             {
-                                mf = int.Parse(missKeyArray[0]);
+                                mf = int.Parse(missKeyArray[2]);
                             }
 
                             if (mediaFilesStatus.ContainsKey(mf))
@@ -7351,7 +7351,7 @@ namespace Core.ConditionalAccess
                         eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
                         string userId = funcParams["userId"] as string;
                         bool isExternalRecordingAccount = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EXTERNAL_RECORDINGS);
-                        if (!string.IsNullOrEmpty(assetId) && (isExternalRecordingAccount || long.TryParse(assetId, out id))
+                        if (!string.IsNullOrEmpty(assetId) && (long.TryParse(assetId, out id) || isExternalRecordingAccount)
                             && groupId.HasValue && assetType.HasValue && !string.IsNullOrEmpty(userId))
                         {
                             switch (assetType)

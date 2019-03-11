@@ -99,7 +99,14 @@ namespace Core.ConditionalAccess
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
                 bool isExternalRecordingIgnoreMode = assetType == eAssetTypes.NPVR && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EXTERNAL_RECORDINGS);
-                response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);
+                if (assetType != eAssetTypes.MEDIA)
+                {
+                    response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);
+                }
+                else
+                {
+                    mediaId = long.Parse(assetId);
+                }
                 // Allow to continue for external recording (and asset type = NPVR) since we may not be updated on them in real time
                 if (response.Status.Code != (int)eResponseStatus.OK)
                 {
