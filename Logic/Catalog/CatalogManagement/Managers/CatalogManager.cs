@@ -2323,7 +2323,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
-                result = CreateTagValueFromDataSet(ds, catalogGroupCache.DefaultLanguage.ID);
+                result = CreateTagValueFromDataSet(ds);
 
                 if (!result.HasObject())
                 {
@@ -2392,7 +2392,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
-                result = CreateTagValueFromDataSet(ds, catalogGroupCache.DefaultLanguage.ID);
+                result = CreateTagValueFromDataSet(ds);
                 if (!result.HasObject())
                 {
                     return result;
