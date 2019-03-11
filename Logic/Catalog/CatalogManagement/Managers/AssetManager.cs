@@ -164,7 +164,7 @@ namespace Core.Catalog.CatalogManagement
 
             // Files table
             List<AssetFile> files = null;
-            if (isForIndex && ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+            if (!isForIndex && ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
             {
                 files = FileManager.CreateAssetFileListResponseFromDataTable(groupId, ds.Tables[3]);
                 // get only active files
