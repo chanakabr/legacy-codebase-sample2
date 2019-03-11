@@ -160,6 +160,11 @@ namespace ElasticSearchHandler.IndexBuilders
             return RECORDING;
         }
 
+        protected override bool ShouldSetTTL()
+        {
+            return false;
+        }
+
         #endregion
     }
 }

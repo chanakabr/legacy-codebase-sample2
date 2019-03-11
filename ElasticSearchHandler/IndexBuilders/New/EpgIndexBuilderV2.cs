@@ -485,13 +485,16 @@ namespace ElasticSearchHandler.IndexBuilders
                         string serializedEpg = SerializeEPGObject(epg, suffix, doesGroupUsesTemplates);
                         string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
 
-                        double totalMinutes = Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes);
+                        string ttl = string.Empty;
+                        bool shouldSetTTL = ShouldSetTTL();
 
-                        if (totalMinutes > 0)
+                        if (shouldSetTTL)
                         {
-                            string ttl = string.Format("{0}m", totalMinutes);
-                            
-                            bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                            double totalMinutes = GetTTLMinutes(epg);
+                            ttl = string.Format("{0}m", totalMinutes);
+                        }
+
+                        bulkRequests.Add(new ESBulkRequestObj<ulong>()
                             {
                                 docID = GetDocumentId(epg),
                                 document = serializedEpg,
@@ -501,7 +504,6 @@ namespace ElasticSearchHandler.IndexBuilders
                                 type = epgType,
                                 ttl = ttl
                             });
-                        }
                     }
 
                     // If we exceeded maximum size of bulk 
@@ -538,6 +540,16 @@ namespace ElasticSearchHandler.IndexBuilders
                     }
                 }
             }
+        }
+
+        protected virtual bool ShouldSetTTL()
+        {
+            return true;
+        }
+
+        protected virtual double GetTTLMinutes(EpgCB epg)
+        {
+            return Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes);
         }
 
         protected virtual ulong GetDocumentId(ulong epgId)
