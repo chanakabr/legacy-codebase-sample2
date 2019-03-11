@@ -94,7 +94,7 @@ namespace Core.Catalog.CatalogManagement
                                                new Dictionary<string, object>()
                                                {
                                                    { "groupId", groupId },
-                                                   { "fileObjectType", fileObjectType },
+                                                   { "fileObjectType", fileObjectTypeName.Object },
                                                    { "shouldGetOnGoingBulkUploads", shouldGetOnGoingBulkUploads }
                                                },
                                                groupId,
@@ -115,20 +115,6 @@ namespace Core.Catalog.CatalogManagement
                 if (userId.HasValue)
                 {
                     response.Objects = response.Objects.Where(x => x.UpdaterId == userId.Value).ToList();
-                }
-
-                if (!shouldGetOnGoingBulkUploads)
-                {
-                    foreach (var bulkUpload in response.Objects)
-                    {
-                        BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUpload.Id);
-                        if (bulkUploadWithResults != null || bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
-                        {
-                            bulkUpload.Results = bulkUploadWithResults.Results;
-                            bulkUpload.JobData = bulkUploadWithResults.JobData;
-                            bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
-                        }
-                    }
                 }
                 
                 response.SetStatus(eResponseStatus.OK);
@@ -545,6 +531,21 @@ namespace Core.Catalog.CatalogManagement
                             
                             DataTable dt = CatalogDAL.GetBulkUploadsList(groupId.Value, fileObjectType, statusesIn);
                             bulkUploadList = CreateBulkUploadsFromDataTable(dt, groupId.Value);
+
+                            if (!shouldGetOnGoingBulkUploads.Value)
+                            {
+                                foreach (var bulkUpload in bulkUploadList)
+                                {
+                                    BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUpload.Id);
+                                    if (bulkUploadWithResults != null || bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
+                                    {
+                                        bulkUpload.Results = bulkUploadWithResults.Results;
+                                        bulkUpload.JobData = bulkUploadWithResults.JobData;
+                                        bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
+                                    }
+                                }
+                            }
+
                             log.DebugFormat("GetBulkUploadsFromCache success, params: {0}.", string.Join(";", funcParams.Keys));
                         }
                     }
