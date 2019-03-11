@@ -113,7 +113,7 @@ namespace ElasticSearchHandler.Updaters
                     case eAction.On:
                     case eAction.Update:
                         {
-                            var tagValue = CatalogManager.GetTagById(groupId, id, catalogGroupCache.DefaultLanguage.ID);
+                            var tagValue = CatalogManager.GetTagById(groupId, id);
                             if (!tagValue.HasObject())
                             {
                                 result = false;
