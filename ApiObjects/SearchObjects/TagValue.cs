@@ -49,7 +49,7 @@ namespace ApiObjects.SearchObjects
             if (this.tagId != other.tagId)
                 return false;
 
-            if (this.topicId != other.topicId || this.languageId != other.languageId || !this.value.ToLower().Equals(other.value.ToLower()))
+            if (this.topicId != other.topicId || !this.value.ToLower().Equals(other.value.ToLower()))
                 return true;
             
             if (other.TagsInOtherLanguages != null && other.TagsInOtherLanguages.Count > 0)

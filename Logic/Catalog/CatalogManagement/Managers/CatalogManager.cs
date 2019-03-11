@@ -531,7 +531,7 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static GenericResponse<ApiObjects.SearchObjects.TagValue> CreateTagValueFromDataSet(DataSet ds, int defaultLanguageId)
+        private static GenericResponse<ApiObjects.SearchObjects.TagValue> CreateTagValueFromDataSet(DataSet ds)
         {
             var response = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
             response.SetStatus(eResponseStatus.TagDoesNotExist);
@@ -546,7 +546,7 @@ namespace Core.Catalog.CatalogManagement
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> tagTranslations = (from row in translations
                                                          select row).ToList();
-                        response.Object = CreateTag(id, dt.Rows[0], tagTranslations, defaultLanguageId);
+                        response.Object = CreateTag(id, dt.Rows[0], tagTranslations);
                         if (response.Object != null)
                         {
                             response.SetStatus(eResponseStatus.OK);
@@ -563,7 +563,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static ApiObjects.SearchObjects.TagValue CreateTag(long id, DataRow dr, List<DataRow> tagTranslations, int defaultLanguageId)
+        private static ApiObjects.SearchObjects.TagValue CreateTag(long id, DataRow dr, List<DataRow> tagTranslations)
         {
             ApiObjects.SearchObjects.TagValue result = null;
             if (id > 0)
@@ -591,7 +591,6 @@ namespace Core.Catalog.CatalogManagement
                     value = name,
                     tagId = id,
                     topicId = topicId,
-                    languageId = defaultLanguageId,
                     TagsInOtherLanguages = tagsInOtherLanguages,
                     createDate = createDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate.Value) : 0,
                     updateDate = updateDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(updateDate.Value) : 0
@@ -2355,7 +2354,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                result = GetTagById(groupId, id, catalogGroupCache.DefaultLanguage.ID);
+                result = GetTagById(groupId, id);
                 if (!result.HasObject())
                 {
                     return result;
@@ -2429,7 +2428,7 @@ namespace Core.Catalog.CatalogManagement
                     return tagResponse.Status;
                 }
 
-                tagResponse = GetTagById(groupId, tagId, catalogGroupCache.DefaultLanguage.ID);
+                tagResponse = GetTagById(groupId, tagId);
                 if (!tagResponse.HasObject())
                 {
                     return tagResponse.Status;
@@ -2467,14 +2466,14 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="groupId"></param>
         /// <param name="tagId"></param>
         /// <returns></returns>
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> GetTagById(int groupId, long tagId, int defaultLanguageId)
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> GetTagById(int groupId, long tagId)
         {
             var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
 
             try
             {
                 DataSet ds = CatalogDAL.GetTag(groupId, tagId);
-                result = CreateTagValueFromDataSet(ds, defaultLanguageId);
+                result = CreateTagValueFromDataSet(ds);
             }
             catch (Exception ex)
             {
@@ -2527,7 +2526,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!tagIds.Contains(tagValue.tagId))
                 {
                     tagIds.Add(tagValue.tagId);
-                    var tagResponse = GetTagById(groupId, tagValue.tagId, catalogGroupCache.DefaultLanguage.ID);
+                    var tagResponse = GetTagById(groupId, tagValue.tagId);
                     if (tagResponse.HasObject())
                     {
                         result.Objects.Add(tagResponse.Object);

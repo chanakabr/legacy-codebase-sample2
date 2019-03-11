@@ -260,14 +260,18 @@ namespace Core.Catalog.CatalogManagement
                         else
                         {
                             tagValueToUpsert.tagId = tagValues.Objects[0].tagId;
-
-                            var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValueToUpsert.tagId, tagValueToUpsert, USER_ID);
-                            if (!updateTagResponse.HasObject() && updateTagResponse.Status.Code != (int)eResponseStatus.NoValuesToUpdate)
+                            tagValueToUpsert.TagsInOtherLanguages = tagValueToUpsert.TagsInOtherLanguages.Union(tagValues.Objects[0].TagsInOtherLanguages, new LanguageContainerComparer()).ToList();
+                            
+                            if (tagValues.Objects[0].IsNeedToUpdate(tagValueToUpsert))
                             {
-                                string errorMsg = string.Format("HandleTagsTranslations-UpdateTag faild. topicName: {0}, topicId: {1}, tagValue: {2}, tagId: {3}, updateTagStatus: {4}.",
-                                                                topic.Key, catalogTopic.Id, tag.Key, tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
-                                ingestResponse.AddError(errorMsg);
-                                log.Debug(errorMsg);
+                                var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValueToUpsert.tagId, tagValueToUpsert, USER_ID);
+                                if (!updateTagResponse.HasObject() && updateTagResponse.Status.Code != (int)eResponseStatus.NoValuesToUpdate)
+                                {
+                                    string errorMsg = string.Format("HandleTagsTranslations-UpdateTag faild. topicName: {0}, topicId: {1}, tagValue: {2}, tagId: {3}, updateTagStatus: {4}.",
+                                                                    topic.Key, catalogTopic.Id, tag.Key, tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
+                                    ingestResponse.AddError(errorMsg);
+                                    log.Debug(errorMsg);
+                                }
                             }
                         }
                     }
