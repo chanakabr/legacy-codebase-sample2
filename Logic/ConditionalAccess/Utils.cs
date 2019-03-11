@@ -7524,6 +7524,10 @@ namespace Core.ConditionalAccess
                 response = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, "Recording was not found");
                 return response;
             }
+            else
+            {
+                recording = domainExternalRecordings[domainExternalRecordingId];
+            }
 
             return response;
         }
