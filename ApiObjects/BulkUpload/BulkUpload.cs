@@ -47,7 +47,7 @@ namespace ApiObjects.BulkUpload
         public int? NumOfObjects { get; set; }
 
         [JsonProperty("GroupId")]
-        public long GroupId { get; set; }
+        public int GroupId { get; set; }
         
         [JsonProperty("CreateDate")]
         public DateTime CreateDate { get; set; }

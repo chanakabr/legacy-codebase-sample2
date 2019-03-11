@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace ApiObjects.BulkUpload
@@ -34,6 +35,9 @@ namespace ApiObjects.BulkUpload
 
         [JsonProperty("ErrorMessage")]
         public string ErrorMessage { get; private set; }
+
+        [JsonProperty("Warnings")]
+        public List<Status> Warnings { get; set; }
 
         public BulkUploadResult()
         {
