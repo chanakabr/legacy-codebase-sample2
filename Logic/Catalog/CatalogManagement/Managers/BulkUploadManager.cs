@@ -36,7 +36,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataTable dt = CatalogDAL.GetBulkUpload(bulkUploadId);
-                response.Object = CreateBulkUploadFromDataTable(dt, groupId);
+                response.Object = CreateBulkUploadFromDataTable(dt, groupId, true);
                 if (response.Object == null)
                 {
                     response.SetStatus(eResponseStatus.BulkUploadDoesNotExist);
@@ -428,19 +428,19 @@ namespace Core.Catalog.CatalogManagement
             }
         }
         
-        private static BulkUpload CreateBulkUploadFromDataTable(DataTable dt, int groupId)
+        private static BulkUpload CreateBulkUploadFromDataTable(DataTable dt, int groupId, bool shouldGetValuesFromCB = false)
         {
             BulkUpload bulkUpload = null;
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                bulkUpload = CreateBulkUploadFromRow(dt.Rows[0], groupId);
+                bulkUpload = CreateBulkUploadFromRow(dt.Rows[0], groupId, shouldGetValuesFromCB);
             }
 
             return bulkUpload;
         }
 
-        private static BulkUpload CreateBulkUploadFromRow(DataRow row, int groupId)
+        private static BulkUpload CreateBulkUploadFromRow(DataRow row, int groupId, bool shouldGetValuesFromCB = false)
         {
             BulkUpload bulkUpload = null;
 
@@ -465,7 +465,7 @@ namespace Core.Catalog.CatalogManagement
                         BulkObjectType = ODBCWrapper.Utils.GetSafeStr(row, "BULK_OBJECT_TYPE")
                     };
 
-                    if (FinishedBulkUploadStatuses.Contains(bulkUpload.Status))
+                    if (shouldGetValuesFromCB || FinishedBulkUploadStatuses.Contains(bulkUpload.Status))
                     {
                         BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUpload.Id);
                         if (bulkUploadWithResults != null || bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
