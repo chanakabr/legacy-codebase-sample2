@@ -337,13 +337,14 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
         
-        public static GenericResponse<BulkUpload> UpdateBulkUpload(BulkUpload bulkUploadToUpdate, BulkUploadJobStatus status, BulkUploadResult result = null)
+        public static GenericResponse<BulkUpload> UpdateBulkUpload(BulkUpload bulkUploadToUpdate, BulkUploadJobStatus newStatus, BulkUploadResult result = null)
         {
             var response = new GenericResponse<BulkUpload>();
             try
             {
                 var originalStatus = bulkUploadToUpdate.Status;
                 response.Object = bulkUploadToUpdate;
+                response.Object.Status = newStatus;
 
                 // check update result
                 if (result != null)
@@ -384,7 +385,7 @@ namespace Core.Catalog.CatalogManagement
                                 
                 if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
                 {
-                    log.ErrorFormat("UpdateBulkUpload - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, status);
+                    log.ErrorFormat("UpdateBulkUpload - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
@@ -393,7 +394,7 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error(string.Format("An Exception was occurred in UpdateBulkUpload. bulkUpload:{0}, status:{1}",
-                                        response.Object.ToString(), status), ex);
+                                        response.Object.ToString(), newStatus), ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
@@ -558,7 +559,7 @@ namespace Core.Catalog.CatalogManagement
         private static BulkUploadJobStatus GetBulkStatusByResultsStatus(BulkUpload bulkUpload)
         {
             BulkUploadJobStatus newStatus = bulkUpload.Status;
-            if (bulkUpload.NumOfObjects.Value == bulkUpload.Results.Count)
+            if (bulkUpload.NumOfObjects.HasValue && bulkUpload.NumOfObjects.Value == bulkUpload.Results.Count)
             {
                 if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok))
                 {
