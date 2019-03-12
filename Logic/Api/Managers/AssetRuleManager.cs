@@ -113,15 +113,32 @@ namespace Core.Api.Managers
                         {
                             log.DebugFormat("going to update index for {0} assets", result.Count);
 
-                            if (Catalog.Module.UpdateIndex(result, groupId, eAction.Update))
+                            if (doesGroupUsesTemplates)
                             {
-                                log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", result));
-                                return result.Count;
+                                foreach (var assetId in result)
+                                {
+                                    bool indexingResult = Catalog.CatalogManagement.IndexManager.UpsertMedia(groupId, assetId);
+                                    if (!indexingResult)
+                                    {
+                                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}", assetId);
+                                    }
+
+                                    Catalog.CatalogManagement.AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetId);
+                                }
+
                             }
                             else
                             {
-                                log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
-                                return 0;
+                                if (Catalog.Module.UpdateIndex(result, groupId, eAction.Update))
+                                {
+                                    log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", result));
+                                    return result.Count;
+                                }
+                                else
+                                {
+                                    log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
+                                    return 0;
+                                }
                             }
                         }
 
