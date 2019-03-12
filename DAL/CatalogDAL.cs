@@ -5705,7 +5705,7 @@ namespace Tvinci.Core.DAL
             return string.Format("bulk_upload_{0}", bulkUploadId);
         }
         
-        public static DataTable AddBulkUpload(int groupId, long userId, BulkUploadJobAction action)
+        public static DataTable AddBulkUpload(int groupId, long userId, BulkUploadJobAction action, string fileName)
         {
             StoredProcedure sp = new StoredProcedure("InsertBulkUpload");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5713,6 +5713,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@action", (int)action);
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@fileName", fileName);
             return sp.Execute();
         }
 
@@ -5724,7 +5725,7 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable UpdateBulkUpload(long bulkUploadId, BulkUploadJobStatus status, long userId, string fileURL, string fileObjectType, int? numOfObjects)
+        public static DataTable UpdateBulkUpload(long bulkUploadId, BulkUploadJobStatus status, long userId, string fileURL, string bulkObjectType, int? numOfObjects)
         {
             StoredProcedure sp = new StoredProcedure("UpdateBulkUpload");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5732,17 +5733,17 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@statusCode", (int)status);
             sp.AddParameter("@updaterId", userId);
             sp.AddParameter("@fileURL", fileURL);
-            sp.AddParameter("@fileObjectType", fileObjectType);
+            sp.AddParameter("@bulkObjectType", bulkObjectType);
             sp.AddParameter("@numOfObjects", numOfObjects);
             return sp.Execute();
         }
 
-        public static DataTable GetBulkUploadsList(int groupId, string fileObjectType, List<int> statusesIn)
+        public static DataTable GetBulkUploadsList(int groupId, string bulkObjectType, List<int> statusesIn)
         {
             StoredProcedure sp = new StoredProcedure("GetBulkUploadsList");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@fileObjectType", fileObjectType);
+            sp.AddParameter("@bulkObjectType", bulkObjectType);
             sp.AddIDListParameter<int>("@statusesIn", statusesIn, "id");
             return sp.Execute();
         }
@@ -5759,8 +5760,23 @@ namespace Tvinci.Core.DAL
             return UtilsDal.GetObjectFromCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey);
         }
 
+        public static bool DeleteBulkUpload(long bulkUploadId)
+        {
+            // TODO SHIR - create DeleteBulkUpload SP
+            StoredProcedure sp = new StoredProcedure("DeleteBulkUpload");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@bulkUploadId", bulkUploadId);
+
+            if (sp.ExecuteReturnValue<int>() > 0)
+            {
+                return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, GetBulkUploadKey(bulkUploadId));
+            }
+
+            return false;
+        }
+
         #endregion
-		
+
         public static List<string> ConvertUserMediaMarksToKeys(string userId, IEnumerable<AssetAndLocation> assetsAndLocations)
         {
             List<string> result = new List<string>();

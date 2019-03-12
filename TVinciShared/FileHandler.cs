@@ -19,6 +19,7 @@ namespace TVinciShared
         protected abstract GenericResponse<string> GetSubDir(string id, string typeName);
         protected abstract GenericResponse<string> GetSubDir(long id, string typeName);
         protected abstract string GetUrl(string subDir, string fileName);
+        protected abstract Status Delete(string fileURL);
 
         public bool ShouldDeleteSourceFile { get; protected set; }
         private const string KALTURA = "Kaltura";
@@ -58,6 +59,11 @@ namespace TVinciShared
             }
 
             return null;
+        }
+
+        public Status DeleteFile(string fileUrl)
+        {
+            return Delete(fileUrl);
         }
 
         public GenericResponse<string> SaveFile(string id, FileInfo fileInfo, Type objectType)
@@ -211,7 +217,37 @@ namespace TVinciShared
             saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Could not save file:{0} to S3", fileName));
             return saveResponse;
         }
-        
+
+        protected override Status Delete(string fileURL)
+        {
+            var deleteResponse = new Status((int)eResponseStatus.Error);
+            for (int i = 0; i < NumberOfRetries; i++)
+            {
+                using (var client = new AmazonS3Client(AccessKey, SecretKey, Amazon.RegionEndpoint.GetBySystemName(Region)))
+                {
+                    try
+                    {
+                        using (var fileTransferUtility = new TransferUtility(client))
+                        {
+                            File.Delete(fileURL);
+                            deleteResponse.Set(eResponseStatus.OK);
+                            return deleteResponse;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Format("An Exception was occurred in Delete file from S3, attempt: {0}/{1}. fileURL:{2}",
+                                                i + 1, NumberOfRetries, fileURL), ex);
+                        deleteResponse.Set(eResponseStatus.Error, string.Format("Error while Delete file:{0} from S3", fileURL));
+                        return deleteResponse;
+                    }
+                }
+            }
+
+            deleteResponse.Set(eResponseStatus.Error, string.Format("Could not Delete file:{0} from S3", fileURL));
+            return deleteResponse;
+        }
+
         protected override GenericResponse<string> GetSubDir(string id, string typeName)
         {
             GenericResponse<string> subDirResponse = new GenericResponse<string>()
@@ -281,6 +317,31 @@ namespace TVinciShared
             saveResponse.Object = GetUrl(subDir, fileName);
             saveResponse.SetStatus(eResponseStatus.OK);
             return saveResponse;
+        }
+
+        protected override Status Delete(string fileURL)
+        {
+            var deleteResponse = new Status((int)eResponseStatus.Error);
+
+            if (!File.Exists(fileURL))
+            {
+                deleteResponse.Set(eResponseStatus.FileDoesNotExists, string.Format("file:{0} does not exists.", fileURL));
+                return deleteResponse;
+            }
+
+            try
+            {
+                File.Delete(fileURL);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("An Exception was occurred in Save file to FileSystem. fileURL:{0}.", fileURL));
+                deleteResponse.Set(eResponseStatus.Error, string.Format("Error while delete file:{0} from FileSystem", fileURL));
+                return deleteResponse;
+            }
+
+            deleteResponse.Set(eResponseStatus.OK);
+            return deleteResponse;
         }
 
         private static void CreateSubDir(string destDir)
