@@ -4056,6 +4056,9 @@ namespace WebAPI.Clients
             KalturaGenericListResponse<KalturaBulkUpload> response =
                 ClientUtils.GetResponseListFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadsFunc);
 
+            if (response.Objects == null)
+                response.Objects = new List<KalturaBulkUpload>();
+
             switch (orderBy)
             {
                 case KalturaBulkUploadOrderBy.UPDATE_DATE_ASC:

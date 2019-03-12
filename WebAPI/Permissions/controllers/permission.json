@@ -12,7 +12,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "Permission_List",

@@ -3,7 +3,10 @@
     {
       "permissions": [
         "ASSETSTRUCT_MNG",
-        "ASSETSTRUCT_VIEW"
+        "ASSETSTRUCT_VIEW",
+        "ASSETS_VIEW",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "AssetStruct_List",

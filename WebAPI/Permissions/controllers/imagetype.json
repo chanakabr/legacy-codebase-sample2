@@ -4,7 +4,10 @@
       "permissions": [
         "IMAGETYPE_MNG",
         "IMAGETYPE_VIEW",
-        "MEDIAFILETYPE_VIEW"
+        "MEDIAFILETYPE_VIEW",
+        "ASSETS_VIEW",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "ImageType_List",
