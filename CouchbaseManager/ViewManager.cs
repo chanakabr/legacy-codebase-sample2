@@ -422,7 +422,8 @@ namespace CouchbaseManager
                             {
                                 log.ErrorFormat("Error while getting value from view. Status code = {0}; Status = {1}", (int)getResult.Value.Status, getResult.Value.Status.ToString());
 
-                                if (getResult.Value.Exception != null)
+                                if (getResult.Value.Exception != null && getResult.Value.Status != Couchbase.IO.ResponseStatus.KeyNotFound &&
+                                    !(getResult.Value.Exception is Couchbase.DocumentDoesNotExistException))
                                 {
                                     throw getResult.Value.Exception;
                                 }

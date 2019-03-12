@@ -201,7 +201,10 @@ namespace DalCB
             try
             {
                 result = cbManager.GetJsonAsT<EpgCB>(id);
-                result.DocumentId = id;
+                if (result != null)
+                {
+                    result.DocumentId = id;
+                }
             }
             catch (Exception ex)
             {
