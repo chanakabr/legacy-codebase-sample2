@@ -258,7 +258,14 @@ namespace WebAPI.Models.General
 
                     try
                     {
-                        value = (T)Convert.ChangeType(stringValue, t);
+                        if (t.IsEnum)
+                        {
+                            value = (T)Enum.Parse(t, stringValue);
+                        }
+                        else
+                        {
+                            value = (T)Convert.ChangeType(stringValue, t);
+                        }
                     }
                     catch (Exception)
                     {

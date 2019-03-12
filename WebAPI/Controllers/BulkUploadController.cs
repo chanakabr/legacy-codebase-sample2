@@ -37,7 +37,8 @@ namespace WebAPI.Controllers
             
             try
             {
-                filter.Validate();
+                DateTime createDate;
+                filter.Validate(out createDate);
 
                 long? userId = null;
                 if (filter.UploadedByUserIdEqualCurrent.HasValue && filter.UploadedByUserIdEqualCurrent.Value)
@@ -45,9 +46,8 @@ namespace WebAPI.Controllers
                     userId = Utils.Utils.GetUserIdFromKs();
                 }
 
-                var uploadDate = DateUtils.UtcUnixTimestampSecondsToDateTime(filter.CreateDateGreaterThanOrEqual);
                 var statuses = filter.GetItemsIn<List<KalturaBulkUploadJobStatus>, KalturaBulkUploadJobStatus>(filter.StatusIn, "statusIn");
-                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.BulkObjectNameEqual, statuses, userId, uploadDate, filter.OrderBy, pager);
+                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.BulkObjectNameEqual, statuses, createDate, userId, filter.OrderBy, pager);
             }
             catch (ClientException ex)
             {

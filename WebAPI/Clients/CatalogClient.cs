@@ -4046,19 +4046,16 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string bulkObjectType, List<KalturaBulkUploadJobStatus> statuses, long? userId, DateTime? uploadDate, KalturaBulkUploadOrderBy orderBy, KalturaFilterPager pager)
+        internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string bulkObjectType, List<KalturaBulkUploadJobStatus> statuses, DateTime createDate, long? userId, KalturaBulkUploadOrderBy orderBy, KalturaFilterPager pager)
         {
             var statusesIn = AutoMapper.Mapper.Map<List<BulkUploadJobStatus>>(statuses);
 
             Func<GenericListResponse<BulkUpload>> getBulkUploadsFunc = () =>
-              BulkUploadManager.GetBulkUploads(groupId, bulkObjectType, statusesIn, userId, uploadDate);
+              BulkUploadManager.GetBulkUploads(groupId, bulkObjectType, createDate, statusesIn, userId);
 
             KalturaGenericListResponse<KalturaBulkUpload> response =
                 ClientUtils.GetResponseListFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadsFunc);
-
-            if (response.Objects == null)
-                response.Objects = new List<KalturaBulkUpload>();
-
+            
             switch (orderBy)
             {
                 case KalturaBulkUploadOrderBy.UPDATE_DATE_ASC:

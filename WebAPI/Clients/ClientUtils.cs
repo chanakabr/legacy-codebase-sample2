@@ -142,6 +142,10 @@ namespace WebAPI.Clients
                 result.Objects = AutoMapper.Mapper.Map<List<U>>(response.Objects);
                 result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
             }
+            else
+            {
+                result.Objects = new List<U>();
+            }
             
             return result;
         }
