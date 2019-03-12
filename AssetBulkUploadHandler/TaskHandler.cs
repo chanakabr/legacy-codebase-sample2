@@ -21,83 +21,53 @@ namespace MediaAssetBulkUploadHandler
             {
                 log.DebugFormat("starting MediaAssetBulkUpload task. data={0}.", data);
                 var request = JsonConvert.DeserializeObject<MediaAssetBulkUploadRequest>(data);
-                var bulkUploadResponse = BulkUploadManager.GetBulkUpload(request.GroupID, request.BulkUploadId);
-                if (!bulkUploadResponse.HasObject())
-                {
-                    var errorMassage = string.Format("{0} for BulkUploadId:{1}.", eResponseStatus.BulkUploadDoesNotExist.ToString(), request.BulkUploadId);
-                    log.Error(errorMassage);
-                    return errorMassage;
-                }
-
-                if (request.ResultIndex >= bulkUploadResponse.Object.Results.Count)
+                
+                if (request.ObjectData == null)
                 {
                     var errorMassage = string.Format("{0} for BulkUploadId:{1}, ResultIndex:{2}.", eResponseStatus.BulkUploadResultIsMissing.ToString(), request.BulkUploadId, request.ResultIndex);
                     log.Error(errorMassage);
+                    BulkUploadManager.UpdateBulkUploadResult(request.GroupID, request.BulkUploadId, request.ResultIndex, new Status((int)eResponseStatus.BulkUploadResultIsMissing, "BulkUploadResult Is Missing"));
                     return errorMassage;
                 }
-
-                if (request.ObjectData != null)
+                
+                if (request.ObjectData.CoGuid.Equals("*"))
                 {
-                    if (request.ObjectData.CoGuid.Equals("*"))
-                    {
-                        request.ObjectData.CoGuid = "kaltura_" + Guid.NewGuid().ToString();
-                    }
-                    else
-                    {
-                        request.ObjectData.Id = BulkAssetManager.GetMediaIdByCoGuid(request.GroupID, request.ObjectData.CoGuid);
-                    }
-                    
-                    GenericListResponse<Status> jobActionResponse = new GenericListResponse<Status>();
-                    switch (request.JobAction)
-                    {
-                        case BulkUploadJobAction.Upsert:
-                            var images = GetImages(request.ObjectData.Images);
-                            var assetFiles = GetAssetFiles(request.ObjectData.Files);
-                            jobActionResponse = BulkAssetManager.UpsertMediaAsset(request.GroupID, request.ObjectData, request.UserId, images, assetFiles, ExcelManager.DATE_FORMAT, false);
-                            break;
-                        case BulkUploadJobAction.Delete:
-                            break;
-                    }
-                    
-                    bulkUploadResponse.Object.Results[request.ResultIndex].ObjectId = request.ObjectData.Id;
-
-                    if (!jobActionResponse.IsOkStatusCode())
-                    {
-                        bulkUploadResponse.Object.Results[request.ResultIndex].SetError(jobActionResponse.Status);
-                    }
-                    else
-                    {
-                        bulkUploadResponse.Object.Results[request.ResultIndex].Status = BulkUploadResultStatus.Ok;
-                        
-                        // TODO SHIR - ASK IDDO WHAT TO DO WHIT ERRORS ON IMAGES AND FILES
-                        foreach (var warning in jobActionResponse.Objects)
-                        {
-                            log.WarnFormat("MediaAssetBulkUpload errors in image or file, result:{0}, error:{1}", 
-                                           bulkUploadResponse.Object.Results[request.ResultIndex].ToString(), warning.ToString());
-                            //bulkUploadResponse.Object.Results[request.ResultIndex].SetError(warning);
-                            break;
-                        }
-                    }
-
-                    bulkUploadResponse = BulkUploadManager.UpdateBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, bulkUploadResponse.Object.Status, bulkUploadResponse.Object.Results[request.ResultIndex]);
-                    if (!bulkUploadResponse.HasObject())
-                    {
-                        var errorMassage = string.Format("MediaAssetBulkUpload task did not finish successfully. {0}", jobActionResponse != null ? jobActionResponse.ToString() : string.Empty);
-                        log.Error(errorMassage);
-                        throw new Exception(errorMassage);
-                    }
-                    else
-                    {
-                        return "success";
-                    }
+                    request.ObjectData.CoGuid = "kaltura_" + Guid.NewGuid().ToString();
                 }
                 else
                 {
-                    var bulkUploadResult = bulkUploadResponse.Object.Results[request.ResultIndex];
-                    bulkUploadResult.SetError(new Status((int)eResponseStatus.BulkUploadResultIsMissing, "BulkUploadResult Is Missing"));
-                    log.ErrorFormat("bulkUploadResult:{0}", bulkUploadResult.ToString());
-                    BulkUploadManager.UpdateBulkUpload(request.GroupID, request.UserId, request.BulkUploadId, bulkUploadResponse.Object.Status, bulkUploadResult);
-                    return "BulkUploadResult Is Missing";
+                    request.ObjectData.Id = BulkAssetManager.GetMediaIdByCoGuid(request.GroupID, request.ObjectData.CoGuid);
+                }
+
+                GenericListResponse<Status> jobActionResponse = new GenericListResponse<Status>();
+                switch (request.JobAction)
+                {
+                    case BulkUploadJobAction.Upsert:
+                        var images = GetImages(request.ObjectData.Images);
+                        var assetFiles = GetAssetFiles(request.ObjectData.Files);
+                        jobActionResponse = BulkAssetManager.UpsertMediaAsset(request.GroupID, request.ObjectData, request.UserId, images, assetFiles, ExcelManager.DATE_FORMAT, false);
+                        break;
+                    case BulkUploadJobAction.Delete:
+                        break;
+                }
+
+                Status errorStatus = null;
+                if (!jobActionResponse.IsOkStatusCode())
+                {
+                    errorStatus = jobActionResponse.Status;
+                }
+                
+                var resultStatus = BulkUploadManager.UpdateBulkUploadResult(request.GroupID, request.BulkUploadId, request.ResultIndex, errorStatus, request.ObjectData.Id, jobActionResponse.Objects);
+                if (!resultStatus.IsOkStatusCode())
+                {
+                    var errorMassage = string.Format("MediaAssetBulkUpload task for BulkUploadId:{0}, ResultIndex:{1} did not finish successfully. resultStatus:{2}", 
+                                                      request.BulkUploadId, request.ResultIndex, resultStatus.ToString());
+                    log.Error(errorMassage);
+                    throw new Exception(errorMassage);
+                }
+                else
+                {
+                    return "success";
                 }
             }
             catch (Exception ex)
