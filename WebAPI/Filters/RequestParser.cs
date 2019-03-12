@@ -370,9 +370,7 @@ namespace WebAPI.Filters
         private object CreateRandomFileName(string fileName)
         {
             var randomFileName = Path.GetRandomFileName();
-            // TODO SHIR - CHECK CreateRandomFileName 
             return Path.GetFileNameWithoutExtension(randomFileName) + Path.GetExtension(fileName);
-            //return randomFileName.Remove(randomFileName.LastIndexOf(".")) + fileName.Substring(fileName.LastIndexOf("."));
         }
 
         public async Task<Dictionary<string, object>> ParseFormData(HttpActionContext actionContext)
