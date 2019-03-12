@@ -35,23 +35,19 @@ namespace WebAPI.Controllers
             KalturaBulkUploadListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
             
-            if (pager == null)
-            {
-                pager = new KalturaFilterPager();
-            }
-
             try
             {
                 filter.Validate();
 
                 long? userId = null;
-                if (filter.UserIdEqualCurrent.HasValue && filter.UserIdEqualCurrent.Value)
+                if (filter.UploadedByUserIdEqualCurrent.HasValue && filter.UploadedByUserIdEqualCurrent.Value)
                 {
                     userId = Utils.Utils.GetUserIdFromKs();
                 }
 
                 var uploadDate = DateUtils.UtcUnixTimestampSecondsToDateTime(filter.CreateDateGreaterThanOrEqual);
-                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.FileObjectNameEqual, userId, uploadDate, filter.ShouldGetOnGoingBulkUploads, filter.OrderBy, pager.getPageSize(), pager.getPageIndex());
+                var statuses = filter.GetItemsIn<List<KalturaBulkUploadJobStatus>, KalturaBulkUploadJobStatus>(filter.StatusIn, "statusIn");
+                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.BulkObjectNameEqual, statuses, userId, uploadDate, filter.OrderBy, pager);
             }
             catch (ClientException ex)
             {

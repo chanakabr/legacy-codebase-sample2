@@ -1384,7 +1384,7 @@ namespace WebAPI.Controllers
                 
                 if (bulkUploadJobData is KalturaBulkUploadExcelJobData)
                 {
-                    bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.path, userId, typeof(KalturaMediaAsset), bulkUploadJobData, bulkUploadAssetData); 
+                    bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, typeof(KalturaMediaAsset), bulkUploadJobData, bulkUploadAssetData); 
                 }
                 else
                 {

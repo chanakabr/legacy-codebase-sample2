@@ -27,10 +27,10 @@ namespace WebAPI.Models.Upload
         /// <summary>
         /// File's objectType name (must be type of KalturaOTTObject)
         /// </summary>
-        [DataMember(Name = "fileObjectNameEqual")]
-        [JsonProperty("fileObjectNameEqual")]
-        [XmlElement(ElementName = "fileObjectNameEqual")]
-        public string FileObjectNameEqual { get; set; }
+        [DataMember(Name = "bulkObjectNameEqual")]
+        [JsonProperty("bulkObjectNameEqual")]
+        [XmlElement(ElementName = "bulkObjectNameEqual")]
+        public string BulkObjectNameEqual { get; set; }
 
         /// <summary>
         /// upload date to search within (search in the last 60 days)
@@ -44,19 +44,19 @@ namespace WebAPI.Models.Upload
         /// Indicates if to get the BulkUpload list that created by current user or by the entire group.
         /// </summary>
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [DataMember(Name = "userIdEqualCurrent")]
-        [JsonProperty("userIdEqualCurrent")]
-        [XmlElement(ElementName = "userIdEqualCurrent", IsNullable = true)]
-        public bool? UserIdEqualCurrent { get; set; }
+        [DataMember(Name = "uploadedByUserIdEqualCurrent")]
+        [JsonProperty("uploadedByUserIdEqualCurrent")]
+        [XmlElement(ElementName = "uploadedByUserIdEqualCurrent", IsNullable = true)]
+        public bool? UploadedByUserIdEqualCurrent { get; set; }
 
         /// <summary>
-        /// Indicates if to get the BulkUpload list that are stil in OnGoing process or finished.
+        /// BulkUpload Statuses to search\filter
         /// </summary>
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [DataMember(Name = "shouldGetOnGoingBulkUploads")]
-        [JsonProperty("shouldGetOnGoingBulkUploads")]
-        [XmlElement(ElementName = "shouldGetOnGoingBulkUploads")]
-        public bool ShouldGetOnGoingBulkUploads { get; set; }
+        [DataMember(Name = "statusIn")]
+        [JsonProperty(PropertyName = "statusIn")]
+        [XmlArray(ElementName = "statusIn", IsNullable = true)]
+        [SchemeProperty(DynamicType = typeof(KalturaBulkUploadJobStatus))]
+        public string StatusIn { get; set; }
 
         public override KalturaBulkUploadOrderBy GetDefaultOrderByValue()
         {
@@ -65,7 +65,7 @@ namespace WebAPI.Models.Upload
 
         internal void Validate()
         {
-            if (string.IsNullOrEmpty(FileObjectNameEqual))
+            if (string.IsNullOrEmpty(BulkObjectNameEqual))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fileObjectNameEqual");
             }

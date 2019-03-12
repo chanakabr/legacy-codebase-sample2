@@ -33,7 +33,7 @@ namespace WebAPI.Models.Upload
         [XmlElement(ElementName = "fileName")]
         [SchemeProperty(ReadOnly = true)]
         public string FileName { get; set; }
-
+        
         /// <summary>
         /// Status
         /// </summary>
@@ -78,7 +78,16 @@ namespace WebAPI.Models.Upload
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
-        
+
+        /// <summary>
+        /// The user who uploaded this bulk
+        /// </summary>
+        [DataMember(Name = "uploadedByUserId")]
+        [JsonProperty("uploadedByUserId ")]
+        [XmlElement(ElementName = "uploadedByUserId ")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UploadedByUserId { get; set; }
+
         /// <summary>
         /// A list of results
         /// </summary>

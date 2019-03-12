@@ -77,6 +77,16 @@ namespace WebAPI.Models.Upload
         [JsonProperty("errorMessage")]
         [SchemeProperty(ReadOnly = true)]
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// A list of warnings
+        /// </summary>
+        [DataMember(Name = "warnings")]
+        [JsonProperty("warnings")]
+        [XmlArray(ElementName = "warnings", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        [SchemeProperty(ReadOnly = true)]
+        public List<KalturaMessage> Warnings { get; set; }
     }
 
     public abstract partial class KalturaBulkUploadAssetResult : KalturaBulkUploadResult

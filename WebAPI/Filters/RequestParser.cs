@@ -361,7 +361,7 @@ namespace WebAPI.Filters
                 Array.Copy(fieldBytes, index, bytes, 0, bytes.Length);
                 File.WriteAllBytes(filePath, bytes);
 
-                return new KeyValuePair<string, object>(name, new KalturaOTTFile(filePath));
+                return new KeyValuePair<string, object>(name, new KalturaOTTFile(filePath, fileName));
             }
 
             return new KeyValuePair<string, object>("aaa", "bb");
@@ -369,8 +369,10 @@ namespace WebAPI.Filters
 
         private object CreateRandomFileName(string fileName)
         {
-            var ret = Path.GetRandomFileName();
-            return ret.Remove(ret.LastIndexOf(".")) + fileName.Substring(fileName.LastIndexOf("."));
+            var randomFileName = Path.GetRandomFileName();
+            // TODO SHIR - CHECK CreateRandomFileName 
+            return Path.GetFileNameWithoutExtension(randomFileName) + Path.GetExtension(fileName);
+            //return randomFileName.Remove(randomFileName.LastIndexOf(".")) + fileName.Substring(fileName.LastIndexOf("."));
         }
 
         public async Task<Dictionary<string, object>> ParseFormData(HttpActionContext actionContext)

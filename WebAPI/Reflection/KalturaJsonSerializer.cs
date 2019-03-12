@@ -5039,6 +5039,44 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
+    public partial class KalturaMessage
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Args != null)
+            {
+                propertyValue = "{" + String.Join(", ", Args.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("args", "\"args\": " + propertyValue);
+            }
+            ret.Add("code", "\"code\": " + Code);
+            if(Message != null)
+            {
+                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Args != null)
+            {
+                propertyValue = Args.Count > 0 ? "<item>" + String.Join("</item><item>", Args.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("args", "<args>" + propertyValue + "</args>");
+            }
+            ret.Add("code", "<code>" + Code + "</code>");
+            if(Message != null)
+            {
+                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaMultilingualStringValue
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -21698,6 +21736,7 @@ namespace WebAPI.Models.Upload
             }
             ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), Status) + "\"");
             ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            ret.Add("uploadedByUserId", "\"uploadedByUserId\": " + UploadedByUserId);
             return ret;
         }
         
@@ -21724,6 +21763,7 @@ namespace WebAPI.Models.Upload
             }
             ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), Status) + "" + "</status>");
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            ret.Add("uploadedByUserId", "<uploadedByUserId>" + UploadedByUserId + "</uploadedByUserId>");
             return ret;
         }
     }
@@ -21806,18 +21846,21 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(BulkObjectNameEqual != null)
+            {
+                ret.Add("bulkObjectNameEqual", "\"bulkObjectNameEqual\": " + "\"" + EscapeJson(BulkObjectNameEqual) + "\"");
+            }
             if(CreateDateGreaterThanOrEqual.HasValue)
             {
                 ret.Add("createDateGreaterThanOrEqual", "\"createDateGreaterThanOrEqual\": " + CreateDateGreaterThanOrEqual);
             }
-            if(FileObjectNameEqual != null)
+            if(StatusIn != null)
             {
-                ret.Add("fileObjectNameEqual", "\"fileObjectNameEqual\": " + "\"" + EscapeJson(FileObjectNameEqual) + "\"");
+                ret.Add("statusIn", "\"statusIn\": " + "\"" + EscapeJson(StatusIn) + "\"");
             }
-            ret.Add("shouldGetOnGoingBulkUploads", "\"shouldGetOnGoingBulkUploads\": " + ShouldGetOnGoingBulkUploads.ToString().ToLower());
-            if(UserIdEqualCurrent.HasValue)
+            if(UploadedByUserIdEqualCurrent.HasValue)
             {
-                ret.Add("userIdEqualCurrent", "\"userIdEqualCurrent\": " + UserIdEqualCurrent.ToString().ToLower());
+                ret.Add("uploadedByUserIdEqualCurrent", "\"uploadedByUserIdEqualCurrent\": " + UploadedByUserIdEqualCurrent.ToString().ToLower());
             }
             return ret;
         }
@@ -21827,18 +21870,21 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(BulkObjectNameEqual != null)
+            {
+                ret.Add("bulkObjectNameEqual", "<bulkObjectNameEqual>" + EscapeXml(BulkObjectNameEqual) + "</bulkObjectNameEqual>");
+            }
             if(CreateDateGreaterThanOrEqual.HasValue)
             {
                 ret.Add("createDateGreaterThanOrEqual", "<createDateGreaterThanOrEqual>" + CreateDateGreaterThanOrEqual + "</createDateGreaterThanOrEqual>");
             }
-            if(FileObjectNameEqual != null)
+            if(StatusIn != null)
             {
-                ret.Add("fileObjectNameEqual", "<fileObjectNameEqual>" + EscapeXml(FileObjectNameEqual) + "</fileObjectNameEqual>");
+                ret.Add("statusIn", "<statusIn>" + EscapeXml(StatusIn) + "</statusIn>");
             }
-            ret.Add("shouldGetOnGoingBulkUploads", "<shouldGetOnGoingBulkUploads>" + ShouldGetOnGoingBulkUploads.ToString().ToLower() + "</shouldGetOnGoingBulkUploads>");
-            if(UserIdEqualCurrent.HasValue)
+            if(UploadedByUserIdEqualCurrent.HasValue)
             {
-                ret.Add("userIdEqualCurrent", "<userIdEqualCurrent>" + UserIdEqualCurrent.ToString().ToLower() + "</userIdEqualCurrent>");
+                ret.Add("uploadedByUserIdEqualCurrent", "<uploadedByUserIdEqualCurrent>" + UploadedByUserIdEqualCurrent.ToString().ToLower() + "</uploadedByUserIdEqualCurrent>");
             }
             return ret;
         }
@@ -21947,6 +21993,11 @@ namespace WebAPI.Models.Upload
                 ret.Add("objectId", "\"objectId\": " + ObjectId);
             }
             ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadResultStatus), Status) + "\"");
+            if(Warnings != null)
+            {
+                propertyValue = "[" + String.Join(", ", Warnings.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("warnings", "\"warnings\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -21970,6 +22021,11 @@ namespace WebAPI.Models.Upload
                 ret.Add("objectId", "<objectId>" + ObjectId + "</objectId>");
             }
             ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaBulkUploadResultStatus), Status) + "" + "</status>");
+            if(Warnings != null)
+            {
+                propertyValue = Warnings.Count > 0 ? "<item>" + String.Join("</item><item>", Warnings.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("warnings", "<warnings>" + propertyValue + "</warnings>");
+            }
             return ret;
         }
     }

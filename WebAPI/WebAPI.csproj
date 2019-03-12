@@ -847,6 +847,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaCaptionPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecordingFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitationsListResponse.cs" />
+    <Compile Include="Models\General\KalturaMessage.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
     <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />
     <Compile Include="Models\Partner\KalturaGeneralPartnerConfig.cs" />

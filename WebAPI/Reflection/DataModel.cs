@@ -914,6 +914,8 @@ namespace WebAPI.Reflection
                             return "status";
                         case "UpdateDate":
                             return "updateDate";
+                        case "UploadedByUserId":
+                            return "uploadedByUserId";
                     }
                     break;
                     
@@ -938,14 +940,14 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadFilter":
                     switch(property.Name)
                     {
+                        case "BulkObjectNameEqual":
+                            return "bulkObjectNameEqual";
                         case "CreateDateGreaterThanOrEqual":
                             return "createDateGreaterThanOrEqual";
-                        case "FileObjectNameEqual":
-                            return "fileObjectNameEqual";
-                        case "ShouldGetOnGoingBulkUploads":
-                            return "shouldGetOnGoingBulkUploads";
-                        case "UserIdEqualCurrent":
-                            return "userIdEqualCurrent";
+                        case "StatusIn":
+                            return "statusIn";
+                        case "UploadedByUserIdEqualCurrent":
+                            return "uploadedByUserIdEqualCurrent";
                     }
                     break;
                     
@@ -972,6 +974,8 @@ namespace WebAPI.Reflection
                             return "objectId";
                         case "Status":
                             return "status";
+                        case "Warnings":
+                            return "warnings";
                     }
                     break;
                     
@@ -3316,6 +3320,18 @@ namespace WebAPI.Reflection
                             return "version";
                         case "Width":
                             return "width";
+                    }
+                    break;
+                    
+                case "KalturaMessage":
+                    switch(property.Name)
+                    {
+                        case "Args":
+                            return "args";
+                        case "Code":
+                            return "code";
+                        case "Message":
+                            return "message";
                     }
                     break;
                     

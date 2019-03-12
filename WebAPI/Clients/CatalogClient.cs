@@ -4026,12 +4026,12 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string filePath, long userId, Type objectType, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData)
+        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string fileName, long userId, string filePath, Type objectType, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData)
         {
             var bulkUploadJobData = AutoMapper.Mapper.Map<BulkUploadJobData>(jobData);
             var bulkUploadObjectData = AutoMapper.Mapper.Map<BulkUploadObjectData>(objectData);
 
-            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, filePath, userId, objectType, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData);
+            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, fileName, userId, filePath, objectType, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData);
             KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
             return result;
         }
@@ -4046,10 +4046,12 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string fileObjectType, long? userId, DateTime? uploadDate, bool shouldGetOnGoingBulkUploads, KalturaBulkUploadOrderBy orderBy, int pageSize, int pageIndex)
+        internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string bulkObjectType, List<KalturaBulkUploadJobStatus> statuses, long? userId, DateTime? uploadDate, KalturaBulkUploadOrderBy orderBy, KalturaFilterPager pager)
         {
+            var statusesIn = AutoMapper.Mapper.Map<List<BulkUploadJobStatus>>(statuses);
+
             Func<GenericListResponse<BulkUpload>> getBulkUploadsFunc = () =>
-              BulkUploadManager.GetBulkUploads(groupId, fileObjectType, userId, uploadDate, shouldGetOnGoingBulkUploads);
+              BulkUploadManager.GetBulkUploads(groupId, bulkObjectType, statusesIn, userId, uploadDate);
 
             KalturaGenericListResponse<KalturaBulkUpload> response =
                 ClientUtils.GetResponseListFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadsFunc);
@@ -4067,16 +4069,24 @@ namespace WebAPI.Clients
             }
 
             KalturaBulkUploadListResponse result = new KalturaBulkUploadListResponse() { TotalCount = 0 };
-            bool illegalRequest;
-            var pagedObjects = response.Objects.Page(pageSize, pageIndex, out illegalRequest);
 
-            if (illegalRequest)
+            if (pager == null)
             {
                 result.Objects = response.Objects;
             }
             else
             {
-                result.Objects = new List<KalturaBulkUpload>(pagedObjects);
+                bool illegalRequest;
+                var pagedObjects = response.Objects.Page(pager.getPageSize(), pager.getPageIndex(), out illegalRequest);
+                
+                if (illegalRequest)
+                {
+                    result.Objects = response.Objects;
+                }
+                else
+                {
+                    result.Objects = new List<KalturaBulkUpload>(pagedObjects);
+                }
             }
             
             result.TotalCount = response.TotalCount;
