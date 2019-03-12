@@ -436,7 +436,7 @@ namespace Core.Catalog
             return null;
         }
 
-        public virtual bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex)
+        public virtual bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
         {
             return false;
         }

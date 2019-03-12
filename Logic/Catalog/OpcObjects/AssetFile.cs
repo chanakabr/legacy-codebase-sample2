@@ -409,7 +409,7 @@ namespace Core.Catalog
             return null;
         }
 
-        public bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex)
+        public bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
         {
             return false;
         }

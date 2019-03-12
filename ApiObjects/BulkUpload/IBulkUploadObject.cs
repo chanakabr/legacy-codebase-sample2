@@ -8,7 +8,7 @@ namespace ApiObjects.BulkUpload
         BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus);
         string DistributedTask { get; }
         string RoutingKey { get; }
-        bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex);
+        bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex);
     }
 
     public interface IExcelObject : IBulkUploadObject

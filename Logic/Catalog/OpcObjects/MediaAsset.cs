@@ -436,11 +436,11 @@ namespace Core.Catalog
             return bulkUploadAssetResult;
         }
         
-        public override bool Enqueue(int groupId, long userId, long bulkUploadId, BulkUploadJobAction jobAction, int resultIndex)
+        public override bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
-            var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, groupId, userId, bulkUploadId, jobAction, resultIndex, this);
-            bool enqueueSuccessful = queue.Enqueue(data, string.Format(this.RoutingKey, groupId));
+            var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, resultIndex, this);
+            bool enqueueSuccessful = queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId));
 
             return enqueueSuccessful;
         }
