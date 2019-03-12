@@ -7351,8 +7351,8 @@ namespace Core.ConditionalAccess
                         eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
                         string userId = funcParams["userId"] as string;
                         bool isExternalRecordingAccount = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EXTERNAL_RECORDINGS);
-                        if (!string.IsNullOrEmpty(assetId) && (long.TryParse(assetId, out id) || isExternalRecordingAccount)
-                            && groupId.HasValue && assetType.HasValue && !string.IsNullOrEmpty(userId))
+                        if (!string.IsNullOrEmpty(assetId) && assetType.HasValue && groupId.HasValue && !string.IsNullOrEmpty(userId)
+                            && (long.TryParse(assetId, out id) || (isExternalRecordingAccount && assetType.Value == eAssetTypes.NPVR)))
                         {
                             switch (assetType)
                             {
