@@ -247,19 +247,7 @@ namespace WebAPI.App_Start
                 var defaultType = typeof(string);
                 foreach (var col in columns)
                 {
-                    // TODO SHIR - SET TYPE
-                    //Type columnType = defaultType;
-                    //if (col.Value.Property != null)
-                    //{
-                    //    columnType = col.Value.Property.PropertyType.GetRealType();
-                    //    if (columnType.IsClass && !columnType.IsSealed)
-                    //    {
-                    //        columnType = defaultType;
-                    //    }
-                    //}
-
                     dataTable.Columns.Add(col.Key, defaultType);
-                    //dataTable.Columns.Add(col.Key);
                 }
 
                 if (objects != null && objects.Count > 0)
