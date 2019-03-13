@@ -163,6 +163,12 @@ namespace PermissionsManager
                 Dictionary<string, int> permissionsDictionary = new Dictionary<string, int>();
                 Dictionary<string, int> permissionItemsDictionary = new Dictionary<string, int>();
 
+                var alreadyExistingRoles = new HashSet<string>();
+                var alreadyExistingPermissions = new HashSet<string>();
+                var alreadyExistingPermissionItems = new HashSet<string>();
+                var alreadyExistingPermissionRoles = new HashSet<KeyValuePair<string, string>>();
+                var alreadyExistingPermissionPermissionItems = new HashSet<KeyValuePair<string, string>>();
+
                 #region Role
                 {
                     var sourceRoles = source.Tables[ROLE];
@@ -171,28 +177,40 @@ namespace PermissionsManager
                     sourceRoles.PrimaryKey = new DataColumn[] { sourceRoles.Columns["id"] };
                     destinationRoles.PrimaryKey = new DataColumn[] { destinationRoles.Columns["id"] };
 
+                    foreach (DataRow destinationRole in destinationRoles.Rows)
+                    {
+                        int destinationId = Convert.ToInt32(destinationRole["id"]);
+                        string destinationName = Convert.ToString(destinationRole["name"]);
+                        alreadyExistingRoles.Add(destinationName);
+                    }
+
                     // Insert/Update
                     foreach (DataRow sourceRole in sourceRoles.Rows)
                     {
                         int sourceId = Convert.ToInt32(sourceRole["id"]);
                         string sourceName = Convert.ToString(sourceRole["name"]);
 
-                        DataRow destinationRole = destinationRoles.AsEnumerable().FirstOrDefault(row =>
-                            Convert.ToString(row["name"]) == sourceName);
-
-                        // not found - it is new, insert
-                        if (destinationRole == null)
+                        // check if this role exists in destination - if it does, there is nothing to do
+                        if (!alreadyExistingRoles.Contains(sourceName))
                         {
-                            int newId = ApiDAL.InsertRole(sourceName);
+                            DataRow destinationRole = destinationRoles.AsEnumerable().FirstOrDefault(row =>
+                                Convert.ToString(row["name"]) == sourceName);
 
-                            rolesDictionary[sourceName] = newId;
+                            // not found - it is new, insert
+                            if (destinationRole == null)
+                            {
+                                int newId = ApiDAL.InsertRole(sourceName);
 
-                            log.InfoFormat("!!INSERT!! Table : {0} Source id : {1} Source name : {2}", ROLE, sourceId, sourceName);
-                        }
-                        else
-                        // found - check for differences
-                        {
-                            // in case of role we have only name field, so we're cool like this
+                                rolesDictionary[sourceName] = newId;
+                                alreadyExistingRoles.Add(sourceName);
+
+                                log.InfoFormat("!!INSERT!! Table : {0} Source id : {1} Source name : {2}", ROLE, sourceId, sourceName);
+                            }
+                            else
+                            // found - check for differences
+                            {
+                                // in case of role we have only name field, so we're cool like this
+                            }
                         }
                     }
 
@@ -226,6 +244,12 @@ namespace PermissionsManager
                     sourceTable.PrimaryKey = new DataColumn[] { sourceTable.Columns["id"] };
                     destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
 
+                    foreach (DataRow destinationRow in destinationTable.Rows)
+                    {
+                        string destinationName = Convert.ToString(destinationRow["name"]);
+                        alreadyExistingPermissions.Add(destinationName);
+                    }
+
                     // Insert/Update
                     foreach (DataRow sourceRow in sourceTable.Rows)
                     {
@@ -247,12 +271,21 @@ namespace PermissionsManager
                         // not found - it is new, insert
                         if (destinationRow == null)
                         {
-                            int newId = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup);
+                            if (!alreadyExistingPermissions.Contains(sourceName))
+                            {
+                                int newId = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup);
 
-                            permissionsDictionary[sourceName] = newId;
+                                permissionsDictionary[sourceName] = newId;
+                                alreadyExistingPermissions.Add(sourceName);
 
-                            log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} name : {2} type : {3} users group : {4}", PERMISSION,
-                                sourceId, sourceName, sourceType, sourceUsersGroup);
+                                log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} name : {2} type : {3} users group : {4}", PERMISSION,
+                                    sourceId, sourceName, sourceType, sourceUsersGroup);
+                            }
+                            else
+                            {
+                                log.WarnFormat("!!DUPLICATION SUSPECT!!  Table : {0} Source Id : {1} name : {2} type : {3} users group : {4}", PERMISSION,
+                                    sourceId, sourceName, sourceType, sourceUsersGroup);
+                            }
                         }
                         else
                         // found - check for differences
@@ -304,6 +337,14 @@ namespace PermissionsManager
                     sourceTable.PrimaryKey = new DataColumn[] { sourceTable.Columns["id"] };
                     destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
 
+                    foreach (DataRow destinationRow in destinationTable.Rows)
+                    {
+                        string destinationRoleName = ExtractValue<string>(destinationRow, "role_name");
+                        string destinationPermissionName = ExtractValue<string>(destinationRow, "permission_name");
+
+                        alreadyExistingPermissionRoles.Add(new KeyValuePair<string, string>(destinationPermissionName, destinationRoleName));
+                    }
+
                     // Insert/Update
                     foreach (DataRow sourceRow in sourceTable.Rows)
                     {
@@ -337,14 +378,28 @@ namespace PermissionsManager
                             // not found - it is new, insert
                             if (destinationRow == null)
                             {
-                                int newId = ApiDAL.InsertPermissionRole(destinationRoleId, destinationPermissionId, sourceIsExcluded);
+                                if (!alreadyExistingPermissionRoles.Contains(new KeyValuePair<string, string>(sourcePermissionName, sourceRoleName)))
+                                {
+                                    int newId = ApiDAL.InsertPermissionRole(destinationRoleId, destinationPermissionId, sourceIsExcluded);
 
-                                log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} role_id : {2} permission_id : {3} is_excluded : {4} " +
-                                    "role_name : {5} permission_name : {6}",
-                                    ROLE_PERMISSION,
-                                    sourceId, destinationRoleId, destinationPermissionId, sourceIsExcluded,
-                                    sourceRoleName,
-                                    sourcePermissionName);
+                                    alreadyExistingPermissionRoles.Add(new KeyValuePair<string, string>(sourcePermissionName, sourceRoleName));
+
+                                    log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} role_id : {2} permission_id : {3} is_excluded : {4} " +
+                                        "role_name : {5} permission_name : {6}",
+                                        ROLE_PERMISSION,
+                                        sourceId, destinationRoleId, destinationPermissionId, sourceIsExcluded,
+                                        sourceRoleName,
+                                        sourcePermissionName);
+                                }
+                                else
+                                {
+                                    log.WarnFormat("!!DUPLICATION SUSPECT!! Table : {0} Source Id : {1} role_id : {2} permission_id : {3} is_excluded : {4} " +
+                                        "role_name : {5} permission_name : {6}",
+                                        ROLE_PERMISSION,
+                                        sourceId, destinationRoleId, destinationPermissionId, sourceIsExcluded,
+                                        sourceRoleName,
+                                        sourcePermissionName);
+                                }
                             }
                             else
                             // found - check for differences
@@ -403,6 +458,12 @@ namespace PermissionsManager
                     sourceTable.PrimaryKey = new DataColumn[] { sourceTable.Columns["id"] };
                     destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
 
+                    foreach (DataRow destinationRow in destinationTable.Rows)
+                    {
+                        string destinationName = Convert.ToString(destinationRow["name"]);
+                        alreadyExistingPermissionItems.Add(destinationName);
+                    }
+
                     // Insert/Update
                     foreach (DataRow sourceRow in sourceTable.Rows)
                     {
@@ -420,12 +481,22 @@ namespace PermissionsManager
                         // not found - it is new, insert new permission item
                         if (destinationRow == null)
                         {
-                            int newId = ApiDAL.InsertPermissionItem(sourceName, sourceType, sourceService, sourceAction, sourceObject, sourceParameter);
+                            if (!alreadyExistingPermissionItems.Contains(sourceName))
+                            {
+                                int newId = ApiDAL.InsertPermissionItem(sourceName, sourceType, sourceService, sourceAction, sourceObject, sourceParameter);
 
-                            permissionItemsDictionary[sourceName] = newId;
+                                permissionItemsDictionary[sourceName] = newId;
+                                alreadyExistingPermissionItems.Add(sourceName);
 
-                            log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} name : {2} type: {3} service : {4} action : {5} object : {6} parameter : {7}",
-                                PERMISSION_ITEM, sourceId, sourceName, sourceType, sourceService, sourceAction, sourceObject, sourceParameter);
+                                log.InfoFormat("!!INSERT!! Table : {0} Source Id : {1} name : {2} type: {3} service : {4} action : {5} object : {6} parameter : {7}",
+                                    PERMISSION_ITEM, sourceId, sourceName, sourceType, sourceService, sourceAction, sourceObject, sourceParameter);
+                            }
+                            else
+                            {
+                                log.InfoFormat("!!DUPLICATION SUSPECT!! Table : {0} Source Id : {1} name : {2} type: {3} service : " +
+                                    " {4} action : {5} object : {6} parameter : {7}",
+                                    PERMISSION_ITEM, sourceId, sourceName, sourceType, sourceService, sourceAction, sourceObject, sourceParameter);
+                            }
                         }
                         else
                         // found - check for differences - permission item
@@ -486,6 +557,14 @@ namespace PermissionsManager
                     sourceTable.PrimaryKey = new DataColumn[] { sourceTable.Columns["id"] };
                     destinationTable.PrimaryKey = new DataColumn[] { destinationTable.Columns["id"] };
 
+                    foreach (DataRow destinationRow in destinationTable.Rows)
+                    {
+                        string destinationPermissionName = ExtractValue<string>(destinationRow, "permission_name");
+                        string destinationPermissionItemName = ExtractValue<string>(destinationRow, "permission_item_name");
+
+                        alreadyExistingPermissionPermissionItems.Add(new KeyValuePair<string, string>(destinationPermissionName, destinationPermissionItemName));
+                    }
+
                     // Insert/Update
                     foreach (DataRow sourceRow in sourceTable.Rows)
                     {
@@ -499,7 +578,6 @@ namespace PermissionsManager
                         DataRow destinationRow = destinationTable.AsEnumerable().FirstOrDefault(row =>
                              sourcePermissionName == ExtractValue<string>(row, "permission_name") &&
                              sourcePermissionItemName == ExtractValue<string>(row, "permission_item_name"));
-
 
                         if (!permissionsDictionary.ContainsKey(sourcePermissionName))
                         {
@@ -521,13 +599,28 @@ namespace PermissionsManager
                             // not found - it is new, insert new permission permission item
                             if (destinationRow == null)
                             {
-                                int newId = ApiDAL.InsertPermissionPermissionItem(destinationPermissionId, destinationPermissionItemId, sourceIsExcluded);
+                                var kvp = new KeyValuePair<string, string>(sourcePermissionName, sourcePermissionItemName);
 
-                                log.InfoFormat(
-                                    "!!INSERT!! Table : {0} Source Id : {1} permission_id : {2} permission_item_id: {3} is_excluded : {4} " +
-                                    "permission_name : {5} permission_item_name : {6}",
-                                    PERMISSION_PERMISSION_ITEM, sourceId, destinationPermissionId, destinationPermissionItemId, sourceIsExcluded,
-                                    sourcePermissionName, sourcePermissionItemName);
+                                if (!alreadyExistingPermissionPermissionItems.Contains(kvp))
+                                {
+                                    int newId = ApiDAL.InsertPermissionPermissionItem(destinationPermissionId, destinationPermissionItemId, sourceIsExcluded);
+
+                                    alreadyExistingPermissionPermissionItems.Add(kvp);
+
+                                    log.InfoFormat(
+                                        "!!INSERT!! Table : {0} Source Id : {1} permission_id : {2} permission_item_id: {3} is_excluded : {4} " +
+                                        "permission_name : {5} permission_item_name : {6}",
+                                        PERMISSION_PERMISSION_ITEM, sourceId, destinationPermissionId, destinationPermissionItemId, sourceIsExcluded,
+                                        sourcePermissionName, sourcePermissionItemName);
+                                }
+                                else
+                                {
+                                    log.WarnFormat(
+                                        "!!DUPLICATION SUSPECT!! Table : {0} Source Id : {1} permission_id : {2} permission_item_id: {3} is_excluded : {4} " +
+                                        "permission_name : {5} permission_item_name : {6}",
+                                        PERMISSION_PERMISSION_ITEM, sourceId, destinationPermissionId, destinationPermissionItemId, sourceIsExcluded,
+                                        sourcePermissionName, sourcePermissionItemName);
+                                }
                             }
                             else
                             // found - check for differences - permission permission item
