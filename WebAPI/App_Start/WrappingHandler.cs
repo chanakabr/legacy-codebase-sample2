@@ -15,6 +15,7 @@ using WebAPI.Models.General;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using System.Runtime.Serialization;
+using KlogMonitorHelper;
 using Newtonsoft.Json;
 
 namespace WebAPI.App_Start
@@ -79,17 +80,16 @@ namespace WebAPI.App_Start
             byte[] requestBody = await request.Content.ReadAsByteArrayAsync();
             HttpContext.Current.Items["body"] = requestBody;
 
+            var loggingContext = new ContextData();
+            loggingContext.Load();
             // log request body
             log.DebugFormat("API Request - {0} {1}",
                             request.RequestUri.OriginalString,            // 0
                             Encoding.UTF8.GetString(requestBody));   // 1 
 
             ExtractActionToLog(request.RequestUri);
-            bool isMultirequest = false;
-            if (HttpContext.Current.Items[Constants.ACTION] != null && HttpContext.Current.Items[Constants.ACTION].ToString() == MUTLIREQUEST_ACTION)
-            {
-                isMultirequest = true;
-            }
+            bool isMultirequest = HttpContext.Current.Items[Constants.ACTION] != null 
+                                  && HttpContext.Current.Items[Constants.ACTION].ToString() == MUTLIREQUEST_ACTION;
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {

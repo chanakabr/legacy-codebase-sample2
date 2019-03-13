@@ -31,6 +31,7 @@ using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using KlogMonitorHelper;
 using TVinciShared;
 
 namespace WebAPI.Filters
@@ -301,6 +302,9 @@ namespace WebAPI.Filters
             {
                 HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE]);
             }
+
+            var loggingContext = new ContextData();
+            loggingContext.Load();
         }
 
         private bool Equals(byte[] source, byte[] separator, int index)
