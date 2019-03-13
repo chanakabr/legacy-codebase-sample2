@@ -1,26 +1,28 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.ServiceModel;
 using System.Text;
-using System.Web;
 using log4net;
-using Microsoft.Win32.SafeHandles;
 using System.Collections.Concurrent;
-using System.Runtime.Remoting.Messaging;
+using log4net.Core;
+using log4net.Repository;
+using log4net.Util;
 
 namespace KLogMonitor
 {
     [Serializable]
     public class KLogger : IDisposable
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private bool disposed = false;
-        SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
-        private static ConcurrentDictionary<string, ILog> separateLogsMap = null;
+        private static readonly ILog _Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private bool _Disposed = false;
+        private static ConcurrentDictionary<string, ILog> _SeparateLogsMap = null;
+        private static ILoggerRepository _LogRepository;
+        private readonly List<LogEvent> _Logs;
+
+        public static readonly LogicalThreadContextProperties LogContextData = LogicalThreadContext.Properties;
 
         public static KLogEnums.AppType AppType { get; set; }
         public static string UniqueStaticId { get; set; }
@@ -36,21 +38,21 @@ namespace KLogMonitor
         public string Topic { get; set; }
         public string LoggerName { get; set; }
 
-        private List<LogEvent> logs;
 
         public KLogger(string className, string separateLoggerName = null)
         {
-            this.logs = new List<LogEvent>();
+            this._Logs = new List<LogEvent>();
             this.Server = Environment.MachineName;
             this.ClassName = className;
-            if (separateLogsMap == null)
+            if (_SeparateLogsMap == null)
             {
-                separateLogsMap = new ConcurrentDictionary<string, ILog>();
+                _SeparateLogsMap = new ConcurrentDictionary<string, ILog>();
             }
 
             if (!string.IsNullOrEmpty(separateLoggerName))
             {
-                if (!separateLogsMap.TryAdd(separateLoggerName, log4net.LogManager.GetLogger(separateLoggerName)))
+                var repo = GetLoggerRepository();
+                if (!_SeparateLogsMap.TryAdd(separateLoggerName, LogManager.GetLogger(repo.Name, separateLoggerName)))
                 {
                     throw new Exception(string.Format("Failed adding ILog with LoggerName: {0} to separateLogsMap", separateLoggerName));
                 }
@@ -66,16 +68,15 @@ namespace KLogMonitor
 
         public KLogger(string className)
         {
-            this.logs = new List<LogEvent>();
+            this._Logs = new List<LogEvent>();
             this.Server = Environment.MachineName;
             this.ClassName = className;
             this.LoggerName = string.Empty;
-            if (separateLogsMap == null)
+            if (_SeparateLogsMap == null)
             {
-                separateLogsMap = new ConcurrentDictionary<string, ILog>();
+                _SeparateLogsMap = new ConcurrentDictionary<string, ILog>();
             }
         }
-
 
         ~KLogger()
         {
@@ -90,155 +91,74 @@ namespace KLogMonitor
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
             AppType = appType;
-            if (!log4net.LogManager.GetRepository().Configured)
+            var repository = GetLoggerRepository();
+            var file = new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile));
+            if (!repository.Configured)
             {
-                log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+                log4net.Config.XmlConfigurator.Configure(repository, file);
             }
         }
 
-        public static void Configure(string logConfigFile, KLogEnums.AppType appType, string UniqueID)
+        public static void Configure(string logConfigFile, KLogEnums.AppType appType, string uniqueID)
         {
-            AppType = appType;
-            UniqueStaticId = UniqueID;
-            if (!log4net.LogManager.GetRepository().Configured)
-            {
-                log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
-            }
+            UniqueStaticId = uniqueID;
+            Configure(logConfigFile, appType);
         }
 
-        private void handleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, object[] args, Exception ex = null)
+        internal static ILoggerRepository GetLoggerRepository()
+        {
+            if (_LogRepository != null) return _LogRepository;
+
+            var repo = LogManager.GetAllRepositories().FirstOrDefault();
+            _LogRepository = repo;
+            return repo;
+        }
+
+        private void HandleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, object[] args, Exception ex = null)
         {
             try
             {
-                StackTrace stackTrace = new StackTrace();           // get call stack
-                StackFrame[] stackFrames = stackTrace.GetFrames();  // get method calls (frames)
+                var stackTrace = new StackTrace();         // get call stack
+                var stackFrames = stackTrace.GetFrames();  // get method calls (frames)
 
-                StackFrame callingFrame;
                 if (stackFrames != null && stackFrames.Length > 2)
                 {
-                    callingFrame = stackFrames[2];
+                    var callingFrame = stackFrames[2];
                     this.MethodName = callingFrame.GetMethod().Name;
                 }
 
                 if (args != null && ex != null)
                     throw new Exception("Args and Exception cannot co exist");
 
-                // in case this is a multi-thread application, the data will be saved in the call context
-                var contextData = CallContext.GetData(Constants.MULTI_THREAD_DATA_KEY) as ContextDataObject;
-                if (contextData != null)
+
+                this.ClientTag = LogContextData[Constants.CLIENT_TAG]?.ToString();
+                this.IPAddress = LogContextData[Constants.HOST_IP]?.ToString();
+                this.UniqueID = LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
+                this.PartnerID = LogContextData[Constants.GROUP_ID]?.ToString();
+                this.Action = LogContextData[Constants.ACTION]?.ToString();
+                this.UserID = LogContextData[Constants.USER_ID]?.ToString();
+                this.Topic = LogContextData[Constants.TOPIC]?.ToString();
+
+                var le = new LogEvent
                 {
-                    string temp;
-                    if (contextData.data.TryGetValue(Constants.CLIENT_TAG, out temp))
-                        this.ClientTag = temp.ToString();
-
-                    if (contextData.data.TryGetValue(Constants.HOST_IP, out temp))
-                        this.IPAddress = temp.ToString();
-
-                    if (contextData.data.TryGetValue(Constants.REQUEST_ID_KEY, out temp))
-                        this.UniqueID = temp.ToString();
-
-                    if (contextData.data.TryGetValue(Constants.GROUP_ID, out temp))
-                        this.PartnerID = temp.ToString();
-
-                    if (contextData.data.TryGetValue(Constants.ACTION, out temp))
-                        this.Action = temp.ToString();
-
-                    if (contextData.data.TryGetValue(Constants.USER_ID, out temp))
-                        this.UserID = temp.ToString();
-
-                    if (contextData.data.TryGetValue(Constants.TOPIC, out temp))
-                        this.Topic = temp.ToString();
-                }
-                else
-                {
-                    // get log data
-                    // WCF -> data is stored in IncomingMessageProperties
-                    // WS  -> data is stored in OperationContext
-                    switch (AppType)
-                    {
-                        case KLogEnums.AppType.WCF:
-
-                            if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
-                            {
-                                object temp;
-                                if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.CLIENT_TAG, out temp))
-                                    this.ClientTag = temp.ToString();
-
-                                if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.HOST_IP, out temp))
-                                    this.IPAddress = temp.ToString();
-
-                                if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.REQUEST_ID_KEY, out temp))
-                                    this.UniqueID = temp.ToString();
-
-                                if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.GROUP_ID, out temp))
-                                    this.PartnerID = temp.ToString();
-
-                                if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.ACTION, out temp))
-                                    this.Action = temp.ToString();
-
-                                if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.USER_ID, out temp))
-                                    this.UserID = temp.ToString();
-
-                                if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.TOPIC, out temp))
-                                    this.Topic = temp.ToString();
-                            }
-                            break;
-
-                        case KLogEnums.AppType.WindowsService:
-
-                            this.UniqueID = UniqueStaticId;
-                            break;
-
-                        case KLogEnums.AppType.WS:
-                        default:
-
-                            if (HttpContext.Current != null && HttpContext.Current.Items != null)
-                            {
-                                if (HttpContext.Current.Items[Constants.CLIENT_TAG] != null)
-                                    this.ClientTag = HttpContext.Current.Items[Constants.CLIENT_TAG].ToString();
-
-                                if (HttpContext.Current.Items[Constants.HOST_IP] != null)
-                                    this.IPAddress = HttpContext.Current.Items[Constants.HOST_IP].ToString();
-
-                                if (HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-                                    this.UniqueID = HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString();
-
-                                if (HttpContext.Current.Items[Constants.GROUP_ID] != null)
-                                    this.PartnerID = HttpContext.Current.Items[Constants.GROUP_ID].ToString();
-
-                                if (HttpContext.Current.Items[Constants.ACTION] != null)
-                                    this.Action = HttpContext.Current.Items[Constants.ACTION].ToString();
-
-                                if (HttpContext.Current.Items[Constants.USER_ID] != null)
-                                    this.UserID = HttpContext.Current.Items[Constants.USER_ID].ToString();
-
-                                if (HttpContext.Current.Items[Constants.TOPIC] != null)
-                                    this.Topic = HttpContext.Current.Items[Constants.TOPIC].ToString();
-                            }
-                            break;
-                    }
-                }
-
-                LogEvent le = new LogEvent()
-                {
-                    Message = formatMessage(msg, DateTime.UtcNow),
+                    Message = FormatMessage(msg, DateTime.UtcNow),
                     Exception = ex,
                     Level = level,
                     args = args
                 };
 
                 if (isFlush)
-                    sendLog(le);
+                    SendLog(le);
                 else
-                    logs.Add(le);
+                    _Logs.Add(le);
             }
             catch (Exception logException)
             {
-                logger.ErrorFormat("Klogger Error in handle event. original log message: {0}, ex: {1}", msg, logException);
+                _Logger.ErrorFormat("Klogger Error in handle event. original log message: {0}, ex: {1}", msg, logException);
             }
         }
 
-        private string formatMessage(string msg, DateTime creationDate)
+        private string FormatMessage(string msg, DateTime creationDate)
         {
             return string.Format("class:{0} topic:{1} method:{2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} msg:{9}",
                 !string.IsNullOrWhiteSpace(ClassName) ? ClassName : "null",  // 0
@@ -253,275 +173,176 @@ namespace KLogMonitor
                 !string.IsNullOrWhiteSpace(msg) ? msg : "null");             // 9
         }
 
-        private void sendLog(LogEvent logEvent)
+        private ILog TryGetSeparateLogger()
         {
-            switch (logEvent.Level)
+            if (string.IsNullOrEmpty(this.LoggerName)) return _Logger;
+
+            ILog separateLogger;
+            if (_SeparateLogsMap.TryGetValue(this.LoggerName, out separateLogger))
             {
-                case LogEvent.LogLevel.DEBUG:
-
-                    if (logEvent.args != null && logEvent.args.Count() > 0)
-                    {
-                        if (!string.IsNullOrEmpty(this.LoggerName))
-                        {
-                            ILog separateLogeer;
-                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
-                            {
-                                separateLogeer.DebugFormat(logEvent.Message, logEvent.args);
-                            }
-                        }
-                        else
-                        {
-                            logger.DebugFormat(logEvent.Message, logEvent.args);
-                        }
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(this.LoggerName))
-                        {
-                            ILog separateLogeer;
-                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
-                            {
-                                separateLogeer.Debug(logEvent.Message, logEvent.Exception);
-                            }
-                        }
-                        else
-                        {
-                            logger.Debug(logEvent.Message, logEvent.Exception);
-                        }
-                    }
-                    break;
-
-                case LogEvent.LogLevel.WARNING:
-
-                    if (logEvent.args != null && logEvent.args.Count() > 0)
-                    {
-                        if (!string.IsNullOrEmpty(this.LoggerName))
-                        {
-                            ILog separateLogeer;
-                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
-                            {
-                                separateLogeer.WarnFormat(logEvent.Message, logEvent.args);
-                            }
-                        }
-                        else
-                        {
-                            logger.WarnFormat(logEvent.Message, logEvent.args);
-                        }
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(this.LoggerName))
-                        {
-                            ILog separateLogeer;
-                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
-                            {
-                                separateLogeer.Warn(logEvent.Message, logEvent.Exception);
-                            }
-                        }
-                        else
-                        {
-                            logger.Warn(logEvent.Message, logEvent.Exception);
-                        }
-                    }
-                    break;
-
-                case LogEvent.LogLevel.ERROR:
-
-                    if (logEvent.args != null && logEvent.args.Count() > 0)
-                    {
-                        if (!string.IsNullOrEmpty(this.LoggerName))
-                        {
-                            ILog separateLogeer;
-                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
-                            {
-                                separateLogeer.ErrorFormat(logEvent.Message, logEvent.args);
-                            }
-                        }
-                        else
-                        {
-                            logger.ErrorFormat(logEvent.Message, logEvent.args);
-                        }
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(this.LoggerName))
-                        {
-                            ILog separateLogeer;
-                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
-                            {
-                                separateLogeer.Error(logEvent.Message, logEvent.Exception);
-                            }
-                        }
-                        else
-                        {
-                            logger.Error(logEvent.Message, logEvent.Exception);
-                        }
-                    }
-                    break;
-
-                case LogEvent.LogLevel.INFO:
-
-                    if (logEvent.args != null && logEvent.args.Count() > 0)
-                    {
-                        if (!string.IsNullOrEmpty(this.LoggerName))
-                        {
-                            ILog separateLogeer;
-                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
-                            {
-                                separateLogeer.InfoFormat(logEvent.Message, logEvent.args);
-                            }
-                        }
-                        else
-                        {
-                            logger.InfoFormat(logEvent.Message, logEvent.args);
-                        }
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(this.LoggerName))
-                        {
-                            ILog separateLogeer;
-                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
-                            {
-                                separateLogeer.Info(logEvent.Message, logEvent.Exception);
-                            }
-                        }
-                        else
-                        {
-                            logger.Info(logEvent.Message, logEvent.Exception);
-                        }
-                    }
-                    break;
-
-                default:
-
-                    throw new Exception("Log level is unknown");
+                return separateLogger;
             }
+
+            return _Logger;
         }
 
+        private void SendLog(LogEvent logEvent)
+        {
+            var logger = TryGetSeparateLogger();
+
+            if (logEvent.args != null && logEvent.args.Any())
+            {
+                switch (logEvent.Level)
+                {
+                    case LogEvent.LogLevel.INFO:
+                        logger.InfoFormat(logEvent.Message, logEvent.args);
+                        break;
+                    case LogEvent.LogLevel.DEBUG:
+                        logger.DebugFormat(logEvent.Message, logEvent.args);
+                        break;
+                    case LogEvent.LogLevel.WARNING:
+                        logger.WarnFormat(logEvent.Message, logEvent.args);
+                        break;
+                    case LogEvent.LogLevel.ERROR:
+                        logger.ErrorFormat(logEvent.Message, logEvent.args);
+                        break;
+                    default:
+                        logger.DebugFormat(logEvent.Message, logEvent.args);
+                        break;
+                }
+            }
+            else
+            {
+                switch (logEvent.Level)
+                {
+                    case LogEvent.LogLevel.INFO:
+                        logger.Info(logEvent.Message, logEvent.Exception);
+                        break;
+                    case LogEvent.LogLevel.DEBUG:
+                        logger.Debug(logEvent.Message, logEvent.Exception);
+                        break;
+                    case LogEvent.LogLevel.WARNING:
+                        logger.Warn(logEvent.Message, logEvent.Exception);
+                        break;
+                    case LogEvent.LogLevel.ERROR:
+                        logger.Error(logEvent.Message, logEvent.Exception);
+                        break;
+                    default:
+                        logger.Debug(logEvent.Message, logEvent.Exception);
+                        break;
+                }
+
+            }
+
+
+        }
+
+        #region Logging Methods
         public void Debug(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, true, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, true, null, ex);
         }
 
         public void DebugFormat(string format, params object[] args)
         {
-            handleEvent(format, KLogger.LogEvent.LogLevel.DEBUG, true, args, null);
+            HandleEvent(format, KLogger.LogEvent.LogLevel.DEBUG, true, args, null);
         }
 
         public void Info(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.INFO, true, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.INFO, true, null, ex);
         }
 
         public void InfoFormat(string format, params object[] args)
         {
-            handleEvent(format, KLogger.LogEvent.LogLevel.INFO, true, args, null);
+            HandleEvent(format, KLogger.LogEvent.LogLevel.INFO, true, args, null);
         }
 
         public void Warn(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.WARNING, true, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.WARNING, true, null, ex);
         }
 
         public void WarnFormat(string format, params object[] args)
         {
-            handleEvent(format, KLogger.LogEvent.LogLevel.WARNING, true, args, null);
+            HandleEvent(format, KLogger.LogEvent.LogLevel.WARNING, true, args, null);
         }
 
         public void Error(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, true, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, true, null, ex);
         }
 
         public void ErrorFormat(string format, params object[] args)
         {
-            handleEvent(format, KLogger.LogEvent.LogLevel.ERROR, true, args, null);
+            HandleEvent(format, KLogger.LogEvent.LogLevel.ERROR, true, args, null);
         }
 
         public void DebugNoFlush(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, false, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, false, null, ex);
         }
 
         public void DebugFormatNoFlush(string format, params object[] args)
         {
-            handleEvent(format, KLogger.LogEvent.LogLevel.DEBUG, false, args, null);
+            HandleEvent(format, KLogger.LogEvent.LogLevel.DEBUG, false, args, null);
         }
 
         public void InfoNoFlush(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.INFO, false, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.INFO, false, null, ex);
         }
 
         public void InfoFormatNoFlush(string format, params object[] args)
         {
-            handleEvent(format, KLogger.LogEvent.LogLevel.INFO, false, args, null);
+            HandleEvent(format, KLogger.LogEvent.LogLevel.INFO, false, args, null);
         }
 
         public void WarnNoFlush(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.WARNING, false, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.WARNING, false, null, ex);
         }
 
         public void WarnFormatNoFlush(string format, params object[] args)
         {
-            handleEvent(format, KLogger.LogEvent.LogLevel.WARNING, false, args, null);
+            HandleEvent(format, KLogger.LogEvent.LogLevel.WARNING, false, args, null);
         }
 
         public void ErrorNoFlush(string sMessage, Exception ex = null)
         {
-            handleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, false, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, false, null, ex);
         }
 
         public void ErrorFormatNoFlush(string format, params object[] args)
         {
-            handleEvent(format, KLogger.LogEvent.LogLevel.ERROR, false, args, null);
+            HandleEvent(format, KLogger.LogEvent.LogLevel.ERROR, false, args, null);
         }
+        #endregion
 
         // Protected implementation of Dispose pattern.
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
+            if (_Disposed)
                 return;
 
             if (disposing)
             {
-                handle.Dispose();
                 //dispose managed resources
-                foreach (LogEvent e in logs)
-                    sendLog(e);
+                foreach (LogEvent e in _Logs)
+                    SendLog(e);
 
-                logs.Clear();
+                _Logs.Clear();
             }
 
-            // Free any unmanaged objects here.
-            //
-            disposed = true;
+            _Disposed = true;
         }
-
-        //protected virtual void Dispose(bool disposing)
-        //{
-        //    if (!disposed)
-        //    {
-        //        if (disposing)
-        //        {
-        //            //dispose managed resources
-        //            foreach (LogEvent e in logs)
-        //                sendLog(e);
-
-        //            logs.Clear();
-        //        }
-        //    }
-        //    //dispose unmanaged resources
-        //    disposed = true;
-        //}
 
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
 
         private class LogEvent
         {

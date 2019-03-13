@@ -8,11 +8,15 @@ using System.Text;
 using System.Web;
 using System.Xml;
 using KLogMonitor;
+using log4net.Util;
 
 namespace KlogMonitorHelper
 {
     public class MonitorLogsHelper
     {
+        private static readonly HttpRequest _CurrentRequest = HttpContext.Current.Request;
+        private static readonly LogicalThreadContextProperties _LogContextData = log4net.LogicalThreadContext.Properties;
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string K_MON_KEY = "kmon";
@@ -20,20 +24,22 @@ namespace KlogMonitorHelper
         private const string PREFIX_METHOD_NAME = @"urn:Iservice/";
         private const int MAX_LOG_REQUEST_SIZE = 30000;
 
+
+        // TODO: Move this to a different helper, this is not related to logs its simply reads the body of an http request
         public static string GetWebServiceRequestString()
         {
             try
             {
-                if (HttpContext.Current != null && HttpContext.Current.Request != null)
+                if (HttpContext.Current != null && _CurrentRequest != null)
                 {
                     // create byte array to hold request bytes
-                    byte[] inputStream = new byte[HttpContext.Current.Request.ContentLength];
+                    byte[] inputStream = new byte[_CurrentRequest.ContentLength];
 
                     // read entire request input stream
-                    HttpContext.Current.Request.InputStream.Read(inputStream, 0, inputStream.Length);
+                    _CurrentRequest.InputStream.Read(inputStream, 0, inputStream.Length);
 
                     // set stream back to beginning
-                    HttpContext.Current.Request.InputStream.Position = 0;
+                    _CurrentRequest.InputStream.Position = 0;
 
                     // get request string
                     return ASCIIEncoding.ASCII.GetString(inputStream);
@@ -47,75 +53,75 @@ namespace KlogMonitorHelper
             return null;
         }
 
-        public static void InitMonitorLogsDataWS(string module, string requestString, int groupId)
+        public static void InitMonitorLogsDataWS(string module, string requestBody, int groupId)
         {
             KLogger.AppType = KLogEnums.AppType.WS;
             KMonitor.AppType = KLogEnums.AppType.WS;
 
-            if (string.IsNullOrEmpty(requestString))
-                log.Debug("REQUEST STRING IS EMPTY");
+            if (string.IsNullOrEmpty(requestBody))
+                log.Debug("REQUEST BODY IS EMPTY");
             else
             {
                 // get request ID
-                if (HttpContext.Current.Request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY.ToString()] == null)
-                    HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
+                
+
+                if (_CurrentRequest.Headers[Constants.REQUEST_ID_KEY] == null)
+                    _LogContextData[Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
                 else
-                    HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = HttpContext.Current.Request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY];
+                    _LogContextData[Constants.REQUEST_ID_KEY] = _CurrentRequest.Headers[Constants.REQUEST_ID_KEY];
 
-                // get user agent
-                if (HttpContext.Current.Request.UserAgent != null)
-                    HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
+                if (_CurrentRequest.UserAgent != null)
+                    _LogContextData[Constants.CLIENT_TAG] = _CurrentRequest.UserAgent;
 
-                // get host IP
-                if (HttpContext.Current.Request.UserHostAddress != null)
-                    HttpContext.Current.Items[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
+                if (_CurrentRequest.UserHostAddress != null)
+                    _LogContextData[Constants.HOST_IP] = _CurrentRequest.UserHostAddress;
 
                 try
                 {
-                    HttpContext.Current.Items[Constants.ACTION] = "null";
+                    _LogContextData[Constants.ACTION] = "null";
 
-                    XmlDocument doc = new XmlDocument();
-                    doc.LoadXml(requestString);
+                    var doc = new XmlDocument();
+                    doc.LoadXml(requestBody);
 
                     // get action name
-                    XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
+                    var tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
                     if (tempXmlNodeList.Count > 0)
-                        HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
+                        _LogContextData[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
                     
-                    HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
+                    _LogContextData[Constants.GROUP_ID] = groupId;
                 }
                 catch (Exception)
                 {
                     // no need to log exception
-                    log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestString));
+                    log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestBody));
 
                     // try taking data from query string
                     try
                     {
-                        var nameValueCollection = HttpUtility.ParseQueryString(requestString);
-                        HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
+                        var nameValueCollection = HttpUtility.ParseQueryString(requestBody);
+                        _LogContextData[Constants.GROUP_ID] = groupId;
 
-                        if (HttpContext.Current.Request.UrlReferrer != null &&
-                            string.IsNullOrEmpty(HttpContext.Current.Request.UrlReferrer.Query))
+                        if (_CurrentRequest.UrlReferrer != null &&
+                            string.IsNullOrEmpty(_CurrentRequest.UrlReferrer.Query))
                         {
-                            HttpContext.Current.Items[Constants.ACTION] = HttpContext.Current.Request.UrlReferrer.Query.Substring(HttpContext.Current.Request.UrlReferrer.Query.LastIndexOf("=") + 1);
+                            _LogContextData[Constants.ACTION] = _CurrentRequest.UrlReferrer.Query.Substring(_CurrentRequest.UrlReferrer.Query.LastIndexOf("=") + 1);
                         }
                     }
                     catch (Exception)
                     {
                         // no need to log exception
-                        log.Error(string.Format("Error while loading and parsing WS query string. XML Request: {0}", requestString));
+                        log.Error(string.Format("Error while loading and parsing WS query string. XML Request: {0}", requestBody));
                     }
                 }
 
                 // start k-monitor
-                HttpContext.Current.Items[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
+                _LogContextData[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
 
                 // log request
-                if (requestString.Length > MAX_LOG_REQUEST_SIZE)
-                    log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
+                if (requestBody.Length > MAX_LOG_REQUEST_SIZE)
+                    log.Debug("REQUEST STRING (large request string - partial log): " + requestBody.Substring(0, MAX_LOG_REQUEST_SIZE));
                 else
-                    log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
+                    log.Debug("REQUEST STRING: " + Environment.NewLine + requestBody);
             }
         }
 
@@ -127,28 +133,28 @@ namespace KlogMonitorHelper
             {
                 try
                 {
-                    HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
+                    _LogContextData[Constants.GROUP_ID] = groupId;
 
                     // get request ID
-                    if (HttpContext.Current.Request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY.ToString()] == null)
-                        HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
+                    if (_CurrentRequest.Headers[KLogMonitor.Constants.REQUEST_ID_KEY.ToString()] == null)
+                        _LogContextData[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
                     else
-                        HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = HttpContext.Current.Request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY];
+                        _LogContextData[KLogMonitor.Constants.REQUEST_ID_KEY] = _CurrentRequest.Headers[KLogMonitor.Constants.REQUEST_ID_KEY];
 
                     // get user agent
-                    if (HttpContext.Current.Request.UserAgent != null)
-                        HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
+                    if (_CurrentRequest.UserAgent != null)
+                        _LogContextData[Constants.CLIENT_TAG] = _CurrentRequest.UserAgent;
 
                     // get host IP
-                    if (HttpContext.Current.Request.UserHostAddress != null)
-                        HttpContext.Current.Items[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
+                    if (_CurrentRequest.UserHostAddress != null)
+                        _LogContextData[Constants.HOST_IP] = _CurrentRequest.UserHostAddress;
 
 
-                    HttpContext.Current.Items[Constants.ACTION] = action;
+                    _LogContextData[Constants.ACTION] = action;
                     var nameValueCollection = HttpUtility.ParseQueryString(requestString);
 
                     // start k-monitor
-                    HttpContext.Current.Items[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);                    
+                    _LogContextData[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);                    
 
                     // log request
                     if (requestString.Length > MAX_LOG_REQUEST_SIZE)
@@ -244,13 +250,13 @@ namespace KlogMonitorHelper
                     case KLogEnums.AppType.WS:
                     default:
 
-                        if (HttpContext.Current.Items[K_MON_KEY] != null)
+                        if (_LogContextData[K_MON_KEY] != null)
                         {
                             // dispose monitor
-                            (HttpContext.Current.Items[K_MON_KEY] as KMonitor).Dispose();
+                            (_LogContextData[K_MON_KEY] as KMonitor).Dispose();
 
                             // remove monitor object
-                            HttpContext.Current.Items.Remove(K_MON_KEY);
+                            _LogContextData.Remove(K_MON_KEY);
                         }
                         break;
                 }
@@ -281,16 +287,18 @@ namespace KlogMonitorHelper
                 if (request.Headers != null &&
                 request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current != null &&
-                HttpContext.Current.Items != null &&
-                HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                _LogContextData != null &&
+                _LogContextData[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
                 {
-                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, _LogContextData[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
                 }
             }
         }
 
         public static void SetContext(string key, object value)
         {
+            _LogContextData[key] = value;
+
             if (OperationContext.Current != null)
             {
                 OperationContext.Current.IncomingMessageProperties[key] = value;
@@ -317,7 +325,7 @@ namespace KlogMonitorHelper
                     default:
 
                         if (HttpContext.Current != null)
-                            return HttpContext.Current.Items[key].ToString();
+                            return _LogContextData[key].ToString();
                         break;
                 }
             }
@@ -348,7 +356,7 @@ namespace KlogMonitorHelper
 
                         if (HttpContext.Current != null)
                         {
-                            HttpContext.Current.Items[key] = value;
+                            _LogContextData[key] = value;
                             return true;
                         }
                         break;

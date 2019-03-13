@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
 using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
-using System.Web;
 using log4net;
+using log4net.Util;
 using Microsoft.Win32.SafeHandles;
 
 
@@ -18,10 +13,12 @@ namespace KLogMonitor
     [Serializable]
     public class KMonitor : IDisposable
     {
-        private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog _Logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        public static readonly LogicalThreadContextProperties LogContextData = LogicalThreadContext.Properties;
+        private bool _Disposed = false;
+
         public static string UniqueStaticId { get; set; }
         public static KLogEnums.AppType AppType { get; set; }
-        private bool disposed = false;
 
         private const string MUTLIREQUEST_ACTION = "multirequest";
 
@@ -133,11 +130,11 @@ namespace KLogMonitor
 
                 // In case this is a start event, we fire it first, and on dispose, we will fire the END 
                 if (eventName == Events.eEvent.EVENT_API_START || eventName == Events.eEvent.EVENT_CLIENT_API_START)
-                    logger.Monitor(this.ToString());
+                    _Logger.Monitor(this.ToString());
             }
             catch (Exception logException)
             {
-                logger.ErrorFormat("Kmonitor Error in constructor on action: {0}. EX: {1}", eventName.ToString(), logException);
+                _Logger.ErrorFormat("Kmonitor Error in constructor on action: {0}. EX: {1}", eventName.ToString(), logException);
             }
         }
 
@@ -145,89 +142,12 @@ namespace KLogMonitor
         {
             this.TimeInTicks = (DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).ToUniversalTime().Ticks).ToString();
 
-            // in case this is a multi-thread application, the data will be saved in the call context
-            var data = CallContext.GetData(Constants.MULTI_THREAD_DATA_KEY) as ContextDataObject;
-            if (data != null)
-            {
-                string temp;
-                if (data.data.TryGetValue(Constants.GROUP_ID, out temp))
-                    this.PartnerID = temp.ToString();
-
-                if (data.data.TryGetValue(Constants.ACTION, out temp))
-                    this.Action = temp.ToString();
-
-                if (data.data.TryGetValue(Constants.REQUEST_ID_KEY, out temp))
-                    this.UniqueID = temp.ToString();
-
-                if (data.data.TryGetValue(Constants.CLIENT_TAG, out temp))
-                    this.ClientTag = temp.ToString();
-
-                if (data.data.TryGetValue(Constants.HOST_IP, out temp))
-                    this.IPAddress = temp.ToString();
-
-                if (data.data.TryGetValue(Constants.MULTIREQUEST, out temp))
-                    this.IsMultiRequest = temp.ToString();
-            }
-            else
-            {
-                switch (AppType)
-                {
-                    case KLogEnums.AppType.WCF:
-
-                        if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
-                        {
-                            object temp;
-                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.GROUP_ID, out temp))
-                                this.PartnerID = temp.ToString();
-
-                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.ACTION, out temp))
-                                this.Action = temp.ToString();
-
-                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.REQUEST_ID_KEY, out temp))
-                                this.UniqueID = temp.ToString();
-
-                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.CLIENT_TAG, out temp))
-                                this.ClientTag = temp.ToString();
-
-                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.HOST_IP, out temp))
-                                this.IPAddress = temp.ToString();
-
-                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.MULTIREQUEST, out temp))
-                                this.IsMultiRequest = temp.ToString();
-                        }
-                        break;
-
-                    case KLogEnums.AppType.WindowsService:
-
-                        this.UniqueID = UniqueStaticId;
-                        break;
-
-                    case KLogEnums.AppType.WS:
-                    default:
-
-                        if (HttpContext.Current != null && HttpContext.Current.Items != null)
-                        {
-                            if (HttpContext.Current.Items[Constants.GROUP_ID] != null)
-                                this.PartnerID = HttpContext.Current.Items[Constants.GROUP_ID].ToString();
-
-                            if (HttpContext.Current.Items[Constants.ACTION] != null)
-                                this.Action = HttpContext.Current.Items[Constants.ACTION].ToString();
-
-                            if (HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-                                this.UniqueID = HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString();
-
-                            if (HttpContext.Current.Items[Constants.CLIENT_TAG] != null)
-                                this.ClientTag = HttpContext.Current.Items[Constants.CLIENT_TAG].ToString();
-
-                            if (HttpContext.Current.Items[Constants.HOST_IP] != null)
-                                this.IPAddress = HttpContext.Current.Items[Constants.HOST_IP].ToString();
-
-                            if (HttpContext.Current.Items[Constants.MULTIREQUEST] != null)
-                                this.IsMultiRequest = HttpContext.Current.Items[Constants.MULTIREQUEST].ToString();
-                        }
-                        break;
-                }
-            }
+            this.PartnerID = LogContextData[Constants.GROUP_ID]?.ToString();
+            this.Action = LogContextData[Constants.ACTION]?.ToString();
+            this.UniqueID = LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
+            this.ClientTag = LogContextData[Constants.CLIENT_TAG]?.ToString();
+            this.IPAddress = LogContextData[Constants.HOST_IP]?.ToString();
+            this.IsMultiRequest = LogContextData[Constants.MULTIREQUEST]?.ToString();
         }
 
         ~KMonitor()
@@ -243,38 +163,25 @@ namespace KLogMonitor
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
             AppType = appType;
-            if (!log4net.LogManager.GetRepository().Configured)
+            var loggerRepository = KLogger.GetLoggerRepository();
+            if (!loggerRepository.Configured)
             {
-                log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
+                var file = new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile));
+                log4net.Config.XmlConfigurator.Configure(loggerRepository, file);
             }
         }
 
         public static void Configure(string logConfigFile, KLogEnums.AppType appType, string UniqueId)
         {
-            AppType = appType;
             UniqueStaticId = UniqueId;
-            if (!log4net.LogManager.GetRepository().Configured)
-            {
-                log4net.Config.XmlConfigurator.Configure(new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile)));
-            }
+            Configure(logConfigFile, appType);
         }
 
         public override string ToString()
         {
             try
             {
-                Newtonsoft.Json.JsonSerializer _jsonWriter = new Newtonsoft.Json.JsonSerializer
-                {
-                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
-                };
-
-
-#if RUNNING_ON_3_5
-                return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings() { NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore });
-#endif
-#if NOT_RUNNING_ON_3_5
-                return Jil.JSON.Serialize<KMonitor>(this, new Jil.Options(excludeNulls: true));
-#endif
+                return Jil.JSON.Serialize(this, new Jil.Options(excludeNulls: true));
             }
             catch (Exception)
             {
@@ -284,41 +191,9 @@ namespace KLogMonitor
             return string.Empty;
         }
 
-        //protected virtual void Dispose(bool disposing)
-        //{
-        //    if (!disposed)
-        //    {
-        //        if (disposing)
-        //        {
-        //            //dispose managed resources
-        //            this.Watch.Stop();
-
-        //            if (this.Event == Events.GetEventString(Events.eEvent.EVENT_API_START))
-        //            {
-        //                /* We are firing the END event, so we just overriding the START */
-        //                this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
-        //            }
-
-        //            if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
-        //            {
-        //                /* We are firing the END event, so we just overriding the START */
-        //                this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
-        //            }
-
-        //            // check if data from context was updated
-        //            UpdateMonitorData();
-
-        //            logger.Monitor(this.ToString());
-        //        }
-        //    }
-        //    //dispose unmanaged resources
-        //    disposed = true;
-        //}
-
-        // Protected implementation of Dispose pattern.
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
+            if (_Disposed)
                 return;
 
             if (disposing)
@@ -343,12 +218,12 @@ namespace KLogMonitor
                     UpdateMonitorData();
                 }
 
-                logger.Monitor(this.ToString());
+                _Logger.Monitor(this.ToString());
             }
 
             // Free any unmanaged objects here.
             //
-            disposed = true;
+            _Disposed = true;
         }
 
         public void Dispose()
@@ -360,7 +235,7 @@ namespace KLogMonitor
             }
             catch (Exception logException)
             {
-                logger.ErrorFormat("Kmonitor Error in destructor on action: {0}. EX: {1}", this.Event != null ? this.Event : string.Empty, logException);
+                _Logger.ErrorFormat("Kmonitor Error in destructor on action: {0}. EX: {1}", this.Event != null ? this.Event : string.Empty, logException);
             }
             GC.SuppressFinalize(this);
         }
@@ -370,7 +245,7 @@ namespace KLogMonitor
     {
         public static void Monitor(this ILog log, string message, Exception exception)
         {
-            log.Logger.Log(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType,
+            log.Logger.Log(MethodBase.GetCurrentMethod().DeclaringType,
                 log4net.Core.Level.Trace, message, exception);
         }
 
