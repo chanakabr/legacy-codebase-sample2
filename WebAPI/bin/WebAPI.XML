@@ -12901,7 +12901,7 @@
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.BulkObjectNameEqual">
             <summary>
-            File's objectType name (must be type of KalturaOTTObject)
+            bulk objects Type name (must be type of KalturaOTTObject)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.CreateDateGreaterThanOrEqual">
@@ -12916,7 +12916,7 @@
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.StatusIn">
             <summary>
-            BulkUpload Statuses to search\filter
+            Comma separated list of BulkUpload Statuses to search\filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadObjectData">

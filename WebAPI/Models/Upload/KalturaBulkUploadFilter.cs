@@ -28,7 +28,7 @@ namespace WebAPI.Models.Upload
         private const double MIN_RECORD_DAYS_TO_WATCH = 60;
 
         /// <summary>
-        /// File's objectType name (must be type of KalturaOTTObject)
+        /// bulk objects Type name (must be type of KalturaOTTObject)
         /// </summary>
         [DataMember(Name = "bulkObjectNameEqual")]
         [JsonProperty("bulkObjectNameEqual")]
@@ -53,7 +53,7 @@ namespace WebAPI.Models.Upload
         public bool? UploadedByUserIdEqualCurrent { get; set; }
 
         /// <summary>
-        /// BulkUpload Statuses to search\filter
+        /// Comma separated list of BulkUpload Statuses to search\filter
         /// </summary>
         [DataMember(Name = "statusIn")]
         [JsonProperty(PropertyName = "statusIn")]
