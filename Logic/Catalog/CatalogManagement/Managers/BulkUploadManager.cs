@@ -91,7 +91,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     var nStatus = (int)status;
                     var bulkUploadKey = LayeredCacheKeys.GetBulkUploadsKey(groupId, fileObjectTypeName.Object, nStatus);
-                    keyToOriginalValueMap.Add(bulkUploadKey, status.ToString());
+                    keyToOriginalValueMap.Add(bulkUploadKey, ((int)status).ToString());
                     invalidationKeysMap.Add(bulkUploadKey, new List<string>() { LayeredCacheKeys.GetBulkUploadsInvalidationKey(groupId, fileObjectTypeName.Object, nStatus) });
                     statusesIn.Add(nStatus);
                 }
@@ -496,19 +496,26 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                if (funcParams != null && funcParams.Count == 3)
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("bulkObjectType") && funcParams.ContainsKey("statusesIn"))
                 {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("bulkObjectType") && funcParams.ContainsKey("statusesIn"))
+                    int? groupId = funcParams["groupId"] as int?;
+                    string bulkObjectType = funcParams["bulkObjectType"] as string;
+                    List<int> statusesIn;
+
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        int? groupId = funcParams["groupId"] as int?;
-                        string bulkObjectType = funcParams["bulkObjectType"] as string;
-                        List<int> statusesIn = funcParams["statusesIn"] as List<int>;
-                        if (groupId.HasValue && !string.IsNullOrEmpty(bulkObjectType) && statusesIn != null && statusesIn.Count > 0)
-                        {
-                            DataTable dt = CatalogDAL.GetBulkUploadsList(groupId.Value, bulkObjectType, statusesIn);
-                            statusToBulkUploadList = CreateBulkUploadsMapFromDataTable(dt, groupId.Value);
-                            log.DebugFormat("GetBulkUploadsFromCache success, params: {0}.", string.Join(";", funcParams.Keys));
-                        }
+                        statusesIn = (funcParams[LayeredCache.MISSING_KEYS] as List<string>).Select(x => int.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        statusesIn = funcParams["statusesIn"] as List<int>;
+                    }
+
+                    if (groupId.HasValue && !string.IsNullOrEmpty(bulkObjectType) && statusesIn != null && statusesIn.Count > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetBulkUploadsList(groupId.Value, bulkObjectType, statusesIn);
+                        statusToBulkUploadList = CreateBulkUploadsMapFromDataTable(dt, groupId.Value);
+                        log.DebugFormat("GetBulkUploadsFromCache success, params: {0}.", string.Join(";", funcParams.Keys));
                     }
                 }
             }
