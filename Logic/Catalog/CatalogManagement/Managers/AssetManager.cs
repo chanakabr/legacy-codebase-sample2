@@ -892,7 +892,10 @@ namespace Core.Catalog.CatalogManagement
 
             if (!isValidMetaValue)
             {
-                resultStatus = new Status((int)eResponseStatus.InvalidValueSentForMeta, string.Format("{0} metaName: {1}", eResponseStatus.InvalidValueSentForMeta.ToString(), meta.m_oTagMeta.m_sName));
+                log.ErrorFormat("IsMetaValueValid-InvalidValueSentForMeta. metaName: {0}, metaType:{1}, metaValue:{2}, topicId:{3}.", 
+                                meta.m_oTagMeta.m_sName, metaType, meta.m_sValue, topicId);
+                resultStatus = new Status((int)eResponseStatus.InvalidValueSentForMeta, 
+                                          string.Format("{0} metaName: {1}", eResponseStatus.InvalidValueSentForMeta.ToString(), meta.m_oTagMeta.m_sName));
                 return false;
             }
 
