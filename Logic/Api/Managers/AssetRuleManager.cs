@@ -416,6 +416,7 @@ namespace Core.Api.Managers
                 isInternalSearch = true,
                 assetTypes = mediaTypes,
                 shouldIgnoreEndDate = shouldIgnoreEndDate,
+                isAllowedToViewInactiveAssets = true
             };
 
             // Call catalog
