@@ -5759,22 +5759,7 @@ namespace Tvinci.Core.DAL
             string bulkUploadKey = GetBulkUploadKey(bulkUploadId);
             return UtilsDal.GetObjectFromCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey);
         }
-
-        public static bool DeleteBulkUpload(long bulkUploadId)
-        {
-            // TODO SHIR - create DeleteBulkUpload SP
-            StoredProcedure sp = new StoredProcedure("DeleteBulkUpload");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@bulkUploadId", bulkUploadId);
-
-            if (sp.ExecuteReturnValue<int>() > 0)
-            {
-                return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, GetBulkUploadKey(bulkUploadId));
-            }
-
-            return false;
-        }
-
+        
         #endregion
 
         public static List<string> ConvertUserMediaMarksToKeys(string userId, IEnumerable<AssetAndLocation> assetsAndLocations)
