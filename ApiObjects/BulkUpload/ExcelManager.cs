@@ -50,7 +50,8 @@ namespace ApiObjects.BulkUpload
                                     var excelStructure = structure.GetExcelStructure(groupId);
                                     if (excelStructure == null)
                                     {
-                                        // TODO SHIR - SET SOME ERROR
+                                        excelObjects.SetStatus(eResponseStatus.InvalidBulkUploadStructure);
+                                        return excelObjects;
                                     }
                                     else
                                     {
@@ -84,22 +85,30 @@ namespace ApiObjects.BulkUpload
                                             {
                                                 if (status.IsOkStatusCode())
                                                 {
-                                                    // TODO SHIR - VALIDATE THAT THE MEDIA_TYPE IN EXCEL IS LIKE MEDIA_TYPE IN objectData
-                                                    try
+                                                    if (objectData.Validate(columnNamesToValues))
                                                     {
-                                                        excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
+                                                        try
+                                                        {
+                                                            excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
+                                                        }
+                                                        catch (ArgumentException ex)
+                                                        {
+                                                            log.Error(string.Format("An ArgumentException was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
+                                                                                    groupId, string.Join(",", columnNamesToValues), ex));
+                                                            status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Invalid Argument Value, Error:{0}", ex.Message));
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            log.Error(string.Format("An Exception was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
+                                                                                    groupId, string.Join(",", columnNamesToValues), ex));
+                                                            status.Set(eResponseStatus.Error, "Could not set Excel Values for this object");
+                                                        }
                                                     }
-                                                    catch (ArgumentException ex)
+                                                    else
                                                     {
-                                                        log.Error(string.Format("An ArgumentException was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
-                                                                                groupId, string.Join(",", columnNamesToValues), ex));
-                                                        status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Invalid Argument Value, Error:{0}", ex.Message));
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-                                                        log.Error(string.Format("An Exception was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
-                                                                                groupId, string.Join(",", columnNamesToValues), ex));
-                                                        status.Set(eResponseStatus.Error, "Could not set Excel Values for this object");
+                                                        var mandatoryPropertyToValueMap = objectData.GetMandatoryPropertyToValueMap();
+                                                        var mandatoryPropertyToValue =  "{" + string.Join(",", mandatoryPropertyToValueMap.Select(kv => kv.Key + "=" + kv.Value).ToArray()) + "}";
+                                                        status.Set(eResponseStatus.IllegalExcelFile, string.Format("Excel columns do not match for current BulkObjectType data. Mandatory column name to value: {0}", mandatoryPropertyToValue));
                                                     }
                                                 }
 

@@ -209,7 +209,6 @@ namespace Core.Catalog
         
         public ExcelStructure GetExcelStructure(int groupId, Dictionary<string, object> data = null)
         {
-            // TODO SHIR - SET in layered cache by MEDIA_TYPE and groupId
             ExcelStructure excelStructer = null;
 
             if (this.Id > 0)

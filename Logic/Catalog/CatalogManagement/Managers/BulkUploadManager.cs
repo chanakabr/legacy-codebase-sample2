@@ -393,33 +393,6 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
         
-        public static bool ClearAllForQA(int groupId, string bulkObjectType)
-        {
-            try
-            {
-                var bulkUploads = GetBulkUploads(groupId, bulkObjectType, DateTime.UtcNow.AddSeconds(BULK_UPLOAD_CB_TTL));
-                if (bulkUploads.HasObjects())
-                {
-                    foreach (var bulkUpload in bulkUploads.Objects)
-                    {
-                        var deleteFileRes = FileHandler.Instance.DeleteFile(bulkUpload.FileURL);
-                        if (deleteFileRes.IsOkStatusCode())
-                        {
-                            CatalogDAL.DeleteBulkUpload(bulkUpload.Id);
-                        }
-                    }
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                string errorMessage = string.Format("An Exception was occurred in ClearAllForQA. groupId:{0}, bulkObjectType:{1}.", groupId, bulkObjectType);
-                log.Error(errorMessage, ex);
-                return false;
-            }
-        }
-        
         private static BulkUpload CreateBulkUploadFromDataTable(DataTable dt, int groupId, bool shouldGetValuesFromCB = false)
         {
             BulkUpload bulkUpload = null;

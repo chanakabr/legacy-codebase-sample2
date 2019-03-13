@@ -9,6 +9,8 @@ namespace Core.Catalog
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadAssetData : BulkUploadObjectData
     {
+        private AssetStruct structure { get; set; }
+
         [JsonProperty("TypeId")]
         public long TypeId { get; set; }
 
@@ -20,12 +22,49 @@ namespace Core.Catalog
         
         public override IBulkUploadStructure GetStructure()
         {
-            AssetStruct assetStruct = new AssetStruct
+            if (structure == null)
             {
-                Id = TypeId
-            };
+                var assetStructResponse = CatalogManagement.CatalogManager.GetAssetStruct(GroupId, TypeId);
+                if (assetStructResponse.HasObject())
+                {
+                    structure = assetStructResponse.Object;
+                }
+            }
+            
+            return structure;
+        }
+        
+        public override bool Validate(Dictionary<string, object> propertyToValueMap)
+        {
+            // set structure if null
+            GetStructure();
 
-            return assetStruct;
+            if (structure != null )
+            {
+                var mediaAssetTypeColumnName = ExcelColumn.GetFullColumnName(MediaAsset.MEDIA_ASSET_TYPE, null, null, true);
+                if (propertyToValueMap.ContainsKey(mediaAssetTypeColumnName) &&
+                    propertyToValueMap[mediaAssetTypeColumnName].ToString().Equals(structure.SystemName))
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        public override Dictionary<string, object> GetMandatoryPropertyToValueMap()
+        {
+            Dictionary<string, object> mandatoryPropertyToValueMap = new Dictionary<string, object>();
+            // set structure if null
+            GetStructure();
+
+            if (structure != null)
+            {
+                var mediaAssetTypeColumnName = ExcelColumn.GetFullColumnName(MediaAsset.MEDIA_ASSET_TYPE, null, null, true);
+                mandatoryPropertyToValueMap.Add(mediaAssetTypeColumnName, structure.SystemName);
+            }
+
+            return mandatoryPropertyToValueMap;
         }
     }
 }

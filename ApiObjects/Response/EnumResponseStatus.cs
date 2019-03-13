@@ -277,6 +277,7 @@ namespace ApiObjects.Response
         BulkUploadDoesNotExist = 4082,
         BulkUploadResultIsMissing = 4083,
         NoValuesToUpdate = 4084,
+        InvalidBulkUploadStructure = 4085,
 
         #endregion
 
