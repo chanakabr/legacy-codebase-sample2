@@ -4030,7 +4030,6 @@ namespace WebAPI.Clients
         {
             var bulkUploadJobData = AutoMapper.Mapper.Map<BulkUploadJobData>(jobData);
             var bulkUploadObjectData = AutoMapper.Mapper.Map<BulkUploadObjectData>(objectData);
-            bulkUploadObjectData.GroupId = groupId;
 
             Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, fileName, userId, filePath, objectType, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData);
             KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
