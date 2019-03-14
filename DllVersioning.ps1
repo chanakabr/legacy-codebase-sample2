@@ -50,7 +50,7 @@ if($tagParts.Length -ge 2) {
 	#$revision = $(git rev-list --count --first-parent HEAD)
 	$version = "$major.$minor.$build.*"
 
-	$date = $(date +'%Y-%m-%d %H:%M:%S')
+	$date = get-date -format "yyy-mm-dd HH:MM:ss"
 	$hostname = $(hostname)
 	$committer = $(git config user.name)
 	$description = "$date | Hostname:$hostname | Published by:$committer"
