@@ -10,6 +10,7 @@ namespace ApiObjects.BulkUpload
     {
         [JsonProperty("GroupId")]
         public int GroupId { get; set; }
+
         public abstract IBulkUploadStructure GetStructure();
         public abstract IBulkUploadObject CreateObjectInstance();
         public abstract bool Validate(Dictionary<string, object> propertyToValueMap);
