@@ -30,10 +30,10 @@ namespace WebAPI.Models.Upload
         /// <summary>
         /// bulk objects Type name (must be type of KalturaOTTObject)
         /// </summary>
-        [DataMember(Name = "bulkObjectNameEqual")]
-        [JsonProperty("bulkObjectNameEqual")]
-        [XmlElement(ElementName = "bulkObjectNameEqual")]
-        public string BulkObjectNameEqual { get; set; }
+        [DataMember(Name = "bulkObjectTypeEqual")]
+        [JsonProperty("bulkObjectTypeEqual")]
+        [XmlElement(ElementName = "bulkObjectTypeEqual")]
+        public string BulkObjectTypeEqual { get; set; }
 
         /// <summary>
         /// upload date to search within (search in the last 60 days)
@@ -66,26 +66,37 @@ namespace WebAPI.Models.Upload
             return KalturaBulkUploadOrderBy.NONE;
         }
 
-        internal void Validate(out DateTime createDate)
+        internal void Validate()
         {
-            if (string.IsNullOrEmpty(BulkObjectNameEqual))
+            if (string.IsNullOrEmpty(BulkObjectTypeEqual))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkObjectNameEqual");
             }
 
             if (CreateDateGreaterThanOrEqual.HasValue)
             {
-                createDate = DateUtils.UtcUnixTimestampSecondsToDateTime(this.CreateDateGreaterThanOrEqual.Value);
+                var createDate = DateUtils.UtcUnixTimestampSecondsToDateTime(this.CreateDateGreaterThanOrEqual.Value);
                 if (createDate.AddDays(MIN_RECORD_DAYS_TO_WATCH) < DateTime.UtcNow)
                 {
                     var minCreateDate = DateTime.UtcNow.AddDays(-MIN_RECORD_DAYS_TO_WATCH).ToUtcUnixTimestampSeconds();
                     throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "createDateGreaterThanOrEqual", minCreateDate);
                 }
             }
+        }
+
+        internal DateTime GetCreateDate()
+        {
+            DateTime createDate;
+            if (CreateDateGreaterThanOrEqual.HasValue)
+            {
+                createDate = DateUtils.UtcUnixTimestampSecondsToDateTime(this.CreateDateGreaterThanOrEqual.Value);
+            }
             else
             {
                 createDate = DateTime.UtcNow.AddDays(-MIN_RECORD_DAYS_TO_WATCH);
             }
+
+            return createDate;
         }
     }
 }

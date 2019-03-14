@@ -940,8 +940,8 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadFilter":
                     switch(property.Name)
                     {
-                        case "BulkObjectNameEqual":
-                            return "bulkObjectNameEqual";
+                        case "BulkObjectTypeEqual":
+                            return "bulkObjectTypeEqual";
                         case "CreateDateGreaterThanOrEqual":
                             return "createDateGreaterThanOrEqual";
                         case "StatusIn":
@@ -964,10 +964,8 @@ namespace WebAPI.Reflection
                     {
                         case "BulkUploadId":
                             return "bulkUploadId";
-                        case "ErrorCode":
-                            return "errorCode";
-                        case "ErrorMessage":
-                            return "errorMessage";
+                        case "Error":
+                            return "error";
                         case "Index":
                             return "index";
                         case "ObjectId":

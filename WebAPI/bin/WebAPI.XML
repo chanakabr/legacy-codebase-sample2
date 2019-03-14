@@ -12899,7 +12899,7 @@
             Bulk Upload Filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.BulkObjectNameEqual">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.BulkObjectTypeEqual">
             <summary>
             bulk objects Type name (must be type of KalturaOTTObject)
             </summary>
@@ -13035,14 +13035,9 @@
             status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.ErrorCode">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Error">
             <summary>
-            Error Code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.ErrorMessage">
-            <summary>
-            Error Message
+            Error details
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Warnings">
