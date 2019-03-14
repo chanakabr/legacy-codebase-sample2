@@ -14,7 +14,8 @@
     {
       "permissions": [
         "Manager",
-        "GROUP_CONFIG_MNG"
+        "GROUP_CONFIG_MNG",
+        "OPC_PREF_VIEW"
       ],
       "excluded_permissions": [],
       "name": "PartnerConfiguration_List",

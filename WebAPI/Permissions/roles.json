@@ -140,8 +140,7 @@
         "BSC_ASSETS_MNG",
         "COLLECTIONS_MNG",
         "EXT_COLLECTIONS_MNG",
-        "OPC_PREF_VIEW",
-        "TEAM_VIEW",
+        "OPC_PREF_VIEW",        
         "MY_USER_MNG"
       ],
       "excluded_permissions": [],
