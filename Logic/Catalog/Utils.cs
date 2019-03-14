@@ -1367,7 +1367,7 @@ namespace Core.Catalog
                         else if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(lowered) && catalogGroupCache.TopicsMapBySystemName[lowered].Type != ApiObjects.MetaType.Tag)
                         {
                             valid = true;
-                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
+                            requestGroupBy = string.Format("metas.{0}.lowercase", groupBy.ToLower());
                         }
                     }
                     else
@@ -1375,7 +1375,7 @@ namespace Core.Catalog
                         if (allMetas.Contains(lowered))
                         {
                             valid = true;
-                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
+                            requestGroupBy = string.Format("metas.{0}.lowercase", groupBy.ToLower());
                         }
                         else if (allTags.Contains(lowered))
                         {

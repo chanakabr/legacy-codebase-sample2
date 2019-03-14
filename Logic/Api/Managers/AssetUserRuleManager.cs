@@ -35,7 +35,7 @@ namespace Core.Api.Managers
         #region Public Methods
 
         internal static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, bool shouldGetGroupRulesFirst = false, 
-            RuleActionType? ruleActionType = null)
+            RuleActionType? ruleActionType = null, bool returnConfigError = false)
         {
             GenericListResponse<AssetUserRule> response = new GenericListResponse<AssetUserRule>();
             bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
@@ -56,7 +56,15 @@ namespace Core.Api.Managers
 
             if (userId.HasValue && userId.Value > 0 && (doesGroupUsesTemplates ? !catalogGroupCache.IsAssetUserRuleEnabled : !group.isAssetUserRuleEnabled))
             {
-                response.SetStatus(eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
+                if (returnConfigError)
+                {
+                    response.SetStatus(eResponseStatus.AssetUserRulesOperationsDisable, ASSET_USER_RULES_OPERATIONS_DISABLE);
+                } 
+                else
+                {
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
                 return response;
             }
 
