@@ -3788,13 +3788,13 @@ namespace WebAPI.Clients
 
         #region AssetUserRule
 
-        internal KalturaAssetUserRuleListResponse GetAssetUserRules(int groupId, long? userId = null, KalturaRuleActionType? actionsContainType = null)
+        internal KalturaAssetUserRuleListResponse GetAssetUserRules(int groupId, long? userId = null, KalturaRuleActionType? actionsContainType = null, bool returnConfigError = false)
         {
             KalturaAssetUserRuleListResponse result = new KalturaAssetUserRuleListResponse();
             RuleActionType? ruleActionType = actionsContainType.HasValue ? Mapper.Map<RuleActionType?>(actionsContainType.Value) : null;
 
             Func<GenericListResponse<AssetUserRule>> getAssetUserRuleListFunc = () =>
-               Core.Api.Module.GetAssetUserRuleList(groupId, userId, ruleActionType);
+               Core.Api.Module.GetAssetUserRuleList(groupId, userId, ruleActionType, returnConfigError);
 
             KalturaGenericListResponse<KalturaAssetUserRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaAssetUserRule, AssetUserRule>(getAssetUserRuleListFunc);
