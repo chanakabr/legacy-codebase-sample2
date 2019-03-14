@@ -272,41 +272,53 @@ namespace Core.Catalog
 
             foreach (var columnValue in columnNamesToValues)
             {
-                if (columns.ContainsKey(columnValue.Key))
+                try
                 {
-                    switch (columns[columnValue.Key].ColumnType)
+                    if (columns.ContainsKey(columnValue.Key))
                     {
-                        case ExcelColumnType.Meta:
-                            SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.DefaultLanguage.Code, ref dicMetas);
-                            break;
-                        case ExcelColumnType.Tag:
-                            SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, catalogGroupCache);
-                            break;
-                        case ExcelColumnType.Image:
-                            SetImageByExcelValues(columnValue, columns[columnValue.Key], imageTypesMapBySystemName);
-                            break;
-                        case ExcelColumnType.Basic:
-                            SetBasicByExcelValues(columnValue, catalogGroupCache);
-                            break;
-                        case ExcelColumnType.File:
-                            var fileSystemName = columns[columnValue.Key].SystemName;
-                            if (!fileTypesSystemName.Contains(fileSystemName))
-                            {
-                                fileTypesSystemName.Add(fileSystemName);
-                                var fileValues = columnNamesToValues.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
-                                var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
-                                SetFileByExcelValues(groupId, fileValues, fileColumns);
-                            }
-                            break;
-                        case ExcelColumnType.Rule:
-                            SetRuleByExcelValues(columnValue);
-                            break;
-                        case ExcelColumnType.AvailabilityMeta:
-                            SetAvailabilityMetaByExcelValues(columnValue);
-                            break;
-                        default:
-                            break;
+                        switch (columns[columnValue.Key].ColumnType)
+                        {
+                            case ExcelColumnType.Meta:
+                                SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.DefaultLanguage.Code, ref dicMetas);
+                                break;
+                            case ExcelColumnType.Tag:
+                                SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, catalogGroupCache);
+                                break;
+                            case ExcelColumnType.Image:
+                                SetImageByExcelValues(columnValue, columns[columnValue.Key], imageTypesMapBySystemName);
+                                break;
+                            case ExcelColumnType.Basic:
+                                SetBasicByExcelValues(columnValue, catalogGroupCache);
+                                break;
+                            case ExcelColumnType.File:
+                                var fileSystemName = columns[columnValue.Key].SystemName;
+                                if (!fileTypesSystemName.Contains(fileSystemName))
+                                {
+                                    fileTypesSystemName.Add(fileSystemName);
+                                    var fileValues = columnNamesToValues.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
+                                    var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
+                                    SetFileByExcelValues(groupId, fileValues, fileColumns);
+                                }
+                                break;
+                            case ExcelColumnType.Rule:
+                                SetRuleByExcelValues(columnValue);
+                                break;
+                            case ExcelColumnType.AvailabilityMeta:
+                                SetAvailabilityMetaByExcelValues(columnValue);
+                                break;
+                            default:
+                                break;
+                        }
                     }
+                }
+                catch (ExcelParserException ex)
+                {
+                    throw ex;
+                }
+                catch (Exception ex)
+                {
+                    var excelParserException = new ExcelParserException(ex, columnValue.Key, columnValue.Value);
+                    throw excelParserException;
                 }
             }
 

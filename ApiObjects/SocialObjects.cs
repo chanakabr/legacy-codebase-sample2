@@ -96,7 +96,10 @@ namespace ApiObjects
     [Serializable]
     public class KeyValuePair
     {
+        [JsonProperty("key")]
         public string key { get; set; }
+
+        [JsonProperty("value")]
         public string value { get; set; }
 
         public KeyValuePair()

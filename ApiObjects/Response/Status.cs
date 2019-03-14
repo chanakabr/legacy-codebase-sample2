@@ -13,8 +13,13 @@ namespace ApiObjects.Response
     [DataContract]
     public class Status
     {
+        [JsonProperty("message")]
         private string message = string.Empty;
+
+        [JsonProperty("code")]
         private int code;
+
+        [JsonProperty("args")]
         private List<KeyValuePair> args;
 
         public Status(int code = 0, string message = "", List<KeyValuePair> args = null)
@@ -98,15 +103,15 @@ namespace ApiObjects.Response
                 this.message = responseMessage;
             }
         }
-
-        public void AddArg(string key, string value)
+        
+        public void AddArg(string key, object value)
         {
             if (args == null)
             {
                 args = new List<KeyValuePair>();
             }
 
-            args.Add(new KeyValuePair(key, value));
+            args.Add(new KeyValuePair(key, value != null ? value.ToString() : string.Empty));
         }
 
         public bool IsOkStatusCode()

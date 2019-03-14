@@ -75,7 +75,7 @@ namespace ApiObjects.BulkUpload
                                                 else if (excelStructure.ExcelColumns.ContainsKey(column.ToString()) &&
                                                          excelStructure.ExcelColumns[column.ToString()].IsMandatory)
                                                 {
-                                                    status.Set(eResponseStatus.ExcelMandatoryValueIsMissing, string.Format("Mandatory Value:{0} Is Missing", column.ToString()));
+                                                    status.Set(eResponseStatus.ExcelMandatoryValueIsMissing, string.Format("Mandatory Value:{0} Is Missing", column));
                                                     break;
                                                 }
                                             }
@@ -91,17 +91,35 @@ namespace ApiObjects.BulkUpload
                                                         {
                                                             excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
                                                         }
+                                                        catch (ExcelParserException ex)
+                                                        {
+                                                            log.Error(string.Format("An ExcelParserException was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
+                                                                                    groupId, string.Join(",", columnNamesToValues), ex));
+                                                            status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Invalid Argument Value. Error:{0}", ex.Message));
+                                                            status.AddArg("Target method", ex.MethodName);
+                                                            status.AddArg("Column", ex.ColumnName);
+                                                            status.AddArg("Value", ex.Value);
+                                                        }
                                                         catch (ArgumentException ex)
                                                         {
                                                             log.Error(string.Format("An ArgumentException was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
                                                                                     groupId, string.Join(",", columnNamesToValues), ex));
                                                             status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Invalid Argument Value, Error:{0}", ex.Message));
+                                                            status.AddArg("Parameter name", ex.ParamName);
+                                                            if (ex.TargetSite != null)
+                                                            {
+                                                                status.AddArg("Target method", ex.TargetSite.Name);
+                                                            }
                                                         }
                                                         catch (Exception ex)
                                                         {
                                                             log.Error(string.Format("An Exception was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
                                                                                     groupId, string.Join(",", columnNamesToValues), ex));
-                                                            status.Set(eResponseStatus.Error, "Could not set Excel Values for this object");
+                                                            status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Could not set Excel Values for this object, Error:{0}", ex.Message));
+                                                            if (ex.TargetSite != null)
+                                                            {
+                                                                status.AddArg("Target method", ex.TargetSite.Name);
+                                                            }
                                                         }
                                                     }
                                                     else

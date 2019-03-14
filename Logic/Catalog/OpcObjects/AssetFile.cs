@@ -6,6 +6,7 @@ using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using TVinciShared;
 
@@ -271,31 +272,39 @@ namespace Core.Catalog
 
             foreach (var columnValue in columnNamesToValues)
             {
-                if (columns.ContainsKey(columnValue.Key))
+                try
                 {
-                    var realType = columns[columnValue.Key].Property.PropertyType.GetRealType();
-                    object convertedValue;
-                    if (realType == dateTimeType || realType == nullableDateTimeType)
+                    if (columns.ContainsKey(columnValue.Key))
                     {
-                        convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                    }
-                    else
-                    {
-                        convertedValue = columnValue.Value.TryConvertTo(realType);
-                    }
-                    
-                    if (convertedValue != null)
-                    {
-                        columns[columnValue.Key].Property.SetValue(this, convertedValue);
+                        var realType = columns[columnValue.Key].Property.PropertyType.GetRealType();
+                        object convertedValue;
+                        if (realType == dateTimeType || realType == nullableDateTimeType)
+                        {
+                            convertedValue = DateTime.ParseExact(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT, null, DateTimeStyles.None);
+                        }
+                        else
+                        {
+                            convertedValue = Convert.ChangeType(columnValue.Value, realType);
+                        }
+
+                        if (convertedValue != null)
+                        {
+                            columns[columnValue.Key].Property.SetValue(this, convertedValue);
+                        }
+
+                        if (string.IsNullOrEmpty(this.type))
+                        {
+                            this.type = columns[columnValue.Key].SystemName;
+                        }
                     }
                 }
-
-                if (string.IsNullOrEmpty(this.type))
+                catch (Exception ex)
                 {
-                    this.type = columns[columnValue.Key].SystemName;
+                    var excelParserException = new ExcelParserException(ex, columnValue.Key, columnValue.Value);
+                    throw excelParserException;
                 }
             }
-
+            
             if (!string.IsNullOrEmpty(this.type) && !this.TypeId.HasValue)
             {
                 var mediaFileTypesListResponse = FileManager.GetMediaFileTypes(groupId);
