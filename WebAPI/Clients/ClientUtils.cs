@@ -138,9 +138,9 @@ namespace WebAPI.Clients
 
             if (response.Objects != null)
             {
-                // TODO SHIR - order BY GetResponseListFromWS
                 result.Objects = AutoMapper.Mapper.Map<List<U>>(response.Objects);
                 result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
+                // TODO SHIR - order BY GetResponseListFromWS
             }
             else
             {
