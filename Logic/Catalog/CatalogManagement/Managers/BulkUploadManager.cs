@@ -322,10 +322,8 @@ namespace Core.Catalog.CatalogManagement
                 {
                     bulkUploadResponse.Object.Results[resultIndex].Warnings = warnings;
                 }
-                
-                bulkUploadResponse.Object.Status = GetBulkStatusByResultsStatus(bulkUploadResponse.Object);
 
-                if (!CatalogDAL.SaveBulkUploadResultCB(bulkUploadResponse.Object.Results[resultIndex], bulkUploadResponse.Object.Status, BULK_UPLOAD_CB_TTL))
+                if (!CatalogDAL.SaveBulkUploadResultCB(bulkUploadResponse.Object, resultIndex, BULK_UPLOAD_CB_TTL))
                 {
                     log.ErrorFormat("UpdateBulkUploadResult - Error while saving BulkUpload to CB. bulkUploadId:{0}, resultIndex:{1}.", bulkUploadId, resultIndex);
                 }
@@ -386,8 +384,6 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-
-                response.Object.Status = GetBulkStatusByResultsStatus(response.Object);
                                 
                 if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
                 {
@@ -542,29 +538,7 @@ namespace Core.Catalog.CatalogManagement
 
             return statusToBulkUploadList;
         }
-
-        private static BulkUploadJobStatus GetBulkStatusByResultsStatus(BulkUpload bulkUpload)
-        {
-            BulkUploadJobStatus newStatus = bulkUpload.Status;
-            if (bulkUpload.NumOfObjects.HasValue && bulkUpload.NumOfObjects.Value == bulkUpload.Results.Count)
-            {
-                if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok))
-                {
-                    newStatus = BulkUploadJobStatus.Success;
-                }
-                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Error))
-                {
-                    newStatus = BulkUploadJobStatus.Failed;
-                }
-                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok || x.Status == BulkUploadResultStatus.Error))
-                {
-                    newStatus = BulkUploadJobStatus.Partial;
-                }
-            }
-
-            return newStatus;
-        }
-
+        
         private static void UpdateBulkUploadInSqlAndInvalidateKeys(BulkUpload bulkUpload, BulkUploadJobStatus originalStatus)
         {
             if (originalStatus != bulkUpload.Status)
