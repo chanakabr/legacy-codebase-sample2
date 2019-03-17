@@ -70,7 +70,7 @@ namespace WebAPI.Models.Upload
         {
             if (string.IsNullOrEmpty(BulkObjectTypeEqual))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkObjectNameEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkObjectTypeEqual");
             }
 
             if (CreateDateGreaterThanOrEqual.HasValue)
