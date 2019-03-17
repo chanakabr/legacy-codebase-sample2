@@ -75,18 +75,5 @@ namespace TVinciShared
         {
             return Nullable.GetUnderlyingType(type) != null;
         }
-
-        public static object TryConvertTo(this object value, Type type)
-        {
-            try
-            {
-                var convertedValue = Convert.ChangeType(value, type);
-                return convertedValue;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
     }
 }
