@@ -358,10 +358,17 @@ namespace Core.Catalog
 
         protected void SetMetaByExcelValues(KeyValuePair<string, object> columnValue, ExcelColumn excelColumn, string defaultLanguage, ref Dictionary<string, List<LanguageContainer>> dicMetas)
         {
+            bool isDefaultLanguage = false;
+            if (string.IsNullOrEmpty(excelColumn.Language) || excelColumn.Language.Equals(defaultLanguage))
+            {
+                excelColumn.Language = defaultLanguage;
+                isDefaultLanguage = true;
+            }
+
             switch (excelColumn.SystemName)
             {
                 case AssetManager.NAME_META_SYSTEM_NAME:
-                    if (string.IsNullOrEmpty(excelColumn.Language))
+                    if (isDefaultLanguage)
                     {
                         this.Name = columnValue.Value as string;
                     }
@@ -371,7 +378,7 @@ namespace Core.Catalog
                     }
                     break;
                 case AssetManager.DESCRIPTION_META_SYSTEM_NAME:
-                    if (string.IsNullOrEmpty(excelColumn.Language))
+                    if (isDefaultLanguage)
                     {
                         this.Description = columnValue.Value as string;
                     }
@@ -381,12 +388,6 @@ namespace Core.Catalog
                     }
                     break;
                 default:
-                    bool isDefaultLanguage = false;
-                    if (string.IsNullOrEmpty(excelColumn.Language))
-                    {
-                        excelColumn.Language = defaultLanguage;
-                        isDefaultLanguage = true;
-                    }
                     if (dicMetas.ContainsKey(excelColumn.SystemName))
                     {
                         dicMetas[excelColumn.SystemName].Add(new LanguageContainer(excelColumn.Language, columnValue.Value.ToString(), isDefaultLanguage));
