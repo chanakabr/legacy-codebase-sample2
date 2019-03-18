@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <TargetFramework>net452</TargetFramework>
+
     <Version>2.2.0</Version>
   </PropertyGroup>
 
