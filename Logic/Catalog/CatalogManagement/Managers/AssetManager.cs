@@ -245,7 +245,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             string name = string.Empty;
-            string description = string.Empty;
+            string description = null;
             List<LanguageContainer> namesWithLanguages = null;
             List<LanguageContainer> descriptionsWithLanguages = null;
             if (!ExtractMediaAssetNamesAndDescriptionsFromMetas(metas, ref name, ref description, ref namesWithLanguages, ref descriptionsWithLanguages))
