@@ -124,7 +124,12 @@ namespace Core.Catalog.CatalogManagement
                         response.Objects = response.Objects.Where(x => x.UpdaterId == userId.Value).ToList();
                     }
                 }
-                
+
+                var bulksToSuccess = string.Join(", ", response.Objects.Where(x => x.Status == BulkUploadJobStatus.Processed && x.Results != null && x.Results.All(y => y.Status == BulkUploadResultStatus.Ok)).Select(x => x.Id));
+                var bulksToFailed = string.Join(", ", response.Objects.Where(x => x.Status == BulkUploadJobStatus.Processed && x.Results != null && x.Results.All(y => y.Status == BulkUploadResultStatus.Error)).Select(x => x.Id));
+                var bulksToPartial = string.Join(", ", response.Objects.Where(x => x.Status == BulkUploadJobStatus.Processed && x.Results != null && x.Results.All(y => y.Status == BulkUploadResultStatus.Error || y.Status == BulkUploadResultStatus.Ok)).Select(x => x.Id));
+
+
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -155,11 +160,13 @@ namespace Core.Catalog.CatalogManagement
                 response.Object.ObjectData = objectData;
                 response.Object.ObjectData.GroupId = groupId;
 
-                if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
+                BulkUploadJobStatus updatedStatus;
+                if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {
                     log.ErrorFormat("Error while saving BulkUpload to CB. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
                     return response;
                 }
+                response.Object.Status = updatedStatus;
 
                 // save the bulkUpload file to server (cut it from iis) and set fileURL
                 FileInfo fileInfo = new FileInfo(filePath);
@@ -323,10 +330,12 @@ namespace Core.Catalog.CatalogManagement
                     bulkUploadResponse.Object.Results[resultIndex].Warnings = warnings;
                 }
 
-                if (!CatalogDAL.SaveBulkUploadResultCB(bulkUploadResponse.Object, resultIndex, BULK_UPLOAD_CB_TTL))
+                BulkUploadJobStatus updatedStatus;
+                if (!CatalogDAL.SaveBulkUploadResultCB(bulkUploadResponse.Object, resultIndex, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {
                     log.ErrorFormat("UpdateBulkUploadResult - Error while saving BulkUpload to CB. bulkUploadId:{0}, resultIndex:{1}.", bulkUploadId, resultIndex);
                 }
+                bulkUploadResponse.Object.Status = updatedStatus;
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(bulkUploadResponse.Object, originalStatus);
                 response.Set(eResponseStatus.OK);
@@ -384,11 +393,13 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-                                
-                if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
+
+                BulkUploadJobStatus updatedStatus;
+                if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {
                     log.ErrorFormat("UpdateBulkUpload - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
+                response.Object.Status = updatedStatus;
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
                 response.SetStatus(eResponseStatus.OK);
