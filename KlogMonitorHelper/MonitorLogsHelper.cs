@@ -14,10 +14,10 @@ namespace KlogMonitorHelper
 {
     public class MonitorLogsHelper
     {
-        private static readonly HttpRequest _CurrentRequest = HttpContext.Current.Request;
+        private static readonly HttpRequest _CurrentRequest = HttpContext.Current?.Request;
         private static readonly LogicalThreadContextProperties _LogContextData = log4net.LogicalThreadContext.Properties;
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger _Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string K_MON_KEY = "kmon";
         private const string PREFIX_UNIQUE_ID = @"urn:uuid:";
@@ -30,7 +30,7 @@ namespace KlogMonitorHelper
         {
             try
             {
-                if (HttpContext.Current != null && _CurrentRequest != null)
+                if (_CurrentRequest != null)
                 {
                     // create byte array to hold request bytes
                     byte[] inputStream = new byte[_CurrentRequest.ContentLength];
@@ -47,7 +47,7 @@ namespace KlogMonitorHelper
             }
             catch (Exception ex)
             {
-                log.Error("Error while trying to get request string", ex);
+                _Log.Error("Error while trying to get request string", ex);
             }
 
             return null;
@@ -59,7 +59,7 @@ namespace KlogMonitorHelper
             KMonitor.AppType = KLogEnums.AppType.WS;
 
             if (string.IsNullOrEmpty(requestBody))
-                log.Debug("REQUEST BODY IS EMPTY");
+                _Log.Debug("REQUEST BODY IS EMPTY");
             else
             {
                 // get request ID
@@ -93,7 +93,7 @@ namespace KlogMonitorHelper
                 catch (Exception)
                 {
                     // no need to log exception
-                    log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestBody));
+                    _Log.Error(string.Format("Error while loading and parsing WS XML request. XML Request: {0}", requestBody));
 
                     // try taking data from query string
                     try
@@ -110,7 +110,7 @@ namespace KlogMonitorHelper
                     catch (Exception)
                     {
                         // no need to log exception
-                        log.Error(string.Format("Error while loading and parsing WS query string. XML Request: {0}", requestBody));
+                        _Log.Error(string.Format("Error while loading and parsing WS query string. XML Request: {0}", requestBody));
                     }
                 }
 
@@ -119,16 +119,16 @@ namespace KlogMonitorHelper
 
                 // log request
                 if (requestBody.Length > MAX_LOG_REQUEST_SIZE)
-                    log.Debug("REQUEST STRING (large request string - partial log): " + requestBody.Substring(0, MAX_LOG_REQUEST_SIZE));
+                    _Log.Debug("REQUEST STRING (large request string - partial log): " + requestBody.Substring(0, MAX_LOG_REQUEST_SIZE));
                 else
-                    log.Debug("REQUEST STRING: " + Environment.NewLine + requestBody);
+                    _Log.Debug("REQUEST STRING: " + Environment.NewLine + requestBody);
             }
         }
 
         public static void InitMonitorLogsDataFormUrlEncoded(string action, string requestString, int groupId)
         {
             if (string.IsNullOrEmpty(requestString))
-                log.Debug("REQUEST STRING IS EMPTY");
+                _Log.Debug("REQUEST STRING IS EMPTY");
             else
             {
                 try
@@ -158,13 +158,13 @@ namespace KlogMonitorHelper
 
                     // log request
                     if (requestString.Length > MAX_LOG_REQUEST_SIZE)
-                        log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
+                        _Log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
                     else
-                        log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
+                        _Log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error while loading and parsing data form", ex);
+                    _Log.Error("Error while loading and parsing data form", ex);
                 }
             }
         }
@@ -175,13 +175,13 @@ namespace KlogMonitorHelper
             KMonitor.AppType = KLogEnums.AppType.WCF;
 
             if (requestMessage == null)
-                log.Debug("REQUEST STRING IS NULL");
+                _Log.Debug("REQUEST STRING IS NULL");
             else
             {
                 string requestString = requestMessage.ToString();
 
                 if (string.IsNullOrEmpty(requestString))
-                    log.Debug("REQUEST STRING IS EMPTY");
+                    _Log.Debug("REQUEST STRING IS EMPTY");
                 else
                 {
                     // get action name
@@ -221,9 +221,9 @@ namespace KlogMonitorHelper
 
                     // log request
                     if (requestString.Length > MAX_LOG_REQUEST_SIZE)
-                        log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
+                        _Log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
                     else
-                        log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
+                        _Log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
                 }
             }
         }
@@ -331,7 +331,7 @@ namespace KlogMonitorHelper
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to get header key. app type: {0}, key: {1}, ex: {2}", KMonitor.AppType.ToString(), key, ex);
+                _Log.ErrorFormat("Error while trying to get header key. app type: {0}, key: {1}, ex: {2}", KMonitor.AppType.ToString(), key, ex);
             }
             return null;
         }
@@ -364,7 +364,7 @@ namespace KlogMonitorHelper
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to update header key. app type: {0}, key: {1}, value: {2}, ex: {3}", KMonitor.AppType.ToString(), key, value, ex);
+                _Log.ErrorFormat("Error while trying to update header key. app type: {0}, key: {1}, value: {2}, ex: {3}", KMonitor.AppType.ToString(), key, value, ex);
             }
             return false;
         }
