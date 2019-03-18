@@ -280,7 +280,7 @@ namespace Core.Catalog
                         object convertedValue;
                         if (realType == dateTimeType || realType == nullableDateTimeType)
                         {
-                            convertedValue = DateTime.ParseExact(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT, null, DateTimeStyles.None);
+                            convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
                         }
                         else
                         {

@@ -327,8 +327,8 @@ namespace Core.Catalog.CatalogManagement
                             continue;
                         }
 
-                        DateTime? ppvStartDate = DateUtils.ExtractDate(parameters[i + 1], assetFileDateFormat);
-                        DateTime? ppvEndDate = DateUtils.ExtractDate(parameters[i + 2], assetFileDateFormat);
+                        DateTime? ppvStartDate = DateUtils.TryExtractDate(parameters[i + 1], assetFileDateFormat);
+                        DateTime? ppvEndDate = DateUtils.TryExtractDate(parameters[i + 2], assetFileDateFormat);
 
                         DateTime? prevPPVFileStartDate = null;
                         DateTime? prevPPVFileEndDate = null;

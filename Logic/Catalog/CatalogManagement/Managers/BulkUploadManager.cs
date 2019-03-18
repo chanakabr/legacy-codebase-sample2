@@ -223,7 +223,7 @@ namespace Core.Catalog.CatalogManagement
                 var objectsListResponse = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
                 if (bulkUploadResponse.Object.JobData != null && bulkUploadResponse.Object.ObjectData != null)
                 {
-                    objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(groupId, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
+                    objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(bulkUploadId, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
                     if (!objectsListResponse.IsOkStatusCode())
                     {
                         UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Failed);
