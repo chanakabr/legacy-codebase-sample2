@@ -108,8 +108,7 @@ namespace ApiObjects.Response
                 args = new List<KeyValuePair>();
             }
 
-            var arg = args.FirstOrDefault(x => x.key == key);
-            if (args == null)
+            if (args.Count == 0 || !args.Any(x => x.key == key))
             {
                 args.Add(new KeyValuePair(key, value != null ? value.ToString() : string.Empty));
             }
