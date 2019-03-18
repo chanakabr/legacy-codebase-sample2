@@ -14,8 +14,6 @@ namespace WebAPI
         {
             var contextData = new ContextData();
             contextData.Load();
-
-            var action = HttpContext.Current.Items[KLogMonitor.Constants.ACTION];
         }
     }
 }
