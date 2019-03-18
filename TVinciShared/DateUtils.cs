@@ -386,7 +386,7 @@ namespace TVinciShared
             return 0;
         }
 
-        public static DateTime? ExtractDate(string dateTime, string format)
+        public static DateTime? TryExtractDate(string dateTime, string format)
         {
             DateTime result;
             if (DateTime.TryParseExact(dateTime, format, null, DateTimeStyles.None, out result))
@@ -395,6 +395,12 @@ namespace TVinciShared
             }
 
             return null;
+        }
+
+        public static DateTime ExtractDate(string dateTime, string format)
+        {
+            DateTime result = DateTime.Parse(dateTime);
+            return result;
         }
     }
 }
