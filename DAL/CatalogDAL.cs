@@ -5778,9 +5778,9 @@ namespace Tvinci.Core.DAL
                     }
                     else if (getResult == eResultStatus.SUCCESS)
                     {
-                        currentBulkUpload.Status = GetBulkStatusByResultsStatus(currentBulkUpload);
                         currentBulkUpload.Results[resultIndex] = bulkUploadResultToSave;
-
+                        currentBulkUpload.Status = GetBulkStatusByResultsStatus(currentBulkUpload);
+                        
                         if (cbManager.SetWithVersion(bulkUploadKey, currentBulkUpload, version, ttl))
                         {
                             log.DebugFormat("successfully SaveBulkUploadResultCB. number of tries:{0}/{1}, key:{2}.",
