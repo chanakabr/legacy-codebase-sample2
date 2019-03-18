@@ -5751,11 +5751,13 @@ namespace Tvinci.Core.DAL
         public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl)
         {
             string bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
+            bulkUploadToSave.Status = GetBulkStatusByResultsStatus(bulkUploadToSave);
             return UtilsDal.SaveObjectInCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl);
         }
 
-        public static bool SaveBulkUploadResultCB(BulkUploadResult bulkUploadResultToSave, BulkUploadJobStatus bulkUploadStatus, uint ttl)
+        public static bool SaveBulkUploadResultCB(BulkUpload currentBulkUpload, int resultIndex, uint ttl)
         {
+            BulkUploadResult bulkUploadResultToSave = currentBulkUpload.Results[resultIndex];
             string bulkUploadKey = GetBulkUploadKey(bulkUploadResultToSave.BulkUploadId);
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             int numOfTries = 0;
@@ -5767,7 +5769,7 @@ namespace Tvinci.Core.DAL
             {
                 while (numOfTries < UtilsDal.NUM_OF_INSERT_TRIES)
                 {
-                    var bulkUpload = cbManager.GetWithVersion<BulkUpload>(bulkUploadKey, out version, out getResult);
+                    currentBulkUpload = cbManager.GetWithVersion<BulkUpload>(bulkUploadKey, out version, out getResult);
 
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
@@ -5776,10 +5778,10 @@ namespace Tvinci.Core.DAL
                     }
                     else if (getResult == eResultStatus.SUCCESS)
                     {
-                        bulkUpload.Status = bulkUploadStatus;
-                        bulkUpload.Results[bulkUploadResultToSave.Index] = bulkUploadResultToSave;
+                        currentBulkUpload.Status = GetBulkStatusByResultsStatus(currentBulkUpload);
+                        currentBulkUpload.Results[resultIndex] = bulkUploadResultToSave;
 
-                        if (cbManager.SetWithVersion(bulkUploadKey, bulkUpload, version, ttl))
+                        if (cbManager.SetWithVersion(bulkUploadKey, currentBulkUpload, version, ttl))
                         {
                             log.DebugFormat("successfully SaveBulkUploadResultCB. number of tries:{0}/{1}, key:{2}.",
                                                 numOfTries, UtilsDal.NUM_OF_INSERT_TRIES, bulkUploadKey);
@@ -5806,7 +5808,29 @@ namespace Tvinci.Core.DAL
             string bulkUploadKey = GetBulkUploadKey(bulkUploadId);
             return UtilsDal.GetObjectFromCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey);
         }
-        
+
+        private static BulkUploadJobStatus GetBulkStatusByResultsStatus(BulkUpload bulkUpload)
+        {
+            BulkUploadJobStatus newStatus = bulkUpload.Status;
+            if (bulkUpload.NumOfObjects.HasValue && bulkUpload.NumOfObjects.Value == bulkUpload.Results.Count)
+            {
+                if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok))
+                {
+                    newStatus = BulkUploadJobStatus.Success;
+                }
+                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Error))
+                {
+                    newStatus = BulkUploadJobStatus.Failed;
+                }
+                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok || x.Status == BulkUploadResultStatus.Error))
+                {
+                    newStatus = BulkUploadJobStatus.Partial;
+                }
+            }
+
+            return newStatus;
+        }
+
         #endregion
 
         public static List<string> ConvertUserMediaMarksToKeys(string userId, IEnumerable<AssetAndLocation> assetsAndLocations)
