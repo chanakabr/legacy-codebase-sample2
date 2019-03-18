@@ -5,12 +5,12 @@
         "COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
-      "name": "KalturaChannel_AssetUserRuleId_Insert",
-      "object": "KalturaChannel",
+      "name": "KalturaExternalChannelProfile_AssetUserRuleId_Insert",
+      "object": "KalturaExternalChannelProfile",
       "parameter": "assetUserRuleId",
       "action": "INSERT",
       "type": "Parameter"
-    }     
+    }
   ],
   "type": "Parameter"
 }

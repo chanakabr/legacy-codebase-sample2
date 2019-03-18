@@ -258,7 +258,14 @@ namespace WebAPI.Models.General
 
                     try
                     {
-                        value = (T)Convert.ChangeType(stringValue, t);
+                        if (t.IsEnum)
+                        {
+                            value = (T)Enum.Parse(t, stringValue);
+                        }
+                        else
+                        {
+                            value = (T)Convert.ChangeType(stringValue, t);
+                        }
                     }
                     catch (Exception)
                     {
@@ -292,12 +299,14 @@ namespace WebAPI.Models.General
     /// </summary>
     public class KalturaOTTFile
     {
-        public KalturaOTTFile(string filepath)
+        public KalturaOTTFile(string filePath, string fileName)
         {
-            path = filepath;
+            path = filePath;
+            name = fileName;
         }
 
         public string path { get; set; }
+        public string name { get; set; }
     }
 
     public partial class KalturaOTTObjectSupportNullable : KalturaOTTObject

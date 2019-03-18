@@ -29,11 +29,11 @@ namespace WebAPI.Controllers
             List<KalturaExternalChannelProfile> list = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             try
             {
                 // call client
-                list = ClientsManager.ApiClient().GetExternalChannels(groupId);
+                list = ClientsManager.ApiClient().GetExternalChannels(groupId, userId);
             }
             catch (ClientException ex)
             {
@@ -57,11 +57,12 @@ namespace WebAPI.Controllers
             List<KalturaExternalChannelProfile> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetExternalChannels(groupId);
+                response = ClientsManager.ApiClient().GetExternalChannels(groupId, userId);
             }
             catch (ClientException ex)
             {
@@ -84,16 +85,18 @@ namespace WebAPI.Controllers
         [OldStandardArgument("externalChannelId", "external_channel_id")]
         [Throws(eResponseStatus.ExternalChannelNotExist)]
         [Throws(eResponseStatus.ExternalChannelIdentifierRequired)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public bool Delete(int externalChannelId)
         {
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteExternalChannel(groupId, externalChannelId);
+                response = ClientsManager.ApiClient().DeleteExternalChannel(groupId, externalChannelId, userId);
             }
             catch (ClientException ex)
             {
@@ -126,11 +129,12 @@ namespace WebAPI.Controllers
             KalturaExternalChannelProfile response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertExternalChannel(groupId, externalChannel);
+                response = ClientsManager.ApiClient().InsertExternalChannel(groupId, externalChannel, userId);
             }
             catch (ClientException ex)
             {
@@ -158,17 +162,19 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public KalturaExternalChannelProfile Update(int externalChannelId, KalturaExternalChannelProfile externalChannel)
         {
             KalturaExternalChannelProfile response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             externalChannel.Id = externalChannelId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetExternalChannel(groupId, externalChannel);
+                response = ClientsManager.ApiClient().SetExternalChannel(groupId, externalChannel, userId);
             }
             catch (ClientException ex)
             {
@@ -202,11 +208,12 @@ namespace WebAPI.Controllers
             KalturaExternalChannelProfile response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetExternalChannel(groupId, external_channel);
+                response = ClientsManager.ApiClient().SetExternalChannel(groupId, external_channel, userId);
             }
             catch (ClientException ex)
             {

@@ -181,7 +181,8 @@
         "Master",
         "Operator",
         "ADMIN_MNG",
-        "MANAGER_MNG"
+        "MANAGER_MNG",
+        "MY_USER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Get",
@@ -312,7 +313,7 @@
       "action": "AddRole",
       "type": "Action"
     },
-	{
+    {
       "permissions": [
         "Operator",
         "Manager",
@@ -324,6 +325,28 @@
       "service": "OTTUser",
       "action": "resetPassword",
       "type": "Argument"
+    },
+    {
+      "permissions": [
+        "MY_USER_MNG",
+        "MANAGER_MNG",
+        "ADMIN_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "OTTUser_setInitialPassword",
+      "service": "OTTUser",
+      "action": "setInitialPassword",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "ADMIN_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "OTTUser_Register",
+      "service": "OTTUser",
+      "action": "Register",
+      "type": "Action"
     }
   ],
   "type": "Action"

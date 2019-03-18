@@ -208,6 +208,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterExpression))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.Enrichments)))
+               .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                ;
 
             cfg.CreateMap<ExternalChannel, WebAPI.Models.API.KalturaExternalChannelProfile>()
@@ -218,6 +219,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterExpression))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.Enrichments)))
+               .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                ;
 
             cfg.CreateMap<ExternalChannelResponse, WebAPI.Models.API.KalturaExternalChannelProfile>()
@@ -227,7 +229,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.RecommendationEngineId, opt => opt.MapFrom(src => src.ExternalChannel.RecommendationEngineId))
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.ExternalChannel.FilterExpression))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.ExternalChannel.IsActive))
-               .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))
+               .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))               
+               .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.ExternalChannel.AssetUserRuleId))
                ;
 
             #endregion
@@ -2398,12 +2401,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
-                case ExternalRecommendationEngineEnrichment.AtHome:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.AtHome };
-                    break;
-                case ExternalRecommendationEngineEnrichment.Catchup:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Catchup };
-                    break;
+                //case ExternalRecommendationEngineEnrichment.AtHome:
+                //    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.AtHome };
+                //    break;
+                //case ExternalRecommendationEngineEnrichment.Catchup:
+                //    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Catchup };
+                //    break;
                 case ExternalRecommendationEngineEnrichment.ClientLocation:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.ClientLocation };
                     break;
@@ -2422,12 +2425,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ExternalRecommendationEngineEnrichment.Language:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Language };
                     break;
-                case ExternalRecommendationEngineEnrichment.NPVRSupport:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.NPVRSupport };
-                    break;
-                case ExternalRecommendationEngineEnrichment.Parental:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Parental };
-                    break;
+                //case ExternalRecommendationEngineEnrichment.NPVRSupport:
+                //    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.NPVRSupport };
+                //    break;
+                //case ExternalRecommendationEngineEnrichment.Parental:
+                //    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Parental };
+                //    break;
                 case ExternalRecommendationEngineEnrichment.UserId:
                     result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UserId };
                     break;
@@ -2475,12 +2478,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
-                case KalturaChannelEnrichment.AtHome:
-                    result = ExternalRecommendationEngineEnrichment.AtHome;
-                    break;
-                case KalturaChannelEnrichment.Catchup:
-                    result = ExternalRecommendationEngineEnrichment.Catchup;
-                    break;
+                //case KalturaChannelEnrichment.AtHome:
+                //    result = ExternalRecommendationEngineEnrichment.AtHome;
+                //    break;
+                //case KalturaChannelEnrichment.Catchup:
+                //    result = ExternalRecommendationEngineEnrichment.Catchup;
+                //    break;
                 case KalturaChannelEnrichment.ClientLocation:
                     result = ExternalRecommendationEngineEnrichment.ClientLocation;
                     break;
@@ -2499,11 +2502,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaChannelEnrichment.Language:
                     result = ExternalRecommendationEngineEnrichment.Language;
                     break;
-                case KalturaChannelEnrichment.NPVRSupport:
-                    result = ExternalRecommendationEngineEnrichment.NPVRSupport;
-                    break;
-                case KalturaChannelEnrichment.Parental:
-                    result = ExternalRecommendationEngineEnrichment.Parental;
+                //case KalturaChannelEnrichment.NPVRSupport:
+                //    result = ExternalRecommendationEngineEnrichment.NPVRSupport;
+                //    break;
+                //case KalturaChannelEnrichment.Parental:
+                //    result = ExternalRecommendationEngineEnrichment.Parental;
                     break;
                 case KalturaChannelEnrichment.UserId:
                     result = ExternalRecommendationEngineEnrichment.UserId;
@@ -3232,7 +3235,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     if (!string.IsNullOrEmpty(pair.Key))
                     {
-                        if (!dict.ContainsKey(pair.Key))
+                        if (!res.ContainsKey(pair.Key))
                         {
                             res.Add(pair.Key, pair.Value.value);
                         }

@@ -100,7 +100,7 @@
       "name": "ADMIN_MNG",
       "users_group": ""
     },
-        {
+    {
       "name": "MANAGER_MNG",
       "users_group": ""
     },
@@ -119,6 +119,80 @@
     {
       "name": "RULES_VIEW",
       "users_group": ""
+    },
+    {
+      "name": "ASSETS_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing media assets metadata"
+    },
+    {
+      "name": "BSC_ASSETS_MNG",
+      "users_group": "",
+      "friendly_name": "Basic media asset management - Metadata, Availability, Images and EPG Tabs"
+    },
+    {
+      "name": "ASSETS_MNG",
+      "users_group": "",
+      "friendly_name": "Complete media asset management - including Time Shifted TV and Rules"
+    },
+    {
+      "name": "COLLECTIONS_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing manual and dynamic collections"
+    },
+    {
+      "name": "COLLECTIONS_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting manual and dynamic collections"
+    },
+    {
+      "name": "EXT_COLLECTIONS_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing external collections"
+    },
+    {
+      "name": "EXT_COLLECTIONS_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting external collections"
+    },
+    {
+      "name": "USER_SEG_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing user segments"
+    },
+    {
+      "name": "USER_SEG_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting user segments"
+    },
+    {
+      "name": "TARGET_OFFER_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing targeted offerings"
+    },
+    {
+      "name": "TARGET_OFFER_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting targeted offerings"
+    },
+    {
+      "name": "GROUP_CONFIG_MNG",
+      "users_group": "",
+      "friendly_name": "Editing the group configuration settings"
+    },
+    {
+      "name": "OPC_PREF_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "OPC_PREF_MNG",
+      "users_group": "",
+      "friendly_name": "Editing the OPC Preferences section"
+    },
+    {
+      "name": "ADMIN_SET_MNG",
+      "users_group": "",
+      "friendly_name": "Access the Admin Settings section"
     }
   ]
 }

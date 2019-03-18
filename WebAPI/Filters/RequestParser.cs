@@ -31,6 +31,7 @@ using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using KlogMonitorHelper;
 using TVinciShared;
 
 namespace WebAPI.Filters
@@ -301,6 +302,9 @@ namespace WebAPI.Filters
             {
                 HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE]);
             }
+
+            var loggingContext = new ContextData();
+            loggingContext.Load();
         }
 
         private bool Equals(byte[] source, byte[] separator, int index)
@@ -318,7 +322,7 @@ namespace WebAPI.Filters
         public KeyValuePair<string, object> ParseFormField(byte[] fieldBytes)
         {
             Regex rgxName = new Regex("Content-Disposition: form-data; name=\"?([^\" ]+)\"?", RegexOptions.IgnoreCase);
-            Regex rgxFileName = new Regex("filename=\"?([^\" ]+)\"?", RegexOptions.IgnoreCase);
+            Regex rgxFileName = new Regex("filename=\"?([^\"]+)\"?", RegexOptions.IgnoreCase);
 
             string fieldStr = Encoding.UTF8.GetString(fieldBytes);
             string[] fieldLines = fieldStr.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -361,7 +365,7 @@ namespace WebAPI.Filters
                 Array.Copy(fieldBytes, index, bytes, 0, bytes.Length);
                 File.WriteAllBytes(filePath, bytes);
 
-                return new KeyValuePair<string, object>(name, new KalturaOTTFile(filePath));
+                return new KeyValuePair<string, object>(name, new KalturaOTTFile(filePath, fileName));
             }
 
             return new KeyValuePair<string, object>("aaa", "bb");
@@ -369,8 +373,8 @@ namespace WebAPI.Filters
 
         private object CreateRandomFileName(string fileName)
         {
-            var ret = Path.GetRandomFileName();
-            return ret.Remove(ret.Length - 3) + fileName.Substring(fileName.Length - fileName.LastIndexOf("."));
+            var randomFileName = Path.GetRandomFileName();
+            return Path.GetFileNameWithoutExtension(randomFileName) + Path.GetExtension(fileName);
         }
 
         public async Task<Dictionary<string, object>> ParseFormData(HttpActionContext actionContext)

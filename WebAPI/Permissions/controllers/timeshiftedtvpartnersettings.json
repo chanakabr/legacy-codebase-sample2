@@ -5,7 +5,9 @@
         "Anonymous",
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "ASSETS_VIEW",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "TimeShiftedTvPartnerSettings_Get",
@@ -15,7 +17,8 @@
     },
     {
       "permissions": [
-        "Manager"
+        "Manager",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "TimeShiftedTvPartnerSettings_Update",

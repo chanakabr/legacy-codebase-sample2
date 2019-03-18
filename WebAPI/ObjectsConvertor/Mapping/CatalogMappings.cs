@@ -949,6 +949,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                .ForMember(dest => dest.NumOfObjects, opt => opt.MapFrom(src => src.NumOfObjects))
+               .ForMember(dest => dest.UploadedByUserId, opt => opt.MapFrom(src => src.UpdaterId))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                .ForMember(dest => dest.Results, opt => opt.MapFrom(src => src.Results));
@@ -982,7 +983,37 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown bulkUploadJobStatus value : {0}", bulkUploadJobStatus.ToString()));
                    }
                });
-            
+
+            cfg.CreateMap<KalturaBulkUploadJobStatus, BulkUploadJobStatus>()
+               .ConvertUsing(kalturaBulkUploadJobStatus =>
+               {
+                   switch (kalturaBulkUploadJobStatus)
+                   {
+                       case KalturaBulkUploadJobStatus.Pending:
+                           return BulkUploadJobStatus.Pending;
+                       case KalturaBulkUploadJobStatus.Uploaded:
+                           return BulkUploadJobStatus.Uploaded;
+                       case KalturaBulkUploadJobStatus.Queued:
+                           return BulkUploadJobStatus.Queued;
+                       case KalturaBulkUploadJobStatus.Parsing:
+                           return BulkUploadJobStatus.Parsing;
+                       case KalturaBulkUploadJobStatus.Processing:
+                           return BulkUploadJobStatus.Processing;
+                       case KalturaBulkUploadJobStatus.Processed:
+                           return BulkUploadJobStatus.Processed;
+                       case KalturaBulkUploadJobStatus.Success:
+                           return BulkUploadJobStatus.Success;
+                       case KalturaBulkUploadJobStatus.Partial:
+                           return BulkUploadJobStatus.Partial;
+                       case KalturaBulkUploadJobStatus.Failed:
+                           return BulkUploadJobStatus.Failed;
+                       case KalturaBulkUploadJobStatus.Fatal:
+                           return BulkUploadJobStatus.Fatal;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaBulkUploadJobStatus value:{0}", kalturaBulkUploadJobStatus.ToString()));
+                   }
+               });
+
             cfg.CreateMap<BulkUploadJobAction, KalturaBulkUploadJobAction>()
                .ConvertUsing(bulkUploadJobAction =>
                {
@@ -1003,8 +1034,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Index, opt => opt.MapFrom(src => src.Index))
               .ForMember(dest => dest.BulkUploadId, opt => opt.MapFrom(src => src.BulkUploadId))
               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-              .ForMember(dest => dest.ErrorCode, opt => opt.MapFrom(src => src.ErrorCode))
-              .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.ErrorMessage));
+              .ForMember(dest => dest.Error, opt => opt.MapFrom(src => src.Error))
+              .ForMember(dest => dest.Warnings, opt => opt.MapFrom(src => src.Warnings));
 
             cfg.CreateMap<BulkUploadResultStatus, KalturaBulkUploadResultStatus>()
                 .ConvertUsing(bulkUploadResultStatus =>
@@ -1040,6 +1071,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaBulkUploadAssetData, BulkUploadAssetData>()
                .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId));
+
+            cfg.CreateMap<ApiObjects.Response.Status, KalturaMessage>()
+              .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+              .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+              .ForMember(dest => dest.Args, opt => opt.MapFrom(src => src.Args));
+            
+            cfg.CreateMap<KeyValuePair, KeyValuePair<string, KalturaStringValue>>()
+             .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
+             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
             #endregion
         }

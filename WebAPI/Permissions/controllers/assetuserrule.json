@@ -35,7 +35,8 @@
     {
       "permissions": [
         "Master",
-        "Operator"
+        "Operator",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_AttachUser",
@@ -46,7 +47,8 @@
     {
       "permissions": [
         "Master",
-        "Operator"
+        "Operator",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_DetachUser",
@@ -56,7 +58,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_Add",
@@ -66,7 +69,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "RULES_MNG"
       ],
       "excluded_permissions": [],
       "name": "AssetUserRule_Delete",

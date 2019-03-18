@@ -4,12 +4,15 @@ using Microsoft.AspNet.WebApi.MessageHandlers.Compression.Compressors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Web.Http;
 using WebAPI.App_Start;
 using WebAPI.Filters;
 using WebAPI.Models;
 using WebAPI.Utils;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using WebAPI.Controllers;
 
 namespace WebAPI
@@ -46,7 +49,9 @@ namespace WebAPI
             config.Filters.Add(new RequestParser());
             config.Filters.Add(new ValidateModelAttribute());            
             config.Filters.Add(new VoidActionFilter());
+            config.Filters.Add(new LoggingContextHandler());
             config.MessageHandlers.Add(new WrappingHandler());
+            
 
             GlobalConfiguration.Configuration.MessageHandlers.Insert(0, new ServerCompressionHandler(new GZipCompressor(), new DeflateCompressor()));
         }

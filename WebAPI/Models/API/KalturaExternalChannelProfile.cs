@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -92,5 +93,14 @@ namespace WebAPI.Models.API
         [XmlArray(ElementName = "enrichments", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaChannelEnrichmentHolder> Enrichments { get; set; }
+
+        /// <summary>
+        /// Asset user rule identifier 
+        /// </summary>
+        [DataMember(Name = "assetUserRuleId")]
+        [JsonProperty("assetUserRuleId")]
+        [XmlElement(ElementName = "assetUserRuleId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        public long? AssetUserRuleId { get; set; }
     }
 }

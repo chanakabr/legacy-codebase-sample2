@@ -4,7 +4,10 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "ASSETS_VIEW",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Image_List",
@@ -14,7 +17,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Image_Add",
@@ -24,7 +29,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Image_Delete",
@@ -34,7 +41,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Image_SetContent",

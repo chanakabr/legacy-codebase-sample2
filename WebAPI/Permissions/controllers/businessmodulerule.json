@@ -2,8 +2,8 @@
   "permission_items": [
     {
       "permissions": [
-        "Operator",
-        "RULES_MNG"
+        "Operator",        
+        "TARGET_OFFER_MNG"
       ],
       "excluded_permissions": [],
       "name": "BusinessModuleRule_Add",
@@ -13,8 +13,8 @@
     },
     {
       "permissions": [
-        "Operator",
-        "RULES_MNG"
+        "Operator",        
+        "TARGET_OFFER_MNG"
       ],
       "excluded_permissions": [],
       "name": "BusinessModuleRule_Delete",
@@ -24,9 +24,9 @@
     },
     {
       "permissions": [
-        "Operator",
-        "RULES_MNG",
-        "RULES_VIEW"
+        "Operator",        
+        "TARGET_OFFER_VIEW",
+        "TARGET_OFFER_MNG"
       ],
       "excluded_permissions": [],
       "name": "BusinessModuleRule_List",
@@ -36,8 +36,8 @@
     },
     {
       "permissions": [
-        "Operator",
-        "RULES_MNG"
+        "Operator",        
+        "TARGET_OFFER_MNG"
       ],
       "excluded_permissions": [],
       "name": "BusinessModuleRule_Update",
@@ -45,11 +45,11 @@
       "action": "Update",
       "type": "Action"
     },
-	{
+    {
       "permissions": [
-        "Operator",
-        "RULES_MNG",
-        "RULES_VIEW"
+        "Operator",        
+        "TARGET_OFFER_VIEW",
+        "TARGET_OFFER_MNG"
       ],
       "excluded_permissions": [],
       "name": "BusinessModuleRule_Get",

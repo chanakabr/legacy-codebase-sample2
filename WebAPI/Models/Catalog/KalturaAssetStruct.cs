@@ -17,7 +17,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public partial class KalturaAssetStruct : KalturaOTTObject, IKalturaExcelStructure// TODO SHIR - add to dr - assetstruct.get
+    public partial class KalturaAssetStruct : KalturaOTTObject, IKalturaExcelStructure
     {
         /// <summary>
         /// Asset Struct id 

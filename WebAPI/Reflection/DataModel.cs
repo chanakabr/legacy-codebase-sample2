@@ -824,6 +824,8 @@ namespace WebAPI.Reflection
                 case "KalturaBillingTransaction":
                     switch(property.Name)
                     {
+                        case "ExternalTransactionId":
+                            return "externalTransactionId";
                         case "purchaseID":
                             return "purchaseId";
                     }
@@ -912,6 +914,8 @@ namespace WebAPI.Reflection
                             return "status";
                         case "UpdateDate":
                             return "updateDate";
+                        case "UploadedByUserId":
+                            return "uploadedByUserId";
                     }
                     break;
                     
@@ -936,8 +940,14 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadFilter":
                     switch(property.Name)
                     {
-                        case "StatusEqual":
-                            return "statusEqual";
+                        case "BulkObjectTypeEqual":
+                            return "bulkObjectTypeEqual";
+                        case "CreateDateGreaterThanOrEqual":
+                            return "createDateGreaterThanOrEqual";
+                        case "StatusIn":
+                            return "statusIn";
+                        case "UploadedByUserIdEqualCurrent":
+                            return "uploadedByUserIdEqualCurrent";
                     }
                     break;
                     
@@ -954,16 +964,16 @@ namespace WebAPI.Reflection
                     {
                         case "BulkUploadId":
                             return "bulkUploadId";
-                        case "ErrorCode":
-                            return "errorCode";
-                        case "ErrorMessage":
-                            return "errorMessage";
+                        case "Error":
+                            return "error";
                         case "Index":
                             return "index";
                         case "ObjectId":
                             return "objectId";
                         case "Status":
                             return "status";
+                        case "Warnings":
+                            return "warnings";
                     }
                     break;
                     
@@ -2212,6 +2222,8 @@ namespace WebAPI.Reflection
                 case "KalturaExternalChannelProfile":
                     switch(property.Name)
                     {
+                        case "AssetUserRuleId":
+                            return "assetUserRuleId";
                         case "Enrichments":
                             return "enrichments";
                         case "ExternalIdentifier":
@@ -3306,6 +3318,18 @@ namespace WebAPI.Reflection
                             return "version";
                         case "Width":
                             return "width";
+                    }
+                    break;
+                    
+                case "KalturaMessage":
+                    switch(property.Name)
+                    {
+                        case "Args":
+                            return "args";
+                        case "Code":
+                            return "code";
+                        case "Message":
+                            return "message";
                     }
                     break;
                     
@@ -6608,7 +6632,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("bulkUpload", "list", false);
-                            return BulkUploadController.List((KalturaBulkUploadFilter) methodParams[0]);
+                            return BulkUploadController.List((KalturaBulkUploadFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -11336,10 +11360,15 @@ namespace WebAPI.Reflection
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBulkUploadFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaBulkUploadFilter),
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

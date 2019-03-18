@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -29,16 +30,25 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        public static KalturaBulkUploadListResponse List(KalturaBulkUploadFilter filter = null)
+        public static KalturaBulkUploadListResponse List(KalturaBulkUploadFilter filter, KalturaFilterPager pager = null)
         {
             KalturaBulkUploadListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
-
+            
             try
             {
-                // TODO SHIR - List KalturaBulkUploadListResponse
-                throw new NotImplementedException();
-                //response = ClientsManager.CatalogClient().ListBulkUpload(groupId, filter, pager);
+                filter.Validate();
+
+                DateTime createDate = filter.GetCreateDate();
+                
+                long? userId = null;
+                if (filter.UploadedByUserIdEqualCurrent.HasValue && filter.UploadedByUserIdEqualCurrent.Value)
+                {
+                    userId = Utils.Utils.GetUserIdFromKs();
+                }
+
+                var statuses = filter.GetItemsIn<List<KalturaBulkUploadJobStatus>, KalturaBulkUploadJobStatus>(filter.StatusIn, "statusIn");
+                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.BulkObjectTypeEqual, statuses, createDate, userId, filter.OrderBy, pager);
             }
             catch (ClientException ex)
             {
@@ -48,7 +58,6 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        // TODO SHIR - ADD TO DR
         /// <summary>
         /// Get BulkUpload by ID
         /// </summary>
@@ -60,7 +69,6 @@ namespace WebAPI.Controllers
         static public KalturaBulkUpload Get(long id)
         {
             KalturaBulkUpload response = null;
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try

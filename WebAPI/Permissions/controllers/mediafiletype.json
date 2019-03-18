@@ -2,8 +2,7 @@
   "permission_items": [
     {
       "permissions": [
-        "MEDIAFILETYPE_MNG",
-        "MEDIAFILETYPE_VIEW"
+        "MEDIAFILETYPE_MNG"        
       ],
       "excluded_permissions": [],
       "name": "MediaFileType_List",

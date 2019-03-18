@@ -36,7 +36,7 @@
     <WarningLevel>0</WarningLevel>
     <DocumentationFile>bin\WebAPI.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
-    <LangVersion>5</LangVersion>
+    <LangVersion>6</LangVersion>
     <FilesToIncludeForPublish>AllFilesInProjectFolder</FilesToIncludeForPublish>
     <PublishDatabases>false</PublishDatabases>
     <ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
@@ -54,6 +54,7 @@
     <PublishDatabases>false</PublishDatabases>
     <ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
     <ExcludeFoldersFromDeployment>bin\ssl-dev;bin\bin</ExcludeFoldersFromDeployment>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper, Version=7.0.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
@@ -764,6 +765,9 @@
     <Content Include="Permissions\controllers\bulkupload.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Permissions\controllers\tvmrule.json" />
+    <Content Include="Permissions\objects\kalturachannel.json" />
+    <Content Include="Permissions\objects\kalturaexternalchannelprofile.json" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml">
       <SubType>Designer</SubType>
     </None>
@@ -780,6 +784,7 @@
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
     <Compile Include="App_Start\ExcelFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
+    <Compile Include="App_Start\LoggingContextHandler.cs" />
     <Compile Include="clear_cache.aspx.cs">
       <DependentUpon>clear_cache.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -844,6 +849,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaCaptionPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecordingFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitationsListResponse.cs" />
+    <Compile Include="Models\General\KalturaMessage.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
     <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />
     <Compile Include="Models\Partner\KalturaGeneralPartnerConfig.cs" />
@@ -1852,6 +1858,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

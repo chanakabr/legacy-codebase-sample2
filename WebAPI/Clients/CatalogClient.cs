@@ -119,7 +119,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-
+        
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
             Func<AssetStruct, GenericResponse<AssetStruct>> addAssetStructFunc = (AssetStruct assetStructToAdd) =>
@@ -4026,12 +4026,12 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string filePath, long userId, Type objectType, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData)
+        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string fileName, long userId, string filePath, Type objectType, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData)
         {
             var bulkUploadJobData = AutoMapper.Mapper.Map<BulkUploadJobData>(jobData);
             var bulkUploadObjectData = AutoMapper.Mapper.Map<BulkUploadObjectData>(objectData);
 
-            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, filePath, userId, objectType, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData);
+            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, fileName, userId, filePath, objectType, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData);
             KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
             return result;
         }
@@ -4044,6 +4044,53 @@ namespace WebAPI.Clients
                 ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadFunc);
 
             return response;
+        }
+
+        internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string bulkObjectType, List<KalturaBulkUploadJobStatus> statuses, DateTime createDate, long? userId, KalturaBulkUploadOrderBy orderBy, KalturaFilterPager pager)
+        {
+            var statusesIn = AutoMapper.Mapper.Map<List<BulkUploadJobStatus>>(statuses);
+
+            Func<GenericListResponse<BulkUpload>> getBulkUploadsFunc = () =>
+              BulkUploadManager.GetBulkUploads(groupId, bulkObjectType, createDate, statusesIn, userId);
+
+            KalturaGenericListResponse<KalturaBulkUpload> response =
+                ClientUtils.GetResponseListFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadsFunc);
+            
+            switch (orderBy)
+            {
+                case KalturaBulkUploadOrderBy.UPDATE_DATE_ASC:
+                    response.Objects = response.Objects.OrderBy(x => x.UpdateDate).ToList();
+                    break;
+                case KalturaBulkUploadOrderBy.UPDATE_DATE_DESC:
+                    response.Objects = response.Objects.OrderByDescending(x => x.UpdateDate).ToList();
+                    break;
+                default:
+                    break;
+            }
+
+            KalturaBulkUploadListResponse result = new KalturaBulkUploadListResponse() { TotalCount = 0 };
+
+            if (pager == null)
+            {
+                result.Objects = response.Objects;
+            }
+            else
+            {
+                bool illegalRequest;
+                var pagedObjects = response.Objects.Page(pager.getPageSize(), pager.getPageIndex(), out illegalRequest);
+                
+                if (illegalRequest)
+                {
+                    result.Objects = response.Objects;
+                }
+                else
+                {
+                    result.Objects = new List<KalturaBulkUpload>(pagedObjects);
+                }
+            }
+            
+            result.TotalCount = response.TotalCount;
+            return result;
         }
 
         internal Dictionary<string, object> GetExcelValues(int groupId, IKalturaExcelableObject kalturaExcelableObject)

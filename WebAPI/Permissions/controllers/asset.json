@@ -4,7 +4,10 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "ASSETS_VIEW",
+        "ASSETS_MNG",
+        "BSC_ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Asset_List",
@@ -16,7 +19,10 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "ASSETS_VIEW",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Asset_Get",
@@ -147,7 +153,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Asset_Add",
@@ -157,7 +165,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Asset_Delete",
@@ -167,7 +177,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Asset_Update",

@@ -131,18 +131,22 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Status.Code != (int)StatusCode.OK)
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
             }
 
-            if (response.HasObjects())
+            if (response.Objects != null)
             {
-                // TODO SHIR - order BY GetResponseListFromWS
                 result.Objects = AutoMapper.Mapper.Map<List<U>>(response.Objects);
                 result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
+                // TODO SHIR - order BY GetResponseListFromWS
             }
-
+            else
+            {
+                result.Objects = new List<U>();
+            }
+            
             return result;
         }
 

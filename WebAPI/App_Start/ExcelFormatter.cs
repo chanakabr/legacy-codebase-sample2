@@ -35,10 +35,10 @@ using System.Drawing;
 using WebAPI.Models.API;
 using ApiObjects.BulkUpload;
 using WebAPI.Managers;
+using System.Net;
 
 namespace WebAPI.App_Start
 {
-    // TODO SHIR - ADD TO DR
     public interface IKalturaBulkUploadObject
     {
     }
@@ -89,13 +89,13 @@ namespace WebAPI.App_Start
 
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, System.Net.TransportContext transportContext)
         {
-            try
+            if (value != null && value is StatusWrapper)
             {
-                if (value != null && value is StatusWrapper)
+                try
                 {
                     // validate expected type was received
                     StatusWrapper restResultWrapper = value as StatusWrapper;
-                    if (restResultWrapper != null && restResultWrapper.Result != null)
+                    if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is IKalturaExcelStructure)
                     {
                         int? groupId;
                         string fileName;
@@ -132,12 +132,22 @@ namespace WebAPI.App_Start
                         }
                     }
                 }
+                catch(ApiException ex)
+                {
+                    value = CreateStatusWrapper(ex, value);
+                }
+                catch (Exception ex)
+                {
+                    var apiException = new ApiException(ex, HttpStatusCode.InternalServerError);
+                    value = CreateStatusWrapper(apiException, value);
+                }
             }
-            catch (ClientException ex)
+
+            if (HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
             {
-                ErrorUtils.HandleClientException(ex);
+                HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
-           
+            
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
                 HttpContext.Current.Response.ContentType = "application/json";
@@ -145,7 +155,33 @@ namespace WebAPI.App_Start
                 return Task.FromResult(writeStream);
             }
         }
-        
+
+        private StatusWrapper CreateStatusWrapper(ApiException ex, object value)
+        {
+            var subCode = ex.Code;
+            var message = ex.Message;
+            var exceptionWrapper = WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message, ex.Args);
+
+            var exceptionContentValue = (ex.Response.Content as System.Net.Http.ObjectContent).Value;
+            if (exceptionContentValue is ApiException.ExceptionPayload && (exceptionContentValue as ApiException.ExceptionPayload).code != 0)
+            {
+                var payload = exceptionContentValue as WebAPI.Exceptions.ApiException.ExceptionPayload;
+                subCode = payload.code;
+                message = WrappingHandler.HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
+                exceptionWrapper = WrappingHandler.prepareExceptionResponse(payload.code, message, payload.arguments);
+                if (payload.failureHttpCode != System.Net.HttpStatusCode.OK && payload.failureHttpCode != 0)
+                {
+                    HttpContext.Current.Response.StatusCode = (int)payload.failureHttpCode;
+                    HttpContext.Current.Response.Headers.Add("X-Kaltura-App", string.Format("exiting on error {0} - {1}", payload.code, message));
+                    HttpContext.Current.Response.Headers.Add("X-Kaltura", string.Format("error-{0}", payload.code));
+                }
+            }
+
+            var oldStatusWrapper = value as StatusWrapper;
+            var statusWrapper = new StatusWrapper(subCode, Guid.Empty, oldStatusWrapper.ExecutionTime, exceptionWrapper, message);
+            return statusWrapper;
+        }
+
         private bool TryGetDataFromRequest(out int? groupId, out string fileName)
         {
             bool isResponseValid = false;
@@ -165,7 +201,6 @@ namespace WebAPI.App_Start
                 var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
                 if (kalturaPersistedFilter != null)
                 {
-                    // TODO SHIR - ADD TO DR, file name must be added
                     fileName = (kalturaPersistedFilter as IKalturaPersistedFilter).Name;
                     if (string.IsNullOrEmpty(fileName))
                     {
@@ -179,12 +214,14 @@ namespace WebAPI.App_Start
 
                     isResponseValid = true;
                 }
-
-                var id = requestMethodParameters.FirstOrDefault();
-                if (id != null)
+                else
                 {
-                    fileName = id.ToString() + EXCEL_EXTENTION;
-                    isResponseValid = true;
+                    var id = requestMethodParameters.FirstOrDefault();
+                    if (id != null)
+                    {
+                        fileName = id.ToString() + EXCEL_EXTENTION;
+                        isResponseValid = true;
+                    }
                 }
             }
             
@@ -247,19 +284,7 @@ namespace WebAPI.App_Start
                 var defaultType = typeof(string);
                 foreach (var col in columns)
                 {
-                    // TODO SHIR - SET TYPE
-                    //Type columnType = defaultType;
-                    //if (col.Value.Property != null)
-                    //{
-                    //    columnType = col.Value.Property.PropertyType.GetRealType();
-                    //    if (columnType.IsClass && !columnType.IsSealed)
-                    //    {
-                    //        columnType = defaultType;
-                    //    }
-                    //}
-
-                    //dataTable.Columns.Add(col.Key, columnType);
-                    dataTable.Columns.Add(col.Key);
+                    dataTable.Columns.Add(col.Key, defaultType);
                 }
 
                 if (objects != null && objects.Count > 0)
@@ -276,15 +301,22 @@ namespace WebAPI.App_Start
                                 {
                                     if (dataTable.Columns.Contains(excelValue.Key))
                                     {
-                                        //var value = excelValue.Value;
-                                        //if (dataTable.Columns[excelValue.Key].DataType.Equals(typeof(DateTime)) ||
-                                        //    dataTable.Columns[excelValue.Key].DataType.Equals(typeof(DateTime?)))
-                                        //{
-                                        //    value = DateUtils.Parse(value as DateTime?, ExcelManager.DATE_FORMAT);
-                                        //}
-                                        
-                                        //row[excelValue.Key] = value;
-                                        row[excelValue.Key] = excelValue.Value;
+                                        object value = null;
+
+                                        if (columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime)) ||
+                                            columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime?)))
+                                        {
+                                            value = (excelValue.Value as DateTime?).Value.ToString(ExcelManager.DATE_FORMAT);
+                                        }
+                                        else
+                                        {
+                                            value = excelValue.Value;
+                                        }
+                                       
+                                        if (value != null)
+                                        {
+                                            row[excelValue.Key] = value;
+                                        }
                                     }
                                 }
                                 dataTable.Rows.Add(row);

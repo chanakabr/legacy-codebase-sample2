@@ -11,6 +11,18 @@
       "service": "BulkUpload",
       "action": "Get",
       "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "BulkUpload_List",
+      "service": "BulkUpload",
+      "action": "List",
+      "type": "Action"
     }
   ],
   "type": "Action"

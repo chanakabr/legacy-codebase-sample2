@@ -410,6 +410,10 @@ namespace WebAPI.Models.ConditionalAccess
                     ret.Add("end_date", "\"end_date\": " + endDate);
                 }
             }
+            if(ExternalTransactionId != null)
+            {
+                ret.Add("externalTransactionId", "\"externalTransactionId\": " + "\"" + EscapeJson(ExternalTransactionId) + "\"");
+            }
             if(isRecurring.HasValue)
             {
                 ret.Add("isRecurring", "\"isRecurring\": " + isRecurring.ToString().ToLower());
@@ -522,6 +526,10 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                 ret.Add("end_date", "<end_date>" + endDate + "</end_date>");
                 }
+            }
+            if(ExternalTransactionId != null)
+            {
+                ret.Add("externalTransactionId", "<externalTransactionId>" + EscapeXml(ExternalTransactionId) + "</externalTransactionId>");
             }
             if(isRecurring.HasValue)
             {
@@ -5028,6 +5036,44 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("value", "<value>" + value + "</value>");
+            return ret;
+        }
+    }
+    public partial class KalturaMessage
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Args != null)
+            {
+                propertyValue = "{" + String.Join(", ", Args.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("args", "\"args\": " + propertyValue);
+            }
+            ret.Add("code", "\"code\": " + Code);
+            if(Message != null)
+            {
+                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Args != null)
+            {
+                propertyValue = Args.Count > 0 ? "<item>" + String.Join("</item><item>", Args.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("args", "<args>" + propertyValue + "</args>");
+            }
+            ret.Add("code", "<code>" + Code + "</code>");
+            if(Message != null)
+            {
+                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
+            }
             return ret;
         }
     }
@@ -13478,6 +13524,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(AssetUserRuleId.HasValue)
+            {
+                ret.Add("assetUserRuleId", "\"assetUserRuleId\": " + AssetUserRuleId);
+            }
             if(Enrichments != null)
             {
                 propertyValue = "[" + String.Join(", ", Enrichments.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13531,6 +13581,10 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(AssetUserRuleId.HasValue)
+            {
+                ret.Add("assetUserRuleId", "<assetUserRuleId>" + AssetUserRuleId + "</assetUserRuleId>");
+            }
             if(Enrichments != null)
             {
                 propertyValue = Enrichments.Count > 0 ? "<item>" + String.Join("</item><item>", Enrichments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -21682,6 +21736,7 @@ namespace WebAPI.Models.Upload
             }
             ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), Status) + "\"");
             ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            ret.Add("uploadedByUserId", "\"uploadedByUserId\": " + UploadedByUserId);
             return ret;
         }
         
@@ -21708,6 +21763,7 @@ namespace WebAPI.Models.Upload
             }
             ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), Status) + "" + "</status>");
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            ret.Add("uploadedByUserId", "<uploadedByUserId>" + UploadedByUserId + "</uploadedByUserId>");
             return ret;
         }
     }
@@ -21790,9 +21846,21 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(StatusEqual.HasValue)
+            if(BulkObjectTypeEqual != null)
             {
-                ret.Add("statusEqual", "\"statusEqual\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "\"");
+                ret.Add("bulkObjectTypeEqual", "\"bulkObjectTypeEqual\": " + "\"" + EscapeJson(BulkObjectTypeEqual) + "\"");
+            }
+            if(CreateDateGreaterThanOrEqual.HasValue)
+            {
+                ret.Add("createDateGreaterThanOrEqual", "\"createDateGreaterThanOrEqual\": " + CreateDateGreaterThanOrEqual);
+            }
+            if(StatusIn != null)
+            {
+                ret.Add("statusIn", "\"statusIn\": " + "\"" + EscapeJson(StatusIn) + "\"");
+            }
+            if(UploadedByUserIdEqualCurrent.HasValue)
+            {
+                ret.Add("uploadedByUserIdEqualCurrent", "\"uploadedByUserIdEqualCurrent\": " + UploadedByUserIdEqualCurrent.ToString().ToLower());
             }
             return ret;
         }
@@ -21802,9 +21870,21 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(StatusEqual.HasValue)
+            if(BulkObjectTypeEqual != null)
             {
-                ret.Add("statusEqual", "<statusEqual>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobStatus), StatusEqual) + "" + "</statusEqual>");
+                ret.Add("bulkObjectTypeEqual", "<bulkObjectTypeEqual>" + EscapeXml(BulkObjectTypeEqual) + "</bulkObjectTypeEqual>");
+            }
+            if(CreateDateGreaterThanOrEqual.HasValue)
+            {
+                ret.Add("createDateGreaterThanOrEqual", "<createDateGreaterThanOrEqual>" + CreateDateGreaterThanOrEqual + "</createDateGreaterThanOrEqual>");
+            }
+            if(StatusIn != null)
+            {
+                ret.Add("statusIn", "<statusIn>" + EscapeXml(StatusIn) + "</statusIn>");
+            }
+            if(UploadedByUserIdEqualCurrent.HasValue)
+            {
+                ret.Add("uploadedByUserIdEqualCurrent", "<uploadedByUserIdEqualCurrent>" + UploadedByUserIdEqualCurrent.ToString().ToLower() + "</uploadedByUserIdEqualCurrent>");
             }
             return ret;
         }
@@ -21899,13 +21979,10 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("bulkUploadId", "\"bulkUploadId\": " + BulkUploadId);
-            if(ErrorCode.HasValue)
+            if(Error != null)
             {
-                ret.Add("errorCode", "\"errorCode\": " + ErrorCode);
-            }
-            if(ErrorMessage != null)
-            {
-                ret.Add("errorMessage", "\"errorMessage\": " + "\"" + EscapeJson(ErrorMessage) + "\"");
+                propertyValue = Error.ToJson(currentVersion, omitObsolete);
+                ret.Add("error", "\"error\": " + propertyValue);
             }
             ret.Add("index", "\"index\": " + Index);
             if(ObjectId.HasValue)
@@ -21913,6 +21990,11 @@ namespace WebAPI.Models.Upload
                 ret.Add("objectId", "\"objectId\": " + ObjectId);
             }
             ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadResultStatus), Status) + "\"");
+            if(Warnings != null)
+            {
+                propertyValue = "[" + String.Join(", ", Warnings.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("warnings", "\"warnings\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -21922,13 +22004,10 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("bulkUploadId", "<bulkUploadId>" + BulkUploadId + "</bulkUploadId>");
-            if(ErrorCode.HasValue)
+            if(Error != null)
             {
-                ret.Add("errorCode", "<errorCode>" + ErrorCode + "</errorCode>");
-            }
-            if(ErrorMessage != null)
-            {
-                ret.Add("errorMessage", "<errorMessage>" + EscapeXml(ErrorMessage) + "</errorMessage>");
+                propertyValue = Error.ToXml(currentVersion, omitObsolete);
+                ret.Add("error", "<error>" + propertyValue + "</error>");
             }
             ret.Add("index", "<index>" + Index + "</index>");
             if(ObjectId.HasValue)
@@ -21936,6 +22015,11 @@ namespace WebAPI.Models.Upload
                 ret.Add("objectId", "<objectId>" + ObjectId + "</objectId>");
             }
             ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaBulkUploadResultStatus), Status) + "" + "</status>");
+            if(Warnings != null)
+            {
+                propertyValue = Warnings.Count > 0 ? "<item>" + String.Join("</item><item>", Warnings.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("warnings", "<warnings>" + propertyValue + "</warnings>");
+            }
             return ret;
         }
     }

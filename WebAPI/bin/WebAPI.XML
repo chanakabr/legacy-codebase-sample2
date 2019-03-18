@@ -552,7 +552,7 @@
             Bulk Upload service is used to manage and monitor bulk actions
             </summary>
         </member>
-        <member name="M:WebAPI.Controllers.BulkUploadController.List(WebAPI.Models.Upload.KalturaBulkUploadFilter)">
+        <member name="M:WebAPI.Controllers.BulkUploadController.List(WebAPI.Models.Upload.KalturaBulkUploadFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Get list of KalturaBulkUpload by filter
             </summary>
@@ -6174,6 +6174,11 @@
             Enrichments
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaExternalChannelProfile.AssetUserRuleId">
+            <summary>
+            Asset user rule identifier 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaGenericRule">
             <summary>
             Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
@@ -9998,6 +10003,11 @@
             Billing Price Info
              </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.ExternalTransactionId">
+             <summary>
+            External Transaction Id
+             </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaUserBillingTransaction">
             <summary>
             Billing transactions of single user
@@ -10660,6 +10670,492 @@
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdWithHolder">
             <summary>
             Holder object for Household With enum
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMessage">
+            <summary>
+            Message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMessage.Code">
+            <summary>
+            Massage code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMessage.Message">
+            <summary>
+            Message details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMessage.Args">
+            <summary>
+            Message args
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaGenericListResponse`1">
+            <summary>
+            Generic response list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaGenericListResponse`1.Objects">
+            <summary>
+            A list of objects
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">
+            <summary>
+            Kaltura Aggregation CountFilter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaDetachedResponseProfile">
+            <summary>
+            Define specific base profile response
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Name">
+            <summary>
+            name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Filter">
+            <summary>
+            filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.RelatedProfiles">
+            <summary>
+            relatedProfiles
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaIntegerValueListResponse">
+            <summary>
+            Integer list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaIntegerValueListResponse.Values">
+            <summary>
+            Interger value items
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaRelatedObjectFilter">
+            <summary>
+            Define KalturaRelatedObjectFilter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValueArray">
+            <summary>
+            Array of translated strings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValueArray.Objects">
+            <summary>
+            List of string values
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Service">
+            <summary>
+            API service name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Action">
+            <summary>
+            API action name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Parameter">
+            <summary>
+            API parameter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Object">
+            <summary>
+            API object name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Parameter">
+            <summary>
+            API parameter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Action">
+            <summary>
+            API action type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValue">
+            <summary>
+            Array of translated strings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaFilter`1">
+            <summary>
+            Base filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
+            <summary>
+            order by
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMultilingualString">
+            <summary>
+            Translated string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMultilingualString.Values">
+            <summary>
+            All values in different languages
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMessageTemplateType">
+            <summary>
+            Message template type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTAssetType">
+            <summary>
+            OTT Asset Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiActionPermissionItem.Service">
+            <summary>
+            API service name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiActionPermissionItem.Action">
+            <summary>
+            API action name
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaAppToken">
+            <summary>
+            Application token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.Id">
+            <summary>
+            The id of the application token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.Expiry">
+            <summary>
+            Expiry time of current token (unix timestamp in seconds)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.PartnerId">
+            <summary>
+            Partner identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionDuration">
+            <summary>
+            Expiry duration of KS (Kaltura Session) that created using the current token (in seconds)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.HashType">
+            <summary>
+            The hash type of the token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionPrivileges">
+            <summary>
+            Comma separated privileges to be applied on KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionType">
+            <summary>
+            Type of KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.Status">
+            <summary>
+            Application token status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.Token">
+            <summary>
+            The application token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionUserId">
+            <summary>
+            User id of KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.CreateDate">
+            <summary>
+            Create date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.UpdateDate">
+            <summary>
+            Update date
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaAppTokenHashType">
+            <summary>
+            Application token hash type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaAppTokenStatus">
+            <summary>
+            Application token status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaGroupPermission.Group">
+            <summary>
+            Permission identifier
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaIdentifierTypeFilter">
+            <summary>
+            Identifier filter 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaIdentifierTypeFilter.Identifier">
+             <summary>
+            The identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaIdentifierTypeFilter.By">
+             <summary>
+            Reference type to filter by
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaLongValue">
+            <summary>
+            A string representation to return an array of longs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaLongValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaBaseResponseProfile">
+            <summary>
+            Define base profile response -  optional configurations
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaDoubleValue">
+            <summary>
+            A string representation to return an array of doubles
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDoubleValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaFilterPager">
+            <summary>
+            The KalturaFilterPager object enables paging management to be applied upon service list actions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaFilterPager.PageSize">
+            <summary>
+            <![CDATA[The number of objects to retrieve. Possible range 1 ≤ value ≤ 50. If omitted or value < 1 - will be set to 25. If a value > 50 provided – will be set to 50]]>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaFilterPager.PageIndex">
+            <summary>
+            The page number for which {pageSize} of objects should be retrieved
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaBooleanValue">
+            <summary>
+            A string representation to return an array of booleans
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaBooleanValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTObject">
+            <summary>
+            Base class
+            </summary>
+        </member>
+        <member name="M:WebAPI.Models.General.KalturaOTTObject.GetItemsIn``2(System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Convert comma separated string to collection.
+            </summary>
+            <typeparam name="U">Collection of T</typeparam>
+            <typeparam name="T">Type of items in collection</typeparam>
+            <param name="itemsIn">Comma separated string</param>
+            <param name="propertyName">The property name of comma separated string (for error message)</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTFile">
+            <summary>
+            Base class
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaClientConfiguration">
+            <summary>
+            Define client optional configurations
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaClientConfiguration.ClientTag">
+            <summary>
+            Client Tag
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaClientConfiguration.ApiVersion">
+            <summary>
+            API client version
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaPersistedFilter`1.Name">
+            <summary>
+            Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaReportFilter">
+            <summary>
+            Report filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaReportListResponse">
+            <summary>
+            Reports info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaReportListResponse.Objects">
+            <summary>
+            Reports
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaRequestConfiguration">
+            <summary>
+            Define client request optional configurations
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.PartnerID">
+            <summary>
+            Impersonated partner id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.UserID">
+            <summary>
+            Impersonated user id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Language">
+            <summary>
+            Content language
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Currency">
+            <summary>
+            Currency to be used
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.KS">
+            <summary>
+            Kaltura API session
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.ResponseProfile">
+            <summary>
+            Kaltura response profile object
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.AbortOnError">
+            <summary>
+            Abort the Multireuqset call if any error occurs in one of the requests
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.AbortAllOnError">
+            <summary>
+            Abort all following requests in Multireuqset if current request has an error
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.SkipCondition">
+            <summary>
+            Skip current request according to skip condition
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaSessionType">
+            <summary>
+            KS type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaIntegerValue">
+            <summary>
+            A string representation to return an array of ints
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaIntegerValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaStringValue">
+            <summary>
+            A string representation to return an array of strings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaStringValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaStringValueArray.Objects">
+            <summary>
+            List of string values
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaValue">
+            <summary>
+            A representation to return an array of values
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaValue.description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaTranslationToken">
+            <summary>
+            Container for translation
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaTranslationToken.Language">
+            <summary>
+            Language code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaTranslationToken.Value">
+            <summary>
+            Translated value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaKeyValue.key">
+            <summary>
+            Key
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaKeyValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
+            <summary>
+            Base list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
+            <summary>
+            Total items
             </summary>
         </member>
         <member name="T:WebAPI.Models.MultiRequest.KalturaSkipCondition">
@@ -12403,9 +12899,34 @@
             Bulk Upload Filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.StatusEqual">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.BulkObjectTypeEqual">
             <summary>
-            Indicates which Bulk Upload list to return by this KalturaBatchUploadJobStatus.
+            bulk objects Type name (must be type of KalturaOTTObject)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.CreateDateGreaterThanOrEqual">
+            <summary>
+            upload date to search within (search in the last 60 days)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.UploadedByUserIdEqualCurrent">
+            <summary>
+            Indicates if to get the BulkUpload list that created by current user or by the entire group.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadFilter.StatusIn">
+            <summary>
+            Comma separated list of BulkUpload Statuses to search\filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadObjectData">
+            <summary>
+            indicates the object type in the bulk file
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadAssetData">
+            <summary>
+            indicates the asset object type in the bulk file
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadAssetData.TypeId">
@@ -12464,6 +12985,11 @@
             Specifies when was the bulk action last updated. Date and time represented as epoch
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.UploadedByUserId">
+            <summary>
+            The user who uploaded this bulk
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.Results">
             <summary>
             A list of results
@@ -12471,17 +12997,17 @@
         </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadJobData">
             <summary>
-            instractions for upload data type
+            instructions for upload data (the data file type, how to read the file, etc)
             </summary>
         </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadExcelJobData">
             <summary>
-            instractions for upload data type with Excel
+            instructions for upload data type with Excel
             </summary>
         </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadXmlJobData">
             <summary>
-            instractions for upload data type with xml
+            instructions for upload data type with xml
             </summary>
         </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadResult">
@@ -12509,14 +13035,14 @@
             status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.ErrorCode">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Error">
             <summary>
-            Error Code
+            Error details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.ErrorMessage">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Warnings">
             <summary>
-            Error Message
+            A list of warnings
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadAssetResult.Type">
@@ -12553,472 +13079,6 @@
         <member name="P:WebAPI.Models.Upload.KalturaUploadToken.UpdateDate">
             <summary>
             Specifies when was the Asset last updated. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaGenericListResponse`1">
-            <summary>
-            Generic response list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaGenericListResponse`1.Objects">
-            <summary>
-            A list of objects
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">
-            <summary>
-            Kaltura Aggregation CountFilter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaDetachedResponseProfile">
-            <summary>
-            Define specific base profile response
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Name">
-            <summary>
-            name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Filter">
-            <summary>
-            filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.RelatedProfiles">
-            <summary>
-            relatedProfiles
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaIntegerValueListResponse">
-            <summary>
-            Integer list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaIntegerValueListResponse.Values">
-            <summary>
-            Interger value items
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaRelatedObjectFilter">
-            <summary>
-            Define KalturaRelatedObjectFilter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValueArray">
-            <summary>
-            Array of translated strings
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValueArray.Objects">
-            <summary>
-            List of string values
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Service">
-            <summary>
-            API service name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Action">
-            <summary>
-            API action name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Parameter">
-            <summary>
-            API parameter name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Object">
-            <summary>
-            API object name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Parameter">
-            <summary>
-            API parameter name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Action">
-            <summary>
-            API action type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValue">
-            <summary>
-            Array of translated strings
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaFilter`1">
-            <summary>
-            Base filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
-            <summary>
-            order by
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaMultilingualString">
-            <summary>
-            Translated string
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaMultilingualString.Values">
-            <summary>
-            All values in different languages
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaMessageTemplateType">
-            <summary>
-            Message template type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaOTTAssetType">
-            <summary>
-            OTT Asset Type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiActionPermissionItem.Service">
-            <summary>
-            API service name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaApiActionPermissionItem.Action">
-            <summary>
-            API action name
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaAppToken">
-            <summary>
-            Application token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.Id">
-            <summary>
-            The id of the application token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.Expiry">
-            <summary>
-            Expiry time of current token (unix timestamp in seconds)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.PartnerId">
-            <summary>
-            Partner identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionDuration">
-            <summary>
-            Expiry duration of KS (Kaltura Session) that created using the current token (in seconds)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.HashType">
-            <summary>
-            The hash type of the token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionPrivileges">
-            <summary>
-            Comma separated privileges to be applied on KS (Kaltura Session) that created using the current token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionType">
-            <summary>
-            Type of KS (Kaltura Session) that created using the current token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.Status">
-            <summary>
-            Application token status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.Token">
-            <summary>
-            The application token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.SessionUserId">
-            <summary>
-            User id of KS (Kaltura Session) that created using the current token
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.CreateDate">
-            <summary>
-            Create date
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaAppToken.UpdateDate">
-            <summary>
-            Update date
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaAppTokenHashType">
-            <summary>
-            Application token hash type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaAppTokenStatus">
-            <summary>
-            Application token status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaGroupPermission.Group">
-            <summary>
-            Permission identifier
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaIdentifierTypeFilter">
-            <summary>
-            Identifier filter 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaIdentifierTypeFilter.Identifier">
-             <summary>
-            The identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaIdentifierTypeFilter.By">
-             <summary>
-            Reference type to filter by
-             </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaLongValue">
-            <summary>
-            A string representation to return an array of longs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaLongValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaBaseResponseProfile">
-            <summary>
-            Define base profile response -  optional configurations
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaDoubleValue">
-            <summary>
-            A string representation to return an array of doubles
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaDoubleValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaFilterPager">
-            <summary>
-            The KalturaFilterPager object enables paging management to be applied upon service list actions
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaFilterPager.PageSize">
-            <summary>
-            <![CDATA[The number of objects to retrieve. Possible range 1 ≤ value ≤ 50. If omitted or value < 1 - will be set to 25. If a value > 50 provided – will be set to 50]]>
-            
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaFilterPager.PageIndex">
-            <summary>
-            The page number for which {pageSize} of objects should be retrieved
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaBooleanValue">
-            <summary>
-            A string representation to return an array of booleans
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaBooleanValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaOTTObject">
-            <summary>
-            Base class
-            </summary>
-        </member>
-        <member name="M:WebAPI.Models.General.KalturaOTTObject.GetItemsIn``2(System.String,System.String,System.Boolean,System.Boolean)">
-            <summary>
-            Convert comma separated string to collection.
-            </summary>
-            <typeparam name="U">Collection of T</typeparam>
-            <typeparam name="T">Type of items in collection</typeparam>
-            <param name="itemsIn">Comma separated string</param>
-            <param name="propertyName">The property name of comma separated string (for error message)</param>
-            <returns></returns>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaOTTFile">
-            <summary>
-            Base class
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaClientConfiguration">
-            <summary>
-            Define client optional configurations
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaClientConfiguration.ClientTag">
-            <summary>
-            Client Tag
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaClientConfiguration.ApiVersion">
-            <summary>
-            API client version
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaPersistedFilter`1.Name">
-            <summary>
-            Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaReportFilter">
-            <summary>
-            Report filter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaReportListResponse">
-            <summary>
-            Reports info wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaReportListResponse.Objects">
-            <summary>
-            Reports
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaRequestConfiguration">
-            <summary>
-            Define client request optional configurations
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.PartnerID">
-            <summary>
-            Impersonated partner id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.UserID">
-            <summary>
-            Impersonated user id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Language">
-            <summary>
-            Content language
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Currency">
-            <summary>
-            Currency to be used
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.KS">
-            <summary>
-            Kaltura API session
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.ResponseProfile">
-            <summary>
-            Kaltura response profile object
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.AbortOnError">
-            <summary>
-            Abort the Multireuqset call if any error occurs in one of the requests
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.AbortAllOnError">
-            <summary>
-            Abort all following requests in Multireuqset if current request has an error
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.SkipCondition">
-            <summary>
-            Skip current request according to skip condition
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaSessionType">
-            <summary>
-            KS type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaIntegerValue">
-            <summary>
-            A string representation to return an array of ints
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaIntegerValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaStringValue">
-            <summary>
-            A string representation to return an array of strings
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaStringValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaStringValueArray.Objects">
-            <summary>
-            List of string values
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaValue">
-            <summary>
-            A representation to return an array of values
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaValue.description">
-            <summary>
-            Description
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaTranslationToken">
-            <summary>
-            Container for translation
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaTranslationToken.Language">
-            <summary>
-            Language code
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaTranslationToken.Value">
-            <summary>
-            Translated value
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaKeyValue.key">
-            <summary>
-            Key
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaKeyValue.value">
-            <summary>
-            Value
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
-            <summary>
-            Base list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
-            <summary>
-            Total items
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.TemplateName">

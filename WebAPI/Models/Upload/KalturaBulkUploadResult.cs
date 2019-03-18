@@ -59,24 +59,25 @@ namespace WebAPI.Models.Upload
         [XmlElement(ElementName = "status")]
         [SchemeProperty(ReadOnly = true)]
         public KalturaBulkUploadResultStatus Status { get; set; }
-        
-        /// <summary>
-        /// Error Code
-        /// </summary>
-        [DataMember(Name = "errorCode")]
-        [XmlElement("errorCode", IsNullable = true)]
-        [JsonProperty("errorCode")]
-        [SchemeProperty(ReadOnly = true)]
-        public int? ErrorCode { get; set; }
 
         /// <summary>
-        /// Error Message
+        /// Error details
         /// </summary>
-        [DataMember(Name = "errorMessage")]
-        [XmlElement("errorMessage")]
-        [JsonProperty("errorMessage")]
+        [DataMember(Name = "error")]
+        [XmlElement("error", IsNullable = true)]
+        [JsonProperty("error")]
         [SchemeProperty(ReadOnly = true)]
-        public string ErrorMessage { get; set; }
+        public KalturaMessage Error { get; set; }
+        
+        /// <summary>
+        /// A list of warnings
+        /// </summary>
+        [DataMember(Name = "warnings")]
+        [JsonProperty("warnings")]
+        [XmlArray(ElementName = "warnings", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        [SchemeProperty(ReadOnly = true)]
+        public List<KalturaMessage> Warnings { get; set; }
     }
 
     public abstract partial class KalturaBulkUploadAssetResult : KalturaBulkUploadResult
