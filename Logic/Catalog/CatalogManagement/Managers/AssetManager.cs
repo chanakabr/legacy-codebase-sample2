@@ -245,7 +245,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             string name = string.Empty;
-            string description = string.Empty;
+            string description = null;
             List<LanguageContainer> namesWithLanguages = null;
             List<LanguageContainer> descriptionsWithLanguages = null;
             if (!ExtractMediaAssetNamesAndDescriptionsFromMetas(metas, ref name, ref description, ref namesWithLanguages, ref descriptionsWithLanguages))
@@ -628,10 +628,10 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Tuple<Dictionary<string, JObject>, bool> GetMediaAssets(Dictionary<string, object> funcParams)
+        private static Tuple<Dictionary<string, MediaAsset>, bool> GetMediaAssets(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            Dictionary<string, JObject> result = new Dictionary<string, JObject>();
+            Dictionary<string, MediaAsset> result = new Dictionary<string, MediaAsset>();
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("isAllowedToViewInactiveAssets") && funcParams.ContainsKey("groupId"))
@@ -648,7 +648,7 @@ namespace Core.Catalog.CatalogManagement
                         ids = funcParams["ids"] != null ? funcParams["ids"] as List<long> : null;
                     }
 
-                    List<object> assets = new List<object>();
+                    List<MediaAsset> mediaAssets = new List<MediaAsset>();
                     if (ids != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
                         CatalogGroupCache catalogGroupCache;
@@ -659,19 +659,15 @@ namespace Core.Catalog.CatalogManagement
                         else
                         {
                             DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID, isAllowedToViewInactiveAssets.Value);
-                            List<MediaAsset> mediaAssets = CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                            if (mediaAssets != null && mediaAssets.Count > 0)
-                            {
-                                assets.AddRange(mediaAssets);
-                            }
+                            mediaAssets = CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                         }
 
-                        res = assets.Count() == ids.Count() || !isAllowedToViewInactiveAssets.Value;
+                        res = (mediaAssets != null && mediaAssets.Count() == ids.Count()) || !isAllowedToViewInactiveAssets.Value;
                     }
 
                     if (res)
                     {
-                        result = assets.ToDictionary(x => LayeredCacheKeys.GetAssetKey(eAssetTypes.MEDIA.ToString(), (x as MediaAsset).Id), x => JObject.FromObject(x));
+                        result = mediaAssets.ToDictionary(x => LayeredCacheKeys.GetAssetKey(eAssetTypes.MEDIA.ToString(), x.Id), x => x);
                     }
                 }
             }
@@ -680,7 +676,7 @@ namespace Core.Catalog.CatalogManagement
                 log.Error(string.Format("GetMediaAssets failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<string, JObject>, bool>(result, res);
+            return new Tuple<Dictionary<string, MediaAsset>, bool>(result, res);
         }
 
         private static List<MediaAsset> GetMediaAssetsFromCache(int groupId, List<long> ids, bool isAllowedToViewInactiveAssets)
@@ -694,38 +690,20 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 eAssetTypes assetType = eAssetTypes.MEDIA;
-                Dictionary<string, JObject> mediaAssetMap = null;
+                Dictionary<string, MediaAsset> mediaAssetMap = null;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), ids);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids);
 
-                if (!LayeredCache.Instance.GetValues<JObject>(keyToOriginalValueMap, 
-                                                              ref mediaAssetMap, 
-                                                              GetMediaAssets, 
+                if (!LayeredCache.Instance.GetValues<MediaAsset>(keyToOriginalValueMap, ref mediaAssetMap, GetMediaAssets, 
                                                               new Dictionary<string, object>()
-                                                              {
-                                                                  { "groupId", groupId },
-                                                                  { "ids", ids },
-                                                                  { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets }
-                                                              }, 
-                                                              groupId, 
-                                                              LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME,
-                                                              invalidationKeysMap))
+                                                              { { "groupId", groupId }, { "ids", ids }, { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets } },
+                                                              groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME, invalidationKeysMap, true))
                 {
                     log.ErrorFormat("Failed getting GetMediaAssetsFromCache from LayeredCache, groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty);
                 }
                 else if (mediaAssetMap != null)
                 {
-                    mediaAssets = new List<MediaAsset>();
-                    foreach (JObject jobject in mediaAssetMap.Values)
-                    {
-                        MediaAsset mediaAsset = jobject.ToObject<MediaAsset>();
-                        if (mediaAsset.MediaAssetType == MediaAssetType.Linear)
-                        {
-                            mediaAsset = jobject.ToObject<LiveAsset>();
-                        }
-
-                        mediaAssets.Add(mediaAsset);
-                    }
+                    mediaAssets = mediaAssetMap.Values.ToList();
                 }
             }
             catch (Exception ex)

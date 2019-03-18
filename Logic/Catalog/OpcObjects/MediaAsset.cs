@@ -20,7 +20,10 @@ namespace Core.Catalog
     {
         #region Consts
 
+        [JsonIgnore]
         public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
+
+        [JsonIgnore]
         public override string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
 
         // ASSET EXCEL COLUMNS
