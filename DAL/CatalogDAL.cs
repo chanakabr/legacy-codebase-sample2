@@ -5748,15 +5748,17 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl)
+        public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl, out BulkUploadJobStatus updatedStatus)
         {
             string bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
             bulkUploadToSave.Status = GetBulkStatusByResultsStatus(bulkUploadToSave);
+            updatedStatus = bulkUploadToSave.Status;
             return UtilsDal.SaveObjectInCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl);
         }
 
-        public static bool SaveBulkUploadResultCB(BulkUpload currentBulkUpload, int resultIndex, uint ttl)
+        public static bool SaveBulkUploadResultCB(BulkUpload currentBulkUpload, int resultIndex, uint ttl, out BulkUploadJobStatus updatedStatus)
         {
+            updatedStatus = currentBulkUpload.Status;
             BulkUploadResult bulkUploadResultToSave = currentBulkUpload.Results[resultIndex];
             string bulkUploadKey = GetBulkUploadKey(bulkUploadResultToSave.BulkUploadId);
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
@@ -5780,7 +5782,8 @@ namespace Tvinci.Core.DAL
                     {
                         currentBulkUpload.Results[resultIndex] = bulkUploadResultToSave;
                         currentBulkUpload.Status = GetBulkStatusByResultsStatus(currentBulkUpload);
-                        
+                        updatedStatus = currentBulkUpload.Status;
+
                         if (cbManager.SetWithVersion(bulkUploadKey, currentBulkUpload, version, ttl))
                         {
                             log.DebugFormat("successfully SaveBulkUploadResultCB. number of tries:{0}/{1}, key:{2}.",
