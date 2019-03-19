@@ -355,7 +355,7 @@ namespace TVinciShared
             GenericResponse<string> subDirResponse = new GenericResponse<string>();
             if (id.Length < 6)
             {
-                subDirResponse.SetStatus(eResponseStatus.FileIdNotInTheRightLength, string.Format("file id length is too short, the minimum length is 6. id.Length:{0}", id.Length));
+                subDirResponse.SetStatus(eResponseStatus.FileIdNotInCorrectLength, string.Format("file id length is too short, the minimum length is 6. id.Length:{0}", id.Length));
                 return subDirResponse;
             }
 
@@ -369,7 +369,7 @@ namespace TVinciShared
             GenericResponse<string> subDirResponse = new GenericResponse<string>();
             if (id < 1)
             {
-                subDirResponse.SetStatus(eResponseStatus.FileIdNotInTheRightLength, string.Format("file id value is too small, the value is 1. id:{0}", id));
+                subDirResponse.SetStatus(eResponseStatus.FileIdNotInCorrectLength, string.Format("file id value is too small, the value is 1. id:{0}", id));
                 return subDirResponse;
             }
             subDirResponse.Object = string.Format("{0}\\{1}\\{2}", typeName, (long)(id / 1000000), (long)(id / 1000));
