@@ -325,7 +325,7 @@ namespace ApiObjects.Response
         FileDoesNotExists = 5040,
         FileAlreadyExists = 5041,
         ErrorSavingFile = 5042,
-        FileIdNotInTheRightLength = 5043,
+        FileIdNotInCorrectLength = 5043,
         EnqueueFailed = 5044,
         IllegalExcelFile = 5045,
         ExcelMandatoryValueIsMissing = 5046,
