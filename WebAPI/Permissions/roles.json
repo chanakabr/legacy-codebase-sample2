@@ -142,7 +142,8 @@
         "EXT_COLLECTIONS_MNG",
         "OPC_PREF_VIEW",
         "TEAM_VIEW",
-        "MY_USER_MNG"
+        "MY_USER_MNG",
+        "VIEW_INACTIVE_ASSETS"
       ],
       "excluded_permissions": [],
       "name": "ExternalEditor"
