@@ -124,12 +124,7 @@ namespace Core.Catalog.CatalogManagement
                         response.Objects = response.Objects.Where(x => x.UpdaterId == userId.Value).ToList();
                     }
                 }
-
-                var bulksToSuccess = string.Join(", ", response.Objects.Where(x => x.Status == BulkUploadJobStatus.Processed && x.Results != null && x.Results.All(y => y.Status == BulkUploadResultStatus.Ok)).Select(x => x.Id));
-                var bulksToFailed = string.Join(", ", response.Objects.Where(x => x.Status == BulkUploadJobStatus.Processed && x.Results != null && x.Results.All(y => y.Status == BulkUploadResultStatus.Error)).Select(x => x.Id));
-                var bulksToPartial = string.Join(", ", response.Objects.Where(x => x.Status == BulkUploadJobStatus.Processed && x.Results != null && x.Results.All(y => y.Status == BulkUploadResultStatus.Error || y.Status == BulkUploadResultStatus.Ok)).Select(x => x.Id));
-
-
+                
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
