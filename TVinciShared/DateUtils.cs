@@ -400,7 +400,6 @@ namespace TVinciShared
         public static DateTime ExtractDate(string dateTime, string format)
         {
             DateTime result = DateTime.ParseExact(dateTime, format, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
-            //DateTime result = DateTime.Parse(dateTime);
             return result;
         }
     }
