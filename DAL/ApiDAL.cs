@@ -1601,15 +1601,13 @@ namespace DAL
             {
                 if (dataSet.Tables.Count == 1)
                 {
-                    result = CreateParentalRulesFromSingleTable(dataSet);
+                    result = CreateParentalRulesFromSingleTable(dataSet.Tables[0]);
                 }
                 else if (dataSet.Tables.Count == 2)
                 {
                     Dictionary<long, ParentalRule> rules = new Dictionary<long, ParentalRule>();
 
                     DataTable rulesTable = dataSet.Tables[0];
-                    DataTable tagsTable = dataSet.Tables[1];
-
                     // Run on first table and create initial list of parental rules, without tag values
                     if (rulesTable != null && rulesTable.Rows != null && rulesTable.Rows.Count > 0)
                     {
@@ -1631,6 +1629,7 @@ namespace DAL
                         }
                     }
 
+                    DataTable tagsTable = dataSet.Tables[1];
                     if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0)
                     {
                         foreach (DataRow row in tagsTable.Rows)
@@ -2079,57 +2078,51 @@ namespace DAL
             return rules;
         }
 
-        private static List<ParentalRule> CreateParentalRulesFromSingleTable(DataSet dataSet)
+        private static List<ParentalRule> CreateParentalRulesFromSingleTable(DataTable rulesAndTagsTable)
         {
             Dictionary<long, ParentalRule> rules = new Dictionary<long, ParentalRule>();
 
-            // Validate tables count
-            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count == 1)
+            // Run on first table and create initial list of parental rules, without tag values
+            if (rulesAndTagsTable != null && rulesAndTagsTable.Rows != null && rulesAndTagsTable.Rows.Count > 0)
             {
-                DataTable rulesAndTagsTable = dataSet.Tables[0];
-
-                // Run on first table and create initial list of parental rules, without tag values
-                if (rulesAndTagsTable != null && rulesAndTagsTable.Rows != null && rulesAndTagsTable.Rows.Count > 0)
+                foreach (DataRow row in rulesAndTagsTable.Rows)
                 {
-                    foreach (DataRow row in rulesAndTagsTable.Rows)
+                    long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+
+                    // If rule is not positive, this means this is a dummy result: The user disabled the default
+                    if (id > 0)
                     {
-                        long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+                        ParentalRule currentRule = null;
 
-                        // If rule is not positive, this means this is a dummy result: The user disabled the default
-                        if (id > 0)
+                        // First check if we have this rule already in dictionary
+                        if (!rules.TryGetValue(id, out currentRule))
                         {
-                            ParentalRule currentRule = null;
+                            currentRule = CreateParentalRuleFromRow(row);
 
-                            // First check if we have this rule already in dictionary
-                            if (!rules.TryGetValue(id, out currentRule))
-                            {
-                                currentRule = CreateParentalRuleFromRow(row);
+                            // Map in dictionary for easy access
+                            rules[id] = currentRule;
+                        }
 
-                                // Map in dictionary for easy access
-                                rules[id] = currentRule;
-                            }
+                        eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
 
-                            eAssetTypes assetType = (eAssetTypes)ODBCWrapper.Utils.ExtractInteger(row, "ASSET_TYPE");
-
-                            string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
-                            // According to asset, update the relevant list
-                            switch (assetType)
-                            {
-                                case eAssetTypes.EPG:
-                                    {
-                                        currentRule.epgTagValues.Add(value);
-                                        break;
-                                    }
-                                case eAssetTypes.MEDIA:
-                                    {
-                                        currentRule.mediaTagValues.Add(value);
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        break;
-                                    }
-                            }
+                        string value = ODBCWrapper.Utils.ExtractString(row, "VALUE");
+                        // According to asset, update the relevant list
+                        switch (assetType)
+                        {
+                            case eAssetTypes.EPG:
+                                {
+                                    currentRule.epgTagValues.Add(value);
+                                    break;
+                                }
+                            case eAssetTypes.MEDIA:
+                                {
+                                    currentRule.mediaTagValues.Add(value);
+                                    break;
+                                }
+                            default:
+                                {
+                                    break;
+                                }
                         }
                     }
                 }
