@@ -5410,5 +5410,109 @@ namespace DAL
 
             return dt;
         }
+
+        public static int AddIngestProfile(int groupId, int userId, IngestProfile profileToAdd)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Insert_IngestProfile");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", profileToAdd.Name);
+                sp.AddParameter("@externalIdentifier", profileToAdd.ExternalId);
+                sp.AddParameter("@transformationAdapterUrl", profileToAdd.TransformationAdapterUrl);
+                sp.AddParameter("@transformationAdapterSharedSecret", profileToAdd.TransformationAdapterSharedSecret);
+                sp.AddParameter("@transformationAdapterConfig", profileToAdd.TransformationAdapterSettings);
+                sp.AddParameter("@assetType", profileToAdd.AssetTypeId);
+                sp.AddParameter("@defaultAutoFillPolicy", profileToAdd.DefaultAutoFillPolicy);
+                sp.AddParameter("@defaultOverlapPolicy", profileToAdd.DefaultOverlapPolicy);
+                sp.AddParameter("@updaterId", userId);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddPlaybackAdapter in DB, groupId: {0}, name: {1}, ex:{2} ", groupId, profileToAdd.Name, ex);
+                throw;
+            }
+        }
+
+        public static IngestProfile UpdateIngestProfile(int profileId, int groupId, int userId, IngestProfile profileToAdd)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Update_IngestProfile");
+                sp.AddParameter("@profileId", profileId);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", profileToAdd.Name);
+                sp.AddParameter("@externalIdentifier", profileToAdd.ExternalId);
+                sp.AddParameter("@transformationAdapterUrl", profileToAdd.TransformationAdapterUrl);
+                sp.AddParameter("@transformationAdapterSharedSecret", profileToAdd.TransformationAdapterSharedSecret);
+                sp.AddParameter("@transformationAdapterConfig", profileToAdd.TransformationAdapterSettings);
+                sp.AddParameter("@assetType", profileToAdd.AssetTypeId);
+                sp.AddParameter("@defaultAutoFillPolicy", profileToAdd.DefaultAutoFillPolicy);
+                sp.AddParameter("@defaultOverlapPolicy", profileToAdd.DefaultOverlapPolicy);
+                sp.AddParameter("@updaterId", userId);
+
+                var response = sp.ExecuteDataSet();
+                var profile = response.Tables[0].ToList<IngestProfile>().FirstOrDefault();
+                return profile;
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateIngestProfile in DB, groupId: {0}, profileId: {1}, ex:{2} ", groupId, profileId, ex);
+                throw;
+            }
+        }
+
+        public static bool DeleteIngestProfile(int profileId, int groupId, int userId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_IngestProfile");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@profileId", profileId);
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, profileId: {1}, ex:{2} ", groupId, profileId , ex);
+                throw;
+            }
+        }
+
+        public static List<IngestProfile> GetIngestProfiles(int? groupId = null, string externalId = null, int? profileId = null)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Get_IngestProfile");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@profileExternalId", externalId);
+                sp.AddParameter("@profileId", profileId);
+                return sp.ExecuteDataSet().Tables[0].ToList<IngestProfile>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, ex:{1} ", groupId , ex);
+                throw;
+            }
+        }
+
+        public static bool GetIngestProfileByExternalId(string externalId, int groupId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Get_IngestProfile");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@externalId", externalId);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, externalId: {1}, ex:{2} ", groupId, externalId , ex);
+                throw;
+            }
+        }
     }
 }
