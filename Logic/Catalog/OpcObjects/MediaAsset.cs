@@ -316,12 +316,12 @@ namespace Core.Catalog
             foreach (var item in dicMetas)
             {
                 Metas metas = new Metas();
-                if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(item.Key))
+                if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(item.Key))
                 {
                     metas.m_oTagMeta = new TagMeta()
                     {
                         m_sName = item.Key,
-                        m_sType = catalogGroupCache.TopicsMapBySystemName[item.Key].Type.ToString()
+                        m_sType = catalogGroupCache.TopicsMapBySystemNameAndByType[item.Key].Type.ToString()
                     };
                 }
 

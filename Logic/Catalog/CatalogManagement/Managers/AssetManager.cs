@@ -38,10 +38,23 @@ namespace Core.Catalog.CatalogManagement
 
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        //public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        //{
+        //    NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, ENTRY_ID_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
+        //    PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_TIME_META_SYSTEM_NAME
+        //};
+
+        public static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, ENTRY_ID_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
-            PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_TIME_META_SYSTEM_NAME
+            { AssetManager.NAME_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
+            { AssetManager.DESCRIPTION_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
+            { AssetManager.EXTERNAL_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
+            { AssetManager.ENTRY_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
+            { AssetManager.STATUS_META_SYSTEM_NAME, MetaType.Bool.ToString() },
+            { AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()}
         };
 
         #endregion
@@ -546,20 +559,21 @@ namespace Core.Catalog.CatalogManagement
                     tempHashSet.Add(meta.m_oTagMeta.m_sName);
 
                     // validate meta exists on group
-                    if (!catalogGroupCache.TopicsMapBySystemName.ContainsKey(meta.m_oTagMeta.m_sName))
+                    if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(meta.m_oTagMeta.m_sName)
+                        || !catalogGroupCache.TopicsMapBySystemNameAndByType[meta.m_oTagMeta.m_sName].ContainsKey(meta.m_oTagMeta.m_sType))
                     {
                         result.Message = string.Format("meta: {0} does not exist for group", meta.m_oTagMeta.m_sName);
                         return result;
                     }
 
                     // validate meta exists on asset struct
-                    if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemName[meta.m_oTagMeta.m_sName].Id))
+                    if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemNameAndByType[meta.m_oTagMeta.m_sName][meta.m_oTagMeta.m_sType].Id))
                     {
                         result.Message = string.Format("meta: {0} is not part of assetStruct", meta.m_oTagMeta.m_sName);
                         return result;
                     }
 
-                    Topic topic = catalogGroupCache.TopicsMapBySystemName[meta.m_oTagMeta.m_sName];
+                    Topic topic = catalogGroupCache.TopicsMapBySystemNameAndByType[meta.m_oTagMeta.m_sName][meta.m_oTagMeta.m_sType];
                     // validate correct type was sent
                     if (topic.Type.ToString().ToLower() != meta.m_oTagMeta.m_sType.ToLower())
                     {
@@ -595,20 +609,21 @@ namespace Core.Catalog.CatalogManagement
                     tempHashSet.Add(tag.m_oTagMeta.m_sName);
 
                     // validate tag exists on group
-                    if (!catalogGroupCache.TopicsMapBySystemName.ContainsKey(tag.m_oTagMeta.m_sName))
+                    if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(tag.m_oTagMeta.m_sName)
+                        || !catalogGroupCache.TopicsMapBySystemNameAndByType[tag.m_oTagMeta.m_sName].ContainsKey(tag.m_oTagMeta.m_sType))
                     {
                         result.Message = string.Format("tag: {0} does not exist for group", tag.m_oTagMeta.m_sName);
                         return result;
                     }
 
                     // validate tag exists on asset struct
-                    if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemName[tag.m_oTagMeta.m_sName].Id))
+                    if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemNameAndByType[tag.m_oTagMeta.m_sName][tag.m_oTagMeta.m_sType].Id))
                     {
                         result.Message = string.Format("tag: {0} is not part of assetStruct", tag.m_oTagMeta.m_sName);
                         return result;
                     }
 
-                    Topic topic = catalogGroupCache.TopicsMapBySystemName[tag.m_oTagMeta.m_sName];
+                    Topic topic = catalogGroupCache.TopicsMapBySystemNameAndByType[tag.m_oTagMeta.m_sName][tag.m_oTagMeta.m_sType];
                     // validate correct type was sent
                     if (topic.Type != MetaType.Tag || topic.Type.ToString().ToLower() != tag.m_oTagMeta.m_sType.ToLower())
                     {
@@ -759,10 +774,10 @@ namespace Core.Catalog.CatalogManagement
                 assetToAdd.FinalEndDate = assetFinalEndDate;
 
                 // Add Name meta values (for languages that are not default)
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, NAME_META_SYSTEM_NAME);
+                ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, NAME_META_SYSTEM_NAME);
 
                 // Add Description meta values (for languages that are not default)
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, DESCRIPTION_META_SYSTEM_NAME);
+                ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, DESCRIPTION_META_SYSTEM_NAME);
 
                 DateTime startDate = assetToAdd.StartDate ?? DateTime.UtcNow;
                 DateTime catalogStartDate = assetToAdd.CatalogStartDate ?? startDate;
@@ -874,7 +889,7 @@ namespace Core.Catalog.CatalogManagement
                 return false;
             }
 
-            if (BasicMetasSystemNames.Contains(meta.m_oTagMeta.m_sName))
+            if (BasicMetasSystemNamesToType.ContainsKey(meta.m_oTagMeta.m_sName))
             {
                 switch (meta.m_oTagMeta.m_sName)
                 {
@@ -990,12 +1005,12 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        private static void ExtractTopicLanguageAndValuesFromMediaAsset(MediaAsset asset, CatalogGroupCache catalogGroupCache, ref XmlDocument xmlDoc, string topicSystemName)
+        private static void ExtractBasicTopicLanguageAndValuesFromMediaAsset(MediaAsset asset, CatalogGroupCache catalogGroupCache, ref XmlDocument xmlDoc, string basicTopicSystemName)
         {
             // Add Name meta values (for languages that are not default)
-            if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicSystemName))
+            if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(basicTopicSystemName) && BasicMetasSystemNamesToType.ContainsKey(basicTopicSystemName))
             {
-                Topic topic = catalogGroupCache.TopicsMapBySystemName[topicSystemName];
+                Topic topic = catalogGroupCache.TopicsMapBySystemNameAndByType[basicTopicSystemName][BasicMetasSystemNamesToType[basicTopicSystemName]];
                 XmlNode rootNode;
                 if (xmlDoc == null)
                 {
@@ -1008,7 +1023,7 @@ namespace Core.Catalog.CatalogManagement
                     rootNode = xmlDoc.FirstChild;
                 }
 
-                if (topicSystemName == NAME_META_SYSTEM_NAME && !string.IsNullOrEmpty(asset.Name))
+                if (basicTopicSystemName == NAME_META_SYSTEM_NAME && !string.IsNullOrEmpty(asset.Name))
                 {
                     AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, asset.Name);
                     if (asset.NamesWithLanguages != null && asset.NamesWithLanguages.Count > 0)
@@ -1022,7 +1037,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-                else if (topicSystemName == DESCRIPTION_META_SYSTEM_NAME && asset.Description != null)
+                else if (basicTopicSystemName == DESCRIPTION_META_SYSTEM_NAME && asset.Description != null)
                 {
                     AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, asset.Description);
                     if (asset.DescriptionsWithLanguages != null && asset.DescriptionsWithLanguages.Count > 0)
@@ -1136,21 +1151,21 @@ namespace Core.Catalog.CatalogManagement
                 // Add Name meta values (for languages that are not default), Name can only be updated
                 if (string.IsNullOrEmpty(currentAsset.Name))
                 {
-                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, NAME_META_SYSTEM_NAME);
+                    ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, NAME_META_SYSTEM_NAME);
                 }
                 else
                 {
-                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
+                    ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
                 }
                 
                 // Add Description meta values (for languages that are not default), Description can be updated or added
                 if (currentAsset.Description == null && !string.IsNullOrEmpty(assetToUpdate.Description))
                 {
-                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);
+                    ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);
                 }
                 else if (currentAsset.Description != null)
                 {
-                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
+                    ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
                 }
 
                 DateTime startDate = assetToUpdate.StartDate ?? (currentAsset.StartDate ?? DateTime.UtcNow);
@@ -1727,9 +1742,11 @@ namespace Core.Catalog.CatalogManagement
         private static Status ValidateTopicIdsToRemove(CatalogGroupCache catalogGroupCache, HashSet<long> topicIds)
         {
             Status result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            if (topicIds != null && topicIds.Count > 0 && catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
+            if (topicIds != null && topicIds.Count > 0 && catalogGroupCache.TopicsMapBySystemNameAndByType != null && catalogGroupCache.TopicsMapBySystemNameAndByType.Count > 0)
             {
-                List<long> basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => AssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                List<long> basicMetaIds = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => BasicMetasSystemNamesToType.ContainsKey(x.Key)
+                                                                                                && x.Value.ContainsKey(BasicMetasSystemNamesToType[x.Key]))
+                                                                                                .Select(x => x.Value[BasicMetasSystemNamesToType[x.Key]].Id).ToList();
                 if (basicMetaIds != null && basicMetaIds.Count > 0)
                 {
                     List<long> basicMetaIdsToRemove = basicMetaIds.Intersect(topicIds).ToList();
@@ -2497,10 +2514,12 @@ namespace Core.Catalog.CatalogManagement
                 MediaAsset mediaAsset = asset as MediaAsset;
                 if (mediaAsset != null)
                 {
-                    List<long> existingTopicsIds = mediaAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
-                                                              .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList();
-                    existingTopicsIds.AddRange(mediaAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
-                                                              .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList());
+                    List<long> existingTopicsIds = mediaAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
+                                                                    .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList();
+                    existingTopicsIds.AddRange(mediaAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
+                                                                    .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList());
                     List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
                     if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
                     {

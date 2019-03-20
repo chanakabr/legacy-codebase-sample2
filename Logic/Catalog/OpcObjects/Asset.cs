@@ -402,10 +402,10 @@ namespace Core.Catalog
         protected void SetTagByExcelValues(KeyValuePair<string, object> columnValue, string systemName, CatalogGroupCache catalogGroupCache)
         {
             var tagMeta = new TagMeta();
-            if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(systemName))
+            if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(systemName))
             {
                 tagMeta.m_sName = systemName;
-                tagMeta.m_sType = catalogGroupCache.TopicsMapBySystemName[systemName].Type.ToString();
+                tagMeta.m_sType = catalogGroupCache.TopicsMapBySystemNameAndByType[systemName].Type.ToString();
             }
             var values = columnValue.Value.ToString().GetItemsIn<List<string>, string>();
             List<LanguageContainer[]> languageContainers = new List<LanguageContainer[]>();

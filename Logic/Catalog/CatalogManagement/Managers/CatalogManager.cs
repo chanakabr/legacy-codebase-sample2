@@ -504,9 +504,32 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static Type GetMetaType(Topic topic)
+        private static Type GetMetaType(Dictionary<string, Topic> topics)
         {
             Type res = typeof(string);
+            Topic topic = null;
+            // if there is no duplication of topics
+            if (topics.Count == 1)
+            {
+                topic = topics.Values.First();
+            }
+            // if there is duplication but on of them is tag take the meta (were getting meta type...)
+            else if (topics.Count(x => x.Key != MetaType.Tag.ToString()) == 1)
+            {
+                topic = topics.First(x => x.Key != MetaType.Tag.ToString()).Value;
+            }
+            // if there is duplication but on of them is string/translated string
+            else if (topics.Count(x => x.Key != MetaType.String.ToString() && x.Key != MetaType.MultilingualString.ToString()) == 1)
+            {
+                topic = topics.First(x => x.Key != MetaType.String.ToString() && x.Key != MetaType.MultilingualString.ToString()).Value;
+            }
+            // if there is duplication and more than one is not string/tag then take the first one (backward compatible with todays behavior)
+            else
+            {
+                log.ErrorFormat("This is a duplication of topic, a wrong configuration was done on the account and there for we had to randomly chose one of the types");
+                topic = topics.Values.First();
+            }
+
             switch (topic.Type)
             {
                 case MetaType.String:
@@ -1882,7 +1905,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
+                    if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(topicToAdd.SystemName))
                     {
                         result.SetStatus(eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
                         return result;
@@ -2088,8 +2111,16 @@ namespace Core.Catalog.CatalogManagement
                     return searchKeys;
                 }
 
-                List<string> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
-                List<string> metas = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                List<string> tags = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key) && x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()))
+                                                                                    .Select(x => x.Key).ToList();
+
+                List<string> metas = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key) 
+                                                                                                && (x.Value.ContainsKey(ApiObjects.MetaType.String.ToString())
+                                                                                                    || x.Value.ContainsKey(ApiObjects.MetaType.MultilingualString.ToString())
+                                                                                                    || x.Value.ContainsKey(ApiObjects.MetaType.Number.ToString())
+                                                                                                    || x.Value.ContainsKey(ApiObjects.MetaType.Bool.ToString())
+                                                                                                    || x.Value.ContainsKey(ApiObjects.MetaType.DateTime.ToString())))
+                                                                                     .Select(x => x.Key).ToList();
                 if (originalKey.StartsWith("tags."))
                 {
                     foreach (string tag in tags)
@@ -2132,7 +2163,7 @@ namespace Core.Catalog.CatalogManagement
                         if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                         {
                             isTagOrMeta = true;
-                            type = catalogGroupCache.TopicsMapBySystemName.ContainsKey(meta) ? GetMetaType(catalogGroupCache.TopicsMapBySystemName[meta]) : typeof(string);
+                            type = catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(meta) ? GetMetaType(catalogGroupCache.TopicsMapBySystemNameAndByType[meta]) : typeof(string);
                             searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
                             break;
                         }
@@ -2184,7 +2215,8 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                result = catalogGroupCache.TopicsMapBySystemName.ContainsKey(metaName) && catalogGroupCache.TopicsMapBySystemName[metaName].Type != MetaType.Tag;
+                result = catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(metaName)
+                            && catalogGroupCache.TopicsMapBySystemNameAndByType[metaName].Any(x => x.Key != MetaType.Tag.ToString());
             }
             catch (Exception ex)
             {

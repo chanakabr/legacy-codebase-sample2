@@ -153,15 +153,19 @@ namespace Core.Catalog
         {
             Status result = new Status((int)eResponseStatus.AssetStructMissingBasicMetaIds, eResponseStatus.AssetStructMissingBasicMetaIds.ToString());
             List<long> basicMetaIds = new List<long>();
-            if (catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
+            if (catalogGroupCache.TopicsMapBySystemNameAndByType != null && catalogGroupCache.TopicsMapBySystemNameAndByType.Count > 0)
             {
                 if (isProgramStruct)
                 {
-                    basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => EpgAssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                    basicMetaIds = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => EpgAssetManager.BasicMetasSystemNamesToType.ContainsKey(x.Key)
+                                                                                                    && x.Value.ContainsKey(EpgAssetManager.BasicMetasSystemNamesToType[x.Key]))
+                                                                                                    .Select(x => x.Value[EpgAssetManager.BasicMetasSystemNamesToType[x.Key]].Id).ToList();
                 }
                 else
                 {
-                    basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => AssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                    basicMetaIds = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => AssetManager.BasicMetasSystemNamesToType.ContainsKey(x.Key)
+                                                                                                    && x.Value.ContainsKey(AssetManager.BasicMetasSystemNamesToType[x.Key]))
+                                                                                                    .Select(x => x.Value[AssetManager.BasicMetasSystemNamesToType[x.Key]].Id).ToList();
                 }
 
                 if (this.MetaIds != null)
