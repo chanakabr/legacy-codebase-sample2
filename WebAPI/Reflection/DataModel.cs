@@ -2891,6 +2891,38 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaIngestProfile":
+                    switch(property.Name)
+                    {
+                        case "AssetTypeId":
+                            return "assetTypeId";
+                        case "DefaultAutoFillPolicy":
+                            return "defaultAutoFillPolicy";
+                        case "DefaultOverlapPolicy":
+                            return "defaultOverlapPolicy";
+                        case "ExternalId":
+                            return "externalId";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "TransformationAdapterSettings":
+                            return "transformationAdapterSettings";
+                        case "TransformationAdapterSharedSecret":
+                            return "transformationAdapterSharedSecret";
+                        case "TransformationAdapterUrl":
+                            return "transformationAdapterUrl";
+                    }
+                    break;
+                    
+                case "KalturaIngestProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaIntegerValueListResponse":
                     switch(property.Name)
                     {
@@ -7752,6 +7784,28 @@ namespace WebAPI.Reflection
                         case "updatestatus":
                             RolesManager.ValidateActionPermitted("inboxMessage", "updateStatus", false);
                             return InboxMessageController.UpdateStatus((string) methodParams[0], (KalturaInboxMessageStatus) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "ingestprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("IngestProfile", "add", false);
+                            return IngestProfileController.Add((KalturaIngestProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("IngestProfile", "delete", false);
+                            return IngestProfileController.Delete((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("IngestProfile", "list", false);
+                            return IngestProfileController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("IngestProfile", "update", false);
+                            return IngestProfileController.Update((int) methodParams[0], (KalturaIngestProfile) methodParams[1]);
                             
                     }
                     break;
@@ -13639,6 +13693,42 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaInboxMessageStatus),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "ingestprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("ingestProfile", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIngestProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("ingestProfileId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("ingestProfileId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("ingestProfile", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIngestProfile),
                             });
                             return ret;
                             

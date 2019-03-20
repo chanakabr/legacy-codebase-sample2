@@ -13825,6 +13825,106 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaIngestProfile
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("assetTypeId", "\"assetTypeId\": " + AssetTypeId);
+            ret.Add("defaultAutoFillPolicy", "\"defaultAutoFillPolicy\": " + DefaultAutoFillPolicy);
+            ret.Add("defaultOverlapPolicy", "\"defaultOverlapPolicy\": " + DefaultOverlapPolicy);
+            if(ExternalId != null)
+            {
+                ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
+            }
+            if(Id.HasValue)
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(TransformationAdapterSettings != null)
+            {
+                ret.Add("transformationAdapterSettings", "\"transformationAdapterSettings\": " + "\"" + EscapeJson(TransformationAdapterSettings) + "\"");
+            }
+            if(TransformationAdapterSharedSecret != null)
+            {
+                ret.Add("transformationAdapterSharedSecret", "\"transformationAdapterSharedSecret\": " + "\"" + EscapeJson(TransformationAdapterSharedSecret) + "\"");
+            }
+            if(TransformationAdapterUrl != null)
+            {
+                ret.Add("transformationAdapterUrl", "\"transformationAdapterUrl\": " + "\"" + EscapeJson(TransformationAdapterUrl) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            ret.Add("assetTypeId", "<assetTypeId>" + AssetTypeId + "</assetTypeId>");
+            ret.Add("defaultAutoFillPolicy", "<defaultAutoFillPolicy>" + DefaultAutoFillPolicy + "</defaultAutoFillPolicy>");
+            ret.Add("defaultOverlapPolicy", "<defaultOverlapPolicy>" + DefaultOverlapPolicy + "</defaultOverlapPolicy>");
+            if(ExternalId != null)
+            {
+                ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
+            }
+            if(Id.HasValue)
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(TransformationAdapterSettings != null)
+            {
+                ret.Add("transformationAdapterSettings", "<transformationAdapterSettings>" + EscapeXml(TransformationAdapterSettings) + "</transformationAdapterSettings>");
+            }
+            if(TransformationAdapterSharedSecret != null)
+            {
+                ret.Add("transformationAdapterSharedSecret", "<transformationAdapterSharedSecret>" + EscapeXml(TransformationAdapterSharedSecret) + "</transformationAdapterSharedSecret>");
+            }
+            if(TransformationAdapterUrl != null)
+            {
+                ret.Add("transformationAdapterUrl", "<transformationAdapterUrl>" + EscapeXml(TransformationAdapterUrl) + "</transformationAdapterUrl>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaIngestProfileListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaIpRangeCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)

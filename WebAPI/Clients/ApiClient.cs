@@ -161,7 +161,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }        
+        }
 
         internal List<Models.API.KalturaParentalRule> GetDomainParentalRules(int groupId, int domainId)
         {
@@ -1433,7 +1433,7 @@ namespace WebAPI.Clients
         {
             GenericRuleResponse response = null;
             List<KalturaUserAssetRule> rules = new List<KalturaUserAssetRule>();
-            
+
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
 
@@ -2237,7 +2237,7 @@ namespace WebAPI.Clients
             return kalturaExternalChannelProfile;
         }
 
-        internal bool DeleteExternalChannel(int groupId, int externalChannelId , long userId)
+        internal bool DeleteExternalChannel(int groupId, int externalChannelId, long userId)
         {
             Status response = null;
 
@@ -4190,7 +4190,7 @@ namespace WebAPI.Clients
         internal KalturaTvmRuleListResponse GetTvmRules(int groupId, KalturaTvmRuleType? ruleTypeEqual, string nameEqual)
         {
             KalturaTvmRuleListResponse result = new KalturaTvmRuleListResponse();
-            var ruleType = AutoMapper.Mapper.Map<TvmRuleType?> (ruleTypeEqual);
+            var ruleType = AutoMapper.Mapper.Map<TvmRuleType?>(ruleTypeEqual);
 
             Func<GenericListResponse<TvmRule>> getTvmRulesFunc = () =>
                 TvmRuleManager.GetTvmRules(groupId, ruleType, nameEqual);
@@ -4342,6 +4342,34 @@ namespace WebAPI.Clients
             }
 
             return result;
+        }
+
+        internal KalturaIngestProfile InsertIngestProfile(int groupId, KalturaIngestProfile ingestProfile, int userId)
+        {
+            return ClientUtils.GetResponseFromWS<KalturaIngestProfile, IngestProfile>(ingestProfile, p => Core.Api.api.AddIngestProfile(groupId, userId, p));
+
+        }
+
+        internal KalturaIngestProfileListResponse GetIngestProfiles(int groupId)
+        {
+            var response = ClientUtils.GetResponseListFromWS<KalturaIngestProfile, IngestProfile>(() => Core.Api.api.GetIngestProfiles(groupId));
+            return new KalturaIngestProfileListResponse
+            {
+                Objects = response.Objects,
+                TotalCount = response.TotalCount,
+            };
+        }
+
+        public bool DeleteIngestProfiles(int groupId, int ingestProfileId, int userId)
+        {
+            var status = ClientUtils.GetResponseStatusFromWS(() => Core.Api.api.DeleteIngestProfile(groupId, userId, ingestProfileId));
+            return status;
+
+        }
+
+        public KalturaIngestProfile UpdateIngestProfile(int groupId, int ingestProfileId, KalturaIngestProfile ingestProfile, int userId)
+        {
+            return ClientUtils.GetResponseFromWS<KalturaIngestProfile, IngestProfile>(ingestProfile, p => Core.Api.api.UpdateIngestProfile(groupId, userId, ingestProfileId, p));
         }
     }
 }

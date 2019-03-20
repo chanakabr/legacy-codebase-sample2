@@ -1513,6 +1513,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
             #endregion
 
+            #region Ingest Profile
+            cfg.CreateMap<IngestProfile, KalturaIngestProfile>()
+                .ReverseMap();
+            #endregion
+
             #region KalturaPlaybackContext, PlaybackAdapter.AdapterPlaybackContext
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackContext, KalturaPlaybackContext>()

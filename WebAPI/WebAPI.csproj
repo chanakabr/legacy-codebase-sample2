@@ -792,6 +792,7 @@
     <Compile Include="Clients\ClientUtils.cs" />
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AssetFilePpvController.cs" />
+    <Compile Include="Controllers\IngestProfileController.cs" />
     <Compile Include="Controllers\TvmRuleController.cs" />
     <Compile Include="Controllers\BusinessModuleRuleController.cs" />
     <Compile Include="Controllers\PlaybackProfileController.cs" />
@@ -829,6 +830,8 @@
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\UserSegmentController.cs" />
     <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
+    <Compile Include="Models\API\KalturaIngestProfile.cs" />
+    <Compile Include="Models\API\KalturaIngestProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaResponseType.cs" />
     <Compile Include="Models\API\KalturaTvmDeviceRule.cs" />
     <Compile Include="Models\API\KalturaTvmGeoRule.cs" />

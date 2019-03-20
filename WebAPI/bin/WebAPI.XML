@@ -62,6 +62,42 @@
             <param name="ppvModuleId">Ppv module id</param>        
             <param name="assetFilePpv">assetFilePpv</param>        
         </member>
+        <member name="M:WebAPI.Controllers.IngestProfileController.List">
+            <summary>
+            Returns all ingest profiles for partner
+            </summary>
+            <remarks>
+            Possible status codes:       
+             
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.IngestProfileController.Delete(System.Int32)">
+            <summary>
+            Delete ingest profiles by ingest profiles id
+            </summary>
+            <remarks>
+            Possible status codes:       
+            ingest profile not exist = 5048
+            </remarks>
+            <param name="ingestProfileId">ingest profile Identifier</param>
+        </member>
+        <member name="M:WebAPI.Controllers.IngestProfileController.Add(WebAPI.Models.API.KalturaIngestProfile)">
+            <summary>
+            Insert new ingest profile for partner
+            </summary>
+            <remarks>
+            Possible status codes:       
+              External identifier is required = 6016, Name is required = 5005, Shared secret is required = 5006, External identifier must be unique = 6040, No ingest profile to insert = 5049
+            </remarks>
+            <param name="ingestProfile">ingest profile Object to be added</param>
+        </member>
+        <member name="M:WebAPI.Controllers.IngestProfileController.Update(System.Int32,WebAPI.Models.API.KalturaIngestProfile)">
+            <summary>
+            Update ingest profile details
+            </summary>
+            <param name="ingestProfileId">ingest profile Identifier</param> 
+            <param name="ingestProfile">ingest profile Object</param>       
+        </member>
         <member name="M:WebAPI.Controllers.TvmRuleController.List(WebAPI.Models.API.KalturaTvmRuleFilter)">
             <summary>
              Get the list of tvm rules for the partner
@@ -4959,6 +4995,61 @@
             <param name="argument">Argument name</param>
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaIngestProfile">
+            <summary>
+            Ingest profile
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.Id">
+            <summary>
+            Ingest profile identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.Name">
+            <summary>
+            Ingest profile name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.ExternalId">
+            <summary>
+            Ingest profile externalId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.AssetTypeId">
+            <summary>
+            Type of assets that this profile suppose to ingest: 0 - EPG, 1 - MEDIA
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.TransformationAdapterUrl">
+            <summary>
+            Transformation Adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.TransformationAdapterSettings">
+            <summary>
+            Transformation Adapter settings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.TransformationAdapterSharedSecret">
+            <summary>
+            Transformation Adapter shared secret
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.DefaultAutoFillPolicy">
+            <summary>
+            Ingest profile default Auto-fill policy
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.DefaultOverlapPolicy">
+            <summary>
+            Ingest profile default Overlap policy
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfileListResponse.Objects">
+            <summary>
+            Adapters
+            </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaTvmDeviceRule">
             <summary>
