@@ -5476,7 +5476,7 @@ namespace Tvinci.Core.DAL
             int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy, 
             List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, 
             List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering,
-            long? assetUserRuleId, int? channelType = null)
+            long? assetUserRuleId, int assetTypesValuesInd, int? channelType = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5493,7 +5493,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Filter", filterQuery);
             sp.AddParameter("@groupBy", groupBy);
             sp.AddIDListParameter<int>("@AssetTypes", assetTypes, "Id");
-            sp.AddParameter("@AssetTypesValuesInd", assetTypes != null && assetTypes.Count > 0 ? 1 : 0);
+            sp.AddParameter("@AssetTypesValuesInd", assetTypesValuesInd); // 1. update. 2 = clear list
             sp.AddParameter("@SystemName", systemName);
             sp.AddParameter("@ShouldUpdateOtherNames", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
