@@ -740,6 +740,7 @@ namespace Core.Catalog.CatalogManagement
         public static GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId, bool isForMigration = false)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
+            Channel currentChannel = null;
 
             try
             {
@@ -756,6 +757,8 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 List<KeyValuePair<long, int>> mediaIdsToOrderNum = null;
+                int assetTypesValuesInd = 0;
+
                 if (!isForMigration)
                 {
                     //isAllowedToViewInactiveAssets = true because only operator can update channel
@@ -765,7 +768,7 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
 
-                    Channel currentChannel = response.Object;
+                    currentChannel = response.Object;
                     if (currentChannel == null || currentChannel.m_nChannelTypeID != channelToUpdate.m_nChannelTypeID)
                     {
                         response.SetStatus(eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
@@ -800,13 +803,22 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // Validate asset types
-                    if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && channelToUpdate.m_nMediaType != null && channelToUpdate.m_nMediaType.Count > 0)
+                    if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && channelToUpdate.m_nMediaType != null)
                     {
-                        Status validateAssetTypesResult = ValidateChannelMediaTypes(groupId, channelToUpdate);
-                        if (!validateAssetTypesResult.IsOkStatusCode())
+                        if (  channelToUpdate.m_nMediaType.Count > 0)
                         {
-                            response.Status.Set(validateAssetTypesResult.Code, validateAssetTypesResult.Message);
-                            return response;
+                            Status validateAssetTypesResult = ValidateChannelMediaTypes(groupId, channelToUpdate);
+                            if (!validateAssetTypesResult.IsOkStatusCode())
+                            {
+                                response.Status.Set(validateAssetTypesResult.Code, validateAssetTypesResult.Message);
+                                return response;
+                            }
+
+                            assetTypesValuesInd = 1; //1 = update
+                        }
+                        else
+                        {
+                            assetTypesValuesInd = 2; //2 = clear list
                         }
                     }
 
@@ -889,7 +901,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
                                                         orderByDir, orderByValue, isSlidingWindow, slidingWindowPeriod, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
                                                         mediaIdsToOrderNum, userId, channelToUpdate.SupportSegmentBasedOrdering,
-                                                        channelToUpdate.AssetUserRuleId, updatedChannelType);
+                                                        channelToUpdate.AssetUserRuleId, assetTypesValuesInd, updatedChannelType);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
