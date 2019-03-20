@@ -5788,6 +5788,7 @@ namespace Core.Api
             GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
             try
             {
+                parentalRuleToUpdate.id = id;
                 ParentalRulesResponse result = GetParentalRules(groupId, false);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
@@ -5797,13 +5798,13 @@ namespace Core.Api
 
                 if (result.rules == null || result.rules.Count == 0 || result.rules.Count(x => x.id == id) != 1)
                 {
-                    response.SetStatus(eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.ParentalRuleDoesNotExist);
                     return response;
                 }
 
                 if (!string.IsNullOrEmpty(parentalRuleToUpdate.name) && result.rules.Count(x => x.name == parentalRuleToUpdate.name) > 0)
                 {
-                    response.SetStatus(eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
+                    response.SetStatus(eResponseStatus.ParentalRuleNameAlreadyInUse);
                     return response;
                 }
 
@@ -5813,51 +5814,39 @@ namespace Core.Api
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateParentalRule", groupId);
                 }
 
-                if (parentalRuleToUpdate.mediaTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.mediaTagTypeId.Value))
+                if ((parentalRuleToUpdate.mediaTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.mediaTagTypeId.Value)) ||
+                    (parentalRuleToUpdate.epgTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.epgTagTypeId.Value)))
                 {
-                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.TagDoesNotExist);
                     return response;
                 }
-
-                if (parentalRuleToUpdate.epgTagTypeId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(parentalRuleToUpdate.epgTagTypeId.Value))
+                
+                ParentalRule currentParentalRule = result.rules.FirstOrDefault(x => x.id == id);
+                bool shouldUpdateMediaTagValues = parentalRuleToUpdate.mediaTagValues != null;
+                if (shouldUpdateMediaTagValues && currentParentalRule.mediaTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.mediaTagValues))
                 {
-                    response.SetStatus(eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
-                    return response;
+                    shouldUpdateMediaTagValues = false;
                 }
 
-                if (result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.id == id) == 1)
+                bool shouldUpdateEpgTagValues = parentalRuleToUpdate.epgTagValues != null;
+                if (shouldUpdateEpgTagValues && currentParentalRule.epgTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.epgTagValues))
                 {
-                    ParentalRule currentParentalRule = result.rules.Where(x => x.id == id).First();
-                    bool shouldUpdateMediaTagValues = parentalRuleToUpdate.mediaTagValues != null;
-                    if (shouldUpdateMediaTagValues && currentParentalRule.mediaTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.mediaTagValues))
-                    {
-                        shouldUpdateMediaTagValues = false;
-                    }
-
-                    bool shouldUpdateEpgTagValues = parentalRuleToUpdate.epgTagValues != null;
-                    if (shouldUpdateEpgTagValues && currentParentalRule.epgTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.epgTagValues))
-                    {
-                        shouldUpdateEpgTagValues = false;
-                    }
-
-                    DataSet ds = ApiDAL.UpdateParentalRule(groupId, id, parentalRuleToUpdate.name, parentalRuleToUpdate.description, parentalRuleToUpdate.order, parentalRuleToUpdate.mediaTagTypeId,
-                                                            shouldUpdateMediaTagValues, parentalRuleToUpdate.mediaTagValues, parentalRuleToUpdate.epgTagTypeId, shouldUpdateEpgTagValues,
-                                                            parentalRuleToUpdate.epgTagValues, parentalRuleToUpdate.blockAnonymousAccess, parentalRuleToUpdate.ruleType, parentalRuleToUpdate.isActive, userId);
-                    List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
-                    if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id == id)
-                    {
-                        response.Object = rules[0];
-                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
-                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                        {
-                            log.ErrorFormat("Failed to invalidate groupParentalRules, invalidationKey: {0} after UpdateParentalRule", invalidationKey);
-                        }
-                    }
+                    shouldUpdateEpgTagValues = false;
                 }
-                else
+
+                DataSet ds = ApiDAL.UpdateParentalRule(groupId, id, parentalRuleToUpdate.name, parentalRuleToUpdate.description, parentalRuleToUpdate.order, parentalRuleToUpdate.mediaTagTypeId,
+                                                        shouldUpdateMediaTagValues, parentalRuleToUpdate.mediaTagValues, parentalRuleToUpdate.epgTagTypeId, shouldUpdateEpgTagValues,
+                                                        parentalRuleToUpdate.epgTagValues, parentalRuleToUpdate.blockAnonymousAccess, parentalRuleToUpdate.ruleType, parentalRuleToUpdate.isActive, userId);
+                List<ParentalRule> rules = ApiDAL.CreateParentalRulesFromDataSet(ds);
+                if (rules != null && rules.Count == 1 && rules[0] != null && rules[0].id == id)
                 {
-                    response.SetStatus(eResponseStatus.ParentalRuleDoesNotExist, eResponseStatus.ParentalRuleDoesNotExist.ToString());
+                    response.Object = rules[0];
+                    response.SetStatus(eResponseStatus.OK);
+                    string invalidationKey = LayeredCacheKeys.GetGroupParentalRulesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to invalidate groupParentalRules, invalidationKey: {0} after UpdateParentalRule", invalidationKey);
+                    }
                 }
             }
             catch (Exception ex)
