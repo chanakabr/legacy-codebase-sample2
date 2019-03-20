@@ -29,7 +29,9 @@ namespace MediaAssetBulkUploadHandler
                     BulkUploadManager.UpdateBulkUploadResult(request.GroupID, request.BulkUploadId, request.ResultIndex, new Status((int)eResponseStatus.BulkUploadResultIsMissing, "BulkUploadResult Is Missing"));
                     return errorMassage;
                 }
-                
+
+                log.DebugFormat("MediaAssetBulkUpload details - bulkUploadId:{0}, ResultIndex:{1}.", request.BulkUploadId, request.ResultIndex);
+
                 if (request.ObjectData.CoGuid.Equals("*"))
                 {
                     request.ObjectData.CoGuid = "kaltura_" + Guid.NewGuid().ToString();
