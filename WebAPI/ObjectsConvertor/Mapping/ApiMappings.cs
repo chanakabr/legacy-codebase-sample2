@@ -60,39 +60,39 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // ParentalRule to KalturaParentalRule
             cfg.CreateMap<ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
-                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
-                .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
-                .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
-                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
-                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
-                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
-                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
+                .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
+                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
+                .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
+                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType.Value)))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
                 .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.isActive))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType.Value)));
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
             // KalturaParentalRule to ParentalRule
             cfg.CreateMap<KalturaParentalRule, ParentalRule>()
-                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.id, opt => opt.Ignore())
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
+                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
+                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
+                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType)))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => x.value).ToList()))
                 .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => x.value).ToList()))
                 .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
-                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
-                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => x.value).ToList()))
-                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
+                .ForMember(dest => dest.level, opt => opt.Ignore())
                 .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType)))
-                .ForMember(dest => dest.id, opt => opt.Ignore())
-                .ForMember(dest => dest.level, opt => opt.Ignore());
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
             // PinResponse
             cfg.CreateMap<PinResponse, WebAPI.Models.API.KalturaPinResponse>()
