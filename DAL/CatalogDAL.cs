@@ -5758,6 +5758,7 @@ namespace Tvinci.Core.DAL
 
         public static bool SaveBulkUploadResultCB(BulkUpload currentBulkUpload, int resultIndex, uint ttl, out BulkUploadJobStatus updatedStatus)
         {
+
             updatedStatus = currentBulkUpload.Status;
             BulkUploadResult bulkUploadResultToSave = currentBulkUpload.Results[resultIndex];
             string bulkUploadKey = GetBulkUploadKey(bulkUploadResultToSave.BulkUploadId);
@@ -5775,7 +5776,7 @@ namespace Tvinci.Core.DAL
 
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
-                        log.ErrorFormat("Error while trying SaveBulkUploadResultCB, KeyNotFound. key:{0}.", bulkUploadKey);
+                        log.ErrorFormat("KeyNotFound - Error while SaveBulkUploadResultCB. key:{0}, resultIndex:{1}.", bulkUploadKey, resultIndex);
                         break;
                     }
                     else if (getResult == eResultStatus.SUCCESS)
@@ -5786,21 +5787,21 @@ namespace Tvinci.Core.DAL
 
                         if (cbManager.SetWithVersion(bulkUploadKey, currentBulkUpload, version, ttl))
                         {
-                            log.DebugFormat("successfully SaveBulkUploadResultCB. number of tries:{0}/{1}, key:{2}.",
-                                                numOfTries, UtilsDal.NUM_OF_INSERT_TRIES, bulkUploadKey);
+                            log.DebugFormat("successfully SaveBulkUploadResultCB. key:{0}, resultIndex:{1}, number of tries:{2}/{3}.",
+                                             bulkUploadKey, resultIndex, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
                             return true;
                         }
                     }
 
                     numOfTries++;
-                    log.ErrorFormat("Error while SaveBulkUploadResultCB. number of tries:{0}/{1}, key:{2}.",
-                                    numOfTries, UtilsDal.NUM_OF_INSERT_TRIES, bulkUploadKey);
+                    log.ErrorFormat("Error while SaveBulkUploadResultCB. key:{0}, resultIndex:{1}, number of tries:{2}/{3}.",
+                                    bulkUploadKey, resultIndex, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
                     Thread.Sleep(r.Next(50));
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to SaveBulkUploadResultCB. key:{0}, ex:{1}.", bulkUploadKey, ex);
+                log.Error(string.Format("Exception - Error while SaveBulkUploadResultCB. key:{0}, resultIndex:{1}.", bulkUploadKey, resultIndex), ex);
             }
 
             return false;
