@@ -330,6 +330,9 @@ namespace ApiObjects.Response
         IllegalExcelFile = 5045,
         ExcelMandatoryValueIsMissing = 5046,
         InvalidArgumentValue = 5047,
+        IngestProfileNotExists = 5048,
+        NoIngestProfileToInsert = 5049,
+        IngestProfileIdRequired = 5060,
         
         #endregion
 

@@ -110,6 +110,9 @@ namespace Core.Api
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
 
+        private const string NO_PROFILE_TO_INSERT = "No profile to insert";
+        private const string PROFILE_NOT_EXIST = "profile doesn't exist";
+
         private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
         #endregion
 
@@ -795,7 +798,7 @@ namespace Core.Api
                     }
                 }
             }
-        }      
+        }
 
         public static int GetMediaFileTypeID(int mediaFileId, int groupId)
         {
@@ -834,7 +837,7 @@ namespace Core.Api
                                 fileTypeId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "virtual_name");
                             }
                         }
-                        
+
                         result = true;
                     }
                 }
@@ -1249,7 +1252,7 @@ namespace Core.Api
 
             List<MeidaMaper> result = new List<MeidaMaper>();
             Dictionary<string, MeidaMaper> mappedMediaFiles = null;
-            Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetMappedMediaFileKeys(groupId, mediaFilesIds.ToList());            
+            Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetMappedMediaFileKeys(groupId, mediaFilesIds.ToList());
 
             if (!LayeredCache.Instance.GetValues<MeidaMaper>(keyToOriginalValueMap, ref mappedMediaFiles, GetMappedMediaFiles,
                                                              new Dictionary<string, object>() { { "groupId", groupId }, { "mediaFilesIds", mediaFilesIds.ToList() } },
@@ -1272,9 +1275,9 @@ namespace Core.Api
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaFilesIds"))
-                {                    
+                {
                     List<int> mediaFileIds;
-                    int? groupId = funcParams["groupId"] as int?;                    
+                    int? groupId = funcParams["groupId"] as int?;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
                         mediaFileIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
@@ -1295,11 +1298,11 @@ namespace Core.Api
                                 int mediaFileId = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
                                 int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
                                 string productCode = ODBCWrapper.Utils.GetSafeStr(dr, "product_code");
-                                MeidaMaper mediaMapper = new MeidaMaper(mediaFileId, mediaId, productCode);                                
+                                MeidaMaper mediaMapper = new MeidaMaper(mediaFileId, mediaId, productCode);
                                 mediaMappers.Add(mediaMapper);
                             }
                         }
-                        
+
                         res = mediaMappers.Count() == mediaFileIds.Count();
                     }
 
@@ -1930,7 +1933,7 @@ namespace Core.Api
             selectTagsQuery.Finish();
             selectTagsQuery = null;
             return EPG_ResponseTag;
-        }      
+        }
 
         static public List<EPGChannelProgrammeObject> GetEPGChannelPrograms_Old(Int32 groupID, string sEPGChannelID, string sPicSize, EPGUnit unit, int nFromOffsetUnit, int nToOffsetUnit, int nUTCOffset)
         {
@@ -2541,7 +2544,7 @@ namespace Core.Api
         }
 
         protected Int32 m_nGroupID;
-        
+
         public static Country GetCountryByCountryName(int groupId, string countryName)
         {
             Country country = null;
@@ -2561,7 +2564,7 @@ namespace Core.Api
 
             return country;
         }
-        
+
         public static bool SendToFriend(int nGroupID, string sSenderName, string sSendaerMail, string sMailTo, string sNameTo, int nMediaID)
         {
             bool retVal = false;
@@ -2614,7 +2617,7 @@ namespace Core.Api
             retVal = SendMailTemplate(request);
             return retVal;
         }
-        
+
         private static List<GroupRule> getMediaUserRules(int nMediaID, int nSiteGuid)
         {
             DataTable rulesDt = DAL.ApiDAL.Get_GroupMediaRules(nMediaID, nSiteGuid.ToString());
@@ -2643,7 +2646,7 @@ namespace Core.Api
             }
             return userRules;
         }
-        
+
         static public bool SendMailTemplate(MailRequestObj request)
         {
             bool retVal = false;
@@ -3530,7 +3533,7 @@ namespace Core.Api
 
                     AssetRule blockingRule;
                     var networkRulesStatus = AssetRuleManager.CheckNetworkRules(
-                        new List<SlimAsset>() {new SlimAsset(mediaId, eAssetTypes.MEDIA), new SlimAsset(recording.EpgId, eAssetTypes.NPVR) }, groupId, ip,
+                        new List<SlimAsset>() { new SlimAsset(mediaId, eAssetTypes.MEDIA), new SlimAsset(recording.EpgId, eAssetTypes.NPVR) }, groupId, ip,
                         out blockingRule);
 
                     if (!networkRulesStatus.IsOkStatusCode())
@@ -3571,7 +3574,7 @@ namespace Core.Api
 
             return response;
         }
-        
+
         static public GroupOperator[] GetGroupOperators(int nGroupID, string sScope = "")
         {
             DataTable dt = DAL.ApiDAL.Get_GroupOperatorsDetails(nGroupID);
@@ -4245,7 +4248,7 @@ namespace Core.Api
 
             return result;
         }
-        
+
         //get a Dictionary of the tag ID and its type 
         private static Dictionary<int, string> getTagTypes(int nGroupID)
         {
@@ -4269,7 +4272,7 @@ namespace Core.Api
             selectQuery = null;
             return result;
         }
-        
+
         public static List<int> ChannelsContainingMedia(List<int> lChannels, int nMediaID, int nGroupID, int nFileTypeID)
         {
             try
@@ -5691,7 +5694,7 @@ namespace Core.Api
             }
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
-        
+
         public static ParentalRulesTagsResponse GetUserParentalRuleTags(int groupId, string siteGuid, long domainId)
         {
             ParentalRulesTagsResponse response = new ParentalRulesTagsResponse();
@@ -7643,7 +7646,7 @@ namespace Core.Api
                     {
                         externalChannel.AssetUserRuleId = assetUserRuleId;
                     }
-                }               
+                }
 
                 response.ExternalChannel = CatalogDAL.InsertExternalChannel(groupId, externalChannel);
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
@@ -7692,7 +7695,7 @@ namespace Core.Api
                 if (ruleId > 0 && originalExternalChannel.AssetUserRuleId != ruleId)
                 {
                     log.DebugFormat("User {0} not allowed on (external) channel {1}. ruleId {2}.", userId, externalChannelId, ruleId);
-                    response.Set((int)eResponseStatus.ActionIsNotAllowed,ACTION_IS_NOT_ALLOWED);                    
+                    response.Set((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
                     return response;
                 }
 
@@ -9152,7 +9155,7 @@ namespace Core.Api
                 CDNAdapterController cdnAdapter = CDNAdapterController.GetInstance();
                 return cdnAdapter.SendConfiguration(adapter, groupId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 log.ErrorFormat("SendConfigurationToCdnAdapter failed : groupID = {0}, AdapterID = {1}. ex :{2}", groupId, adapter.ID, ex);
                 return false;
@@ -10905,7 +10908,7 @@ namespace Core.Api
 
             return new Tuple<DataTable, bool>(mediaCountries, result);
         }
-        
+
         internal static DeviceConcurrencyPriority GetDeviceConcurrencyPriority(int groupId)
         {
             DeviceConcurrencyPriority deviceConcurrencyPriority = null;
@@ -11501,7 +11504,7 @@ namespace Core.Api
                 // check for MainCurrency valid
                 if (partnerConfigToUpdate.MainCurrency.HasValue)
                 {
-                   if (!ConditionalAccess.Utils.IsValidCurrencyId(groupId, partnerConfigToUpdate.MainCurrency.Value))
+                    if (!ConditionalAccess.Utils.IsValidCurrencyId(groupId, partnerConfigToUpdate.MainCurrency.Value))
                     {
                         log.ErrorFormat("Error while update generalPartnerConfig. MainCurrencyId {0}, groupId: {1}", partnerConfigToUpdate.MainCurrency.Value, groupId);
                         response.Set((int)eResponseStatus.InvalidCurrency, eResponseStatus.InvalidCurrency.ToString());
@@ -11521,15 +11524,15 @@ namespace Core.Api
                             return response;
                         }
                     }
-                }               
+                }
 
-                if( partnerConfigToUpdate.HouseholdLimitationModule.HasValue)
+                if (partnerConfigToUpdate.HouseholdLimitationModule.HasValue)
                 {
                     var limitationsManagerResponse = Domains.Module.GetDLMList(groupId);
-                    if(limitationsManagerResponse != null && limitationsManagerResponse.HasObjects() &&
-                        limitationsManagerResponse.Objects.Count(x => x.domianLimitID== partnerConfigToUpdate.HouseholdLimitationModule.Value) == 0)
+                    if (limitationsManagerResponse != null && limitationsManagerResponse.HasObjects() &&
+                        limitationsManagerResponse.Objects.Count(x => x.domianLimitID == partnerConfigToUpdate.HouseholdLimitationModule.Value) == 0)
                     {
-                        log.ErrorFormat("Error while update generalPartnerConfig. HouseholdLimitationModule {0} not exist in groupId: {1}",  partnerConfigToUpdate.HouseholdLimitationModule.Value , groupId);
+                        log.ErrorFormat("Error while update generalPartnerConfig. HouseholdLimitationModule {0} not exist in groupId: {1}", partnerConfigToUpdate.HouseholdLimitationModule.Value, groupId);
                         response.Set((int)eResponseStatus.DlmNotExist, eResponseStatus.DlmNotExist.ToString());
                         return response;
                     }
@@ -11582,8 +11585,8 @@ namespace Core.Api
                 DataSet ds = ApiDAL.GetGeneralPartnerConfig(groupId);
                 if (ds != null && ds.Tables != null && ds.Tables.Count == 3)
                 {
-                    
-                        dt = ds.Tables[0];
+
+                    dt = ds.Tables[0];
                     if (dt.Rows.Count > 0)
                     {
                         generalPartnerConfig = new GeneralPartnerConfig()
@@ -11608,9 +11611,9 @@ namespace Core.Api
                             generalPartnerConfig.DowngradePolicy = (DowngradePolicy)downgradePolicy.Value;
                         }
                     }
-                    
 
-                        dt = ds.Tables[1];
+
+                    dt = ds.Tables[1];
                     if (dt.Rows.Count > 0)
                     {
                         generalPartnerConfig.SecondaryLanguages = new List<int>();
@@ -11621,8 +11624,8 @@ namespace Core.Api
                         }
                     }
 
-                    
-                        dt = ds.Tables[2];
+
+                    dt = ds.Tables[2];
                     if (dt.Rows.Count > 0)
                     {
                         generalPartnerConfig.SecondaryCurrencies = new List<int>();
@@ -11678,12 +11681,12 @@ namespace Core.Api
             try
             {
                 List<LanguageObj> languageList = GetAllLanguages(groupId);
-                if(languageList == null && languageList.Count == 0)
+                if (languageList == null && languageList.Count == 0)
                 {
                     return res;
                 }
 
-                res = languageList.Count(x => x.ID == languageId) > 0 ;                
+                res = languageList.Count(x => x.ID == languageId) > 0;
             }
             catch (Exception ex)
             {
@@ -11691,6 +11694,163 @@ namespace Core.Api
             }
 
             return res;
+        }
+
+        public static GenericResponse<IngestProfile> AddIngestProfile(int groupId, int userId, IngestProfile profileToAdd)
+        {
+            var response = new GenericResponse<IngestProfile>();
+            try
+            {
+                if (profileToAdd == null)
+                {
+                    response.SetStatus((int)eResponseStatus.IngestProfileNotExists, NO_PROFILE_TO_INSERT);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(profileToAdd.Name))
+                {
+                    response.SetStatus((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (IsIngestProfileExternalIdExists(groupId, profileToAdd.ExternalId))
+                {
+                    response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                    return response;
+                }
+
+                // Create Shared secret 
+                profileToAdd.TransformationAdapterSharedSecret = profileToAdd.TransformationAdapterSharedSecret ?? Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+
+                int id = ApiDAL.AddIngestProfile(groupId, userId, profileToAdd);
+                if (id > 0)
+                {
+                    profileToAdd.Id = id;
+
+                    response.Object = profileToAdd;
+                    response.SetStatus(eResponseStatus.OK, "New ingest profile was successfully created");
+                }
+                else
+                {
+                    response.SetStatus((int)eResponseStatus.Error, "failed to insert new ingest profile");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed to insert ingest profile. Group Id: {0}. ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        public static GenericListResponse<IngestProfile> GetIngestProfiles(int groupId)
+        {
+            var response = new GenericListResponse<IngestProfile>();
+            try
+            {
+                var profiles = ApiDAL.GetIngestProfiles(groupId);
+                response.SetStatus(eResponseStatus.OK);
+                response.Objects = profiles;
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed to get ingest profiles. Group Id: {0}. ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        public static Status DeleteIngestProfile(int groupId, int userId, int ingestProfileId)
+        {
+            var response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                if (ingestProfileId <= 0)
+                {
+                    response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
+                    return response;
+                }
+
+                if (!IsIngestProfileIdExists(groupId, ingestProfileId))
+                {
+                    response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
+                    return response;
+                }
+
+                var isDeleted = ApiDAL.DeleteIngestProfile(ingestProfileId, groupId, userId);
+                if (!isDeleted)
+                {
+                    response.Set((int)eResponseStatus.Error, "Ingest profile failed to delete");
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed to delete playback adapter. Group ID: {0}, adapterId: {1}", groupId, ingestProfileId), ex);
+            }
+            return response;
+        }
+
+        public static GenericResponse<IngestProfile> UpdateIngestProfile(int groupId, int userId, int ingestProfileId, IngestProfile profileToUpdate)
+        {
+            var response = new GenericResponse<IngestProfile>();
+            try
+            {
+                if (ingestProfileId <= 0 || profileToUpdate == null || !IsIngestProfileIdExists(groupId, ingestProfileId))
+                {
+                    response.SetStatus((int)eResponseStatus.IngestProfileNotExists, PROFILE_NOT_EXIST);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(profileToUpdate.Name))
+                {
+                    response.SetStatus((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (IsIngestProfileExternalIdExists(groupId, profileToUpdate.ExternalId, ingestProfileId))
+                {
+                    response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                    return response;
+                }
+
+                profileToUpdate.TransformationAdapterSharedSecret = profileToUpdate.TransformationAdapterSharedSecret ?? Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+
+                var updatedProfile = ApiDAL.UpdateIngestProfile(ingestProfileId, groupId, userId, profileToUpdate);
+
+                response.Object = updatedProfile;
+                response.SetStatus(eResponseStatus.OK, " ingest profile was successfully updated");
+
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed to insert ingest profile. Group Id: {0}. ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        private static bool IsIngestProfileExternalIdExists(int groupId, string externalId)
+        {
+            var profile = ApiDAL.GetIngestProfiles(externalId: externalId).FirstOrDefault();
+            return profile != null;
+        }
+
+        private static bool IsIngestProfileExternalIdExists(int groupId, string externalId, int profileId)
+        {
+            var profileById = ApiDAL.GetIngestProfiles(profileId: profileId).FirstOrDefault();
+            var profileByExternalId = ApiDAL.GetIngestProfiles(externalId: externalId).FirstOrDefault();
+            return profileById?.Id != profileByExternalId?.Id;
+        }
+
+        private static bool IsIngestProfileIdExists(int groupId, int id)
+        {
+            var profile = ApiDAL.GetIngestProfiles(profileId: id).FirstOrDefault();
+            return (profile != null);
         }
     }
 }
