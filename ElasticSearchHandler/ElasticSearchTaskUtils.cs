@@ -224,8 +224,10 @@ namespace ElasticSearchHandler
                 try
                 {
                     HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                    tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key).ToList();
-                    foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)).Select(x => x.Value))
+                    tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key.ToLower()).ToList();
+                    var topics = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)).Select(x => x.Value);
+
+                    foreach (Topic topic in topics)
                     {
                         string nullValue = string.Empty;
                         eESFieldType metaType;
@@ -239,13 +241,13 @@ namespace ElasticSearchHandler
                             serializer.GetMetaType(topic.Type, out metaType, out nullValue);
                         }
 
-                        if (!metas.ContainsKey(topic.SystemName))
+                        if (!metas.ContainsKey(topic.SystemName.ToLower()))
                         {
-                            metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            metas.Add(topic.SystemName.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
                         }
                         else
                         {
-                            log.ErrorFormat("Duplicate topic found for group {0} name {1}", groupId, topic.SystemName);
+                            log.ErrorFormat("Duplicate topic found for group {0} name {1}", groupId, topic.SystemName.ToLower());
                         }
                     }
                 }
@@ -263,9 +265,9 @@ namespace ElasticSearchHandler
                     {
                         foreach (var item in group.m_oEpgGroupSettings.m_lTagsName)
                         {
-                            if (!tags.Contains(item))
+                            if (!tags.Contains(item.ToLower()))
                             {
-                                tags.Add(item);
+                                tags.Add(item.ToLower());
                             }
                         }
                     }
@@ -274,9 +276,9 @@ namespace ElasticSearchHandler
                     {
                         foreach (var item in group.m_oGroupTags.Values)
                         {
-                            if (!tags.Contains(item))
+                            if (!tags.Contains(item.ToLower()))
                             {
-                                tags.Add(item);
+                                tags.Add(item.ToLower());
                             }
                         }
                     }
@@ -299,9 +301,9 @@ namespace ElasticSearchHandler
                                     serializer.GetMetaType(meta.Key, out metaType, out nullValue);
                                 }
 
-                                if (!metas.ContainsKey(meta.Value))
+                                if (!metas.ContainsKey(meta.Value.ToLower()))
                                 {
-                                    metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                                    metas.Add(meta.Value.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
                                 }
                                 else
                                 {
@@ -327,9 +329,9 @@ namespace ElasticSearchHandler
                                 serializer.GetMetaType(epgMeta, out metaType, out nullValue);
                             }
 
-                            if (!metas.ContainsKey(epgMeta))
+                            if (!metas.ContainsKey(epgMeta.ToLower()))
                             {                                
-                                metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                                metas.Add(epgMeta.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
                             }
                             else
                             {
@@ -352,7 +354,5 @@ namespace ElasticSearchHandler
             MEDIA,
             EPG
         }
-
-
     }
 }
