@@ -4,7 +4,7 @@
 
 1) Build docker
 	```
-	docker build -t kaltura/tvp-api --build-arg DOTNET_FRAMEWORK_TAG=4.7.2-sdk --build-arg BRANCH=master --build-arg BITBUCKET_TOKEN=<username>:<password> --build-arg GITHUB_TOKEN=<token> --build-arg IIS_TAG=windowsservercore .
+	docker build -t kaltura/tvp-api --build-arg DOTNET_FRAMEWORK_TAG=4.7.2-sdk --build-arg BRANCH=master --build-arg BITBUCKET_TOKEN=<username>:<password> --build-arg IIS_TAG=windowsservercore .
 	```
 2) Run docker
 	```

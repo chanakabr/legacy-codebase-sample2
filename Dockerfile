@@ -5,7 +5,6 @@ SHELL ["powershell"]
 
 ARG BRANCH=master
 ARG BITBUCKET_TOKEN
-ARG GITHUB_TOKEN
 
 ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvincicommon/get/${BRANCH}.zip tvincicommon.zip
 ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvplibs/get/${BRANCH}.zip tvplibs.zip
@@ -19,7 +18,7 @@ RUN nuget restore tvpapi/TVPProAPIs.sln
 
 
 RUN msbuild /p:Configuration=Release tvpapi/TVPProAPIs.sln
-RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/WebAPI tvpapi/WS_TVPApi/website.publishproj
+RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/WebAPI /p:Profile=FolderProfile tvpapi/WS_TVPApi/website.publishproj
 
 
 
