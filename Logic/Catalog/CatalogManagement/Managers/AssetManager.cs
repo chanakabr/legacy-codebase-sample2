@@ -635,7 +635,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("isAllowedToViewInactiveAssets") && funcParams.ContainsKey("groupId"))
-                {                    
+                {
                     List<long> ids;
                     int? groupId = funcParams["groupId"] as int?;
                     bool? isAllowedToViewInactiveAssets = funcParams["isAllowedToViewInactiveAssets"] as bool?;
@@ -694,8 +694,7 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), ids);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids);
 
-                if (!LayeredCache.Instance.GetValues<MediaAsset>(keyToOriginalValueMap, ref mediaAssetMap, GetMediaAssets, 
-                                                              new Dictionary<string, object>()
+                if (!LayeredCache.Instance.GetValues<MediaAsset>(keyToOriginalValueMap, ref mediaAssetMap, GetMediaAssets, new Dictionary<string, object>()
                                                               { { "groupId", groupId }, { "ids", ids }, { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets } },
                                                               groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME, invalidationKeysMap, true))
                 {
