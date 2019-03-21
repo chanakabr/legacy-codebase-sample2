@@ -507,30 +507,10 @@ namespace Core.Catalog.CatalogManagement
         private static Type GetMetaType(Dictionary<string, Topic> topics)
         {
             Type res = typeof(string);
-            Topic topic = null;
-            // if there is no duplication of topics
-            if (topics.Count == 1)
-            {
-                topic = topics.Values.First();
-            }
-            // if there is duplication but on of them is tag take the meta (were getting meta type...)
-            else if (topics.Count(x => x.Key != MetaType.Tag.ToString()) == 1)
-            {
-                topic = topics.First(x => x.Key != MetaType.Tag.ToString()).Value;
-            }
-            // if there is duplication but on of them is string/translated string
-            else if (topics.Count(x => x.Key != MetaType.String.ToString() && x.Key != MetaType.MultilingualString.ToString()) == 1)
-            {
-                topic = topics.First(x => x.Key != MetaType.String.ToString() && x.Key != MetaType.MultilingualString.ToString()).Value;
-            }
-            // if there is duplication and more than one is not string/tag then take the first one (backward compatible with todays behavior)
-            else
-            {
-                log.ErrorFormat("This is a duplication of topic, a wrong configuration was done on the account and there for we had to randomly chose one of the types");
-                topic = topics.Values.First();
-            }
+            MetaType metaType = MetaType.All;
+            metaType = GetTopicMetaType(topics);
 
-            switch (topic.Type)
+            switch (metaType)
             {
                 case MetaType.String:
                 case MetaType.MultilingualString:
@@ -552,6 +532,41 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return res;
+        }
+
+        public static MetaType GetTopicMetaType(Dictionary<string, Topic> topics)
+        {
+            MetaType metaType;
+
+            // if there is no duplication of topics
+            if (topics.Count == 1)
+            {
+                metaType = topics.Values.First().Type;
+            }
+            // if there is duplication but on of them is tag take the meta (were getting meta type...)
+            else if (topics.Count(x => x.Key != MetaType.Tag.ToString()) == 1)
+            {
+                metaType = topics.First(x => x.Key != MetaType.Tag.ToString()).Value.Type;
+            }
+            // if there is duplication but one of them is string/translated string
+            // take the first that is not a string/translated string (number, bool, datetime)
+            else if (topics.Count(x => x.Key != MetaType.String.ToString() && x.Key != MetaType.MultilingualString.ToString()) == 1)
+            {
+                metaType = topics.First(x => x.Key != MetaType.String.ToString() && x.Key != MetaType.MultilingualString.ToString()).Value.Type;
+            }
+            // if all the topics are string/translated strings - just take it as a string
+            else if (topics.All(x => x.Key == MetaType.String.ToString() || x.Key == MetaType.MultilingualString.ToString()))
+            {
+                metaType = topics.Values.First().Type;
+            }
+            // if there is duplication and more than one is not string/tag then take the first one (backward compatible with todays behavior)
+            else
+            {
+                log.ErrorFormat("This is a duplication of topic, a wrong configuration was done on the account and there for we had to randomly chose one of the types");
+                metaType = topics.Values.First().Type;
+            }
+
+            return metaType;
         }
 
         private static GenericResponse<ApiObjects.SearchObjects.TagValue> CreateTagValueFromDataSet(DataSet ds)
