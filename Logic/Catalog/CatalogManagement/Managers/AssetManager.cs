@@ -1041,6 +1041,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static List<Asset> GetNpvrAssetsFromCache(int groupId, List<long> ids)
         {
+            log.ErrorFormat("Opc account doesn't support recordings at the moment");
             throw new NotImplementedException();
         }
 
@@ -1052,9 +1053,9 @@ namespace Core.Catalog.CatalogManagement
                 if (assets != null && assets.Count > 0)
                 {
                     result = new List<Asset>();
-                    List<long> mediaIds = assets.Where(x => x.Key == eAssetTypes.MEDIA).Select(x => x.Value).ToList();
-                    List<long> epgIds = assets.Where(x => x.Key == eAssetTypes.EPG).Select(x => x.Value).ToList();
-                    List<long> npvrIds = assets.Where(x => x.Key == eAssetTypes.NPVR).Select(x => x.Value).ToList();
+                    List<long> mediaIds = assets.Where(x => x.Key == eAssetTypes.MEDIA).Select(x => x.Value).Distinct().ToList();
+                    List<long> epgIds = assets.Where(x => x.Key == eAssetTypes.EPG).Select(x => x.Value).Distinct().ToList();
+                    List<long> npvrIds = assets.Where(x => x.Key == eAssetTypes.NPVR).Select(x => x.Value).Distinct().ToList();
                     if (mediaIds != null && mediaIds.Count > 0)
                     {
                         List<MediaAsset> mediaAssets = GetMediaAssetsFromCache(groupId, mediaIds, isAllowedToViewInactiveAssets);
