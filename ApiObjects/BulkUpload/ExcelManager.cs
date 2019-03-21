@@ -87,7 +87,7 @@ namespace ApiObjects.BulkUpload
                                                     // TODO SHIR - VALIDATE THAT THE MEDIA_TYPE IN EXCEL IS LIKE MEDIA_TYPE IN objectData
                                                     try
                                                     {
-                                                        excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns);
+                                                        excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns, structure);
                                                     }
                                                     catch (ArgumentException ex)
                                                     {
