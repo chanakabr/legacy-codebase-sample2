@@ -1,6 +1,5 @@
 ﻿using Couchbase;
 using Couchbase.Configuration.Client;
-using Couchbase.Configuration.Client.Providers;
 using Couchbase.Core.Serialization;
 using Couchbase.Core.Transcoders;
 using CouchBaseExtensions;
@@ -10,7 +9,6 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -53,7 +51,7 @@ namespace CouchbaseManager
         #region Consts
 
         public const string COUCHBASE_CONFIG = "couchbaseClients/Couchbase";
-        public const string COUCHBASE_TCM_CONFIG_KEY= "couchbase_client_config";
+        public const string COUCHBASE_TCM_CONFIG_KEY = "couchbase_client_config";
         public const string COUCHBASE_APP_CONFIG = "CouchbaseSectionMapping";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private const double GET_LOCK_TS_SECONDS = 5;
@@ -109,7 +107,7 @@ namespace CouchbaseManager
             serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
             serializer.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
             clientConfiguration = GetCouchbaseClientConfiguration();
-            
+
         }
         /// <summary>
         /// Initializes a CouchbaseManager instance with configuration in web.config, according to predefined bucket sections
@@ -132,15 +130,7 @@ namespace CouchbaseManager
         public CouchbaseManager(string subSection, bool fromTcm = true, bool useApplicationSettingMapping = false)
         {
             subSection = subSection.ToLower();
-
-            if (fromTcm)
-            {
-                bucketName = GetBucketName(subSection);
-            }
-            else if (useApplicationSettingMapping)
-            {
-                bucketName = GetBucketNameFromSettings(subSection);
-            }
+            bucketName = GetBucketName(subSection);
 
             if (!IsClusterInitialized)
             {
@@ -160,32 +150,17 @@ namespace CouchbaseManager
         {
             //First try to load from TCM 
             var configToReturn = GetCouchbaseClientConfigurationFromTCM();
-            
+
             // if Get from TCM fail it will return null then load from Web.Config
-            if (configToReturn == null)
-            {
-                configToReturn = GetCouchbaseClientConfigurationFromWebConfig();
-            }
+            //if (configToReturn == null)
+            //{
+            //    configToReturn = GetCouchbaseClientConfigurationFromWebConfig();
+            //}
 
             return configToReturn;
         }
 
-        private static ClientConfiguration GetCouchbaseClientConfigurationFromWebConfig()
-        {
-            ClientConfiguration configToReturn;
-            try
-            {
-                configToReturn = new ClientConfiguration((CouchbaseClientSection) ConfigurationManager.GetSection(COUCHBASE_CONFIG));
-                configToReturn.Transcoder = GetTranscoder;
-            }
-            catch (Exception e)
-            {
-                log.WarnFormat("Could not load couchbase configuration from Web.Config using key:[{0}], trying to load it from web.config file. exception details:{1}", COUCHBASE_CONFIG, e);
-                throw;
-            }
 
-            return configToReturn;
-        }
 
         private static ClientConfiguration GetCouchbaseClientConfigurationFromTCM()
         {
@@ -224,39 +199,58 @@ namespace CouchbaseManager
             return transcoder;
         }
 
-        /// <summary>
-        /// Retrieve  bucketName from web.config or app.conifg. in case no TCM application. 
-        ///  configSections should be added to  web.config or app.conifg 
-        ///  Sample:
-        ///  <configSections>
-        ///  <section name="CouchbaseSectionMapping" type="System.Configuration.NameValueFileSectionHandler,System, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-        ///  </configSections>
-        ///  <CouchbaseSectionMapping><add key="authorization" value="crowdsource" /> </CouchbaseSectionMapping>
-        /// </summary>
-        /// <param name="subSection">key</param>
-        /// <returns>value</returns>
-        private string GetBucketNameFromSettings(string subSection)
-        {
-            string bucketName = string.Empty;
-            try
-            {
-                NameValueCollection section = (NameValueCollection)ConfigurationManager.GetSection(COUCHBASE_APP_CONFIG);
-                if (section != null)
-                {
-                    bucketName = section[subSection];
-                    if (string.IsNullOrEmpty(bucketName))
-                        log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. Not exist", subSection);
-                }
-                else
-                    log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. CouchbaseSectionMapping is empty.", subSection);
-            }
-            catch (Exception exc)
-            {
-                log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. Exception:{1}", subSection, exc);
-            }
+        // Removed because .config is no longer releavnt for .net core
+        //private static ClientConfiguration GetCouchbaseClientConfigurationFromWebConfig()
+        //{
+        //    ClientConfiguration configToReturn;
+        //    try
+        //    {
+        //        configToReturn = new ClientConfiguration((CouchbaseClientSection) ConfigurationManager.GetSection(COUCHBASE_CONFIG));
+        //        configToReturn.Transcoder = GetTranscoder;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        log.WarnFormat("Could not load couchbase configuration from Web.Config using key:[{0}], trying to load it from web.config file. exception details:{1}", COUCHBASE_CONFIG, e);
+        //        throw;
+        //    }
 
-            return bucketName;
-        }
+        //    return configToReturn;
+        //}
+
+        // Removed because .config is no longer releavnt for .net core
+        ///// <summary>
+        ///// Retrieve  bucketName from web.config or app.conifg. in case no TCM application. 
+        /////  configSections should be added to  web.config or app.conifg 
+        /////  Sample:
+        /////  <configSections>
+        /////  <section name="CouchbaseSectionMapping" type="System.Configuration.NameValueFileSectionHandler,System, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+        /////  </configSections>
+        /////  <CouchbaseSectionMapping><add key="authorization" value="crowdsource" /> </CouchbaseSectionMapping>
+        ///// </summary>
+        ///// <param name="subSection">key</param>
+        ///// <returns>value</returns>
+        //private string GetBucketNameFromSettings(string subSection)
+        //{
+        //    string bucketName = string.Empty;
+        //    try
+        //    {
+        //        NameValueCollection section = null;//(NameValueCollection)ConfigurationManager.GetSection(COUCHBASE_APP_CONFIG);
+        //        if (section != null)
+        //        {
+        //            bucketName = section[subSection];
+        //            if (string.IsNullOrEmpty(bucketName))
+        //                log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. Not exist", subSection);
+        //        }
+        //        else
+        //            log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. CouchbaseSectionMapping is empty.", subSection);
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. Exception:{1}", subSection, exc);
+        //    }
+
+        //    return bucketName;
+        //}
 
         private string GetBucketName(string couchbaseBucket)
         {
@@ -997,7 +991,7 @@ namespace CouchbaseManager
 
                 string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
-                {                    
+                {
                     getResult = bucket.Get<string>(key);
                 }
 
@@ -1063,7 +1057,7 @@ namespace CouchbaseManager
 
             return res;
         }
-        
+
         public T Get<T>(string key, bool withLock, out ulong cas, out eResultStatus status)
         {
             T result = default(T);
@@ -1356,7 +1350,7 @@ namespace CouchbaseManager
                             result = JsonToObject<T>(getResult.Value, jsonSerializerSettings);
                             version = getResult.Cas;
                             status = eResultStatus.SUCCESS;
-                        }                        
+                        }
                     }
                     else
                     {
