@@ -180,6 +180,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ASSET_STRUCT_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.AssetStructSystemNameAlreadyInUse, "System Name Already Used", "The asset struct system name is already in use");
         public static ClientExceptionType META_IDS_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaIdsDoesNotExist, "Invalid Meta Id", "One or more of the specified meta ids does not exist");
         public static ClientExceptionType ASSET_STRUCT_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetStructDoesNotExist, "Invalid Asset Struct Id", "The specified asset strcut id does not exist");
+        public static ClientExceptionType ASSET_STRUCT_METAS_CONTAIN_SYSTEM_NAME_DUPLICATION = new ClientExceptionType(eResponseStatus.AssetStructMetasConatinSystemNameDuplication, "Metas with the same system name were send as part of the Asset Struct");
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_ASSET_STRUCT_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, "System Name Can Not Be Changed",
                                                                                                                         "can not change predefined asset struct name");
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedAssetStruct, "Predefined Asset Struct Can not be deleted",
