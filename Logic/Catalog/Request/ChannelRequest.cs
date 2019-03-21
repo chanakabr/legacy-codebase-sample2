@@ -69,7 +69,9 @@ namespace Core.Catalog.Request
                     throw new ArgumentException("request object is null or Required variables is null");
 
                 CheckSignature(request);
-                
+
+                log.DebugFormat("starting ChannelRequest.GetResponse, ChannelID:{0}", m_nChannelID);
+
                 bool isGroupAndChannelValid = false, doesGroupUsesTemplates = false;
                 int groupId = 0;
                 LanguageObj defaultLanguage = null;
