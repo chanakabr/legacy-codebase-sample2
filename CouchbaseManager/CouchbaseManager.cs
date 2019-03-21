@@ -1397,8 +1397,15 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
-                    throw setResult.Exception;
+                bool shouldRetry = true;
+
+                if (setResult.Exception != null)
+                {
+                    shouldRetry = false;
+
+                    if (!(setResult.Exception is CasMismatchException))
+                        throw setResult.Exception;
+                }
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
                     result = setResult.Success;
@@ -1407,14 +1414,17 @@ namespace CouchbaseManager
                     eResultStatus status = eResultStatus.ERROR;
                     HandleStatusCode(setResult, ref status, key);
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
+                    if (shouldRetry)
                     {
-                        if (!asJson)
-                            setResult = bucket.Upsert(key, value, version, expiration);
-                        else
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
-                            string serializedValue = ObjectToJson(value);
-                            setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                            if (!asJson)
+                                setResult = bucket.Upsert(key, value, version, expiration);
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                            }
                         }
                     }
                 }
@@ -1440,8 +1450,15 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
-                    throw setResult.Exception;
+                bool shouldRetry = true;
+
+                if (setResult.Exception != null)
+                {
+                    shouldRetry = false;
+
+                    if (!(setResult.Exception is CasMismatchException))
+                        throw setResult.Exception;
+                }
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
                     result = setResult.Success;
@@ -1450,10 +1467,13 @@ namespace CouchbaseManager
                     eResultStatus status = eResultStatus.ERROR;
                     HandleStatusCode(setResult, ref status, key);
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
+                    if (shouldRetry)
                     {
-                        string serializedValue = ObjectToJson(value, jsonSerializerSettings);
-                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
+                        {
+                            string serializedValue = ObjectToJson(value, jsonSerializerSettings);
+                            setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                        }
                     }
                 }
             }
@@ -1484,8 +1504,15 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
-                    throw setResult.Exception;
+                bool shouldRetry = true;
+
+                if (setResult.Exception != null)
+                {
+                    shouldRetry = false;
+
+                    if (!(setResult.Exception is CasMismatchException))
+                        throw setResult.Exception;
+                }
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
                 {
@@ -1497,14 +1524,17 @@ namespace CouchbaseManager
                     eResultStatus status = eResultStatus.ERROR;
                     HandleStatusCode(setResult, ref status, key);
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
+                    if (shouldRetry)
                     {
-                        if (!asJson)
-                            setResult = bucket.Upsert(key, value, version, expiration);
-                        else
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
-                            string serializedValue = ObjectToJson(value);
-                            setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                            if (!asJson)
+                                setResult = bucket.Upsert(key, value, version, expiration);
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                            }
                         }
                     }
 
@@ -1547,8 +1577,15 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
-                    throw setResult.Exception;
+                bool shouldRetry = true;
+
+                if (setResult.Exception != null)
+                {
+                    shouldRetry = false;
+
+                    if (!(setResult.Exception is CasMismatchException))
+                        throw setResult.Exception;
+                }
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
                     result = setResult.Success;
@@ -1557,14 +1594,17 @@ namespace CouchbaseManager
                     eResultStatus status = eResultStatus.ERROR;
                     HandleStatusCode(setResult, ref status, key);
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
+                    if (shouldRetry)
                     {
-                        if (!asJson)
-                            setResult = bucket.Upsert<T>(key, value, version, expiration);
-                        else
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
-                            string serializedValue = ObjectToJson(value);
-                            setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                            if (!asJson)
+                                setResult = bucket.Upsert<T>(key, value, version, expiration);
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                            }
                         }
                     }
                 }
@@ -1596,8 +1636,15 @@ namespace CouchbaseManager
 
             if (setResult != null)
             {
-                if (setResult.Exception != null && !(setResult.Exception is CasMismatchException))
-                    throw setResult.Exception;
+                bool shouldRetry = true;
+
+                if (setResult.Exception != null)
+                {
+                    shouldRetry = false;
+
+                    if (!(setResult.Exception is CasMismatchException))
+                        throw setResult.Exception;
+                }
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
                 {
@@ -1609,18 +1656,21 @@ namespace CouchbaseManager
                     eResultStatus status = eResultStatus.ERROR;
                     HandleStatusCode(setResult, ref status, key);
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
+                    if (shouldRetry)
                     {
-                        if (!asJson)
-                            setResult = bucket.Upsert<T>(key, value, version, expiration);
-                        else
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, cbDescription))
                         {
-                            string serializedValue = ObjectToJson(value);
-                            setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                            if (!asJson)
+                                setResult = bucket.Upsert<T>(key, value, version, expiration);
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                            }
                         }
-                    }
 
-                    newVersion = setResult.Cas;
+                        newVersion = setResult.Cas;
+                    }
                 }
             }
 
