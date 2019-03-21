@@ -382,6 +382,14 @@ namespace Core.Catalog
                 this.FinalEndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
                 return;
             }
+            
+            // IsActive
+            var isActiveColumnName = ExcelColumn.GetFullColumnName(AssetManager.STATUS_META_SYSTEM_NAME, null, null, true);
+            if (columnValue.Key.Equals(isActiveColumnName))
+            {
+                this.IsActive = bool.Parse(columnValue.Value.ToString());
+                return;
+            }
         }
 
         private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns)
