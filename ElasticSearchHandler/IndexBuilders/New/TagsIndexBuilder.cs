@@ -69,8 +69,6 @@ namespace ElasticSearchHandler.IndexBuilders
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
                         return false;
                     }
-
-                    tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag).Select(x => x.Value).ToList();
                 }
                 catch (Exception ex)
                 {

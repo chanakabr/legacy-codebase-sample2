@@ -119,31 +119,8 @@ namespace ElasticSearchHandler.IndexBuilders
                 // Check if group supports Templates
                 if (doesGroupUsesTemplates)
                 {
-                    try
-                    {
-                        HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                        HashSet<long> epgAssetStructMetaIds = new HashSet<long>();
-                        if (catalogGroupCache.AssetStructsMapById.Values.Any(x => x.IsProgramAssetStruct))
-                        {
-                            epgAssetStructMetaIds = new HashSet<long>(catalogGroupCache.AssetStructsMapById.Values.Where(x => x.IsProgramAssetStruct).First().MetaIds);
-                        }
-
-                        tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)
-                                && epgAssetStructMetaIds.Contains(x.Value.Id)).Select(x => x.Key).ToList();
-                        foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)
-                                && epgAssetStructMetaIds.Contains(x.Value.Id)).Select(x => x.Value))
-                        {
-                            string nullValue;
-                            eESFieldType metaType;
-                            serializer.GetMetaType(topic.Type, out metaType, out nullValue);
-                            metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error(string.Format("Failed BuildIndex for groupId: {0} because CatalogGroupCache", groupId), ex);
-                        return false;
-                    }
+                    log.ErrorFormat("We don't support building index on old ES for OPC accounts");
+                    return false;
                 }
                 else
                 {
