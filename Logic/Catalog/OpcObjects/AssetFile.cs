@@ -265,7 +265,7 @@ namespace Core.Catalog
             return excelValues;
         }
 
-        public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns)
+        public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructure structureObject)
         {
             var dateTimeType = typeof(DateTime);
             var nullableDateTimeType = typeof(DateTime?);
