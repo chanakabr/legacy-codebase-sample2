@@ -405,7 +405,8 @@ namespace Core.Catalog
             if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(systemName))
             {
                 tagMeta.m_sName = systemName;
-                tagMeta.m_sType = catalogGroupCache.TopicsMapBySystemNameAndByType[systemName].Type.ToString();
+                //TODO - Shir change beloew
+                tagMeta.m_sType = catalogGroupCache.TopicsMapBySystemNameAndByType[systemName].Values.First().Type.ToString();
             }
             var values = columnValue.Value.ToString().GetItemsIn<List<string>, string>();
             List<LanguageContainer[]> languageContainers = new List<LanguageContainer[]>();

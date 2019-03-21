@@ -321,7 +321,8 @@ namespace Core.Catalog
                     metas.m_oTagMeta = new TagMeta()
                     {
                         m_sName = item.Key,
-                        m_sType = catalogGroupCache.TopicsMapBySystemNameAndByType[item.Key].Type.ToString()
+                        // TODO: Shir change below
+                        m_sType = catalogGroupCache.TopicsMapBySystemNameAndByType[item.Key].Values.First().Type.ToString()
                     };
                 }
 
