@@ -298,7 +298,7 @@ namespace Core.Catalog
                                 fileTypesSystemName.Add(fileSystemName);
                                 var fileValues = columnNamesToValues.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
                                 var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
-                                SetFileByExcelValues(groupId, fileValues, fileColumns);
+                                SetFileByExcelValues(groupId, fileValues, fileColumns, structureObject);
                             }
                             break;
                         case ExcelColumnType.Rule:
@@ -371,12 +371,12 @@ namespace Core.Catalog
             }
         }
 
-        private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns)
+        private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns, IExcelStructure structureObject)
         {
             if (fileValues != null && fileValues.Count > 0 && fileColumns != null && fileColumns.Count > 0)
             {
                 var file = new AssetFile();
-                file.SetExcelValues(groupId, fileValues, fileColumns);
+                file.SetExcelValues(groupId, fileValues, fileColumns, structureObject);
                 Files.Add(file);
             }
         }
