@@ -1271,7 +1271,7 @@ namespace ElasticSearch.Common
             {
                 name = "metas"
             };
-            
+
             if (metasMap != null && metasMap.Count > 0)
             {
                 HashSet<string> mappedMetas = new HashSet<string>();
