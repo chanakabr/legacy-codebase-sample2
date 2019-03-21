@@ -154,7 +154,6 @@ namespace Core.Catalog.CatalogManagement
                 response.Object.JobData = jobData;
                 objectData.GroupId = groupId;
                 response.Object.ObjectData = objectData;
-                response.Object.ObjectData.GroupId = groupId;
 
                 BulkUploadJobStatus updatedStatus;
                 if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
