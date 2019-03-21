@@ -238,7 +238,8 @@ namespace ElasticSearchHandler
                         }
                         else
                         {
-                            serializer.GetMetaType(topic.Type, out metaType, out nullValue);
+                            var topicMetaType = CatalogManager.GetTopicMetaType(new Dictionary<string, Topic>());
+                            serializer.GetMetaType(topicMetaType, out metaType, out nullValue);
                         }
 
                         if (!metas.ContainsKey(topic.SystemName.ToLower()))
