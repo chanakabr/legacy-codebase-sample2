@@ -9178,9 +9178,15 @@ namespace Core.Catalog
                     GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                     Group group = groupManager.GetGroup(groupId);
 
-                    if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
+                    string watchRules = string.Empty;
+                    bool isOPC = CatalogManager.DoesGroupUsesTemplates(groupId);
+
+                    if ((group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0) || isOPC)
                     {
-                        string watchRules = string.Join(" ", group.m_sPermittedWatchRules);
+                        if (!isOPC)
+                        {
+                            watchRules = string.Join(" ", group.m_sPermittedWatchRules);
+                        }
 
                         // validate media on ES
                         UnifiedSearchDefinitions searchDefinitions = new UnifiedSearchDefinitions()
