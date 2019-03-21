@@ -2429,19 +2429,27 @@ namespace Core.Catalog
                 mediaSearchRequest.m_lMetas = new List<KeyValue>();
                 // metas that are related and shouldn't be ignored
                 if (mediaAsset.Metas != null && mediaAsset.Metas.Count > 0 && mediaAsset.Metas.Any(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName)
-                    && catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName) && catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].SearchRelated))
+                                                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) 
+                                                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
+                                                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated))
                 {
-                    mediaSearchRequest.m_lMetas.AddRange(mediaAsset.Metas.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) && catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName)
-                                                        && catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].SearchRelated).Select(x => new KeyValue(x.m_oTagMeta.m_sName, x.m_sValue)).ToList());
+                    mediaSearchRequest.m_lMetas.AddRange(mediaAsset.Metas.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) 
+                                                                                && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                                && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
+                                                                                && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated)
+                                                                                .Select(x => new KeyValue(x.m_oTagMeta.m_sName, x.m_sValue)).ToList());
                 }
 
                 mediaSearchRequest.m_lTags = new List<KeyValue>();
                 // tags that are related
-                if (mediaAsset.Tags != null && mediaAsset.Tags.Count > 0 && mediaAsset.Tags.Any(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName)
-                                                                                                && catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].SearchRelated))
+                if (mediaAsset.Tags != null && mediaAsset.Tags.Count > 0 && mediaAsset.Tags.Any(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                                                && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
+                                                                                                && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated))
                 {
-                    List<Tags> mediaRelatedAssetTags = mediaAsset.Tags.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) && catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName)
-                                                                                                                    && catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].SearchRelated).ToList();
+                    List<Tags> mediaRelatedAssetTags = mediaAsset.Tags.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) 
+                                                                            && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                            && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
+                                                                            && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated).ToList();
                     if (mediaRelatedAssetTags != null && mediaRelatedAssetTags.Count > 0)
                     {
                         foreach (Tags relatedTag in mediaRelatedAssetTags)

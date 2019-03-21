@@ -205,13 +205,13 @@ namespace Core.Catalog
         [XmlElement("metas")]
         public IngestMetas Metas { get; set; }
 
-        internal Status ValidateStrings(Dictionary<string, Topic> topicsMapBySystemName, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
+        internal Status ValidateStrings(Dictionary<string, Dictionary<string, Topic>> TopicsMapBySystemNameAndByType, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
         {
             if (Strings != null && Strings.MetaStrings != null && Strings.MetaStrings.Count > 0)
             {
                 foreach (var metaString in Strings.MetaStrings)
                 {
-                    if (topicsMapBySystemName.ContainsKey(metaString.Name) && topicsMapBySystemName[metaString.Name].Type == ApiObjects.MetaType.MultilingualString)
+                    if (TopicsMapBySystemNameAndByType.ContainsKey(metaString.Name) && TopicsMapBySystemNameAndByType[metaString.Name].ContainsKey(ApiObjects.MetaType.MultilingualString.ToString()))
                     {
                         Status status = metaString.Validate("media.structure.strings.meta", defaultLanguageCode, languageMapByCode);
                         if (status != null && status.Code != (int)eResponseStatus.OK)

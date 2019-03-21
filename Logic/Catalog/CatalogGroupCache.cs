@@ -30,7 +30,7 @@ namespace Core.Catalog
         public Dictionary<int, LanguageObj> LanguageMapById { get; set; }        
         public Dictionary<string, AssetStruct> AssetStructsMapBySystemName { get; set; }
         public Dictionary<long, AssetStruct> AssetStructsMapById { get; set; }
-        public Dictionary<string, Topic> TopicsMapBySystemName { get; set; }
+        public Dictionary<string, Dictionary<string, Topic>> TopicsMapBySystemNameAndByType { get; set; }
         public Dictionary<long, Topic> TopicsMapById { get; set; }
 
         /// Indicates if this group has DTT regionalisation support or not
@@ -93,7 +93,7 @@ namespace Core.Catalog
             LanguageMapById = new Dictionary<int, LanguageObj>();            
             AssetStructsMapBySystemName = new Dictionary<string, AssetStruct>(StringComparer.OrdinalIgnoreCase);
             AssetStructsMapById = new Dictionary<long, AssetStruct>();
-            TopicsMapBySystemName = new Dictionary<string, Topic>(StringComparer.OrdinalIgnoreCase);
+            TopicsMapBySystemNameAndByType = new Dictionary<string, Dictionary<string, Topic>>(StringComparer.OrdinalIgnoreCase);
             TopicsMapById = new Dictionary<long, Topic>();
             programAssetStructId = 0;
         }
@@ -143,20 +143,25 @@ namespace Core.Catalog
                 }
             }
 
-            TopicsMapBySystemName = new Dictionary<string, Topic>(StringComparer.OrdinalIgnoreCase);
+            TopicsMapBySystemNameAndByType = new Dictionary<string, Dictionary<string, Topic>>(StringComparer.OrdinalIgnoreCase);
             TopicsMapById = new Dictionary<long, Topic>();
             if (topics != null && topics.Count > 0)
             {
                 foreach (Topic topic in topics)
                 {
-                    if (!TopicsMapBySystemName.ContainsKey(topic.SystemName))
+                    if (!TopicsMapById.ContainsKey(topic.Id))
                     {
-                        TopicsMapBySystemName.Add(topic.SystemName, topic);
+                        TopicsMapById.Add(topic.Id, topic);
+                    }
 
-                        if (!TopicsMapById.ContainsKey(topic.Id))
-                        {
-                            TopicsMapById.Add(topic.Id, topic);
-                        }
+                    if (!TopicsMapBySystemNameAndByType.ContainsKey(topic.SystemName))
+                    {
+                        TopicsMapBySystemNameAndByType.Add(topic.SystemName, new Dictionary<string, Topic>((StringComparer.OrdinalIgnoreCase)));
+                    }
+
+                    if (!TopicsMapBySystemNameAndByType[topic.SystemName].ContainsKey(topic.Type.ToString()))
+                    {
+                        TopicsMapBySystemNameAndByType[topic.SystemName].Add(topic.Type.ToString(), topic);
                     }
                 }
             }
@@ -174,7 +179,7 @@ namespace Core.Catalog
         {
             return DefaultLanguage != null && DefaultLanguage.ID > 0 && LanguageMapByCode != null && LanguageMapByCode.Count > 0 && LanguageMapById != null && LanguageMapById.Count > 0
                     && AssetStructsMapById != null && AssetStructsMapById.Count > 0 && AssetStructsMapBySystemName != null && AssetStructsMapBySystemName.Count == AssetStructsMapById.Count
-                    && TopicsMapById != null && TopicsMapById.Count > 0 && TopicsMapBySystemName != null && TopicsMapBySystemName.Count == TopicsMapById.Count;
+                    && TopicsMapById != null && TopicsMapById.Count > 0 && TopicsMapBySystemNameAndByType != null && TopicsMapBySystemNameAndByType.Count == TopicsMapById.Count;
         }
 
         private static void SetCatalogGroupCacheDefaults(int groupId, CatalogGroupCache catalogGroupCache)

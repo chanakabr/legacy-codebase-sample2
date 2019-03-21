@@ -1359,12 +1359,18 @@ namespace Core.Catalog
                     }
                     else if (doesGroupUsesTemplates)
                     {
-                        if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(lowered) && catalogGroupCache.TopicsMapBySystemName[lowered].Type == ApiObjects.MetaType.Tag)
+                        if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(lowered) 
+                            && catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.Tag.ToString()))
                         {
                             valid = true;
                             requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
                         }
-                        else if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(lowered) && catalogGroupCache.TopicsMapBySystemName[lowered].Type != ApiObjects.MetaType.Tag)
+                        else if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(lowered) 
+                            &&  (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(ApiObjects.MetaType.String.ToString())
+                                    || catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(ApiObjects.MetaType.MultilingualString.ToString())
+                                    || catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(ApiObjects.MetaType.Number.ToString())
+                                    || catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(ApiObjects.MetaType.Bool.ToString())
+                                    || catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(ApiObjects.MetaType.DateTime.ToString())))
                         {
                             valid = true;
                             requestGroupBy = string.Format("metas.{0}.lowercase", groupBy.ToLower());
