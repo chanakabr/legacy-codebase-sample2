@@ -83,13 +83,13 @@ namespace Core.Catalog.Request
                     if (CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
                     {
                         doesGroupUsesTemplates = true;
+                        groupId = request.m_nGroupID;
                         CatalogGroupCache catalogGroupCache;
                         if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                         {
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling ChannelRequest.GetResponse", groupId);
                             return response;
                         }
-                        groupId = request.m_nGroupID;
                         defaultLanguage = catalogGroupCache.DefaultLanguage;
 
                         var channelResponse = ChannelManager.GetChannelById(groupId, request.m_nChannelID, false, 0);
