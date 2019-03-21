@@ -421,6 +421,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MISSING_EXTERNAL_IDENTIFIER = new ClientExceptionType(eResponseStatus.MissingExternalIdentifier, "Missing External Identifier", "The external ID is missing");
         public static ClientExceptionType UNKNOWN_INGEST_TYPE = new ClientExceptionType(eResponseStatus.UnknownIngestType, "Unknown Ingest Type", "The Ingest type is not known");
         public static ClientExceptionType EPG_PROGRAM_DATES_ERROR = new ClientExceptionType(eResponseStatus.EPGSProgramDatesError, "EPG Program Dates Error", "The EPG program dates specified are incorrectly formatted");
+        public static ClientExceptionType INGEST_PROFILE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.IngestProfileNotExists, "Ingest profile does not exist");
+        public static ClientExceptionType INGEST_PROFILE_REQUIRED = new ClientExceptionType(eResponseStatus.IngestProfileIdRequired, "Ingest profile id is mandatory");
+        public static ClientExceptionType NO_INGEsT_PROFILE_TO_INSERT = new ClientExceptionType(eResponseStatus.NoIngestProfileToInsert, "No Ingest Profile found to insert");
 
         #endregion
         
