@@ -186,6 +186,30 @@ namespace Core.Catalog
             return result;
         }
 
+        public Status ValidateNoSystemNameDuplicationOnMetaIds(CatalogGroupCache catalogGroupCache)
+        {
+            Status result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            HashSet<string> metaSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (long metaId in this.MetaIds)
+            {
+                if (!catalogGroupCache.TopicsMapById.ContainsKey(metaId))
+                {
+                    result = new Status((int)eResponseStatus.MetaIdsDoesNotExist, eResponseStatus.MetaIdsDoesNotExist.ToString());
+                    return result;
+                }
+
+                if (metaSystemNames.Contains(catalogGroupCache.TopicsMapById[metaId].SystemName))
+                {
+                    result = new Status((int)eResponseStatus.AssetStructMetasConatinSystemNameDuplication, eResponseStatus.AssetStructMetasConatinSystemNameDuplication.ToString());
+                    return result;
+                }
+
+                metaSystemNames.Add(catalogGroupCache.TopicsMapById[metaId].SystemName);
+            }
+
+            return result;
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));

@@ -1443,6 +1443,14 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                // validate metas with the same system name don't exist
+                Status validateNoSystemNameDuplication = assetStructToadd.ValidateNoSystemNameDuplicationOnMetaIds(catalogGroupCache);
+                if (validateNoSystemNameDuplication.Code != (int)eResponseStatus.OK)
+                {
+                    result.SetStatus(validateNoSystemNameDuplication);
+                    return result;
+                }
+
                 List<KeyValuePair<long, int>> metaIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0)
                 {
@@ -1560,14 +1568,22 @@ namespace Core.Catalog.CatalogManagement
                                              string.Format("{0} for the following Meta Ids: {1}", eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
                             return result;
                         }
-                    }
 
-                    // validate meta ids duplications
-                    var duplicateMetaExist = assetStructToUpdate.MetaIds.GroupBy(x => x).Any(g => g.Count() > 1);
-                    if (duplicateMetaExist)
-                    {
-                        result.SetStatus(eResponseStatus.MetaIdsDuplication, "Meta ids are duplicated");
-                        return result;
+                        // validate meta ids duplications
+                        var duplicateMetaExist = assetStructToUpdate.MetaIds.GroupBy(x => x).Any(g => g.Count() > 1);
+                        if (duplicateMetaExist)
+                        {
+                            result.SetStatus(eResponseStatus.MetaIdsDuplication, "Meta ids are duplicated");
+                            return result;
+                        }
+
+                        // validate metas with the same system name don't exist
+                        Status validateNoSystemNameDuplication = assetStructToUpdate.ValidateNoSystemNameDuplicationOnMetaIds(catalogGroupCache);
+                        if (validateNoSystemNameDuplication.Code != (int)eResponseStatus.OK)
+                        {
+                            result.SetStatus(validateNoSystemNameDuplication);
+                            return result;
+                        }
                     }
                 }
 

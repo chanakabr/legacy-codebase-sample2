@@ -277,7 +277,7 @@ namespace ApiObjects.Response
         BulkUploadDoesNotExist = 4082,
         BulkUploadResultIsMissing = 4083,
         NoValuesToUpdate = 4084,
-
+        AssetStructMetasConatinSystemNameDuplication = 4085,
         #endregion
 
         #region Api 5000 - 5999
