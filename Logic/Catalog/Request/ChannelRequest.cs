@@ -419,8 +419,7 @@ namespace Core.Catalog.Request
                 filterQuery = stringBuilder.ToString(),
                 m_dServerTime = request.m_dServerTime,
                 m_bIgnoreDeviceRuleID = request.m_bIgnoreDeviceRuleID,
-                isAllowedToViewInactiveAssets = false,
-
+                isAllowedToViewInactiveAssets = false
             };
 
             var orderBy = request.m_oOrderObj != null ? request.m_oOrderObj.m_eOrderBy : OrderBy.NONE;
