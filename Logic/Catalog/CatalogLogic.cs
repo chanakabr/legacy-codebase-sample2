@@ -2801,13 +2801,15 @@ namespace Core.Catalog
         internal static MediaSearchObj BuildBaseChannelSearchObject(GroupsCacheManager.Channel channel, BaseRequest request,
             OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
         {
-            MediaSearchObj searchObject = new MediaSearchObj();
-            searchObject.m_nGroupId = channel.m_nGroupID;
-            searchObject.m_nPageIndex = request.m_nPageIndex;
-            searchObject.m_nPageSize = request.m_nPageSize;
-            searchObject.m_bExact = true;
-            searchObject.m_eCutWith = channel.m_eCutWith;
-            searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType);
+            MediaSearchObj searchObject = new MediaSearchObj
+            {
+                m_nGroupId = channel.m_nGroupID,
+                m_nPageIndex = request.m_nPageIndex,
+                m_nPageSize = request.m_nPageSize,
+                m_bExact = true,
+                m_eCutWith = channel.m_eCutWith,
+                m_sMediaTypes = string.Join(";", channel.m_nMediaType)
+            };
 
             if ((lPermittedWatchRules != null) && lPermittedWatchRules.Count > 0)
             {
@@ -2818,9 +2820,9 @@ namespace Core.Catalog
             searchObject.m_nIndexGroupId = nParentGroupID;
             searchObject.m_oLangauge = oLanguage;
 
-            ApiObjects.SearchObjects.OrderObj oSearcherOrderObj = new ApiObjects.SearchObjects.OrderObj();
+            var oSearcherOrderObj = new OrderObj();
 
-            if (orderObj != null && orderObj.m_eOrderBy != ApiObjects.SearchObjects.OrderBy.NONE)
+            if (orderObj != null && orderObj.m_eOrderBy != OrderBy.NONE)
             {
                 GetOrderValues(ref oSearcherOrderObj, orderObj);
             }
@@ -8400,99 +8402,15 @@ namespace Core.Catalog
                 definitions.shouldSearchMedia = true;
 
                 #region Channel Tags
-
-                eCutType cutType = eCutType.And;
-                switch (channel.m_eCutWith)
-                {
-                    case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                        break;
-                    case CutWith.OR:
-                        {
-                            cutType = eCutType.Or;
-                            break;
-                        }
-                    case CutWith.AND:
-                        {
-                            cutType = eCutType.And;
-                            break;
-                        }
-                    default:
-                        break;
-                }
-
+                
                 // If there is at least one tag
                 if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
                 {
-                    List<BooleanPhraseNode> channelTagsNodes = new List<BooleanPhraseNode>();
-
-                    foreach (SearchValue searchValue in channel.m_lChannelTags)
-                    {
-                        if (!string.IsNullOrEmpty(searchValue.m_sKey))
-                        {
-                            eCutType innerCutType = eCutType.And;
-
-                            switch (searchValue.m_eInnerCutWith)
-                            {
-                                case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                                    break;
-                                case CutWith.OR:
-                                    {
-                                        innerCutType = eCutType.Or;
-                                        break;
-                                    }
-                                case CutWith.AND:
-                                    {
-                                        innerCutType = eCutType.And;
-                                        break;
-                                    }
-                                default:
-                                    break;
-                            }
-
-                            string key = searchValue.m_sKey.ToLower();
-
-                            BooleanPhraseNode newNode = null;
-                            if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
-                            {
-                                key = string.Format("{0}.{1}", searchValue.m_sKeyPrefix, key);
-                            }
-
-                            bool shouldLowercase = true;
-
-                            if (reservedUnifiedSearchNumericFields.Contains(searchValue.m_sKey))
-                            {
-                                shouldLowercase = false;
-                            }
-
-                            // If only 1 value, use it as a single node (there's no need to create a phrase with 1 node...)
-                            if (searchValue.m_lValue.Count == 1)
-                            {
-                                newNode = new BooleanLeaf(key, searchValue.m_lValue[0], typeof(string), ComparisonOperator.Equals, shouldLowercase);
-                            }
-                            else
-                            {
-                                // If there are several values, connect all the values with the inner cut type
-                                List<BooleanPhraseNode> innerNodes = new List<BooleanPhraseNode>();
-
-                                foreach (var item in searchValue.m_lValue)
-                                {
-                                    BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals, shouldLowercase);
-                                    innerNodes.Add(leaf);
-                                }
-
-                                newNode = new BooleanPhrase(innerNodes, innerCutType);
-                            }
-
-                            channelTagsNodes.Add(newNode);
-                        }
-                    }
-
-                    initialTree = new BooleanPhrase(channelTagsNodes, cutType);
+                    initialTree = GetChannelTagsBooleanPhrase(channel.m_lChannelTags, channel.m_eCutWith);
                 }
                 else
                 {
-                    // if there are no tags:
-                    // filter everything out
+                    // if there are no tags: filter everything out
                     emptyRequest = true;
                 }
 
@@ -8704,6 +8622,81 @@ namespace Core.Catalog
             #endregion
 
             return definitions;
+        }
+
+        private static BooleanPhrase GetChannelTagsBooleanPhrase(List<SearchValue> channelTags, CutWith channelCutWith)
+        {
+            List<BooleanPhraseNode> channelTagsNodes = new List<BooleanPhraseNode>();
+
+            foreach (SearchValue searchValue in channelTags)
+            {
+                if (!string.IsNullOrEmpty(searchValue.m_sKey))
+                {
+                    eCutType innerCutType = GetCutTypeByCutWith(searchValue.m_eInnerCutWith);
+                    string key = searchValue.m_sKey.ToLower();
+
+                    BooleanPhraseNode newNode = null;
+                    if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
+                    {
+                        key = string.Format("{0}.{1}", searchValue.m_sKeyPrefix, key);
+                    }
+
+                    bool shouldLowercase = true;
+                    if (reservedUnifiedSearchNumericFields.Contains(searchValue.m_sKey))
+                    {
+                        shouldLowercase = false;
+                    }
+
+                    // If only 1 value, use it as a single node (there's no need to create a phrase with 1 node...)
+                    if (searchValue.m_lValue.Count == 1)
+                    {
+                        newNode = new BooleanLeaf(key, searchValue.m_lValue[0], typeof(string), ComparisonOperator.Equals, shouldLowercase);
+                    }
+                    else
+                    {
+                        // If there are several values, connect all the values with the inner cut type
+                        List<BooleanPhraseNode> innerNodes = new List<BooleanPhraseNode>();
+
+                        foreach (var item in searchValue.m_lValue)
+                        {
+                            BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals, shouldLowercase);
+                            innerNodes.Add(leaf);
+                        }
+
+                        newNode = new BooleanPhrase(innerNodes, innerCutType);
+                    }
+
+                    channelTagsNodes.Add(newNode);
+                }
+            }
+
+            eCutType cutType = GetCutTypeByCutWith(channelCutWith);
+            var booleanPhrase = new BooleanPhrase(channelTagsNodes, cutType);
+            return booleanPhrase;
+        }
+
+        private static eCutType GetCutTypeByCutWith(CutWith cutWith)
+        {
+            eCutType cutType = eCutType.And;
+            switch (cutWith)
+            {
+                case CutWith.WCF_ONLY_DEFAULT_VALUE:
+                    break;
+                case CutWith.OR:
+                    {
+                        cutType = eCutType.Or;
+                        break;
+                    }
+                case CutWith.AND:
+                    {
+                        cutType = eCutType.And;
+                        break;
+                    }
+                default:
+                    break;
+            }
+
+            return cutType;
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObjectWithBaseRequest(GroupsCacheManager.Channel channel, BaseRequest request, Group group, int groupId, bool doesGroupUsesTemplates)
