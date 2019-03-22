@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -194,11 +195,11 @@ public partial class adm_tvp_galleries_new : System.Web.UI.Page
                 nTemplateID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("tvp_galleries", "CHANNEL_TEMPLATE_ID", nGalleryID, 10000, sCollKey).ToString());
             else
                 nTemplateID = int.Parse(HttpContext.Current.Session["template_id"].ToString());
-            CachingManager.CachingManager.SetCachedData("TemplateID" + nGalleryID.ToString(), nTemplateID, 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+            CachingManager.CachingManager.SetCachedData("TemplateID" + nGalleryID.ToString(), nTemplateID, 3600, CacheItemPriority.Default, 0, false);
         }
         //Int32 nTemplateID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("tvp_galleries", "CHANNEL_TEMPLATE_ID", nGalleryID, 10000, sCollKey).ToString());
         object oRet = ODBCWrapper.Utils.GetTableSingleVal("tvp_template_channels_gallery_types", sField, nTemplateID, 10000, sCollKey);
-        CachingManager.CachingManager.SetCachedData("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString(), oRet, 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+        CachingManager.CachingManager.SetCachedData("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString(), oRet, 3600, CacheItemPriority.Default, 0, false);
         return oRet;
     }
 
@@ -253,7 +254,7 @@ public partial class adm_tvp_galleries_new : System.Web.UI.Page
             if (selectQuery.Execute("query", true) != null)
             {
                 dt = selectQuery.Table("query");
-                CachingManager.CachingManager.SetCachedData("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString(), selectQuery.Table("query").Copy(), 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                CachingManager.CachingManager.SetCachedData("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString(), selectQuery.Table("query").Copy(), 3600, CacheItemPriority.Default, 0, false);
             }
             selectQuery.Finish();
             selectQuery = null;

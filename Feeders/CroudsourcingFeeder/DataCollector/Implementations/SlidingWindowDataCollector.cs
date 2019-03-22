@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Caching;
 using Tvinci.Core.DAL;
 using OrderBy = ApiObjects.SearchObjects.OrderBy;
 
@@ -172,7 +173,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
             {
                 minPeriods = CatalogDAL.GetMinPeriods();
                 if (minPeriods != null)
-                    CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, CacheItemPriority.Default, 0, false);
             }
 
             if (minPeriods != null)

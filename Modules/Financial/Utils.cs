@@ -9,6 +9,7 @@ using System.IO;
 using System.IO.Compression;
 using KLogMonitor;
 using System.Reflection;
+using System.Runtime.Caching;
 
 namespace Financial
 {
@@ -158,7 +159,7 @@ namespace Financial
             {
                 TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetPPVModuleData", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
                 thePPVModule = m.GetPPVModuleData(sWSUserName, sWSPass, nPPVM.ToString(), sCountryCd2, sLanguageCode3, sDeviceName);
-                CachingManager.CachingManager.SetCachedData("GetPPVModuleData" + nPPVM + "_" + nGroupID.ToString(), thePPVModule, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                CachingManager.CachingManager.SetCachedData("GetPPVModuleData" + nPPVM + "_" + nGroupID.ToString(), thePPVModule, 86400, CacheItemPriority.Default, 0, false);
             }
 
             return thePPVModule;
@@ -180,7 +181,7 @@ namespace Financial
             {
                 TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetPrePaidModuleData", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
                 thePPModule = m.GetPrePaidModuleData(sWSUserName, sWSPass, nPPM, "", "", "");
-                CachingManager.CachingManager.SetCachedData("GetPrePaidModuleData" + nPPM + "_" + nGroupID.ToString(), thePPModule, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                CachingManager.CachingManager.SetCachedData("GetPrePaidModuleData" + nPPM + "_" + nGroupID.ToString(), thePPModule, 86400, CacheItemPriority.Default, 0, false);
             }
 
             return thePPModule;
@@ -203,7 +204,7 @@ namespace Financial
             {
                 TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetCouponGroupData", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
                 theCoupon = m.GetCouponGroupData(sWSUserName, sWSPass, nCouponGroupID.ToString());
-                CachingManager.CachingManager.SetCachedData("GetCouponGroupData" + nCouponGroupID + "_" + nGroupID.ToString(), theCoupon, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                CachingManager.CachingManager.SetCachedData("GetCouponGroupData" + nCouponGroupID + "_" + nGroupID.ToString(), theCoupon, 86400, CacheItemPriority.Default, 0, false);
             }
 
             return theCoupon;
@@ -226,7 +227,7 @@ namespace Financial
             {
                 TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetCouponStatus", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
                 theCoupon = m.GetCouponStatus(sWSUserName, sWSPass, sCouponCode);
-                CachingManager.CachingManager.SetCachedData("GetCouponStatus" + sCouponCode + "_" + nGroupID.ToString(), theCoupon, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                CachingManager.CachingManager.SetCachedData("GetCouponStatus" + sCouponCode + "_" + nGroupID.ToString(), theCoupon, 86400, CacheItemPriority.Default, 0, false);
             }
 
             return theCoupon;

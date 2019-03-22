@@ -3,6 +3,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -305,7 +306,7 @@ public partial class adm_tvp_galleries_items_new : System.Web.UI.Page
         else
         {
             nTemplateID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("tvp_galleries", "CHANNEL_TEMPLATE_ID", int.Parse(HttpContext.Current.Session["gallery_id"].ToString()), 10000, sCollKey).ToString());
-            CachingManager.CachingManager.SetCachedData("TemplateID" + HttpContext.Current.Session["gallery_id"].ToString(), nTemplateID, 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+            CachingManager.CachingManager.SetCachedData("TemplateID" + HttpContext.Current.Session["gallery_id"].ToString(), nTemplateID, 3600, CacheItemPriority.Default, 0, false);
         }
         Int32 nOK = 0;
         DataTable dt = null;
@@ -323,7 +324,7 @@ public partial class adm_tvp_galleries_items_new : System.Web.UI.Page
             if (selectQuery.Execute("query", true) != null)
             {
                 dt = selectQuery.Table("query");
-                CachingManager.CachingManager.SetCachedData("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString(), selectQuery.Table("query").Copy(), 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                CachingManager.CachingManager.SetCachedData("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString(), selectQuery.Table("query").Copy(), 3600, CacheItemPriority.Default, 0, false);
             }
             selectQuery.Finish();
             selectQuery = null;
@@ -348,11 +349,11 @@ public partial class adm_tvp_galleries_items_new : System.Web.UI.Page
         else
         {
             nTemplateID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("tvp_galleries", "CHANNEL_TEMPLATE_ID", nGalleryID, 10000, sCollKey).ToString());
-            CachingManager.CachingManager.SetCachedData("TemplateID" + nGalleryID.ToString(), nTemplateID, 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+            CachingManager.CachingManager.SetCachedData("TemplateID" + nGalleryID.ToString(), nTemplateID, 3600, CacheItemPriority.Default, 0, false);
         }
         //Int32 nTemplateID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("tvp_galleries", "CHANNEL_TEMPLATE_ID", nGalleryID, 10000, sCollKey).ToString());
         object oRet = ODBCWrapper.Utils.GetTableSingleVal("tvp_template_channels_gallery_types", sField, nTemplateID, 10000, sCollKey);
-        CachingManager.CachingManager.SetCachedData("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString(), oRet, 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+        CachingManager.CachingManager.SetCachedData("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString(), oRet, 3600, CacheItemPriority.Default, 0, false);
         return oRet;
     }
 
@@ -807,7 +808,7 @@ public partial class adm_tvp_galleries_items_new : System.Web.UI.Page
             selectQuery = null;
         }
         if (sCache != "")
-            CachingManager.CachingManager.SetCachedData("GetTVMAccountDetails_" + nID.ToString() + "_" + bIsMain.ToString() + "_" + nGroupID.ToString(), sCache, 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+            CachingManager.CachingManager.SetCachedData("GetTVMAccountDetails_" + nID.ToString() + "_" + bIsMain.ToString() + "_" + nGroupID.ToString(), sCache, 3600, CacheItemPriority.Default, 0, false);
         return nRet;
     }
 }
