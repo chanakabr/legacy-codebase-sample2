@@ -9,11 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueueWrapper", "QueueWrappe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{932109FA-5260-4709-BD4B-4A8D77E4CF01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ODBCWrapper", "ODBCWrapper\ODBCWrapper.csproj", "{48CB3B25-623B-4500-8E88-2E77A7074238}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ODBCWrapper", "ODBCWrapper\ODBCWrapper.csproj", "{48CB3B25-623B-4500-8E88-2E77A7074238}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingManager", "CachingManager\CachingManager.csproj", "{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingManager", "CachingManager\CachingManager.csproj", "{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseManager", "CouchbaseManager\CouchbaseManager.csproj", "{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchbaseManager", "CouchbaseManager\CouchbaseManager.csproj", "{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduledTasks", "ScheduledTasks\ScheduledTasks.csproj", "{4EB719ED-06B1-4C05-A7CA-269D802105EA}"
 EndProject
@@ -96,13 +96,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelManager", "ExcelManage
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseWrapper", "CouchbaseWrapper\CouchbaseWrapper.csproj", "{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KLogMonitor", "KLogMonitor\KLogMonitor.csproj", "{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KLogMonitor", "KLogMonitor\KLogMonitor.csproj", "{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "..\Core\ConfigurationManager\ConfigurationManager.csproj", "{27CC9E99-D886-4403-899B-1E0769FDB649}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationManager", "..\Core\ConfigurationManager\ConfigurationManager.csproj", "{27CC9E99-D886-4403-899B-1E0769FDB649}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchBaseExtensions", "CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchBaseExtensions", "CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCMClient", "..\Core\TCMClient\TCMClient.csproj", "{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCMClient", "..\Core\TCMClient\TCMClient.csproj", "{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recordings", "RecordingsManager\Recordings.csproj", "{DCF4A78F-3BBF-4634-8666-196FF9F1E386}"
 EndProject
@@ -160,9 +160,10 @@ Global
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|Any CPU.Build.0 = Local|Any CPU
-		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|x86.ActiveCfg = Local|Any CPU
+		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|x86.ActiveCfg = Debug|Any CPU
+		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|x86.Build.0 = Debug|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Release|x86.ActiveCfg = Release|Any CPU
@@ -172,9 +173,10 @@ Global
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|Any CPU.Build.0 = Local|Any CPU
-		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|x86.ActiveCfg = Local|Any CPU
+		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|x86.ActiveCfg = Debug|Any CPU
+		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|x86.Build.0 = Debug|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Release|x86.ActiveCfg = Release|Any CPU
@@ -184,9 +186,10 @@ Global
 		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Local|Any CPU.Build.0 = Local|Any CPU
-		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Local|x86.ActiveCfg = Local|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Local|x86.ActiveCfg = Debug|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Local|x86.Build.0 = Debug|Any CPU
 		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Release|x86.ActiveCfg = Release|Any CPU
