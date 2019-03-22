@@ -2,7 +2,6 @@
   <PropertyGroup>
     <ProjectGuid>{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}</ProjectGuid>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <!--<TargetFramework>net452</TargetFramework>-->
     <AssemblyTitle>TCMClient</AssemblyTitle>
     <Product>TCMClient</Product>
     <Copyright>Copyright ©  2014</Copyright>
@@ -26,4 +25,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
+
+  <!-- This is a workaround that will allow TVM website project to build, if you read this an 
+  TVM no longer exist please remove this <Target Name="GetTargetPath"... element-->
+  <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">
+    <ItemGroup>
+      <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
+    </ItemGroup>
+  </Target>
 </Project>
