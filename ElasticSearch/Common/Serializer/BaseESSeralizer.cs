@@ -1013,7 +1013,7 @@ namespace ElasticSearch.Common
                 "\"search_end_date\": \"{11}\", \"crid\": \"{12}\", \"epg_identifier\" : \"{15}\", \"external_id\": \"{16}\",",
                 oEpg.EpgID, doesGroupUsesTemplates ? oEpg.ParentGroupID : oEpg.GroupID, oEpg.ChannelID, (oEpg.IsActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"),
                 oEpg.EndDate.ToString("yyyyMMddHHmmss"), Common.Utils.ReplaceDocumentReservedCharacters(name, shouldLowerCase),
-                Common.Utils.ReplaceDocumentReservedCharacters(description, shouldLowerCase), /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), 
+                Common.Utils.ReplaceDocumentReservedCharacters(description, shouldLowerCase), /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
                 oEpg.CreateDate.ToString("yyyyMMddHHmmss"), oEpg.UpdateDate.ToString("yyyyMMddHHmmss"), oEpg.SearchEndDate.ToString("yyyyMMddHHmmss"), oEpg.Crid,
                 // {13}
                 AddSuffix("name", suffix),
@@ -1059,8 +1059,8 @@ namespace ElasticSearch.Common
                                 }
                             }
 
-                            metaNameValues.Add(string.Format(" \"{0}\": [ {1} ]", 
-                                AddSuffix(sMetaName.ToLower(), suffix), 
+                            metaNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
+                                AddSuffix(sMetaName.ToLower(), suffix),
                                 lMetaValues.Aggregate((current, next) => current + "," + next)));
                         }
                     }
@@ -1096,7 +1096,7 @@ namespace ElasticSearch.Common
                             }
 
                             tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
-                                AddSuffix(sTagName.ToLower(), suffix), 
+                                AddSuffix(sTagName.ToLower(), suffix),
                                 lTagValues.Aggregate((current, next) => current + "," + next)));
                         }
                     }
