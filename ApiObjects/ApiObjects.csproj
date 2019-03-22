@@ -608,8 +608,8 @@
     <Folder Include="MediaIndexingObjects\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj">
-      <Project>{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}</Project>
+    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
       <Name>CouchbaseManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
