@@ -30,7 +30,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVinciShared", "..\tvmcore\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ODBCWrapper", "..\tvmcore\ODBCWrapper\ODBCWrapper.csproj", "{48CB3B25-623B-4500-8E88-2E77A7074238}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingManager", "..\tvmcore\CachingManager\CachingManager.csproj", "{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingManager", "..\tvmcore\CachingManager\CachingManager.csproj", "{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduledTasks", "..\tvmcore\ScheduledTasks\ScheduledTasks.csproj", "{4EB719ED-06B1-4C05-A7CA-269D802105EA}"
 EndProject
@@ -88,7 +88,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceExtensions", "..\tvm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingProvider", "..\tvmcore\StreamingProvider\StreamingProvider.csproj", "{320C9FF3-DA35-42EA-A872-65B1CFE681CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseManager", "..\tvmcore\CouchbaseManager\CouchbaseManager.csproj", "{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchbaseManager", "..\tvmcore\CouchbaseManager\CouchbaseManager.csproj", "{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiTools", "ApiTools", "{0DB22A93-7EDC-4651-9E6A-377044620A0A}"
 EndProject
@@ -293,7 +293,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KLogMonitor", "..\tvmcore\K
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCMClient", "..\Core\TCMClient\TCMClient.csproj", "{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchBaseExtensions", "..\tvmcore\CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchBaseExtensions", "..\tvmcore\CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -354,22 +354,22 @@ Global
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48CB3B25-623B-4500-8E88-2E77A7074238}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{48CB3B25-623B-4500-8E88-2E77A7074238}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{48CB3B25-623B-4500-8E88-2E77A7074238}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{48CB3B25-623B-4500-8E88-2E77A7074238}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|Any CPU.Build.0 = Local|Any CPU
+		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{48CB3B25-623B-4500-8E88-2E77A7074238}.Local|Any CPU.Build.0 = Release|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48CB3B25-623B-4500-8E88-2E77A7074238}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|Any CPU.Build.0 = Local|Any CPU
+		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Local|Any CPU.Build.0 = Release|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -865,7 +865,7 @@ Global
 		{F5591A02-7C44-476F-B447-A63F39B2D731} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
