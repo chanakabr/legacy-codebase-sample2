@@ -1,31 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}</ProjectGuid>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <TargetFramework>net452</TargetFramework>
-    <AssemblyTitle>CouchbaseManager</AssemblyTitle>
-    <Product>CouchbaseManager</Product>
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <!-- <PropertyGroup>
         <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell –NonInteractive –ExecutionPolicy Unrestricted ..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
         <PostBuildEvent />
     </PropertyGroup> -->
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>full</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
     <PackageReference Include="Common.Logging.Core" Version="3.4.1" />
