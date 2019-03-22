@@ -1090,36 +1090,26 @@ namespace WebAPI.Clients
 
             if (watchHistoryResponse.result != null && watchHistoryResponse.result.Count > 0)
             {
-                // get base objects list
-                List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
-
-                // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
-
                 // combine asset info and watch history info
                 finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
 
-                UserWatchHistory watchHistory = new UserWatchHistory();
-                foreach (KalturaIAssetable assetInfo in assetsInfo)
+                foreach (var uwh in watchHistoryResponse.result)
                 {
-                    watchHistory = watchHistoryResponse.result.FirstOrDefault(x => x.AssetId == ((KalturaAssetInfo)assetInfo).Id.ToString());
-
-                    KalturaAssetType assetType = KalturaAssetType.media;
-
-                    if (watchHistory.AssetType == eAssetTypes.NPVR)
+                    if (uwh != null)
                     {
-                        assetType = KalturaAssetType.recording;
-                    }
+                        KalturaAssetType assetType = KalturaAssetType.media;
+                        if (uwh.AssetType == eAssetTypes.NPVR)
+                        {
+                            assetType = KalturaAssetType.recording;
+                        }
 
-                    if (watchHistory != null)
-                    {
                         finalResults.Objects.Add(new KalturaAssetHistory()
                         {
-                            AssetId = ((KalturaAssetInfo)assetInfo).Id.Value,
-                            Duration = watchHistory.Duration,
-                            IsFinishedWatching = watchHistory.IsFinishedWatching,
-                            LastWatched = watchHistory.LastWatch,
-                            Position = watchHistory.Location,
+                            AssetId = long.Parse(uwh.AssetId),
+                            Duration = uwh.Duration,
+                            IsFinishedWatching = uwh.IsFinishedWatching,
+                            LastWatched = uwh.LastWatch,
+                            Position = uwh.Location,
                             AssetType = assetType
                         });
                     }
