@@ -2,6 +2,7 @@
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -74,6 +75,9 @@ namespace Core.Catalog
         // currently used only for internal use for migration and migrated accounts
         public bool IsProgramAssetStruct { get; set; }
 
+        [JsonIgnore()]
+        public Dictionary<string, Topic> TopicsMapBySystemName;
+
         #endregion
 
         #region Ctor's
@@ -118,21 +122,7 @@ namespace Core.Catalog
 
         public AssetStruct(AssetStruct assetStructToCopy)
         {
-            this.Id = assetStructToCopy.Id;
-            this.Name = string.Copy(assetStructToCopy.SystemName);
-            this.NamesInOtherLanguages = new List<LanguageContainer>(assetStructToCopy.NamesInOtherLanguages);
-            this.SystemName = string.Copy(assetStructToCopy.SystemName);
-            this.MetaIds = new List<long>(assetStructToCopy.MetaIds);
-            this.IsPredefined = assetStructToCopy.IsPredefined;
-            this.ParentId = assetStructToCopy.ParentId;
-            this.CreateDate = assetStructToCopy.CreateDate;
-            this.UpdateDate = assetStructToCopy.UpdateDate;
-            this.AssetStructMetas = new Dictionary<long, AssetStructMeta>(assetStructToCopy.AssetStructMetas);
-            this.Features = assetStructToCopy.Features != null ? new HashSet<string>(assetStructToCopy.Features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            this.ConnectingMetaId = assetStructToCopy.ConnectingMetaId;
-            this.ConnectedParentMetaId = assetStructToCopy.ConnectedParentMetaId;
-            this.PluralName = assetStructToCopy.PluralName;
-            this.IsProgramAssetStruct = assetStructToCopy.IsProgramAssetStruct;
+            Copy(assetStructToCopy);
         }
 
         #endregion
@@ -153,15 +143,19 @@ namespace Core.Catalog
         {
             Status result = new Status((int)eResponseStatus.AssetStructMissingBasicMetaIds, eResponseStatus.AssetStructMissingBasicMetaIds.ToString());
             List<long> basicMetaIds = new List<long>();
-            if (catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
+            if (catalogGroupCache.TopicsMapBySystemNameAndByType != null && catalogGroupCache.TopicsMapBySystemNameAndByType.Count > 0)
             {
                 if (isProgramStruct)
                 {
-                    basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => EpgAssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                    basicMetaIds = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => EpgAssetManager.BasicMetasSystemNamesToType.ContainsKey(x.Key)
+                                                                                                    && x.Value.ContainsKey(EpgAssetManager.BasicMetasSystemNamesToType[x.Key]))
+                                                                                                    .Select(x => x.Value[EpgAssetManager.BasicMetasSystemNamesToType[x.Key]].Id).ToList();
                 }
                 else
                 {
-                    basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => AssetManager.BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                    basicMetaIds = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => AssetManager.BasicMetasSystemNamesToType.ContainsKey(x.Key)
+                                                                                                    && x.Value.ContainsKey(AssetManager.BasicMetasSystemNamesToType[x.Key]))
+                                                                                                    .Select(x => x.Value[AssetManager.BasicMetasSystemNamesToType[x.Key]].Id).ToList();
                 }
 
                 if (this.MetaIds != null)
@@ -177,6 +171,30 @@ namespace Core.Catalog
                                             eResponseStatus.AssetStructMissingBasicMetaIds.ToString(), string.Join(",", noneExistingBasicMetaIds)));
                     }
                 }
+            }
+
+            return result;
+        }
+
+        public Status ValidateNoSystemNameDuplicationOnMetaIds(CatalogGroupCache catalogGroupCache)
+        {
+            Status result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            HashSet<string> metaSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (long metaId in this.MetaIds)
+            {
+                if (!catalogGroupCache.TopicsMapById.ContainsKey(metaId))
+                {
+                    result = new Status((int)eResponseStatus.MetaIdsDoesNotExist, eResponseStatus.MetaIdsDoesNotExist.ToString());
+                    return result;
+                }
+
+                if (metaSystemNames.Contains(catalogGroupCache.TopicsMapById[metaId].SystemName))
+                {
+                    result = new Status((int)eResponseStatus.AssetStructMetasConatinSystemNameDuplication, eResponseStatus.AssetStructMetasConatinSystemNameDuplication.ToString());
+                    return result;
+                }
+
+                metaSystemNames.Add(catalogGroupCache.TopicsMapById[metaId].SystemName);
             }
 
             return result;
@@ -205,25 +223,53 @@ namespace Core.Catalog
             return sb.ToString();
         }
 
+        private void Copy(AssetStruct assetStructToCopy)
+        {
+            this.Id = assetStructToCopy.Id;
+            this.Name = string.Copy(assetStructToCopy.SystemName);
+            this.NamesInOtherLanguages = new List<LanguageContainer>(assetStructToCopy.NamesInOtherLanguages);
+            this.SystemName = string.Copy(assetStructToCopy.SystemName);
+            this.MetaIds = new List<long>(assetStructToCopy.MetaIds);
+            this.IsPredefined = assetStructToCopy.IsPredefined;
+            this.ParentId = assetStructToCopy.ParentId;
+            this.CreateDate = assetStructToCopy.CreateDate;
+            this.UpdateDate = assetStructToCopy.UpdateDate;
+            this.AssetStructMetas = new Dictionary<long, AssetStructMeta>(assetStructToCopy.AssetStructMetas);
+            this.Features = assetStructToCopy.Features != null ? new HashSet<string>(assetStructToCopy.Features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            this.ConnectingMetaId = assetStructToCopy.ConnectingMetaId;
+            this.ConnectedParentMetaId = assetStructToCopy.ConnectedParentMetaId;
+            this.PluralName = assetStructToCopy.PluralName;
+            this.IsProgramAssetStruct = assetStructToCopy.IsProgramAssetStruct;
+        }
+
         #region IExcelStructure
         
         public ExcelStructure GetExcelStructure(int groupId, Dictionary<string, object> data = null)
         {
-            ExcelStructure excelStructer = null;
+            ExcelStructure excelStructure = null;
 
             if (this.Id > 0)
             {
                 CatalogGroupCache catalogGroupCache;
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    return excelStructer;
+                    return excelStructure;
                 }
 
-                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(Id))
+                if (this.TopicsMapBySystemName == null || this.TopicsMapBySystemName.Count == 0)
                 {
-                    return excelStructer;
-                }
+                    if (!catalogGroupCache.AssetStructsMapById.ContainsKey(Id))
+                    {
+                        return excelStructure;
+                    }
 
+                    Copy(catalogGroupCache.AssetStructsMapById[Id]);
+
+                    this.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => this.MetaIds.Contains(x.Key))
+                                                                                .OrderBy(x => this.MetaIds.IndexOf(x.Key))
+                                                                                .ToDictionary(x => x.Value.SystemName, y => y.Value);
+                }
+                
                 var systemNameToExcelAttribute = ExcelManager.GetSystemNameToProperyData(typeof(MediaAsset));
                 var excelColumns = new Dictionary<string, ExcelColumn>();
 
@@ -244,16 +290,12 @@ namespace Core.Catalog
                 // METAS AND TAGS
                 if (systemNameToExcelAttribute.ContainsKey(Asset.METAS) && systemNameToExcelAttribute.ContainsKey(Asset.TAGS))
                 {
-                    var assetStruct = catalogGroupCache.AssetStructsMapById[Id];
-                    var topics = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
-                        .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key));
-
                     Dictionary<string, string> uniqueMetasToHelpText = new Dictionary<string, string>();
 
                     var languages = catalogGroupCache.LanguageMapByCode.OrderByDescending(x => x.Value.IsDefault);
                     foreach (var lang in languages)
                     {
-                        foreach (var topic in topics)
+                        foreach (var topic in this.TopicsMapBySystemName)
                         {
                             if (topic.Value.SystemName.Equals(AssetManager.EXTERNAL_ID_META_SYSTEM_NAME))
                             {
@@ -341,10 +383,10 @@ namespace Core.Catalog
                     excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
                 }
 
-                excelStructer = new ExcelStructure(excelColumns, OVERVIEW_INSTRUCTIONS, COLUMNS_COLORS);
+                excelStructure = new ExcelStructure(excelColumns, OVERVIEW_INSTRUCTIONS, COLUMNS_COLORS);
             }
 
-            return excelStructer;
+            return excelStructure;
         }
 
         #endregion

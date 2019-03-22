@@ -55,9 +55,9 @@ namespace Core.Catalog.Request
             m_eFilterCutWith = CutWith.OR; // Set as default. This value will be provided by request
         }
 
-        protected override ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(GroupsCacheManager.Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage, List<string> lPermittedWatchRules)
+        protected override MediaSearchObj GetManualSearchObject(GroupsCacheManager.Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage, List<string> lPermittedWatchRules)
         {
-            MediaSearchObj channelSearchObject = base.GetSearchObject(channel, request, nParentGroupID, oLanguage, lPermittedWatchRules);
+            MediaSearchObj channelSearchObject = base.GetManualSearchObject(channel, request, nParentGroupID, oLanguage, lPermittedWatchRules);
             if (channelSearchObject != null)
             {
                 CatalogLogic.AddChannelMultiFiltersToSearchObject(ref channelSearchObject, (ChannelRequestMultiFiltering)request);

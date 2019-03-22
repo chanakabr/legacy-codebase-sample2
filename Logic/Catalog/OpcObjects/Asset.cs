@@ -352,7 +352,7 @@ namespace Core.Catalog
             return excelValues;
         }
 
-        public virtual void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns)
+        public virtual void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructure structureObject)
         {
         }
 
@@ -400,19 +400,19 @@ namespace Core.Catalog
             }
         }
 
-        protected void SetTagByExcelValues(KeyValuePair<string, object> columnValue, string systemName, CatalogGroupCache catalogGroupCache)
+        protected void SetTagByExcelValues(KeyValuePair<string, object> columnValue, string systemName, Dictionary<string, Topic> topicsMapBySystemName, string defaultLanguage)
         {
             var tagMeta = new TagMeta();
-            if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(systemName))
+            if (topicsMapBySystemName.ContainsKey(systemName))
             {
                 tagMeta.m_sName = systemName;
-                tagMeta.m_sType = catalogGroupCache.TopicsMapBySystemName[systemName].Type.ToString();
+                tagMeta.m_sType = topicsMapBySystemName[systemName].Type.ToString();
             }
             var values = columnValue.Value.ToString().GetItemsIn<List<string>, string>();
             List<LanguageContainer[]> languageContainers = new List<LanguageContainer[]>();
             foreach (var value in values)
             {
-                LanguageContainer defaultLanguageContainer = new LanguageContainer(catalogGroupCache.DefaultLanguage.Code, value, true);
+                LanguageContainer defaultLanguageContainer = new LanguageContainer(defaultLanguage, value, true);
                 languageContainers.Add(new LanguageContainer[] { defaultLanguageContainer });
             }
 

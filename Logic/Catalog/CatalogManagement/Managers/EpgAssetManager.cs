@@ -19,18 +19,18 @@ namespace Core.Catalog.CatalogManagement
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        public static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            AssetManager.NAME_META_SYSTEM_NAME,
-            AssetManager.DESCRIPTION_META_SYSTEM_NAME,
-            AssetManager.EXTERNAL_ID_META_SYSTEM_NAME,
-            START_DATE_META_SYSTEM_NAME,
-            END_DATE_META_SYSTEM_NAME,
-            SERIES_NAME_META_SYSTEM_NAME,
-            SERIES_ID_META_SYSTEM_NAME,
-            EPISODE_NUMBER_META_SYSTEM_NAME,
-            SEASON_NUMBER_META_SYSTEM_NAME,
-            CRID_META_SYSTEM_NAME
+            { NAME_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
+            { DESCRIPTION_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
+            { EXTERNAL_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
+            { START_DATE_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { END_DATE_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { SERIES_NAME_META_SYSTEM_NAME, MetaType.Tag.ToString() },
+            { SERIES_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
+            { EPISODE_NUMBER_META_SYSTEM_NAME, MetaType.Number.ToString() },
+            { SEASON_NUMBER_META_SYSTEM_NAME, MetaType.Number.ToString() },
+            { CRID_META_SYSTEM_NAME, MetaType.String.ToString() }
         };
 
         private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
@@ -38,6 +38,9 @@ namespace Core.Catalog.CatalogManagement
         private const string INVALID_LANGUAGE = "Invalid language: {0}. Only languages specified in the name of the asset can be associated.";
         private const string DUPLICATE_VALUE = "Duplicate {0}:{1} sent for {2}.";
 
+        internal const string NAME_META_SYSTEM_NAME = "Name";
+        internal const string DESCRIPTION_META_SYSTEM_NAME = "Description";
+        internal const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
         internal const string START_DATE_META_SYSTEM_NAME = "StartDate";
         internal const string END_DATE_META_SYSTEM_NAME = "EndDate";
         internal const string SERIES_NAME_META_SYSTEM_NAME = "SeriesName";
@@ -339,10 +342,12 @@ namespace Core.Catalog.CatalogManagement
                 EpgAsset epgAsset = asset as EpgAsset;
                 if (epgAsset != null)
                 {
-                    List<long> existingTopicsIds = epgAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
-                                                                  .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList();
-                    existingTopicsIds.AddRange(epgAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
-                                                              .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList());
+                    List<long> existingTopicsIds = epgAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
+                                                                    .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList();
+                    existingTopicsIds.AddRange(epgAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
+                                                                    .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList());
                     List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
                     if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
                     {
@@ -661,20 +666,29 @@ namespace Core.Catalog.CatalogManagement
             {
                 epgMetasToUpdate = new List<Metas>();
             }
-
+            
             List<Metas> excluded = oldMetasAsset != null && oldMetasAsset.Count > 0 ?
-                oldMetasAsset.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName) &&
-                                         catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId) &&
-                                         catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.ContainsKey(catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id) &&
-                                         !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList() : null;
+                                        oldMetasAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
+                                        catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
+                                        catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId) &&
+                                        catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.
+                                        ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
+                                        !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList() : null;
 
+            
             if (excluded != null && excluded.Count > 0)
             {
-                // set Metas original m_sType 
+                // get all program asset struct topic systemNames and types mapping
+                Dictionary<string, string> programStructTopicSystemNamesToType = catalogGroupCache.TopicsMapById.Where(x => catalogGroupCache.
+                                                                                                                        AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].
+                                                                                                                        AssetStructMetas.ContainsKey(x.Key))
+                                                                                                                        .ToDictionary(x => x.Value.SystemName, x => x.Value.Type.ToString());
+                // set Metas original m_sType
                 foreach (Metas meta in excluded)
                 {
-                    meta.m_oTagMeta.m_sType = catalogGroupCache.TopicsMapBySystemName[meta.m_oTagMeta.m_sName].Type.ToString();
+                    meta.m_oTagMeta.m_sType = programStructTopicSystemNamesToType[meta.m_oTagMeta.m_sName];
                 }
+
                 epgMetasToUpdate.AddRange(excluded);
             }
 
@@ -689,10 +703,12 @@ namespace Core.Catalog.CatalogManagement
             }
 
             List<Tags> excluded = oldTagsAsset != null && oldTagsAsset.Count > 0 ?
-                oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName) &&
-                                         catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId) &&
-                                         catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.ContainsKey(catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id) &&
-                                         !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList() : null;
+                                    oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
+                                    catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
+                                    catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId) &&
+                                    catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.
+                                    ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
+                                    !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList() : null;
 
             if (excluded != null && excluded.Count > 0)
             {
@@ -1120,13 +1136,13 @@ namespace Core.Catalog.CatalogManagement
             distinctTopics.Add(tagMeta.m_sName);
 
             // validate meta exists on group
-            if (!catalogGroupCache.TopicsMapBySystemName.ContainsKey(tagMeta.m_sName))
+            if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(tagMeta.m_sName))
             {
                 var errorMsg = string.Format(META_DOES_NOT_EXIST, topicType, tagMeta.m_sName);
                 return new Status((int)eResponseStatus.MetaDoesNotExist, errorMsg);
             }
 
-            var topic = catalogGroupCache.TopicsMapBySystemName[tagMeta.m_sName];
+            Topic topic = catalogGroupCache.TopicsMapBySystemNameAndByType[tagMeta.m_sName][tagMeta.m_sType];
 
             // validate meta exists on asset struct
             if (!programAssetStruct.AssetStructMetas.ContainsKey(topic.Id))
@@ -1257,7 +1273,7 @@ namespace Core.Catalog.CatalogManagement
         {
             GenericResponse<Dictionary<string, string>> topicValues = new GenericResponse<Dictionary<string, string>>();
 
-            if (validateSystemTopic && !catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicSystemName))
+            if (validateSystemTopic && !catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(topicSystemName))
             {
                 var errorMsg = string.Format(META_DOES_NOT_EXIST, "SystemName", topicSystemName);
                 topicValues.SetStatus(eResponseStatus.MetaDoesNotExist, errorMsg);

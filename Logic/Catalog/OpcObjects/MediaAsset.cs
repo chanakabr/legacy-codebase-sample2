@@ -258,11 +258,11 @@ namespace Core.Catalog
 
             return basicMetaDate;
         }
-        
-        public override void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns)
+
+        public override void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructure structureObject)
         {
             this.AssetType = eAssetTypes.MEDIA;
-
+            AssetStruct assetStruct = structureObject as AssetStruct;
             CatalogGroupCache catalogGroupCache;
             if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
@@ -285,13 +285,13 @@ namespace Core.Catalog
                                 SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.DefaultLanguage.Code, ref dicMetas);
                                 break;
                             case ExcelColumnType.Tag:
-                                SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, catalogGroupCache);
+                                SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, assetStruct.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code);
                                 break;
                             case ExcelColumnType.Image:
                                 SetImageByExcelValues(columnValue, columns[columnValue.Key], imageTypesMapBySystemName);
                                 break;
                             case ExcelColumnType.Basic:
-                                SetBasicByExcelValues(columnValue, catalogGroupCache);
+                                SetBasicByExcelValues(columnValue, assetStruct);
                                 break;
                             case ExcelColumnType.File:
                                 var fileSystemName = columns[columnValue.Key].SystemName;
@@ -300,7 +300,7 @@ namespace Core.Catalog
                                     fileTypesSystemName.Add(fileSystemName);
                                     var fileValues = columnNamesToValues.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
                                     var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
-                                    SetFileByExcelValues(groupId, fileValues, fileColumns);
+                                    SetFileByExcelValues(groupId, fileValues, fileColumns, structureObject);
                                 }
                                 break;
                             case ExcelColumnType.Rule:
@@ -325,25 +325,25 @@ namespace Core.Catalog
                 }
             }
 
-            foreach (var item in dicMetas)
+            foreach (var meta in dicMetas)
             {
                 Metas metas = new Metas();
-                if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(item.Key))
+                if (assetStruct.TopicsMapBySystemName.ContainsKey(meta.Key))
                 {
                     metas.m_oTagMeta = new TagMeta()
                     {
-                        m_sName = item.Key,
-                        m_sType = catalogGroupCache.TopicsMapBySystemName[item.Key].Type.ToString()
+                        m_sName = meta.Key,
+                        m_sType = assetStruct.TopicsMapBySystemName[meta.Key].Type.ToString()
                     };
                 }
 
-                var defaultValue = item.Value.FirstOrDefault(x => x.IsDefault);
+                var defaultValue = meta.Value.FirstOrDefault(x => x.IsDefault);
                 if (defaultValue != null)
                 {
                     metas.m_sValue = defaultValue.Value;
                 }
 
-                metas.Value = item.Value.ToArray();
+                metas.Value = meta.Value.ToArray();
                 this.Metas.Add(metas);
             }
         }
@@ -381,14 +381,22 @@ namespace Core.Catalog
                 this.FinalEndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
                 return;
             }
+            
+            // IsActive
+            var isActiveColumnName = ExcelColumn.GetFullColumnName(AssetManager.STATUS_META_SYSTEM_NAME, null, null, true);
+            if (columnValue.Key.Equals(isActiveColumnName))
+            {
+                this.IsActive = bool.Parse(columnValue.Value.ToString());
+                return;
+            }
         }
 
-        private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns)
+        private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns, IExcelStructure structureObject)
         {
             if (fileValues != null && fileValues.Count > 0 && fileColumns != null && fileColumns.Count > 0)
             {
                 var file = new AssetFile();
-                file.SetExcelValues(groupId, fileValues, fileColumns);
+                file.SetExcelValues(groupId, fileValues, fileColumns, structureObject);
                 Files.Add(file);
             }
         }
@@ -405,16 +413,16 @@ namespace Core.Catalog
             }
         }
         
-        private void SetBasicByExcelValues(KeyValuePair<string, object> columnValue, CatalogGroupCache catalogGroupCache)
+        private void SetBasicByExcelValues(KeyValuePair<string, object> columnValue, AssetStruct assetStruct)
         {
             // MediaType
             var mediaTypeColumnName = ExcelColumn.GetFullColumnName(MEDIA_ASSET_TYPE, null, null, true);
             if (columnValue.Key.Equals(mediaTypeColumnName))
             {
                 this.MediaType.m_sTypeName = columnValue.Value.ToString();
-                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(this.MediaType.m_sTypeName))
+                if (assetStruct.SystemName.Equals(this.MediaType.m_sTypeName))
                 {
-                    this.MediaType.m_nTypeID = (int)catalogGroupCache.AssetStructsMapBySystemName[this.MediaType.m_sTypeName].Id;
+                    this.MediaType.m_nTypeID = (int)assetStruct.Id;
                 }
                 return;
             }

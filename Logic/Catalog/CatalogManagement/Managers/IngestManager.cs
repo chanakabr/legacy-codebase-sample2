@@ -228,9 +228,9 @@ namespace Core.Catalog.CatalogManagement
             foreach (var topic in tagsTranslations)
             {
                 // tagsTranslation.Key == Genre
-                if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topic.Key))
+                if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(topic.Key) && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(MetaType.Tag.ToString()))
                 {
-                    Topic catalogTopic = catalogGroupCache.TopicsMapBySystemName[topic.Key];
+                    Topic catalogTopic = catalogGroupCache.TopicsMapBySystemNameAndByType[topic.Key][MetaType.Tag.ToString()];
 
                     foreach (var tag in topic.Value)
                     {
@@ -359,8 +359,13 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (var stringMeta in structure.Strings.MetaStrings)
                 {
-                    MetaType metaType = catalogGroupCache.TopicsMapBySystemName.ContainsKey(stringMeta.Name) ?
-                        catalogGroupCache.TopicsMapBySystemName[stringMeta.Name].Type : MetaType.MultilingualString;
+                    MetaType metaType = MetaType.MultilingualString;
+                    if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(stringMeta.Name) &&
+                        catalogGroupCache.TopicsMapBySystemNameAndByType[stringMeta.Name].Any(x => x.Key == MetaType.String.ToString() || x.Key == MetaType.MultilingualString.ToString()))
+                    {
+                        metaType = catalogGroupCache.TopicsMapBySystemNameAndByType[stringMeta.Name].First(x => x.Key == MetaType.String.ToString()
+                                                                                                            || x.Key == MetaType.MultilingualString.ToString()).Value.Type;
+                    }
 
                     metas.Add(new Metas(new TagMeta(stringMeta.Name, metaType.ToString()),
                                         stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(mainLanguageCode)).Text,
@@ -541,7 +546,7 @@ namespace Core.Catalog.CatalogManagement
                         return false;
                     }
 
-                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
+                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemNameAndByType, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (stringsValidationStatus != null && stringsValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(stringsValidationStatus.Message);
@@ -590,7 +595,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
+                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemNameAndByType, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
                     if (stringsValidationStatus != null && stringsValidationStatus.Code != (int)eResponseStatus.OK)
                     {
                         ingestResponse.AddError(stringsValidationStatus.Message);

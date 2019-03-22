@@ -12,23 +12,28 @@ namespace ApiObjects
         #region Data Members
 
         [DataMember]
-        [JsonProperty("user_id")]
+        //[JsonProperty("user_id")]
+        [JsonIgnore()]
         private long UserId { get; set; }
 
         [DataMember]
-        [JsonProperty("bulk_upload_id")]
+        //[JsonProperty("bulk_upload_id")]
+        [JsonIgnore()]
         private long BulkUploadId { get; set; }
 
         [DataMember]
-        [JsonProperty("job_action")]
+        //[JsonProperty("job_action")]
+        [JsonIgnore()]
         public BulkUploadJobAction JobAction { get; set; }
 
         [DataMember]
-        [JsonProperty("result_index")]
+        //[JsonProperty("result_index")]
+        [JsonIgnore()]
         private int ResultIndex { get; set; }
 
         [DataMember]
-        [JsonProperty("object_Data")]
+        //[JsonProperty("object_Data")]
+        [JsonIgnore()]
         private T ObjectData { get; set; }
 
         #endregion

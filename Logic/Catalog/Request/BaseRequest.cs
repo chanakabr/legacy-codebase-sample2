@@ -167,8 +167,8 @@ namespace Core.Catalog.Request
 
         protected virtual void CheckSignature(BaseRequest oBaseRequest)
         {
-            string sCheckSignature = Utils.GetSignature(oBaseRequest.m_sSignString, oBaseRequest.m_nGroupID);
-            if (sCheckSignature != oBaseRequest.m_sSignature)
+            string signature = Utils.GetSignature(oBaseRequest.m_sSignString, oBaseRequest.m_nGroupID);
+            if (signature != oBaseRequest.m_sSignature)
                 throw new Exception("Signatures don't match");
         }     
       

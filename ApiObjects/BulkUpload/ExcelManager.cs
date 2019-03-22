@@ -89,7 +89,7 @@ namespace ApiObjects.BulkUpload
                                                     {
                                                         try
                                                         {
-                                                            excelObject.SetExcelValues(objectData.GroupId, columnNamesToValues, excelStructure.ExcelColumns);
+                                                            excelObject.SetExcelValues(objectData.GroupId, columnNamesToValues, excelStructure.ExcelColumns, structure);
                                                         }
                                                         catch (ExcelParserException ex)
                                                         {

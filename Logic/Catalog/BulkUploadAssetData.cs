@@ -1,7 +1,9 @@
 ﻿using ApiObjects.BulkUpload;
+using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Core.Catalog
 {
@@ -19,27 +21,37 @@ namespace Core.Catalog
             var excelObject = Activator.CreateInstance(typeof(MediaAsset)) as MediaAsset;
             return excelObject;
         }
-        
+
         public override IBulkUploadStructure GetStructure()
         {
             if (structure == null)
             {
-                var assetStructResponse = CatalogManagement.CatalogManager.GetAssetStruct(GroupId, TypeId);
+                var assetStructResponse = CatalogManager.GetAssetStruct(GroupId, TypeId);
                 if (assetStructResponse.HasObject())
                 {
                     structure = assetStructResponse.Object;
+                    if (structure.TopicsMapBySystemName == null || structure.TopicsMapBySystemName.Count == 0)
+                    {
+                        CatalogGroupCache catalogGroupCache;
+                        if (CatalogManager.TryGetCatalogGroupCacheFromCache(GroupId, out catalogGroupCache))
+                        {
+                            structure.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => structure.MetaIds.Contains(x.Key))
+                                                              .OrderBy(x => structure.MetaIds.IndexOf(x.Key))
+                                                              .ToDictionary(x => x.Value.SystemName, y => y.Value);
+                        }
+                    }
                 }
             }
-            
+
             return structure;
         }
-        
+
         public override bool Validate(Dictionary<string, object> propertyToValueMap)
         {
             // set structure if null
             GetStructure();
-
-            if (structure != null )
+            
+            if (structure != null)
             {
                 var mediaAssetTypeColumnName = ExcelColumn.GetFullColumnName(MediaAsset.MEDIA_ASSET_TYPE, null, null, true);
                 if (propertyToValueMap.ContainsKey(mediaAssetTypeColumnName) &&
@@ -48,7 +60,7 @@ namespace Core.Catalog
                     return true;
                 }
             }
-            
+
             return false;
         }
 
