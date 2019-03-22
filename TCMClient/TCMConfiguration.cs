@@ -4,10 +4,6 @@ using System.Configuration;
 namespace TCMClient
 {
     public class TCMConfiguration : ConfigurationSection
-#if NET45
-#else
-    //public class TCMConfiguration
-#endif
     {
         private string m_URL = null;
 
@@ -72,38 +68,23 @@ namespace TCMClient
         }
 
         [ConfigurationProperty("URL", IsRequired = true)]
-#if NET45
-#endif
         public string URL
         {
             get
             {
                 return m_URL != null ? m_URL : this["URL"] as string;
-#if NET45
-#else
-                //return m_URL;
-#endif
             }
 
 
-            set
-            {
-                m_URL = value;
-            }
+            set => m_URL = value;
         }
 
         [ConfigurationProperty("Application", IsRequired = true)]
-#if NET45
-#endif
         public string Application
         {
             get
             {
                 return m_Application != null ? m_Application : this["Application"] as string;
-#if NET45
-#else
-                //return m_Application;
-#endif
             }
 
             set
@@ -113,18 +94,12 @@ namespace TCMClient
         }
 
         [ConfigurationProperty("Host", IsRequired = true)]
-#if NET45
-#endif
         public string Host
         {
 
             get
             {
                 return m_Host != null ? m_Host : this["Host"] as string;
-#if NET45
-#else
-                //return m_Host;
-#endif
             }
 
             set
@@ -134,18 +109,12 @@ namespace TCMClient
         }
 
         [ConfigurationProperty("Environment", IsRequired = true)]
-#if NET45
-#endif
         public string Environment
         {
 
             get
             {
                 return m_Environment != null ? m_Environment : this["Environment"] as string;
-#if NET45
-#else
-                //return m_Environment;
-#endif
             }
 
             set
@@ -155,18 +124,12 @@ namespace TCMClient
         }
 
         [ConfigurationProperty("AppID", IsRequired = true)]
-#if NET45
-#endif
         public string AppID
         {
 
             get
             {
                 return m_AppID != null ? m_AppID : this["AppID"] as string;
-#if NET45
-#else
-                //return m_AppID;
-#endif
             }
 
             set
@@ -176,18 +139,12 @@ namespace TCMClient
         }
 
         [ConfigurationProperty("AppSecret", IsRequired = true)]
-#if NET45
-#endif
         public string AppSecret
         {
 
             get
             {
                 return m_AppSecret != null ? m_AppSecret : this["AppSecret"] as string;
-#if NET45
-#else
-                //return m_AppSecret;
-#endif
             }
 
             set
@@ -197,18 +154,12 @@ namespace TCMClient
         }
 
         [ConfigurationProperty("VerifySSL", DefaultValue = "false", IsRequired = false)]
-#if NET45
-#endif
         public bool VerifySSL
         {
 
             get
             {
                 return m_VerifySSL.HasValue ? m_VerifySSL.Value : (Boolean)this["VerifySSL"];
-#if NET45
-#else
-                //return m_VerifySSL.Value;
-#endif
             }
 
             set
@@ -218,18 +169,12 @@ namespace TCMClient
         }
 
         [ConfigurationProperty("FromLocal", DefaultValue = "false", IsRequired = false)]
-#if NET45
-#endif
         public Boolean FromLocal
         {
 
             get
             {
                 return m_FromLocal.HasValue ? m_FromLocal.Value : (Boolean)this["FromLocal"];
-#if NET45
-#else
-                //return m_FromLocal.Value;
-#endif
             }
 
             set
@@ -239,18 +184,12 @@ namespace TCMClient
         }
 
         [ConfigurationProperty("LocalPath", IsRequired = false)]
-#if NET45
-#endif
         public string LocalPath
         {
 
             get
             {
                 return m_LocalPath != null ? m_LocalPath : this["LocalPath"] as string;
-#if NET45
-#else
-                //return m_LocalPath;
-#endif
             }
 
             set

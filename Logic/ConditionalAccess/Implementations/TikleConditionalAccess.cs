@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Text;
 using ApiObjects.ConditionalAccess;
 
@@ -106,7 +107,7 @@ namespace Core.ConditionalAccess
                     else
                     {
                         oPPVModule = Pricing.Module.GetPPVModuleData(m_nGroupID, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                        CachingManager.CachingManager.SetCachedData("GetPPVModuleData" + sMediaFileForCache + "_" + m_nGroupID.ToString() + sLocaleForCache, oPPVModule, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                        CachingManager.CachingManager.SetCachedData("GetPPVModuleData" + sMediaFileForCache + "_" + m_nGroupID.ToString() + sLocaleForCache, oPPVModule, 86400, CacheItemPriority.Default, 0, false);
                     }
 
                     Int32 nMediaID = Utils.GetMediaIDFromFileID(nMediaFileID, m_nGroupID);

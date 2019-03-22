@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Caching;
 
 
 namespace Core.ConditionalAccess
@@ -879,7 +880,7 @@ namespace Core.ConditionalAccess
                         string ft = string.Empty;
                         ConditionalAccessDAL.Get_BasicLinkData(nMediaFileID, ref url, ref sc, ref scId, ref ft, out drmAdapterId);
 
-                        CachingManager.CachingManager.SetCachedData(key, drmAdapterId.ToString(), 3600, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                        CachingManager.CachingManager.SetCachedData(key, drmAdapterId.ToString(), 3600, CacheItemPriority.Default, 0, false);
                     }
                 }
                 catch (Exception ex)

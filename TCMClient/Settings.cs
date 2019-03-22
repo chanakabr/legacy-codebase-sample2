@@ -4,16 +4,13 @@ using System.IO;
 using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
 using System.Configuration;
-#if NET45
-#endif
 
 namespace TCMClient
 {
     public class Settings
     {
-        private static object locker = new object();
+        private static readonly object locker = new object();
         private static Settings _Instance;
         public static Settings Instance
         {
