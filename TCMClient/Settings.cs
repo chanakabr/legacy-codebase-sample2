@@ -5,11 +5,15 @@ using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Configuration;
+using System.Reflection;
+using KLogMonitor;
 
 namespace TCMClient
 {
     public class Settings
     {
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static readonly object locker = new object();
         private static Settings _Instance;
         public static Settings Instance
@@ -155,6 +159,7 @@ namespace TCMClient
             }
             catch (Exception ex)
             {
+                _Logger.Error($"Error while retriving value from TCM. key:[{key}]", ex);
                 return default(T);
             }
 

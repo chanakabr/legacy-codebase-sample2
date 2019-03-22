@@ -152,8 +152,10 @@ namespace ConfigurationManager
 
             if (!string.IsNullOrEmpty(application) || !string.IsNullOrEmpty(host) || !string.IsNullOrEmpty(environment))
             {
-                TCMClient.TCMConfiguration config = (TCMClient.TCMConfiguration)System.Configuration.ConfigurationManager.GetSection("TCMConfig");
+                var config = (TCMClient.TCMConfiguration)System.Configuration.ConfigurationManager.GetSection("TCMConfig");
                 config.OverrideEnvironmentVariable();
+
+                //config.OverrideEnvironmentVariable();
                 
                 if (string.IsNullOrEmpty(application))
                 {
@@ -171,7 +173,7 @@ namespace ConfigurationManager
                 }
 
                 //Populate settings from remote
-                TCMClient.Settings.Instance.Init(config.URL, application, host, environment, config.AppID, config.AppSecret);
+                TCMClient.Settings.Instance.Init(config.URL, application, host, environment, config.AppID, config.AppSecret, false);
             }
             else
             {
