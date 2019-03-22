@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Web;
-using System.Web.SessionState;
-using System.Configuration;
+using System.Runtime.Caching;
 using ConfigurationManager;
 
 namespace ODBCWrapper
@@ -32,13 +28,14 @@ namespace ODBCWrapper
             {
                 return cacheSec;
             }
-            if (HttpContext.Current != null)
-            {
-                if (HttpContext.Current.Session["ODBC_CACH_SEC"] != null)
-                    return int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString());
-                else
-                    return 60;
-            }
+            // TODO: Find way to store ODBC_CACH_SEC value in a different location or access the current context in a multitarget environment.
+            //if (HttpContext.Current != null)
+            //{
+            //    if (HttpContext.Current.Session["ODBC_CACH_SEC"] != null)
+            //        return int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString());
+            //    else
+            //        return 60;
+            //}
             else
                 return 60;
         }
@@ -54,14 +51,15 @@ namespace ODBCWrapper
             {
                 return GetCachedDataTable(sCachStr, cacheSec);
             }
-            if (HttpContext.Current != null)
-            {
-                if (HttpContext.Current.Session["ODBC_CACH_SEC"] != null)
-                    return GetCachedDataTable(sCachStr, int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString()));
-                else
-                    return null;
-            }
-            else
+            // TODO: Find way to store ODBC_CACH_SEC value in a different location or access the current context in a multitarget environment.
+            //if (HttpContext.Current != null)
+            //{
+            //    if (HttpContext.Current.Session["ODBC_CACH_SEC"] != null)
+            //        return GetCachedDataTable(sCachStr, int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString()));
+            //    else
+            //        return null;
+            //}
+            //else
                 return null;
         }
 
@@ -73,11 +71,10 @@ namespace ODBCWrapper
         {
 
             System.Collections.IDictionaryEnumerator CacheEnum = null;
-            CacheEnum = HttpRuntime.Cache.GetEnumerator();
-            while (CacheEnum.MoveNext())
+            foreach (var entry in MemoryCache.Default)
             {
-                string key = CacheEnum.Key.ToString();
-                HttpRuntime.Cache.Remove(key);
+                string key = entry.Key.ToString();
+                MemoryCache.Default.Remove(key);
             }
         }
 
@@ -87,7 +84,7 @@ namespace ODBCWrapper
             {
                 if (nCachSec <= 0)
                     return null;
-                if (HttpRuntime.Cache[sCachStr] != null)
+                if (MemoryCache.Default[sCachStr] != null)
                     return ((System.Data.DataTable)(CachingManager.CachingManager.GetCachedData(sCachStr))).Copy();
                 //return ((System.Data.DataTable)(HttpRuntime.Cache[sCachStr])).Copy();
                 else
@@ -113,7 +110,7 @@ namespace ODBCWrapper
                     return;
                 }
 
-                CachingManager.CachingManager.SetCachedData(sCachStr, dDataTable.Copy(), cacheSec, System.Web.Caching.CacheItemPriority.Default, 0, true);
+                CachingManager.CachingManager.SetCachedData(sCachStr, dDataTable.Copy(), cacheSec, CacheItemPriority.Default, 0, true);
                 //HttpRuntime.Cache.Add(sCachStr, dDataTable.Copy(), null, DateTime.UtcNow.AddHours(nCacheSec), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
             }
             catch

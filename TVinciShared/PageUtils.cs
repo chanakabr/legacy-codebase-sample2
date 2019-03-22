@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Text;
 using System.Web;
 
@@ -434,7 +435,7 @@ namespace TVinciShared
             GetAllGroupsStr(nGroupID, ref s, sConnKey);
             sRet.Append(s);
             sRet.Append(")");
-            CachingManager.CachingManager.SetCachedData("GetFullChildGroupsStr_" + nGroupID.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+            CachingManager.CachingManager.SetCachedData("GetFullChildGroupsStr_" + nGroupID.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             return sRet.ToString();
         }
         static public string GetFullGroupsStr(Int32 nGroupID, string sConnKey)
@@ -450,7 +451,7 @@ namespace TVinciShared
             if (sParents != "")
                 sRet.Append(",").Append(sParents);
             sRet.Append(")");
-            CachingManager.CachingManager.SetCachedData("GetFullGroupsStr_" + nGroupID.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+            CachingManager.CachingManager.SetCachedData("GetFullGroupsStr_" + nGroupID.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             return sRet.ToString();
         }
 
@@ -495,11 +496,11 @@ namespace TVinciShared
             sRet.Append(")");
             string strRetVal = sRet.ToString();
             if (!strRetVal.Contains("null"))
-                SetCachedData("GetAllGroupTreeStr", nGroupID, strRetVal, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                SetCachedData("GetAllGroupTreeStr", nGroupID, strRetVal, 10800, CacheItemPriority.Default, 0, false);
             return strRetVal;
         }
 
-        private static void SetCachedData(string sKeyOfCachedData, int nGroupID, string sDataToCache, int nTimeToBeInCacheInSeconds, System.Web.Caching.CacheItemPriority ePriority, int nMediaID, bool bToRenew)
+        private static void SetCachedData(string sKeyOfCachedData, int nGroupID, string sDataToCache, int nTimeToBeInCacheInSeconds, CacheItemPriority ePriority, int nMediaID, bool bToRenew)
         {
             string sRealKey = GetRealCachedKey(sKeyOfCachedData, nGroupID);
             CachingManager.CachingManager.SetCachedData(sRealKey, sDataToCache, nTimeToBeInCacheInSeconds, ePriority, nMediaID, bToRenew);
@@ -549,7 +550,7 @@ namespace TVinciShared
             }
             selectQuery.Finish();
             selectQuery = null;
-            CachingManager.CachingManager.SetCachedData("GetAllGroupsStr_" + nID.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+            CachingManager.CachingManager.SetCachedData("GetAllGroupsStr_" + nID.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             return sRet;
         }
 

@@ -1,70 +1,70 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Configuration;
+using System.Linq;
 using KLogMonitor;
 using System.Reflection;
+using System.Runtime.Caching;
 
 namespace CachingManager
 {
     public class CachingData
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        public object m_oVal;
-        public DateTime m_dStart;
-        public DateTime m_dLastUsed;
-        public Int32 m_nUseCounter;
-        public Int32 m_nMediaID;
-        public Int32 m_nCacheSecs;
-        public bool m_bToRenew;
-        public System.Web.Caching.CacheItemPriority m_Priority;
-        public CachingData(object oVal, Int32 nMediaID, bool bToRenew, Int32 nCacheSecs, System.Web.Caching.CacheItemPriority priority)
+        private static readonly KLogger _Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        public object _Val;
+        public DateTime _StartDate;
+        public DateTime _LastUsedDate;
+        public int _UseCounter;
+        public int _MediaID;
+        public int _CacheSec;
+        public bool _IsRenewRequired;
+        public CacheItemPriority _Priority;
+        public CachingData(object oVal, int nMediaID, bool bToRenew, int nCacheSecs, CacheItemPriority priority)
         {
-            m_oVal = oVal;
-            m_nMediaID = nMediaID;
-            m_bToRenew = bToRenew;
-            m_dStart = DateTime.UtcNow;
-            m_dLastUsed = DateTime.UtcNow;
-            m_nUseCounter = 1;
-            m_nCacheSecs = nCacheSecs;
-            m_Priority = priority;
+            _Val = oVal;
+            _MediaID = nMediaID;
+            _IsRenewRequired = bToRenew;
+            _StartDate = DateTime.UtcNow;
+            _LastUsedDate = DateTime.UtcNow;
+            _UseCounter = 1;
+            _CacheSec = nCacheSecs;
+            _Priority = priority;
         }
 
-        public void GetValues(ref Int32 nMediaID, ref bool bRenew, ref DateTime dStart, ref DateTime dLastUsed, ref Int32 nCounter, ref Int32 nCacheSecs, ref System.Web.Caching.CacheItemPriority priority)
+        public void GetValues(ref int nMediaID, ref bool bRenew, ref DateTime dStart, ref DateTime dLastUsed, ref int nCounter, ref int nCacheSecs, ref CacheItemPriority priority)
         {
-            nMediaID = m_nMediaID;
-            bRenew = m_bToRenew;
-            dStart = m_dStart;
-            dLastUsed = m_dLastUsed;
-            nCounter = m_nUseCounter;
-            nCacheSecs = m_nCacheSecs;
-            priority = m_Priority;
+            nMediaID = _MediaID;
+            bRenew = _IsRenewRequired;
+            dStart = _StartDate;
+            dLastUsed = _LastUsedDate;
+            nCounter = _UseCounter;
+            nCacheSecs = _CacheSec;
+            priority = _Priority;
         }
 
         public void Hit()
         {
-            m_nUseCounter++;
-            m_dLastUsed = DateTime.UtcNow;
+            _UseCounter++;
+            _LastUsedDate = DateTime.UtcNow;
         }
     }
     public class CachingManager
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger _Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         //static System.Collections.Hashtable cacheKeyList = new System.Collections.Hashtable();
 
         static public bool Exist(string sName)
         {
-            if (System.Web.HttpRuntime.Cache[sName] != null)
+            if (MemoryCache.Default[sName] != null)
                 return true;
             return false;
         }
 
         static public object GetCachedData(string sName)
         {
-            if (System.Web.HttpRuntime.Cache[sName] != null)
+            if (MemoryCache.Default[sName] != null)
             {
-                ((CachingData)(System.Web.HttpRuntime.Cache[sName])).Hit();
-                return ((CachingData)(System.Web.HttpRuntime.Cache[sName])).m_oVal;
+                ((CachingData)(MemoryCache.Default[sName])).Hit();
+                return ((CachingData)(MemoryCache.Default[sName]))._Val;
             }
             return "";
         }
@@ -72,10 +72,10 @@ namespace CachingManager
         /*GetCacheDataObject : this function return the CachingData object for a specific key*/
         static public CachingData GetCacheDataObject(string sName)
         {
-            if (System.Web.HttpRuntime.Cache[sName] != null)
+            if (MemoryCache.Default[sName] != null)
             {
-                ((CachingData)(System.Web.HttpRuntime.Cache[sName])).Hit();
-                return ((CachingData)(System.Web.HttpRuntime.Cache[sName]));
+                ((CachingData)(MemoryCache.Default[sName])).Hit();
+                return ((CachingData)(MemoryCache.Default[sName]));
             }
             return null;
         }
@@ -83,84 +83,95 @@ namespace CachingManager
         /*GetCacheObject : this function return object for a specific key*/
         static public object GetCacheObject(string sName)
         {
-            if (System.Web.HttpRuntime.Cache[sName] != null)
+            if (MemoryCache.Default[sName] != null)
             {
-                return ((object)(System.Web.HttpRuntime.Cache[sName]));
+                return ((object)(MemoryCache.Default[sName]));
             }
             return null;
         }
 
-        static public void RenewCachedData(string sName, CachingData sValue, Int32 nHours, System.Web.Caching.CacheItemPriority oPriority, Int32 nMediaID, bool bToRenew)
+        static public void RenewCachedData(string sName, CachingData sValue, int nHours, CacheItemPriority oPriority, int nMediaID, bool bToRenew)
         {
-            bool bExist = Exist(sName);
-            if (bExist)
-                System.Web.HttpRuntime.Cache.Remove(sName);
-            sValue.m_nUseCounter = 1;
-            System.Web.Caching.CacheItemRemovedCallback onRemove = null;
-            onRemove = new System.Web.Caching.CacheItemRemovedCallback(CachingManager.CachedRemoved);
-            System.Web.HttpRuntime.Cache.Add(sName, sValue, null, DateTime.UtcNow.AddSeconds(nHours), System.Web.Caching.Cache.NoSlidingExpiration, oPriority, onRemove);
-            //cacheKeyList[sName] = DateTime.UtcNow; 
+            var bExist = Exist(sName);
+            if (bExist) { MemoryCache.Default.Remove(sName); }
+
+            sValue._UseCounter = 1;
+            var policy = new CacheItemPolicy
+            {
+                AbsoluteExpiration = DateTime.UtcNow.AddSeconds(nHours),
+                Priority = oPriority,
+                RemovedCallback = CachingManager.CachedRemoved,
+            };
+
+            MemoryCache.Default.Add(sName, sValue, policy);
         }
 
-
-        static public void SetCachedData(string sName, object sValue, Int32 nSeconds, System.Web.Caching.CacheItemPriority oPriority, Int32 nMediaID, bool bToRenew)
+        static public void SetCachedData(string sName, object sValue, int nSeconds, CacheItemPriority oPriority, int nMediaID, bool bToRenew)
         {
-            bool bExist = Exist(sName);
-            if (bExist)
-                System.Web.HttpRuntime.Cache.Remove(sName);
-            System.Web.Caching.CacheItemRemovedCallback onRemove = null;
-            onRemove = new System.Web.Caching.CacheItemRemovedCallback(CachingManager.CachedRemoved);
-            CachingData theDate = new CachingData(sValue, nMediaID, bToRenew, nSeconds, oPriority);
-            System.Web.HttpRuntime.Cache.Add(sName, theDate, null, DateTime.UtcNow.AddSeconds(nSeconds), System.Web.Caching.Cache.NoSlidingExpiration, oPriority, onRemove);
-            //cacheKeyList[sName] = DateTime.UtcNow; 
+            var bExist = Exist(sName);
+            if (bExist) { MemoryCache.Default.Remove(sName); }
+
+            var policy = new CacheItemPolicy
+            {
+                AbsoluteExpiration = DateTime.UtcNow.AddSeconds(nSeconds),
+                Priority = oPriority,
+                RemovedCallback = CachingManager.CachedRemoved,
+            };
+
+            var theDate = new CachingData(sValue, nMediaID, bToRenew, nSeconds, oPriority);
+            MemoryCache.Default.Add(sName, theDate, policy);
         }
-        
+
         static public void RemoveFromCache(string sKey)
         {
-            System.Collections.ArrayList removeList = new System.Collections.ArrayList();
+            var removeList = new System.Collections.ArrayList();
 
-            foreach (System.Collections.DictionaryEntry entry in System.Web.HttpRuntime.Cache)
+            foreach (var entry in MemoryCache.Default)
             {
-                if (entry.Key.ToString().StartsWith(sKey) || sKey == "")
-                    removeList.Add(entry.Key.ToString());
+                if (entry.Key.StartsWith(sKey) || sKey == "")
+                    removeList.Add(entry.Key);
             }
             foreach (string key in removeList)
             {
                 try
                 {
-                    System.Web.HttpRuntime.Cache.Remove(key);
+                    MemoryCache.Default.Remove(key);
                 }
                 catch
                 { }
             }
         }
 
-        static public void CachedRemoved(string key, Object value, System.Web.Caching.CacheItemRemovedReason reason)
+        static public void CachedRemoved(CacheEntryRemovedArguments args)
         {
+            var key = args.CacheItem.Key;
+            var value = args.CacheItem.Value;
+            var reason = args.RemovedReason;
+
             //cacheKeyList.Remove(key); 
-            if (reason == System.Web.Caching.CacheItemRemovedReason.Expired || reason == System.Web.Caching.CacheItemRemovedReason.Underused)
+            if (reason == CacheEntryRemovedReason.Expired || reason == CacheEntryRemovedReason.Evicted)
             {
                 if (value.GetType().ToString() == typeof(CachingData).ToString())
                 {
                     try
                     {
-                        Int32 nMediaID = 0;
-                        bool bRenew = false;
-                        DateTime dStart = DateTime.UtcNow.AddHours(-48);
-                        DateTime dLastUsed = DateTime.UtcNow.AddHours(-48);
-                        Int32 nCounter = 0;
-                        Int32 nCacheSec = 0;
-                        System.Web.Caching.CacheItemPriority priority = System.Web.Caching.CacheItemPriority.Default;
+                        var nMediaID = 0;
+                        var bRenew = false;
+                        var dStart = DateTime.UtcNow.AddHours(-48);
+                        var dLastUsed = DateTime.UtcNow.AddHours(-48);
+                        var nCounter = 0;
+                        var nCacheSec = 0;
+                        var priority = CacheItemPriority.Default;
                         ((CachingData)(value)).GetValues(ref nMediaID, ref bRenew, ref dStart, ref dLastUsed, ref nCounter, ref nCacheSec, ref priority);
                         if (bRenew == true || nCacheSec <= 10800)
                         {
-                            DateTime dNow = DateTime.UtcNow;
-                            Int32 nSecs = (Int32)((dNow - dStart).TotalSeconds);
+                            var dNow = DateTime.UtcNow;
+                            var nSecs = (int)((dNow - dStart).TotalSeconds);
                             if (nCounter > 5 || (nCacheSec < 1800 && nCounter > 1))
                             {
                                 if (nSecs < 86400)
                                 {
-                                    Int32 nLastUsedSec = (Int32)((dNow - dLastUsed).TotalSeconds);
+                                    var nLastUsedSec = (int)((dNow - dLastUsed).TotalSeconds);
                                     if (nCacheSec > nLastUsedSec * 2 || nCacheSec < 300)
                                         RenewCachedData(key, (CachingData)value, nCacheSec, priority, nMediaID, true);
                                 }
@@ -169,25 +180,22 @@ namespace CachingManager
                     }
                     catch (Exception ex)
                     {
-                        log.Error("Exception - " + ex.Message + " | " + ex.StackTrace, ex);
+                        _Log.Error("Exception - " + ex.Message + " | " + ex.StackTrace, ex);
                     }
                 }
             }
-        }        
+        }
 
         static public List<string> GetCachedKeys()
         {
-            List<string> keys = new List<string>();
+            var keys = new List<string>();
             try
             {
-                foreach (System.Collections.DictionaryEntry entry in System.Web.HttpRuntime.Cache)
-                {
-                    keys.Add(entry.Key.ToString());
-                }
+                keys = MemoryCache.Default.Select(entry => entry.Key.ToString()).ToList();
             }
             catch (Exception ex)
             {
-                log.Error("GetCachedKeys failed", ex);
+                _Log.Error("GetCachedKeys failed", ex);
             }
             return keys;
         }

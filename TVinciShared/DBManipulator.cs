@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Threading;
 using System.Web;
 using Uploader;
@@ -1191,7 +1192,7 @@ namespace TVinciShared
                     theCached[0] = sTypeInParentGroup;
                     theCached[1] = nTagTypeID.ToString();
                     theCached[2] = nFictivicGroupID.ToString();
-                    CachingManager.CachingManager.SetCachedData("BuildOrUpdateFictivicMedia" + nGroupID.ToString() + sTagType, theCached, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                    CachingManager.CachingManager.SetCachedData("BuildOrUpdateFictivicMedia" + nGroupID.ToString() + sTagType, theCached, 10800, CacheItemPriority.Default, 0, false);
                 }
 
                 Dictionary<string, string> sFictivicMetaRetVal = new Dictionary<string, string>();

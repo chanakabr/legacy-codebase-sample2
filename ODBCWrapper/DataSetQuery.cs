@@ -1,8 +1,5 @@
 using System;
 using System.Data.SqlClient;
-using System.Web;
-using System.Web.SessionState;
-using System.Configuration;
 using System.Data;
 using KLogMonitor;
 using System.Reflection;
@@ -36,17 +33,18 @@ namespace ODBCWrapper
             {
                 m_nCachedSec = cachedSec;
             }
-            else if (HttpContext.Current != null && HttpContext.Current.Session != null)
-            {
-                if (HttpContext.Current.Session["ODBC_CACH_SEC"] != null)
-                {
-                    m_nCachedSec = int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString());
-                }
-                else
-                {
-                    m_nCachedSec = 60;
-                }
-            }
+            // TODO: Find way to store ODBC_CACH_SEC value in a different location or access the current context in a multitarget environment.
+            //else if (HttpContext.Current != null && HttpContext.Current.Session != null)
+            //{
+            //    if (HttpContext.Current.Session["ODBC_CACH_SEC"] != null)
+            //    {
+            //        m_nCachedSec = int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString());
+            //    }
+            //    else
+            //    {
+            //        m_nCachedSec = 60;
+            //    }
+            //}
             else
             {
                 m_nCachedSec = 60;

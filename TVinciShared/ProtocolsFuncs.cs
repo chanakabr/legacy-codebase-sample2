@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -915,7 +916,7 @@ namespace TVinciShared
             arrCache[2] = sBaseBillingType;
             arrCache[3] = dFileDuration.ToString();
             arrCache[4] = nViews.ToString();
-            CachingManager.CachingManager.SetCachedData("GetMediaFileID_" + nMediaID.ToString() + "_" + sFileFormat + "_" + sFileQuality + "_" + bIsAdmin.ToString() + "_" + nGroupID.ToString(), arrCache, 5400, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+            CachingManager.CachingManager.SetCachedData("GetMediaFileID_" + nMediaID.ToString() + "_" + sFileFormat + "_" + sFileQuality + "_" + bIsAdmin.ToString() + "_" + nGroupID.ToString(), arrCache, 5400, CacheItemPriority.Default, 0, false);
             return nRet;
         }
 
@@ -1378,7 +1379,7 @@ namespace TVinciShared
                     nPicID = nLocalPicID;
                 }
                 if (sPicsForCache != "")
-                    CachingManager.CachingManager.SetCachedData("GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                    CachingManager.CachingManager.SetCachedData("GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             }
             else
             {
@@ -1423,7 +1424,7 @@ namespace TVinciShared
                 if (sPicsForCache != "")
                 {
                     ApiObjects.PicObject[] thePicsClone = TVinciShared.ObjectCopier.Clone<ApiObjects.PicObject[]>(thePics);
-                    CachingManager.CachingManager.SetCachedData("ws.GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString(), thePicsClone, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                    CachingManager.CachingManager.SetCachedData("ws.GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString(), thePicsClone, 10800, CacheItemPriority.Default, 0, false);
                 }
             }
             return sRet.ToString();
@@ -1462,7 +1463,7 @@ namespace TVinciShared
                     nPicID = nLocalPicID;
                 }
                 if (sPicsForCache != "")
-                    CachingManager.CachingManager.SetCachedData("GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                    CachingManager.CachingManager.SetCachedData("GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             }
             else if (theDoc == null && thePics != null)
             {
@@ -1490,7 +1491,7 @@ namespace TVinciShared
                 if (sPicsForCache != "")
                 {
                     ApiObjects.PicObject[] thePicsClone = TVinciShared.ObjectCopier.Clone<ApiObjects.PicObject[]>(thePics);
-                    CachingManager.CachingManager.SetCachedData("ws.GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString(), thePicsClone, 10800, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                    CachingManager.CachingManager.SetCachedData("ws.GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString(), thePicsClone, 10800, CacheItemPriority.Default, 0, false);
                 }
             }
             return sRet.ToString();
@@ -1809,7 +1810,7 @@ namespace TVinciShared
                                 x.LoadXml(HttpContext.Current.Server.HtmlDecode(oInfoStruct.ToString().Replace("''", "\"")));
                                 theInfoStruct = x.DocumentElement.Clone();
                             }
-                            CachingManager.CachingManager.SetCachedData("infoStruct_" + nGroupID.ToString(), theInfoStruct, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                            CachingManager.CachingManager.SetCachedData("infoStruct_" + nGroupID.ToString(), theInfoStruct, 10800, CacheItemPriority.Default, 0, false);
                         }
                     }
                     return theInfoStruct;
@@ -1830,7 +1831,7 @@ namespace TVinciShared
                                 x.LoadXml(HttpContext.Current.Server.HtmlDecode(oInfoStruct.ToString().Replace("''", "\"")));
                                 theInfoStruct = x.DocumentElement.Clone();
                             }
-                            CachingManager.CachingManager.SetCachedData("infoStruct_" + nGroupID.ToString(), theInfoStruct, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                            CachingManager.CachingManager.SetCachedData("infoStruct_" + nGroupID.ToString(), theInfoStruct, 10800, CacheItemPriority.Default, 0, false);
                         }
                     }
                     else
@@ -2058,12 +2059,12 @@ namespace TVinciShared
             if (oPlayListSchema == null)
             {
                 sRet.Append("</playlist_schema>");
-                CachingManager.CachingManager.SetCachedData("playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                CachingManager.CachingManager.SetCachedData("playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
                 return sRet.ToString();
             }
             else
             {
-                CachingManager.CachingManager.SetCachedData("ws.playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString(), oPlayListSchema, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                CachingManager.CachingManager.SetCachedData("ws.playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString(), oPlayListSchema, 10800, CacheItemPriority.Default, 0, false);
                 return "";
             }
         }
@@ -2357,7 +2358,7 @@ namespace TVinciShared
                 }
 
                 if (thePreAdObject == null)
-                    CachingManager.CachingManager.SetCachedData("mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                    CachingManager.CachingManager.SetCachedData("mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
 
                 if (thePreAdObject != null)
                 {
@@ -2374,7 +2375,7 @@ namespace TVinciShared
                     if (thePostAdObj.m_sUrl == "")
                         thePostAdObj = null;
                     t[3] = thePostAdObj;
-                    CachingManager.CachingManager.SetCachedData("ws.mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString(), t, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                    CachingManager.CachingManager.SetCachedData("ws.mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString(), t, 10800, CacheItemPriority.Default, 0, false);
                 }
                 return sRet.ToString();
             }
@@ -4303,7 +4304,7 @@ namespace TVinciShared
                         sRet.Append("</external_ids>");
                     }
                     if (bEnterToCache == true && nMediaFileID != 0 && bWithUDID == false)
-                        CachingManager.CachingManager.SetCachedData("GetMediaTagNeto_" + sPicSizeForCache + sCountryCD + nMediaFileID.ToString() + "_" + nMediaID.ToString() + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + adminToken + "_" + userIP + "_" + bUseStartDate.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, nMediaID, true);
+                        CachingManager.CachingManager.SetCachedData("GetMediaTagNeto_" + sPicSizeForCache + sCountryCD + nMediaFileID.ToString() + "_" + nMediaID.ToString() + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + adminToken + "_" + userIP + "_" + bUseStartDate.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, nMediaID, true);
                 }
                 else
                 {
@@ -4467,7 +4468,7 @@ namespace TVinciShared
                 selectQuery.Finish();
                 selectQuery = null;
                 if (bWithCach == true && theFileTypes != null)
-                    CachingManager.CachingManager.SetCachedData("ws.GetFileTypesXML" + nMediaID.ToString(), theFileTypes, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, nMediaID, true);
+                    CachingManager.CachingManager.SetCachedData("ws.GetFileTypesXML" + nMediaID.ToString(), theFileTypes, 10800, CacheItemPriority.Default, nMediaID, true);
             }
         }
 
@@ -4499,7 +4500,7 @@ namespace TVinciShared
                 selectQuery.Finish();
                 selectQuery = null;
                 if (bWithCach == true)
-                    CachingManager.CachingManager.SetCachedData("GetFileTypesXML" + nMediaID.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, nMediaID, true);
+                    CachingManager.CachingManager.SetCachedData("GetFileTypesXML" + nMediaID.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, nMediaID, true);
             }
             return sRet.ToString();
         }
@@ -4731,9 +4732,9 @@ namespace TVinciShared
                 sRet.Append(GetTagTypesMediaValues(nMediaID, nLangID, bIsLangMain, ref theInfoStruct, false, ref theInfo));
                 sRet.Append("</tags_collections>");
                 if (bEnterToCache == true && theInfo == null)
-                    CachingManager.CachingManager.SetCachedData("GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct, sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, nMediaID, true);
+                    CachingManager.CachingManager.SetCachedData("GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct, sRet.ToString(), 10800, CacheItemPriority.Default, nMediaID, true);
                 if (bEnterToCache == true && theInfo != null)
-                    CachingManager.CachingManager.SetCachedData("ws.GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct, theInfo, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, nMediaID, true);
+                    CachingManager.CachingManager.SetCachedData("ws.GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct, theInfo, 10800, CacheItemPriority.Default, nMediaID, true);
             }
 
             Int32 nViews = 0;
@@ -4967,7 +4968,7 @@ namespace TVinciShared
                         sLang = oLang.ToString();
                     nDeviceID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["DEVICE_ID"].ToString());
                     string sToCache = nCountryID.ToString() + "|" + sLang + "|" + nDeviceID.ToString();
-                    CachingManager.CachingManager.SetCachedData(sAdminToken + "_" + sIP, sToCache, 3600, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    CachingManager.CachingManager.SetCachedData(sAdminToken + "_" + sIP, sToCache, 3600, CacheItemPriority.Default, 0, false);
                     bRet = true;
                 }
             }
@@ -5738,7 +5739,7 @@ namespace TVinciShared
                     sRet.Append("</category>");
                 }
                 sRet.Append("</response>");
-                CachingManager.CachingManager.SetCachedData(sTheDoc, sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                CachingManager.CachingManager.SetCachedData(sTheDoc, sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
                 return sRet.ToString();
             }
             else
@@ -5788,7 +5789,7 @@ namespace TVinciShared
                     theCategories = (ApiObjects.CategoryObject[])(ResizeArray(theCategories, theCategories.Length + 1));
                 theCategories[theCategories.Length - 1] = cat;
                 if (theCategories != null)
-                    CachingManager.CachingManager.SetCachedData(sTheDoc, theCategories, 10800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+                    CachingManager.CachingManager.SetCachedData(sTheDoc, theCategories, 10800, CacheItemPriority.Default, 0, false);
                 return "";
             }
         }
@@ -5822,7 +5823,7 @@ namespace TVinciShared
             ApiObjects.ChannelObject[] theChannels = null;
             sRet.Append(GetRSSChannels(ref theDoc, nGroupID, nLangID, bIsLangMain, bIsAdmin, bWithCache, ref thePics, ref theChannels, nCountryID, nDeviceID, nStartIndex, nNumOfItems));
             sRet.Append("</response>");
-            CachingManager.CachingManager.SetCachedData(sTheDoc, sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+            CachingManager.CachingManager.SetCachedData(sTheDoc, sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             return sRet.ToString();
         }
 
@@ -8049,7 +8050,7 @@ namespace TVinciShared
                 }
             }
             sRet.Append("</response>");
-            CachingManager.CachingManager.SetCachedData(sTheSigDoc, sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+            CachingManager.CachingManager.SetCachedData(sTheSigDoc, sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             return sRet.ToString();
         }
 
@@ -8113,7 +8114,7 @@ namespace TVinciShared
             selectQuery = null;
 
             sRet.Append("</response>");
-            CachingManager.CachingManager.SetCachedData(sTheSigDoc, sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+            CachingManager.CachingManager.SetCachedData(sTheSigDoc, sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             return sRet.ToString();
         }
 
@@ -10175,7 +10176,7 @@ namespace TVinciShared
             selectQuery = null;
             //if (retVal > 0)
             //{
-            //    CachingManager.CachingManager.SetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), retVal, 3600, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+            //    CachingManager.CachingManager.SetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString(), retVal, 3600, CacheItemPriority.Default, 0, false);
             //}
             //else
             //{
@@ -10629,7 +10630,7 @@ namespace TVinciShared
 
             selectQuery.Finish();
             selectQuery = null;
-            CachingManager.CachingManager.SetCachedData("GetSearchCount" + sDocStructForCache + sEndDateField + "_" + nType.ToString() + "_" + nGroupID.ToString() + "_" + sWPGID.ToString() + "_" + sName + "_" + bAnd.ToString() + "_" + bExact.ToString() + "_" + sDescription + "_" + sMinDate + "_" + sMaxDate + "_" + nCountryID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + bUseStartDate.ToString(), nRet, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+            CachingManager.CachingManager.SetCachedData("GetSearchCount" + sDocStructForCache + sEndDateField + "_" + nType.ToString() + "_" + nGroupID.ToString() + "_" + sWPGID.ToString() + "_" + sName + "_" + bAnd.ToString() + "_" + bExact.ToString() + "_" + sDescription + "_" + sMinDate + "_" + sMaxDate + "_" + nCountryID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + bUseStartDate.ToString(), nRet, 10800, CacheItemPriority.Default, 0, false);
             return nRet;
         }
 
@@ -10986,7 +10987,7 @@ namespace TVinciShared
                                 selectQuery = null;
                             }
                             sTmpRet.Append("</tag_type>");
-                            CachingManager.CachingManager.SetCachedData("TagValuesProtocol_" + nGroupID.ToString() + "_" + sTagName + "_" + sOrderBy + "_" + sInMin + "_" + sInMax + "_" + nLangID.ToString() + "_" + nCountryID.ToString() + "_" + nDeviceID.ToString(), sTmpRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                            CachingManager.CachingManager.SetCachedData("TagValuesProtocol_" + nGroupID.ToString() + "_" + sTagName + "_" + sOrderBy + "_" + sInMin + "_" + sInMax + "_" + nLangID.ToString() + "_" + nCountryID.ToString() + "_" + nDeviceID.ToString(), sTmpRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
                             sRet.Append(sTmpRet.ToString());
                         }
                     }
@@ -12892,9 +12893,9 @@ namespace TVinciShared
             // Distinct tags
 
             if (sPersonal == "false" && theChannelObject == null)
-                CachingManager.CachingManager.SetCachedData("GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString() + "_" + bUseStartDate.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                CachingManager.CachingManager.SetCachedData("GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString() + "_" + bUseStartDate.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             if (sPersonal == "false" && theChannelObject != null)
-                CachingManager.CachingManager.SetCachedData("ws.GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString(), sRet.ToString() + "_" + bUseStartDate.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                CachingManager.CachingManager.SetCachedData("ws.GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString(), sRet.ToString() + "_" + bUseStartDate.ToString(), 10800, CacheItemPriority.Default, 0, false);
 
             return sRet.ToString();
         }
@@ -14330,7 +14331,7 @@ namespace TVinciShared
 
                 if (bWithCache)
                 {
-                    CachingManager.CachingManager.SetCachedData("SubscriptionMediaProtocol_" + sMediaType + "_" + sSubscriptionID + "_" + nGroupID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + nNumOfItems.ToString() + "_" + nStartIndex.ToString(), sRet.ToString(), 10800, System.Web.Caching.CacheItemPriority.AboveNormal, nSubscriptionID, false);
+                    CachingManager.CachingManager.SetCachedData("SubscriptionMediaProtocol_" + sMediaType + "_" + sSubscriptionID + "_" + nGroupID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + nNumOfItems.ToString() + "_" + nStartIndex.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, nSubscriptionID, false);
                 }
 
             }

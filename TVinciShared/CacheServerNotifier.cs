@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Text;
 using System.Web;
 using System.Xml;
@@ -78,7 +79,7 @@ namespace TVinciShared
             string sReq = RemoveUnWantedParameters(m_sRequest, "/root");
             if (CachingManager.CachingManager.Exist(sReq) == true && CachingManager.CachingManager.GetCachedData(sReq).ToString() == "---")
                 return;
-            CachingManager.CachingManager.SetCachedData(sReq, "---", 10800, System.Web.Caching.CacheItemPriority.Default, 0, false);
+            CachingManager.CachingManager.SetCachedData(sReq, "---", 10800, CacheItemPriority.Default, 0, false);
             string sCachingSeverXML = "<root><req>" + sReq + "</req>";
             sCachingSeverXML += "<res>" + RemoveUnWantedParameters(m_sResponse, "/") + "</res></root>";
             m_sXML = sCachingSeverXML;

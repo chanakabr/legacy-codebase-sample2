@@ -9,6 +9,7 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Text;
 using System.Collections.Generic;
+using System.Runtime.Caching;
 
 namespace TVinciShared
 {
@@ -278,7 +279,7 @@ namespace TVinciShared
                         m_sStartValue = selectQuery.Table("query").DefaultView[0].Row[m_sFieldName].ToString();
                     */
                 }
-                CachingManager.CachingManager.SetCachedData("SetValue_" + sTable + "_" + sIndexFieldName + "_" + oIndexFieldVal.ToString() + "_" + m_sConnectionKey, selectQuery.Table("query").Copy(), 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                CachingManager.CachingManager.SetCachedData("SetValue_" + sTable + "_" + sIndexFieldName + "_" + oIndexFieldVal.ToString() + "_" + m_sConnectionKey, selectQuery.Table("query").Copy(), 3600, CacheItemPriority.Default, 0, false);
             }
             selectQuery.Finish();
             selectQuery = null;

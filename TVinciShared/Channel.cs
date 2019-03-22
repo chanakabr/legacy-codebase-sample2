@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Data;
 using System.Reflection;
+using System.Runtime.Caching;
 using System.Text;
 using System.Xml;
 
@@ -850,7 +851,7 @@ namespace TVinciShared
                 selectQuery.Finish();
                 selectQuery = null;
             }
-            CachingManager.CachingManager.SetCachedData("GetTotalChannelSize" + m_nChannelID.ToString() + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString(), nCo, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+            CachingManager.CachingManager.SetCachedData("GetTotalChannelSize" + m_nChannelID.ToString() + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString(), nCo, 10800, CacheItemPriority.Default, 0, false);
             return nCo;
         }
 
@@ -1516,9 +1517,9 @@ namespace TVinciShared
             log.Debug("cache string - GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString());
 
             if (m_nWatcherID == 0)
-                CachingManager.CachingManager.SetCachedData("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString(), d, 10800, System.Web.Caching.CacheItemPriority.AboveNormal, 0, false);
+                CachingManager.CachingManager.SetCachedData("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString(), d, 10800, CacheItemPriority.Default, 0, false);
             else
-                CachingManager.CachingManager.SetCachedData("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString(), d, 3600, System.Web.Caching.CacheItemPriority.Normal, 0, false);
+                CachingManager.CachingManager.SetCachedData("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString(), d, 3600, CacheItemPriority.Default, 0, false);
             return d;
         }
 

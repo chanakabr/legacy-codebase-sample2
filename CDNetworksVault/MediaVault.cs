@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using KLogMonitor;
 using System.Reflection;
+using System.Runtime.Caching;
 
 namespace CDNetworksVault
 {
@@ -33,7 +34,7 @@ namespace CDNetworksVault
             string whatIsMyIp = "https://platform-us.tvinci.com/whatismyip.aspx?onlyip=1";
             WebClient wc = new WebClient();
             string response = System.Text.UTF8Encoding.UTF8.GetString(wc.DownloadData(whatIsMyIp));
-            CachingManager.CachingManager.SetCachedData("___server_ip", response, 80000, System.Web.Caching.CacheItemPriority.AboveNormal, 0, true);
+            CachingManager.CachingManager.SetCachedData("___server_ip", response, 80000, CacheItemPriority.Default, 0, true);
             return response;
         }
 
