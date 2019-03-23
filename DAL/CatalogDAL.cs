@@ -4756,7 +4756,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet InsertTopic(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, ApiObjects.MetaType topicType, string commaSeparatedFeatures,
-                                            bool? isPredefined, long? parent_topic_id, string helpText, long userId)
+                                            bool? isPredefined, long? parent_topic_id, string helpText, long userId, bool shouldCheckRegularFlowValidations)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4771,6 +4771,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ParentTopicId", parent_topic_id);
             sp.AddParameter("@HelpText", helpText);
             sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@ShouldValidateSystemName", shouldCheckRegularFlowValidations ? 1 : 0);
+            
 
             return sp.ExecuteDataSet();
         }
