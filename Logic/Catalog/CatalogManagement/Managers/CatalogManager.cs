@@ -1965,7 +1965,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.InsertTopic(groupId, topicToAdd.Name, languageCodeToName, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetFeaturesForDB(),
-                                                      topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
+                                                      topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId, shouldCheckRegularFlowValidations);
                 result = CreateTopicResponseFromDataSet(ds);
                 if (shouldCheckRegularFlowValidations)
                 {
