@@ -35,6 +35,7 @@ using System.Drawing;
 using WebAPI.Models.API;
 using ApiObjects.BulkUpload;
 using WebAPI.Managers;
+using System.Net;
 
 namespace WebAPI.App_Start
 {
@@ -80,7 +81,7 @@ namespace WebAPI.App_Start
 
             return true;
         }
-        
+
         public override bool CanWriteType(Type type)
         {
             return true;
@@ -88,55 +89,66 @@ namespace WebAPI.App_Start
 
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, System.Net.TransportContext transportContext)
         {
-            try
+            if (value != null && value is StatusWrapper)
             {
-                if (value != null && value is StatusWrapper)
+                try
                 {
                     // validate expected type was received
                     StatusWrapper restResultWrapper = value as StatusWrapper;
-                    if (restResultWrapper != null && restResultWrapper.Result != null)
+                    if (restResultWrapper == null || restResultWrapper.Result == null || !(restResultWrapper.Result is IKalturaExcelStructure))
                     {
-                        int? groupId;
-                        string fileName;
-
-                        if (TryGetDataFromRequest(out groupId, out fileName))
-                        {
-                            var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructure;
-                            if (kalturaExcelStructure != null)
-                            {
-                                var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
-                                if (excelStructure != null)
-                                {
-                                    DataTable fullDataTable = null;
-                                    var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
-                                    if (excelableListResponse != null)
-                                    {
-                                        fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
-                                    }
-
-                                    HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
-                                    HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
-
-                                    return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
-                                }
-                                else
-                                {
-                                    log.DebugFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
-                        }
+                        throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
                     }
+
+                    int? groupId;
+                    string fileName;
+
+                    if (!TryGetDataFromRequest(out groupId, out fileName))
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
+                    }
+
+                    var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructure;
+                    if (kalturaExcelStructure == null)
+                    {
+                        throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+                    }
+
+                    var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
+                    if (excelStructure == null)
+                    {
+                        log.ErrorFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
+                        throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+                    }
+
+                    DataTable fullDataTable = null;
+                    var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
+                    if (excelableListResponse != null)
+                    {
+                        fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
+                    }
+
+                    HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
+                    HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+                    return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
+                }
+                catch (ApiException ex)
+                {
+                    value = CreateStatusWrapper(ex, value);
+                }
+                catch (Exception ex)
+                {
+                    var apiException = new ApiException(ex, HttpStatusCode.InternalServerError);
+                    value = CreateStatusWrapper(apiException, value);
                 }
             }
-            catch (ClientException ex)
+
+            if (HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
             {
-                ErrorUtils.HandleClientException(ex);
+                HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
-           
+
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
                 HttpContext.Current.Response.ContentType = "application/json";
@@ -144,7 +156,33 @@ namespace WebAPI.App_Start
                 return Task.FromResult(writeStream);
             }
         }
-        
+
+        private StatusWrapper CreateStatusWrapper(ApiException ex, object value)
+        {
+            var subCode = ex.Code;
+            var message = ex.Message;
+            var exceptionWrapper = WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message, ex.Args);
+
+            var exceptionContentValue = (ex.Response.Content as System.Net.Http.ObjectContent).Value;
+            if (exceptionContentValue is ApiException.ExceptionPayload && (exceptionContentValue as ApiException.ExceptionPayload).code != 0)
+            {
+                var payload = exceptionContentValue as WebAPI.Exceptions.ApiException.ExceptionPayload;
+                subCode = payload.code;
+                message = WrappingHandler.HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
+                exceptionWrapper = WrappingHandler.prepareExceptionResponse(payload.code, message, payload.arguments);
+                if (payload.failureHttpCode != System.Net.HttpStatusCode.OK && payload.failureHttpCode != 0)
+                {
+                    HttpContext.Current.Response.StatusCode = (int)payload.failureHttpCode;
+                    HttpContext.Current.Response.Headers.Add("X-Kaltura-App", string.Format("exiting on error {0} - {1}", payload.code, message));
+                    HttpContext.Current.Response.Headers.Add("X-Kaltura", string.Format("error-{0}", payload.code));
+                }
+            }
+
+            var oldStatusWrapper = value as StatusWrapper;
+            var statusWrapper = new StatusWrapper(subCode, Guid.Empty, oldStatusWrapper.ExecutionTime, exceptionWrapper, message);
+            return statusWrapper;
+        }
+
         private bool TryGetDataFromRequest(out int? groupId, out string fileName)
         {
             bool isResponseValid = false;
@@ -187,7 +225,7 @@ namespace WebAPI.App_Start
                     }
                 }
             }
-            
+
             return isResponseValid;
         }
 
@@ -232,7 +270,7 @@ namespace WebAPI.App_Start
                 {
                     excelWorksheet.Cells[columnNameRowIndex + 1, 1].LoadFromDataTable(dt, false, OfficeOpenXml.Table.TableStyles.Medium13);
                 }
-                
+
                 pack.SaveAs(writeStream);
 
                 return Task.FromResult(writeStream);
@@ -247,19 +285,7 @@ namespace WebAPI.App_Start
                 var defaultType = typeof(string);
                 foreach (var col in columns)
                 {
-                    // TODO SHIR - SET TYPE
-                    //Type columnType = defaultType;
-                    //if (col.Value.Property != null)
-                    //{
-                    //    columnType = col.Value.Property.PropertyType.GetRealType();
-                    //    if (columnType.IsClass && !columnType.IsSealed)
-                    //    {
-                    //        columnType = defaultType;
-                    //    }
-                    //}
-
                     dataTable.Columns.Add(col.Key, defaultType);
-                    //dataTable.Columns.Add(col.Key);
                 }
 
                 if (objects != null && objects.Count > 0)
@@ -287,7 +313,7 @@ namespace WebAPI.App_Start
                                         {
                                             value = excelValue.Value;
                                         }
-                                       
+
                                         if (value != null)
                                         {
                                             row[excelValue.Key] = value;
@@ -306,6 +332,6 @@ namespace WebAPI.App_Start
             }
 
             return dataTable;
-        } 
+        }
     }
 }

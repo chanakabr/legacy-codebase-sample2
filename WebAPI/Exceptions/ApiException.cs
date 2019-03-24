@@ -21,7 +21,8 @@ namespace WebAPI.Exceptions
 {
     public class ApiException : HttpResponseException
     {
-        // Domain Section 1000 - 1999
+        #region Domain Section 1000 - 1999
+
         public static ClientExceptionType Domain_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.DomainAlreadyExists, "Domain Already Exists", "The household you entered already exists in the system");
         public static ClientExceptionType EXCEEDED_LIMIT = new ClientExceptionType(eResponseStatus.ExceededLimit, "Exceeded Limit", "The number of devices or users has exceeded the household limit");
         public static ClientExceptionType DEVICE_TYPE_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.DeviceTypeNotAllowed, "Device Type Not Allowed", "The device type you selected is not supported by the system");
@@ -60,7 +61,10 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType HOME_NETWORK_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.HomeNetworkDoesNotExist, "Home Network Does Not Exist", "The home network you specified does not exis");
         public static ClientExceptionType HOME_NETWORK_FREQUENCY = new ClientExceptionType(eResponseStatus.HomeNetworkFrequency, "Home Network Frequency", "Unable to remove the home network from the household because of the frequency limitation");
 
-        // User Section 2000 - 2999
+        #endregion
+
+        #region User Section 2000 - 2999
+
         public static ClientExceptionType USER_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserDoesNotExist, "User Does Not Exist", "This user doesn't exist");
         public static ClientExceptionType USER_SUSPENDED = new ClientExceptionType(eResponseStatus.UserSuspended, "User Suspended", "Unable to perform this action due to a household suspension");
         public static ClientExceptionType PIN_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PinNotExists, "Pin Not Exists", "The PIN provided does not exist in the system");
@@ -94,7 +98,10 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PARENTID_SHOULD_NOT_POINT_TO_ITSELF = new ClientExceptionType(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself");
         public static ClientExceptionType PARENTID_NOT_EXIST = new ClientExceptionType(eResponseStatus.ParentIdNotExist, "ParentId Not Exist");
 
-        // CAS Section 3000 - 3999
+        #endregion
+
+        #region CAS Section 3000 - 3999
+
         public static ClientExceptionType INVALID_PURCHASE = new ClientExceptionType(eResponseStatus.InvalidPurchase, "Invalid Purchase", "Unable to complete the purchase of the item requested");
         public static ClientExceptionType CANCELATION_WINDOW_PERIOD_EXPIRED = new ClientExceptionType(eResponseStatus.CancelationWindowPeriodExpired, "Cancelation Window Period Expired",
             "Unable to cancel the product request because the cancellation window has expired.");
@@ -146,8 +153,10 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType SEASON_NUMBER_NOT_MATCH = new ClientExceptionType(eResponseStatus.SeasonNumberNotMatch, "Season Number Not Match", "The season number you entered doesn't match the season number that was recorded");
         public static ClientExceptionType SUBSCRIPTION_CANCELLATION_IS_BLOCKED = new ClientExceptionType(eResponseStatus.SubscriptionCancellationIsBlocked, "The cancellation for the specified subscription is blocked");
 
+        #endregion
 
-        //Catalog 4000 - 4999
+        #region Catalog 4000 - 4999
+
         public static ClientExceptionType MEDIA_CONCURRENCY_LIMITATION = new ClientExceptionType(eResponseStatus.MediaConcurrencyLimitation, "Media Concurrency Limitation", "Media concurrency limitation (according to DLM configuration)");
         public static ClientExceptionType CONCURRENCY_LIMITATION = new ClientExceptionType(eResponseStatus.ConcurrencyLimitation, "Concurrency Limitation", "Concurrency limitation (according to DLM configuration)");
         public static ClientExceptionType BAD_SEARCH_REQUEST = new ClientExceptionType(eResponseStatus.BadSearchRequest, "Unified Search request has something invalid, either one of the data parameters or one of the field values in KSQL query.", "");
@@ -235,8 +244,14 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHANNEL_META_ORDER_BY_IS_INVALID = new ClientExceptionType(eResponseStatus.ChannelMetaOrderByIsInvalid, "Channel Meta Order By Is Invalid");
         public static ClientExceptionType ACCOUNT_IS_NOT_OPC_SUPPORTED = new ClientExceptionType(eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
         public static ClientExceptionType CANNOT_DELETE_PARENT_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeleteParentAssetStruct, "Can Not Delete Parent Asset Struct");
+        public static ClientExceptionType INVALID_BULK_UPLOAD_STRUCTURE = new ClientExceptionType(eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+        public static ClientExceptionType BULK_UPLOAD_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.BulkUploadDoesNotExist, "BulkUpload Does Not Exist");
+        public static ClientExceptionType BULK_UPLOAD_RESULT_IS_MISSING = new ClientExceptionType(eResponseStatus.BulkUploadResultIsMissing, "BulkUploadResult Is Missing");
 
-        // Api 5000 - 5999
+        #endregion
+
+        #region Api 5000 - 5999
+
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");
         public static ClientExceptionType PIN_MISMATCH = new ClientExceptionType(eResponseStatus.PinMismatch, "Pin Mismatch", "The parental PIN provided doesn't match the user/household PIN");
         public static ClientExceptionType RULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RuleNotExists, "Rule Not Exists", "This rule doesn't exist in the system");
@@ -269,8 +284,18 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType USER_ALREADY_ATTACHED_TO_ASSET_USER_RULE = new ClientExceptionType(eResponseStatus.UserAlreadyAttachedToAssetUserRule, "", "User already attached to this AssetUserRule");
         public static ClientExceptionType ASSET_USER_RULES_OPERATIONS_DISABLE = new ClientExceptionType(eResponseStatus.AssetUserRulesOperationsDisable, "", "AssetUserRule operations are disabled for this partner");
         public static ClientExceptionType ROLE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RoleDoesNotExists, "", "Role Does Not Exists");
+        public static ClientExceptionType FILE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.FileDoesNotExists, "File Does Not Exists", "The file does not exist in a given path");
+        public static ClientExceptionType FILE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.FileAlreadyExists, "File Already Exists", "The file already exists in a given path");
+        public static ClientExceptionType ERROR_SAVING_FILE = new ClientExceptionType(eResponseStatus.ErrorSavingFile, "Error While Saving File", "Error occurred while saving file to File Server");
+        public static ClientExceptionType FILE_ID_NOT_IN_CORRECT_LENGTH = new ClientExceptionType(eResponseStatus.FileIdNotInCorrectLength, "The file ID is not the correct length");
+        public static ClientExceptionType ILLEGAL_EXCEL_FILE = new ClientExceptionType(eResponseStatus.IllegalExcelFile, "Illegal Excel File", "The Excel is formatted incorrectly. Please check the file for format errors");
+        public static ClientExceptionType ENQUEUE_FAILED = new ClientExceptionType(eResponseStatus.EnqueueFailed, "Enqueue Failed", "Enqueue object to Celery queue failed");
+        public static ClientExceptionType EXCEL_MANDTORY_VALUE_IS_MISSING = new ClientExceptionType(eResponseStatus.ExcelMandatoryValueIsMissing, "Mandatory Value In Excel File Is Missing", "One of the mandatory values in the excel is missing");
+        public static ClientExceptionType INVALID_AGRUMENT_VALUE = new ClientExceptionType(eResponseStatus.InvalidArgumentValue, "Invalid Argument Value", "Argument value is not the correct type");
+        #endregion
 
-        // Billing 6000 - 6999
+        #region Billing 6000 - 6999
+
         public static ClientExceptionType INCORRECT_PRICE = new ClientExceptionType(eResponseStatus.IncorrectPrice, "Incorrect Price", "The price shown for the item in the request is not the actual price.");
         public static ClientExceptionType UN_KNOWN_PPVMODULE = new ClientExceptionType(eResponseStatus.UnKnownPPVModule, "Un Known PPVModule", "This PPVModule does not belong to the item.");
         public static ClientExceptionType EXPIRED_CARD = new ClientExceptionType(eResponseStatus.ExpiredCard, "Expired Card", "The specified credit card has expired.");
@@ -323,12 +348,18 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PAYMENT_METHOD_NAME_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentMethodNameRequired, "Payment Method Name Required", "The mandatory payment method name field is missing in the request.");
         public static ClientExceptionType PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD = new ClientExceptionType(eResponseStatus.PaymentGatewayNotSupportPaymentMethod, "Payment Gateway Not Support Payment Method", "The Payment Gateway doesn't support this payment method.");
 
-        // social 7000 - 7999
+        #endregion
+
+        #region social 7000 - 7999
+
         public static ClientExceptionType CONFLICT = new ClientExceptionType(eResponseStatus.Conflict, "Conflict", "A conflict has occurred.");
         public static ClientExceptionType MIN_FRIENDS_LIMITATION = new ClientExceptionType(eResponseStatus.MinFriendsLimitation, "Min Friends Limitation", "Minimum friends limitation");
         public static ClientExceptionType INVALID_PARAMETERS = new ClientExceptionType(eResponseStatus.InvalidParameters, "", "Invalid Parameters");
 
-        // notification 8000-8999
+        #endregion
+
+        #region notification 8000-8999
+
         public static ClientExceptionType NO_NOTIFICATION_SETTINGS_SENT = new ClientExceptionType(eResponseStatus.NoNotificationSettingsSent, "Internal error occurred", "The updated or new notification settings weren't received by the Web service because of an internal error.");
         public static ClientExceptionType PUSH_NOTIFICATION_FALSE = new ClientExceptionType(eResponseStatus.PushNotificationFalse, "Push notification false can't combine with push system announcements true", "Push notifications are disabled.");
         public static ClientExceptionType NO_NOTIFICATION_PARTNER_SETTINGS = new ClientExceptionType(eResponseStatus.NoNotificationPartnerSettings, "No Notification Partner Settings", "The updated or new partner notification settings weren't received by the Web service because of an internal error.");
@@ -351,7 +382,10 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MESSAGE_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.MessageIdentifierRequired, "Message Identifier Required", "The mandatory message ID field is missing in the request.");
         public static ClientExceptionType USER_INBOX_MESSAGES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserInboxMessagesNotExist, "User Inbox Messages Not Exist", "Requested inbox message was not found.");
 
-        //Pricing 9000-9999
+        #endregion
+
+        #region Pricing 9000-9999
+
         public static ClientExceptionType INVALID_PRICE_CODE = new ClientExceptionType(eResponseStatus.InvalidPriceCode, "Invalid Price Code", "Invalid price code: The price code entered doesn't exist for this account");
         public static ClientExceptionType INVALID_VALUE = new ClientExceptionType(eResponseStatus.InvalidValue, "Invalid Value", "The value specified, such as FullLifeCycle/ ViewLifeCycle, is invalid");
         public static ClientExceptionType INVALID_DISCOUNT_CODE = new ClientExceptionType(eResponseStatus.InvalidDiscountCode, "Invalid Discount Code", "Invalid discount code: The discount code entered doesn't exist for this account");
@@ -371,17 +405,28 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PRICE_PLAN_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PricePlanDoesNotExist, "Price plan does not exist", "The price plan doesn't exist in the database");
         public static ClientExceptionType PRICE_DETAILS_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PriceDetailsDoesNotExist, "Price details does not exist", "The price details doesn't exist in the database");
 
-        // Adapters 10000-10999
+        #endregion
+
+        #region Adapters 10000-10999
+
         public static ClientExceptionType ADAPTER_NOT_EXISTS = new ClientExceptionType(eResponseStatus.AdapterNotExists, "Adapter Not Exists", "The adapter you're trying to connect doesn't exist");
         public static ClientExceptionType ADAPTER_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.AdapterIdentifierRequired, "Adapter Identifier Required", "The mandatory adapter ID field is missing from the request");
         public static ClientExceptionType ADAPTER_IS_REQUIRED = new ClientExceptionType(eResponseStatus.AdapterIsRequired, "Adapter Is Required");
         public static ClientExceptionType NO_ADAPTER_TO_INSERT = new ClientExceptionType(eResponseStatus.NoAdapterToInsert, "No Adapter To Insert");
 
-        // Ingest 11000-11999
+        #endregion
+
+        #region  Ingest 11000-11999
+
         public static ClientExceptionType ILLEGAL_XML = new ClientExceptionType(eResponseStatus.IllegalXml, "Illegal XML", "The XML is formatted incorrectly. Please check the file for format errors");
         public static ClientExceptionType MISSING_EXTERNAL_IDENTIFIER = new ClientExceptionType(eResponseStatus.MissingExternalIdentifier, "Missing External Identifier", "The external ID is missing");
         public static ClientExceptionType UNKNOWN_INGEST_TYPE = new ClientExceptionType(eResponseStatus.UnknownIngestType, "Unknown Ingest Type", "The Ingest type is not known");
         public static ClientExceptionType EPG_PROGRAM_DATES_ERROR = new ClientExceptionType(eResponseStatus.EPGSProgramDatesError, "EPG Program Dates Error", "The EPG program dates specified are incorrectly formatted");
+        public static ClientExceptionType INGEST_PROFILE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.IngestProfileNotExists, "Ingest profile does not exist");
+        public static ClientExceptionType INGEST_PROFILE_REQUIRED = new ClientExceptionType(eResponseStatus.IngestProfileIdRequired, "Ingest profile id is mandatory");
+        public static ClientExceptionType NO_INGEsT_PROFILE_TO_INSERT = new ClientExceptionType(eResponseStatus.NoIngestProfileToInsert, "No Ingest Profile found to insert");
+
+        #endregion
 
         [DataMember(Name = "code")]
         [JsonProperty("code")]
@@ -400,6 +445,8 @@ namespace WebAPI.Exceptions
         new public KalturaApiExceptionArg[] Args { get; set; }
 
         private HttpStatusCode FailureHttpCode;
+
+        #region Classes
 
         public class ExceptionType
         {
@@ -504,6 +551,10 @@ namespace WebAPI.Exceptions
             public KalturaApiExceptionArg[] arguments { get; set; }
         }
 
+        #endregion
+
+        #region Ctors
+
         public ApiException()
             : base(HttpStatusCode.OK)
         {
@@ -565,5 +616,7 @@ namespace WebAPI.Exceptions
             Message = message;
             Args = args;
         }
+
+        #endregion
     }
 }

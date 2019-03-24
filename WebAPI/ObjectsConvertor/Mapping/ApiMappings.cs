@@ -60,39 +60,39 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // ParentalRule to KalturaParentalRule
             cfg.CreateMap<ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
-                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
-                .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
-                .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
-                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
-                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
-                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
-                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
+                .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
+                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
+                .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
+                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType.Value)))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
                 .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.isActive))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType.Value)));
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
             // KalturaParentalRule to ParentalRule
             cfg.CreateMap<KalturaParentalRule, ParentalRule>()
-                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.id, opt => opt.Ignore())
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
+                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
+                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
+                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
+                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType)))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => x.value).ToList()))
                 .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => x.value).ToList()))
                 .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
-                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
-                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => x.value).ToList()))
-                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
+                .ForMember(dest => dest.level, opt => opt.Ignore())
                 .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType)))
-                .ForMember(dest => dest.id, opt => opt.Ignore())
-                .ForMember(dest => dest.level, opt => opt.Ignore());
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
             // PinResponse
             cfg.CreateMap<PinResponse, WebAPI.Models.API.KalturaPinResponse>()
@@ -229,7 +229,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.RecommendationEngineId, opt => opt.MapFrom(src => src.ExternalChannel.RecommendationEngineId))
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.ExternalChannel.FilterExpression))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.ExternalChannel.IsActive))
-               .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))               
+               .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))
                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.ExternalChannel.AssetUserRuleId))
                ;
 
@@ -1052,7 +1052,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<EndDateOffsetRuleAction, KalturaEndDateOffsetRuleAction>()
                 .IncludeBase<TimeOffsetRuleAction, KalturaTimeOffsetRuleAction>();
-            
+
             cfg.CreateMap<KalturaRuleType?, RuleType?>()
                 .ConvertUsing(kalturaRuleType =>
                 {
@@ -1060,7 +1060,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     {
                         return null;
                     }
-                    
+
                     switch (kalturaRuleType)
                     {
                         case KalturaRuleType.parental:
@@ -1082,7 +1082,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return RuleType.Network;
                             break;
                         default:
-                            throw new ClientException((int)StatusCode.UnknownEnumValue, 
+                            throw new ClientException((int)StatusCode.UnknownEnumValue,
                                 string.Format("Unknown KalturaRuleType value : {0}", kalturaRuleType.ToString()));
                             break;
                     }
@@ -1151,7 +1151,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProxyRuleId, opt => opt.MapFrom(src => src.ProxyRuleId))
                 .ForMember(dest => dest.ProxyRuleName, opt => opt.MapFrom(src => src.ProxyRuleName))
                 .ForMember(dest => dest.ProxyLevelId, opt => opt.MapFrom(src => src.ProxyLevelId))
-                .ForMember(dest => dest.ProxyLevelName, opt => opt.MapFrom(src => src.ProxyLevelName)); 
+                .ForMember(dest => dest.ProxyLevelName, opt => opt.MapFrom(src => src.ProxyLevelName));
 
             cfg.CreateMap<TvmGeoRule, KalturaTvmGeoRule>()
                 .IncludeBase<TvmRule, KalturaTvmRule>()
@@ -1512,7 +1512,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
             #endregion
-
+            
             #region KalturaPlaybackContext, PlaybackAdapter.AdapterPlaybackContext
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackContext, KalturaPlaybackContext>()
@@ -1547,7 +1547,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
                 .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.FileExtention))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));           
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>();
 
@@ -2502,11 +2502,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaChannelEnrichment.Language:
                     result = ExternalRecommendationEngineEnrichment.Language;
                     break;
-                //case KalturaChannelEnrichment.NPVRSupport:
-                //    result = ExternalRecommendationEngineEnrichment.NPVRSupport;
-                //    break;
-                //case KalturaChannelEnrichment.Parental:
-                //    result = ExternalRecommendationEngineEnrichment.Parental;
+                    //case KalturaChannelEnrichment.NPVRSupport:
+                    //    result = ExternalRecommendationEngineEnrichment.NPVRSupport;
+                    //    break;
+                    //case KalturaChannelEnrichment.Parental:
+                    //    result = ExternalRecommendationEngineEnrichment.Parental;
                     break;
                 case KalturaChannelEnrichment.UserId:
                     result = ExternalRecommendationEngineEnrichment.UserId;

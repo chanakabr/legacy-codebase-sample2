@@ -33,7 +33,7 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaAsset> Objects { get; set; }
-        
+
         public ExcelStructure GetExcelStructure(int groupId)
         {
             if (Objects == null || Objects.Count == 0)
@@ -44,11 +44,11 @@ namespace WebAPI.Models.Catalog
             var duplicates = Objects.GroupBy(x => x.getType()).Select(x => x.Key).ToList();
             if (duplicates.Count > 1)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, 
-                                              "type:" + duplicates[0].ToString(), 
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER,
+                                              "type:" + duplicates[0].ToString(),
                                               "type:" + duplicates[1].ToString());
             }
-            
+
             KalturaAssetStruct kalturaAssetStruct = new KalturaAssetStruct()
             {
                 Id = duplicates[0]

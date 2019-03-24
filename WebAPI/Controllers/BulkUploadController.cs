@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
     /// Bulk Upload service is used to manage and monitor bulk actions
     /// </summary>
     [Service("bulkUpload")]
-    public class BulkUploadController: IKalturaController
+    public class BulkUploadController : IKalturaController
     {
         /// <summary>
         /// Get list of KalturaBulkUpload by filter
@@ -34,11 +34,12 @@ namespace WebAPI.Controllers
         {
             KalturaBulkUploadListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
-            
+
             try
             {
-                DateTime createDate;
-                filter.Validate(out createDate);
+                filter.Validate();
+
+                DateTime createDate = filter.GetCreateDate();
 
                 long? userId = null;
                 if (filter.UploadedByUserIdEqualCurrent.HasValue && filter.UploadedByUserIdEqualCurrent.Value)
@@ -47,7 +48,7 @@ namespace WebAPI.Controllers
                 }
 
                 var statuses = filter.GetItemsIn<List<KalturaBulkUploadJobStatus>, KalturaBulkUploadJobStatus>(filter.StatusIn, "statusIn");
-                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.BulkObjectNameEqual, statuses, createDate, userId, filter.OrderBy, pager);
+                response = ClientsManager.CatalogClient().GetBulkUploadList(groupId, filter.BulkObjectTypeEqual, statuses, createDate, userId, filter.OrderBy, pager);
             }
             catch (ClientException ex)
             {

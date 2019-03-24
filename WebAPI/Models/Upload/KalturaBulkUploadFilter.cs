@@ -28,12 +28,12 @@ namespace WebAPI.Models.Upload
         private const double MIN_RECORD_DAYS_TO_WATCH = 60;
 
         /// <summary>
-        /// File's objectType name (must be type of KalturaOTTObject)
+        /// bulk objects Type name (must be type of KalturaOTTObject)
         /// </summary>
-        [DataMember(Name = "bulkObjectNameEqual")]
-        [JsonProperty("bulkObjectNameEqual")]
-        [XmlElement(ElementName = "bulkObjectNameEqual")]
-        public string BulkObjectNameEqual { get; set; }
+        [DataMember(Name = "bulkObjectTypeEqual")]
+        [JsonProperty("bulkObjectTypeEqual")]
+        [XmlElement(ElementName = "bulkObjectTypeEqual")]
+        public string BulkObjectTypeEqual { get; set; }
 
         /// <summary>
         /// upload date to search within (search in the last 60 days)
@@ -42,7 +42,7 @@ namespace WebAPI.Models.Upload
         [JsonProperty("createDateGreaterThanOrEqual")]
         [XmlElement(ElementName = "createDateGreaterThanOrEqual", IsNullable = true)]
         public long? CreateDateGreaterThanOrEqual { get; set; }
-        
+
         /// <summary>
         /// Indicates if to get the BulkUpload list that created by current user or by the entire group.
         /// </summary>
@@ -53,7 +53,7 @@ namespace WebAPI.Models.Upload
         public bool? UploadedByUserIdEqualCurrent { get; set; }
 
         /// <summary>
-        /// BulkUpload Statuses to search\filter
+        /// Comma separated list of BulkUpload Statuses to search\filter
         /// </summary>
         [DataMember(Name = "statusIn")]
         [JsonProperty(PropertyName = "statusIn")]
@@ -66,26 +66,37 @@ namespace WebAPI.Models.Upload
             return KalturaBulkUploadOrderBy.NONE;
         }
 
-        internal void Validate(out DateTime createDate)
+        internal void Validate()
         {
-            if (string.IsNullOrEmpty(BulkObjectNameEqual))
+            if (string.IsNullOrEmpty(BulkObjectTypeEqual))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkObjectNameEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkObjectTypeEqual");
             }
 
             if (CreateDateGreaterThanOrEqual.HasValue)
             {
-                createDate = DateUtils.UtcUnixTimestampSecondsToDateTime(this.CreateDateGreaterThanOrEqual.Value);
+                var createDate = DateUtils.UtcUnixTimestampSecondsToDateTime(this.CreateDateGreaterThanOrEqual.Value);
                 if (createDate.AddDays(MIN_RECORD_DAYS_TO_WATCH) < DateTime.UtcNow)
                 {
                     var minCreateDate = DateTime.UtcNow.AddDays(-MIN_RECORD_DAYS_TO_WATCH).ToUtcUnixTimestampSeconds();
                     throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "createDateGreaterThanOrEqual", minCreateDate);
                 }
             }
+        }
+
+        internal DateTime GetCreateDate()
+        {
+            DateTime createDate;
+            if (CreateDateGreaterThanOrEqual.HasValue)
+            {
+                createDate = DateUtils.UtcUnixTimestampSecondsToDateTime(this.CreateDateGreaterThanOrEqual.Value);
+            }
             else
             {
                 createDate = DateTime.UtcNow.AddDays(-MIN_RECORD_DAYS_TO_WATCH);
             }
+
+            return createDate;
         }
     }
 }
