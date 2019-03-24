@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.TimeShiftedTv;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -9,7 +8,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using Tvinci.Core.DAL;
 
@@ -21,7 +19,7 @@ namespace DAL
         private const string SP_GET_OPERATOR_GROUP_ID = "sp_GetGroupIDByOperatorID";
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
-        private const int NUM_OF_INSERT_TRIES = 10;
+        public const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;
 
         #region Generic Methods
@@ -190,6 +188,42 @@ namespace DAL
             return false;
         }
 
+        public static bool SaveObjectInCB1<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, uint expirationTTL = 0)
+        {
+            if (objectToSave != null)
+            {
+                var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+                int numOfTries = 0;
+
+                try
+                {
+                    Random r = new Random();
+                    string serializeObject = string.Empty;
+
+                    while (numOfTries < NUM_OF_INSERT_TRIES)
+                    {
+                        if (cbManager.Set<T>(key, objectToSave, expirationTTL))
+                        {
+                            log.DebugFormat("successfully SaveObjectInCB. number of tries: {0}/{1}. key: {2}.",
+                                                numOfTries, NUM_OF_INSERT_TRIES, key);
+                            return true;
+                        }
+
+                        numOfTries++;
+                        log.ErrorFormat("Error while SaveObjectInCBy. number of tries: {0}/{1}. key: {2}.",
+                                        numOfTries, NUM_OF_INSERT_TRIES, key);
+                        Thread.Sleep(r.Next(50));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to SaveObjectInCB. key: {0}, ex: {1}", key, ex);
+                }
+            }
+
+            return false;
+        }
+
         public static bool DeleteObjectFromCB(eCouchbaseBucket couchbaseBucket, string key)
         {
             bool result = false;
@@ -282,7 +316,7 @@ namespace DAL
         {
             return string.Format("u{0}_n{1}", siteUserGuid, npvrId);
         }
-        
+
         public static string GetUserEpgMarkDocKey(int userID, long epgID)
         {
             return string.Format("u{0}_epg{1}", userID, epgID);
@@ -1019,7 +1053,7 @@ namespace DAL
 
             return res;
         }
-        
+
         public static Dictionary<GroupFeature, bool> GetGroupFeatures(int groupId)
         {
             Dictionary<GroupFeature, bool> groupFeatures = null;

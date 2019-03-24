@@ -105,13 +105,13 @@ namespace TVinciShared
 
             return saveFileResponse;
         }
-        
+
         private string GetFileName(string id, string fileExtension)
         {
             return (id + fileExtension);
         }
 
-        private GenericResponse<string> Validate(Type objectType, FileInfo fileInfo = null) 
+        private GenericResponse<string> Validate(Type objectType, FileInfo fileInfo = null)
         {
             var validationStatus = new GenericResponse<string>();
             if (fileInfo != null && !fileInfo.Exists)
@@ -166,7 +166,7 @@ namespace TVinciShared
         public string Region { get; private set; }
         public string BucketName { get; private set; }
         public string Path { get; private set; }
-        
+
         protected override void Initialize()
         {
             AccessKey = ApplicationConfiguration.FileUpload.S3.AccessKey.Value;
@@ -278,13 +278,13 @@ namespace TVinciShared
     {
         public string Destination { get; private set; }
         public string PublicUrl { get; private set; }
-        
+
         protected override void Initialize()
         {
             Destination = ApplicationConfiguration.FileUpload.FileSystem.DestPath.Value;
             PublicUrl = ApplicationConfiguration.FileUpload.FileSystem.PublicUrl.Value;
         }
-        
+
         protected override GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir)
         {
             GenericResponse<string> saveResponse = new GenericResponse<string>();
@@ -355,7 +355,7 @@ namespace TVinciShared
             GenericResponse<string> subDirResponse = new GenericResponse<string>();
             if (id.Length < 6)
             {
-                subDirResponse.SetStatus(eResponseStatus.FileIdNotInTheRightLength, string.Format("file id length is too short, the minimum length is 6. id.Length:{0}", id.Length));
+                subDirResponse.SetStatus(eResponseStatus.FileIdNotInCorrectLength, string.Format("file id length is too short, the minimum length is 6. id.Length:{0}", id.Length));
                 return subDirResponse;
             }
 
@@ -369,7 +369,7 @@ namespace TVinciShared
             GenericResponse<string> subDirResponse = new GenericResponse<string>();
             if (id < 1)
             {
-                subDirResponse.SetStatus(eResponseStatus.FileIdNotInTheRightLength, string.Format("file id value is too small, the value is 1. id:{0}", id));
+                subDirResponse.SetStatus(eResponseStatus.FileIdNotInCorrectLength, string.Format("file id value is too small, the value is 1. id:{0}", id));
                 return subDirResponse;
             }
             subDirResponse.Object = string.Format("{0}\\{1}\\{2}", typeName, (long)(id / 1000000), (long)(id / 1000));

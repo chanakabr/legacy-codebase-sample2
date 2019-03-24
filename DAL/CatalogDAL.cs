@@ -26,7 +26,7 @@ namespace Tvinci.Core.DAL
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
         private static readonly int CB_EPG_DOCUMENT_EXPIRY_DAYS = ApplicationConfiguration.EPGDocumentExpiry.IntValue;
         private static readonly int CB_PLAYCYCLE_DOC_EXPIRY_MIN = ApplicationConfiguration.PlayCycleDocumentExpiryMinutes.IntValue;
-        
+
         private static readonly string NAME_FIELD = "NAME";
         private static readonly string ASSET_TYPE_FIELD = "ASSET_TYPE";
         private static readonly string IS_TAG_FIELD = "IS_TAG";
@@ -200,7 +200,7 @@ namespace Tvinci.Core.DAL
             List<UserMediaMark> lRes = new List<UserMediaMark>();
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             List<string> docKeysList = new List<string>();
-            
+
             foreach (int nMediaID in nMediaIDs)
             {
                 docKeysList.Add(UtilsDal.GetUserMediaMarkDocKey(userId, nMediaID));
@@ -573,7 +573,7 @@ namespace Tvinci.Core.DAL
 
             spInsertNewPlayerError.ExecuteNonQuery();
         }
-        
+
         public static DataTable Get_GroupByChannel(int channelID)
         {
             ODBCWrapper.StoredProcedure spLuceneUr = new ODBCWrapper.StoredProcedure("Get_GroupByChannel");
@@ -1441,7 +1441,7 @@ namespace Tvinci.Core.DAL
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-            
+
             List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId.ToString())).ToList();
 
             var res = cbManager.GetValues<UserMediaMarks>(keys, true, false);
@@ -1467,7 +1467,7 @@ namespace Tvinci.Core.DAL
 
                     foreach (var assetAndLocation in userMediaMarks)
                     {
-                        nMediaID = assetAndLocation.AssetId;                        
+                        nMediaID = assetAndLocation.AssetId;
                         lastDate = Utils.UtcUnixTimestampSecondsToDateTime(assetAndLocation.CreatedAt);
 
                         UserMediaMark objUserMediaMark = new UserMediaMark
@@ -1731,7 +1731,7 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
-        
+
         public static DataTable Get_MediaFilesDetails(List<int> groupTree, List<int> mediaFileIDs, string mediaFileCoGuid)
         {
             StoredProcedure sp = new StoredProcedure("Get_MediaFilesDetails");
@@ -1861,7 +1861,7 @@ namespace Tvinci.Core.DAL
 
             return mediaToViewsCountMapping;
         }
-        
+
         public static bool Get_MediaMarkHitInitialData(int mediaID, int mediaFileID, long ipVal, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID,
             ref int billingTypeID, ref int fileDuration)
@@ -1989,7 +1989,7 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
-        
+
         public static void Insert_MediaMarkHitActionData(long watcherID, string sessionID, long groupID, long ownerGroupID,
             long mediaID, long mediaFileID, long billingTypeID, long cdnID, long duration, long countryID, long playerID,
             long firstPlayCounter, long playCounter, long loadCounter, long pauseCounter, long stopCounter, long fullScreenCounter,
@@ -2306,7 +2306,7 @@ namespace Tvinci.Core.DAL
                 }
             }
         }
-        
+
         private static bool UpdateOrInsertUsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, ref int limitRetries, Random r,
                                                               string mmKey, ref bool success, UserMediaMark userMediaMark, int finishedPercent = 95)
         {
@@ -2413,7 +2413,7 @@ namespace Tvinci.Core.DAL
 
             return success;
         }
-        
+
         public static void Get_IPCountryCode(long ipVal, ref int countryID)
         {
             StoredProcedure sp = new StoredProcedure("Get_IPCountryCode");
@@ -2562,7 +2562,7 @@ namespace Tvinci.Core.DAL
             // get all documents from CB
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             IDictionary<string, MediaMarkLog> values = cbManager.GetValues<MediaMarkLog>(keys, true, true);
-            
+
             if (values == null)
                 return null;
 
@@ -3889,7 +3889,7 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public  static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData, Dictionary<string, string> metas = null, bool doesGroupUsesTemplates = false)
+        public static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData, Dictionary<string, string> metas = null, bool doesGroupUsesTemplates = false)
         {
             KSQLChannel channel = new KSQLChannel();
             channel.AssetTypes = new List<int>();
@@ -4182,7 +4182,7 @@ namespace Tvinci.Core.DAL
                     res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["PLAY_CYCLE_KEY"]);
                 }
             }
-            
+
             return res;
         }
 
@@ -4530,11 +4530,11 @@ namespace Tvinci.Core.DAL
         {
             return string.Format("domain_devices_mapping_{0}", domainId);
         }
-        
+
         public static bool SaveDomainDevices(Dictionary<string, int> domainDevices, long domainId)
         {
             var key = GetDomainDevicesKey(domainId);
-            List<DomainDevice> domainDevicesList = new List<DomainDevice>(domainDevices.Select(x => new DomainDevice() { UDID = x.Key, DeviceFamilyId = x.Value } ));
+            List<DomainDevice> domainDevicesList = new List<DomainDevice>(domainDevices.Select(x => new DomainDevice() { UDID = x.Key, DeviceFamilyId = x.Value }));
             return UtilsDal.SaveObjectInCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, domainDevicesList, true);
         }
 
@@ -4549,7 +4549,7 @@ namespace Tvinci.Core.DAL
 
             return null;
         }
-        
+
         private static string GetDevicePlayDataKey(string udid)
         {
             return string.Format("device_play_data_{0}", udid);
@@ -4658,7 +4658,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, 
+        public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName,
                                                 List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId, string features,
                                                 long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId, bool isProgramStruct)
         {
@@ -4683,7 +4683,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetStruct(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, 
+        public static DataSet UpdateAssetStruct(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages,
                                                 string systemName, bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId,
                                                 string features, long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId)
         {
@@ -4772,7 +4772,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@HelpText", helpText);
             sp.AddParameter("@UpdaterId", userId);
             sp.AddParameter("@ShouldValidateSystemName", shouldCheckRegularFlowValidations ? 1 : 0);
-            
+
 
             return sp.ExecuteDataSet();
         }
@@ -4907,7 +4907,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Id", id);
             sp.AddParameter("@UpdaterId", userId);
             sp.AddParameter("@ShouldClearMedia", shouldClearMedia ? 1 : 0);
-            
+
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
@@ -5132,7 +5132,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
             long billingType, double? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
-            string language, int? orderNum, int outputProtecationLevel, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId, 
+            string language, int? orderNum, int outputProtecationLevel, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId,
             bool? isActive, DateTime? catalogEndDate)
         {
             StoredProcedure sp = new StoredProcedure("InsertMediaFile");
@@ -5474,9 +5474,9 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet UpdateChannel(
-            int groupId, int id, string systemName, string name, string description, int? isActive, int? orderBy, 
-            int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy, 
-            List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, 
+            int groupId, int id, string systemName, string name, string description, int? isActive, int? orderBy,
+            int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy,
+            List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
             List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering,
             long? assetUserRuleId, int assetTypesValuesInd, int? channelType = null)
         {
@@ -5619,7 +5619,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@UserId", userId);
             sp.AddParameter("@IsInherited", isInherited);
-            
+
             return sp.Execute();
         }
 
@@ -5652,7 +5652,7 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable GetImages(int groupId, List<long>ids)
+        public static DataTable GetImages(int groupId, List<long> ids)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ImagesByIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5706,7 +5706,7 @@ namespace Tvinci.Core.DAL
         {
             return string.Format("bulk_upload_{0}", bulkUploadId);
         }
-        
+
         public static DataTable AddBulkUpload(int groupId, long userId, BulkUploadJobAction action, string fileName)
         {
             StoredProcedure sp = new StoredProcedure("InsertBulkUpload");
@@ -5750,10 +5750,110 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl = 0)
+        public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl, bool shouldOnlyUpdateStatus, out BulkUploadJobStatus updatedStatus)
         {
             string bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
-            return UtilsDal.SaveObjectInCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl);
+            bulkUploadToSave.Status = GetBulkStatusByResultsStatus(bulkUploadToSave);
+            updatedStatus = bulkUploadToSave.Status;
+
+            if (!shouldOnlyUpdateStatus)
+            {
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl);
+            }
+
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            int numOfTries = 0;
+            ulong version;
+            eResultStatus getResult = eResultStatus.ERROR;
+            Random r = new Random();
+
+            try
+            {
+                while (numOfTries < UtilsDal.NUM_OF_INSERT_TRIES)
+                {
+                    bulkUploadToSave = cbManager.GetWithVersion<BulkUpload>(bulkUploadKey, out version, out getResult);
+
+                    if (getResult == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        log.ErrorFormat("KeyNotFound - Error while SaveBulkUploadCB. key:{0}.", bulkUploadKey);
+                        break;
+                    }
+                    else if (getResult == eResultStatus.SUCCESS)
+                    {
+                        bulkUploadToSave.Status = updatedStatus;
+                        bulkUploadToSave.Status = GetBulkStatusByResultsStatus(bulkUploadToSave);
+                        updatedStatus = bulkUploadToSave.Status;
+
+                        if (cbManager.SetWithVersion(bulkUploadKey, bulkUploadToSave, version, ttl))
+                        {
+                            log.DebugFormat("successfully SaveBulkUploadCB. key:{0}, number of tries:{1}/{2}.",
+                                             bulkUploadKey, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
+                            return true;
+                        }
+                    }
+
+                    numOfTries++;
+                    log.ErrorFormat("Error while SaveBulkUploadCB. key:{0}, number of tries:{1}/{2}.",
+                                    bulkUploadKey, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
+                    Thread.Sleep(r.Next(50));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Exception - Error while SaveBulkUploadCB. key:{0}.", bulkUploadKey), ex);
+            }
+
+            return false;
+        }
+
+        public static bool SaveBulkUploadResultCB(BulkUpload currentBulkUpload, int resultIndex, uint ttl, out BulkUploadJobStatus updatedStatus)
+        {
+            updatedStatus = currentBulkUpload.Status;
+            BulkUploadResult bulkUploadResultToSave = currentBulkUpload.Results[resultIndex];
+            string bulkUploadKey = GetBulkUploadKey(bulkUploadResultToSave.BulkUploadId);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            int numOfTries = 0;
+            ulong version;
+            eResultStatus getResult = eResultStatus.ERROR;
+            Random r = new Random();
+
+            try
+            {
+                while (numOfTries < UtilsDal.NUM_OF_INSERT_TRIES)
+                {
+                    currentBulkUpload = cbManager.GetWithVersion<BulkUpload>(bulkUploadKey, out version, out getResult);
+
+                    if (getResult == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        log.ErrorFormat("KeyNotFound - Error while SaveBulkUploadResultCB. key:{0}, resultIndex:{1}.", bulkUploadKey, resultIndex);
+                        break;
+                    }
+                    else if (getResult == eResultStatus.SUCCESS)
+                    {
+                        currentBulkUpload.Results[resultIndex] = bulkUploadResultToSave;
+                        currentBulkUpload.Status = GetBulkStatusByResultsStatus(currentBulkUpload);
+                        updatedStatus = currentBulkUpload.Status;
+
+                        if (cbManager.SetWithVersion(bulkUploadKey, currentBulkUpload, version, ttl))
+                        {
+                            log.DebugFormat("successfully SaveBulkUploadResultCB. key:{0}, resultIndex:{1}, number of tries:{2}/{3}.",
+                                             bulkUploadKey, resultIndex, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
+                            return true;
+                        }
+                    }
+
+                    numOfTries++;
+                    log.ErrorFormat("Error while SaveBulkUploadResultCB. key:{0}, resultIndex:{1}, number of tries:{2}/{3}.",
+                                    bulkUploadKey, resultIndex, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
+                    Thread.Sleep(r.Next(50));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Exception - Error while SaveBulkUploadResultCB. key:{0}, resultIndex:{1}.", bulkUploadKey, resultIndex), ex);
+            }
+
+            return false;
         }
 
         public static BulkUpload GetBulkUploadCB(long bulkUploadId)
@@ -5762,19 +5862,26 @@ namespace Tvinci.Core.DAL
             return UtilsDal.GetObjectFromCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey);
         }
 
-        public static bool DeleteBulkUpload(long bulkUploadId)
+        private static BulkUploadJobStatus GetBulkStatusByResultsStatus(BulkUpload bulkUpload)
         {
-            // TODO SHIR - create DeleteBulkUpload SP
-            StoredProcedure sp = new StoredProcedure("DeleteBulkUpload");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@bulkUploadId", bulkUploadId);
-
-            if (sp.ExecuteReturnValue<int>() > 0)
+            BulkUploadJobStatus newStatus = bulkUpload.Status;
+            if (bulkUpload.NumOfObjects.HasValue && bulkUpload.NumOfObjects.Value == bulkUpload.Results.Count)
             {
-                return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, GetBulkUploadKey(bulkUploadId));
+                if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok))
+                {
+                    newStatus = BulkUploadJobStatus.Success;
+                }
+                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Error))
+                {
+                    newStatus = BulkUploadJobStatus.Failed;
+                }
+                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok || x.Status == BulkUploadResultStatus.Error))
+                {
+                    newStatus = BulkUploadJobStatus.Partial;
+                }
             }
 
-            return false;
+            return newStatus;
         }
 
         #endregion
