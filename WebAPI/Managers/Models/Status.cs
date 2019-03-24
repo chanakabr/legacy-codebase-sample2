@@ -185,6 +185,7 @@ namespace WebAPI.Managers.Models
         RequestSkipped = 500080,
         OneOfArgumentsCannotBeEmpty = 500081,
         PropertyIsOpcSupported = 500082,
-        TypeNotSupported = 500083
+        TypeNotSupported = 500083,
+        FormatNotSupported = 500084
     }
 }

@@ -393,14 +393,14 @@ namespace WebAPI.Controllers
                             {
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
-                            
+
                             long userId;
                             if (long.TryParse(userID, out userId))
                             {
-                                KalturaAssetUserRuleListResponse rules = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, KalturaRuleActionType.FILTER);                                
+                                KalturaAssetUserRuleListResponse rules = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, KalturaRuleActionType.FILTER);
                                 if (rules != null && rules.Objects != null && rules.Objects.Count > 0)
                                 {
-                                    KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), 
+                                    KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
                                         udid, language, 0, 1, string.Format("media_id = '{0}'", id), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
 
                                     if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
@@ -998,7 +998,7 @@ namespace WebAPI.Controllers
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
-                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId,  assetType, KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response, contextDataParams.AdapterData);
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId, assetType, KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response, contextDataParams.AdapterData);
                     if (adapterResponse != null)
                     {
                         response = adapterResponse;
@@ -1356,6 +1356,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.BulkUploadResultIsMissing)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+
         public static KalturaBulkUpload AddFromBulkUpload(KalturaOTTFile fileData, KalturaBulkUploadJobData bulkUploadJobData, KalturaBulkUploadAssetData bulkUploadAssetData)
         {
             KalturaBulkUpload bulkUpload = null;
@@ -1384,10 +1385,10 @@ namespace WebAPI.Controllers
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkUploadAssetData");
                 }
-                
+
                 if (bulkUploadJobData is KalturaBulkUploadExcelJobData)
                 {
-                    bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, typeof(KalturaMediaAsset), bulkUploadJobData, bulkUploadAssetData); 
+                    bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, typeof(KalturaMediaAsset), bulkUploadJobData, bulkUploadAssetData);
                 }
                 else
                 {

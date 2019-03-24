@@ -272,7 +272,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
-                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))                
+                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
                 .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId));
 
             //KalturaDynamicChannel to Channel (Catalog)  
@@ -491,7 +491,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_CATCH_UP == 1))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_START_OVER == 1))
                 .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_TRICK_PLAY == 1));
-            
+
             //RecordingObj to KalturaRecordingAsset
             cfg.CreateMap<RecordingObj, KalturaRecordingAsset>()
                 .IncludeBase<BaseObject, KalturaAsset>()
@@ -519,7 +519,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region New Asset (OPC)
-            
+
             //KalturaAsset to Asset
             cfg.CreateMap<KalturaAsset, Asset>()
                 .IncludeBase<IKalturaExcelableObject, IExcelObject>()
@@ -1065,7 +1065,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
                .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
-            
+
             cfg.CreateMap<KalturaBulkUploadObjectData, BulkUploadObjectData>();
 
             cfg.CreateMap<KalturaBulkUploadAssetData, BulkUploadAssetData>()
@@ -1076,7 +1076,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
               .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
               .ForMember(dest => dest.Args, opt => opt.MapFrom(src => src.Args));
-            
+
             cfg.CreateMap<KeyValuePair, KeyValuePair<string, KalturaStringValue>>()
              .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
@@ -1494,7 +1494,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case eAssetImageType.ImageType:
                     return KalturaImageObjectType.IMAGE_TYPE;
                 case eAssetImageType.ProgramGroup:
-                    return KalturaImageObjectType.PROGRAM_GROUP;               
+                    return KalturaImageObjectType.PROGRAM_GROUP;
                 case eAssetImageType.LogoPic:
                     return KalturaImageObjectType.PARTNER;
                 case eAssetImageType.DefaultPic:
@@ -1508,7 +1508,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (imageObjectType)
             {
                 case KalturaImageObjectType.MEDIA_ASSET:
-                    return eAssetImageType.Media;                    
+                    return eAssetImageType.Media;
                 case KalturaImageObjectType.PROGRAM_ASSET:
                     return eAssetImageType.Program;
                 case KalturaImageObjectType.CHANNEL:
@@ -1600,7 +1600,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                     image.RatioName = ratioName;
                     KalturaMediaImage convertedImage = Mapper.Map<KalturaMediaImage>(image);
-                    
+
                     if (convertedImage != null)
                     {
                         result.Add(convertedImage);
@@ -1610,7 +1610,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
-        
+
         private static string ConvertAssetGroupByToGroupBy(KalturaAssetGroupBy groupBy)
         {
             if (groupBy == null)

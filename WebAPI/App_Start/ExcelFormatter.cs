@@ -81,7 +81,7 @@ namespace WebAPI.App_Start
 
             return true;
         }
-        
+
         public override bool CanWriteType(Type type)
         {
             return true;
@@ -95,42 +95,43 @@ namespace WebAPI.App_Start
                 {
                     // validate expected type was received
                     StatusWrapper restResultWrapper = value as StatusWrapper;
-                    if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is IKalturaExcelStructure)
+                    if (restResultWrapper == null || restResultWrapper.Result == null || !(restResultWrapper.Result is IKalturaExcelStructure))
                     {
-                        int? groupId;
-                        string fileName;
-
-                        if (TryGetDataFromRequest(out groupId, out fileName))
-                        {
-                            var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructure;
-                            if (kalturaExcelStructure != null)
-                            {
-                                var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
-                                if (excelStructure != null)
-                                {
-                                    DataTable fullDataTable = null;
-                                    var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
-                                    if (excelableListResponse != null)
-                                    {
-                                        fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
-                                    }
-
-                                    HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
-                                    HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
-
-                                    return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
-                                }
-                                else
-                                {
-                                    log.DebugFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
-                        }
+                        throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
                     }
+
+                    int? groupId;
+                    string fileName;
+
+                    if (!TryGetDataFromRequest(out groupId, out fileName))
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
+                    }
+
+                    var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructure;
+                    if (kalturaExcelStructure == null)
+                    {
+                        throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+                    }
+
+                    var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
+                    if (excelStructure == null)
+                    {
+                        log.ErrorFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
+                        throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+                    }
+
+                    DataTable fullDataTable = null;
+                    var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
+                    if (excelableListResponse != null)
+                    {
+                        fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
+                    }
+
+                    HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
+                    HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+                    return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
                 }
                 catch(ApiException ex)
                 {
@@ -147,7 +148,7 @@ namespace WebAPI.App_Start
             {
                 HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
-            
+
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
                 HttpContext.Current.Response.ContentType = "application/json";
@@ -224,7 +225,7 @@ namespace WebAPI.App_Start
                     }
                 }
             }
-            
+
             return isResponseValid;
         }
 
@@ -269,7 +270,7 @@ namespace WebAPI.App_Start
                 {
                     excelWorksheet.Cells[columnNameRowIndex + 1, 1].LoadFromDataTable(dt, false, OfficeOpenXml.Table.TableStyles.Medium13);
                 }
-                
+
                 pack.SaveAs(writeStream);
 
                 return Task.FromResult(writeStream);
@@ -312,7 +313,7 @@ namespace WebAPI.App_Start
                                         {
                                             value = excelValue.Value;
                                         }
-                                       
+
                                         if (value != null)
                                         {
                                             row[excelValue.Key] = value;
@@ -331,6 +332,6 @@ namespace WebAPI.App_Start
             }
 
             return dataTable;
-        } 
+        }
     }
 }

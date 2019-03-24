@@ -22,7 +22,7 @@ namespace WebAPI.Models.Catalog
     public partial class KalturaMediaAsset : KalturaAsset
     {
         private const string OPC_MERGE_VERSION = "5.0.0.0";
-        
+
         /// <summary>
         /// External identifiers
         /// </summary>
@@ -37,7 +37,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "catchUpBuffer")]
         [JsonProperty(PropertyName = "catchUpBuffer")]
         [XmlElement(ElementName = "catchUpBuffer")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public long? CatchUpBuffer { get; set; }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "trickPlayBuffer")]
         [JsonProperty(PropertyName = "trickPlayBuffer")]
         [XmlElement(ElementName = "trickPlayBuffer")]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public long? TrickPlayBuffer { get; set; }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
         [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
         [SchemeProperty(ReadOnly = true)]
-        [Deprecated(OPC_MERGE_VERSION)]        
+        [Deprecated(OPC_MERGE_VERSION)]
         public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "status")]
         [JsonProperty("status")]
-        [XmlElement(ElementName = "status", IsNullable = true)]        
+        [XmlElement(ElementName = "status", IsNullable = true)]
         public bool? Status { get; set; }
 
         /// <summary>

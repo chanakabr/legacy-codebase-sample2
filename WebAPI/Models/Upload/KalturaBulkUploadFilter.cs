@@ -42,7 +42,7 @@ namespace WebAPI.Models.Upload
         [JsonProperty("createDateGreaterThanOrEqual")]
         [XmlElement(ElementName = "createDateGreaterThanOrEqual", IsNullable = true)]
         public long? CreateDateGreaterThanOrEqual { get; set; }
-        
+
         /// <summary>
         /// Indicates if to get the BulkUpload list that created by current user or by the entire group.
         /// </summary>
