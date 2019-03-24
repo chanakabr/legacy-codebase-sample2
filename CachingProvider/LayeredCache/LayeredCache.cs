@@ -302,6 +302,14 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public void DisableInMemoryCache()
+        {
+            if (layeredCacheTcmConfig.DefaultSettings.Any(x => x.Type == LayeredCacheType.InMemoryCache))
+            {
+                layeredCacheTcmConfig.DefaultSettings.RemoveAll(x => x.Type == LayeredCacheType.InMemoryCache);
+            }
+        }
+
         public void SetReadingInvalidationKeys(List<string> invalidationKeys)
         {
             try
