@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.Catalog;
 using ApiObjects.Response;
 using KLogMonitor;
 using QueueWrapper;
@@ -20,7 +19,7 @@ namespace Core.Catalog.CatalogManagement
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success (in sec)
-        
+
         private static readonly HashSet<BulkUploadJobStatus> FinishedBulkUploadStatuses = new HashSet<BulkUploadJobStatus>()
         {
             BulkUploadJobStatus.Success,
@@ -52,7 +51,7 @@ namespace Core.Catalog.CatalogManagement
 
             return response;
         }
-        
+
         public static GenericListResponse<BulkUpload> GetBulkUploads(int groupId, string bulkObjectType, DateTime createDate, List<BulkUploadJobStatus> statuses = null, long? userId = null)
         {
             var response = new GenericListResponse<BulkUpload>();
@@ -124,7 +123,7 @@ namespace Core.Catalog.CatalogManagement
                         response.Objects = response.Objects.Where(x => x.UpdaterId == userId.Value).ToList();
                     }
                 }
-                
+
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -177,7 +176,7 @@ namespace Core.Catalog.CatalogManagement
                 var objectTypeName = FileHandler.Instance.GetFileObjectTypeName(bulkObjectType.Name);
                 response.Object.BulkObjectType = objectTypeName.Object;
                 response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded, false);
-                
+
                 // Enqueue to CeleryQueue new BulkUpload (the remote will handle the file and its content).
                 if (EnqueueBulkUpload(groupId, response.Object, userId))
                 {
@@ -198,14 +197,14 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in AddBulkUpload. groupId:{0}, filePath:{1}, userId:{2}, action:{3}, objectType:{4}.", 
+                log.Error(string.Format("An Exception was occurred in AddBulkUpload. groupId:{0}, filePath:{1}, userId:{2}, action:{3}, objectType:{4}.",
                                         groupId, filePath, userId, action, bulkObjectType), ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
             return response;
         }
-        
+
         public static Status ProcessBulkUpload(int groupId, long userId, long bulkUploadId)
         {
             // update status to PROCESSING
@@ -274,7 +273,7 @@ namespace Core.Catalog.CatalogManagement
                     // add current result to bulkUpload results list and update it in DB.
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, bulkUploadResponse.Object.Status, false, bulkUploadResult);
                 }
-
+                
                 // run over all results and Enqueue them
                 for (int i = 0; i < objectsListResponse.Objects.Count; i++)
                 {
@@ -302,10 +301,10 @@ namespace Core.Catalog.CatalogManagement
                                         groupId, userId, bulkUploadId), ex);
                 bulkUploadResponse.SetStatus(eResponseStatus.Error);
             }
-           
+        
             return bulkUploadResponse.Status;
         }
-        
+
         public static Status UpdateBulkUploadResult(int groupId, long bulkUploadId, int resultIndex, Status errorStatus = null, long? objectId = null, List<Status> warnings = null)
         {
             var response = new Status((int)eResponseStatus.Error);
@@ -345,10 +344,10 @@ namespace Core.Catalog.CatalogManagement
                                         groupId, bulkUploadId, resultIndex), ex);
                 response.Set(eResponseStatus.Error);
             }
-            
+
             return response;
         }
-        
+
         public static GenericResponse<BulkUpload> UpdateBulkUpload(BulkUpload bulkUploadToUpdate, BulkUploadJobStatus newStatus, bool shouldOnlyUpdateStatus, BulkUploadResult result = null)
         {
             var response = new GenericResponse<BulkUpload>();
@@ -412,7 +411,7 @@ namespace Core.Catalog.CatalogManagement
 
             return response;
         }
-        
+
         private static BulkUpload CreateBulkUploadFromDataTable(DataTable dt, int groupId, bool shouldGetValuesFromCB = false)
         {
             BulkUpload bulkUpload = null;
@@ -548,7 +547,7 @@ namespace Core.Catalog.CatalogManagement
 
             return statusToBulkUploadList;
         }
-        
+
         private static void UpdateBulkUploadInSqlAndInvalidateKeys(BulkUpload bulkUpload, BulkUploadJobStatus originalStatus)
         {
             if (originalStatus != bulkUpload.Status)

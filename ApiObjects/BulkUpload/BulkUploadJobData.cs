@@ -1,7 +1,6 @@
 ﻿using ApiObjects.Response;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
 namespace ApiObjects.BulkUpload
 {
@@ -32,7 +31,7 @@ namespace ApiObjects.BulkUpload
                 response.Objects.AddRange(excelResults.Objects);
                 response.SetStatus(eResponseStatus.OK);
             }
-            
+
             return response;
         }
     }

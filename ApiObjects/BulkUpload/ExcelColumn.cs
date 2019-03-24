@@ -31,7 +31,7 @@ namespace ApiObjects.BulkUpload
         {
             return GetFullColumnName(this.SystemName, this.Language, this.InnerSystemName, this.IsMandatory);
         }
-        
+
         public static string GetFullColumnName(string systemName, string language = null, string innerSystemName = null, bool isMandatory = false)
         {
             StringBuilder sb = new StringBuilder();
@@ -56,7 +56,7 @@ namespace ApiObjects.BulkUpload
             return sb.ToString();
         }
     }
-    
+
     [AttributeUsage(AttributeTargets.Property)]
     public class ExcelColumnAttribute : Attribute
     {

@@ -37,7 +37,7 @@ namespace ApiObjects.BulkUpload
                         excelObjects.SetStatus(eResponseStatus.FileDoesNotExists, string.Format("Could not find file:{0}", fileUrl));
                         return excelObjects;
                     }
-                    
+
                     using (var fileStream = new MemoryStream(fileBytes))
                     {
                         using (ExcelPackage excelPackage = new ExcelPackage(fileStream))
@@ -56,7 +56,7 @@ namespace ApiObjects.BulkUpload
                                     else
                                     {
                                         int columnNameRowIndex = excelStructure.OverviewInstructions.Count > 0 ? excelStructure.OverviewInstructions.Count + 2 : 1;
-                                        
+
                                         for (int row = columnNameRowIndex + 1; row <= worksheet.Dimension.End.Row; row++)
                                         {
                                             var columnNamesToValues = new Dictionary<string, object>();
@@ -125,7 +125,7 @@ namespace ApiObjects.BulkUpload
                                                     else
                                                     {
                                                         var mandatoryPropertyToValueMap = objectData.GetMandatoryPropertyToValueMap();
-                                                        var mandatoryPropertyToValue =  "{" + string.Join(",", mandatoryPropertyToValueMap.Select(kv => kv.Key + "=" + kv.Value).ToArray()) + "}";
+                                                        var mandatoryPropertyToValue = "{" + string.Join(",", mandatoryPropertyToValueMap.Select(kv => kv.Key + "=" + kv.Value).ToArray()) + "}";
                                                         status.Set(eResponseStatus.IllegalExcelFile, string.Format("Excel columns do not match for current BulkObjectType data. Mandatory column name to value: {0}", mandatoryPropertyToValue));
                                                     }
                                                 }

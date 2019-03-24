@@ -32,7 +32,7 @@ namespace ApiObjects.BulkUpload
 
         [JsonProperty("Error")]
         public Status Error { get; private set; }
-        
+
         [JsonProperty("Warnings")]
         public List<Status> Warnings { get; set; }
 
@@ -40,7 +40,7 @@ namespace ApiObjects.BulkUpload
         {
             Index = -1;
         }
-        
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -60,7 +60,7 @@ namespace ApiObjects.BulkUpload
             {
                 for (int i = 0; i < Warnings.Count; i++)
                 {
-                    sb.AppendFormat(", Warning {0}:{1}", i+1, Warnings[i].ToString());
+                    sb.AppendFormat(", Warning {0}:{1}", i + 1, Warnings[i].ToString());
                 }
             }
 

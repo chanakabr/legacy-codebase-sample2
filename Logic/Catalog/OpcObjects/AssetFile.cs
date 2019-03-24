@@ -68,7 +68,7 @@ namespace Core.Catalog
         [ExcelColumn(ExcelColumnType.File, EXTERNAL_STORE_CODE)]
         [JsonProperty("ExternalStoreId")]
         public string ExternalStoreId { get; set; }
-        
+
         [JsonProperty("CdnAdapaterProfileId")]
         public long? CdnAdapaterProfileId { get; set; }
 
@@ -118,7 +118,7 @@ namespace Core.Catalog
         [ExcelColumn(ExcelColumnType.File, CATALOG_END_DATE)]
         [JsonProperty("CatalogEndDate")]
         public DateTime? CatalogEndDate { get; set; }
-        
+
         [JsonProperty("type")]
         private string type;
 
@@ -148,7 +148,7 @@ namespace Core.Catalog
         }
 
         #region IExcelableObject Methods
-        
+
         public Dictionary<string, object> GetExcelValues(int groupId)
         {
             Dictionary<string, object> excelValues = new Dictionary<string, object>();
@@ -173,7 +173,7 @@ namespace Core.Catalog
             if (CdnAdapaterProfileId.HasValue)
             {
                 CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter((int)CdnAdapaterProfileId.Value, false, groupId);
-                if (adapter != null )
+                if (adapter != null)
                 {
                     var cdn = ExcelColumn.GetFullColumnName(this.type, CDN);
                     excelValues.TryAdd(cdn, adapter.SystemName);
@@ -409,7 +409,7 @@ namespace Core.Catalog
             //{
             //    this.IsDefaultLanguage = columnNamesToValues[isDefaultLanguage] as bool?;
             //}
-            
+
             this.IsActive = true;
         }
 

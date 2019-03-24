@@ -78,7 +78,7 @@ namespace Core.Catalog
 
         [JsonProperty("InheritancePolicy")]
         public AssetInheritancePolicy? InheritancePolicy { get; set; }
-        
+
         #endregion
 
         #region Ctor's
@@ -168,7 +168,7 @@ namespace Core.Catalog
         #endregion
 
         #region IExcel Methods
-        
+
         public override Dictionary<string, object> GetExcelValues(int groupId)
         {
             Dictionary<string, object> excelValues = new Dictionary<string, object>();
@@ -268,7 +268,7 @@ namespace Core.Catalog
             {
                 return;
             }
-            
+
             HashSet<string> fileTypesSystemName = new HashSet<string>();
             Dictionary<string, List<LanguageContainer>> dicMetas = new Dictionary<string, List<LanguageContainer>>();
             Dictionary<string, ImageType> imageTypesMapBySystemName = ImageManager.GetImageTypesMapBySystemName(groupId);
@@ -381,7 +381,7 @@ namespace Core.Catalog
                 this.FinalEndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
                 return;
             }
-            
+
             // IsActive
             var isActiveColumnName = ExcelColumn.GetFullColumnName(AssetManager.STATUS_META_SYSTEM_NAME, null, null, true);
             if (columnValue.Key.Equals(isActiveColumnName))
@@ -400,7 +400,7 @@ namespace Core.Catalog
                 Files.Add(file);
             }
         }
-        
+
         private void SetRuleByExcelValues(KeyValuePair<string, object> columnValue)
         {
             if (columnValue.Key.Equals(GEO_RULE_ID))
@@ -412,7 +412,7 @@ namespace Core.Catalog
                 this.DeviceRuleId = StringUtils.TryConvertTo<int>(columnValue.Value.ToString());
             }
         }
-        
+
         private void SetBasicByExcelValues(KeyValuePair<string, object> columnValue, AssetStruct assetStruct)
         {
             // MediaType
@@ -458,7 +458,7 @@ namespace Core.Catalog
             }
             return bulkUploadAssetResult;
         }
-        
+
         public override bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
@@ -467,7 +467,7 @@ namespace Core.Catalog
 
             return enqueueSuccessful;
         }
-        
+
         #endregion
     }
 }

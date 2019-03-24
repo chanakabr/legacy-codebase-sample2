@@ -14,7 +14,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using Tvinci.Core.DAL;
-using TVinciShared;
 
 namespace Core.Catalog.Request
 {
@@ -103,7 +102,7 @@ namespace Core.Catalog.Request
                     }
                     else
                     {
-                       var groupManager = new GroupManager();
+                        var groupManager = new GroupManager();
                         CatalogCache catalogCache = CatalogCache.Instance();
                         int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
                         Group group = null;
@@ -121,7 +120,7 @@ namespace Core.Catalog.Request
                 {
                     log.Error("ChannelRequest - " + string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1} , st: {2}", request.m_nChannelID, ex.Message, ex.StackTrace), ex);
                 }
-                
+
                 if (isGroupAndChannelValid)
                 {
                     if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
@@ -176,8 +175,8 @@ namespace Core.Catalog.Request
                         if (dict != null && dict.Count > 0)
                         {
                             result = (from pair in dict
-                                        orderby pair.Value[0] descending
-                                        select pair.Key).ToList();
+                                      orderby pair.Value[0] descending
+                                      select pair.Key).ToList();
                         }
                     }
                     /************* For versions after Joker that don't want to use DB for getting view stats (first_play), we fetch the data from ES statistics index **********/
@@ -187,7 +186,7 @@ namespace Core.Catalog.Request
                     }
                     break;
                 case OrderBy.RATING:
-                    result = CatalogLogic.SlidingWindowStatisticsAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_RATES, CatalogLogic.STAT_ACTION_RATE_VALUE_FIELD, 
+                    result = CatalogLogic.SlidingWindowStatisticsAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_RATES, CatalogLogic.STAT_ACTION_RATE_VALUE_FIELD,
                         ElasticSearch.Searcher.AggregationsComparer.eCompareType.Average);
                     break;
                 case OrderBy.VOTES_COUNT:
@@ -205,7 +204,7 @@ namespace Core.Catalog.Request
             {
                 // all results are returned ordered by descending
                 if (isDesc)
-                {                    
+                {
                     result = Utils.ListPaging(result, pageSize, PageIndex);
                 }
                 else
@@ -379,9 +378,10 @@ namespace Core.Catalog.Request
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append("(and asset_type='media' ");
             var requestMultiFiltering = request as ChannelRequestMultiFiltering;
-            if (requestMultiFiltering != null && 
-                requestMultiFiltering.m_lFilterTags != null && 
-                requestMultiFiltering.m_lFilterTags.Count > 0 && 
+
+            if (requestMultiFiltering != null &&
+                requestMultiFiltering.m_lFilterTags != null &&
+                requestMultiFiltering.m_lFilterTags.Count > 0 &&
                 requestMultiFiltering.m_eFilterCutWith != CutWith.WCF_ONLY_DEFAULT_VALUE)
             {
                 if (requestMultiFiltering.m_eFilterCutWith == CutWith.AND)
@@ -401,7 +401,7 @@ namespace Core.Catalog.Request
                 stringBuilder.Append(")");
             }
             stringBuilder.Append(")");
-            
+
             // build request
             var internalChannelRequest = new InternalChannelRequest()
             {
@@ -424,7 +424,7 @@ namespace Core.Catalog.Request
 
             var orderBy = request.m_oOrderObj != null ? request.m_oOrderObj.m_eOrderBy : OrderBy.NONE;
             var unifiedSearchResponse = internalChannelRequest.GetResponse(internalChannelRequest) as UnifiedSearchResponse;
-            
+
             if (!unifiedSearchResponse.status.IsOkStatusCode())
             {
                 log.ErrorFormat("Error in GetResponse for InternalChannelRequest, status:{0}", unifiedSearchResponse.status.ToString());

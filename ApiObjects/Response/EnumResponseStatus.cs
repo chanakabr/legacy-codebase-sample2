@@ -278,7 +278,7 @@ namespace ApiObjects.Response
         BulkUploadResultIsMissing = 4083,
         NoValuesToUpdate = 4084,
         AssetStructMetasConatinSystemNameDuplication = 4085,
-        InvalidBulkUploadStructure = 4086,        
+        InvalidBulkUploadStructure = 4086,
 
         #endregion
 
@@ -334,7 +334,7 @@ namespace ApiObjects.Response
         IngestProfileNotExists = 5048,
         NoIngestProfileToInsert = 5049,
         IngestProfileIdRequired = 5060,
-        
+
         #endregion
 
         #region Billing 6000 - 6999
