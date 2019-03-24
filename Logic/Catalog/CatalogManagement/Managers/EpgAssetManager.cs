@@ -66,17 +66,9 @@ namespace Core.Catalog.CatalogManagement
         internal static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { NAME_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
-            { DESCRIPTION_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
             { START_DATE_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
             { END_DATE_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
-            { SERIES_NAME_META_SYSTEM_NAME, MetaType.Tag.ToString() },
-            { SERIES_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
-            { EPISODE_NUMBER_META_SYSTEM_NAME, MetaType.Number.ToString() },
-            { SEASON_NUMBER_META_SYSTEM_NAME, MetaType.Number.ToString() },
-            { PARENTAL_RATING_META_SYSTEM_NAME, MetaType.Tag.ToString() },
-            { GENRE_META_SYSTEM_NAME, MetaType.Tag.ToString() },
-            { CRID_META_SYSTEM_NAME, MetaType.String.ToString() },
-            { EXTERNAL_ID_META_SYSTEM_NAME, MetaType.String.ToString() }
+            { CRID_META_SYSTEM_NAME, MetaType.String.ToString() }
         };
 
         #endregion
