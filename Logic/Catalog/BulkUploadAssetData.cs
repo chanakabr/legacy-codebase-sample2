@@ -48,20 +48,17 @@ namespace Core.Catalog
 
         public override bool Validate(Dictionary<string, object> propertyToValueMap)
         {
-            // set structure if null
-            GetStructure();
-
-            if (structure != null)
+            var mandatoryPropertyToValueMap = GetMandatoryPropertyToValueMap();
+            foreach (var mandatoryPropertyToValue in mandatoryPropertyToValueMap)
             {
-                var mediaAssetTypeColumnName = ExcelColumn.GetFullColumnName(MediaAsset.MEDIA_ASSET_TYPE, null, null, true);
-                if (propertyToValueMap.ContainsKey(mediaAssetTypeColumnName) &&
-                    propertyToValueMap[mediaAssetTypeColumnName].ToString().Equals(structure.SystemName))
+                if (!propertyToValueMap.ContainsKey(mandatoryPropertyToValue.Key) || 
+                    !propertyToValueMap[mandatoryPropertyToValue.Key].Equals(mandatoryPropertyToValue.Value))
                 {
-                    return true;
+                    return false;
                 }
             }
 
-            return false;
+            return true;
         }
 
         public override Dictionary<string, object> GetMandatoryPropertyToValueMap()
