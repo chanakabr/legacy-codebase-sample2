@@ -19,55 +19,15 @@ namespace Core.Catalog.CatalogManagement
         #region Constants and Readonly
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
+
+        internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();                
+        internal const string OPC_UI_METADATA = "metadata";
+        internal const string OPC_UI_AVAILABILITY = "availability";
+        internal const string OPC_UI_TEXTAREA = "textarea";
+        internal const string OPC_UI_READONLY = "readonly";
+        internal const string OPC_UI_MANDATORY = "mandatory";
+
         public const string LINEAR_ASSET_STRUCT_SYSTEM_NAME = "Linear";
-        private const string TITLE_META_NAME = "Title";
-        private const string EPG_TITLE_META_NAME = "Name";
-        private const string DESCRIPTION_META_NAME = "Description";
-        private const string EPG_DESCRIPTION_META_NAME = "Description";
-        private const string MEDIAPREP_ID_META_NAME = "MediaPrep ID";
-        private const string STATUS_META_NAME = "Status";
-        private const string PLAYBACK_START_DATE_META_NAME = "Playback Start Date";
-        private const string CATALOG_END_DATE_META_NAME = "Catalog End Date";
-        private const string EXTERNAL_ID_META_NAME = "External ID";
-        private const string PLAYBACK_END_DATE_META_NAME = "Playback End Date";
-        private const string CATALOG_START_DATE_META_NAME = "Catalog Start Date";
-        private const string EPG_EXTERNAL_ID_SYSTEM_META_NAME = "ExternalID";
-        private const string EPG_EXTERNAL_ID_META_NAME = "External Asset ID";
-        private const string EPG_CRID_SYSTEM_META_NAME = "Crid";
-        private const string EPG_CRID_META_NAME = "CRID";
-        private const string EPG_START_DATE_SYSTEM_META_NAME = "StartDate";
-        private const string EPG_START_DATE_META_NAME = "Program Start";
-        private const string EPG_END_DATE_SYSTEM_META_NAME = "EndDate";
-        private const string EPG_END_DATE_META_NAME = "Program End";
-        private const string OPC_UI_METADATA = "metadata";
-        private const string OPC_UI_AVAILABILITY = "availability";
-        private const string OPC_UI_TEXTAREA = "textarea";
-        private const string OPC_UI_READONLY = "readonly";
-        private const string OPC_UI_MANDATORY = "mandatory";
-
-        public static readonly Dictionary<string, string> BasicMediaAssetMetasSystemNameToName = new Dictionary<string, string>()
-        {
-            { AssetManager.NAME_META_SYSTEM_NAME, TITLE_META_NAME },
-            { AssetManager.DESCRIPTION_META_SYSTEM_NAME, DESCRIPTION_META_NAME },
-            { AssetManager.EXTERNAL_ID_META_SYSTEM_NAME, EXTERNAL_ID_META_NAME },
-            { AssetManager.ENTRY_ID_META_SYSTEM_NAME, MEDIAPREP_ID_META_NAME },
-            { AssetManager.STATUS_META_SYSTEM_NAME, STATUS_META_NAME },
-            { AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, PLAYBACK_START_DATE_META_NAME },
-            { AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, PLAYBACK_END_DATE_META_NAME },
-            { AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_META_NAME },
-            { AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_META_NAME}
-        };
-
-        public static readonly Dictionary<string, string> BasicProgramMetasSystemNameToName = new Dictionary<string, string>()
-        {
-            { EPG_TITLE_META_NAME, EPG_TITLE_META_NAME },
-            { EPG_DESCRIPTION_META_NAME, EPG_DESCRIPTION_META_NAME },
-            { EPG_EXTERNAL_ID_SYSTEM_META_NAME, EPG_EXTERNAL_ID_META_NAME },
-            { EPG_CRID_SYSTEM_META_NAME, EPG_CRID_META_NAME },
-            { EPG_START_DATE_SYSTEM_META_NAME, EPG_START_DATE_META_NAME },
-            { EPG_END_DATE_SYSTEM_META_NAME, EPG_END_DATE_META_NAME }
-        };
 
         #endregion
 
@@ -1599,7 +1559,7 @@ namespace Core.Catalog.CatalogManagement
                         if (isProgramStruct)
                         {
                             var topic = catalogGroupCache.TopicsMapById[metaId];
-                            if (!BasicProgramMetasSystemNameToName.ContainsKey(topic.SystemName))
+                            if (!EpgAssetManager.BasicProgramMetasSystemNameToName.ContainsKey(topic.SystemName))
                             {
                                 if (topic.Type == MetaType.Tag)
                                 {
@@ -2882,104 +2842,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return parentAssetsIds;
-        }
-
-        public static List<Topic> GetBasicMediaAssetTopics()
-        {
-            List<Topic> result = new List<Topic>();
-            foreach (var meta in BasicMediaAssetMetasSystemNameToName)
-            {
-                Topic topicToAdd = new Topic(meta.Key, true, meta.Value);
-                switch (meta.Key)
-                {
-                    case AssetManager.NAME_META_SYSTEM_NAME:
-                        topicToAdd.SetType(MetaType.MultilingualString);
-                        topicToAdd.SearchRelated = true;
-                        topicToAdd.Features.Add(OPC_UI_METADATA);
-                        topicToAdd.Features.Add(OPC_UI_MANDATORY);
-                        break;
-                    case AssetManager.DESCRIPTION_META_SYSTEM_NAME:
-                        topicToAdd.SetType(MetaType.MultilingualString);
-                        topicToAdd.Features.Add(OPC_UI_METADATA);
-                        topicToAdd.Features.Add(OPC_UI_TEXTAREA);
-                        break;
-                    case AssetManager.EXTERNAL_ID_META_SYSTEM_NAME:
-                        topicToAdd.SetType(MetaType.String);
-                        topicToAdd.Features.Add(OPC_UI_METADATA);
-                        topicToAdd.Features.Add(OPC_UI_READONLY);
-                        break;
-                    case AssetManager.ENTRY_ID_META_SYSTEM_NAME:
-                        topicToAdd.SetType(MetaType.String);
-                        topicToAdd.Features.Add(OPC_UI_METADATA);
-                        break;
-                    case AssetManager.STATUS_META_SYSTEM_NAME:
-                        topicToAdd.SetType(MetaType.Bool);
-                        topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
-                        break;
-                    case AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME:
-                    case AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME:
-                    case AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
-                    case AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME:
-                        topicToAdd.SetType(MetaType.DateTime);
-                        topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
-                        break;
-                    default:
-                        throw new Exception(string.Format("missing mapping for metaSystemName: {0} on GetBasicMediaAssetTopics", meta.Key));
-                }
-
-                result.Add(topicToAdd);
-            }
-
-            return result;
-        }
-
-        public static List<Topic> GetBasicProgramTopics()
-        {
-            List<Topic> result = new List<Topic>();
-            foreach (var meta in BasicProgramMetasSystemNameToName)
-            {
-                Topic topicToAdd = new Topic(meta.Key, true, meta.Value);
-                switch (meta.Key)
-                {
-                    case EPG_TITLE_META_NAME:
-                        topicToAdd.SetType(MetaType.MultilingualString);
-                        topicToAdd.SearchRelated = true;
-                        topicToAdd.Features.Add(OPC_UI_METADATA);
-                        topicToAdd.Features.Add(OPC_UI_MANDATORY);
-                        break;
-                    case EPG_DESCRIPTION_META_NAME:
-                        topicToAdd.SetType(MetaType.MultilingualString);
-                        topicToAdd.Features.Add(OPC_UI_METADATA);
-                        topicToAdd.Features.Add(OPC_UI_TEXTAREA);
-                        break;
-                    case EPG_EXTERNAL_ID_SYSTEM_META_NAME:
-                        topicToAdd.SetType(MetaType.String);
-                        topicToAdd.Features.Add(OPC_UI_METADATA);
-                        topicToAdd.Features.Add(OPC_UI_READONLY);
-                        break;
-                    case EPG_CRID_SYSTEM_META_NAME:
-                        topicToAdd.SetType(MetaType.String);
-                        topicToAdd.Features.Add(OPC_UI_METADATA);
-                        topicToAdd.Features.Add(OPC_UI_MANDATORY);
-                        break;
-                    case EPG_START_DATE_SYSTEM_META_NAME:
-                        topicToAdd.SetType(MetaType.DateTime);
-                        topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
-                        topicToAdd.Features.Add(OPC_UI_MANDATORY);
-                        break;
-                    case EPG_END_DATE_SYSTEM_META_NAME:
-                        topicToAdd.SetType(MetaType.DateTime);
-                        topicToAdd.Features.Add(OPC_UI_AVAILABILITY);
-                        topicToAdd.Features.Add(OPC_UI_MANDATORY);
-                        break;
-                    default:
-                        throw new Exception(string.Format("missing mapping for metaSystemName: {0} on GetBasicProgramTopics", meta.Key));
-                }
-
-                result.Add(topicToAdd);
-            }
-
-            return result;
         }
 
         #endregion

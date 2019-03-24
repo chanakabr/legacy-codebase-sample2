@@ -19,38 +19,57 @@ namespace Core.Catalog.CatalogManagement
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { NAME_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
-            { DESCRIPTION_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
-            { EXTERNAL_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
-            { START_DATE_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
-            { END_DATE_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
-            { SERIES_NAME_META_SYSTEM_NAME, MetaType.Tag.ToString() },
-            { SERIES_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
-            { EPISODE_NUMBER_META_SYSTEM_NAME, MetaType.Number.ToString() },
-            { SEASON_NUMBER_META_SYSTEM_NAME, MetaType.Number.ToString() },
-            { CRID_META_SYSTEM_NAME, MetaType.String.ToString() }
-        };
-
         private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
         private const string META_DOES_NOT_EXIST = "{0}: {1} does not exist for this group";
         private const string INVALID_LANGUAGE = "Invalid language: {0}. Only languages specified in the name of the asset can be associated.";
         private const string DUPLICATE_VALUE = "Duplicate {0}:{1} sent for {2}.";
+        private const string EXTERNAL_ID_META_NAME = "External Asset ID";
+        private const string CRID_META_NAME = "CRID";
+        private const string START_DATE_META_NAME = "Program Start";
+        private const string END_DATE_META_NAME = "Program End";
+        private const string NAME_META_SYSTEM_NAME = "Name";
+        private const string DESCRIPTION_META_SYSTEM_NAME = "Description";
+        private const string START_DATE_META_SYSTEM_NAME = "StartDate";
+        private const string END_DATE_META_SYSTEM_NAME = "EndDate";
+        private const string SERIES_NAME_META_SYSTEM_NAME = "SeriesName";
+        private const string SERIES_NAME_META_NAME = "Series Name";
+        private const string SERIES_ID_META_SYSTEM_NAME = "SeriesID";
+        private const string SERIES_ID_META_NAME = "Series ID";
+        private const string EPISODE_NUMBER_META_SYSTEM_NAME = "EpisodeNumber";
+        private const string EPISODE_NUMBER_META_NAME = "Episode Number";
+        private const string SEASON_NUMBER_META_SYSTEM_NAME = "SeasonNumber";
+        private const string SEASON_NUMBER_META_NAME = "Season Number";
+        private const string PARENTAL_RATING_META_SYSTEM_NAME = "ParentalRating";
+        private const string PARENTAL_RATING_META_NAME = "Parental Rating";
+        private const string GENRE_META_SYSTEM_NAME = "Genre";
+        private const string CRID_META_SYSTEM_NAME = "Crid";
+        private const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        private static readonly int MaxDescriptionSize = 1024;
+        private static readonly int MaxNameSize = 255;
 
-        internal const string NAME_META_SYSTEM_NAME = "Name";
-        internal const string DESCRIPTION_META_SYSTEM_NAME = "Description";
-        internal const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
-        internal const string START_DATE_META_SYSTEM_NAME = "StartDate";
-        internal const string END_DATE_META_SYSTEM_NAME = "EndDate";
-        internal const string SERIES_NAME_META_SYSTEM_NAME = "SeriesName";
-        internal const string SERIES_ID_META_SYSTEM_NAME = "SeriesID";
-        internal const string EPISODE_NUMBER_META_SYSTEM_NAME = "EpisodeNumber";
-        internal const string SEASON_NUMBER_META_SYSTEM_NAME = "SeasonNumber";
-        internal const string CRID_META_SYSTEM_NAME = "Crid";
+        internal static readonly Dictionary<string, string> BasicProgramMetasSystemNameToName = new Dictionary<string, string>()
+        {
+            { NAME_META_SYSTEM_NAME, NAME_META_SYSTEM_NAME },
+            { DESCRIPTION_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME },
+            { START_DATE_META_SYSTEM_NAME, START_DATE_META_NAME },
+            { END_DATE_META_SYSTEM_NAME, END_DATE_META_NAME },
+            { SERIES_NAME_META_SYSTEM_NAME, SERIES_NAME_META_NAME },
+            { SERIES_ID_META_SYSTEM_NAME, SERIES_ID_META_NAME },
+            { EPISODE_NUMBER_META_SYSTEM_NAME, EPISODE_NUMBER_META_NAME },
+            { SEASON_NUMBER_META_SYSTEM_NAME, SEASON_NUMBER_META_NAME },
+            { PARENTAL_RATING_META_SYSTEM_NAME, PARENTAL_RATING_META_NAME },
+            { GENRE_META_SYSTEM_NAME, GENRE_META_SYSTEM_NAME },
+            { CRID_META_SYSTEM_NAME, CRID_META_NAME },
+            { EXTERNAL_ID_META_SYSTEM_NAME, EXTERNAL_ID_META_NAME }
+        };
 
-        internal static readonly int MaxDescriptionSize = 1024;
-        internal static readonly int MaxNameSize = 255;
+        internal static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { NAME_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
+            { START_DATE_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { END_DATE_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { CRID_META_SYSTEM_NAME, MetaType.String.ToString() }
+        };
 
         #endregion
 
@@ -1556,6 +1575,85 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-            #endregion
+        #endregion
+
+        #region public Methods
+
+        public static List<Topic> GetBasicTopics()
+        {
+            List<Topic> result = new List<Topic>();
+            foreach (KeyValuePair<string, string> meta in BasicProgramMetasSystemNameToName)
+            {
+                Topic topicToAdd = new Topic(meta.Key, true, meta.Value);
+                switch (meta.Key)
+                {
+                    case NAME_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.MultilingualString);
+                        topicToAdd.SearchRelated = true;
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_MANDATORY);
+                        break;
+                    case DESCRIPTION_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.MultilingualString);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_TEXTAREA);
+                        break;
+                    case EXTERNAL_ID_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.String);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        break;
+                    case CRID_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.String);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_MANDATORY);
+                        break;
+                    case START_DATE_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.DateTime);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_AVAILABILITY);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_MANDATORY);
+                        break;
+                    case END_DATE_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.DateTime);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_AVAILABILITY);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_MANDATORY);
+                        break;
+                    case SERIES_NAME_META_SYSTEM_NAME:
+                        topicToAdd.SearchRelated = true;
+                        topicToAdd.SetType(MetaType.Tag);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        break;
+                    case SERIES_ID_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.String);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        break;
+                    case EPISODE_NUMBER_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.Number);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        break;
+                    case SEASON_NUMBER_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.Number);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        break;
+                    case PARENTAL_RATING_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.Tag);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        break;
+                    case GENRE_META_SYSTEM_NAME:
+                        topicToAdd.SearchRelated = true;
+                        topicToAdd.SetType(MetaType.Tag);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_MANDATORY);
+                        break;
+                    default:
+                        throw new Exception(string.Format("missing mapping for metaSystemName: {0} on EpgAssetManager.GetBasicTopics", meta.Key));
+                }
+
+                result.Add(topicToAdd);
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }
