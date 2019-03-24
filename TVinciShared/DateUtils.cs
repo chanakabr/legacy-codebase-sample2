@@ -1,13 +1,6 @@
 using System;
-using System.Data;
-using System.Configuration;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using System.Globalization;
+
 namespace TVinciShared
 {
     /// <summary>
@@ -386,7 +379,7 @@ namespace TVinciShared
             return 0;
         }
 
-        public static DateTime? ExtractDate(string dateTime, string format)
+        public static DateTime? TryExtractDate(string dateTime, string format)
         {
             DateTime result;
             if (DateTime.TryParseExact(dateTime, format, null, DateTimeStyles.None, out result))
@@ -395,6 +388,12 @@ namespace TVinciShared
             }
 
             return null;
+        }
+
+        public static DateTime ExtractDate(string dateTime, string format)
+        {
+            DateTime result = DateTime.ParseExact(dateTime, format, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
+            return result;
         }
     }
 }
