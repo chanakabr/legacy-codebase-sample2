@@ -1,5 +1,4 @@
 ﻿using ApiObjects.BulkUpload;
-using ApiObjects.Catalog;
 using Core.Catalog;
 using Newtonsoft.Json;
 using System;

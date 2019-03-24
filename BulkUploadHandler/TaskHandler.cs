@@ -1,6 +1,4 @@
-﻿using ApiObjects.Catalog;
-using ApiObjects.Response;
-using Core.Catalog.CatalogManagement;
+﻿using Core.Catalog.CatalogManagement;
 using KLogMonitor;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
