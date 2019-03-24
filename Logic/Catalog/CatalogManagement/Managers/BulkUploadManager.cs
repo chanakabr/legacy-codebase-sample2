@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.Catalog;
 using ApiObjects.Response;
 using KLogMonitor;
 using QueueWrapper;
@@ -20,7 +19,7 @@ namespace Core.Catalog.CatalogManagement
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success (in sec)
-        private static object lockObject = new object();
+
         private static readonly HashSet<BulkUploadJobStatus> FinishedBulkUploadStatuses = new HashSet<BulkUploadJobStatus>()
         {
             BulkUploadJobStatus.Success,
@@ -52,7 +51,7 @@ namespace Core.Catalog.CatalogManagement
 
             return response;
         }
-        
+
         public static GenericListResponse<BulkUpload> GetBulkUploads(int groupId, string bulkObjectType, DateTime createDate, List<BulkUploadJobStatus> statuses = null, long? userId = null)
         {
             var response = new GenericListResponse<BulkUpload>();
@@ -91,7 +90,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     var nStatus = (int)status;
                     var bulkUploadKey = LayeredCacheKeys.GetBulkUploadsKey(groupId, fileObjectTypeName.Object, nStatus);
-                    keyToOriginalValueMap.Add(bulkUploadKey, status.ToString());
+                    keyToOriginalValueMap.Add(bulkUploadKey, ((int)status).ToString());
                     invalidationKeysMap.Add(bulkUploadKey, new List<string>() { LayeredCacheKeys.GetBulkUploadsInvalidationKey(groupId, fileObjectTypeName.Object, nStatus) });
                     statusesIn.Add(nStatus);
                 }
@@ -124,7 +123,7 @@ namespace Core.Catalog.CatalogManagement
                         response.Objects = response.Objects.Where(x => x.UpdaterId == userId.Value).ToList();
                     }
                 }
-                
+
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -155,11 +154,13 @@ namespace Core.Catalog.CatalogManagement
                 objectData.GroupId = groupId;
                 response.Object.ObjectData = objectData;
 
-                if (!CatalogDAL.SaveBulkUploadCB(response.Object))
+                BulkUploadJobStatus updatedStatus;
+                if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL, false, out updatedStatus))
                 {
                     log.ErrorFormat("Error while saving BulkUpload to CB. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
                     return response;
                 }
+                response.Object.Status = updatedStatus;
 
                 // save the bulkUpload file to server (cut it from iis) and set fileURL
                 FileInfo fileInfo = new FileInfo(filePath);
@@ -174,36 +175,36 @@ namespace Core.Catalog.CatalogManagement
 
                 var objectTypeName = FileHandler.Instance.GetFileObjectTypeName(bulkObjectType.Name);
                 response.Object.BulkObjectType = objectTypeName.Object;
-                response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded);
-                
+                response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded, false);
+
                 // Enqueue to CeleryQueue new BulkUpload (the remote will handle the file and its content).
                 if (EnqueueBulkUpload(groupId, response.Object, userId))
                 {
-                    response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Queued);
+                    response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Queued, true);
                 }
                 else
                 {
                     if (EnqueueBulkUpload(groupId, response.Object, userId))
                     {
-                        response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Queued);
+                        response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Queued, true);
                     }
                     else
                     {
-                        response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Fatal);
+                        response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Fatal, true);
                         response.SetStatus(eResponseStatus.EnqueueFailed, string.Format("Failed to enqueue BulkUpload, BulkUpload.Id:{0}", response.Object.Id));
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in AddBulkUpload. groupId:{0}, filePath:{1}, userId:{2}, action:{3}, objectType:{4}.", 
+                log.Error(string.Format("An Exception was occurred in AddBulkUpload. groupId:{0}, filePath:{1}, userId:{2}, action:{3}, objectType:{4}.",
                                         groupId, filePath, userId, action, bulkObjectType), ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
             return response;
         }
-        
+
         public static Status ProcessBulkUpload(int groupId, long userId, long bulkUploadId)
         {
             // update status to PROCESSING
@@ -212,113 +213,130 @@ namespace Core.Catalog.CatalogManagement
             {
                 return bulkUploadResponse.Status;
             }
-            bulkUploadResponse.Object.UpdaterId = userId;
 
-            bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Parsing);
-            
-            // parse file to objects list (with validation)
-            var objectsListResponse = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
-            if (bulkUploadResponse.Object.JobData != null && bulkUploadResponse.Object.ObjectData != null)
+            try
             {
-                objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(groupId, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
-                if (!objectsListResponse.IsOkStatusCode())
-                {
-                    UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Failed);
-                    return objectsListResponse.Status;
-                }
-            }
-            else
-            {
-                var errorMessage = string.Format("ProcessBulkUpload cannot Deserialize file because JobData or ObjectData are null for groupId:{0}, bulkUploadId:{1}.",
-                                                 groupId, bulkUploadId);
-                log.Error(errorMessage);
-                UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Fatal);
-                bulkUploadResponse.SetStatus(eResponseStatus.Error, errorMessage);
-                return bulkUploadResponse.Status;
-            }
-            
-            bulkUploadResponse.Object.NumOfObjects = objectsListResponse.Objects.Count;
-            if (bulkUploadResponse.Object.NumOfObjects == 0)
-            {
-                log.ErrorFormat("ProcessBulkUpload Deserialize file with no objects. groupId:{0}, bulkUploadId:{1}.",
-                               groupId, bulkUploadId);
-                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Success);
-                return bulkUploadResponse.Status;
-            }
+                bulkUploadResponse.Object.UpdaterId = userId;
+                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Parsing, true);
 
-            bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
-
-            // run over all deserialized bulkUpload objects
-            for (int i = 0; i < objectsListResponse.Objects.Count; i++)
-            {
-                // create new result in status IN_PROGRESS
-                var resultStatus = BulkUploadResultStatus.InProgress;
-                Status errorStatus = null;
-                if (!objectsListResponse.Objects[i].Item1.IsOkStatusCode())
+                // parse file to objects list (with validation)
+                var objectsListResponse = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
+                if (bulkUploadResponse.Object.JobData != null && bulkUploadResponse.Object.ObjectData != null)
                 {
-                    resultStatus = BulkUploadResultStatus.Error;
-                    errorStatus = objectsListResponse.Objects[i].Item1;
-                }
-
-                var bulkUploadResult = objectsListResponse.Objects[i].Item2.GetNewBulkUploadResult(bulkUploadResponse.Object.Id, resultStatus, i, errorStatus);
-                if (bulkUploadResult == null)
-                {
-                    log.ErrorFormat("bulkUploadResult is null for bulkUploadId:{0}, index:{1}", bulkUploadResponse.Object.Id, i);
-                    continue;
-                }
-
-                // add current result to bulkUpload results list and update it in DB.
-                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, bulkUploadResponse.Object.Status, bulkUploadResult);
-                if (resultStatus == BulkUploadResultStatus.InProgress)
-                {
-                    // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
-                    if (objectsListResponse.Objects[i].Item2.EnqueueBulkUploadResult(bulkUploadResponse.Object, i))
+                    objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(bulkUploadId, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
+                    if (!objectsListResponse.IsOkStatusCode())
                     {
-                        log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
-                    }
-                    else
-                    {
-                        log.DebugFormat("Failed enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
+                        UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Failed, true);
+                        return objectsListResponse.Status;
                     }
                 }
+                else
+                {
+                    var errorMessage = string.Format("ProcessBulkUpload cannot Deserialize file because JobData or ObjectData are null for groupId:{0}, bulkUploadId:{1}.",
+                                                     groupId, bulkUploadId);
+                    log.Error(errorMessage);
+                    UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Fatal, true);
+                    bulkUploadResponse.SetStatus(eResponseStatus.Error, errorMessage);
+                    return bulkUploadResponse.Status;
+                }
+
+                bulkUploadResponse.Object.NumOfObjects = objectsListResponse.Objects.Count;
+                if (bulkUploadResponse.Object.NumOfObjects == 0)
+                {
+                    log.ErrorFormat("ProcessBulkUpload Deserialize file with no objects. groupId:{0}, bulkUploadId:{1}.",
+                                   groupId, bulkUploadId);
+                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Success, false);
+                    return bulkUploadResponse.Status;
+                }
+
+                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing, false);
+
+                // run over all deserialized bulkUpload objects and create the results
+                for (int i = 0; i < objectsListResponse.Objects.Count; i++)
+                {
+                    // create new result in status IN_PROGRESS
+                    var resultStatus = BulkUploadResultStatus.InProgress;
+                    Status errorStatus = null;
+                    if (!objectsListResponse.Objects[i].Item1.IsOkStatusCode())
+                    {
+                        resultStatus = BulkUploadResultStatus.Error;
+                        errorStatus = objectsListResponse.Objects[i].Item1;
+                    }
+
+                    var bulkUploadResult = objectsListResponse.Objects[i].Item2.GetNewBulkUploadResult(bulkUploadResponse.Object.Id, resultStatus, i, errorStatus);
+                    if (bulkUploadResult == null)
+                    {
+                        log.ErrorFormat("bulkUploadResult is null for bulkUploadId:{0}, index:{1}", bulkUploadResponse.Object.Id, i);
+                        continue;
+                    }
+
+                    // add current result to bulkUpload results list and update it in DB.
+                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, bulkUploadResponse.Object.Status, false, bulkUploadResult);
+                }
+
+                // run over all results and Enqueue them
+                for (int i = 0; i < objectsListResponse.Objects.Count; i++)
+                {
+                    if (bulkUploadResponse.Object.Results[i].Status == BulkUploadResultStatus.InProgress)
+                    {
+                        // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
+                        if (objectsListResponse.Objects[i].Item2.EnqueueBulkUploadResult(bulkUploadResponse.Object, i))
+                        {
+                            log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
+                        }
+                        else
+                        {
+                            log.DebugFormat("Failed enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
+                        }
+                    }
+                }
+
+                // update status to PROCESSED
+                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processed, true);
+            }
+            catch (Exception ex)
+            {
+                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Fatal, true);
+                log.Error(string.Format("An Exception was occurred in ProcessBulkUpload. groupId:{0}, userId:{1}, bulkUploadId:{2}.",
+                                        groupId, userId, bulkUploadId), ex);
+                bulkUploadResponse.SetStatus(eResponseStatus.Error);
             }
 
-            // update status to PROCESSED
-            bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
             return bulkUploadResponse.Status;
         }
-        
+
         public static Status UpdateBulkUploadResult(int groupId, long bulkUploadId, int resultIndex, Status errorStatus = null, long? objectId = null, List<Status> warnings = null)
         {
             var response = new Status((int)eResponseStatus.Error);
             try
             {
-                lock (lockObject)
+                var bulkUploadResponse = GetBulkUpload(groupId, bulkUploadId);
+                var originalStatus = bulkUploadResponse.Object.Status;
+                bulkUploadResponse.Object.Results[resultIndex].ObjectId = objectId;
+
+                if (errorStatus == null)
                 {
-                    var bulkUploadResponse = GetBulkUpload(groupId, bulkUploadId);
-                    var originalStatus = bulkUploadResponse.Object.Status;
-                    bulkUploadResponse.Object.Results[resultIndex].ObjectId = objectId;
-
-                    if (errorStatus == null)
-                    {
-                        bulkUploadResponse.Object.Results[resultIndex].Status = BulkUploadResultStatus.Ok;
-                    }
-                    else
-                    {
-                        bulkUploadResponse.Object.Results[resultIndex].SetError(errorStatus);
-                    }
-
-                    bulkUploadResponse.Object.Results[resultIndex].Warnings = warnings;
-                    bulkUploadResponse.Object.Status = GetBulkStatusByResultsStatus(bulkUploadResponse.Object);
-                    
-                    if (!CatalogDAL.SaveBulkUploadCB(bulkUploadResponse.Object, BULK_UPLOAD_CB_TTL))
-                    {
-                        log.ErrorFormat("UpdateBulkUploadResult - Error while saving BulkUpload to CB. bulkUploadId:{0}, resultIndex:{1}.", bulkUploadId, resultIndex);
-                    }
-
-                    UpdateBulkUploadInSqlAndInvalidateKeys(bulkUploadResponse.Object, originalStatus);
-                    response.Set(eResponseStatus.OK);
+                    bulkUploadResponse.Object.Results[resultIndex].Status = BulkUploadResultStatus.Ok;
                 }
+                else
+                {
+                    bulkUploadResponse.Object.Results[resultIndex].SetError(errorStatus);
+                }
+
+                if (warnings != null && warnings.Count > 0)
+                {
+                    bulkUploadResponse.Object.Results[resultIndex].Warnings = warnings;
+                }
+
+                BulkUploadJobStatus updatedStatus;
+                if (!CatalogDAL.SaveBulkUploadResultCB(bulkUploadResponse.Object, resultIndex, BULK_UPLOAD_CB_TTL, out updatedStatus))
+                {
+                    log.ErrorFormat("UpdateBulkUploadResult - Error while saving BulkUpload to CB. bulkUploadId:{0}, resultIndex:{1}.", bulkUploadId, resultIndex);
+                }
+                bulkUploadResponse.Object.Status = updatedStatus;
+
+                UpdateBulkUploadInSqlAndInvalidateKeys(bulkUploadResponse.Object, originalStatus);
+                response.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
@@ -326,11 +344,11 @@ namespace Core.Catalog.CatalogManagement
                                         groupId, bulkUploadId, resultIndex), ex);
                 response.Set(eResponseStatus.Error);
             }
-            
+
             return response;
         }
-        
-        public static GenericResponse<BulkUpload> UpdateBulkUpload(BulkUpload bulkUploadToUpdate, BulkUploadJobStatus newStatus, BulkUploadResult result = null)
+
+        public static GenericResponse<BulkUpload> UpdateBulkUpload(BulkUpload bulkUploadToUpdate, BulkUploadJobStatus newStatus, bool shouldOnlyUpdateStatus, BulkUploadResult result = null)
         {
             var response = new GenericResponse<BulkUpload>();
             try
@@ -374,12 +392,12 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                response.Object.Status = GetBulkStatusByResultsStatus(response.Object);
-                                
-                if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
+                BulkUploadJobStatus updatedStatus;
+                if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL, shouldOnlyUpdateStatus, out updatedStatus))
                 {
                     log.ErrorFormat("UpdateBulkUpload - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
+                response.Object.Status = updatedStatus;
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
                 response.SetStatus(eResponseStatus.OK);
@@ -393,34 +411,7 @@ namespace Core.Catalog.CatalogManagement
 
             return response;
         }
-        
-        public static bool ClearAllForQA(int groupId, string bulkObjectType)
-        {
-            try
-            {
-                var bulkUploads = GetBulkUploads(groupId, bulkObjectType, DateTime.UtcNow.AddSeconds(BULK_UPLOAD_CB_TTL));
-                if (bulkUploads.HasObjects())
-                {
-                    foreach (var bulkUpload in bulkUploads.Objects)
-                    {
-                        var deleteFileRes = FileHandler.Instance.DeleteFile(bulkUpload.FileURL);
-                        if (deleteFileRes.IsOkStatusCode())
-                        {
-                            CatalogDAL.DeleteBulkUpload(bulkUpload.Id);
-                        }
-                    }
-                }
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                string errorMessage = string.Format("An Exception was occurred in ClearAllForQA. groupId:{0}, bulkObjectType:{1}.", groupId, bulkObjectType);
-                log.Error(errorMessage, ex);
-                return false;
-            }
-        }
-        
         private static BulkUpload CreateBulkUploadFromDataTable(DataTable dt, int groupId, bool shouldGetValuesFromCB = false)
         {
             BulkUpload bulkUpload = null;
@@ -497,19 +488,26 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                if (funcParams != null && funcParams.Count == 3)
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("bulkObjectType") && funcParams.ContainsKey("statusesIn"))
                 {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("bulkObjectType") && funcParams.ContainsKey("statusesIn"))
+                    int? groupId = funcParams["groupId"] as int?;
+                    string bulkObjectType = funcParams["bulkObjectType"] as string;
+                    List<int> statusesIn;
+
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        int? groupId = funcParams["groupId"] as int?;
-                        string bulkObjectType = funcParams["bulkObjectType"] as string;
-                        List<int> statusesIn = funcParams["statusesIn"] as List<int>;
-                        if (groupId.HasValue && !string.IsNullOrEmpty(bulkObjectType) && statusesIn != null && statusesIn.Count > 0)
-                        {
-                            DataTable dt = CatalogDAL.GetBulkUploadsList(groupId.Value, bulkObjectType, statusesIn);
-                            statusToBulkUploadList = CreateBulkUploadsMapFromDataTable(dt, groupId.Value);
-                            log.DebugFormat("GetBulkUploadsFromCache success, params: {0}.", string.Join(";", funcParams.Keys));
-                        }
+                        statusesIn = (funcParams[LayeredCache.MISSING_KEYS] as List<string>).Select(x => int.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        statusesIn = funcParams["statusesIn"] as List<int>;
+                    }
+
+                    if (groupId.HasValue && !string.IsNullOrEmpty(bulkObjectType) && statusesIn != null && statusesIn.Count > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetBulkUploadsList(groupId.Value, bulkObjectType, statusesIn);
+                        statusToBulkUploadList = CreateBulkUploadsMapFromDataTable(dt, groupId.Value);
+                        log.DebugFormat("GetBulkUploadsFromCache success, params: {0}.", string.Join(";", funcParams.Keys));
                     }
                 }
             }
@@ -548,28 +546,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return statusToBulkUploadList;
-        }
-
-        private static BulkUploadJobStatus GetBulkStatusByResultsStatus(BulkUpload bulkUpload)
-        {
-            BulkUploadJobStatus newStatus = bulkUpload.Status;
-            if (bulkUpload.NumOfObjects.HasValue && bulkUpload.NumOfObjects.Value == bulkUpload.Results.Count)
-            {
-                if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok))
-                {
-                    newStatus = BulkUploadJobStatus.Success;
-                }
-                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Error))
-                {
-                    newStatus = BulkUploadJobStatus.Failed;
-                }
-                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok || x.Status == BulkUploadResultStatus.Error))
-                {
-                    newStatus = BulkUploadJobStatus.Partial;
-                }
-            }
-
-            return newStatus;
         }
 
         private static void UpdateBulkUploadInSqlAndInvalidateKeys(BulkUpload bulkUpload, BulkUploadJobStatus originalStatus)

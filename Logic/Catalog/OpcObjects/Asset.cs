@@ -10,7 +10,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using TVinciShared;
 
-namespace Core.Catalog 
+namespace Core.Catalog
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
@@ -68,7 +68,7 @@ namespace Core.Catalog
         [JsonProperty("UpdateDate")]
         public DateTime? UpdateDate { get; set; }
 
-        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, IsMandatory =true, IsUniqueMeta = true)]
+        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
         [JsonProperty("StartDate")]
         public DateTime? StartDate { get; set; }
 
@@ -101,7 +101,7 @@ namespace Core.Catalog
         [XmlElement("co_guid")]
         [JsonProperty("CoGuid")]
         public string CoGuid { get; set; }
-        
+
         #endregion
 
         #region Ctor's
@@ -186,12 +186,12 @@ namespace Core.Catalog
         }
 
         #endregion
-        
+
         private List<Metas> ConvertMediaObjMetasToAssetMetas(List<Metas> metas)
         {
             List<Metas> result = new List<Catalog.Metas>();
             foreach (Metas meta in metas)
-            {                
+            {
                 Metas metaToAdd = new Catalog.Metas() { m_oTagMeta = new TagMeta(meta.m_oTagMeta.m_sName, meta.m_oTagMeta.m_sType), m_sValue = meta.m_sValue, Value = meta.Value };
                 string currentMetaTypeLowered = meta.m_oTagMeta.m_sType.ToLower();
                 if (currentMetaTypeLowered == typeof(bool).ToString().ToLower())
@@ -254,11 +254,11 @@ namespace Core.Catalog
         }
 
         #region IExcel Methods
-        
+
         public virtual Dictionary<string, object> GetExcelValues(int groupId)
         {
             Dictionary<string, object> excelValues = new Dictionary<string, object>();
-            
+
             if (!string.IsNullOrEmpty(this.CoGuid))
             {
                 var excelColumn = ExcelColumn.GetFullColumnName(Asset.EXTERNAL_ASSET_ID, null, null, true);
@@ -312,7 +312,7 @@ namespace Core.Catalog
                 var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
                 excelValues.TryAdd(excelColumn, this.EndDate);
             }
-            
+
             foreach (var meta in this.Metas)
             {
                 if (!string.IsNullOrEmpty(meta.m_sValue))
@@ -338,7 +338,7 @@ namespace Core.Catalog
                     }
                 }
             }
-            
+
             foreach (var tag in Tags)
             {
                 var tagColumnName = ExcelColumn.GetFullColumnName(tag.m_oTagMeta.m_sName);
@@ -348,7 +348,7 @@ namespace Core.Catalog
                     excelValues.TryAdd(tagColumnName, tagValues);
                 }
             }
-            
+
             return excelValues;
         }
 
@@ -358,10 +358,17 @@ namespace Core.Catalog
 
         protected void SetMetaByExcelValues(KeyValuePair<string, object> columnValue, ExcelColumn excelColumn, string defaultLanguage, ref Dictionary<string, List<LanguageContainer>> dicMetas)
         {
+            bool isDefaultLanguage = false;
+            if (string.IsNullOrEmpty(excelColumn.Language) || excelColumn.Language.Equals(defaultLanguage))
+            {
+                excelColumn.Language = defaultLanguage;
+                isDefaultLanguage = true;
+            }
+
             switch (excelColumn.SystemName)
             {
                 case AssetManager.NAME_META_SYSTEM_NAME:
-                    if (string.IsNullOrEmpty(excelColumn.Language))
+                    if (isDefaultLanguage)
                     {
                         this.Name = columnValue.Value as string;
                     }
@@ -371,7 +378,7 @@ namespace Core.Catalog
                     }
                     break;
                 case AssetManager.DESCRIPTION_META_SYSTEM_NAME:
-                    if (string.IsNullOrEmpty(excelColumn.Language))
+                    if (isDefaultLanguage)
                     {
                         this.Description = columnValue.Value as string;
                     }
@@ -381,12 +388,6 @@ namespace Core.Catalog
                     }
                     break;
                 default:
-                    bool isDefaultLanguage = false;
-                    if (string.IsNullOrEmpty(excelColumn.Language))
-                    {
-                        excelColumn.Language = defaultLanguage;
-                        isDefaultLanguage = true;
-                    }
                     if (dicMetas.ContainsKey(excelColumn.SystemName))
                     {
                         dicMetas[excelColumn.SystemName].Add(new LanguageContainer(excelColumn.Language, columnValue.Value.ToString(), isDefaultLanguage));

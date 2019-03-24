@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 using System.Runtime.Serialization;
-
-using System.ComponentModel;
 
 namespace ApiObjects.Response
 {
@@ -14,7 +11,9 @@ namespace ApiObjects.Response
     public class Status
     {
         private string message = string.Empty;
+
         private int code;
+
         private List<KeyValuePair> args;
 
         public Status(int code = 0, string message = "", List<KeyValuePair> args = null)
@@ -57,7 +56,7 @@ namespace ApiObjects.Response
                 message = value;
             }
         }
-        
+
         [DataMember]
         public List<KeyValuePair> Args
         {
@@ -99,14 +98,17 @@ namespace ApiObjects.Response
             }
         }
 
-        public void AddArg(string key, string value)
+        public void AddArg(string key, object value)
         {
             if (args == null)
             {
                 args = new List<KeyValuePair>();
             }
 
-            args.Add(new KeyValuePair(key, value));
+            if (args.Count == 0 || !args.Any(x => x.key == key))
+            {
+                args.Add(new KeyValuePair(key, value != null ? value.ToString() : string.Empty));
+            }
         }
 
         public bool IsOkStatusCode()
@@ -124,7 +126,7 @@ namespace ApiObjects.Response
             sb.AppendLine(string.Format("Code:{0}.", code));
             sb.AppendLine(string.Format("Message:{0}.", message));
             sb.AppendLine(string.Format("Args:{0}.", args != null && args.Count > 0 ? string.Join(",", args.Select(x => string.Format("Key:{0}, Value:{1}", x.key, x.value))) : string.Empty));
-            
+
             return sb.ToString();
         }
     }

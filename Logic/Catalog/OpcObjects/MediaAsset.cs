@@ -78,7 +78,7 @@ namespace Core.Catalog
 
         [JsonProperty("InheritancePolicy")]
         public AssetInheritancePolicy? InheritancePolicy { get; set; }
-        
+
         #endregion
 
         #region Ctor's
@@ -168,7 +168,7 @@ namespace Core.Catalog
         #endregion
 
         #region IExcel Methods
-        
+
         public override Dictionary<string, object> GetExcelValues(int groupId)
         {
             Dictionary<string, object> excelValues = new Dictionary<string, object>();
@@ -268,48 +268,60 @@ namespace Core.Catalog
             {
                 return;
             }
-            
+
             HashSet<string> fileTypesSystemName = new HashSet<string>();
             Dictionary<string, List<LanguageContainer>> dicMetas = new Dictionary<string, List<LanguageContainer>>();
             Dictionary<string, ImageType> imageTypesMapBySystemName = ImageManager.GetImageTypesMapBySystemName(groupId);
 
             foreach (var columnValue in columnNamesToValues)
             {
-                if (columns.ContainsKey(columnValue.Key))
+                try
                 {
-                    switch (columns[columnValue.Key].ColumnType)
+                    if (columns.ContainsKey(columnValue.Key))
                     {
-                        case ExcelColumnType.Meta:
-                            SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.DefaultLanguage.Code, ref dicMetas);
-                            break;
-                        case ExcelColumnType.Tag:
-                            SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, assetStruct.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code);
-                            break;
-                        case ExcelColumnType.Image:
-                            SetImageByExcelValues(columnValue, columns[columnValue.Key], imageTypesMapBySystemName);
-                            break;
-                        case ExcelColumnType.Basic:
-                            SetBasicByExcelValues(columnValue, assetStruct);
-                            break;
-                        case ExcelColumnType.File:
-                            var fileSystemName = columns[columnValue.Key].SystemName;
-                            if (!fileTypesSystemName.Contains(fileSystemName))
-                            {
-                                fileTypesSystemName.Add(fileSystemName);
-                                var fileValues = columnNamesToValues.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
-                                var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
-                                SetFileByExcelValues(groupId, fileValues, fileColumns, structureObject);
-                            }
-                            break;
-                        case ExcelColumnType.Rule:
-                            SetRuleByExcelValues(columnValue);
-                            break;
-                        case ExcelColumnType.AvailabilityMeta:
-                            SetAvailabilityMetaByExcelValues(columnValue);
-                            break;
-                        default:
-                            break;
+                        switch (columns[columnValue.Key].ColumnType)
+                        {
+                            case ExcelColumnType.Meta:
+                                SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.DefaultLanguage.Code, ref dicMetas);
+                                break;
+                            case ExcelColumnType.Tag:
+                                SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, assetStruct.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code);
+                                break;
+                            case ExcelColumnType.Image:
+                                SetImageByExcelValues(columnValue, columns[columnValue.Key], imageTypesMapBySystemName);
+                                break;
+                            case ExcelColumnType.Basic:
+                                SetBasicByExcelValues(columnValue, assetStruct);
+                                break;
+                            case ExcelColumnType.File:
+                                var fileSystemName = columns[columnValue.Key].SystemName;
+                                if (!fileTypesSystemName.Contains(fileSystemName))
+                                {
+                                    fileTypesSystemName.Add(fileSystemName);
+                                    var fileValues = columnNamesToValues.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
+                                    var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
+                                    SetFileByExcelValues(groupId, fileValues, fileColumns, structureObject);
+                                }
+                                break;
+                            case ExcelColumnType.Rule:
+                                SetRuleByExcelValues(columnValue);
+                                break;
+                            case ExcelColumnType.AvailabilityMeta:
+                                SetAvailabilityMetaByExcelValues(columnValue);
+                                break;
+                            default:
+                                break;
+                        }
                     }
+                }
+                catch (ExcelParserException ex)
+                {
+                    throw ex;
+                }
+                catch (Exception ex)
+                {
+                    var excelParserException = new ExcelParserException(ex, columnValue.Key, columnValue.Value);
+                    throw excelParserException;
                 }
             }
 
@@ -369,6 +381,14 @@ namespace Core.Catalog
                 this.FinalEndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
                 return;
             }
+
+            // IsActive
+            var isActiveColumnName = ExcelColumn.GetFullColumnName(AssetManager.STATUS_META_SYSTEM_NAME, null, null, true);
+            if (columnValue.Key.Equals(isActiveColumnName))
+            {
+                this.IsActive = bool.Parse(columnValue.Value.ToString());
+                return;
+            }
         }
 
         private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns, IExcelStructure structureObject)
@@ -380,7 +400,7 @@ namespace Core.Catalog
                 Files.Add(file);
             }
         }
-        
+
         private void SetRuleByExcelValues(KeyValuePair<string, object> columnValue)
         {
             if (columnValue.Key.Equals(GEO_RULE_ID))
@@ -392,7 +412,7 @@ namespace Core.Catalog
                 this.DeviceRuleId = StringUtils.TryConvertTo<int>(columnValue.Value.ToString());
             }
         }
-        
+
         private void SetBasicByExcelValues(KeyValuePair<string, object> columnValue, AssetStruct assetStruct)
         {
             // MediaType
@@ -438,7 +458,7 @@ namespace Core.Catalog
             }
             return bulkUploadAssetResult;
         }
-        
+
         public override bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
@@ -447,7 +467,7 @@ namespace Core.Catalog
 
             return enqueueSuccessful;
         }
-        
+
         #endregion
     }
 }

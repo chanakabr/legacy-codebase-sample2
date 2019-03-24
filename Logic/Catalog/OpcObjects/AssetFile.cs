@@ -6,6 +6,7 @@ using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using TVinciShared;
 
@@ -67,7 +68,7 @@ namespace Core.Catalog
         [ExcelColumn(ExcelColumnType.File, EXTERNAL_STORE_CODE)]
         [JsonProperty("ExternalStoreId")]
         public string ExternalStoreId { get; set; }
-        
+
         [JsonProperty("CdnAdapaterProfileId")]
         public long? CdnAdapaterProfileId { get; set; }
 
@@ -117,7 +118,7 @@ namespace Core.Catalog
         [ExcelColumn(ExcelColumnType.File, CATALOG_END_DATE)]
         [JsonProperty("CatalogEndDate")]
         public DateTime? CatalogEndDate { get; set; }
-        
+
         [JsonProperty("type")]
         private string type;
 
@@ -147,7 +148,7 @@ namespace Core.Catalog
         }
 
         #region IExcelableObject Methods
-        
+
         public Dictionary<string, object> GetExcelValues(int groupId)
         {
             Dictionary<string, object> excelValues = new Dictionary<string, object>();
@@ -172,7 +173,7 @@ namespace Core.Catalog
             if (CdnAdapaterProfileId.HasValue)
             {
                 CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter((int)CdnAdapaterProfileId.Value, false, groupId);
-                if (adapter != null )
+                if (adapter != null)
                 {
                     var cdn = ExcelColumn.GetFullColumnName(this.type, CDN);
                     excelValues.TryAdd(cdn, adapter.SystemName);
@@ -271,28 +272,36 @@ namespace Core.Catalog
 
             foreach (var columnValue in columnNamesToValues)
             {
-                if (columns.ContainsKey(columnValue.Key))
+                try
                 {
-                    var realType = columns[columnValue.Key].Property.PropertyType.GetRealType();
-                    object convertedValue;
-                    if (realType == dateTimeType || realType == nullableDateTimeType)
+                    if (columns.ContainsKey(columnValue.Key))
                     {
-                        convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                    }
-                    else
-                    {
-                        convertedValue = columnValue.Value.TryConvertTo(realType);
-                    }
-                    
-                    if (convertedValue != null)
-                    {
-                        columns[columnValue.Key].Property.SetValue(this, convertedValue);
+                        var realType = columns[columnValue.Key].Property.PropertyType.GetRealType();
+                        object convertedValue;
+                        if (realType == dateTimeType || realType == nullableDateTimeType)
+                        {
+                            convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
+                        }
+                        else
+                        {
+                            convertedValue = Convert.ChangeType(columnValue.Value, realType);
+                        }
+
+                        if (convertedValue != null)
+                        {
+                            columns[columnValue.Key].Property.SetValue(this, convertedValue);
+                        }
+
+                        if (string.IsNullOrEmpty(this.type))
+                        {
+                            this.type = columns[columnValue.Key].SystemName;
+                        }
                     }
                 }
-
-                if (string.IsNullOrEmpty(this.type))
+                catch (Exception ex)
                 {
-                    this.type = columns[columnValue.Key].SystemName;
+                    var excelParserException = new ExcelParserException(ex, columnValue.Key, columnValue.Value);
+                    throw excelParserException;
                 }
             }
 
@@ -400,7 +409,7 @@ namespace Core.Catalog
             //{
             //    this.IsDefaultLanguage = columnNamesToValues[isDefaultLanguage] as bool?;
             //}
-            
+
             this.IsActive = true;
         }
 

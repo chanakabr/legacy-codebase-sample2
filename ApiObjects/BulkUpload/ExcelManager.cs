@@ -24,7 +24,7 @@ namespace ApiObjects.BulkUpload
         private const string COLUMN_LANGUAGE = "l";
         private const string ITEM_INDEX = "i";
 
-        public static GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(int groupId, string fileUrl, BulkUploadObjectData objectData)
+        public static GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
             var excelObjects = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
             try
@@ -37,7 +37,7 @@ namespace ApiObjects.BulkUpload
                         excelObjects.SetStatus(eResponseStatus.FileDoesNotExists, string.Format("Could not find file:{0}", fileUrl));
                         return excelObjects;
                     }
-                    
+
                     using (var fileStream = new MemoryStream(fileBytes))
                     {
                         using (ExcelPackage excelPackage = new ExcelPackage(fileStream))
@@ -47,15 +47,16 @@ namespace ApiObjects.BulkUpload
                                 IExcelStructure structure = objectData.GetStructure() as IExcelStructure;
                                 if (structure != null)
                                 {
-                                    var excelStructure = structure.GetExcelStructure(groupId);
+                                    var excelStructure = structure.GetExcelStructure(objectData.GroupId);
                                     if (excelStructure == null)
                                     {
-                                        // TODO SHIR - SET SOME ERROR
+                                        excelObjects.SetStatus(eResponseStatus.InvalidBulkUploadStructure);
+                                        return excelObjects;
                                     }
                                     else
                                     {
                                         int columnNameRowIndex = excelStructure.OverviewInstructions.Count > 0 ? excelStructure.OverviewInstructions.Count + 2 : 1;
-                                        
+
                                         for (int row = columnNameRowIndex + 1; row <= worksheet.Dimension.End.Row; row++)
                                         {
                                             var columnNamesToValues = new Dictionary<string, object>();
@@ -74,7 +75,7 @@ namespace ApiObjects.BulkUpload
                                                 else if (excelStructure.ExcelColumns.ContainsKey(column.ToString()) &&
                                                          excelStructure.ExcelColumns[column.ToString()].IsMandatory)
                                                 {
-                                                    status.Set(eResponseStatus.ExcelMandatoryValueIsMissing, string.Format("Mandatory Value:{0} Is Missing", column.ToString()));
+                                                    status.Set(eResponseStatus.ExcelMandatoryValueIsMissing, string.Format("Mandatory Value:{0} Is Missing", column));
                                                     break;
                                                 }
                                             }
@@ -84,22 +85,48 @@ namespace ApiObjects.BulkUpload
                                             {
                                                 if (status.IsOkStatusCode())
                                                 {
-                                                    // TODO SHIR - VALIDATE THAT THE MEDIA_TYPE IN EXCEL IS LIKE MEDIA_TYPE IN objectData
-                                                    try
+                                                    if (objectData.Validate(columnNamesToValues))
                                                     {
-                                                        excelObject.SetExcelValues(groupId, columnNamesToValues, excelStructure.ExcelColumns, structure);
+                                                        try
+                                                        {
+                                                            excelObject.SetExcelValues(objectData.GroupId, columnNamesToValues, excelStructure.ExcelColumns, structure);
+                                                        }
+                                                        catch (ExcelParserException ex)
+                                                        {
+                                                            log.Error(string.Format("An ExcelParserException was occurred in SetExcelValues. groupId:{0}, bulkUploadId:{1}, Target method:{2}, Column:{3}, Value:{4}.",
+                                                                                    objectData.GroupId, bulkUploadId, ex.MethodName, ex.ColumnName, ex.Value), ex);
+                                                            status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Invalid Argument Value. Error:{0}", ex.Message));
+                                                            status.AddArg("Target method", ex.MethodName);
+                                                            status.AddArg("Column", ex.ColumnName);
+                                                            status.AddArg("Value", ex.Value);
+                                                        }
+                                                        catch (ArgumentException ex)
+                                                        {
+                                                            log.Error(string.Format("An ArgumentException was occurred in SetExcelValues. groupId:{0}, bulkUploadId:{1}, Parameter name:{2}.",
+                                                                                    objectData.GroupId, bulkUploadId, ex.ParamName), ex);
+                                                            status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Invalid Argument Value, Error:{0}", ex.Message));
+                                                            status.AddArg("Parameter name", ex.ParamName);
+                                                            if (ex.TargetSite != null)
+                                                            {
+                                                                status.AddArg("Target method", ex.TargetSite.Name);
+                                                            }
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            log.Error(string.Format("An Exception was occurred in SetExcelValues. groupId:{0}, bulkUploadId:{1}.",
+                                                                                    objectData.GroupId, bulkUploadId), ex);
+                                                            status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Could not set Excel Values for this object, Error:{0}", ex.Message));
+                                                            if (ex.TargetSite != null)
+                                                            {
+                                                                status.AddArg("Target method", ex.TargetSite.Name);
+                                                            }
+                                                        }
                                                     }
-                                                    catch (ArgumentException ex)
+                                                    else
                                                     {
-                                                        log.Error(string.Format("An ArgumentException was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
-                                                                                groupId, string.Join(",", columnNamesToValues), ex));
-                                                        status.Set(eResponseStatus.InvalidArgumentValue, string.Format("Invalid Argument Value, Error:{0}", ex.Message));
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-                                                        log.Error(string.Format("An Exception was occurred in SetExcelValues. groupId:{0}, columnNamesToValues:{1}.",
-                                                                                groupId, string.Join(",", columnNamesToValues), ex));
-                                                        status.Set(eResponseStatus.Error, "Could not set Excel Values for this object");
+                                                        var mandatoryPropertyToValueMap = objectData.GetMandatoryPropertyToValueMap();
+                                                        var mandatoryPropertyToValue = "{" + string.Join(",", mandatoryPropertyToValueMap.Select(kv => kv.Key + "=" + kv.Value).ToArray()) + "}";
+                                                        status.Set(eResponseStatus.IllegalExcelFile, string.Format("Excel columns do not match for current BulkObjectType data. Mandatory column name to value: {0}", mandatoryPropertyToValue));
                                                     }
                                                 }
 
@@ -118,8 +145,8 @@ namespace ApiObjects.BulkUpload
             catch (Exception ex)
             {
                 excelObjects.SetStatus(eResponseStatus.IllegalExcelFile);
-                log.Error(string.Format("An Exception was occurred in Deserialize Excel File. groupId:{0}, fileUrl:{1}.",
-                                        groupId, fileUrl), ex);
+                log.Error(string.Format("An Exception was occurred in Deserialize Excel File. groupId:{0}, bulkUploadId:{1}.",
+                                        objectData.GroupId, bulkUploadId), ex);
             }
 
             return excelObjects;

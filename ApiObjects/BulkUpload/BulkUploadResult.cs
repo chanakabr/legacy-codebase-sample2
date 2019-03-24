@@ -30,11 +30,8 @@ namespace ApiObjects.BulkUpload
         [JsonProperty("Status")]
         public BulkUploadResultStatus Status { get; set; }
 
-        [JsonProperty("ErrorCode")]
-        public int? ErrorCode { get; private set; }
-
-        [JsonProperty("ErrorMessage")]
-        public string ErrorMessage { get; private set; }
+        [JsonProperty("Error")]
+        public Status Error { get; private set; }
 
         [JsonProperty("Warnings")]
         public List<Status> Warnings { get; set; }
@@ -43,7 +40,7 @@ namespace ApiObjects.BulkUpload
         {
             Index = -1;
         }
-        
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -51,17 +48,20 @@ namespace ApiObjects.BulkUpload
 
             if (ObjectId.HasValue)
             {
-                sb.AppendFormat("ObjectId:{0}", ObjectId);
+                sb.AppendFormat(", ObjectId:{0}", ObjectId);
             }
 
-            if (ErrorCode.HasValue)
+            if (Error != null)
             {
-                sb.AppendFormat("ErrorCode:{0}", ErrorCode);
+                sb.AppendFormat(", Error:{0}", Error.ToString());
             }
 
-            if (!string.IsNullOrEmpty(ErrorMessage))
+            if (Warnings != null && Warnings.Count > 0)
             {
-                sb.AppendFormat("ErrorMessage:{0}", ErrorMessage);
+                for (int i = 0; i < Warnings.Count; i++)
+                {
+                    sb.AppendFormat(", Warning {0}:{1}", i + 1, Warnings[i].ToString());
+                }
             }
 
             return sb.ToString();
@@ -76,8 +76,7 @@ namespace ApiObjects.BulkUpload
             this.Status = BulkUploadResultStatus.Error;
             if (errorStatus != null)
             {
-                this.ErrorCode = errorStatus.Code;
-                this.ErrorMessage = errorStatus.Message;
+                this.Error = errorStatus;
             }
         }
     }

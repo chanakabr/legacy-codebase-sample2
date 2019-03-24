@@ -51,7 +51,7 @@ namespace ApiObjects.BulkUpload
 
         [JsonProperty("GroupId")]
         public int GroupId { get; set; }
-        
+
         [JsonProperty("CreateDate")]
         public DateTime CreateDate { get; set; }
 
@@ -60,7 +60,7 @@ namespace ApiObjects.BulkUpload
 
         [JsonProperty("UpdaterId")]
         public long UpdaterId { get; set; }
-        
+
         [JsonProperty(PropertyName = "Results",
                      TypeNameHandling = TypeNameHandling.Auto,
                      ItemTypeNameHandling = TypeNameHandling.Auto,

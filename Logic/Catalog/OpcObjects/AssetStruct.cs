@@ -126,7 +126,7 @@ namespace Core.Catalog
         }
 
         #endregion
-        
+
         public string GetCommaSeparatedFeatures()
         {
             if (this.Features != null && this.Features.Count > 0)
@@ -243,7 +243,7 @@ namespace Core.Catalog
         }
 
         #region IExcelStructure
-        
+
         public ExcelStructure GetExcelStructure(int groupId, Dictionary<string, object> data = null)
         {
             ExcelStructure excelStructure = null;
@@ -269,7 +269,7 @@ namespace Core.Catalog
                                                                                 .OrderBy(x => this.MetaIds.IndexOf(x.Key))
                                                                                 .ToDictionary(x => x.Value.SystemName, y => y.Value);
                 }
-                
+
                 var systemNameToExcelAttribute = ExcelManager.GetSystemNameToProperyData(typeof(MediaAsset));
                 var excelColumns = new Dictionary<string, ExcelColumn>();
 

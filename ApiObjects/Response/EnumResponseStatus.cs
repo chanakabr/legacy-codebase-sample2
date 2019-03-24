@@ -278,6 +278,8 @@ namespace ApiObjects.Response
         BulkUploadResultIsMissing = 4083,
         NoValuesToUpdate = 4084,
         AssetStructMetasConatinSystemNameDuplication = 4085,
+        InvalidBulkUploadStructure = 4086,
+
         #endregion
 
         #region Api 5000 - 5999
@@ -324,12 +326,15 @@ namespace ApiObjects.Response
         FileDoesNotExists = 5040,
         FileAlreadyExists = 5041,
         ErrorSavingFile = 5042,
-        FileIdNotInTheRightLength = 5043,
+        FileIdNotInCorrectLength = 5043,
         EnqueueFailed = 5044,
         IllegalExcelFile = 5045,
         ExcelMandatoryValueIsMissing = 5046,
         InvalidArgumentValue = 5047,
-        
+        IngestProfileNotExists = 5048,
+        NoIngestProfileToInsert = 5049,
+        IngestProfileIdRequired = 5060,
+
         #endregion
 
         #region Billing 6000 - 6999
