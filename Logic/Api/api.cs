@@ -11819,10 +11819,20 @@ namespace Core.Api
 
                 profileToUpdate.TransformationAdapterSharedSecret = profileToUpdate.TransformationAdapterSharedSecret ?? Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
 
-                var updatedProfile = ApiDAL.UpdateIngestProfile(ingestProfileId, groupId, userId, profileToUpdate);
+                var isProfileUpdateSuccess = ApiDAL.UpdateIngestProfile(ingestProfileId, groupId, userId, profileToUpdate);
 
-                response.Object = updatedProfile;
-                response.SetStatus(eResponseStatus.OK, " ingest profile was successfully updated");
+                if (isProfileUpdateSuccess)
+                {
+                    profileToUpdate.Id = ingestProfileId;
+                    response.Object = profileToUpdate;
+                    response.SetStatus(eResponseStatus.OK, " ingest profile was successfully updated"); 
+                }
+                else
+                {
+                    response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    log.ErrorFormat("Failed to insert ingest profile. Group Id: {0} result from DB update was {1}", groupId, isProfileUpdateSuccess);
+                }
+                
 
             }
             catch (Exception ex)
