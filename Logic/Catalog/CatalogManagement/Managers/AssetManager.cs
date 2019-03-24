@@ -22,39 +22,56 @@ namespace Core.Catalog.CatalogManagement
     {
         #region Constants and Read-only
 
-        private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
-        public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
-        public const string NAME_META_SYSTEM_NAME = "Name";
-        public const string DESCRIPTION_META_SYSTEM_NAME = "Description";
-        internal const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
-        public const string STATUS_META_SYSTEM_NAME = "Status";
-        internal const string DEVICE_RULE_ID = "DeviceRuleId";
-        internal const string GEO_BLOCK_RULE_ID = "GeoBlockRuleId";
-        public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
-        public const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
-        public const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
-        public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        public const string ACTION_IS_NOT_ALLOWED = "Action is not allowed";
-
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        //public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        //{
-        //    NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, ENTRY_ID_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
-        //    PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_TIME_META_SYSTEM_NAME
-        //};
 
-        public static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
+        private const string TITLE_META_NAME = "Title";
+        private const string DESCRIPTION_META_NAME = "Description";
+        private const string EXTERNAL_ID_META_NAME = "External ID";
+        private const string MEDIAPREP_ID_META_NAME = "MediaPrep ID";
+        private const string STATUS_META_NAME = "Status";
+        private const string PLAYBACK_START_DATE_META_NAME = "Playback Start Date";
+        private const string CATALOG_END_DATE_META_NAME = "Catalog End Date";
+        private const string PLAYBACK_END_DATE_META_NAME = "Playback End Date";
+        private const string CATALOG_START_DATE_META_NAME = "Catalog Start Date";
+        private const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
+        private const string DEVICE_RULE_ID = "DeviceRuleId";
+        private const string GEO_BLOCK_RULE_ID = "GeoBlockRuleId";
+        private const string ACTION_IS_NOT_ALLOWED = "Action is not allowed";
+
+        internal const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        internal const string NAME_META_SYSTEM_NAME = "Name";
+        internal const string DESCRIPTION_META_SYSTEM_NAME = "Description";
+        internal const string STATUS_META_SYSTEM_NAME = "Status";
+        internal const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
+        internal const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
+        internal const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
+        internal const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";        
+
+        private static readonly Dictionary<string, string> BasicMediaAssetMetasSystemNameToName = new Dictionary<string, string>()
         {
-            { AssetManager.NAME_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
-            { AssetManager.DESCRIPTION_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
-            { AssetManager.EXTERNAL_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
-            { AssetManager.ENTRY_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
-            { AssetManager.STATUS_META_SYSTEM_NAME, MetaType.Bool.ToString() },
-            { AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
-            { AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
-            { AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
-            { AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()}
+            { NAME_META_SYSTEM_NAME, TITLE_META_NAME },
+            { DESCRIPTION_META_SYSTEM_NAME, DESCRIPTION_META_NAME },
+            { EXTERNAL_ID_META_SYSTEM_NAME, EXTERNAL_ID_META_NAME },
+            { ENTRY_ID_META_SYSTEM_NAME, MEDIAPREP_ID_META_NAME },
+            { STATUS_META_SYSTEM_NAME, STATUS_META_NAME },
+            { PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, PLAYBACK_START_DATE_META_NAME },
+            { PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, PLAYBACK_END_DATE_META_NAME },
+            { CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_META_NAME },
+            { CATALOG_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_META_NAME}
+        };
+
+        internal static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { NAME_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
+            { DESCRIPTION_META_SYSTEM_NAME, MetaType.MultilingualString.ToString() },
+            { EXTERNAL_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
+            { ENTRY_ID_META_SYSTEM_NAME, MetaType.String.ToString() },
+            { STATUS_META_SYSTEM_NAME, MetaType.Bool.ToString() },
+            { PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { CATALOG_START_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { CATALOG_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()}
         };
 
         #endregion
@@ -2597,6 +2614,55 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return groupMediaAssetsMap;
+        }
+
+        public static List<Topic> GetBasicMediaAssetTopics()
+        {
+            List<Topic> result = new List<Topic>();
+            foreach (var meta in BasicMediaAssetMetasSystemNameToName)
+            {
+                Topic topicToAdd = new Topic(meta.Key, true, meta.Value);
+                switch (meta.Key)
+                {
+                    case NAME_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.MultilingualString);
+                        topicToAdd.SearchRelated = true;
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_MANDATORY);
+                        break;
+                    case DESCRIPTION_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.MultilingualString);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_TEXTAREA);
+                        break;
+                    case EXTERNAL_ID_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.String);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_READONLY);
+                        break;
+                    case ENTRY_ID_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.String);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_METADATA);
+                        break;
+                    case STATUS_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.Bool);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_AVAILABILITY);
+                        break;
+                    case PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME:
+                    case PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME:
+                    case CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
+                    case CATALOG_END_DATE_TIME_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.DateTime);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_AVAILABILITY);
+                        break;
+                    default:
+                        throw new Exception(string.Format("missing mapping for metaSystemName: {0} on GetBasicMediaAssetTopics", meta.Key));
+                }
+
+                result.Add(topicToAdd);
+            }
+
+            return result;
         }
 
         #endregion
