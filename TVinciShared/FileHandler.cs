@@ -105,13 +105,13 @@ namespace TVinciShared
 
             return saveFileResponse;
         }
-        
+
         private string GetFileName(string id, string fileExtension)
         {
             return (id + fileExtension);
         }
 
-        private GenericResponse<string> Validate(Type objectType, FileInfo fileInfo = null) 
+        private GenericResponse<string> Validate(Type objectType, FileInfo fileInfo = null)
         {
             var validationStatus = new GenericResponse<string>();
             if (fileInfo != null && !fileInfo.Exists)
@@ -166,7 +166,7 @@ namespace TVinciShared
         public string Region { get; private set; }
         public string BucketName { get; private set; }
         public string Path { get; private set; }
-        
+
         protected override void Initialize()
         {
             AccessKey = ApplicationConfiguration.FileUpload.S3.AccessKey.Value;
@@ -278,13 +278,13 @@ namespace TVinciShared
     {
         public string Destination { get; private set; }
         public string PublicUrl { get; private set; }
-        
+
         protected override void Initialize()
         {
             Destination = ApplicationConfiguration.FileUpload.FileSystem.DestPath.Value;
             PublicUrl = ApplicationConfiguration.FileUpload.FileSystem.PublicUrl.Value;
         }
-        
+
         protected override GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir)
         {
             GenericResponse<string> saveResponse = new GenericResponse<string>();
