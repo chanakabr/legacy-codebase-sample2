@@ -20,7 +20,7 @@
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
-    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
+    <!--<ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />-->
   </ItemGroup>
 
   <!-- 
