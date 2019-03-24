@@ -5436,7 +5436,7 @@ namespace DAL
             }
         }
 
-        public static IngestProfile UpdateIngestProfile(int profileId, int groupId, int userId, IngestProfile profileToAdd)
+        public static bool UpdateIngestProfile(int profileId, int groupId, int userId, IngestProfile profileToAdd)
         {
             try
             {
@@ -5453,9 +5453,7 @@ namespace DAL
                 sp.AddParameter("@defaultOverlapPolicy", profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
 
-                var response = sp.ExecuteDataSet();
-                var profile = response.Tables[0].ToList<IngestProfile>().FirstOrDefault();
-                return profile;
+                return sp.ExecuteReturnValue<int>() > 0;
 
             }
             catch (Exception ex)
