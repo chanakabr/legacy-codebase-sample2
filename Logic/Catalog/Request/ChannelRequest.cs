@@ -1,6 +1,8 @@
-﻿using ApiObjects.SearchObjects;
+﻿using ApiObjects;
+using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using Core.Catalog.Cache;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -10,8 +12,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 using Tvinci.Core.DAL;
-using TVinciShared;
 
 namespace Core.Catalog.Request
 {
@@ -57,164 +59,84 @@ namespace Core.Catalog.Request
 
         public override BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
+            ChannelResponse response = new ChannelResponse();
+
             try
             {
                 ChannelRequest request = oBaseRequest as ChannelRequest;
-
                 if (request == null || request.m_nChannelID == 0)
                     throw new ArgumentException("request object is null or Required variables is null");
 
                 CheckSignature(request);
 
-                ChannelResponse response = new ChannelResponse();
-                Group group = null;
-                GroupsCacheManager.Channel channel = null;
+                log.DebugFormat("starting ChannelRequest.GetResponse, ChannelID:{0}", m_nChannelID);
 
-                ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = null;
+                bool isGroupAndChannelValid = false, doesGroupUsesTemplates = false;
+                int groupId = 0;
+                LanguageObj defaultLanguage = null;
+                List<string> permittedWatchRules = null;
+                GroupsCacheManager.Channel channel = null;
 
                 try
                 {
-                    GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                    CatalogCache catalogCache = CatalogCache.Instance();
-                    int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-                    groupManager.GetGroupAndChannel(request.m_nChannelID, nParentGroupID, ref group, ref channel);
+                    if (CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    {
+                        doesGroupUsesTemplates = true;
+                        groupId = request.m_nGroupID;
+                        CatalogGroupCache catalogGroupCache;
+                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling ChannelRequest.GetResponse", groupId);
+                            return response;
+                        }
+                        defaultLanguage = catalogGroupCache.DefaultLanguage;
 
+                        var channelResponse = ChannelManager.GetChannelById(groupId, request.m_nChannelID, false, 0);
+                        if (!channelResponse.HasObject())
+                        {
+                            return response;
+                        }
+
+                        channel = channelResponse.Object;
+                        isGroupAndChannelValid = true;
+                    }
+                    else
+                    {
+                        var groupManager = new GroupManager();
+                        CatalogCache catalogCache = CatalogCache.Instance();
+                        int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                        Group group = null;
+                        groupManager.GetGroupAndChannel(request.m_nChannelID, nParentGroupID, ref group, ref channel);
+                        isGroupAndChannelValid = group != null && channel != null;
+                        if (isGroupAndChannelValid)
+                        {
+                            groupId = group.m_nParentGroupID;
+                            defaultLanguage = group.GetGroupDefaultLanguage();
+                            permittedWatchRules = group.m_sPermittedWatchRules;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     log.Error("ChannelRequest - " + string.Format("failed to get GetGroupAndChannel channelID={0}, ex={1} , st: {2}", request.m_nChannelID, ex.Message, ex.StackTrace), ex);
-                    group = null;
-                    channel = null;
                 }
 
-
-                if (group != null && channel != null)
+                if (isGroupAndChannelValid)
                 {
-                    // If this is a KSQL channel
-                    if (channel.m_nChannelTypeID == 4)
+                    if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
                     {
-                        response.m_nTotalItems = 0;
-                        response.m_nMedias = null;
-                        return response;
-                    }
-
-                    channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID, group.GetGroupDefaultLanguage(), group.m_sPermittedWatchRules);
-
-                    channelSearchObject.m_bIgnoreDeviceRuleId = request.m_bIgnoreDeviceRuleID;
-
-                    List<int> medias = new List<int>();
-                    int nPageIndex = 0;
-                    int nPageSize = 0;
-
-                    if (channel.m_nChannelTypeID == 2 || IsSlidingWindow(channel))
-                    {
-                        nPageIndex = channelSearchObject.m_nPageIndex;
-                        nPageSize = channelSearchObject.m_nPageSize;
-                        channelSearchObject.m_nPageSize = 0;
-                        channelSearchObject.m_nPageIndex = 0;
-                    }
-
-                    ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-                    if (searcher == null)
-                    {
-                        return response;
-                    }
-                    int nTotalItems = 0;
-
-                    SearchResultsObj oSearchResults = searcher.SearchMedias(channel.m_nGroupID, channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_nGroupID);
-                    List<SearchResult> lMediaRes = null;
-                    if (oSearchResults != null && oSearchResults.m_resultIDs != null && oSearchResults.m_resultIDs.Count > 0)
-                    {
-                        medias = oSearchResults.m_resultIDs.Select(item => item.assetID).ToList();
-                        nTotalItems = oSearchResults.n_TotalItems;
-                        DateTime nMinDateTime = new DateTime(1970, 1, 1, 0, 0, 0);
-
-                        if (searcher.GetType().Equals(typeof(ElasticsearchWrapper))) // != typeof(LuceneWrapper))
+                        if (!doesGroupUsesTemplates)
                         {
-                            lMediaRes = oSearchResults.m_resultIDs.Select(item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
-                        }
-                    }
-                    else
-                    {
-                        return response;
-                    }
-
-                    if (IsSlidingWindow(channel))
-                    {
-                        medias = OrderMediaBySlidingWindow(group.m_nParentGroupID, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
-
-                        nTotalItems = 0;
-
-                        if (medias != null && medias.Count > 0)
-                        {
-                            nTotalItems = medias.Count;
-                            Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
-                            lMediaRes.Clear();
-                            foreach (int item in medias)
-                            {
-                                if (dMediaRes.ContainsKey(item))
-                                    lMediaRes.Add(dMediaRes[item]);
-                            }
-                        }
-                        else
-                        {
-                            lMediaRes.Clear();
-                        }
-                    }
-
-                    if (channel.m_nChannelTypeID == 2)
-                    {
-                        OrderMediasByOrderNum(ref medias, channel, channelSearchObject.m_oOrder);
-
-                        int nValidNumberOfMediasRange = nPageSize;
-                        if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(medias.Count, nPageIndex, ref nValidNumberOfMediasRange))
-                        {
-                            if (nValidNumberOfMediasRange > 0)
-                            {
-                                medias = medias.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
-                            }
-                        }
-                        else
-                        {
-                            medias.Clear();
+                            response.m_nTotalItems = 0;
+                            response.m_nMedias = null;
+                            return response;
                         }
 
-                        if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)) && medias != null && medias.Count > 0)
-                        {
-                            Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
-                            lMediaRes = new List<SearchResult>();
-                            foreach (int item in medias)
-                            {
-                                if (dMediaRes.ContainsKey(item))
-                                {
-                                    lMediaRes.Add(dMediaRes[item]);
-                                }
-                            }
-                        }
+                        response = GetResponseForKSQLChannel(groupId, channel, request, defaultLanguage);
                     }
-
-                    if (medias == null || medias.Count() == 0)
+                    if (channel.m_nChannelTypeID == (int)ChannelType.Manual || IsSlidingWindow(channel))
                     {
-                        response.m_nMedias = null;
-                        response.m_nTotalItems = 0;
-                        return response;
-                    }
-
-
-                    response.m_nTotalItems = nTotalItems;
-
-                    if (searcher.GetType().Equals(typeof(LuceneWrapper)))   //if (lMediaRes == null) //LUCENE
-                    {
-                        lMediaRes = GetMediaUpdateDate(medias);
-                    }
-
-                    if (lMediaRes.Count > 0)
-                    {
-                        response.m_nMedias = new List<SearchResult>(lMediaRes);
-                    }
-                    else
-                    {
-                        response.m_nMedias = null;
+                        response = GetResponseForManualChannel(groupId, channel, request, defaultLanguage, permittedWatchRules);
                     }
                 }
 
@@ -223,7 +145,6 @@ namespace Core.Catalog.Request
             catch (Exception ex)
             {
                 log.Error("ES Error - " + String.Concat("Exception. Req: ", ToString(), " Msg: ", ex.Message, " Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), ex);
-
                 throw ex;
             }
         }
@@ -254,8 +175,8 @@ namespace Core.Catalog.Request
                         if (dict != null && dict.Count > 0)
                         {
                             result = (from pair in dict
-                                        orderby pair.Value[0] descending
-                                        select pair.Key).ToList();
+                                      orderby pair.Value[0] descending
+                                      select pair.Key).ToList();
                         }
                     }
                     /************* For versions after Joker that don't want to use DB for getting view stats (first_play), we fetch the data from ES statistics index **********/
@@ -265,7 +186,7 @@ namespace Core.Catalog.Request
                     }
                     break;
                 case OrderBy.RATING:
-                    result = CatalogLogic.SlidingWindowStatisticsAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_RATES, CatalogLogic.STAT_ACTION_RATE_VALUE_FIELD, 
+                    result = CatalogLogic.SlidingWindowStatisticsAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_RATES, CatalogLogic.STAT_ACTION_RATE_VALUE_FIELD,
                         ElasticSearch.Searcher.AggregationsComparer.eCompareType.Average);
                     break;
                 case OrderBy.VOTES_COUNT:
@@ -283,7 +204,7 @@ namespace Core.Catalog.Request
             {
                 // all results are returned ordered by descending
                 if (isDesc)
-                {                    
+                {
                     result = Utils.ListPaging(result, pageSize, PageIndex);
                 }
                 else
@@ -327,13 +248,198 @@ namespace Core.Catalog.Request
             }
         }
 
-        protected virtual ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(GroupsCacheManager.Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage, List<string> lPermittedWatchRules)
+        protected virtual MediaSearchObj GetManualSearchObject(GroupsCacheManager.Channel channel, ChannelRequest request, int nParentGroupID, LanguageObj oLanguage, List<string> lPermittedWatchRules)
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)
                 nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
 
             return CatalogLogic.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, channel.m_nGroupID == channel.m_nParentGroupID ? lPermittedWatchRules : null, nDeviceRuleId, oLanguage);
+        }
+
+        private ChannelResponse GetResponseForManualChannel(int groupId, GroupsCacheManager.Channel channel, ChannelRequest request, LanguageObj defaultLanguage, List<string> permittedWatchRules)
+        {
+            var response = new ChannelResponse();
+            MediaSearchObj channelSearchObject = GetManualSearchObject(channel, request, groupId, defaultLanguage, permittedWatchRules);
+            channelSearchObject.m_bIgnoreDeviceRuleId = request.m_bIgnoreDeviceRuleID;
+
+            int nPageIndex = channelSearchObject.m_nPageIndex;
+            int nPageSize = channelSearchObject.m_nPageSize;
+            channelSearchObject.m_nPageSize = 0;
+            channelSearchObject.m_nPageIndex = 0;
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            if (searcher == null)
+            {
+                return response;
+            }
+
+            List<SearchResult> lMediaRes = null;
+            List<int> medias = new List<int>();
+            int nTotalItems = 0;
+            SearchResultsObj oSearchResults = searcher.SearchMedias(channel.m_nGroupID, channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_nGroupID);
+            if (oSearchResults == null || oSearchResults.m_resultIDs == null || oSearchResults.m_resultIDs.Count == 0)
+            {
+                return response;
+            }
+
+            medias = oSearchResults.m_resultIDs.Select(item => item.assetID).ToList();
+            nTotalItems = oSearchResults.n_TotalItems;
+
+            if (searcher.GetType().Equals(typeof(ElasticsearchWrapper))) // != typeof(LuceneWrapper))
+            {
+                lMediaRes = oSearchResults.m_resultIDs.Select(item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
+            }
+
+            if (IsSlidingWindow(channel))
+            {
+                medias = OrderMediaBySlidingWindow(groupId, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
+
+                nTotalItems = 0;
+
+                if (medias != null && medias.Count > 0)
+                {
+                    nTotalItems = medias.Count;
+                    Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
+                    lMediaRes.Clear();
+                    foreach (int item in medias)
+                    {
+                        if (dMediaRes.ContainsKey(item))
+                            lMediaRes.Add(dMediaRes[item]);
+                    }
+                }
+                else
+                {
+                    lMediaRes.Clear();
+                }
+            }
+
+            if (channel.m_nChannelTypeID == (int)ChannelType.Manual)
+            {
+                OrderMediasByOrderNum(ref medias, channel, channelSearchObject.m_oOrder);
+
+                int nValidNumberOfMediasRange = nPageSize;
+                if (Utils.ValidatePageSizeAndPageIndexAgainstNumberOfMedias(medias.Count, nPageIndex, ref nValidNumberOfMediasRange))
+                {
+                    if (nValidNumberOfMediasRange > 0)
+                    {
+                        medias = medias.GetRange(nPageSize * nPageIndex, nValidNumberOfMediasRange);
+                    }
+                }
+                else
+                {
+                    medias.Clear();
+                }
+
+                if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)) && medias != null && medias.Count > 0)
+                {
+                    Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
+                    lMediaRes = new List<SearchResult>();
+                    foreach (int item in medias)
+                    {
+                        if (dMediaRes.ContainsKey(item))
+                        {
+                            lMediaRes.Add(dMediaRes[item]);
+                        }
+                    }
+                }
+            }
+
+            if (medias == null || medias.Count == 0)
+            {
+                response.m_nMedias = null;
+                response.m_nTotalItems = 0;
+                return response;
+            }
+
+            response.m_nTotalItems = nTotalItems;
+
+            if (searcher.GetType().Equals(typeof(LuceneWrapper)))   //if (lMediaRes == null) //LUCENE
+            {
+                lMediaRes = GetMediaUpdateDate(medias);
+            }
+
+            if (lMediaRes.Count > 0)
+            {
+                response.m_nMedias = new List<SearchResult>(lMediaRes);
+            }
+            else
+            {
+                response.m_nMedias = null;
+            }
+
+            return response;
+        }
+
+        private ChannelResponse GetResponseForKSQLChannel(int groupId, GroupsCacheManager.Channel channel, ChannelRequest request, LanguageObj defaultLanguage)
+        {
+            var response = new ChannelResponse();
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("(and asset_type='media' ");
+            var requestMultiFiltering = request as ChannelRequestMultiFiltering;
+            if (requestMultiFiltering != null &&
+                requestMultiFiltering.m_lFilterTags != null &&
+                requestMultiFiltering.m_lFilterTags.Count > 0 &&
+                requestMultiFiltering.m_eFilterCutWith != CutWith.WCF_ONLY_DEFAULT_VALUE)
+            {
+                if (requestMultiFiltering.m_eFilterCutWith == CutWith.AND)
+                {
+                    stringBuilder.Append("(and ");
+                }
+                else
+                {
+                    stringBuilder.Append("(or ");
+                }
+
+                foreach (var filterTag in requestMultiFiltering.m_lFilterTags)
+                {
+                    stringBuilder.AppendFormat("{0}='{1}'", filterTag.m_sKey, filterTag.m_sValue);
+                }
+
+                stringBuilder.Append(")");
+            }
+            stringBuilder.Append(")");
+
+            // build request
+            var internalChannelRequest = new InternalChannelRequest()
+            {
+                m_sSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID),
+                m_sSignString = request.m_sSignString,
+                m_oFilter = request.m_oFilter,
+                m_sUserIP = request.m_sUserIP,
+                m_nGroupID = groupId,
+                m_nPageIndex = request.m_nPageIndex,
+                m_nPageSize = request.m_nPageSize,
+                m_sSiteGuid = request.m_sSiteGuid,
+                domainId = domainId,
+                order = request.m_oOrderObj,
+                internalChannelID = channel.m_nChannelID.ToString(),
+                filterQuery = stringBuilder.ToString(),
+                m_dServerTime = request.m_dServerTime,
+                m_bIgnoreDeviceRuleID = request.m_bIgnoreDeviceRuleID,
+                isAllowedToViewInactiveAssets = false
+            };
+
+            var orderBy = request.m_oOrderObj != null ? request.m_oOrderObj.m_eOrderBy : OrderBy.NONE;
+            var unifiedSearchResponse = internalChannelRequest.GetResponse(internalChannelRequest) as UnifiedSearchResponse;
+
+            if (!unifiedSearchResponse.status.IsOkStatusCode())
+            {
+                log.ErrorFormat("Error in GetResponse for InternalChannelRequest, status:{0}", unifiedSearchResponse.status.ToString());
+            }
+
+            response.m_nTotalItems = unifiedSearchResponse.m_nTotalItems;
+            if (unifiedSearchResponse.searchResults != null && unifiedSearchResponse.searchResults.Count > 0)
+            {
+                response.m_nMedias.AddRange(unifiedSearchResponse.searchResults.Select(x => new SearchResult() { assetID = int.Parse(x.AssetId), UpdateDate = x.m_dUpdateDate }));
+            }
+            else
+            {
+                response.m_nMedias = null;
+            }
+
+            return response;
         }
     }
 }

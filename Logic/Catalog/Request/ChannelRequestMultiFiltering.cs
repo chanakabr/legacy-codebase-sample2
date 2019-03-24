@@ -1,18 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TVinciShared;
 using System.Runtime.Serialization;
-using System.Reflection;
-using System.Net;
-using System.Xml.Serialization;
-using System.IO;
-using System.Xml;
-using System.Data;
-using System.Data.SqlClient;
-using Microsoft.SqlServer.Server;
-using Tvinci.Core.DAL;
 using ApiObjects.SearchObjects;
 
 namespace Core.Catalog.Request
@@ -26,13 +14,11 @@ namespace Core.Catalog.Request
     [DataContract]
     public class ChannelRequestMultiFiltering : ChannelRequest, IRequestImp
     {
-         
-
         [DataMember]
         public List<KeyValue> m_lFilterTags { get; set; }
         [DataMember]
         public CutWith m_eFilterCutWith { get; set; }
-        
+
         public ChannelRequestMultiFiltering()
             : base()
         {
@@ -55,9 +41,9 @@ namespace Core.Catalog.Request
             m_eFilterCutWith = CutWith.OR; // Set as default. This value will be provided by request
         }
 
-        protected override ApiObjects.SearchObjects.MediaSearchObj GetSearchObject(GroupsCacheManager.Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage, List<string> lPermittedWatchRules)
+        protected override MediaSearchObj GetManualSearchObject(GroupsCacheManager.Channel channel, ChannelRequest request, int nParentGroupID, ApiObjects.LanguageObj oLanguage, List<string> lPermittedWatchRules)
         {
-            MediaSearchObj channelSearchObject = base.GetSearchObject(channel, request, nParentGroupID, oLanguage, lPermittedWatchRules);
+            MediaSearchObj channelSearchObject = base.GetManualSearchObject(channel, request, nParentGroupID, oLanguage, lPermittedWatchRules);
             if (channelSearchObject != null)
             {
                 CatalogLogic.AddChannelMultiFiltersToSearchObject(ref channelSearchObject, (ChannelRequestMultiFiltering)request);
@@ -67,4 +53,3 @@ namespace Core.Catalog.Request
         }
     }
 }
-
