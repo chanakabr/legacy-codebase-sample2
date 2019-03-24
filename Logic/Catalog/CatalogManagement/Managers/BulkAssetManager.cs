@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.Catalog;
 using ApiObjects.Response;
 using KLogMonitor;
 using System;
@@ -28,8 +27,8 @@ namespace Core.Catalog.CatalogManagement
             return 0;
         }
 
-        public static GenericListResponse<Status> UpsertMediaAsset(int groupId, MediaAsset mediaAsset, long userId, Dictionary<long, Image> images, 
-                                                                   Dictionary<int, Tuple<AssetFile, string>>  assetFiles, string dateFormat, bool needToEraseMedia)
+        public static GenericListResponse<Status> UpsertMediaAsset(int groupId, MediaAsset mediaAsset, long userId, Dictionary<long, Image> images,
+                                                                   Dictionary<int, Tuple<AssetFile, string>> assetFiles, string dateFormat, bool needToEraseMedia)
         {
             GenericListResponse<Status> response = new GenericListResponse<Status>();
             try
@@ -91,7 +90,7 @@ namespace Core.Catalog.CatalogManagement
                                                         groupId, mediaAsset.CoGuid, userId), ex);
                 response.SetStatus(eResponseStatus.Error);
             }
-            
+
             return response;
         }
 
@@ -215,7 +214,7 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="eraseExistingFiles"></param>
         /// <param name="ingestResponse"></param>
         /// <param name="index"></param>
-        private static List<Status> HandleAssetFiles(int groupId, Dictionary<int, Tuple<AssetFile, string>> filesToHandle, long assetId,  bool eraseExistingFiles, string dateFormat, long userId)
+        private static List<Status> HandleAssetFiles(int groupId, Dictionary<int, Tuple<AssetFile, string>> filesToHandle, long assetId, bool eraseExistingFiles, string dateFormat, long userId)
         {
             List<Status> warnings = new List<Status>();
             try
@@ -327,8 +326,8 @@ namespace Core.Catalog.CatalogManagement
                             continue;
                         }
 
-                        DateTime? ppvStartDate = DateUtils.ExtractDate(parameters[i + 1], assetFileDateFormat);
-                        DateTime? ppvEndDate = DateUtils.ExtractDate(parameters[i + 2], assetFileDateFormat);
+                        DateTime? ppvStartDate = DateUtils.TryExtractDate(parameters[i + 1], assetFileDateFormat);
+                        DateTime? ppvEndDate = DateUtils.TryExtractDate(parameters[i + 2], assetFileDateFormat);
 
                         DateTime? prevPPVFileStartDate = null;
                         DateTime? prevPPVFileEndDate = null;
