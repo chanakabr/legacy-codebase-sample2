@@ -340,27 +340,7 @@ namespace KlogMonitorHelper
         {
             try
             {
-                switch (KMonitor.AppType)
-                {
-                    case KLogEnums.AppType.WCF:
-
-                        if (OperationContext.Current != null)
-                        {
-                            OperationContext.Current.IncomingMessageProperties[key] = value;
-                            return true;
-                        }
-                        break;
-
-                    case KLogEnums.AppType.WS:
-                    default:
-
-                        if (HttpContext.Current != null)
-                        {
-                            _LogContextData[key] = value;
-                            return true;
-                        }
-                        break;
-                }
+                KMonitor.LogContextData[key] = value;
             }
             catch (Exception ex)
             {
