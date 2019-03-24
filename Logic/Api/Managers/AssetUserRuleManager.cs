@@ -777,7 +777,7 @@ namespace Core.Api.Managers
                                     if (rule.Conditions != null && rule.Conditions.Count > 0)
                                     {
                                         filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, rule.Conditions[0].Ksql);
-                                        medias = api.SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+                                        medias = api.SearchAssets(groupId.Value, filter, 0, 0, false, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
 
                                         if (medias != null && medias.Count() > 0)// there is a match 
                                     {

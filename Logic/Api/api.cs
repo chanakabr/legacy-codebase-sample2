@@ -9455,7 +9455,7 @@ namespace Core.Api
         }
 
         public static UnifiedSearchResult[] SearchAssets(int groupID, string filter, int pageIndex, int pageSize, bool OnlyIsActive, int languageID, bool UseStartDate,
-               string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule)
+            string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule, bool isAllowedToViewInactiveAssets = false)
         {
             UnifiedSearchResult[] assets = null;
 
@@ -9492,7 +9492,8 @@ namespace Core.Api
                             m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
                         },
                         m_sSiteGuid = SiteGuid,
-                        domainId = DomainId
+                        domainId = DomainId,
+                        isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
                     };
 
                     BaseResponse response = assetRequest.GetResponse(assetRequest);
