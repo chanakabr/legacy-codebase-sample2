@@ -253,7 +253,7 @@ namespace Core.Catalog.CatalogManagement
 
                 bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
 
-                // run over all deserialized bulkUpload objects
+                // run over all deserialized bulkUpload objects and create the results
                 for (int i = 0; i < objectsListResponse.Objects.Count; i++)
                 {
                     // create new result in status IN_PROGRESS
@@ -274,7 +274,12 @@ namespace Core.Catalog.CatalogManagement
 
                     // add current result to bulkUpload results list and update it in DB.
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, bulkUploadResponse.Object.Status, bulkUploadResult);
-                    if (resultStatus == BulkUploadResultStatus.InProgress)
+                }
+
+                // run over all results and Enqueue them
+                for (int i = 0; i < objectsListResponse.Objects.Count; i++)
+                {
+                    if (bulkUploadResponse.Object.Results[i].Status == BulkUploadResultStatus.InProgress)
                     {
                         // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
                         if (objectsListResponse.Objects[i].Item2.EnqueueBulkUploadResult(bulkUploadResponse.Object, i))
