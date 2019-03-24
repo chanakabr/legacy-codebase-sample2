@@ -59,11 +59,11 @@ public partial class adm_users_domains : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("users_connection");
-        theTable += "select d.id, d.name, d.description, d.status, d.is_active from domains d";
+        theTable += "select d.id, d.name, d.description, d.status, d.is_active from domains d with(nolock)";
         if (Session["search_user_name"] != null && Session["search_user_name"].ToString() != "")
         {
-            theTable += " join users_domains ud on ud.domain_id=d.id and ud.status=1 and ud.Is_Active=1 and ud.Is_Master=1";
-            theTable += " join users u on ud.user_id=u.id and u.status=1 and u.Is_Active=1 and u.username like (N'%"+Session["search_user_name"].ToString().ToLower().Trim() + "%')";
+            theTable += " join users_domains ud with(nolock) on ud.domain_id=d.id and ud.status=1 and ud.Is_Active=1 and ud.Is_Master=1";
+            theTable += " join users u with(nolock) on ud.user_id=u.id and u.status=1 and u.Is_Active=1 and u.username like (N'%" + Session["search_user_name"].ToString().ToLower().Trim() + "%')";
         }
 
         theTable += "where d.status<>2 and ";
