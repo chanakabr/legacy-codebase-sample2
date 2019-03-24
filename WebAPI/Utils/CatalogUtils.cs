@@ -34,6 +34,7 @@ namespace WebAPI.Utils
         private const string RECORDING_CACHE_KEY_PREFIX = "recording";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+        private readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
 
         public static bool GetBaseResponse<T>(BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
         {
