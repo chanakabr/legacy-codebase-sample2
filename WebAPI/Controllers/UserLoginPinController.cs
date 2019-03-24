@@ -30,7 +30,12 @@ namespace WebAPI.Controllers
         static public KalturaUserLoginPin Add(string secret = null)
         {
             KalturaUserLoginPin response = null;
-            
+
+            if (string.IsNullOrEmpty(secret))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "secret");
+            }
+
             int groupId = KS.GetFromRequest().GroupId;
 
             try
