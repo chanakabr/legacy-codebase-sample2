@@ -1,153 +1,33 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C9718E6D-F866-4991-80CD-4BAFDF4D8878}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ElasticSearch</RootNamespace>
-    <AssemblyName>ElasticSearch</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Basic|AnyCPU'">
-    <OutputPath>bin\Basic\</OutputPath>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
-    <OutputPath>bin\Local\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
+    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
+    <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\Serializer\ESSerializerV1.cs" />
-    <Compile Include="Common\Serializer\ESSerializerV2.cs" />
-    <Compile Include="Common\DeleteResults\ESDeleteResult.cs" />
-    <Compile Include="Common\ElasticSearchApi.cs" />
-    <Compile Include="Common\ESBulkRequestObj.cs" />
-    <Compile Include="Common\ESMappingObj.cs" />
-    <Compile Include="Common\ESRouting.cs" />
-    <Compile Include="Common\Serializer\BaseESSeralizer.cs" />
-    <Compile Include="Common\SearchResults\Hits.cs" />
-    <Compile Include="Common\SearchResults\HitStatus.cs" />
-    <Compile Include="Common\SearchResults\SearchHits.cs" />
-    <Compile Include="Common\SearchResults\ESSearchResult.cs" />
-    <Compile Include="Common\SearchResults\ShardStatus.cs" />
-    <Compile Include="Common\Serializer\MappingAnalyzers.cs" />
-    <Compile Include="Common\Utils.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Searcher\BaseFilterCompositeType.cs" />
-    <Compile Include="Searcher\BaseFilterCompositeTypeDecorator.cs" />
-    <Compile Include="Searcher\BoolQuery.cs" />
-    <Compile Include="Searcher\ESAggregationsSearch.cs" />
-    <Compile Include="Searcher\ESAggregationsResult.cs" />
-    <Compile Include="Searcher\ESCustomQuery.cs" />
-    <Compile Include="Searcher\ESEpgQueryBuilder.cs" />
-    <Compile Include="Searcher\ESFacet.cs" />
-    <Compile Include="Searcher\ESFilteredQuery.cs" />
-    <Compile Include="Searcher\ESFunctionScore.cs" />
-    <Compile Include="Searcher\ESHits.cs" />
-    <Compile Include="Searcher\ESMatchAllQuery.cs" />
-    <Compile Include="Searcher\ESMatchQuery.cs" />
-    <Compile Include="Searcher\ESMediaQueryBuilder.cs" />
-    <Compile Include="Searcher\ESQuery.cs" />
-    <Compile Include="Searcher\ESStatisticsQueryBuilder.cs" />
-    <Compile Include="Searcher\ESUnifiedQueryBuilder.cs" />
-    <Compile Include="Searcher\FilterCompositeType.cs" />
-    <Compile Include="Searcher\FilteredQuery.cs" />
-    <Compile Include="Searcher\EpgChannelsFilterCompositeType.cs" />
-    <Compile Include="Searcher\IPNOFilterCompositeType.cs" />
-    <Compile Include="Searcher\MultiMatchQuery.cs" />
-    <Compile Include="Searcher\QueryFilter.cs" />
-    <Compile Include="Utils\ESStatisticsUtilities.cs" />
-    <Compile Include="Utils\IpToCountry.cs" />
+    <Compile Remove="Common\OperationResult\BulkItemResponse.cs" />
+    <Compile Remove="Common\OperationResult\OperateResult.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
-      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
-      <Name>ApiObjects</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
-      <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
-      <Name>TCMClient</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj">
-      <Project>{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}</Project>
-      <Name>GroupsCacheManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
-      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
-      <Name>ConfigurationManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
-      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
-      <Name>KLogMonitor</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+
+  <!-- 
+  This is a workaround (https://github.com/wixtoolset/issues/issues/5705) 
+  that will allow TVM website project to build, if you read this an 
+  TVM no longer exist please remove this <Target Name="GetTargetPath"... element
+   -->
+  <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">
+    <ItemGroup>
+      <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
+    </ItemGroup>
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <PropertyGroup>
-    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell –NonInteractive –ExecutionPolicy Unrestricted ..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
 </Project>

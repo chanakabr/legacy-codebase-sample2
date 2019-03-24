@@ -1,18 +1,6 @@
-using System.Reflection;
+ï»¿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("GroupsCacheManager")]
-[assembly: AssemblyDescription("2019-01-16 16:12:10 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GroupsCacheManager")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -21,16 +9,3 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("60ab7a2c-320e-40f2-8ba1-e158440895d5")]
-
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("5.1.1.*")]
-[assembly: AssemblyVersion("5.1.1.*")]
-[assembly: AssemblyInformationalVersion("5.1-1-41-g909e1569-dirty")]

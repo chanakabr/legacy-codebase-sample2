@@ -2,32 +2,9 @@
   <PropertyGroup>
     <ProjectGuid>{48CB3B25-623B-4500-8E88-2E77A7074238}</ProjectGuid>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <TargetFramework>net452</TargetFramework>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <!--<PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell –NonInteractive –ExecutionPolicy Unrestricted ..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
     <PostBuildEvent />-->
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <ConfigurationOverrideFile />
-    <DocumentationFile />
-    <NoStdLib>false</NoStdLib>
-    <NoWarn />
-    <RegisterForComInterop>false</RegisterForComInterop>
-    <RemoveIntegerChecks>false</RemoveIntegerChecks>
-    <DebugType>full</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <ConfigurationOverrideFile />
-    <DocumentationFile />
-    <NoStdLib>false</NoStdLib>
-    <NoWarn />
-    <RegisterForComInterop>false</RegisterForComInterop>
-    <RemoveIntegerChecks>false</RemoveIntegerChecks>
-    <DebugType>none</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
@@ -40,4 +17,15 @@
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
+
+  <!-- 
+  This is a workaround (https://github.com/wixtoolset/issues/issues/5705) 
+  that will allow TVM website project to build, if you read this an 
+  TVM no longer exist please remove this <Target Name="GetTargetPath"... element
+   -->
+  <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">
+    <ItemGroup>
+      <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
+    </ItemGroup>
+  </Target>
 </Project>
