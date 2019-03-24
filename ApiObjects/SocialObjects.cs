@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
-using System.Web.Script.Serialization;
 using ApiObjects.Response;
 using ApiObjects.Social;
 
@@ -291,7 +290,7 @@ namespace ApiObjects
         public string sFBPermissions;
         public string sFBRedirect;
         
-        [XmlIgnore] [ScriptIgnore]
+        [XmlIgnore]
         public string sFBToken;
 
         public FacebookConfig()

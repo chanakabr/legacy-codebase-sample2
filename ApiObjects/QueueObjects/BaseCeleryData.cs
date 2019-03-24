@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using KLogMonitor;
-using System.ServiceModel;
 using System.Web;
 using System.Reflection;
 
@@ -28,6 +27,7 @@ namespace ApiObjects
         {
             get
             {
+                // TODO: Debug and test this is indeed returning reqId
                 string reqId = GetHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY);
                 if (reqId != null)
                     return reqId;
@@ -124,25 +124,7 @@ namespace ApiObjects
         {
             try
             {
-                switch (KLogMonitor.KMonitor.AppType)
-                {
-                    case KLogEnums.AppType.WCF:
-
-                        if (OperationContext.Current != null)
-                        {
-                            object res = null;
-                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(key, out res))
-                                return res.ToString();
-                        }
-                        break;
-
-                    case KLogEnums.AppType.WS:
-                    default:
-
-                        if (HttpContext.Current != null)
-                            return HttpContext.Current.Items[key].ToString();
-                        break;
-                }
+                return KMonitor.LogContextData[key]?.ToString();
             }
             catch (Exception ex)
             {

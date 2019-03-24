@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace ApiObjects
 {
@@ -21,19 +21,20 @@ namespace ApiObjects
         public eGroupRuleType GroupRuleType { get; set; }
         public bool BlockAnonymous { get; set; }
 
-        [XmlIgnore] [ScriptIgnore]
+        [XmlIgnore] 
+        [JsonIgnore]
         public int OrderNum { get; set; }
 
         [XmlIgnore]
-        [ScriptIgnore]
+        [JsonIgnore]
         public int AgeRestriction { get; set; }
 
         [XmlIgnore]
-        [ScriptIgnore]
+        [JsonIgnore]
         public bool AgeLimit { get; set; }
 
         [XmlIgnore]
-        [ScriptIgnore]
+        [JsonIgnore]
         public string TagType { get; set; }
 
         public GroupRule()

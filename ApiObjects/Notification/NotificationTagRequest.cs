@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace ApiObjects.Notification
 {
@@ -56,13 +56,13 @@ namespace ApiObjects.Notification
         public int mediaID { get; set; }
         [DataMember]
         public List<long> notificationsID { get; set; }
-        [ScriptIgnore]
+        [JsonIgnore]
         public string mediaPicURL { get; set; }
-        [ScriptIgnore]
+        [JsonIgnore]
         public string templateEmail { get; set; }
-        [ScriptIgnore]
+        [JsonIgnore]
         public string subjectEmail { get; set; }
-        [ScriptIgnore]
+        [JsonIgnore]
         public string dateFormat { get; set; }
 
         public ExtraParams()
