@@ -75,13 +75,11 @@
       <HintPath>..\..\packages\Common.Logging.Core.3.3.1\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
     <Reference Include="Couchbase.NetClient, Version=2.2.6.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\CouchbaseNetClient.2.2.6\lib\net45\Couchbase.NetClient.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
     <Reference Include="CouchbaseManager">
       <HintPath>..\..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Enyim.Caching">
-      <HintPath>..\..\..\tvincicommon\External\Enyim.Caching.dll</HintPath>
     </Reference>
     <Reference Include="Enyim.Caching.Log4NetAdapter">
       <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.Log4NetAdapter.dll</HintPath>
@@ -91,10 +89,6 @@
     </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\..\tvincicommon\External\Jil.dll</HintPath>
-    </Reference>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
