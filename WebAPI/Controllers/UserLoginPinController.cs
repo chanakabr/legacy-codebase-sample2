@@ -31,11 +31,6 @@ namespace WebAPI.Controllers
         {
             KalturaUserLoginPin response = null;
 
-            if (string.IsNullOrEmpty(secret))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "secret");
-            }
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try
