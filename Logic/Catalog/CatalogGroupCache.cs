@@ -179,7 +179,7 @@ namespace Core.Catalog
         {
             return DefaultLanguage != null && DefaultLanguage.ID > 0 && LanguageMapByCode != null && LanguageMapByCode.Count > 0 && LanguageMapById != null && LanguageMapById.Count > 0
                     && AssetStructsMapById != null && AssetStructsMapById.Count > 0 && AssetStructsMapBySystemName != null && AssetStructsMapBySystemName.Count == AssetStructsMapById.Count
-                    && TopicsMapById != null && TopicsMapById.Count > 0 && TopicsMapBySystemNameAndByType != null && TopicsMapBySystemNameAndByType.Count == TopicsMapById.Count;
+                    && TopicsMapById != null && TopicsMapById.Count > 0 && TopicsMapBySystemNameAndByType != null;
         }
 
         private static void SetCatalogGroupCacheDefaults(int groupId, CatalogGroupCache catalogGroupCache)
