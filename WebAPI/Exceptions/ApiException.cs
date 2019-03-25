@@ -244,9 +244,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHANNEL_META_ORDER_BY_IS_INVALID = new ClientExceptionType(eResponseStatus.ChannelMetaOrderByIsInvalid, "Channel Meta Order By Is Invalid");
         public static ClientExceptionType ACCOUNT_IS_NOT_OPC_SUPPORTED = new ClientExceptionType(eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
         public static ClientExceptionType CANNOT_DELETE_PARENT_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeleteParentAssetStruct, "Can Not Delete Parent Asset Struct");
-        public static ClientExceptionType INVALID_BULK_UPLOAD_STRUCTURE = new ClientExceptionType(eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
-        public static ClientExceptionType BULK_UPLOAD_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.BulkUploadDoesNotExist, "BulkUpload Does Not Exist");
-        public static ClientExceptionType BULK_UPLOAD_RESULT_IS_MISSING = new ClientExceptionType(eResponseStatus.BulkUploadResultIsMissing, "BulkUploadResult Is Missing");
+        public static ClientExceptionType INVALID_BULK_UPLOAD_STRUCTURE = new ClientExceptionType(eResponseStatus.InvalidBulkUploadStructure, "", "Invalid BulkUpload Structure");
+        public static ClientExceptionType BULK_UPLOAD_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.BulkUploadDoesNotExist, "", "BulkUpload Does Not Exist");
+        public static ClientExceptionType BULK_UPLOAD_RESULT_IS_MISSING = new ClientExceptionType(eResponseStatus.BulkUploadResultIsMissing, "", "BulkUploadResult Is Missing");
 
         #endregion
 
@@ -287,7 +287,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType FILE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.FileDoesNotExists, "File Does Not Exists", "The file does not exist in a given path");
         public static ClientExceptionType FILE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.FileAlreadyExists, "File Already Exists", "The file already exists in a given path");
         public static ClientExceptionType ERROR_SAVING_FILE = new ClientExceptionType(eResponseStatus.ErrorSavingFile, "Error While Saving File", "Error occurred while saving file to File Server");
-        public static ClientExceptionType FILE_ID_NOT_IN_CORRECT_LENGTH = new ClientExceptionType(eResponseStatus.FileIdNotInCorrectLength, "The file ID is not the correct length");
+        public static ClientExceptionType FILE_ID_NOT_IN_CORRECT_LENGTH = new ClientExceptionType(eResponseStatus.FileIdNotInCorrectLength, "", "The file ID is not the correct length");
         public static ClientExceptionType ILLEGAL_EXCEL_FILE = new ClientExceptionType(eResponseStatus.IllegalExcelFile, "Illegal Excel File", "The Excel is formatted incorrectly. Please check the file for format errors");
         public static ClientExceptionType ENQUEUE_FAILED = new ClientExceptionType(eResponseStatus.EnqueueFailed, "Enqueue Failed", "Enqueue object to Celery queue failed");
         public static ClientExceptionType EXCEL_MANDTORY_VALUE_IS_MISSING = new ClientExceptionType(eResponseStatus.ExcelMandatoryValueIsMissing, "Mandatory Value In Excel File Is Missing", "One of the mandatory values in the excel is missing");
@@ -571,7 +571,7 @@ namespace WebAPI.Exceptions
         }
 
         public ApiException(ClientException ex, HttpStatusCode httpStatusCode)
-            : this(ex.Code, ex.ExceptionMessage, null, httpStatusCode)
+             : this(ex.Code, ex.ExceptionMessage, null, httpStatusCode)
         {
             FailureHttpCode = httpStatusCode;
         }
