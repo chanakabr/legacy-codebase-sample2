@@ -2172,13 +2172,11 @@ namespace Tvinci.Core.DAL
             string mmKey = UtilsDal.GetUserEpgMarkDocKey(userEpgMark.UserID, userEpgMark.AssetID);
             Random r = new Random();
 
-            var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            UpdateOrInsertUserEpgMarkOrHit(mediaHitsManager, userEpgMark, mmKey);
+            var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            UpdateOrInsertUserEpgMarkOrHit(mediaMarksManager, userEpgMark, mmKey);
 
             if (isFirstPlay)
             {
-                var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-                UpdateOrInsertUserEpgMarkOrHit(mediaMarksManager, userEpgMark, mmKey);
                 InsertMediaMarkToUserMediaMarks(userEpgMark);
             }
         }
@@ -2208,21 +2206,14 @@ namespace Tvinci.Core.DAL
         {
             bool locationStatusChanged = false;
 
-            ulong version;
-            var mediaHitData = couchbaseManager.GetWithVersion<string>(mmKey, out version);
-
-            MediaMarkLog umm = new MediaMarkLog();
-            
-            if (mediaHitData != null)
+            MediaMarkLog umm = new MediaMarkLog()
             {
-                umm = JsonConvert.DeserializeObject<MediaMarkLog>(mediaHitData);
-            }
-
-            umm.LastMark = userMediaMark;
+                LastMark = userMediaMark
+            };
 
             uint expiration = (uint)ApplicationConfiguration.MediaMarksTTL.IntValue * 60 * 60 * 24;
 
-            bool result = couchbaseManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, expiration);
+            bool result = couchbaseManager.Set(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), expiration);
 
             if (!result)
             {
@@ -2250,9 +2241,6 @@ namespace Tvinci.Core.DAL
 
             while (limitRetries >= 0)
             {
-                ulong version;
-                var data = manager.GetWithVersion<string>(mmKey, out version);
-
                 MediaMarkLog umm = new MediaMarkLog()
                 {
                     //For quick last position access
@@ -2263,9 +2251,11 @@ namespace Tvinci.Core.DAL
 
                 uint cbEpgDocumentExpiryDays = (uint)CB_EPG_DOCUMENT_EXPIRY_DAYS;
 
+                uint expiration = (uint)ApplicationConfiguration.MediaMarksTTL.IntValue * 60 * 60 * 24;
+
                 bool res = (epgDocExpiry.HasValue) ?
-                    manager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
-                    : manager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
+                    manager.Set(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), cbEpgDocumentExpiryDays * 24 * 60 * 60)
+                    : manager.Set(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), expiration);
 
                 if (!res)
                 {
@@ -2394,7 +2384,7 @@ namespace Tvinci.Core.DAL
             }
 
             // get all documents from CB
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             IDictionary<string, MediaMarkLog> usersData = cbManager.GetValues<MediaMarkLog>(userKeys, true, true);
 
             if (usersData == null)
