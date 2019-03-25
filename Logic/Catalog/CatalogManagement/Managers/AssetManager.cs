@@ -2028,6 +2028,23 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static int GetTotalAmountOfDistinctAssets(List<BaseObject> assets)
+        {
+            int result = 0;
+            try
+            {
+                result += assets.Where(x => x.AssetType == eAssetTypes.MEDIA).Select(x => x.AssetId).Distinct().Count();
+                result += assets.Where(x => x.AssetType == eAssetTypes.EPG).Select(x => x.AssetId).Distinct().Count();
+                result += assets.Where(x => x.AssetType == eAssetTypes.NPVR).Select(x => x.AssetId).Distinct().Count();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed GetTotalAmountOfDistinctAssets", ex);
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Public Methods
@@ -2122,6 +2139,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (assets != null && assets.Count > 0)
                 {
+                    int totalAmountOfDistinctAssets = GetTotalAmountOfDistinctAssets(assets);
                     List<KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Select(x => new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
                     List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets);
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
@@ -2129,7 +2147,7 @@ namespace Core.Catalog.CatalogManagement
                         result.SetStatus(eResponseStatus.OK);
                         return result;
                     }
-                    else if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
+                    else if (isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count != totalAmountOfDistinctAssets))
                     {
                         log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
                                         assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty);
