@@ -453,6 +453,10 @@ namespace WebAPI.Clients
                     }
 
                     result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+
+                    var aggregationResults = searchResponse.aggregationResults[0].results;
+                    List<KalturaAsset> tempAssets = result.Objects;
+                    CatalogUtils.SetTopHitCount(responseProfile, aggregationResults, tempAssets);
                 }
                 else
                 {
