@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Net;
 using System.Reflection;
 using System.ServiceModel;
@@ -304,48 +303,19 @@ namespace KlogMonitorHelper
                 OperationContext.Current.IncomingMessageProperties[key] = value;
             }
         }
-
-        public static string GetHeaderData(string key)
-        {
-            try
-            {
-                switch (KMonitor.AppType)
-                {
-                    case KLogEnums.AppType.WCF:
-
-                        if (OperationContext.Current != null)
-                        {
-                            object res = null;
-                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(key, out res))
-                                return res.ToString();
-                        }
-                        break;
-
-                    case KLogEnums.AppType.WS:
-                    default:
-
-                        if (HttpContext.Current != null)
-                            return _LogContextData[key].ToString();
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                _Log.ErrorFormat("Error while trying to get header key. app type: {0}, key: {1}, ex: {2}", KMonitor.AppType.ToString(), key, ex);
-            }
-            return null;
-        }
-
+        
         public static bool UpdateHeaderData(string key, string value)
         {
             try
             {
                 KMonitor.LogContextData[key] = value;
+                return true;
             }
             catch (Exception ex)
             {
                 _Log.ErrorFormat("Error while trying to update header key. app type: {0}, key: {1}, value: {2}, ex: {3}", KMonitor.AppType.ToString(), key, value, ex);
             }
+
             return false;
         }
     }
