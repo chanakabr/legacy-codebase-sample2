@@ -19,11 +19,14 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <ProjectGuid>{04a2f39c-dcb2-4712-9b04-1cc11160c2b7}</ProjectGuid>
     <SourceWebPhysicalPath>$(MSBuildThisFileDirectory)</SourceWebPhysicalPath>
     <SourceWebVirtualPath>/WS_TVPApi</SourceWebVirtualPath>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <SourceWebProject>
     </SourceWebProject>
     <SourceWebMetabasePath>
     </SourceWebMetabasePath>
+    <FilesToIncludeForPublish>AllFilesInProjectFolder</FilesToIncludeForPublish>
+    <PublishDatabases>false</PublishDatabases>
+    <ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -44,14 +47,6 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     </AssemblyAttributes>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TvinciCommon\Logger\Logger.csproj">
-      <Project>{1418DF28-913F-4595-8839-E2C22DA1C269}</Project>
-      <Name>Logger</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVinciCommon\QueueWrapper\QueueWrapper.csproj">
-      <Project>{E4F95CCC-2127-4A5C-90BB-D60A446BEC3B}</Project>
-      <Name>QueueWrapper</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\Controls\Tvinci.Web.Controls.csproj">
       <Project>{6409DA6B-D48D-43A2-9217-02B25D4ED5E3}</Project>
       <Name>Tvinci.Web.Controls</Name>
