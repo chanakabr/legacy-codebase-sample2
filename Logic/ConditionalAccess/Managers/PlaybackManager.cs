@@ -26,6 +26,8 @@ namespace Core.ConditionalAccess
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        public const string RECORDING_CONVERT_KEY = "GetPlaybackContextAssetConvert";
+
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, 
                                                                  List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, 
                                                                  string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType)
@@ -143,6 +145,16 @@ namespace Core.ConditionalAccess
 
                     if (recording != null)
                     {
+                        if (System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Items != null)
+                        {
+                            System.Web.HttpContext.Current.Items[RECORDING_CONVERT_KEY] = recording.EpgId;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Error when trying to save epgId in httpContext key {0} for GetPlaybackContext on recording assetId {1}",
+                                                Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY, assetId);
+                        }
+
                         assetsToCheck = new List<SlimAsset>() { new SlimAsset(recording.EpgId, eAssetTypes.NPVR) };
                         if (mediaId > 0)
                         {
