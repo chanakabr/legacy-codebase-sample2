@@ -21,9 +21,6 @@ namespace GroupsCacheManager
             try
             {
                 System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace();
-
-                log.DebugFormat("BuildGroup - Started for nGroupID={0}, from ST={1}", nGroupID, st.ToString());
-
                 DateTime dNow = DateTime.UtcNow;
 
                 group = ChannelRepository.BuildGroup(nGroupID);
