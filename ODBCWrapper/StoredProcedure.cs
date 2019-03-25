@@ -264,7 +264,7 @@ namespace ODBCWrapper
             m_nTimeout = nTimeout;
         }
 
-        public DataTable Execute()
+        public DataTable Execute(bool shouldGoToSlave = false)
         {
             DataTable result = null;
 
@@ -280,7 +280,16 @@ namespace ODBCWrapper
             {
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
             }
-            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = string.Empty;
+            if (shouldGoToSlave)
+            {
+                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, false);
+            }
+            else
+            {
+                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            }
+
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
@@ -320,7 +329,7 @@ namespace ODBCWrapper
             return result;
         }
 
-        public DataSet ExecuteDataSet()
+        public DataSet ExecuteDataSet(bool shouldGoToSlave = false)
         {
             DataSet result = new DataSet();
             SqlDataAdapter da = new SqlDataAdapter();
@@ -337,7 +346,15 @@ namespace ODBCWrapper
             {
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
             }
-            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = string.Empty;
+            if (shouldGoToSlave)
+            {
+                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, false);
+            }
+            else
+            {
+                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            }
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
