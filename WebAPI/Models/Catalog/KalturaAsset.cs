@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         #region Consts
 
         private const string OPC_MERGE_VERSION = "5.0.0.0";
-        
+
         #endregion
 
         #region Data Members
@@ -193,7 +193,7 @@ namespace WebAPI.Models.Catalog
         public string ExternalId { get; set; }
 
         #endregion
-        
+
         internal int getType()
         {
             return Type.HasValue ? Type.Value : 0;
@@ -281,7 +281,7 @@ namespace WebAPI.Models.Catalog
             if (Tags != null && Tags.Count > 0)
             {
                 foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> tagValues in Tags)
-                {                    
+                {
                     if (tagValues.Value.Objects != null && tagValues.Value.Objects.Count > 0)
                     {
                         foreach (KalturaMultilingualStringValue item in tagValues.Value.Objects)
@@ -315,12 +315,12 @@ namespace WebAPI.Models.Catalog
                         multilingualStringValue.value.Validate(metaValues.Key);
                     }
                 }
-            }            
+            }
         }
-        
+
         public Dictionary<string, object> GetExcelValues(int groupId)
         {
-            Dictionary<string, object> excelValues = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelValues(groupId, this);   
+            Dictionary<string, object> excelValues = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelValues(groupId, this);
             return excelValues;
         }
     }

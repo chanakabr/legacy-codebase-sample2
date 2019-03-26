@@ -494,12 +494,12 @@ namespace WebAPI.Utils
         //    return result;
         //}
 
-        internal static List<KalturaAsset> GetAssets(List<AggregationResult> results, BaseRequest request, bool managementData, KalturaBaseResponseProfile responseProfile)
+        internal static List<KalturaAsset> GetAssets(List<AggregationResult> aggregationResults, BaseRequest request, bool managementData, KalturaBaseResponseProfile responseProfile)
         {
             // get base objects list
 
             List<BaseObject> assetsBaseDataList = new List<BaseObject>();
-            foreach (AggregationResult aggregationResult in results)
+            foreach (AggregationResult aggregationResult in aggregationResults)
             {
                 if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
                 {
@@ -513,60 +513,7 @@ namespace WebAPI.Utils
             {
                 List<KalturaAsset> tempAssets = MapAssets(assets);
 
-                if (responseProfile != null)
-                {
-                    string profileName = string.Empty;
-                    KalturaDetachedResponseProfile profile = (KalturaDetachedResponseProfile)responseProfile; // always KalturaDetachedResponseProfile
-                    if (profile != null)
-                    {
-                        List<KalturaDetachedResponseProfile> profiles = profile.RelatedProfiles;
-                        if (profiles != null && profiles.Count > 0)
-                        {
-                            profileName = profiles.Where(x => x.Filter is KalturaAggregationCountFilter).Select(x => x.Name).FirstOrDefault();
-                        }
-                    }
-
-                    Dictionary<string, int> assetIdToCount =
-                        results.Where(x => x.topHits != null && x.topHits.Count > 0).
-                                ToDictionary(x => (x.topHits[0] as BaseObject).AssetId, x => x.count);
-
-                    foreach (KalturaAsset asset in tempAssets)
-                    {
-                        string id = string.Empty;
-
-                        if (asset is KalturaRecordingAsset)
-                        {
-                            id = (asset as KalturaRecordingAsset).RecordingId;
-                        }
-                        else
-                        {
-                            if (asset.Id.HasValue)
-                            {
-                                id = asset.Id.Value.ToString();
-                            }
-                        }
-
-                        if (assetIdToCount.ContainsKey(id))
-                        {
-                            var item = assetIdToCount[id];
-
-                            asset.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
-                            KalturaIntegerValueListResponse kiv = new KalturaIntegerValueListResponse()
-                            {
-                                Values = new List<KalturaIntegerValue>()
-                            {
-                                new KalturaIntegerValue()
-                                {
-                                    value = item
-                                }
-                            },
-                                TotalCount = item
-                            };
-
-                            asset.relatedObjects.Add(profileName, kiv);
-                        }
-                    }
-                }
+                SetTopHitCount(responseProfile, aggregationResults, tempAssets);
 
                 return tempAssets;
             }
@@ -575,6 +522,57 @@ namespace WebAPI.Utils
                 return null;
             }
             return null;
+        }
+
+        internal static void SetTopHitCount(KalturaBaseResponseProfile responseProfile, List<Catalog.Response.AggregationResult> aggregationResults, List<KalturaAsset> tempAssets)
+        {
+            if (responseProfile != null)
+            {
+                string profileName = string.Empty;
+                KalturaDetachedResponseProfile profile = (KalturaDetachedResponseProfile)responseProfile; // always KalturaDetachedResponseProfile
+                if (profile != null)
+                {
+                    List<KalturaDetachedResponseProfile> profiles = profile.RelatedProfiles;
+                    if (profiles != null && profiles.Count > 0)
+                    {
+                        profileName = profiles.Where(x => x.Filter is KalturaAggregationCountFilter).Select(x => x.Name).FirstOrDefault();
+                    }
+                }
+
+                for (int i = 0; i < tempAssets.Count; i++)
+                {
+                    var asset = tempAssets[i];
+
+                    string id = string.Empty;
+
+                    if (asset is KalturaRecordingAsset)
+                    {
+                        id = (asset as KalturaRecordingAsset).RecordingId;
+                    }
+                    else
+                    {
+                        if (asset.Id.HasValue)
+                        {
+                            id = asset.Id.Value.ToString();
+                        }
+                    }
+
+                    asset.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
+                    KalturaIntegerValueListResponse kiv = new KalturaIntegerValueListResponse()
+                    {
+                        Values = new List<KalturaIntegerValue>()
+                            {
+                                new KalturaIntegerValue()
+                                {
+                                    value = aggregationResults[i].count
+                                }
+                            },
+                        TotalCount = aggregationResults[i].count
+                    };
+
+                    asset.relatedObjects.Add(profileName, kiv);
+                }
+            }
         }
 
         internal static List<KalturaAsset> MapAssets(List<BaseObject> assets)

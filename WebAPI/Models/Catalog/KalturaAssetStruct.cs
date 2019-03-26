@@ -25,7 +25,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true)]        
+        [SchemeProperty(ReadOnly = true)]
         public long Id { get; set; }
 
         /// <summary>
@@ -101,9 +101,9 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "parentId")]
         [JsonProperty("parentId")]
         [XmlElement(ElementName = "parentId", IsNullable = true)]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinInteger = 0)]
         public long? ParentId { get; set; }
-        
+
         /// <summary>
         /// connectingMetaId
         /// </summary>
@@ -125,7 +125,7 @@ namespace WebAPI.Models.Catalog
             var excelStructure = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelStructure(groupId, this);
             return excelStructure;
         }
-        
+
         public bool Validate()
         {
             // validate metaIds

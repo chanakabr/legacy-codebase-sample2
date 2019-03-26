@@ -940,8 +940,8 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadFilter":
                     switch(property.Name)
                     {
-                        case "BulkObjectNameEqual":
-                            return "bulkObjectNameEqual";
+                        case "BulkObjectTypeEqual":
+                            return "bulkObjectTypeEqual";
                         case "CreateDateGreaterThanOrEqual":
                             return "createDateGreaterThanOrEqual";
                         case "StatusIn":
@@ -964,10 +964,8 @@ namespace WebAPI.Reflection
                     {
                         case "BulkUploadId":
                             return "bulkUploadId";
-                        case "ErrorCode":
-                            return "errorCode";
-                        case "ErrorMessage":
-                            return "errorMessage";
+                        case "Error":
+                            return "error";
                         case "Index":
                             return "index";
                         case "ObjectId":
@@ -6281,7 +6279,7 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("announcement", "updateStatus", false);
                             return AnnouncementController.UpdateStatus((long) methodParams[0], (bool) methodParams[1]);
                             
-                        case "createAnnouncement":
+                        case "createannouncement":
                             if(isOldVersion)
                             {
                                 RolesManager.ValidateActionPermitted("announcement", "createAnnouncement", false);
@@ -8208,14 +8206,14 @@ namespace WebAPI.Reflection
                             }
                             break;
                             
-                        case "sendPassword":
+                        case "sendpassword":
                             if(isOldVersion)
                             {
                                 return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
                             break;
                             
-                        case "changePassword":
+                        case "changepassword":
                             if(isOldVersion)
                             {
                                 if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
@@ -9342,7 +9340,7 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("transaction", "validateReceipt", false);
                             return TransactionController.ValidateReceipt((KalturaExternalReceipt) methodParams[0]);
                             
-                        case "purchaseSessionId":
+                        case "purchasesessionid":
                             if(isOldVersion)
                             {
                                 RolesManager.ValidateActionPermitted("transaction", "purchaseSessionId", false);
@@ -9606,7 +9604,7 @@ namespace WebAPI.Reflection
                                 action = "addoldstandard";
                                 break;
                                 
-                            case "createAnnouncement":
+                            case "createannouncement":
                                 action = "enablesystemannouncements";
                                 break;
                                 
@@ -9922,15 +9920,15 @@ namespace WebAPI.Reflection
                                 action = "register";
                                 break;
                                 
-                            case "sendPassword":
+                            case "sendpassword":
                                 action = "resetpassword";
                                 break;
                                 
-                            case "resetPassword":
+                            case "resetpassword":
                                 action = "setpassword";
                                 break;
                                 
-                            case "changePassword":
+                            case "changepassword":
                                 action = "updatelogindata";
                                 break;
                                 
@@ -10072,7 +10070,7 @@ namespace WebAPI.Reflection
                     case "social":
                         switch(action)
                         {
-                            case "getByToken":
+                            case "getbytoken":
                                 action = "getbytokenoldstandard";
                                 break;
                                 
@@ -10122,7 +10120,7 @@ namespace WebAPI.Reflection
                                 action = "purchaseoldstandard";
                                 break;
                                 
-                            case "purchaseSessionId":
+                            case "purchasesessionid":
                                 action = "purchasesessionidoldstandard";
                                 break;
                                 

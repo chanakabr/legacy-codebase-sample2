@@ -21846,9 +21846,9 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(BulkObjectNameEqual != null)
+            if(BulkObjectTypeEqual != null)
             {
-                ret.Add("bulkObjectNameEqual", "\"bulkObjectNameEqual\": " + "\"" + EscapeJson(BulkObjectNameEqual) + "\"");
+                ret.Add("bulkObjectTypeEqual", "\"bulkObjectTypeEqual\": " + "\"" + EscapeJson(BulkObjectTypeEqual) + "\"");
             }
             if(CreateDateGreaterThanOrEqual.HasValue)
             {
@@ -21870,9 +21870,9 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(BulkObjectNameEqual != null)
+            if(BulkObjectTypeEqual != null)
             {
-                ret.Add("bulkObjectNameEqual", "<bulkObjectNameEqual>" + EscapeXml(BulkObjectNameEqual) + "</bulkObjectNameEqual>");
+                ret.Add("bulkObjectTypeEqual", "<bulkObjectTypeEqual>" + EscapeXml(BulkObjectTypeEqual) + "</bulkObjectTypeEqual>");
             }
             if(CreateDateGreaterThanOrEqual.HasValue)
             {
@@ -21979,13 +21979,10 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("bulkUploadId", "\"bulkUploadId\": " + BulkUploadId);
-            if(ErrorCode.HasValue)
+            if(Error != null)
             {
-                ret.Add("errorCode", "\"errorCode\": " + ErrorCode);
-            }
-            if(ErrorMessage != null)
-            {
-                ret.Add("errorMessage", "\"errorMessage\": " + "\"" + EscapeJson(ErrorMessage) + "\"");
+                propertyValue = Error.ToJson(currentVersion, omitObsolete);
+                ret.Add("error", "\"error\": " + propertyValue);
             }
             ret.Add("index", "\"index\": " + Index);
             if(ObjectId.HasValue)
@@ -22007,13 +22004,10 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("bulkUploadId", "<bulkUploadId>" + BulkUploadId + "</bulkUploadId>");
-            if(ErrorCode.HasValue)
+            if(Error != null)
             {
-                ret.Add("errorCode", "<errorCode>" + ErrorCode + "</errorCode>");
-            }
-            if(ErrorMessage != null)
-            {
-                ret.Add("errorMessage", "<errorMessage>" + EscapeXml(ErrorMessage) + "</errorMessage>");
+                propertyValue = Error.ToXml(currentVersion, omitObsolete);
+                ret.Add("error", "<error>" + propertyValue + "</error>");
             }
             ret.Add("index", "<index>" + Index + "</index>");
             if(ObjectId.HasValue)

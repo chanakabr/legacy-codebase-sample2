@@ -9308,7 +9308,7 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
+            MinInteger = 0,
         };
         public KalturaAssetStruct(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -22148,9 +22148,9 @@ namespace WebAPI.Models.Upload
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("bulkObjectNameEqual") && parameters["bulkObjectNameEqual"] != null)
+                if (parameters.ContainsKey("bulkObjectTypeEqual") && parameters["bulkObjectTypeEqual"] != null)
                 {
-                    BulkObjectNameEqual = (String) Convert.ChangeType(parameters["bulkObjectNameEqual"], typeof(String));
+                    BulkObjectTypeEqual = (String) Convert.ChangeType(parameters["bulkObjectTypeEqual"], typeof(String));
                 }
                 if (parameters.ContainsKey("createDateGreaterThanOrEqual") && parameters["createDateGreaterThanOrEqual"] != null)
                 {
@@ -22251,17 +22251,7 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ErrorCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute ErrorMessageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
+        private static RuntimeSchemePropertyAttribute ErrorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -22319,21 +22309,20 @@ namespace WebAPI.Models.Upload
                     }
                     Status = (KalturaBulkUploadResultStatus) Enum.Parse(typeof(KalturaBulkUploadResultStatus), parameters["status"].ToString(), true);
                 }
-                if (parameters.ContainsKey("errorCode") && parameters["errorCode"] != null)
+                if (parameters.ContainsKey("error") && parameters["error"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ErrorCodeSchemaProperty.Validate("errorCode", parameters["errorCode"]);
+                        ErrorSchemaProperty.Validate("error", parameters["error"]);
                     }
-                    ErrorCode = (Int32) Convert.ChangeType(parameters["errorCode"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("errorMessage") && parameters["errorMessage"] != null)
-                {
-                    if(!isOldVersion)
+                    if (parameters["error"] is JObject)
                     {
-                        ErrorMessageSchemaProperty.Validate("errorMessage", parameters["errorMessage"]);
+                        Error = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), ((JObject) parameters["error"]).ToObject<Dictionary<string, object>>());
                     }
-                    ErrorMessage = (String) Convert.ChangeType(parameters["errorMessage"], typeof(String));
+                    else if (parameters["error"] is IDictionary)
+                    {
+                        Error = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), (Dictionary<string, object>) parameters["error"]);
+                    }
                 }
                 if (parameters.ContainsKey("warnings") && parameters["warnings"] != null)
                 {

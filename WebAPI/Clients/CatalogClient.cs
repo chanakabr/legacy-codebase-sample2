@@ -453,6 +453,10 @@ namespace WebAPI.Clients
                     }
 
                     result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+
+                    var aggregationResults = searchResponse.aggregationResults[0].results;
+                    List<KalturaAsset> tempAssets = result.Objects;
+                    CatalogUtils.SetTopHitCount(responseProfile, aggregationResults, tempAssets);
                 }
                 else
                 {
@@ -4045,7 +4049,7 @@ namespace WebAPI.Clients
 
             KalturaGenericListResponse<KalturaBulkUpload> response =
                 ClientUtils.GetResponseListFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadsFunc);
-            
+
             switch (orderBy)
             {
                 case KalturaBulkUploadOrderBy.UPDATE_DATE_ASC:
@@ -4068,7 +4072,7 @@ namespace WebAPI.Clients
             {
                 bool illegalRequest;
                 var pagedObjects = response.Objects.Page(pager.getPageSize(), pager.getPageIndex(), out illegalRequest);
-                
+
                 if (illegalRequest)
                 {
                     result.Objects = response.Objects;
@@ -4078,7 +4082,7 @@ namespace WebAPI.Clients
                     result.Objects = new List<KalturaBulkUpload>(pagedObjects);
                 }
             }
-            
+
             result.TotalCount = response.TotalCount;
             return result;
         }
@@ -4090,7 +4094,7 @@ namespace WebAPI.Clients
             {
                 var excelableObject = AutoMapper.Mapper.Map<IExcelObject>(kalturaExcelableObject);
                 excelValues = excelableObject.GetExcelValues(groupId);
-                
+
             }
             catch (Exception ex)
             {
