@@ -26,7 +26,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     </SourceWebMetabasePath>
     <FilesToIncludeForPublish>AllFilesInProjectFolder</FilesToIncludeForPublish>
     <PublishDatabases>false</PublishDatabases>
-    <ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.wsdl;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
+    <ExcludeFilesFromDeployment>*.csproj;Web.*.config;**\*.cs;**\*.pubxml;**\*.user;**\*.settings;**\*.json;bin\*.config;bin\*.xml;bin\*.pdb</ExcludeFilesFromDeployment>
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
