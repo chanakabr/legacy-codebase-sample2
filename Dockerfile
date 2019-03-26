@@ -15,6 +15,7 @@ RUN Expand-Archive tvplibs.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp
 ADD . tvpapi
 
 RUN nuget restore tvpapi/TVPProAPIs.sln
+RUN nuget install tvpapi\Libs\TVPApiModule\packages.config
 
 
 RUN msbuild /p:Configuration=Release tvpapi/TVPProAPIs.sln
