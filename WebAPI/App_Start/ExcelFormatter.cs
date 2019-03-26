@@ -95,43 +95,47 @@ namespace WebAPI.App_Start
                 {
                     // validate expected type was received
                     StatusWrapper restResultWrapper = value as StatusWrapper;
-                    if (restResultWrapper == null || restResultWrapper.Result == null || !(restResultWrapper.Result is IKalturaExcelStructure))
+
+                    if (restResultWrapper != null && restResultWrapper.Result != null && !(restResultWrapper.Result is KalturaAPIExceptionWrapper))
                     {
-                        throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
+                        if (!(restResultWrapper.Result is IKalturaExcelStructure))
+                        {
+                            throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
+                        }
+
+                        int? groupId;
+                        string fileName;
+
+                        if (!TryGetDataFromRequest(out groupId, out fileName))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
+                        }
+
+                        var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructure;
+                        if (kalturaExcelStructure == null)
+                        {
+                            throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+                        }
+
+                        var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
+                        if (excelStructure == null)
+                        {
+                            log.ErrorFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
+                            throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+                        }
+
+                        DataTable fullDataTable = null;
+                        var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
+                        if (excelableListResponse != null)
+                        {
+                            fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
+                        }
+
+                        HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
+                        HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+                        return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
                     }
-
-                    int? groupId;
-                    string fileName;
-
-                    if (!TryGetDataFromRequest(out groupId, out fileName))
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
-                    }
-
-                    var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructure;
-                    if (kalturaExcelStructure == null)
-                    {
-                        throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
-                    }
-
-                    var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
-                    if (excelStructure == null)
-                    {
-                        log.ErrorFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
-                        throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
-                    }
-
-                    DataTable fullDataTable = null;
-                    var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
-                    if (excelableListResponse != null)
-                    {
-                        fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
-                    }
-
-                    HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
-                    HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
-
-                    return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
                 }
                 catch (ApiException ex)
                 {
