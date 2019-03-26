@@ -18,7 +18,7 @@ RUN nuget restore tvpapi/TVPProAPIs.sln
 
 
 RUN msbuild /p:Configuration=Release tvpapi/TVPProAPIs.sln
-RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/WebAPI tvpapi/WS_TVPApi/website.publishproj
+RUN aspnet_compiler -v /WS_TVPAPI -p tvpapi/WS_TVPApi C:\WebAPI
 
 
 
