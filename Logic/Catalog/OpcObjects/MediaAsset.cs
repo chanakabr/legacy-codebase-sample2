@@ -162,7 +162,15 @@ namespace Core.Catalog
             this.Files = new List<AssetFile>();
             this.UserTypes = string.Empty;
             this.IsActive = mediaObj.IsActive;
-            this.MediaAssetType = string.IsNullOrEmpty(mediaObj.m_ExternalIDs) ? MediaAssetType.Media : MediaAssetType.Linear;
+            this.MediaAssetType = MediaAssetType.Media;
+            if (!string.IsNullOrEmpty(mediaObj.m_ExternalIDs))
+            {
+                int epg_channel_id = 0;
+                if (int.TryParse(mediaObj.m_ExternalIDs, out epg_channel_id) && epg_channel_id > 0)
+                {
+                    this.MediaAssetType = MediaAssetType.Linear;
+                }
+            }
         }
 
         #endregion
