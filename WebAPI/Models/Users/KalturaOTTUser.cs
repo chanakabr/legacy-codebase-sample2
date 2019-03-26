@@ -227,7 +227,7 @@ namespace WebAPI.Models.Users
 
         internal List<long> GetRoleIds()
         {
-            return GetItemsIn<List<long>, long>(RoleIds, "KalturaOTTUser.roleIds", true);
+            return GetItemsIn<List<long>, long>(RoleIds, "KalturaOTTUser.roleIds", true, true);
         }
     }
 }
