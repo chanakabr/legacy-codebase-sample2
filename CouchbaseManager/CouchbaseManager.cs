@@ -1992,7 +1992,7 @@ namespace CouchbaseManager
 
             try
             {
-                results = GetValues<T>(keys, shouldAllowPartialQuery);
+                results = GetValues<T>(keys, jsonSerializerSettings, shouldAllowPartialQuery);
 
                 if (results != null)
                 {
