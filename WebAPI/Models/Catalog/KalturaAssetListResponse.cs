@@ -38,15 +38,15 @@ namespace WebAPI.Models.Catalog
         {
             if (Objects == null || Objects.Count == 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "objects");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaAssetListResponse.objects");
             }
 
             var duplicates = Objects.GroupBy(x => x.getType()).Select(x => x.Key).ToList();
             if (duplicates.Count > 1)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER,
-                                              "type:" + duplicates[0].ToString(),
-                                              "type:" + duplicates[1].ToString());
+                                              "KalturaAsset.type:" + duplicates[0].ToString(),
+                                              "KalturaAsset.type:" + duplicates[1].ToString());
             }
 
             KalturaAssetStruct kalturaAssetStruct = new KalturaAssetStruct()
