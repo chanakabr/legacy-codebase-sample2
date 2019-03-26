@@ -453,6 +453,10 @@ namespace WebAPI.Clients
                     }
 
                     result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+
+                    var aggregationResults = searchResponse.aggregationResults[0].results;
+                    List<KalturaAsset> tempAssets = result.Objects;
+                    CatalogUtils.SetTopHitCount(responseProfile, aggregationResults, tempAssets);
                 }
                 else
                 {
@@ -1090,36 +1094,26 @@ namespace WebAPI.Clients
 
             if (watchHistoryResponse.result != null && watchHistoryResponse.result.Count > 0)
             {
-                // get base objects list
-                List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
-
-                // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
-
                 // combine asset info and watch history info
                 finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
 
-                UserWatchHistory watchHistory = new UserWatchHistory();
-                foreach (KalturaIAssetable assetInfo in assetsInfo)
+                foreach (var uwh in watchHistoryResponse.result)
                 {
-                    watchHistory = watchHistoryResponse.result.FirstOrDefault(x => x.AssetId == ((KalturaAssetInfo)assetInfo).Id.ToString());
-
-                    KalturaAssetType assetType = KalturaAssetType.media;
-
-                    if (watchHistory.AssetType == eAssetTypes.NPVR)
+                    if (uwh != null)
                     {
-                        assetType = KalturaAssetType.recording;
-                    }
+                        KalturaAssetType assetType = KalturaAssetType.media;
+                        if (uwh.AssetType == eAssetTypes.NPVR)
+                        {
+                            assetType = KalturaAssetType.recording;
+                        }
 
-                    if (watchHistory != null)
-                    {
                         finalResults.Objects.Add(new KalturaAssetHistory()
                         {
-                            AssetId = ((KalturaAssetInfo)assetInfo).Id.Value,
-                            Duration = watchHistory.Duration,
-                            IsFinishedWatching = watchHistory.IsFinishedWatching,
-                            LastWatched = watchHistory.LastWatch,
-                            Position = watchHistory.Location,
+                            AssetId = long.Parse(uwh.AssetId),
+                            Duration = uwh.Duration,
+                            IsFinishedWatching = uwh.IsFinishedWatching,
+                            LastWatched = uwh.LastWatch,
+                            Position = uwh.Location,
                             AssetType = assetType
                         });
                     }
@@ -4055,7 +4049,7 @@ namespace WebAPI.Clients
 
             KalturaGenericListResponse<KalturaBulkUpload> response =
                 ClientUtils.GetResponseListFromWS<KalturaBulkUpload, BulkUpload>(getBulkUploadsFunc);
-            
+
             switch (orderBy)
             {
                 case KalturaBulkUploadOrderBy.UPDATE_DATE_ASC:
@@ -4078,7 +4072,7 @@ namespace WebAPI.Clients
             {
                 bool illegalRequest;
                 var pagedObjects = response.Objects.Page(pager.getPageSize(), pager.getPageIndex(), out illegalRequest);
-                
+
                 if (illegalRequest)
                 {
                     result.Objects = response.Objects;
@@ -4088,7 +4082,7 @@ namespace WebAPI.Clients
                     result.Objects = new List<KalturaBulkUpload>(pagedObjects);
                 }
             }
-            
+
             result.TotalCount = response.TotalCount;
             return result;
         }
@@ -4100,7 +4094,7 @@ namespace WebAPI.Clients
             {
                 var excelableObject = AutoMapper.Mapper.Map<IExcelObject>(kalturaExcelableObject);
                 excelValues = excelableObject.GetExcelValues(groupId);
-                
+
             }
             catch (Exception ex)
             {

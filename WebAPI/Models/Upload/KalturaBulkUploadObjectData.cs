@@ -16,7 +16,7 @@ namespace WebAPI.Models.Upload
     /// </summary>
     public abstract partial class KalturaBulkUploadObjectData : KalturaOTTObject
     {
-        
+
     }
 
     /// <summary>

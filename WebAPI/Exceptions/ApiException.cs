@@ -189,6 +189,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ASSET_STRUCT_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.AssetStructSystemNameAlreadyInUse, "System Name Already Used", "The asset struct system name is already in use");
         public static ClientExceptionType META_IDS_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaIdsDoesNotExist, "Invalid Meta Id", "One or more of the specified meta ids does not exist");
         public static ClientExceptionType ASSET_STRUCT_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetStructDoesNotExist, "Invalid Asset Struct Id", "The specified asset strcut id does not exist");
+        public static ClientExceptionType ASSET_STRUCT_METAS_CONTAIN_SYSTEM_NAME_DUPLICATION = new ClientExceptionType(eResponseStatus.AssetStructMetasConatinSystemNameDuplication, "Metas with the same system name were send as part of the Asset Struct");
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_ASSET_STRUCT_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, "System Name Can Not Be Changed",
                                                                                                                         "can not change predefined asset struct name");
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedAssetStruct, "Predefined Asset Struct Can not be deleted",
@@ -243,9 +244,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHANNEL_META_ORDER_BY_IS_INVALID = new ClientExceptionType(eResponseStatus.ChannelMetaOrderByIsInvalid, "Channel Meta Order By Is Invalid");
         public static ClientExceptionType ACCOUNT_IS_NOT_OPC_SUPPORTED = new ClientExceptionType(eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
         public static ClientExceptionType CANNOT_DELETE_PARENT_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeleteParentAssetStruct, "Can Not Delete Parent Asset Struct");
-        public static ClientExceptionType INVALID_BULK_UPLOAD_STRUCTURE = new ClientExceptionType(eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
-        public static ClientExceptionType BULK_UPLOAD_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.BulkUploadDoesNotExist, "BulkUpload Does Not Exist");
-        public static ClientExceptionType BULK_UPLOAD_RESULT_IS_MISSING = new ClientExceptionType(eResponseStatus.BulkUploadResultIsMissing, "BulkUploadResult Is Missing");
+        public static ClientExceptionType INVALID_BULK_UPLOAD_STRUCTURE = new ClientExceptionType(eResponseStatus.InvalidBulkUploadStructure, "", "Invalid BulkUpload Structure");
+        public static ClientExceptionType BULK_UPLOAD_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.BulkUploadDoesNotExist, "", "BulkUpload Does Not Exist");
+        public static ClientExceptionType BULK_UPLOAD_RESULT_IS_MISSING = new ClientExceptionType(eResponseStatus.BulkUploadResultIsMissing, "", "BulkUploadResult Is Missing");
 
         #endregion
 
@@ -286,7 +287,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType FILE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.FileDoesNotExists, "File Does Not Exists", "The file does not exist in a given path");
         public static ClientExceptionType FILE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.FileAlreadyExists, "File Already Exists", "The file already exists in a given path");
         public static ClientExceptionType ERROR_SAVING_FILE = new ClientExceptionType(eResponseStatus.ErrorSavingFile, "Error While Saving File", "Error occurred while saving file to File Server");
-        public static ClientExceptionType FILE_ID_NOT_IN_CORRECT_LENGTH = new ClientExceptionType(eResponseStatus.FileIdNotInCorrectLength, "The file ID is not the correct length");
+        public static ClientExceptionType FILE_ID_NOT_IN_CORRECT_LENGTH = new ClientExceptionType(eResponseStatus.FileIdNotInCorrectLength, "", "The file ID is not the correct length");
         public static ClientExceptionType ILLEGAL_EXCEL_FILE = new ClientExceptionType(eResponseStatus.IllegalExcelFile, "Illegal Excel File", "The Excel is formatted incorrectly. Please check the file for format errors");
         public static ClientExceptionType ENQUEUE_FAILED = new ClientExceptionType(eResponseStatus.EnqueueFailed, "Enqueue Failed", "Enqueue object to Celery queue failed");
         public static ClientExceptionType EXCEL_MANDTORY_VALUE_IS_MISSING = new ClientExceptionType(eResponseStatus.ExcelMandatoryValueIsMissing, "Mandatory Value In Excel File Is Missing", "One of the mandatory values in the excel is missing");
@@ -421,6 +422,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MISSING_EXTERNAL_IDENTIFIER = new ClientExceptionType(eResponseStatus.MissingExternalIdentifier, "Missing External Identifier", "The external ID is missing");
         public static ClientExceptionType UNKNOWN_INGEST_TYPE = new ClientExceptionType(eResponseStatus.UnknownIngestType, "Unknown Ingest Type", "The Ingest type is not known");
         public static ClientExceptionType EPG_PROGRAM_DATES_ERROR = new ClientExceptionType(eResponseStatus.EPGSProgramDatesError, "EPG Program Dates Error", "The EPG program dates specified are incorrectly formatted");
+        public static ClientExceptionType INGEST_PROFILE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.IngestProfileNotExists, "Ingest profile does not exist");
+        public static ClientExceptionType INGEST_PROFILE_REQUIRED = new ClientExceptionType(eResponseStatus.IngestProfileIdRequired, "Ingest profile id is mandatory");
+        public static ClientExceptionType NO_INGEsT_PROFILE_TO_INSERT = new ClientExceptionType(eResponseStatus.NoIngestProfileToInsert, "No Ingest Profile found to insert");
 
         #endregion
         
@@ -567,7 +571,7 @@ namespace WebAPI.Exceptions
         }
 
         public ApiException(ClientException ex, HttpStatusCode httpStatusCode)
-            : this(ex.Code, ex.ExceptionMessage, null, httpStatusCode)
+             : this(ex.Code, ex.ExceptionMessage, null, httpStatusCode)
         {
             FailureHttpCode = httpStatusCode;
         }

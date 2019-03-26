@@ -229,7 +229,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.RecommendationEngineId, opt => opt.MapFrom(src => src.ExternalChannel.RecommendationEngineId))
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.ExternalChannel.FilterExpression))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.ExternalChannel.IsActive))
-               .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))               
+               .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))
                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.ExternalChannel.AssetUserRuleId))
                ;
 
@@ -1052,7 +1052,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<EndDateOffsetRuleAction, KalturaEndDateOffsetRuleAction>()
                 .IncludeBase<TimeOffsetRuleAction, KalturaTimeOffsetRuleAction>();
-            
+
             cfg.CreateMap<KalturaRuleType?, RuleType?>()
                 .ConvertUsing(kalturaRuleType =>
                 {
@@ -1060,7 +1060,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     {
                         return null;
                     }
-                    
+
                     switch (kalturaRuleType)
                     {
                         case KalturaRuleType.parental:
@@ -1082,7 +1082,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return RuleType.Network;
                             break;
                         default:
-                            throw new ClientException((int)StatusCode.UnknownEnumValue, 
+                            throw new ClientException((int)StatusCode.UnknownEnumValue,
                                 string.Format("Unknown KalturaRuleType value : {0}", kalturaRuleType.ToString()));
                             break;
                     }
@@ -1151,7 +1151,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProxyRuleId, opt => opt.MapFrom(src => src.ProxyRuleId))
                 .ForMember(dest => dest.ProxyRuleName, opt => opt.MapFrom(src => src.ProxyRuleName))
                 .ForMember(dest => dest.ProxyLevelId, opt => opt.MapFrom(src => src.ProxyLevelId))
-                .ForMember(dest => dest.ProxyLevelName, opt => opt.MapFrom(src => src.ProxyLevelName)); 
+                .ForMember(dest => dest.ProxyLevelName, opt => opt.MapFrom(src => src.ProxyLevelName));
 
             cfg.CreateMap<TvmGeoRule, KalturaTvmGeoRule>()
                 .IncludeBase<TvmRule, KalturaTvmRule>()
@@ -1552,7 +1552,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
                 .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.FileExtention))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));           
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>();
 
@@ -2507,11 +2507,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaChannelEnrichment.Language:
                     result = ExternalRecommendationEngineEnrichment.Language;
                     break;
-                //case KalturaChannelEnrichment.NPVRSupport:
-                //    result = ExternalRecommendationEngineEnrichment.NPVRSupport;
-                //    break;
-                //case KalturaChannelEnrichment.Parental:
-                //    result = ExternalRecommendationEngineEnrichment.Parental;
+                    //case KalturaChannelEnrichment.NPVRSupport:
+                    //    result = ExternalRecommendationEngineEnrichment.NPVRSupport;
+                    //    break;
+                    //case KalturaChannelEnrichment.Parental:
+                    //    result = ExternalRecommendationEngineEnrichment.Parental;
                     break;
                 case KalturaChannelEnrichment.UserId:
                     result = ExternalRecommendationEngineEnrichment.UserId;

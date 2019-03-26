@@ -22,6 +22,19 @@ namespace WebAPI.Utils
             string udid, string ip, KalturaPlaybackContext kalturaPlaybackContext, SerializableDictionary<string, Models.General.KalturaStringValue> adapterData)
         {
             KalturaPlaybackContext KalturaPlaybackContextResponse = null;
+            string id = assetId;
+            if (assetType == KalturaAssetType.recording)
+            {
+                if (HttpContext.Current != null && HttpContext.Current.Items[Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY] != null)
+                {
+                    id = HttpContext.Current.Items[Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY].ToString();
+                }
+                else
+                {
+                    log.ErrorFormat("Error trying to convert recording assetId {0} to epgId from httpContext key {1}",
+                                        assetId, Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY);
+                }
+            }
 
             KalturaAssetRuleFilter filter = new KalturaAssetRuleFilter()
             {
@@ -29,7 +42,7 @@ namespace WebAPI.Utils
                 ConditionsContainType = KalturaRuleConditionType.ASSET,
                 AssetApplied = new Models.Catalog.KalturaSlimAsset()
                 {
-                    Id = assetId,
+                    Id = id,
                     Type = assetType
                 }
             };

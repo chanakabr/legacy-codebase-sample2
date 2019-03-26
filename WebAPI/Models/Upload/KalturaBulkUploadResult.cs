@@ -68,7 +68,7 @@ namespace WebAPI.Models.Upload
         [JsonProperty("error")]
         [SchemeProperty(ReadOnly = true)]
         public KalturaMessage Error { get; set; }
-        
+
         /// <summary>
         /// A list of warnings
         /// </summary>

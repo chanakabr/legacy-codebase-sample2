@@ -14,7 +14,7 @@ namespace WebAPI.Models.Upload
     /// Bulk Upload
     /// </summary>
     [Serializable]
-    public partial class KalturaBulkUpload : KalturaOTTObject 
+    public partial class KalturaBulkUpload : KalturaOTTObject
     {
         /// <summary>
         /// Bulk identifier
@@ -33,7 +33,7 @@ namespace WebAPI.Models.Upload
         [XmlElement(ElementName = "fileName")]
         [SchemeProperty(ReadOnly = true)]
         public string FileName { get; set; }
-        
+
         /// <summary>
         /// Status
         /// </summary>

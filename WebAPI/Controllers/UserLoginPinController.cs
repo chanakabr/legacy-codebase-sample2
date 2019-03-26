@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         static public KalturaUserLoginPin Add(string secret = null)
         {
             KalturaUserLoginPin response = null;
-            
+
             int groupId = KS.GetFromRequest().GroupId;
 
             try
