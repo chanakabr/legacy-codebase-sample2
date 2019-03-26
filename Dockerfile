@@ -18,7 +18,7 @@ RUN nuget restore tvpapi/TVPProAPIs.sln
 
 
 RUN msbuild /p:Configuration=Release tvpapi/TVPProAPIs.sln
-RUN aspnet_compiler -v /WS_TVPAPI -p tvpapi/WS_TVPApi C:\WebAPI
+RUN C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe -v /WS_TVPAPI -p tvpapi/WS_TVPApi C:\WebAPI
 
 
 
