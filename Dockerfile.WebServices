@@ -3,6 +3,3 @@ FROM 870777418594.dkr.ecr.eu-west-1.amazonaws.com/dev-phoenix:${BUILD_TAG} AS bu
 SHELL ["powershell"]
 
 RUN Add-WindowsFeature NET-WCF-HTTP-Activation45
-
-ARG API_LOG_DIR=C:\\log\\web-services\\%COMPUTERNAME%
-ENV API_LOG_DIR ${API_LOG_DIR}
