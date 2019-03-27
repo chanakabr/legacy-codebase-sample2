@@ -5,6 +5,9 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.App_Start;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -16,6 +19,11 @@ namespace WebAPI.Models.Upload
     [Serializable]
     public abstract partial class KalturaBulkUploadJobData : KalturaOTTObject
     {
+        /// <summary>
+        /// Validate the specifics of the job data
+        /// Will throw an exception if not valid
+        /// </summary>
+        internal abstract void Validate(KalturaOTTFile fileData);
     }
 
     /// <summary>
@@ -24,13 +32,34 @@ namespace WebAPI.Models.Upload
     [Serializable]
     public partial class KalturaBulkUploadExcelJobData : KalturaBulkUploadJobData
     {
+        internal override void Validate(KalturaOTTFile fileData)
+        {
+            if (!fileData.path.EndsWith(ExcelFormatter.EXCEL_EXTENTION))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fileData.path");
+            }
+        }
     }
 
     /// <summary>
     /// instructions for upload data type with xml
     /// </summary>
     [Serializable]
-    public partial class KalturaBulkUploadXmlJobData : KalturaBulkUploadJobData
+    public partial class KalturaBulkUploadIngestJobData : KalturaBulkUploadJobData
     {
+        /// <summary>
+        /// Identifies the ingest profile that will handle the ingest of programs
+        /// Ingest profiles are created separately using the ingest profile service
+        /// </summary>
+        [DataMember(Name = "ingestProfileId")]
+        [JsonProperty(PropertyName = "ingestProfileId")]
+        [XmlElement(ElementName = "ingestProfileId")]
+        [SchemeProperty(MinInteger = 1)]
+        public int IngestProfileId { get; set; }
+
+        internal override void Validate(KalturaOTTFile fileData)
+        {
+            // TODO: Arthur Validate
+        }
     }
 }

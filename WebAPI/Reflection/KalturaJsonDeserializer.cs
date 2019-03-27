@@ -310,6 +310,9 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadFilter":
                     return new KalturaBulkUploadFilter(parameters);
                     
+                case "KalturaBulkUploadIngestJobData":
+                    return new KalturaBulkUploadIngestJobData(parameters);
+                    
                 case "KalturaBulkUploadJobData":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -324,9 +327,6 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBulkUploadResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
-                    
-                case "KalturaBulkUploadXmlJobData":
-                    return new KalturaBulkUploadXmlJobData(parameters);
                     
                 case "KalturaBumpersPlaybackPluginData":
                     return new KalturaBumpersPlaybackPluginData(parameters);
@@ -22258,6 +22258,36 @@ namespace WebAPI.Models.Upload
             }
         }
     }
+    public partial class KalturaBulkUploadIngestJobData
+    {
+        private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadIngestJobData")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        public KalturaBulkUploadIngestJobData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ingestProfileId") && parameters["ingestProfileId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IngestProfileIdSchemaProperty.Validate("ingestProfileId", parameters["ingestProfileId"]);
+                    }
+                    IngestProfileId = (Int32) Convert.ChangeType(parameters["ingestProfileId"], typeof(Int32));
+                }
+            }
+        }
+    }
     public partial class KalturaBulkUploadJobData
     {
         public KalturaBulkUploadJobData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -22427,12 +22457,6 @@ namespace WebAPI.Models.Upload
                     }
                 }
             }
-        }
-    }
-    public partial class KalturaBulkUploadXmlJobData
-    {
-        public KalturaBulkUploadXmlJobData(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
     public partial class KalturaUploadToken

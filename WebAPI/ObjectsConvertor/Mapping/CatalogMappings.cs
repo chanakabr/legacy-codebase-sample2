@@ -1065,12 +1065,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
                .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
-
+            // TODO: arthur add mapping later when internal class is created
+            //cfg.CreateMap<KalturaBulkUploadIngestJobData, BulkUploadExcelJobData>()
+            //    .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
+            
             cfg.CreateMap<KalturaBulkUploadObjectData, BulkUploadObjectData>();
 
             cfg.CreateMap<KalturaBulkUploadAssetData, BulkUploadAssetData>()
                .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId));
+
 
             cfg.CreateMap<ApiObjects.Response.Status, KalturaMessage>()
               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))

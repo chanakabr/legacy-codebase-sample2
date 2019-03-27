@@ -1371,11 +1371,6 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fileData");
                 }
 
-                if (!fileData.path.EndsWith(ExcelFormatter.EXCEL_EXTENTION))
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fileData.path");
-                }
-
                 if (bulkUploadJobData == null)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkUploadJobData");
@@ -1386,14 +1381,15 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkUploadAssetData");
                 }
 
-                if (bulkUploadJobData is KalturaBulkUploadExcelJobData)
+                bulkUploadJobData.Validate(fileData);
+
+                var assetType = typeof(KalturaMediaAsset);
+                if (bulkUploadAssetData.TypeId == 0)
                 {
-                    bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, typeof(KalturaMediaAsset), bulkUploadJobData, bulkUploadAssetData);
+                    assetType = typeof(KalturaProgramAsset);
                 }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "bulkUploadJobData", bulkUploadJobData.objectType);
-                }
+
+                bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, assetType, bulkUploadJobData, bulkUploadAssetData); 
             }
             catch (ClientException ex)
             {

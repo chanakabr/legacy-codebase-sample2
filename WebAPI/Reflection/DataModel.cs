@@ -951,6 +951,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBulkUploadIngestJobData":
+                    switch(property.Name)
+                    {
+                        case "IngestProfileId":
+                            return "ingestProfileId";
+                    }
+                    break;
+                    
                 case "KalturaBulkUploadListResponse":
                     switch(property.Name)
                     {

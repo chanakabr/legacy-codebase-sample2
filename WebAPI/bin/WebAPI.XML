@@ -13091,14 +13091,26 @@
             instructions for upload data (the data file type, how to read the file, etc)
             </summary>
         </member>
+        <member name="M:WebAPI.Models.Upload.KalturaBulkUploadJobData.Validate(WebAPI.Models.General.KalturaOTTFile)">
+            <summary>
+            Validate the specifics of the job data
+            Will throw an exception if not valid
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadExcelJobData">
             <summary>
             instructions for upload data type with Excel
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadXmlJobData">
+        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadIngestJobData">
             <summary>
             instructions for upload data type with xml
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadIngestJobData.IngestProfileId">
+            <summary>
+            Identifies the ingest profile that will handle the ingest of programs
+            Ingest profiles are created separately using the ingest profile service
             </summary>
         </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadResult">
