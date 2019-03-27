@@ -134,9 +134,9 @@ namespace Core.Catalog.Request
 
                         response = GetResponseForKSQLChannel(groupId, channel, request, defaultLanguage);
                     }
-                    if (channel.m_nChannelTypeID == (int)ChannelType.Manual || IsSlidingWindow(channel))
+                    else
                     {
-                        response = GetResponseForManualChannel(groupId, channel, request, defaultLanguage, permittedWatchRules);
+                        response = GetResponseForNonKSQLChannel(groupId, channel, request, defaultLanguage, permittedWatchRules);
                     }
                 }
 
@@ -257,36 +257,40 @@ namespace Core.Catalog.Request
             return CatalogLogic.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, channel.m_nGroupID == channel.m_nParentGroupID ? lPermittedWatchRules : null, nDeviceRuleId, oLanguage);
         }
 
-        private ChannelResponse GetResponseForManualChannel(int groupId, GroupsCacheManager.Channel channel, ChannelRequest request, LanguageObj defaultLanguage, List<string> permittedWatchRules)
+        private ChannelResponse GetResponseForNonKSQLChannel(int groupId, GroupsCacheManager.Channel channel, ChannelRequest request, LanguageObj defaultLanguage, List<string> permittedWatchRules)
         {
             var response = new ChannelResponse();
             MediaSearchObj channelSearchObject = GetManualSearchObject(channel, request, groupId, defaultLanguage, permittedWatchRules);
             channelSearchObject.m_bIgnoreDeviceRuleId = request.m_bIgnoreDeviceRuleID;
+            
+            int nPageIndex = 0;
+            int nPageSize = 0;
 
-            int nPageIndex = channelSearchObject.m_nPageIndex;
-            int nPageSize = channelSearchObject.m_nPageSize;
-            channelSearchObject.m_nPageSize = 0;
-            channelSearchObject.m_nPageIndex = 0;
+            if (channel.m_nChannelTypeID == (int)ChannelType.Manual || IsSlidingWindow(channel))
+            {
+                nPageIndex = channelSearchObject.m_nPageIndex;
+                nPageSize = channelSearchObject.m_nPageSize;
+                channelSearchObject.m_nPageSize = 0;
+                channelSearchObject.m_nPageIndex = 0;
+            }
 
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
             if (searcher == null)
             {
                 return response;
             }
-
-            List<SearchResult> lMediaRes = null;
-            List<int> medias = new List<int>();
-            int nTotalItems = 0;
+            
             SearchResultsObj oSearchResults = searcher.SearchMedias(channel.m_nGroupID, channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_nGroupID);
             if (oSearchResults == null || oSearchResults.m_resultIDs == null || oSearchResults.m_resultIDs.Count == 0)
             {
                 return response;
             }
 
-            medias = oSearchResults.m_resultIDs.Select(item => item.assetID).ToList();
-            nTotalItems = oSearchResults.n_TotalItems;
-
-            if (searcher.GetType().Equals(typeof(ElasticsearchWrapper))) // != typeof(LuceneWrapper))
+            List<int> medias = oSearchResults.m_resultIDs.Select(item => item.assetID).ToList();
+            int nTotalItems = oSearchResults.n_TotalItems;
+            var isElasticsearchWrapper = searcher.GetType().Equals(typeof(ElasticsearchWrapper));// != typeof(LuceneWrapper))
+            List<SearchResult> lMediaRes = null;
+            if (isElasticsearchWrapper) 
             {
                 lMediaRes = oSearchResults.m_resultIDs.Select(item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
             }
@@ -294,7 +298,6 @@ namespace Core.Catalog.Request
             if (IsSlidingWindow(channel))
             {
                 medias = OrderMediaBySlidingWindow(groupId, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
-
                 nTotalItems = 0;
 
                 if (medias != null && medias.Count > 0)
@@ -331,7 +334,7 @@ namespace Core.Catalog.Request
                     medias.Clear();
                 }
 
-                if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)) && medias != null && medias.Count > 0)
+                if (isElasticsearchWrapper && medias != null && medias.Count > 0)
                 {
                     Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
                     lMediaRes = new List<SearchResult>();
