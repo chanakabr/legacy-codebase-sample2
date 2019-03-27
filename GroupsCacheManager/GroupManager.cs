@@ -8,6 +8,8 @@ using Tvinci.Core.DAL;
 using System.Threading;
 using KLogMonitor;
 using System.Reflection;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace GroupsCacheManager
 {
@@ -316,11 +318,16 @@ namespace GroupsCacheManager
             if (channelIds != null && channelIds.Count > 0)
             {
                 Group group = this.GetGroup(groupId);
-
-                foreach (int id in channelIds)
+                ConcurrentBag<Channel> channels = new ConcurrentBag<Channel>();
+                Parallel.ForEach(channelIds, (channelId) =>
                 {
-                    Channel currentChannel = cache.GetChannel(id, group, isAlsoInActive);
-                    channelsResults.Add(currentChannel);
+                    Channel currentChannel = cache.GetChannel(channelId, group, isAlsoInActive);
+                    channels.Add(currentChannel);
+                });
+
+                if (channels != null && channels.Count > 0)
+                {
+                    channelsResults = channels.ToList();
                 }
             }
 
