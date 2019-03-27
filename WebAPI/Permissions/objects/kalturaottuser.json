@@ -25,6 +25,7 @@
     },
     {
       "permissions": [
+        "Manager",
         "Administrator"
       ],
       "excluded_permissions": [],
