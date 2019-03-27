@@ -15,6 +15,8 @@ namespace ConfigurationManager
         public BaseRabbitConfiguration Indexing;
         public BaseRabbitConfiguration PushNotification;
         public BaseRabbitConfiguration ImageUpload;
+        public BaseRabbitConfiguration EventBus;
+
 
         public RabbitConfiguration(string key) : base(key)
         {
@@ -79,6 +81,17 @@ namespace ConfigurationManager
             this.ImageUpload.Queue.OriginalKey = "queue";
             this.ImageUpload.VirtualHost.OriginalKey = "virtualHost";
             this.ImageUpload.ExchangeType.OriginalKey = "exchangeType";
+
+            this.EventBus = new BaseRabbitConfiguration("event_bus", this);
+            this.EventBus.HostName.OriginalKey = "hostName";
+            this.EventBus.UserName.OriginalKey = "userName";
+            this.EventBus.Password.OriginalKey = "password";
+            this.EventBus.Port.OriginalKey = "port";
+            this.EventBus.RoutingKey.OriginalKey = "routingKey";
+            this.EventBus.Exchange.OriginalKey = "exchange";
+            this.EventBus.Queue.OriginalKey = "queue";
+            this.EventBus.VirtualHost.OriginalKey = "virtualHost";
+            this.EventBus.ExchangeType.OriginalKey = "exchangeType";
 
             ProfessionalServices.CopyBaseValues(this.Default);
             SocialFeed.CopyBaseValues(this.Default);

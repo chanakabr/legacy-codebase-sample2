@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <RootNamespace>EventBus.RabbitMQ</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="EventBusConsumerRabbitMQ.cs" />
+    <Compile Remove="KalturaEventBusRabbitMQConsumerService.cs" />
+    <Compile Remove="KalturaEventBusRabbitMQConsumerServiceExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Polly" Version="7.0.3" />
+    <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
+    <Compile Include="EventBusConsumerRabbitMQ.cs" />
+    <Compile Include="KalturaEventBusRabbitMQConsumerService.cs" />
+    <Compile Include="KalturaEventBusRabbitMQConsumerServiceExtensions.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <None Include="EventBusConsumerRabbitMQ.cs" />
+    <None Include="KalturaEventBusRabbitMQConsumerService.cs" />
+    <None Include="KalturaEventBusRabbitMQConsumerServiceExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
+    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
+  </ItemGroup>
+
+</Project>

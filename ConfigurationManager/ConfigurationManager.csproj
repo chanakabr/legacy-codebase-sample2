@@ -1,18 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{27CC9E99-D886-4403-899B-1E0769FDB649}</ProjectGuid>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <AssemblyTitle>ConfigurationManager</AssemblyTitle>
-    <Product>ConfigurationManager</Product>
-    <Copyright>Copyright ©  2018</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>full</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
+ 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
@@ -26,6 +17,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
   </ItemGroup>
+
   <!-- This is a workaround that will allow TVM website project to build, if you read this an 
   TVM no longer exist please remove this <Target Name="GetTargetPath"... element-->
   <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">

@@ -12,7 +12,7 @@ namespace ApiObjects.BulkUpload
     }
 
     /// <summary>
-    /// instractions for upload data type with Excel
+    /// Instructions for upload data type with Excel
     /// </summary>
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
@@ -32,6 +32,23 @@ namespace ApiObjects.BulkUpload
                 response.SetStatus(eResponseStatus.OK);
             }
 
+            return response;
+        }
+    }
+
+    /// <summary>
+    /// Instructions for ingest of custom data file
+    /// </summary>
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class BulkUploadIngestJobData : BulkUploadJobData
+    {
+        public override GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
+        {
+            var response = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
+            // TODO: Arthur Download the file
+            // TODO: Arthur Call Adapater to deserialize the data inside the file
+            
             return response;
         }
     }

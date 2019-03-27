@@ -26,7 +26,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj" />
+    <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
+    <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj" />
     <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\tvmcore\ODBCWrapper\ODBCWrapper.csproj" />
