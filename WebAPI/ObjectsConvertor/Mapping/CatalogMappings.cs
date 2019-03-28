@@ -1065,9 +1065,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
                .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
-            // TODO: arthur add mapping later when internal class is created
-            //cfg.CreateMap<KalturaBulkUploadIngestJobData, BulkUploadExcelJobData>()
-            //    .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
+            
+            cfg.CreateMap<KalturaBulkUploadIngestJobData, BulkUploadIngestJobData>()
+                .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
             
             cfg.CreateMap<KalturaBulkUploadObjectData, BulkUploadObjectData>();
 

@@ -22144,7 +22144,7 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 2,
+            MinLong = 0,
         };
         public KalturaBulkUploadAssetData(Dictionary<string, object> parameters = null) : base(parameters)
         {
