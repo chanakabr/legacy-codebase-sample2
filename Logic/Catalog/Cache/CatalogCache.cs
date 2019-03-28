@@ -218,6 +218,63 @@ namespace Core.Catalog.Cache
             return picSizes;
         }
 
+        public Dictionary<long, List<PicSize>> GetGroupRatioIdToPicSizeMapping(int groupID)
+        {
+            var groupRatioIdToPicSize = new Dictionary<long, List<PicSize>>();
+            try
+            {
+                string sKey = "GroupRatioIdToPicSizeMapping_" + groupID.ToString();
+                groupRatioIdToPicSize = Get<Dictionary<long, List<PicSize>>>(sKey);
+
+                if (groupRatioIdToPicSize == null || groupRatioIdToPicSize.Count == 0)
+                {
+                    DataRowCollection picsSizeRows = CatalogDAL.GetGroupPicSizesTableData(groupID);
+
+                    if (picsSizeRows == null)
+                    {
+                        return groupRatioIdToPicSize;
+                    }
+                    else
+                    {
+                        foreach (DataRow row in picsSizeRows)
+                        {
+                            var picSize = new PicSize()
+                            {
+                                RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
+                                Width = Utils.GetIntSafeVal(row, "WIDTH"),
+                                Height = Utils.GetIntSafeVal(row, "HEIGHT"),
+                                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID")
+                            };
+                            
+                            if (groupRatioIdToPicSize.ContainsKey(picSize.RatioId))
+                            {
+                                groupRatioIdToPicSize[picSize.RatioId].Add(picSize);
+                            }
+                            else
+                            {
+                                groupRatioIdToPicSize.Add(picSize.RatioId, new List<PicSize>() { picSize });
+                            }
+                        }
+                    }
+
+                    if (groupRatioIdToPicSize == null)
+                    {
+                        Set(sKey, new List<PicSize>(), SHORT_IN_CACHE_MINUTES);
+                    }
+                    else
+                    {
+                        Set(sKey, groupRatioIdToPicSize);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("An Exception was occurred in GetGroupRatioIdToPicSizeMapping. groupID:{0}.", groupID), ex);
+            }
+
+            return groupRatioIdToPicSize;
+        }
+
         public object Get(string sKey)
         {
             sKey = string.Format("{0}{1}", sKeyCache, sKey);
