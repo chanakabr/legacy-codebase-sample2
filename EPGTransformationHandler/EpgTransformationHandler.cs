@@ -15,6 +15,7 @@ namespace EPGTransformationHandler
         public SimpleMessageServiceEventEventHandler()
         {
         }
+
         public Task Handle(EpgTransformationEvent serviceEvent)
         {
             _Logger.Info($"I'm handling it, requestId:[{serviceEvent.RequestId}], jobId:[{serviceEvent.BulkUploadData.Id}]");
