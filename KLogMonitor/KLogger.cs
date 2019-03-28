@@ -273,6 +273,11 @@ namespace KLogMonitor
             HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, true, null, ex);
         }
 
+        public static string GetRequestId()
+        {
+            return LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
+        }
+
         public void ErrorFormat(string format, params object[] args)
         {
             HandleEvent(format, KLogger.LogEvent.LogLevel.ERROR, true, args, null);
