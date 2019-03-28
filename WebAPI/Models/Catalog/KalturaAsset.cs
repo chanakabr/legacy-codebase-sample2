@@ -206,6 +206,11 @@ namespace WebAPI.Models.Catalog
                 throw new ClientException((int)StatusCode.Error, "Invalid assetType");
             }
 
+            if ((this is KalturaProgramAsset) && this.Type.HasValue && this.Type.Value != 0)
+            {
+                throw new ClientException((int)StatusCode.Error, "Invalid type value");
+            }
+
             if (this.Name == null || this.Name.Values == null || this.Name.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
