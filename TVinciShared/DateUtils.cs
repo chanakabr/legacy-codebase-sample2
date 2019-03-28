@@ -382,7 +382,7 @@ namespace TVinciShared
         public static DateTime? TryExtractDate(string dateTime, string format)
         {
             DateTime result;
-            if (DateTime.TryParseExact(dateTime, format, null, DateTimeStyles.None, out result))
+            if (!string.IsNullOrEmpty(dateTime) && DateTime.TryParseExact(dateTime, format, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out result))
             {
                 return result;
             }
