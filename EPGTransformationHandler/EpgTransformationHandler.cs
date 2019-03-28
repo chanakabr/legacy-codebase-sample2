@@ -17,7 +17,7 @@ namespace EPGTransformationHandler
         }
         public Task Handle(EpgTransformationEvent serviceEvent)
         {
-            _Logger.Info($"I'm handling it: [{serviceEvent.Data}]");
+            _Logger.Info($"I'm handling it, requestId:[{serviceEvent.RequestId}], jobId:[{serviceEvent.BulkUploadData.Id}]");
             // TODO: Download file from s3
             // TODO: send file data to transformation adapater
             //...
