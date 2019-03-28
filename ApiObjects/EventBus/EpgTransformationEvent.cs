@@ -9,7 +9,9 @@ namespace ApiObjects.EventBus
 {
     public class EpgTransformationEvent : ServiceEvent
     {
-        public string Data { get; set; }
+        public int GroupId { get; set; }
+        public long UserId { get; set; }
+        public BulkUpload.BulkUpload BulkUploadData { get; set; }
     }
 
 }

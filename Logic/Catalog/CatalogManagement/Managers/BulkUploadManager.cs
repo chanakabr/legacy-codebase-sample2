@@ -11,7 +11,9 @@ using TVinciShared;
 using System.Linq;
 using System.IO;
 using ApiObjects.BulkUpload;
+using ApiObjects.EventBus;
 using CachingProvider.LayeredCache;
+using EventBus.RabbitMQ;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -138,11 +140,11 @@ namespace Core.Catalog.CatalogManagement
 
         public static GenericResponse<BulkUpload> AddBulkUpload(int groupId, string fileName, long userId, string filePath, Type bulkObjectType, BulkUploadJobAction action, BulkUploadJobData jobData, BulkUploadObjectData objectData)
         {
-            GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
+            var response = new GenericResponse<BulkUpload>();
             try
             {
                 // create and save the new BulkUpload in DB (with no results)
-                DataTable dt = CatalogDAL.AddBulkUpload(groupId, userId, action, fileName);
+                var dt = CatalogDAL.AddBulkUpload(groupId, userId, action, fileName);
                 response.Object = CreateBulkUploadFromDataTable(dt, groupId);
                 if (response.Object == null)
                 {
@@ -163,8 +165,8 @@ namespace Core.Catalog.CatalogManagement
                 response.Object.Status = updatedStatus;
 
                 // save the bulkUpload file to server (cut it from iis) and set fileURL
-                FileInfo fileInfo = new FileInfo(filePath);
-                GenericResponse<string> saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, bulkObjectType);
+                var fileInfo = new FileInfo(filePath);
+                var saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, bulkObjectType);
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
@@ -178,21 +180,16 @@ namespace Core.Catalog.CatalogManagement
                 response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded, false);
 
                 // Enqueue to CeleryQueue new BulkUpload (the remote will handle the file and its content).
-                if (EnqueueBulkUpload(groupId, response.Object, userId))
+                if (jobData is BulkUploadIngestJobData)
                 {
-                    response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Queued, true);
+                    // TODO: send service event using event bus
+                    response = SendTransformationEventToServiceEventBus(groupId, userId, response);
                 }
                 else
                 {
-                    if (EnqueueBulkUpload(groupId, response.Object, userId))
-                    {
-                        response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Queued, true);
-                    }
-                    else
-                    {
-                        response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Fatal, true);
-                        response.SetStatus(eResponseStatus.EnqueueFailed, string.Format("Failed to enqueue BulkUpload, BulkUpload.Id:{0}", response.Object.Id));
-                    }
+                    //use the regular celery-remoteTasks mechanism to avoid breaks in exsisting upload from excel
+                    // TODO: make the excel upload work using the service bus as well.
+                    response = EnqueueExcelBulkUploadJobUsingCelery(groupId, userId, response);
                 }
             }
             catch (Exception ex)
@@ -200,6 +197,48 @@ namespace Core.Catalog.CatalogManagement
                 log.Error(string.Format("An Exception was occurred in AddBulkUpload. groupId:{0}, filePath:{1}, userId:{2}, action:{3}, objectType:{4}.",
                                         groupId, filePath, userId, action, bulkObjectType), ex);
                 response.SetStatus(eResponseStatus.Error);
+            }
+
+            return response;
+        }
+
+        private static GenericResponse<BulkUpload> SendTransformationEventToServiceEventBus(int groupId, long userId, GenericResponse<BulkUpload> response)
+        {
+            using (var conn = RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration())
+            using (var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration(conn))
+            {
+                var transformationEvent = new EpgTransformationEvent
+                {
+                    RequestId = KLogger.GetRequestId(),
+                    GroupId = groupId,
+                    UserId = userId,
+                    BulkUploadData = response.Object,
+                };
+
+                publisher.Publish(transformationEvent);
+                response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Queued, shouldOnlyUpdateStatus: true);
+            }
+
+            return response;
+        }
+
+        private static GenericResponse<BulkUpload> EnqueueExcelBulkUploadJobUsingCelery(int groupId, long userId, GenericResponse<BulkUpload> response)
+        {
+            if (EnqueueBulkUpload(groupId, response.Object, userId))
+            {
+                response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Queued, true);
+            }
+            else
+            {
+                if (EnqueueBulkUpload(groupId, response.Object, userId))
+                {
+                    response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Queued, true);
+                }
+                else
+                {
+                    response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Fatal, true);
+                    response.SetStatus(eResponseStatus.EnqueueFailed, string.Format("Failed to enqueue BulkUpload, BulkUpload.Id:{0}", response.Object.Id));
+                }
             }
 
             return response;
@@ -273,7 +312,7 @@ namespace Core.Catalog.CatalogManagement
                     // add current result to bulkUpload results list and update it in DB.
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, bulkUploadResponse.Object.Status, false, bulkUploadResult);
                 }
-                
+
                 // run over all results and Enqueue them
                 for (int i = 0; i < objectsListResponse.Objects.Count; i++)
                 {
@@ -301,7 +340,7 @@ namespace Core.Catalog.CatalogManagement
                                         groupId, userId, bulkUploadId), ex);
                 bulkUploadResponse.SetStatus(eResponseStatus.Error);
             }
-        
+
             return bulkUploadResponse.Status;
         }
 

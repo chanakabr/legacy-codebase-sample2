@@ -891,6 +891,14 @@
       <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj">
+      <Project>{eb0f4a22-4860-4ae1-943d-bd478efc3f9a}</Project>
+      <Name>EventBus.Abstraction</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj">
+      <Project>{614d6789-8b4b-4f9e-8792-b3bd7533c0e7}</Project>
+      <Name>EventBus.RabbitMQ</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TCMClient\TCMClient.csproj">
       <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
       <Name>TCMClient</Name>

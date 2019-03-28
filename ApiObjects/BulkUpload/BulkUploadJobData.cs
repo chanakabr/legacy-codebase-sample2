@@ -43,6 +43,8 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadIngestJobData : BulkUploadJobData
     {
+        public int IngestProfileId { get; set; }
+
         public override GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
             var response = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
