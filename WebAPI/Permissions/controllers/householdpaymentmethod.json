@@ -29,7 +29,8 @@
     {
       "permissions": [
         "User",
-        "Master"
+        "Master",
+        "Operator"
       ],
       "excluded_permissions": [],
       "name": "HouseholdPaymentMethod_List",
