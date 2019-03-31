@@ -1075,7 +1075,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId));
 
-
+            cfg.CreateMap<KalturaBulkUploadMediaAssetData, BulkUploadMediaAssetData>()
+               .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
+            
+            cfg.CreateMap<KalturaBulkUploadEpgAssetData, BulkUploadEpgAssetData>()
+               .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
+            
             cfg.CreateMap<ApiObjects.Response.Status, KalturaMessage>()
               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
               .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))

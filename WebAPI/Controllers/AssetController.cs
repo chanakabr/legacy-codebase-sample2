@@ -1382,13 +1382,9 @@ namespace WebAPI.Controllers
                 }
 
                 bulkUploadJobData.Validate(fileData);
+                bulkUploadAssetData.Validate();
 
-                var assetType = typeof(KalturaMediaAsset);
-                if (bulkUploadAssetData.TypeId == 0)
-                {
-                    assetType = typeof(KalturaProgramAsset);
-                }
-
+                var assetType = bulkUploadAssetData.GetBulkUploadObjectType();
                 bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, assetType, bulkUploadJobData, bulkUploadAssetData); 
             }
             catch (ClientException ex)
