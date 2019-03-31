@@ -7,24 +7,24 @@ using KLogMonitor;
 using Microsoft.Extensions.Logging;
 using Core.Catalog.CatalogManagement;
 
-namespace EPGTransformationHandler
+namespace IngestTransformationHandler
 {
-    public class SimpleMessageServiceEventEventHandler : IServiceEventHandler<EpgTransformationEvent>
+    public class BulkUploadTransformationHandler : IServiceEventHandler<BulkUploadTransformationEvent>
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public SimpleMessageServiceEventEventHandler()
+        public BulkUploadTransformationHandler()
         {
         }
 
-        public Task Handle(EpgTransformationEvent serviceEvent)
+        public Task Handle(BulkUploadTransformationEvent serviceEvent)
         {
-            _Logger.Info($"I'm handling it, requestId:[{serviceEvent.RequestId}], jobId:[{serviceEvent.BulkUpload.Id}]");
+            _Logger.Info($"I'm handling it, requestId:[{serviceEvent.RequestId}], jobId:[{serviceEvent.BulkUploadData.Id}]");
             // TODO: Download file from s3
             // TODO: send file data to transformation adapater
             //...
 
-            BulkUploadManager.ProcessBulkUpload(serviceEvent.GroupId, serviceEvent.UserId, serviceEvent.BulkUpload.Id);
+            BulkUploadManager.ProcessBulkUpload(serviceEvent.GroupId, serviceEvent.UserId, serviceEvent.BulkUploadData.Id);
             
             return Task.CompletedTask;
         }
