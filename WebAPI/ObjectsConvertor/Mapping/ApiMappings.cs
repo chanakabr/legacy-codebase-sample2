@@ -1514,8 +1514,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Ingest Profile
+
             cfg.CreateMap<IngestProfile, KalturaIngestProfile>()
-                .ReverseMap();
+                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings != null ? src.Settings.ToDictionary(k => k.Key, v => v.Value) : null));
+            cfg.CreateMap<KalturaIngestProfile, IngestProfile>()
+                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings != null ? src.Settings.Select(s => new IngestProfileAdapterParam
+                {
+                    IngestProfileId = src.Id ?? -1,
+                    Key = s.Key,
+                    Value = s.Value == null ? "" : s.Value.value,
+                }) : null));
             #endregion
 
             #region KalturaPlaybackContext, PlaybackAdapter.AdapterPlaybackContext

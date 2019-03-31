@@ -2914,7 +2914,7 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Name":
                             return "name";
-                        case "TransformationAdapterSettings":
+                        case "Settings":
                             return "transformationAdapterSettings";
                         case "TransformationAdapterSharedSecret":
                             return "transformationAdapterSharedSecret";

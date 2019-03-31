@@ -13847,9 +13847,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
-            if(TransformationAdapterSettings != null)
+            if(Settings != null)
             {
-                ret.Add("transformationAdapterSettings", "\"transformationAdapterSettings\": " + "\"" + EscapeJson(TransformationAdapterSettings) + "\"");
+                propertyValue = "{" + String.Join(", ", Settings.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("transformationAdapterSettings", "\"transformationAdapterSettings\": " + propertyValue);
             }
             if(TransformationAdapterSharedSecret != null)
             {
@@ -13882,9 +13883,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            if(TransformationAdapterSettings != null)
+            if(Settings != null)
             {
-                ret.Add("transformationAdapterSettings", "<transformationAdapterSettings>" + EscapeXml(TransformationAdapterSettings) + "</transformationAdapterSettings>");
+                propertyValue = Settings.Count > 0 ? "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("transformationAdapterSettings", "<transformationAdapterSettings>" + propertyValue + "</transformationAdapterSettings>");
             }
             if(TransformationAdapterSharedSecret != null)
             {

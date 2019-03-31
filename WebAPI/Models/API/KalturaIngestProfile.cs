@@ -63,7 +63,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "transformationAdapterSettings")]
         [JsonProperty("transformationAdapterSettings")]
         [XmlElement("transformationAdapterSettings", IsNullable = true)]
-        public string TransformationAdapterSettings { get; set; }
+        public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
 
         /// <summary>

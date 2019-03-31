@@ -5026,7 +5026,7 @@
             Transformation Adapter URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaIngestProfile.TransformationAdapterSettings">
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.Settings">
             <summary>
             Transformation Adapter settings
             </summary>

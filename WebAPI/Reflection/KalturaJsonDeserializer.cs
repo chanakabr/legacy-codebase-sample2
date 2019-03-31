@@ -14386,7 +14386,10 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("transformationAdapterSettings") && parameters["transformationAdapterSettings"] != null)
                 {
-                    TransformationAdapterSettings = (String) Convert.ChangeType(parameters["transformationAdapterSettings"], typeof(String));
+                    if (parameters["transformationAdapterSettings"] is JObject)
+                    {
+                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["transformationAdapterSettings"]).ToObject<Dictionary<string, object>>());
+                    }
                 }
                 if (parameters.ContainsKey("transformationAdapterSharedSecret") && parameters["transformationAdapterSharedSecret"] != null)
                 {
