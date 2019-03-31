@@ -179,6 +179,7 @@ namespace Core.Catalog.CatalogManagement
                 response.Object.BulkObjectType = objectTypeName.Object;
                 response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded, false);
 
+                // TODO ARTHUR - CHANGE THE NAME OF EPG_TRANSFORMATION_EVENT TO TRANSFORMATION_EVENT
                 // Enqueue to CeleryQueue new BulkUpload (the remote will handle the file and its content).
                 if (jobData is BulkUploadIngestJobData)
                 {
@@ -301,8 +302,9 @@ namespace Core.Catalog.CatalogManagement
                         resultStatus = BulkUploadResultStatus.Error;
                         errorStatus = objectsListResponse.Objects[i].Item1;
                     }
-
-                    var bulkUploadResult = objectsListResponse.Objects[i].Item2.GetNewBulkUploadResult(bulkUploadResponse.Object.Id, resultStatus, i, errorStatus);
+                    
+                    var bulkUploadResult = bulkUploadResponse.Object.ObjectData.GetNewBulkUploadResult
+                        (bulkUploadResponse.Object.Id, objectsListResponse.Objects[i].Item2, resultStatus, i, errorStatus);
                     if (bulkUploadResult == null)
                     {
                         log.ErrorFormat("bulkUploadResult is null for bulkUploadId:{0}, index:{1}", bulkUploadResponse.Object.Id, i);
@@ -319,7 +321,7 @@ namespace Core.Catalog.CatalogManagement
                     if (bulkUploadResponse.Object.Results[i].Status == BulkUploadResultStatus.InProgress)
                     {
                         // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
-                        if (objectsListResponse.Objects[i].Item2.EnqueueBulkUploadResult(bulkUploadResponse.Object, i))
+                        if (bulkUploadResponse.Object.ObjectData.EnqueueBulkUploadResult(bulkUploadResponse.Object, i, objectsListResponse.Objects[i].Item2))
                         {
                             log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
                         }

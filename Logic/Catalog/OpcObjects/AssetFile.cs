@@ -16,10 +16,7 @@ namespace Core.Catalog
     public class AssetFile : IExcelObject
     {
         #region Consts
-
-        public string DistributedTask { get { return null; } }
-        public string RoutingKey { get { return null; } }
-
+        
         // MEDIA FILE EXCEL COLUMNS
         private const string CDN = "CDN";
         private const string CDN_LOCATION = "CDN Location";
@@ -35,8 +32,7 @@ namespace Core.Catalog
         private const string FILE_SIZE = "File Size (Kb)";
         private const string LANGUAGE = "Language";
         private const string IS_DEFAULT_LANGUAGE = "Is Default Language";
-
-
+        
         #endregion
 
         #region Data Members
@@ -412,17 +408,7 @@ namespace Core.Catalog
 
             this.IsActive = true;
         }
-
-        public BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus)
-        {
-            return null;
-        }
-
-        public bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
-        {
-            return false;
-        }
-
+        
         #endregion
     }
 }
