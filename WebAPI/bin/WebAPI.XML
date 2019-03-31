@@ -13026,6 +13026,16 @@
             Possible values: 0 – EPG linear programs, 1 - Recording; or any asset type ID according to the asset types IDs defined in the system.
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadMediaAssetData">
+            <summary>
+            indicates the media asset object type in the bulk file
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadEpgAssetData">
+            <summary>
+            indicates the epg asset object type in the bulk file
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadListResponse">
             <summary>
             Asset wrapper

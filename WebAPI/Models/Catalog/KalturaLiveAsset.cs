@@ -17,7 +17,6 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public partial class KalturaLiveAsset : KalturaMediaAsset
     {
-
         /// <summary>
         /// Enable CDVR, configuration only
         /// </summary>
