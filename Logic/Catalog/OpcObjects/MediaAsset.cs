@@ -19,13 +19,7 @@ namespace Core.Catalog
     public class MediaAsset : Asset
     {
         #region Consts
-
-        [JsonIgnore]
-        public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
-
-        [JsonIgnore]
-        public override string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
-
+        
         // ASSET EXCEL COLUMNS
         public const string MEDIA_ASSET_TYPE = "Media Asset Type";
         public const string GEO_RULE_ID = "GeoBlockRuleId";
@@ -442,38 +436,6 @@ namespace Core.Catalog
                 this.CoGuid = columnValue.Value.ToString();
                 return;
             }
-        }
-
-        #endregion
-
-        #region IBulkUploadObject Methods
-
-        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus)
-        {
-            BulkUploadMediaAssetResult bulkUploadAssetResult = new BulkUploadMediaAssetResult()
-            {
-                Index = index,
-                ObjectId = Id > 0 ? Id : (long?)null,
-                BulkUploadId = bulkUploadId,
-                Status = status,
-                Type = this.MediaType != null && this.MediaType.m_nTypeID > 0 ? this.MediaType.m_nTypeID : (int?)null,
-                ExternalId = string.IsNullOrEmpty(this.CoGuid) ? null : this.CoGuid
-            };
-
-            if (errorStatus != null)
-            {
-                bulkUploadAssetResult.SetError(errorStatus);
-            }
-            return bulkUploadAssetResult;
-        }
-
-        public override bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
-        {
-            GenericCeleryQueue queue = new GenericCeleryQueue();
-            var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, resultIndex, this);
-            bool enqueueSuccessful = queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId));
-
-            return enqueueSuccessful;
         }
 
         #endregion

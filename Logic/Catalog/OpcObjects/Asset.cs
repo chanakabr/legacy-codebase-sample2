@@ -17,10 +17,7 @@ namespace Core.Catalog
     public class Asset : IExcelObject
     {
         #region Consts
-
-        public virtual string DistributedTask { get { return null; } }
-        public virtual string RoutingKey { get { return null; } }
-
+        
         public const string EXTERNAL_ASSET_ID = "External Asset ID ";
         public const string METAS = "METAS";
         public const string TAGS = "TAGS";
@@ -431,17 +428,7 @@ namespace Core.Catalog
                 Images.Add(image);
             }
         }
-
-        public virtual BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus)
-        {
-            return null;
-        }
-
-        public virtual bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
-        {
-            return false;
-        }
-
+        
         #endregion
     }
 }
