@@ -1,4 +1,6 @@
-﻿namespace ApiObjects
+﻿using System.Collections.Generic;
+
+namespace ApiObjects
 {
     public class IngestProfile
     {
@@ -18,7 +20,7 @@
         public string TransformationAdapterUrl { get; set; }
 
         [DBFieldMapping("transformation_adapter_config")]
-        public string TransformationAdapterSettings { get; set; }
+        public IList<IngestProfileAdapterParam> Settings { get; set; }
 
         [DBFieldMapping("transformation_adapter_shared_secret")]
         public string TransformationAdapterSharedSecret { get; set; }
