@@ -226,45 +226,36 @@ namespace Core.Catalog.Cache
                 string sKey = "GroupRatioIdToPicSizeMapping_" + groupID.ToString();
                 groupRatioIdToPicSize = Get<Dictionary<long, List<PicSize>>>(sKey);
 
-                if (groupRatioIdToPicSize == null || groupRatioIdToPicSize.Count == 0)
+                if (groupRatioIdToPicSize == null)
                 {
                     DataRowCollection picsSizeRows = CatalogDAL.GetGroupPicSizesTableData(groupID);
-
                     if (picsSizeRows == null)
                     {
                         return groupRatioIdToPicSize;
                     }
-                    else
+
+                    groupRatioIdToPicSize = new Dictionary<long, List<PicSize>>();
+                    foreach (DataRow row in picsSizeRows)
                     {
-                        foreach (DataRow row in picsSizeRows)
+                        var picSize = new PicSize()
                         {
-                            var picSize = new PicSize()
-                            {
-                                RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
-                                Width = Utils.GetIntSafeVal(row, "WIDTH"),
-                                Height = Utils.GetIntSafeVal(row, "HEIGHT"),
-                                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID")
-                            };
-                            
-                            if (groupRatioIdToPicSize.ContainsKey(picSize.RatioId))
-                            {
-                                groupRatioIdToPicSize[picSize.RatioId].Add(picSize);
-                            }
-                            else
-                            {
-                                groupRatioIdToPicSize.Add(picSize.RatioId, new List<PicSize>() { picSize });
-                            }
+                            RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
+                            Width = Utils.GetIntSafeVal(row, "WIDTH"),
+                            Height = Utils.GetIntSafeVal(row, "HEIGHT"),
+                            Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID")
+                        };
+
+                        if (groupRatioIdToPicSize.ContainsKey(picSize.RatioId))
+                        {
+                            groupRatioIdToPicSize[picSize.RatioId].Add(picSize);
+                        }
+                        else
+                        {
+                            groupRatioIdToPicSize.Add(picSize.RatioId, new List<PicSize>() { picSize });
                         }
                     }
 
-                    if (groupRatioIdToPicSize == null)
-                    {
-                        Set(sKey, new List<PicSize>(), SHORT_IN_CACHE_MINUTES);
-                    }
-                    else
-                    {
-                        Set(sKey, groupRatioIdToPicSize);
-                    }
+                    Set(sKey, groupRatioIdToPicSize);
                 }
             }
             catch (Exception ex)
