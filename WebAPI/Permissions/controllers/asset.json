@@ -189,7 +189,9 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "Asset_RemoveMetasAndTags",
