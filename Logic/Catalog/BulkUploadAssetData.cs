@@ -55,21 +55,6 @@ namespace Core.Catalog
             return bulkObject;
         }
         
-        public override bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex, IBulkUploadObject bulkUploadObject)
-        {
-            var mediaAsset = bulkUploadObject as MediaAsset;
-            if (mediaAsset != null)
-            {
-                GenericCeleryQueue queue = new GenericCeleryQueue();
-                var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, resultIndex, mediaAsset);
-                bool enqueueSuccessful = queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId));
-
-                return enqueueSuccessful;
-            }
-
-            return false;
-        }
-
         public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, BulkUploadResultStatus status, int index, Status errorStatus)
         {
             var mediaAsset = bulkUploadObject as MediaAsset;
@@ -109,6 +94,29 @@ namespace Core.Catalog
 
             return mandatoryPropertyToValueMap;
         }
+        
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<Tuple<Status, IBulkUploadObject>> objects)
+        {
+            // run over all results and Enqueue them
+            for (int i = 0; i < objects.Count; i++)
+            {
+                var mediaAsset = objects[i].Item2 as MediaAsset;
+                if (objects[i].Item1.IsOkStatusCode() && mediaAsset != null)
+                {
+                    // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, i, mediaAsset);
+                    if (queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId)))
+                    {
+                        log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUpload.Id, i);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Failed enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUpload.Id, i);
+                    }
+                }
+            }
+        }
     }
     
     public class BulkUploadEpgAssetData : BulkUploadAssetData
@@ -121,8 +129,8 @@ namespace Core.Catalog
             var bulkObject = Activator.CreateInstance(typeof(EpgAsset)) as EpgAsset;
             return bulkObject;
         }
-
-        public override bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex, IBulkUploadObject bulkUploadObject)
+        
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<Tuple<Status, IBulkUploadObject>> objects)
         {
             throw new NotImplementedException();
         }

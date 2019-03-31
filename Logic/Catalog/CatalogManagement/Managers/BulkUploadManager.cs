@@ -178,8 +178,16 @@ namespace Core.Catalog.CatalogManagement
                 var objectTypeName = FileHandler.Instance.GetFileObjectTypeName(bulkObjectType.Name);
                 response.Object.BulkObjectType = objectTypeName.Object;
                 response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded, false);
-
-                // TODO ARTHUR - CHANGE THE NAME OF EPG_TRANSFORMATION_EVENT TO TRANSFORMATION_EVENT
+                
+                //
+                //
+                // We are in the beginning of a transition to .NET core and new scheduled tasks architecture.
+                // Previous setting is using celery and enqueuing a celery-based message to rabbit (with QueueWrapper of old .NET)
+                // Next setting is using our own handlers (consumers) on rabbit (using EventBus.RabbitMQ of .NET core)
+                // Currently Ingest Job Data uses the next setting, and excel job data still uses the previous settings
+                // Everything in our system will move to the next setting as soon as possible - but gradually
+                //
+                
                 // Enqueue to CeleryQueue new BulkUpload (the remote will handle the file and its content).
                 if (jobData is BulkUploadIngestJobData)
                 {
@@ -261,16 +269,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // parse file to objects list (with validation)
                 var objectsListResponse = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
-                if (bulkUploadResponse.Object.JobData != null && bulkUploadResponse.Object.ObjectData != null)
-                {
-                    objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(bulkUploadId, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
-                    if (!objectsListResponse.IsOkStatusCode())
-                    {
-                        UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Failed, true);
-                        return objectsListResponse.Status;
-                    }
-                }
-                else
+                if (bulkUploadResponse.Object.JobData == null || bulkUploadResponse.Object.ObjectData == null)
                 {
                     var errorMessage = string.Format("ProcessBulkUpload cannot Deserialize file because JobData or ObjectData are null for groupId:{0}, bulkUploadId:{1}.",
                                                      groupId, bulkUploadId);
@@ -278,6 +277,13 @@ namespace Core.Catalog.CatalogManagement
                     UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Fatal, true);
                     bulkUploadResponse.SetStatus(eResponseStatus.Error, errorMessage);
                     return bulkUploadResponse.Status;
+                }
+
+                objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(bulkUploadId, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
+                if (!objectsListResponse.IsOkStatusCode())
+                {
+                    UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Failed, true);
+                    return objectsListResponse.Status;
                 }
 
                 bulkUploadResponse.Object.NumOfObjects = objectsListResponse.Objects.Count;
@@ -315,23 +321,9 @@ namespace Core.Catalog.CatalogManagement
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, bulkUploadResponse.Object.Status, false, bulkUploadResult);
                 }
 
-                // run over all results and Enqueue them
-                for (int i = 0; i < objectsListResponse.Objects.Count; i++)
-                {
-                    if (bulkUploadResponse.Object.Results[i].Status == BulkUploadResultStatus.InProgress)
-                    {
-                        // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
-                        if (bulkUploadResponse.Object.ObjectData.EnqueueBulkUploadResult(bulkUploadResponse.Object, i, objectsListResponse.Objects[i].Item2))
-                        {
-                            log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
-                        }
-                        else
-                        {
-                            log.DebugFormat("Failed enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUploadId, i);
-                        }
-                    }
-                }
-
+                // each object data type may have its own enqueuing method - so we call the abstract method
+                bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, objectsListResponse.Objects);
+                
                 // update status to PROCESSED
                 bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processed, true);
             }
