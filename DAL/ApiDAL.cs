@@ -5417,11 +5417,12 @@ namespace DAL
                 sp.AddParameter("@externalIdentifier", profileToAdd.ExternalId);
                 sp.AddParameter("@transformationAdapterUrl", profileToAdd.TransformationAdapterUrl);
                 sp.AddParameter("@transformationAdapterSharedSecret", profileToAdd.TransformationAdapterSharedSecret);
-                sp.AddParameter("@transformationAdapterConfig", profileToAdd.TransformationAdapterSettings);
                 sp.AddParameter("@assetType", profileToAdd.AssetTypeId);
                 sp.AddParameter("@defaultAutoFillPolicy", profileToAdd.DefaultAutoFillPolicy);
                 sp.AddParameter("@defaultOverlapPolicy", profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
+
+                MergeIngestProfileAdapaterSettings(groupId, profileToAdd.Id, userId, profileToAdd.Settings);
 
                 return sp.ExecuteReturnValue<int>();
             }
@@ -5430,6 +5431,18 @@ namespace DAL
                 log.ErrorFormat("Error while AddPlaybackAdapter in DB, groupId: {0}, name: {1}, ex:{2} ", groupId, profileToAdd.Name, ex);
                 throw;
             }
+        }
+
+        private static List<IngestProfileAdapterParam> MergeIngestProfileAdapaterSettings(int groupId, int adapaterId, int updaterId, IList<IngestProfileAdapterParam> settings)
+        {
+            var settingsTbl = settings.Select(s => new KeyValuePair<string, string>(s.Key, s.Value)).ToList();
+            var sp = new StoredProcedure("Merge_IngestProfileTransformationAdapterSettings");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@ingestProfileId", adapaterId);
+            sp.AddParameter("@updaterId", updaterId);
+            sp.AddKeyValueListParameter("@KeyValueList", settingsTbl, "key", "value");
+            var resp = sp.ExecuteDataSet();
+            return resp.Tables[0].ToList<IngestProfileAdapterParam>();
         }
 
         public static bool UpdateIngestProfile(int profileId, int groupId, int userId, IngestProfile profileToAdd)
@@ -5443,11 +5456,12 @@ namespace DAL
                 sp.AddParameter("@externalIdentifier", profileToAdd.ExternalId);
                 sp.AddParameter("@transformationAdapterUrl", profileToAdd.TransformationAdapterUrl);
                 sp.AddParameter("@transformationAdapterSharedSecret", profileToAdd.TransformationAdapterSharedSecret);
-                sp.AddParameter("@transformationAdapterConfig", profileToAdd.TransformationAdapterSettings);
                 sp.AddParameter("@assetType", profileToAdd.AssetTypeId);
                 sp.AddParameter("@defaultAutoFillPolicy", profileToAdd.DefaultAutoFillPolicy);
                 sp.AddParameter("@defaultOverlapPolicy", profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
+
+                MergeIngestProfileAdapaterSettings(groupId, profileToAdd.Id, userId, profileToAdd.Settings);
 
                 return sp.ExecuteReturnValue<int>() > 0;
 
@@ -5484,7 +5498,14 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@profileExternalId", externalId);
                 sp.AddParameter("@profileId", profileId);
-                return sp.ExecuteDataSet().Tables[0].ToList<IngestProfile>();
+                var dbResponse = sp.ExecuteDataSet();
+                var profiles =  dbResponse.Tables[0].ToList<IngestProfile>();
+                var profileSettingsParams = dbResponse.Tables[1].ToList<IngestProfileAdapterParam>();
+
+                // Map settings to relevent profile
+                profiles.ForEach(p => p.Settings = profileSettingsParams.Where(s => s.IngestProfileId == p.Id).ToList());
+
+                return profiles;
             }
             catch (Exception ex)
             {
