@@ -13017,7 +13017,7 @@
         </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadAssetData">
             <summary>
-            indicates the asset object type in the bulk file
+            indicates the asset object type in the bulk file (this class is not abstract for backward-compatibility)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadAssetData.TypeId">
