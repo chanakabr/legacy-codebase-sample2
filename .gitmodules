@@ -1,0 +1,4 @@
+[submodule "couchbase-net-client"]
+	path = couchbase-net-client
+	url = https://github.com/kaltura/couchbase-net-client.git
+	branch = release27
