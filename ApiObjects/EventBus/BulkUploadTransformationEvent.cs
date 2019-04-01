@@ -7,8 +7,7 @@ using EventBus.Abstraction;
 
 namespace ApiObjects.EventBus
 {
-    // TODO ARTHUR - CHANGE THE NAME OF EPG_TRANSFORMATION_EVENT TO TRANSFORMATION_EVENT
-    public class EpgTransformationEvent : ServiceEvent
+    public class BulkUploadTransformationEvent : ServiceEvent
     {
         public int GroupId { get; set; }
         public long UserId { get; set; }

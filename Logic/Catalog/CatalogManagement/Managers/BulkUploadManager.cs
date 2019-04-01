@@ -216,7 +216,7 @@ namespace Core.Catalog.CatalogManagement
             using (var conn = RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration())
             using (var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration(conn))
             {
-                var transformationEvent = new EpgTransformationEvent
+                var transformationEvent = new BulkUploadTransformationEvent
                 {
                     RequestId = KLogger.GetRequestId(),
                     GroupId = groupId,
