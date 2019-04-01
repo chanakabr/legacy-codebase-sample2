@@ -24,9 +24,9 @@ namespace ApiObjects.BulkUpload
         private const string COLUMN_LANGUAGE = "l";
         private const string ITEM_INDEX = "i";
 
-        public static GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
+        public static GenericListResponse<GenericResponse<IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
-            var excelObjects = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
+            var excelObjects = new GenericListResponse<GenericResponse<IBulkUploadObject>>();
             try
             {
                 using (var webClient = new WebClient())
@@ -130,7 +130,7 @@ namespace ApiObjects.BulkUpload
                                                     }
                                                 }
 
-                                                excelObjects.Objects.Add(new Tuple<Status, IBulkUploadObject>(status, excelObject));
+                                                excelObjects.Objects.Add(new GenericResponse<IBulkUploadObject>(status, excelObject));
                                             }
                                         }
                                     }

@@ -22,8 +22,18 @@ namespace ApiObjects.BulkUpload
         public abstract IBulkUploadStructure GetStructure();
         public abstract IBulkUploadObject CreateObjectInstance();
         public abstract Dictionary<string, object> GetMandatoryPropertyToValueMap();
-        public abstract BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, BulkUploadResultStatus status, int index, Status errorStatus);
-        public abstract void EnqueueObjects(BulkUpload bulkUpload, List<Tuple<Status, IBulkUploadObject>> objects);
+        
+        /// <summary>
+        /// This creates a new bulk upload result that will display the details of a single item inside the entire bulk upload process
+        /// </summary>
+        /// <param name="bulkUploadId"></param>
+        /// <param name="bulkUploadObject">the parsed object from the data input of bulk upload request</param>
+        /// <param name="itemStatus">the item deserialization status</param>
+        /// <param name="index">the index of the item in the list</param>
+        /// <param name="errorStatus">in case error in deserialization this will include the error details status </param>
+        /// <returns></returns>
+        public abstract BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatusDetails);
+        public abstract void EnqueueObjects(BulkUpload bulkUpload, List<GenericResponse<IBulkUploadObject>> objects);
 
         public bool Validate(Dictionary<string, object> propertyToValueMap)
         {

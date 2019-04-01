@@ -52,29 +52,26 @@ namespace Core.Catalog
             return bulkObject;
         }
 
-        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, BulkUploadResultStatus status, int index, Status errorStatus)
+        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatus)
         {
-            var mediaAsset = bulkUploadObject as MediaAsset;
-            if (mediaAsset != null)
+            // We know for sure this should be a MediaAsset if not we want an exception here
+            var mediaAsset = (MediaAsset)bulkUploadObject;
+
+            var bulkUploadAssetResult = new BulkUploadMediaAssetResult()
             {
-                BulkUploadMediaAssetResult bulkUploadAssetResult = new BulkUploadMediaAssetResult()
-                {
-                    Index = index,
-                    ObjectId = mediaAsset.Id > 0 ? mediaAsset.Id : (long?)null,
-                    BulkUploadId = bulkUploadId,
-                    Status = status,
-                    Type = mediaAsset.MediaType != null && mediaAsset.MediaType.m_nTypeID > 0 ? mediaAsset.MediaType.m_nTypeID : (int?)null,
-                    ExternalId = string.IsNullOrEmpty(mediaAsset.CoGuid) ? null : mediaAsset.CoGuid
-                };
+                Index = index,
+                ObjectId = mediaAsset.Id > 0 ? mediaAsset.Id : (long?)null,
+                BulkUploadId = bulkUploadId,
+                Status = BulkUploadResultStatus.InProgress,
+                Type = mediaAsset.MediaType != null && mediaAsset.MediaType.m_nTypeID > 0 ? mediaAsset.MediaType.m_nTypeID : (int?)null,
+                ExternalId = string.IsNullOrEmpty(mediaAsset.CoGuid) ? null : mediaAsset.CoGuid
+            };
 
-                if (errorStatus != null)
-                {
-                    bulkUploadAssetResult.SetError(errorStatus);
-                }
-                return bulkUploadAssetResult;
+            if (errorStatus != null)
+            {
+                bulkUploadAssetResult.SetError(errorStatus);
             }
-
-            return null;
+            return bulkUploadAssetResult;
         }
 
         public override Dictionary<string, object> GetMandatoryPropertyToValueMap()
@@ -92,13 +89,12 @@ namespace Core.Catalog
             return mandatoryPropertyToValueMap;
         }
 
-        public override void EnqueueObjects(BulkUpload bulkUpload, List<Tuple<Status, IBulkUploadObject>> objects)
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<GenericResponse<IBulkUploadObject>> objects)
         {
-            // run over all results and Enqueue them
-            for (int i = 0; i < objects.Count; i++)
+            for (var i = 0; i < objects.Count; i++)
             {
-                var mediaAsset = objects[i].Item2 as MediaAsset;
-                if (objects[i].Item1.IsOkStatusCode() && mediaAsset != null)
+                var mediaAsset = objects[i].Object as MediaAsset;
+                if (objects[i].IsOkStatusCode() && mediaAsset != null)
                 {
                     // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
                     GenericCeleryQueue queue = new GenericCeleryQueue();
@@ -135,7 +131,7 @@ namespace Core.Catalog
             return bulkObject;
         }
         
-        public override void EnqueueObjects(BulkUpload bulkUpload, List<Tuple<Status, IBulkUploadObject>> objects)
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<GenericResponse<IBulkUploadObject>> objects)
         {
             throw new NotImplementedException();
         }
@@ -145,7 +141,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, BulkUploadResultStatus status, int index, Status errorStatus)
+        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatus)
         {
             throw new NotImplementedException();
         }

@@ -8,7 +8,7 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadJobData
     {
-        public abstract GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData);
+        public abstract GenericListResponse<GenericResponse<IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData);
     }
 
     /// <summary>
@@ -18,9 +18,9 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadExcelJobData : BulkUploadJobData
     {
-        public override GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
+        public override GenericListResponse<GenericResponse<IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
-            var response = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
+            var response = new GenericListResponse<GenericResponse<IBulkUploadObject>>();
             var excelResults = ExcelManager.Deserialize(bulkUploadId, fileUrl, objectData);
             if (!excelResults.IsOkStatusCode())
             {
@@ -45,9 +45,9 @@ namespace ApiObjects.BulkUpload
     {
         public int IngestProfileId { get; set; }
 
-        public override GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
+        public override GenericListResponse<GenericResponse<IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
-            var response = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
+            var response = new GenericListResponse<GenericResponse<IBulkUploadObject>>();
             // TODO: Arthur Download the file
             // TODO: Arthur Call Adapater to deserialize the data inside the file
             

@@ -15,9 +15,7 @@ namespace ApiObjects.BulkUpload
         Success = 7,
         Partial = 8,
         Failed = 9,
-        Fatal = 10,
-        TransformationInProgress = 11,
-        IngestInProgress = 12,
+        Fatal = 10
     }
 
     public enum BulkUploadJobAction
