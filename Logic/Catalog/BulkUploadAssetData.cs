@@ -12,7 +12,7 @@ namespace Core.Catalog
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class BulkUploadAssetData : BulkUploadObjectData
+    public class BulkUploadAssetData : BulkUploadObjectData
     {
         protected AssetStruct structure { get; private set; }
 
@@ -42,10 +42,7 @@ namespace Core.Catalog
 
             return structure;
         }
-    }
 
-    public class BulkUploadMediaAssetData : BulkUploadAssetData
-    {
         public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
         public override string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
 
@@ -54,7 +51,7 @@ namespace Core.Catalog
             var bulkObject = Activator.CreateInstance(typeof(MediaAsset)) as MediaAsset;
             return bulkObject;
         }
-        
+
         public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, BulkUploadResultStatus status, int index, Status errorStatus)
         {
             var mediaAsset = bulkUploadObject as MediaAsset;
@@ -94,7 +91,7 @@ namespace Core.Catalog
 
             return mandatoryPropertyToValueMap;
         }
-        
+
         public override void EnqueueObjects(BulkUpload bulkUpload, List<Tuple<Status, IBulkUploadObject>> objects)
         {
             // run over all results and Enqueue them
@@ -118,7 +115,15 @@ namespace Core.Catalog
             }
         }
     }
-    
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class BulkUploadMediaAssetData : BulkUploadAssetData
+    {
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadEpgAssetData : BulkUploadAssetData
     {
         public override string DistributedTask { get { throw new NotImplementedException(); } }
