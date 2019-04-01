@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using ApiObjects.EventBus;
@@ -19,14 +20,28 @@ namespace IngestTransformationHandler
 
         public Task Handle(BulkUploadTransformationEvent serviceEvent)
         {
-            _Logger.Info($"I'm handling it, requestId:[{serviceEvent.RequestId}], jobId:[{serviceEvent.BulkUploadData.Id}]");
-            // TODO: Download file from s3
-            // TODO: send file data to transformation adapater
-            //...
+            try
+            {
+                _Logger.Debug($"Starting ingest transformation handler requestId:[{serviceEvent.RequestId}], BulkUpload.Id:[{serviceEvent.BulkUploadData.Id}]");
+                var processBulkUploadStatus = BulkUploadManager.ProcessBulkUpload(serviceEvent.GroupId, serviceEvent.UserId, serviceEvent.BulkUploadData);
+                if (processBulkUploadStatus?.IsOkStatusCode() == true)
+                {
+                    _Logger.Debug($"ProcessBulkUpload completed successfully BulkUpload.Id:[{serviceEvent.BulkUploadData.Id}]");
+                    return Task.CompletedTask;
+                }
 
-            BulkUploadManager.ProcessBulkUpload(serviceEvent.GroupId, serviceEvent.UserId, serviceEvent.BulkUploadData.Id);
+                var ex = new Exception(string.Format("BulkUpload task did not finish successfully. {0}", processBulkUploadStatus != null ? processBulkUploadStatus.ToString() : string.Empty));
+                return Task.FromException(ex);
+            }
+            catch (Exception ex)
+            {
+                _Logger.Error($"An Exception occurred in BulkUploadTransformationHandler requestId:[{serviceEvent.RequestId}], BulkUpload.Id:[{serviceEvent.BulkUploadData.Id}].", ex);
+                return Task.FromException(ex);
+            }
+
+
             
-            return Task.CompletedTask;
+            
         }
      
     }
