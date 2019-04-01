@@ -1180,7 +1180,7 @@ namespace ElasticSearch.Common
                 analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
-            if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+            if (!string.IsNullOrEmpty(defaultAutocompleteIndexAnalyzer) && !string.IsNullOrEmpty(defaultAutocompleteSearchAnalyzer))
             {
                 externalId.fields.Add(new BasicMappingPropertyV2()
                 {
@@ -1188,8 +1188,8 @@ namespace ElasticSearch.Common
                     type = ElasticSearch.Common.eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
-                    search_analyzer = autocompleteSearchAnalyzer,
-                    analyzer = autocompleteSearchAnalyzer
+                    search_analyzer = defaultAutocompleteSearchAnalyzer,
+                    analyzer = defaultAutocompleteIndexAnalyzer
                 });
             }
 
