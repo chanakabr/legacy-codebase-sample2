@@ -3,6 +3,8 @@
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <LangVersion>6</LangVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+    <Version>5.2.0.3642</Version>
+    <Description>2019-08-02 13:04:41 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-116-g4860a8cf-dirty</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="4.5.3.1" />
@@ -34,7 +36,6 @@
     <ProjectReference Include="..\..\tvmcore\ServiceExtensions\ServiceExtensions.csproj" />
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
   </ItemGroup>
-
   <!-- 
   This is a workaround (https://github.com/wixtoolset/issues/issues/5705) 
   that will allow TVM website project to build, if you read this an 
