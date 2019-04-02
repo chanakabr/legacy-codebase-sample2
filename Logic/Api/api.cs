@@ -11763,6 +11763,30 @@ namespace Core.Api
             return response;
         }
 
+        public static GenericResponse<IngestProfile> GetIngestProfileById(int profileId)
+        {
+            var response = new GenericResponse<IngestProfile>();
+            try
+            {
+                var profile = ApiDAL.GetIngestProfiles(profileId: profileId).FirstOrDefault();
+                if (profile == null)
+                {
+                    response.SetStatus(eResponseStatus.IngestProfileNotExists);
+                    return response;
+                }
+
+                response.SetStatus(eResponseStatus.OK);
+                response.Object = profile;
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed to get ingest profiles. Group Id: {0}. ex: {1}", profileId, ex);
+            }
+
+            return response;
+        }
+
         public static Status DeleteIngestProfile(int groupId, int userId, int ingestProfileId)
         {
             var response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

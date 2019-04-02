@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <PackageReference Include="RestSharp" Version="105.2.2" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="RestSharp" Version="106.6.9" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\RestAdaptersCommon\RestAdaptersCommon.csproj" />
+  </ItemGroup>
+
+</Project>

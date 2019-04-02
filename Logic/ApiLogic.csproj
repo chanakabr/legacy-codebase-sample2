@@ -183,6 +183,7 @@
     <Compile Include="Billing\Utils.cs" />
     <Compile Include="Billing\WinPLCSMS.cs" />
     <Compile Include="Billing\WinPLSMSHelper.cs" />
+    <Compile Include="BulkUpload\BulkUploadIngestJobData.cs" />
     <Compile Include="Catalog\AdProvider.cs" />
     <Compile Include="Catalog\OpcObjects\Asset.cs" />
     <Compile Include="Catalog\OpcObjects\AssetFile.cs" />
@@ -898,6 +899,10 @@
     <ProjectReference Include="..\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj">
       <Project>{614d6789-8b4b-4f9e-8792-b3bd7533c0e7}</Project>
       <Name>EventBus.RabbitMQ</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IngestTransformationAdapterClient\IngestTransformationAdapterClient.csproj">
+      <Project>{f420f546-19cc-40f4-9bbe-2847d3e520da}</Project>
+      <Name>IngestTransformationAdapterClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\TCMClient\TCMClient.csproj">
       <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>

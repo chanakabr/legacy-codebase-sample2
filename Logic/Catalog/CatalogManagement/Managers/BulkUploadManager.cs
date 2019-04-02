@@ -14,6 +14,7 @@ using ApiObjects.BulkUpload;
 using ApiObjects.EventBus;
 using CachingProvider.LayeredCache;
 using EventBus.RabbitMQ;
+using APILogic.BulkUpload;
 
 namespace Core.Catalog.CatalogManagement
 {
