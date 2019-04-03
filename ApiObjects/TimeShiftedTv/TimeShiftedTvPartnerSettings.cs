@@ -30,6 +30,7 @@ namespace ApiObjects.TimeShiftedTv
         public QuotaOveragePolicy? QuotaOveragePolicy { get; set; }
         public ProtectionPolicy? ProtectionPolicy { get; set; }
         public int? RecoveryGracePeriod { get; set; }
+        public bool? IsPrivateCopyEnabled { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {
@@ -38,7 +39,8 @@ namespace ApiObjects.TimeShiftedTv
         public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
             long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
             bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeriod, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled,
-            bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled, int? quotaOveragePolicy, int? protectionPolicy, int? recoveryGracePeriod)
+            bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled, int? quotaOveragePolicy, int? protectionPolicy, int? recoveryGracePeriod,
+            bool? isPrivateCopyEnabled)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -59,6 +61,7 @@ namespace ApiObjects.TimeShiftedTv
             this.IsRecordingPlaybackNonEntitledChannelEnabled = isRecordingPlaybackNonEntitledEnabled;
             this.IsRecordingPlaybackNonExistingChannelEnabled = isRecordingPlaybackNonExistingEnabled;
             this.RecoveryGracePeriod = recoveryGracePeriod;
+            this.IsPrivateCopyEnabled = IsPrivateCopyEnabled;
 
             if (quotaOveragePolicy.HasValue)
             {
@@ -95,7 +98,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("QuotaOveragePolicy: {0}, ", QuotaOveragePolicy.HasValue ? QuotaOveragePolicy.Value.ToString() : "Null"));
             sb.Append(string.Format("ProtectionPolicy: {0}, ", ProtectionPolicy.HasValue ? ProtectionPolicy.Value.ToString() : "Null"));
             sb.Append(string.Format("RecoveryGracePeriod: {0}, ", RecoveryGracePeriod.HasValue ? RecoveryGracePeriod.Value.ToString() : "Null"));
-   
+            sb.Append(string.Format("IsPrivateCopyEnabled: {0}, ", IsPrivateCopyEnabled.HasValue ? IsPrivateCopyEnabled.Value.ToString() : "Null"));
+
             return sb.ToString();
         }
 
