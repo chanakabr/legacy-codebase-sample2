@@ -36,6 +36,7 @@
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
     <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
   </ItemGroup>
 

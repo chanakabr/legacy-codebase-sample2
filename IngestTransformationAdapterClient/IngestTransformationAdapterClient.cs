@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using RestAdaptersCommon;
 using Newtonsoft.Json;
 using KLogMonitor;
+using System.Reflection;
 
 namespace AdapterClients.IngestTransformation
 {

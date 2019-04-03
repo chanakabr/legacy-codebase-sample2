@@ -415,7 +415,7 @@ namespace Core.Catalog.CatalogManagement
                 BulkUploadJobStatus updatedStatus;
                 if (!CatalogDAL.SaveBulkUploadStatusCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {
-                    log.ErrorFormat("UpdateBulkUpload - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
+                    log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
                 response.Object.Status = updatedStatus;
 
@@ -424,7 +424,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in UpdateBulkUpload. bulkUpload:{0}, status:{1}",
+                log.Error(string.Format("An Exception was occurred in UpdateBulkUploadStatusWithVersionCheck. bulkUpload:{0}, status:{1}",
                     response.Object.ToString(), newStatus), ex);
                 response.SetStatus(eResponseStatus.Error);
             }
