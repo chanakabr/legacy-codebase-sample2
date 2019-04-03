@@ -19782,6 +19782,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("expiration", "\"expiration\": " + Expiration);
             if(KS != null)
             {
                 ret.Add("ks", "\"ks\": " + "\"" + EscapeJson(KS) + "\"");
@@ -19802,6 +19803,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            ret.Add("expiration", "<expiration>" + Expiration + "</expiration>");
             if(KS != null)
             {
                 ret.Add("ks", "<ks>" + EscapeXml(KS) + "</ks>");

@@ -128,7 +128,6 @@ namespace WebAPI.Managers
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
-
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
@@ -148,6 +147,7 @@ namespace WebAPI.Managers
             }
 
             session.KS = token.KS;
+            session.Expiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(token.KsObject.Expiration);
 
             return session;
         }

@@ -34,6 +34,12 @@ namespace WebAPI.Models.Users
         [Obsolete]
         public string RefreshToken { get; set; }
 
-        
+        /// <summary>
+        /// Expiration
+        /// </summary>
+        [DataMember(Name = "expiration")]
+        [JsonProperty("expiration")]
+        [XmlElement(ElementName = "expiration")]
+        public long Expiration { get; set; }
     }
 }

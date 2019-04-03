@@ -3150,6 +3150,8 @@ namespace WebAPI.Reflection
                 case "KalturaLoginSession":
                     switch(property.Name)
                     {
+                        case "Expiration":
+                            return "expiration";
                         case "KS":
                             return "ks";
                         case "RefreshToken":

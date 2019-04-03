@@ -14213,6 +14213,11 @@
             Refresh Token
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Users.KalturaLoginSession.Expiration">
+            <summary>
+            Expiration
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Users.KalturaBaseOTTUser">
             <summary>
             Slim user data
