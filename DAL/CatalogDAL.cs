@@ -5672,24 +5672,31 @@ namespace Tvinci.Core.DAL
         private static BulkUploadJobStatus GetBulkStatusByResultsStatus(BulkUpload bulkUpload)
         {
             var newStatus = bulkUpload.Status;
-            var noObjectsToIngest = bulkUpload.NumOfObjects == 0;
-            var isAnyInProgress = bulkUpload.Results?.Any(r => r.Status == BulkUploadResultStatus.InProgress) == true;
-            if (noObjectsToIngest || isAnyInProgress)
+            var noObjectsToIngest = !bulkUpload.NumOfObjects.HasValue || bulkUpload.NumOfObjects.Value == 0;
+            var noResultsToIngest = bulkUpload.Results == null || bulkUpload.Results.Count == 0;
+            if (noObjectsToIngest || noResultsToIngest)
             {
                 return newStatus;
             }
 
-            var anyResultsForStatus = bulkUpload.Results.GroupBy(r => r.Status).ToDictionary(k => k.Key, v => v.Any());
+            var isAnyInProgress = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.InProgress);
+            if (isAnyInProgress)
+            {
+                return newStatus;
+            }
 
-            if (!anyResultsForStatus[BulkUploadResultStatus.InProgress] && !anyResultsForStatus[BulkUploadResultStatus.Error])
+            var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
+            var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
+            
+            if (!isAnyInError)
             {
                 newStatus = BulkUploadJobStatus.Success;
             }
-            else if (!anyResultsForStatus[BulkUploadResultStatus.InProgress] && !anyResultsForStatus[BulkUploadResultStatus.Ok])
+            else if (!isAnyInOk)
             {
                 newStatus = BulkUploadJobStatus.Failed;
             }
-            else if (!anyResultsForStatus[BulkUploadResultStatus.InProgress])
+            else 
             {
                 newStatus = BulkUploadJobStatus.Partial;
             }
