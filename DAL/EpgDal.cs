@@ -335,6 +335,23 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+        public static List<EpgChannelObj> GetAllEpgChannelObjectsList(int GroupID, List<string> channelExternalIds)
+        {
+            var sp = new StoredProcedure("Get_AllEpgChannelsList");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", GroupID);
+            sp.AddIDListParameter<string>("@channelExternalIds", channelExternalIds, "STR");
+
+            var ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                return ds.Tables[0].ToList<EpgChannelObj>();
+            }
+            
+            return new List<EpgChannelObj>();
+        }
+
 
         public static DataTable Get_EPGTagValueTranslateIDs(int nGroupID, DataTable tagsAndValuesTranslate)
         {
@@ -364,7 +381,7 @@ namespace Tvinci.Core.DAL
                         string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
                         int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
                         int nChannelType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_channel_type");
-                        EpgChannelObj oEpgChannelObj = new EpgChannelObj(nID, name, nChannelType);
+                        EpgChannelObj oEpgChannelObj = new EpgChannelObj(nID, channelId, name, nChannelType);
 
                         if (!result.ContainsKey(channelId))
                         {
@@ -402,7 +419,7 @@ namespace Tvinci.Core.DAL
                         string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
                         int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
                         int nChannelType = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_channel_type");
-                        EpgChannelObj oEpgChannelObj = new EpgChannelObj(nID, name, nChannelType);
+                        EpgChannelObj oEpgChannelObj = new EpgChannelObj(nID, channelId, name, nChannelType);
 
                         if (!result.ContainsKey(channelId))
                         {
