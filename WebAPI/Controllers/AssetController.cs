@@ -426,7 +426,7 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
 
-                            if (ClientsManager.CatalogClient().DoesGroupUsesTemplates(groupId))
+                            if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                             {
                                 response = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
                             }
