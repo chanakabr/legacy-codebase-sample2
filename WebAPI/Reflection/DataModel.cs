@@ -6647,7 +6647,7 @@ namespace WebAPI.Reflection
                     {
                         case "buy":
                             RolesManager.ValidateActionPermitted("entitlement", "buy", false);
-                            return EntitlementController.Buy((string) methodParams[0], (bool) methodParams[1], (float) methodParams[2], (string) methodParams[3], (string) methodParams[4], (string) methodParams[5], (string) methodParams[6], (int) methodParams[7], (string) methodParams[8]);
+                            return EntitlementController.Buy((string) methodParams[0], (bool) methodParams[1], (double) methodParams[2], (string) methodParams[3], (string) methodParams[4], (string) methodParams[5], (string) methodParams[6], (int) methodParams[7], (string) methodParams[8]);
                             
                         case "cancel":
                             RolesManager.ValidateActionPermitted("entitlement", "cancel", false);
@@ -8811,18 +8811,18 @@ namespace WebAPI.Reflection
                             if(isOldVersion)
                             {
                                 RolesManager.ValidateActionPermitted("transaction", "purchase", false);
-                                return TransactionController.PurchaseOldStandard((float) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6], (Nullable<int>) methodParams[7], (string) methodParams[8]);
+                                return TransactionController.PurchaseOldStandard((double) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6], (Nullable<int>) methodParams[7], (string) methodParams[8]);
                             }
                             RolesManager.ValidateActionPermitted("transaction", "purchase", false);
                             return TransactionController.Purchase((KalturaPurchase) methodParams[0]);
                             
                         case "purchaseoldstandard":
                             RolesManager.ValidateActionPermitted("transaction", "purchaseOldStandard", false);
-                            return TransactionController.PurchaseOldStandard((float) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6], (Nullable<int>) methodParams[7], (string) methodParams[8]);
+                            return TransactionController.PurchaseOldStandard((double) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6], (Nullable<int>) methodParams[7], (string) methodParams[8]);
                             
                         case "purchasesessionidoldstandard":
                             RolesManager.ValidateActionPermitted("transaction", "purchaseSessionIdOldStandard", false);
-                            return TransactionController.PurchaseSessionIdOldStandard((float) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6]);
+                            return TransactionController.PurchaseSessionIdOldStandard((double) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6]);
                             
                         case "setwaiver":
                             RolesManager.ValidateActionPermitted("transaction", "setWaiver", false);
@@ -8850,7 +8850,7 @@ namespace WebAPI.Reflection
                             if(isOldVersion)
                             {
                                 RolesManager.ValidateActionPermitted("transaction", "purchaseSessionId", false);
-                                return TransactionController.PurchaseSessionIdOldStandard((float) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6]);
+                                return TransactionController.PurchaseSessionIdOldStandard((double) methodParams[0], (string) methodParams[1], (int) methodParams[2], (KalturaTransactionType) methodParams[3], (int) methodParams[4], (string) methodParams[5], (int) methodParams[6]);
                             }
                             break;
                             
@@ -11611,7 +11611,7 @@ namespace WebAPI.Reflection
                             });
                             ret.Add("price", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(float),
+                                Type = typeof(double),
                             });
                             ret.Add("currency", new MethodParam(){
                                 NewName = newParamName,
@@ -16147,7 +16147,7 @@ namespace WebAPI.Reflection
                         case "purchaseoldstandard":
                             ret.Add("price", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(float),
+                                Type = typeof(double),
                                 SchemeArgument = new RuntimeSchemeArgumentAttribute("price", "transaction", "purchaseOldStandard") {
                                     RequiresPermission = false,
                                     MaxLength = -1,
@@ -16216,7 +16216,7 @@ namespace WebAPI.Reflection
                         case "purchasesessionidoldstandard":
                             ret.Add("price", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(float),
+                                Type = typeof(double),
                             });
                             ret.Add("currency", new MethodParam(){
                                 NewName = newParamName,
