@@ -240,6 +240,11 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_gracePeriod.SetDefault(10);
         theRecord.AddRecord(dr_gracePeriod);
 
+        DataRecordCheckBoxField dr_privateCopy = new DataRecordCheckBoxField(true);
+        dr_startOver.Initialize("Enable Private Copy", "adm_table_header_nbg", "FormInput", "enable_private_copy", false);
+        dr_startOver.SetDefault(0);
+        theRecord.AddRecord(dr_privateCopy);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
