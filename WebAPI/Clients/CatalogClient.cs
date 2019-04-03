@@ -51,12 +51,7 @@ namespace WebAPI.Clients
             }
         }
 
-        #region New Catalog Management    
-
-        public bool DoesGroupUsesTemplates(int groupId)
-        {
-            return CatalogManager.DoesGroupUsesTemplates(groupId);
-        }
+        #region New Catalog Management
 
         public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
         {
@@ -266,14 +261,15 @@ namespace WebAPI.Clients
         {
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;
-
+            eAssetTypes assetType = eAssetTypes.UNKNOWN;
+            bool doesGroupUsesTemplates = Utils.Utils.DoesGroupUsesTemplates(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    if (DoesGroupUsesTemplates(groupId))
+                    if (doesGroupUsesTemplates)
                     {
-                        eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
+                        assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
                         response = AssetManager.GetAsset(groupId, id, assetType, isAllowedToViewInactiveAssets);
                     }
                     else
@@ -411,7 +407,7 @@ namespace WebAPI.Clients
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
-            bool doesGroupUsesTemplates = DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = Utils.Utils.DoesGroupUsesTemplates(groupId);
             // check if aggregation result have values 
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
                 searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)

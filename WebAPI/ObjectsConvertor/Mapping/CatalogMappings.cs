@@ -127,8 +127,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //EPG to AssetInfo
             cfg.CreateMap<EPGChannelProgrammeObject, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EPG_ID))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.ProgrammeName, src.NAME)))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => KalturaMultilingualString.GetCurrent(src.ProgrammeDescription, src.DESCRIPTION)))
+                // KalturaMultilingualString.GetCurrent(src.ProgrammeName, src.NAME)
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => GetProgramName(src)))
+                // KalturaMultilingualString.GetCurrent(src.ProgrammeDescription, src.DESCRIPTION))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => GetProgramDescription(src)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.START_DATE)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.END_DATE)))
@@ -943,6 +945,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 return false;
             }
+        }
+
+        private static object GetProgramDescription(EPGChannelProgrammeObject src)
+        {
+            return KalturaMultilingualString.GetCurrent(src.ProgrammeDescription, src.DESCRIPTION);
+        }
+
+        private static object GetProgramName(EPGChannelProgrammeObject src)
+        {
+            return KalturaMultilingualString.GetCurrent(src.ProgrammeName, src.NAME);
         }
 
         private static AssetInheritancePolicy? ConvertInheritancePolicy(KalturaAssetInheritancePolicy? inheritancePolicy)

@@ -121,7 +121,7 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             try
             {
-                if (ClientsManager.CatalogClient().DoesGroupUsesTemplates(groupId))
+                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                 {
                     filter.Validate();
                     if (filter.AssetStructIdEqual.HasValue && filter.AssetStructIdEqual.Value > 0)
