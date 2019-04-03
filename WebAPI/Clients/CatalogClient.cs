@@ -466,17 +466,21 @@ namespace WebAPI.Clients
 
                 result.TotalCount = searchResponse.aggregationResults[0].totalItems;
             }
-            else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            else
             {
-                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
-                if (doesGroupUsesTemplates)
+                if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
                 {
-                    result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
-                }
-                else
-                {
-                    // get base objects list                    
-                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, managementData);
+                    List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                    if (doesGroupUsesTemplates)
+                    {
+                        result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                    }
+                    else
+                    {
+                        // get base objects list                    
+                        result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, managementData);
+                    }
+
                 }
 
                 result.TotalCount = searchResponse.m_nTotalItems;
