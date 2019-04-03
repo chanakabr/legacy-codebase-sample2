@@ -55,12 +55,7 @@ namespace WebAPI.Clients
             }
         }
 
-        #region New Catalog Management    
-
-        public bool DoesGroupUsesTemplates(int groupId)
-        {
-            return CatalogManager.DoesGroupUsesTemplates(groupId);
-        }
+        #region New Catalog Management
 
         public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
         {
@@ -280,15 +275,13 @@ namespace WebAPI.Clients
         public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isAllowedToViewInactiveAssets)
         {
             KalturaAsset result = null;
-            GenericResponse<Asset> response = null;
-
+            GenericResponse<Asset> response = null;       
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KalturaAssetListResponse assetListResponse = null;
-                    bool opcAccount = DoesGroupUsesTemplates(groupId);
-
+                    bool opcAccount = Utils.Utils.DoesGroupUsesTemplates(groupId);
                     if (isAllowedToViewInactiveAssets)
                     {
                         if (opcAccount)
@@ -436,7 +429,7 @@ namespace WebAPI.Clients
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
-            bool doesGroupUsesTemplates = DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = Utils.Utils.DoesGroupUsesTemplates(groupId);
             // check if aggregation result have values 
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
                 searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
@@ -466,17 +459,21 @@ namespace WebAPI.Clients
 
                 result.TotalCount = searchResponse.aggregationResults[0].totalItems;
             }
-            else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            else
             {
-                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
-                if (doesGroupUsesTemplates)
+                if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
                 {
-                    result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
-                }
-                else
-                {
-                    // get base objects list                    
-                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, managementData);
+                    List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                    if (doesGroupUsesTemplates)
+                    {
+                        result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                    }
+                    else
+                    {
+                        // get base objects list                    
+                        result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, managementData);
+                    }
+
                 }
 
                 result.TotalCount = searchResponse.m_nTotalItems;

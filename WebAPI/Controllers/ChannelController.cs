@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (ClientsManager.CatalogClient().DoesGroupUsesTemplates(groupId))
+                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                 {
                     bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);
                     response = ClientsManager.CatalogClient().GetChannel(groupId, id, isAllowedToViewInactiveAssets, userId);
