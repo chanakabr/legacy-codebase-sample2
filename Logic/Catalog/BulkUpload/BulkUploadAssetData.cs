@@ -1,5 +1,4 @@
-﻿using APILogic.Catalog.BulkUpload;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;

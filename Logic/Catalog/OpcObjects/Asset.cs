@@ -296,7 +296,16 @@ namespace Core.Catalog
                 if (!string.IsNullOrEmpty(meta.m_sValue))
                 {
                     var metaColumnName = ExcelColumn.GetFullColumnName(meta.m_oTagMeta.m_sName);
-                    excelValues.TryAdd(metaColumnName, meta.m_sValue);
+                   
+                    if (meta.m_oTagMeta.m_sType.Equals(MetaType.Bool.ToString()))
+                    {
+                        BoolUtils.TryConvert(meta.m_sValue, out bool value);
+                        excelValues.TryAdd(metaColumnName, meta.m_sValue);
+                    }
+                    else
+                    {
+                        excelValues.TryAdd(metaColumnName, meta.m_sValue);
+                    }
                 }
 
                 if (meta.Value != null)

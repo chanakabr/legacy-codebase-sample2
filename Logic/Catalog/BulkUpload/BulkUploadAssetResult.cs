@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using System;
 
-namespace APILogic.Catalog.BulkUpload
+namespace Core.Catalog
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]

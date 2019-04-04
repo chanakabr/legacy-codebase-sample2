@@ -322,24 +322,32 @@ namespace Core.Catalog
 
             foreach (var meta in dicMetas)
             {
-                Metas metas = new Metas();
+                Metas currMeta = new Metas();
                 if (assetStruct.TopicsMapBySystemName.ContainsKey(meta.Key))
                 {
-                    metas.m_oTagMeta = new TagMeta()
+                    currMeta.m_oTagMeta = new TagMeta()
                     {
                         m_sName = meta.Key,
                         m_sType = assetStruct.TopicsMapBySystemName[meta.Key].Type.ToString()
                     };
                 }
 
-                var defaultValue = meta.Value.FirstOrDefault(x => x.IsDefault);
-                if (defaultValue != null)
+                var defaultIndex = meta.Value.FindIndex(x => x.IsDefault);
+                if (defaultIndex != -1)
                 {
-                    metas.m_sValue = defaultValue.Value;
+                    var value = meta.Value[defaultIndex].Value;
+                    if (currMeta.m_oTagMeta != null && currMeta.m_oTagMeta.m_sType.Equals(MetaType.Bool.ToString()))
+                    {
+                        bool boolValue = bool.Parse(value);
+                        value = boolValue ? "1" : "0";
+                    }
+
+                    meta.Value[defaultIndex].Value = value;
+                    currMeta.m_sValue = meta.Value[defaultIndex].Value;
                 }
 
-                metas.Value = meta.Value.ToArray();
-                this.Metas.Add(metas);
+                currMeta.Value = meta.Value.ToArray();
+                this.Metas.Add(currMeta);
             }
         }
         
