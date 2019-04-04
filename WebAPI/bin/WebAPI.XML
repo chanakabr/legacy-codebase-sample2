@@ -13017,7 +13017,7 @@
         </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadAssetData">
             <summary>
-            indicates the asset object type in the bulk file (this class is not abstract for backward-compatibility)
+            indicates the asset object type in the bulk file
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadAssetData.TypeId">
@@ -13031,7 +13031,7 @@
             indicates the media asset object type in the bulk file
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadEpgAssetData">
+        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetData">
             <summary>
             indicates the epg asset object type in the bulk file
             </summary>
@@ -13148,9 +13148,9 @@
             status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Error">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Errors">
             <summary>
-            Error details
+            A list of errors
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Warnings">

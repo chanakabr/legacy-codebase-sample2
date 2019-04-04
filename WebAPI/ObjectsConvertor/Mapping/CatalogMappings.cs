@@ -1083,7 +1083,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaBulkUploadMediaAssetData, BulkUploadMediaAssetData>()
                .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
             
-            cfg.CreateMap<KalturaBulkUploadEpgAssetData, BulkUploadEpgAssetData>()
+            cfg.CreateMap<KalturaBulkUploadProgramAssetData, BulkUploadEpgAssetData>()
                .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
             
             cfg.CreateMap<ApiObjects.Response.Status, KalturaMessage>()
