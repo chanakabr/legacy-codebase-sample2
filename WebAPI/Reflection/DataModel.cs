@@ -964,8 +964,8 @@ namespace WebAPI.Reflection
                     {
                         case "BulkUploadId":
                             return "bulkUploadId";
-                        case "Error":
-                            return "error";
+                        case "Errors":
+                            return "errors";
                         case "Index":
                             return "index";
                         case "ObjectId":

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.App_Start;
+using WebAPI.Exceptions;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -16,6 +18,11 @@ namespace WebAPI.Models.Upload
     [Serializable]
     public abstract partial class KalturaBulkUploadJobData : KalturaOTTObject
     {
+        /// <summary>
+        /// Validate the specifics of the job data
+        /// Will throw an exception if not valid
+        /// </summary>
+        internal abstract void Validate(KalturaOTTFile fileData);
     }
 
     /// <summary>
@@ -24,13 +31,12 @@ namespace WebAPI.Models.Upload
     [Serializable]
     public partial class KalturaBulkUploadExcelJobData : KalturaBulkUploadJobData
     {
-    }
-
-    /// <summary>
-    /// instructions for upload data type with xml
-    /// </summary>
-    [Serializable]
-    public partial class KalturaBulkUploadXmlJobData : KalturaBulkUploadJobData
-    {
+        internal override void Validate(KalturaOTTFile fileData)
+        {
+            if (!fileData.path.EndsWith(ExcelFormatter.EXCEL_EXTENTION))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fileData.path");
+            }
+        }
     }
 }

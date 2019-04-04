@@ -299,7 +299,7 @@ namespace WebAPI.Reflection
                     return new KalturaBulkUpload(parameters);
                     
                 case "KalturaBulkUploadAssetData":
-                    return new KalturaBulkUploadAssetData(parameters);
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBulkUploadAssetResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -316,6 +316,9 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadListResponse":
                     return new KalturaBulkUploadListResponse(parameters);
                     
+                case "KalturaBulkUploadMediaAssetData":
+                    return new KalturaBulkUploadMediaAssetData(parameters);
+                    
                 case "KalturaBulkUploadMediaAssetResult":
                     return new KalturaBulkUploadMediaAssetResult(parameters);
                     
@@ -324,9 +327,6 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBulkUploadResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
-                    
-                case "KalturaBulkUploadXmlJobData":
-                    return new KalturaBulkUploadXmlJobData(parameters);
                     
                 case "KalturaBumpersPlaybackPluginData":
                     return new KalturaBumpersPlaybackPluginData(parameters);
@@ -22057,7 +22057,7 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 2,
+            MinLong = 0,
         };
         public KalturaBulkUploadAssetData(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -22197,6 +22197,12 @@ namespace WebAPI.Models.Upload
             }
         }
     }
+    public partial class KalturaBulkUploadMediaAssetData
+    {
+        public KalturaBulkUploadMediaAssetData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBulkUploadMediaAssetResult
     {
         public KalturaBulkUploadMediaAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
@@ -22251,7 +22257,7 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ErrorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
+        private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -22309,19 +22315,19 @@ namespace WebAPI.Models.Upload
                     }
                     Status = (KalturaBulkUploadResultStatus) Enum.Parse(typeof(KalturaBulkUploadResultStatus), parameters["status"].ToString(), true);
                 }
-                if (parameters.ContainsKey("error") && parameters["error"] != null)
+                if (parameters.ContainsKey("errors") && parameters["errors"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ErrorSchemaProperty.Validate("error", parameters["error"]);
+                        ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
                     }
-                    if (parameters["error"] is JObject)
+                    if (parameters["errors"] is JArray)
                     {
-                        Error = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), ((JObject) parameters["error"]).ToObject<Dictionary<string, object>>());
+                        Errors = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
                     }
-                    else if (parameters["error"] is IDictionary)
+                    else if (parameters["errors"] is IList)
                     {
-                        Error = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), (Dictionary<string, object>) parameters["error"]);
+                        Errors = buildList(typeof(KalturaMessage), parameters["errors"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("warnings") && parameters["warnings"] != null)
@@ -22340,12 +22346,6 @@ namespace WebAPI.Models.Upload
                     }
                 }
             }
-        }
-    }
-    public partial class KalturaBulkUploadXmlJobData
-    {
-        public KalturaBulkUploadXmlJobData(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
     public partial class KalturaUploadToken

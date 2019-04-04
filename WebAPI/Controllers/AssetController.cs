@@ -1384,14 +1384,11 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkUploadAssetData");
                 }
 
-                if (bulkUploadJobData is KalturaBulkUploadExcelJobData)
-                {
-                    bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, typeof(KalturaMediaAsset), bulkUploadJobData, bulkUploadAssetData);
-                }
-                else
-                {
-                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "bulkUploadJobData", bulkUploadJobData.objectType);
-                }
+                bulkUploadJobData.Validate(fileData);
+                bulkUploadAssetData.Validate();
+
+                var assetType = bulkUploadAssetData.GetBulkUploadObjectType();
+                bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, assetType, bulkUploadJobData, bulkUploadAssetData);
             }
             catch (ClientException ex)
             {

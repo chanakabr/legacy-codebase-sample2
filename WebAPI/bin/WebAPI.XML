@@ -12935,6 +12935,11 @@
             Possible values: 0 – EPG linear programs, 1 - Recording; or any asset type ID according to the asset types IDs defined in the system.
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadMediaAssetData">
+            <summary>
+            indicates the media asset object type in the bulk file
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadListResponse">
             <summary>
             Asset wrapper
@@ -13000,14 +13005,15 @@
             instructions for upload data (the data file type, how to read the file, etc)
             </summary>
         </member>
+        <member name="M:WebAPI.Models.Upload.KalturaBulkUploadJobData.Validate(WebAPI.Models.General.KalturaOTTFile)">
+            <summary>
+            Validate the specifics of the job data
+            Will throw an exception if not valid
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadExcelJobData">
             <summary>
             instructions for upload data type with Excel
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Upload.KalturaBulkUploadXmlJobData">
-            <summary>
-            instructions for upload data type with xml
             </summary>
         </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadResult">
@@ -13035,9 +13041,9 @@
             status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Error">
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Errors">
             <summary>
-            Error details
+            A list of errors
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadResult.Warnings">
