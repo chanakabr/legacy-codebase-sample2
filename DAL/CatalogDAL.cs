@@ -5621,110 +5621,45 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl, bool shouldOnlyUpdateStatus, out BulkUploadJobStatus updatedStatus)
+        public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl)
         {
-            string bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
-            bulkUploadToSave.Status = GetBulkStatusByResultsStatus(bulkUploadToSave);
-            updatedStatus = bulkUploadToSave.Status;
-
-            if (!shouldOnlyUpdateStatus)
-            {
-                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl);
-            }
-
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            int numOfTries = 0;
-            ulong version;
-            eResultStatus getResult = eResultStatus.ERROR;
-            Random r = new Random();
-
-            try
-            {
-                while (numOfTries < UtilsDal.NUM_OF_INSERT_TRIES)
-                {
-                    bulkUploadToSave = cbManager.GetWithVersion<BulkUpload>(bulkUploadKey, out version, out getResult);
-
-                    if (getResult == eResultStatus.KEY_NOT_EXIST)
-                    {
-                        log.ErrorFormat("KeyNotFound - Error while SaveBulkUploadCB. key:{0}.", bulkUploadKey);
-                        break;
-                    }
-                    else if (getResult == eResultStatus.SUCCESS)
-                    {
-                        bulkUploadToSave.Status = updatedStatus;
-                        bulkUploadToSave.Status = GetBulkStatusByResultsStatus(bulkUploadToSave);
-                        updatedStatus = bulkUploadToSave.Status;
-
-                        if (cbManager.SetWithVersion(bulkUploadKey, bulkUploadToSave, version, ttl))
-                        {
-                            log.DebugFormat("successfully SaveBulkUploadCB. key:{0}, number of tries:{1}/{2}.",
-                                             bulkUploadKey, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
-                            return true;
-                        }
-                    }
-
-                    numOfTries++;
-                    log.ErrorFormat("Error while SaveBulkUploadCB. key:{0}, number of tries:{1}/{2}.",
-                                    bulkUploadKey, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
-                    Thread.Sleep(r.Next(50));
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Exception - Error while SaveBulkUploadCB. key:{0}.", bulkUploadKey), ex);
-            }
-
-            return false;
+            var bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl);
         }
 
         public static bool SaveBulkUploadResultCB(BulkUpload currentBulkUpload, int resultIndex, uint ttl, out BulkUploadJobStatus updatedStatus)
         {
             updatedStatus = currentBulkUpload.Status;
-            BulkUploadResult bulkUploadResultToSave = currentBulkUpload.Results[resultIndex];
-            string bulkUploadKey = GetBulkUploadKey(bulkUploadResultToSave.BulkUploadId);
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            int numOfTries = 0;
-            ulong version;
-            eResultStatus getResult = eResultStatus.ERROR;
-            Random r = new Random();
+            var actualStatusThatWasUpdated = updatedStatus;
+            var bulkUploadResultToSave = currentBulkUpload.Results[resultIndex];
+            var bulkUploadKey = GetBulkUploadKey(bulkUploadResultToSave.BulkUploadId);
 
-            try
+            var isUpdateSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<BulkUpload>(ttl, eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUpload =>
             {
-                while (numOfTries < UtilsDal.NUM_OF_INSERT_TRIES)
-                {
-                    currentBulkUpload = cbManager.GetWithVersion<BulkUpload>(bulkUploadKey, out version, out getResult);
+                bulkUpload.Results[resultIndex] = bulkUploadResultToSave;
+                bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
+                actualStatusThatWasUpdated = bulkUpload.Status;
+            });
 
-                    if (getResult == eResultStatus.KEY_NOT_EXIST)
-                    {
-                        log.ErrorFormat("KeyNotFound - Error while SaveBulkUploadResultCB. key:{0}, resultIndex:{1}.", bulkUploadKey, resultIndex);
-                        break;
-                    }
-                    else if (getResult == eResultStatus.SUCCESS)
-                    {
-                        currentBulkUpload.Results[resultIndex] = bulkUploadResultToSave;
-                        currentBulkUpload.Status = GetBulkStatusByResultsStatus(currentBulkUpload);
-                        updatedStatus = currentBulkUpload.Status;
+            updatedStatus = actualStatusThatWasUpdated;
 
-                        if (cbManager.SetWithVersion(bulkUploadKey, currentBulkUpload, version, ttl))
-                        {
-                            log.DebugFormat("successfully SaveBulkUploadResultCB. key:{0}, resultIndex:{1}, number of tries:{2}/{3}.",
-                                             bulkUploadKey, resultIndex, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
-                            return true;
-                        }
-                    }
+            return isUpdateSuccess;
+        }
 
-                    numOfTries++;
-                    log.ErrorFormat("Error while SaveBulkUploadResultCB. key:{0}, resultIndex:{1}, number of tries:{2}/{3}.",
-                                    bulkUploadKey, resultIndex, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
-                    Thread.Sleep(r.Next(50));
-                }
-            }
-            catch (Exception ex)
+        public static bool SaveBulkUploadStatusCB(BulkUpload bulkUploadToSave, uint ttl, out BulkUploadJobStatus updatedStatus)
+        {
+            var bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
+            updatedStatus = bulkUploadToSave.Status;
+            var statusThatWasActuallyUpdated = updatedStatus;
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<BulkUpload>(ttl, eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUpload =>
             {
-                log.Error(string.Format("Exception - Error while SaveBulkUploadResultCB. key:{0}, resultIndex:{1}.", bulkUploadKey, resultIndex), ex);
-            }
+                bulkUpload.Status = bulkUploadToSave.Status;
+                bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
+                statusThatWasActuallyUpdated = bulkUpload.Status;
+            });
+            updatedStatus = statusThatWasActuallyUpdated;
 
-            return false;
+            return isSaveSuccess;
         }
 
         public static BulkUpload GetBulkUploadCB(long bulkUploadId)
@@ -5733,23 +5668,37 @@ namespace Tvinci.Core.DAL
             return UtilsDal.GetObjectFromCB<BulkUpload>(eCouchbaseBucket.OTT_APPS, bulkUploadKey);
         }
 
+        // TODO: Arthur find a better name for this method
         private static BulkUploadJobStatus GetBulkStatusByResultsStatus(BulkUpload bulkUpload)
         {
-            BulkUploadJobStatus newStatus = bulkUpload.Status;
-            if (bulkUpload.NumOfObjects.HasValue && bulkUpload.NumOfObjects.Value == bulkUpload.Results.Count)
+            var newStatus = bulkUpload.Status;
+            var noObjectsToIngest = !bulkUpload.NumOfObjects.HasValue || bulkUpload.NumOfObjects.Value == 0;
+            var noResultsToIngest = bulkUpload.Results == null || bulkUpload.Results.Count == 0;
+            if (noObjectsToIngest || noResultsToIngest)
             {
-                if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok))
-                {
-                    newStatus = BulkUploadJobStatus.Success;
-                }
-                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Error))
-                {
-                    newStatus = BulkUploadJobStatus.Failed;
-                }
-                else if (bulkUpload.Results.All(x => x.Status == BulkUploadResultStatus.Ok || x.Status == BulkUploadResultStatus.Error))
-                {
-                    newStatus = BulkUploadJobStatus.Partial;
-                }
+                return newStatus;
+            }
+
+            var isAnyInProgress = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.InProgress);
+            if (isAnyInProgress)
+            {
+                return newStatus;
+            }
+
+            var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
+            var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
+
+            if (!isAnyInError)
+            {
+                newStatus = BulkUploadJobStatus.Success;
+            }
+            else if (!isAnyInOk)
+            {
+                newStatus = BulkUploadJobStatus.Failed;
+            }
+            else
+            {
+                newStatus = BulkUploadJobStatus.Partial;
             }
 
             return newStatus;

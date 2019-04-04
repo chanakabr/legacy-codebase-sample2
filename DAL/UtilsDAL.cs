@@ -24,6 +24,52 @@ namespace DAL
 
         #region Generic Methods
 
+        public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction)
+        {
+            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+            var numOfTries = 0;
+            ulong version;
+            eResultStatus getResult = eResultStatus.ERROR;
+            var r = new Random();
+
+            try
+            {
+                while (numOfTries < UtilsDal.NUM_OF_INSERT_TRIES)
+                {
+                    var bulkUploadToSave = cbManager.GetWithVersion<T>(key, out version, out getResult);
+
+                    if (getResult == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        log.ErrorFormat("KeyNotFound - Error while SaveObjectWithVersionCheckInCB. key:{0}.", key);
+                        return false;
+                    }
+
+                    if (getResult == eResultStatus.SUCCESS)
+                    {
+                        updateObjectAction(bulkUploadToSave);
+
+                        if (cbManager.SetWithVersion(key, bulkUploadToSave, version, ttl))
+                        {
+                            log.DebugFormat("successfully SaveObjectWithVersionCheckInCB. key:{0}, number of tries:{1}/{2}.",
+                                key, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
+                            return true;
+                        }
+                    }
+
+                    numOfTries++;
+                    log.ErrorFormat("Error while SaveObjectWithVersionCheckInCB. key:{0}, number of tries:{1}/{2}.",
+                        key, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
+                    Thread.Sleep(r.Next(50));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Exception - Error while SaveObjectWithVersionCheckInCB. key:{0}.", key), ex);
+            }
+
+            return false;
+        }
+
         public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key, bool serializeToString = false)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
