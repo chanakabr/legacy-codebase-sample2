@@ -183,10 +183,6 @@ namespace DAL
             return null;
         }
 
-        public static void RemoveCountryRulesFromMedia(int groupId, long mediaId, List<long> assetRuleIdsToRemove)
-        {
-            throw new NotImplementedException();
-        }
 
         public static DataTable Get_DefaultRules(int nGroupID)
         {
@@ -4741,6 +4737,27 @@ namespace DAL
             }
 
             return dt;
+        }
+
+        public static bool RemoveCountryRulesFromMedia(int groupId, long mediaId, List<long> assetRuleIdsToRemove)
+        {
+            bool result = false;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("RemoveCountryRulesFromMedia");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<long>("@assetRuleIds", assetRuleIdsToRemove, "ID");
+                sp.AddParameter("@mediaId", mediaId);
+                sp.AddParameter("@groupId", groupId);
+
+                result = sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateAssetRulesLastRunDate in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIds), ex);
+            }
+
+            return result;
         }
 
         #endregion
