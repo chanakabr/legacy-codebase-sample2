@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using AdapterClients.IngestTransformation;
+using APILogic.Catalog.BulkUpload;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
@@ -31,9 +32,9 @@ namespace APILogic.BulkUpload
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public int IngestProfileId { get; set; }
 
-        public override GenericListResponse<GenericResponse<IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
+        public override GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
-            var response = new GenericListResponse<GenericResponse<IBulkUploadObject>>();
+            var response = new GenericListResponse<BulkUploadResult>();
             var profile = api.GetIngestProfileById(IngestProfileId)?.Object;
             var xmlTvString = GetXmlTv(fileUrl, profile);
 
@@ -85,7 +86,7 @@ namespace APILogic.BulkUpload
             return xmlTvString;
         }
 
-        private List<GenericResponse<IBulkUploadObject>> DeserializeXmlTvEpgData(string Data)
+        private List<BulkUploadResult> DeserializeXmlTvEpgData(string Data)
         {
             EpgChannels xmlTvEpgData = null;
             try
@@ -114,9 +115,9 @@ namespace APILogic.BulkUpload
             }
         }
 
-        private List<GenericResponse<IBulkUploadObject>> MapXmlTvProgramToCBEpgProgram(int parentGroupId, int groupId, EpgChannels xmlTvEpgData)
+        private List<BulkUploadResult> MapXmlTvProgramToCBEpgProgram(int parentGroupId, int groupId, EpgChannels xmlTvEpgData)
         {
-            var response = new List<GenericResponse<IBulkUploadObject>>();
+            var response = new List<BulkUploadResult>();
 
             var fieldEntityMapping = EpgIngest.Utils.GetMappingFields(parentGroupId);
             var channelExternalIds = xmlTvEpgData.channel.Select(s => s.id).ToList();
@@ -140,8 +141,7 @@ namespace APILogic.BulkUpload
                 {
                     foreach (var lang in languages)
                     {
-                        var newEpgItem = new GenericResponse<IBulkUploadObject>();
-                        newEpgItem.Object = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code, fieldEntityMapping, out var parsingStatus);
+                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code, fieldEntityMapping, out var parsingStatus);
                         newEpgItem.SetStatus(parsingStatus);
                         response.Add(newEpgItem);
                     }
@@ -152,9 +152,11 @@ namespace APILogic.BulkUpload
             return response;
         }
 
-        private IBulkUploadObject ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode, List<FieldTypeEntity> fieldMappings, out eResponseStatus parsingStatus)
+        private BulkUploadEpgAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode, List<FieldTypeEntity> fieldMappings, out eResponseStatus parsingStatus)
         {
+            var response = new BulkUploadEpgAssetResult();
             var epgItem = new EpgCB();
+            
             parsingStatus = eResponseStatus.OK;
             epgItem.Language = langCode;
             epgItem.ChannelID = channelId;
@@ -195,7 +197,8 @@ namespace APILogic.BulkUpload
 
             }
 
-            return epgItem;
+            response.Object = epgItem;
+            return response;
         }
 
         private List<string> GetMetaByLanguage(metas meta, string language, string defaultLanguage, List<FieldTypeEntity> fieldMappings, out eResponseStatus parsingStatus)
@@ -211,7 +214,7 @@ namespace APILogic.BulkUpload
                 parsingStatus = eResponseStatus.EPGLanguageNotFound;
             }
 
-            var valuesStrByLang = valuesByLang.Select(v => v.Value);
+            var valuesStrByLang = valuesByLang.Select(v => v.Value).ToList();
             if (!string.IsNullOrEmpty(metaMapping?.RegexExpression))
             {
                 var metaRgxValidator = new Regex(metaMapping.RegexExpression);

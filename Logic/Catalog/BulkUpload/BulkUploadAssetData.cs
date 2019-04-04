@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Catalog.BulkUpload;
+using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
@@ -64,12 +65,13 @@ namespace Core.Catalog
                 BulkUploadId = bulkUploadId,
                 Status = BulkUploadResultStatus.InProgress,
                 Type = mediaAsset.MediaType != null && mediaAsset.MediaType.m_nTypeID > 0 ? mediaAsset.MediaType.m_nTypeID : (int?)null,
-                ExternalId = string.IsNullOrEmpty(mediaAsset.CoGuid) ? null : mediaAsset.CoGuid
+                ExternalId = string.IsNullOrEmpty(mediaAsset.CoGuid) ? null : mediaAsset.CoGuid,
+                Object = bulkUploadObject
             };
 
             if (errorStatus != null)
             {
-                bulkUploadAssetResult.SetError(errorStatus);
+                bulkUploadAssetResult.AddError(errorStatus);
             }
             return bulkUploadAssetResult;
         }
@@ -89,12 +91,12 @@ namespace Core.Catalog
             return mandatoryPropertyToValueMap;
         }
 
-        public override void EnqueueObjects(BulkUpload bulkUpload, List<GenericResponse<IBulkUploadObject>> objects)
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> results)
         {
-            for (var i = 0; i < objects.Count; i++)
+            for (var i = 0; i < results.Count; i++)
             {
-                var mediaAsset = objects[i].Object as MediaAsset;
-                if (objects[i].IsOkStatusCode() && mediaAsset != null)
+                var mediaAsset = results[i].Object as MediaAsset;
+                if (results[i].Status != BulkUploadResultStatus.Error && mediaAsset != null)
                 {
                     // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
                     GenericCeleryQueue queue = new GenericCeleryQueue();

@@ -33,7 +33,7 @@ namespace ApiObjects.BulkUpload
         /// <param name="errorStatus">in case error in deserialization this will include the error details status </param>
         /// <returns></returns>
         public abstract BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatusDetails);
-        public abstract void EnqueueObjects(BulkUpload bulkUpload, List<GenericResponse<IBulkUploadObject>> objects);
+        public abstract void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> results);
 
         public bool Validate(Dictionary<string, object> propertyToValueMap)
         {

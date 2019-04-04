@@ -279,10 +279,10 @@ namespace Core.Catalog.CatalogManagement
                 var bulkUploadValidationStatus = ValidateBulkUpload(groupId, bulkUpload, bulkUploadResponse);
                 if (!bulkUploadValidationStatus.IsOkStatusCode()) { return bulkUploadValidationStatus; }
 
-                var objectsListResponse = ParseBulkUploadData(bulkUpload, bulkUploadResponse);
-                if (!objectsListResponse.IsOkStatusCode()) { return objectsListResponse.Status; }
+                var bulkUploadResults = ParseBulkUploadData(bulkUpload, bulkUploadResponse);
+                if (!bulkUploadResults.IsOkStatusCode()) { return bulkUploadResults.Status; }
 
-                bulkUploadResponse.Object.NumOfObjects = objectsListResponse.Objects.Count;
+                bulkUploadResponse.Object.NumOfObjects = bulkUploadResults.Objects.Count;
                 if (bulkUploadResponse.Object.NumOfObjects == 0)
                 {
                     log.ErrorFormat("ProcessBulkUpload Deserialize file with no objects. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUpload.Id);
@@ -290,11 +290,10 @@ namespace Core.Catalog.CatalogManagement
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object);
                     return bulkUploadResponse.Status;
                 }
-
+                bulkUploadResponse.Object.Results = bulkUploadResults.Objects;
                 bulkUploadResponse.Object.Status = BulkUploadJobStatus.Processing;
                 bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object);
-                bulkUploadResponse = CreateBulkUploadResults(objectsListResponse, bulkUploadResponse);
-                bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, objectsListResponse.Objects);
+                bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, bulkUploadResults.Objects);
                 bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
             }
             catch (Exception ex)
@@ -306,30 +305,8 @@ namespace Core.Catalog.CatalogManagement
 
             return bulkUploadResponse.Status;
         }
-
-        private static GenericResponse<BulkUpload> CreateBulkUploadResults(GenericListResponse<GenericResponse<IBulkUploadObject>> objectsListResponse, GenericResponse<BulkUpload> bulkUploadResponse)
-        {
-            bulkUploadResponse.Object.Results = new List<BulkUploadResult>();
-
-            for (var i = 0; i < objectsListResponse.Objects.Count; i++)
-            {
-                var parsedObjectResult = objectsListResponse.Objects[i];
-                var errorStatus = parsedObjectResult.IsOkStatusCode() ? null : parsedObjectResult.Status;
-
-                var bulkUploadObjectData = bulkUploadResponse.Object.ObjectData;
-                var bulkUploadResult = bulkUploadObjectData.GetNewBulkUploadResult(bulkUploadResponse.Object.Id, parsedObjectResult.Object, i, errorStatus);
-                bulkUploadResponse.Object.Results.Add(bulkUploadResult);
-
-            }
-
-            // add current result to bulkUpload results list and update it in DB.
-            // TODO: Arthur, allow receiving a list to update the bulk upload results
-            bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object);
-
-            return bulkUploadResponse;
-        }
-
-        private static GenericListResponse<GenericResponse<IBulkUploadObject>> ParseBulkUploadData(BulkUpload bulkUpload, GenericResponse<BulkUpload> bulkUploadResponse)
+        
+        private static GenericListResponse<BulkUploadResult> ParseBulkUploadData(BulkUpload bulkUpload, GenericResponse<BulkUpload> bulkUploadResponse)
         {
             var objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(bulkUpload.Id, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
             if (objectsListResponse.IsOkStatusCode())
@@ -375,7 +352,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
-                    bulkUploadResponse.Object.Results[resultIndex].SetError(errorStatus);
+                    bulkUploadResponse.Object.Results[resultIndex].AddError(errorStatus);
                 }
 
                 if (warnings != null && warnings.Count > 0)
