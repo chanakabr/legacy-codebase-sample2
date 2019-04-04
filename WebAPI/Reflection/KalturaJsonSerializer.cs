@@ -22139,10 +22139,10 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("bulkUploadId", "\"bulkUploadId\": " + BulkUploadId);
-            if(Error != null)
+            if(Errors != null)
             {
-                propertyValue = Error.ToJson(currentVersion, omitObsolete);
-                ret.Add("error", "\"error\": " + propertyValue);
+                propertyValue = "[" + String.Join(", ", Errors.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("errors", "\"errors\": " + propertyValue);
             }
             ret.Add("index", "\"index\": " + Index);
             if(ObjectId.HasValue)
@@ -22164,10 +22164,10 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
             ret.Add("bulkUploadId", "<bulkUploadId>" + BulkUploadId + "</bulkUploadId>");
-            if(Error != null)
+            if(Errors != null)
             {
-                propertyValue = Error.ToXml(currentVersion, omitObsolete);
-                ret.Add("error", "<error>" + propertyValue + "</error>");
+                propertyValue = Errors.Count > 0 ? "<item>" + String.Join("</item><item>", Errors.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("errors", "<errors>" + propertyValue + "</errors>");
             }
             ret.Add("index", "<index>" + Index + "</index>");
             if(ObjectId.HasValue)

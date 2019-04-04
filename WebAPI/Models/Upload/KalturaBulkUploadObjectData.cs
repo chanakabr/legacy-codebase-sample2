@@ -24,7 +24,7 @@ namespace WebAPI.Models.Upload
     /// <summary>
     /// indicates the asset object type in the bulk file (this class is not abstract for backward-compatibility)
     /// </summary>
-    public partial class KalturaBulkUploadAssetData : KalturaBulkUploadObjectData
+    public abstract partial class KalturaBulkUploadAssetData : KalturaBulkUploadObjectData
     {
         /// <summary>
         /// Identifies the asset type (EPG, Recording, Movie, TV Series, etc). 
@@ -72,6 +72,25 @@ namespace WebAPI.Models.Upload
             if (this.TypeId != 0)
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "bulkUploadAssetData.typeId");
+            }
+        }
+    }
+
+    /// <summary>
+    /// indicates the media asset object type in the bulk file
+    /// </summary>
+    public partial class KalturaBulkUploadMediaAssetData : KalturaBulkUploadAssetData
+    {
+        internal override Type GetBulkUploadObjectType()
+        {
+            return typeof(KalturaMediaAsset);
+        }
+        
+        internal override void Validate()
+        {
+            if (this.TypeId < 1)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "bulkUploadAssetData.typeId", 1);
             }
         }
     }

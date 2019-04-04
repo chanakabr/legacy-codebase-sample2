@@ -1036,7 +1036,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Index, opt => opt.MapFrom(src => src.Index))
               .ForMember(dest => dest.BulkUploadId, opt => opt.MapFrom(src => src.BulkUploadId))
               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-              .ForMember(dest => dest.Error, opt => opt.MapFrom(src => src.Error))
+              .ForMember(dest => dest.Errors, opt => opt.MapFrom(src => src.Errors))
               .ForMember(dest => dest.Warnings, opt => opt.MapFrom(src => src.Warnings));
 
             cfg.CreateMap<BulkUploadResultStatus, KalturaBulkUploadResultStatus>()
@@ -1076,6 +1076,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaBulkUploadAssetData, BulkUploadAssetData>()
                .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId));
+            
+            cfg.CreateMap<KalturaBulkUploadMediaAssetData, BulkUploadMediaAssetData>()
+               .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
 
             cfg.CreateMap<KalturaBulkUploadMediaAssetData, BulkUploadMediaAssetData>()
                .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();

@@ -299,7 +299,7 @@ namespace WebAPI.Reflection
                     return new KalturaBulkUpload(parameters);
                     
                 case "KalturaBulkUploadAssetData":
-                    return new KalturaBulkUploadAssetData(parameters);
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBulkUploadAssetResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -22393,7 +22393,7 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ErrorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
+        private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -22451,19 +22451,19 @@ namespace WebAPI.Models.Upload
                     }
                     Status = (KalturaBulkUploadResultStatus) Enum.Parse(typeof(KalturaBulkUploadResultStatus), parameters["status"].ToString(), true);
                 }
-                if (parameters.ContainsKey("error") && parameters["error"] != null)
+                if (parameters.ContainsKey("errors") && parameters["errors"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ErrorSchemaProperty.Validate("error", parameters["error"]);
+                        ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
                     }
-                    if (parameters["error"] is JObject)
+                    if (parameters["errors"] is JArray)
                     {
-                        Error = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), ((JObject) parameters["error"]).ToObject<Dictionary<string, object>>());
+                        Errors = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
                     }
-                    else if (parameters["error"] is IDictionary)
+                    else if (parameters["errors"] is IList)
                     {
-                        Error = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), (Dictionary<string, object>) parameters["error"]);
+                        Errors = buildList(typeof(KalturaMessage), parameters["errors"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("warnings") && parameters["warnings"] != null)

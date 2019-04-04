@@ -1340,7 +1340,6 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("addFromBulkUpload")]
         [ApiAuthorize]
-        [Throws(StatusCode.TypeNotSupported)]
         [Throws(StatusCode.ArgumentCannotBeEmpty)]
         [Throws(eResponseStatus.FileDoesNotExists)]
         [Throws(eResponseStatus.FileAlreadyExists)]
@@ -1386,6 +1385,7 @@ namespace WebAPI.Controllers
 
                 var assetType = bulkUploadAssetData.GetBulkUploadObjectType();
                 bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, assetType, bulkUploadJobData, bulkUploadAssetData); 
+                bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, assetType, bulkUploadJobData, bulkUploadAssetData);
             }
             catch (ClientException ex)
             {
