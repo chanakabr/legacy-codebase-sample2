@@ -177,16 +177,21 @@ namespace Core.Api.Managers
                     }
 
                     if (assetRuleIdsToRemove.Count > 0)
-                    { 
-                        ApiDAL.RemoveCountryRulesFromMedia(groupId, mediaId, assetRuleIdsToRemove);
-
-                        string invalidationKey = LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId);
-                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        if (ApiDAL.RemoveCountryRulesFromMedia(groupId, mediaId, assetRuleIdsToRemove))
                         {
-                            log.ErrorFormat("Failed to set invalidation key on media countries key = {0}", invalidationKey);
-                        }
+                            string invalidationKey = LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on media countries key = {0}", invalidationKey);
+                            }
 
-                        IndexManager.UpsertMedia(groupId, mediaId);
+                            IndexManager.UpsertMedia(groupId, mediaId);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Failed to remove asset rules for media: {0}, assetRuleIdsToRemove: {2}", mediaId, string.Join(", ", assetRuleIdsToRemove));
+                        }
                     }
                 }
             }
