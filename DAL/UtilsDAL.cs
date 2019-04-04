@@ -23,6 +23,7 @@ namespace DAL
         private const int NUM_OF_TRIES = 3;
 
         #region Generic Methods
+        
         public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
