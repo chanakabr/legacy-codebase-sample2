@@ -30,6 +30,7 @@ namespace APILogic.BulkUpload
     public class BulkUploadIngestJobData : BulkUploadJobData
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string XML_TV_DATE_FORMAT = "yyyyMMddHHmmss";
         public int IngestProfileId { get; set; }
 
         public override GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
@@ -141,9 +142,8 @@ namespace APILogic.BulkUpload
                 {
                     foreach (var lang in languages)
                     {
-                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code, fieldEntityMapping, out var parsingStatus);
-                        newEpgItem.SetStatus(parsingStatus);
-                        response.Add(newEpgItem);
+                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code, fieldEntityMapping);
+                        response.Add(newEpgAssetResult);
                     }
 
                 }
@@ -152,12 +152,11 @@ namespace APILogic.BulkUpload
             return response;
         }
 
-        private BulkUploadEpgAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode, List<FieldTypeEntity> fieldMappings, out eResponseStatus parsingStatus)
+        private BulkUploadEpgAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode, List<FieldTypeEntity> fieldMappings)
         {
             var response = new BulkUploadEpgAssetResult();
             var epgItem = new EpgCB();
-            
-            parsingStatus = eResponseStatus.OK;
+
             epgItem.Language = langCode;
             epgItem.ChannelID = channelId;
             epgItem.GroupID = groupId;
@@ -165,10 +164,10 @@ namespace APILogic.BulkUpload
             epgItem.EpgIdentifier = prog.external_id;
 
             if (ParseXmlTvDateString(prog.start, out var progStartDate)) { epgItem.StartDate = progStartDate; }
-            else { parsingStatus = eResponseStatus.EPGSProgramDatesError; }
+            else { response.AddError(eResponseStatus.EPGSProgramDatesError, $"Start date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]"); }
 
             if (ParseXmlTvDateString(prog.stop, out var progEndDate)) { epgItem.EndDate = progEndDate; }
-            else { parsingStatus = eResponseStatus.EPGSProgramDatesError; }
+            else { response.AddError(eResponseStatus.EPGSProgramDatesError, $"End date:[{prog.stop}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]"); }
 
             epgItem.UpdateDate = DateTime.UtcNow;
             epgItem.CreateDate = DateTime.UtcNow;
@@ -181,11 +180,10 @@ namespace APILogic.BulkUpload
             epgItem.Crid = prog.crid;
 
             epgItem.Name = GetTitleByLanguage(prog.title, langCode, defaultLangCode, out var nameParsingStatus);
-            if (nameParsingStatus != eResponseStatus.OK) { _Logger.Error($"GetTitleByLanguage > could not find a match for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]"); }
+            if (nameParsingStatus != eResponseStatus.OK) { response.AddError(nameParsingStatus, $"Error parsing title for langCode:[{langCode}], defaultLang:[{defaultLangCode}]"); }
 
             epgItem.Description = GetDescriptionByLanguage(prog.desc, langCode, defaultLangCode, out var descriptionParsingStatus);
-            if (descriptionParsingStatus != eResponseStatus.OK) { _Logger.Error($"GetDescriptionByLanguage > could not find a match for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]"); }
-
+            if (descriptionParsingStatus != eResponseStatus.OK) { response.AddError(nameParsingStatus, $"Error parsing description for langCode:[{langCode}], defaultLang:[{defaultLangCode}]"); }
 
             epgItem.Metas = new Dictionary<string, List<string>>();
             foreach (var meta in prog.metas)
@@ -196,6 +194,7 @@ namespace APILogic.BulkUpload
                 epgItem.Metas[meta.MetaType] = mataValues;
 
             }
+
 
             response.Object = epgItem;
             return response;
@@ -220,11 +219,11 @@ namespace APILogic.BulkUpload
                 var metaRgxValidator = new Regex(metaMapping.RegexExpression);
                 var metaValidationResult = valuesStrByLang
                     .GroupBy(metaRgxValidator.IsMatch)
-                    .ToDictionary(k=>k.Key, v=>v.AsEnumerable());
+                    .ToDictionary(k => k.Key, v => v.AsEnumerable());
                 if (metaValidationResult.TryGetValue(false, out var invalidMetaValues))
                 {
                     // TODO: add parsing errors regarding some metas that could not be parsed
-                    _Logger.Warn($"GetMetaByLanguage > following metas failed parsing:[{string.Join(",",invalidMetaValues)}] ");
+                    _Logger.Warn($"GetMetaByLanguage > following metas failed parsing:[{string.Join(",", invalidMetaValues)}] ");
                 }
 
             }
@@ -258,12 +257,12 @@ namespace APILogic.BulkUpload
             return valueByLang;
         }
 
+
         private static bool ParseXmlTvDateString(string dateStr, out DateTime theDate)
         {
             theDate = default(DateTime);
             if (string.IsNullOrEmpty(dateStr) || dateStr.Length < 14) { return false; }
-            string format = "yyyyMMddHHmmss";
-            bool res = DateTime.TryParseExact(dateStr.Substring(0, 14), format, null, System.Globalization.DateTimeStyles.None, out theDate);
+            bool res = DateTime.TryParseExact(dateStr.Substring(0, 14), XML_TV_DATE_FORMAT, null, System.Globalization.DateTimeStyles.None, out theDate);
             return res;
         }
 

@@ -133,7 +133,7 @@ namespace Core.Catalog
             return bulkObject;
         }
         
-        public override void EnqueueObjects(BulkUpload bulkUpload, List<GenericResponse<IBulkUploadObject>> objects)
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> objects)
         {
             throw new NotImplementedException();
         }
