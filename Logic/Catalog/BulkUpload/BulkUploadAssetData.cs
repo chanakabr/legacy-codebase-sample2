@@ -116,4 +116,32 @@ namespace Core.Catalog
             }
         }
     }
+
+    // TODO ARTHUR - FINISH BulkUploadEpgAssetData
+    public class BulkUploadEpgAssetData : BulkUploadAssetData
+    {
+        public override string DistributedTask => throw new NotImplementedException();
+
+        public override string RoutingKey => throw new NotImplementedException();
+
+        public override IBulkUploadObject CreateObjectInstance()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> results)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Dictionary<string, object> GetMandatoryPropertyToValueMap()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatusDetails)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
