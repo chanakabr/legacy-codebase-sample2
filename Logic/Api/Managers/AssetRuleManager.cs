@@ -9,6 +9,7 @@ using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using CouchbaseManager;
@@ -159,6 +160,108 @@ namespace Core.Api.Managers
             return result.Count;
         }
 
+        public static bool UpdateMedia(int groupId, long mediaId)
+        {
+            try
+            {
+                List<AssetRule> assetRules = GetMediaRelatedGeoRules(groupId, mediaId);
+                if (assetRules != null && assetRules.Count > 0)
+                {
+                    List<long> assetRuleIdsToRemove = new List<long>();
+                    foreach (AssetRule assetRule in assetRules)
+                    {
+                        if (!AssetRuleAppliesOnMedia(mediaId, assetRule))
+                        {
+                            assetRuleIdsToRemove.Add(assetRule.Id);
+                        }
+                    }
+
+                    if (assetRuleIdsToRemove.Count > 0)
+                    { 
+                        ApiDAL.RemoveCountryRulesFromMedia(groupId, mediaId, assetRuleIdsToRemove);
+
+                        string invalidationKey = LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on media countries key = {0}", invalidationKey);
+                        }
+
+                        IndexManager.UpsertMedia(groupId, mediaId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in UpdateMedia", ex);
+                return false;
+            }
+            return true;
+        }
+
+        private static bool AssetRuleAppliesOnMedia(long mediaId, AssetRule assetRule)
+        {
+            List<AssetCondition> assetConditions = assetRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
+            string ksqlFilter = null;
+
+            if (assetConditions != null && assetConditions.Count > 0)
+            {
+                StringBuilder ksql = new StringBuilder("(and ");
+                ksql.AppendFormat("media_id = {0}", mediaId);
+                foreach (var assetCondition in assetConditions)
+                {
+                    ksql.Append(" " + assetCondition.Ksql);
+                }
+                ksql.AppendFormat(")");
+
+                ksqlFilter = ksql.ToString();
+            } else
+            {
+                return true; //TODO: make sure it's right / possible
+            }
+
+            if (!string.IsNullOrEmpty(ksqlFilter))
+            {
+                UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(assetRule.GroupId, null, ksqlFilter);
+
+                if (unifiedSearcjResponse != null)
+                {
+                    bool isSearchSuccessfull = unifiedSearcjResponse.status.Code == (int)eResponseStatus.OK;
+                    if (isSearchSuccessfull && unifiedSearcjResponse.searchResults != null && unifiedSearcjResponse.searchResults.Count > 0)
+                    {
+                        var assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+                        if (assetIds != null && assetIds.Count > 0 && assetIds.Contains((int)mediaId))
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static List<AssetRule> GetMediaRelatedGeoRules(int groupId, long mediaId)
+        {
+            List<AssetRule> assetRules = new List<AssetRule>();
+
+            DataTable dtAssetRules = ApiDAL.GetGeoAssetRulesAffectingMedia(groupId, mediaId);
+
+            List<long> assetRuleIds = new List<long>();
+            if (dtAssetRules != null && dtAssetRules.Rows != null && dtAssetRules.Rows.Count > 0)
+            {
+                foreach (DataRow assetRuleRow in dtAssetRules.Rows)
+                {
+                    assetRuleIds.Add(ODBCWrapper.Utils.GetLongSafeVal(assetRuleRow, "RULE_ID"));
+                }
+            }
+
+            if (assetRuleIds.Count > 0)
+            {
+                assetRules = ApiDAL.GetAssetRulesCB(assetRuleIds);
+            }
+
+            return assetRules;
+
+        }
+
         private static List<int> DoActionOnRule(AssetRule rule, int groupId, List<int> mediaTypes)
         {
             List<int> result = new List<int>();
@@ -215,58 +318,31 @@ namespace Core.Api.Managers
                     foreach (var action in rule.Actions)
                     {
                         assetIds = new List<int>();
-                        string actionKsqlFilter;
+                        string actionKsqlFilter = null;
+                        bool isAllowed = false;
+                        int countryToAdd = country;
 
                         if (action.Type == RuleActionType.StartDateOffset)
                         {
                             // append the country and offset conditions
                             double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
                             actionKsqlFilter = string.Format("(and {0} start_date <= '{1}' allowed_countries != '{2}')", ksqlFilter, -1 * totalOffset, country);
-
-                            UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, mediaTypes, actionKsqlFilter);
-
-                            if (unifiedSearcjResponse != null)
-                            {
-                                bool isSearchSuccessfull = unifiedSearcjResponse.status.Code == (int)eResponseStatus.OK;
-                                if (isSearchSuccessfull && unifiedSearcjResponse.searchResults != null && unifiedSearcjResponse.searchResults.Count > 0)
-                                {
-                                    assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
-
-                                    // Apply rule on assets that returned from search
-                                    if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, true, rule.Id))
-                                    {
-                                        modifiedAssetIds.AddRange(assetIds);
-                                        foreach (var assetId in assetIds)
-                                        {
-                                            string invalidationKey = LayeredCacheKeys.GetMediaCountriesInvalidationKey(assetId);
-                                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                                            {
-                                                log.ErrorFormat("Failed to set invalidation key on media countries key = {0}", invalidationKey);
-                                            }
-                                        }
-
-                                        log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
-                                    }
-                                    else
-                                    {
-                                        log.InfoFormat("Failed to add country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
-                                    }
-                                }
-                            }
+                            isAllowed = true;
+                        }
+                        else if (action.Type == RuleActionType.EndDateOffset)
+                        {
+                            double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
+                            countryToAdd = -1 * country;
+                            actionKsqlFilter = string.Format("(and {0} end_date <= '{1}' allowed_countries != '{2}')", ksqlFilter, -1 * totalOffset, countryToAdd);
+                            isAllowed = true;
+                        }
+                        else if (action.Type == RuleActionType.Block)
+                        {
+                            actionKsqlFilter = string.Format("(and {0} blocked_countries != '{1}')", ksqlFilter, country);
                         }
 
-                        if (action.Type == RuleActionType.EndDateOffset || action.Type == RuleActionType.Block)
+                        if (!string.IsNullOrEmpty(actionKsqlFilter))
                         {
-                            if (action.Type == RuleActionType.EndDateOffset)
-                            {
-                                double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
-                                actionKsqlFilter = string.Format("(and {0} end_date <= '{1}' blocked_countries != '{2}')", ksqlFilter, -1 * totalOffset, country);
-                            }
-                            else // block
-                            {
-                                actionKsqlFilter = string.Format("(and {0} blocked_countries != '{1}')", ksqlFilter, country);
-                            }
-
                             UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, mediaTypes, actionKsqlFilter);
 
                             if (unifiedSearcjResponse != null)
@@ -277,7 +353,7 @@ namespace Core.Api.Managers
                                     assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                     // Apply rule on assets that returned from search
-                                    if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, false, rule.Id))
+                                    if (ApiDAL.InsertMediaCountry(groupId, assetIds, countryToAdd, isAllowed, rule.Id))
                                     {
                                         modifiedAssetIds.AddRange(assetIds);
                                         foreach (var assetId in assetIds)
@@ -288,11 +364,11 @@ namespace Core.Api.Managers
                                                 log.ErrorFormat("Failed to set invalidation key on media countries key = {0}", invalidationKey);
                                             }
                                         }
-                                        log.InfoFormat("Successfully added country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
+                                        log.InfoFormat("Successfully added country: {0} to allowed countries for assetRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
                                     }
                                     else
                                     {
-                                        log.InfoFormat("Failed to add country: {0} to allowed countries for assrtRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
+                                        log.InfoFormat("Failed to add country: {0} to allowed countries for assetRule: {1} on assets: {2}", country, rule.ToString(), string.Join(",", assetIds));
                                     }
                                 }
                             }
@@ -388,6 +464,7 @@ namespace Core.Api.Managers
             return rules;
         }
 
+        //TODO: Remove the types
         private static UnifiedSearchResponse GetUnifiedSearchResponse(int groupId, List<int> mediaTypes, string ksql)
         {
             // Initialize unified search request:
