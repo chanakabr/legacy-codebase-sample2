@@ -1340,7 +1340,6 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("addFromBulkUpload")]
         [ApiAuthorize]
-        [Throws(StatusCode.TypeNotSupported)]
         [Throws(StatusCode.ArgumentCannotBeEmpty)]
         [Throws(eResponseStatus.FileDoesNotExists)]
         [Throws(eResponseStatus.FileAlreadyExists)]

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
@@ -16,13 +17,14 @@ namespace WebAPI.Models.Upload
     /// </summary>
     public abstract partial class KalturaBulkUploadObjectData : KalturaOTTObject
     {
-
+        internal abstract Type GetBulkUploadObjectType();
+        internal abstract void Validate();
     }
 
     /// <summary>
     /// indicates the asset object type in the bulk file
     /// </summary>
-    public partial class KalturaBulkUploadAssetData : KalturaBulkUploadObjectData
+    public abstract partial class KalturaBulkUploadAssetData : KalturaBulkUploadObjectData
     {
         /// <summary>
         /// Identifies the asset type (EPG, Recording, Movie, TV Series, etc). 
@@ -31,7 +33,26 @@ namespace WebAPI.Models.Upload
         [DataMember(Name = "typeId")]
         [JsonProperty(PropertyName = "typeId")]
         [XmlElement(ElementName = "typeId")]
-        [SchemeProperty(MinLong = 2)]
+        [SchemeProperty(MinLong = 0)]
         public long TypeId { get; set; }
+    }
+
+    /// <summary>
+    /// indicates the media asset object type in the bulk file
+    /// </summary>
+    public partial class KalturaBulkUploadMediaAssetData : KalturaBulkUploadAssetData
+    {
+        internal override Type GetBulkUploadObjectType()
+        {
+            return typeof(KalturaMediaAsset);
+        }
+        
+        internal override void Validate()
+        {
+            if (this.TypeId < 1)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "bulkUploadAssetData.typeId", 1);
+            }
+        }
     }
 }
