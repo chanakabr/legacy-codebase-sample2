@@ -8,7 +8,7 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadJobData
     {
-        public abstract GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData);
+        public abstract GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData);
     }
 
     /// <summary>
@@ -18,17 +18,24 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadExcelJobData : BulkUploadJobData
     {
-        public override GenericListResponse<Tuple<Status, IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
+        public override GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
-            var response = new GenericListResponse<Tuple<Status, IBulkUploadObject>>();
-            var excelResults = ExcelManager.Deserialize(bulkUploadId, fileUrl, objectData);
-            if (!excelResults.IsOkStatusCode())
+            var response = new GenericListResponse<BulkUploadResult>();
+            var excelObjects = ExcelManager.Deserialize(bulkUploadId, fileUrl, objectData);
+            if (!excelObjects.IsOkStatusCode())
             {
-                response.SetStatus(excelResults.Status);
+                response.SetStatus(excelObjects.Status);
             }
             else
             {
-                response.Objects.AddRange(excelResults.Objects);
+                for (int i = 0; i < excelObjects.Objects.Count; i++)
+                {
+                    var bulkUploadObject = excelObjects.Objects[i];
+                    var errorStatus = bulkUploadObject.IsOkStatusCode() ? null : bulkUploadObject.Status;
+                    var bulkUploadResult = objectData.GetNewBulkUploadResult(bulkUploadId, bulkUploadObject.Object, i, errorStatus);
+                    response.Objects.Add(bulkUploadResult);
+                }
+
                 response.SetStatus(eResponseStatus.OK);
             }
 

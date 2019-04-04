@@ -1,14 +1,9 @@
-﻿using ApiObjects.Response;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ApiObjects.BulkUpload
 {
     public interface IBulkUploadObject
     {
-        BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus);
-        string DistributedTask { get; }
-        string RoutingKey { get; }
-        bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex);
     }
 
     public interface IExcelObject : IBulkUploadObject

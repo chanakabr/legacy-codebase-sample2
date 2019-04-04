@@ -16,10 +16,7 @@ namespace Core.Catalog
     public class AssetFile : IExcelObject
     {
         #region Consts
-
-        public string DistributedTask { get { return null; } }
-        public string RoutingKey { get { return null; } }
-
+        
         // MEDIA FILE EXCEL COLUMNS
         private const string CDN = "CDN";
         private const string CDN_LOCATION = "CDN Location";
@@ -35,8 +32,7 @@ namespace Core.Catalog
         private const string FILE_SIZE = "File Size (Kb)";
         private const string LANGUAGE = "Language";
         private const string IS_DEFAULT_LANGUAGE = "Is Default Language";
-
-
+        
         #endregion
 
         #region Data Members
@@ -267,9 +263,6 @@ namespace Core.Catalog
 
         public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructure structureObject)
         {
-            var dateTimeType = typeof(DateTime);
-            var nullableDateTimeType = typeof(DateTime?);
-
             foreach (var columnValue in columnNamesToValues)
             {
                 try
@@ -278,7 +271,7 @@ namespace Core.Catalog
                     {
                         var realType = columns[columnValue.Key].Property.PropertyType.GetRealType();
                         object convertedValue;
-                        if (realType == dateTimeType || realType == nullableDateTimeType)
+                        if (realType == DateUtils.DateTimeType || realType == DateUtils.NullableDateTimeType)
                         {
                             convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
                         }
@@ -328,54 +321,6 @@ namespace Core.Catalog
                 }
             }
 
-            //var cdnLocation = ExcelColumn.GetFullColumnName(this.type, null, CDN_LOCATION);
-            //if (columnNamesToValues.ContainsKey(cdnLocation))
-            //{
-            //    this.Url = columnNamesToValues[cdnLocation].ToString();
-            //}
-
-            //var duration = ExcelColumn.GetFullColumnName(this.type, DURATION);
-            //if (columnNamesToValues.ContainsKey(duration))
-            //{
-            //    this.Duration = columnNamesToValues[duration] as long?;
-            //}
-
-            //var externalId = ExcelColumn.GetFullColumnName(this.type, EXTERNAL_ID);
-            //if (columnNamesToValues.ContainsKey(externalId))
-            //{
-            //    this.ExternalId = columnNamesToValues[externalId].ToString();
-            //}
-
-            //var playbackStartDate = ExcelColumn.GetFullColumnName(this.type, PLAYBACK_START_DATE);
-            //if (columnNamesToValues.ContainsKey(playbackStartDate))
-            //{
-            //    this.StartDate = columnNamesToValues[playbackStartDate] as DateTime?;
-            //}
-
-            //var playbackEndDate = ExcelColumn.GetFullColumnName(this.type, PLAYBACK_END_DATE);
-            //if (columnNamesToValues.ContainsKey(playbackEndDate))
-            //{
-            //    this.EndDate = columnNamesToValues[playbackEndDate] as DateTime?;
-            //}
-
-            //var catalogEndDate = ExcelColumn.GetFullColumnName(this.type, CATALOG_END_DATE);
-            //if (columnNamesToValues.ContainsKey(catalogEndDate))
-            //{
-            //    this.CatalogEndDate = columnNamesToValues[catalogEndDate] as DateTime?;
-            //}
-
-            //var ppvModule = ExcelColumn.GetFullColumnName(this.type, PPVS);
-            //if (columnNamesToValues.ContainsKey(ppvModule))
-            //{
-            //    this.PpvModule = columnNamesToValues[ppvModule].ToString();
-            //}
-
-            //var externalStoreCode = ExcelColumn.GetFullColumnName(this.type, EXTERNAL_STORE_CODE);
-            //if (columnNamesToValues.ContainsKey(externalStoreCode))
-            //{
-            //    this.ExternalStoreId = columnNamesToValues[externalStoreCode].ToString();
-            //}
-
             var altCdn = ExcelColumn.GetFullColumnName(this.type, ALTERNATIVE_CDN);
             if (columnNamesToValues.ContainsKey(altCdn))
             {
@@ -386,43 +331,9 @@ namespace Core.Catalog
                 }
             }
 
-            //var altCdnLocation = ExcelColumn.GetFullColumnName(this.type, null, ALTERNATIVE_CDN_LOCATION);
-            //if (columnNamesToValues.ContainsKey(altCdnLocation))
-            //{
-            //    this.AltStreamingCode = columnNamesToValues[altCdnLocation].ToString();
-            //}
-
-            //var fileSize = ExcelColumn.GetFullColumnName(this.type, FILE_SIZE);
-            //if (columnNamesToValues.ContainsKey(fileSize))
-            //{
-            //    this.FileSize = columnNamesToValues[fileSize] as long?;
-            //}
-
-            //var language = ExcelColumn.GetFullColumnName(this.type, null, LANGUAGE);
-            //if (columnNamesToValues.ContainsKey(language))
-            //{
-            //    this.Language = columnNamesToValues[language].ToString();
-            //}
-
-            //var isDefaultLanguage = ExcelColumn.GetFullColumnName(this.type, IS_DEFAULT_LANGUAGE);
-            //if (columnNamesToValues.ContainsKey(isDefaultLanguage))
-            //{
-            //    this.IsDefaultLanguage = columnNamesToValues[isDefaultLanguage] as bool?;
-            //}
-
             this.IsActive = true;
         }
-
-        public BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus)
-        {
-            return null;
-        }
-
-        public bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
-        {
-            return false;
-        }
-
+        
         #endregion
     }
 }

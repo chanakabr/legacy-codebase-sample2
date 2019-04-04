@@ -11,6 +11,12 @@ namespace ApiObjects.Response
         public Status Status { get; private set; }
         public T Object { get; set; }
 
+        public GenericResponse(Status status, T obj)
+        {
+            Status = status;
+            Object = obj;
+        }
+
         public GenericResponse()
         {
             Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -60,9 +66,14 @@ namespace ApiObjects.Response
             }
         }
 
+        public bool IsOkStatusCode()
+        {
+            return Status?.IsOkStatusCode() == true;
+        }
+
         public bool HasObject()
         {
-            return (Status != null && Status.Code == (int)eResponseStatus.OK && Object != null);
+            return IsOkStatusCode() && !Object.Equals(default(T));
         }
 
         public string ToStringStatus()
