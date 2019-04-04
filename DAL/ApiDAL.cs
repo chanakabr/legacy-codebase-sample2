@@ -183,6 +183,11 @@ namespace DAL
             return null;
         }
 
+        public static void RemoveCountryRulesFromMedia(int groupId, long mediaId, List<long> assetRuleIdsToRemove)
+        {
+            throw new NotImplementedException();
+        }
+
         public static DataTable Get_DefaultRules(int nGroupID)
         {
             ODBCWrapper.StoredProcedure spSetDefaultRules = new ODBCWrapper.StoredProcedure("Get_DefaultRules");
@@ -242,7 +247,8 @@ namespace DAL
 
             return ret;
         }
-        
+
+       
         public static string[] GetDomainGroupRule(int nGroupID, int nDomainID, int nRuleID)
         {
             try
@@ -4718,8 +4724,27 @@ namespace DAL
             return result;
         }
 
+        public static DataTable GetGeoAssetRulesAffectingMedia(int groupId, long mediaId)
+        {
+            DataTable dt = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GetGeoAssetRulesAffectingMedia");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@mediaId", mediaId);
+
+                dt = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetGeoAssetRulesAffectingMedia in DB, groupId: {0}, mediaId: {1}, ex:{2} ", groupId, mediaId, ex);
+            }
+
+            return dt;
+        }
+
         #endregion
-        
+
         #region Permissions Management
 
         public static DataSet Get_PermissionsForExport()
