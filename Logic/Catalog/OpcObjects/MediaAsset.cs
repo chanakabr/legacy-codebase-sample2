@@ -2,14 +2,12 @@
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
-using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
-using QueueWrapper;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -19,13 +17,7 @@ namespace Core.Catalog
     public class MediaAsset : Asset
     {
         #region Consts
-
-        [JsonIgnore]
-        public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
-
-        [JsonIgnore]
-        public override string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
-
+        
         // ASSET EXCEL COLUMNS
         public const string MEDIA_ASSET_TYPE = "Media Asset Type";
         public const string GEO_RULE_ID = "GeoBlockRuleId";
@@ -40,7 +32,7 @@ namespace Core.Catalog
         [JsonProperty("CatalogStartDate")]
         public DateTime? CatalogStartDate { get; set; }
 
-        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
         [JsonProperty("FinalEndDate")]
         public DateTime? FinalEndDate { get; set; }
 
@@ -211,10 +203,10 @@ namespace Core.Catalog
                 excelValues.TryAdd(excelColumn, catalogStartDate);
             }
 
-            DateTime? finalEndDate = GetBasicMetaDate(this.FinalEndDate, AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME);
+            DateTime? finalEndDate = GetBasicMetaDate(this.FinalEndDate, AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME);
             if (finalEndDate.HasValue)
             {
-                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
                 excelValues.TryAdd(excelColumn, finalEndDate);
             }
 
@@ -311,13 +303,8 @@ namespace Core.Catalog
                                     SetFileByExcelValues(groupId, fileValues, fileColumns, structureObject);
                                 }
                                 break;
-                            case ExcelColumnType.Rule:
-                                SetRuleByExcelValues(columnValue);
-                                break;
-                            case ExcelColumnType.AvailabilityMeta:
-                                SetAvailabilityMetaByExcelValues(columnValue);
-                                break;
                             default:
+                                SetPropertyByExcelValue(columns[columnValue.Key].Property, columnValue.Value);
                                 break;
                         }
                     }
@@ -355,50 +342,7 @@ namespace Core.Catalog
                 this.Metas.Add(metas);
             }
         }
-
-        private void SetAvailabilityMetaByExcelValues(KeyValuePair<string, object> columnValue)
-        {
-            // StartDate
-            var startDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(startDateColumnName))
-            {
-                this.StartDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                return;
-            }
-
-            // EndDate
-            var endDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(endDateColumnName))
-            {
-                this.EndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                return;
-            }
-
-            // CatalogStartDate
-            var catalogStartDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(catalogStartDateColumnName))
-            {
-                this.CatalogStartDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                return;
-            }
-
-            // FinalEndDate
-            var finalEndDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(finalEndDateColumnName))
-            {
-                this.FinalEndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                return;
-            }
-
-            // IsActive
-            var isActiveColumnName = ExcelColumn.GetFullColumnName(AssetManager.STATUS_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(isActiveColumnName))
-            {
-                this.IsActive = bool.Parse(columnValue.Value.ToString());
-                return;
-            }
-        }
-
+        
         private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns, IExcelStructure structureObject)
         {
             if (fileValues != null && fileValues.Count > 0 && fileColumns != null && fileColumns.Count > 0)
@@ -408,16 +352,23 @@ namespace Core.Catalog
                 Files.Add(file);
             }
         }
-
-        private void SetRuleByExcelValues(KeyValuePair<string, object> columnValue)
+        
+        private void SetPropertyByExcelValue(PropertyInfo property, object value)
         {
-            if (columnValue.Key.Equals(GEO_RULE_ID))
+            var realType = property.PropertyType.GetRealType();
+            object convertedValue;
+            if (realType == DateUtils.DateTimeType || realType == DateUtils.NullableDateTimeType)
             {
-                this.GeoBlockRuleId = StringUtils.TryConvertTo<int>(columnValue.Value.ToString());
+                convertedValue = DateUtils.ExtractDate(value.ToString(), ExcelManager.DATE_FORMAT);
             }
-            else if (columnValue.Key.Equals(DEVICE_RULE_ID))
+            else
             {
-                this.DeviceRuleId = StringUtils.TryConvertTo<int>(columnValue.Value.ToString());
+                convertedValue = Convert.ChangeType(value, realType);
+            }
+
+            if (convertedValue != null)
+            {
+                property.SetValue(this, convertedValue);
             }
         }
 
@@ -442,38 +393,6 @@ namespace Core.Catalog
                 this.CoGuid = columnValue.Value.ToString();
                 return;
             }
-        }
-
-        #endregion
-
-        #region IBulkUploadObject Methods
-
-        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus)
-        {
-            BulkUploadMediaAssetResult bulkUploadAssetResult = new BulkUploadMediaAssetResult()
-            {
-                Index = index,
-                ObjectId = Id > 0 ? Id : (long?)null,
-                BulkUploadId = bulkUploadId,
-                Status = status,
-                Type = this.MediaType != null && this.MediaType.m_nTypeID > 0 ? this.MediaType.m_nTypeID : (int?)null,
-                ExternalId = string.IsNullOrEmpty(this.CoGuid) ? null : this.CoGuid
-            };
-
-            if (errorStatus != null)
-            {
-                bulkUploadAssetResult.SetError(errorStatus);
-            }
-            return bulkUploadAssetResult;
-        }
-
-        public override bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
-        {
-            GenericCeleryQueue queue = new GenericCeleryQueue();
-            var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, resultIndex, this);
-            bool enqueueSuccessful = queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId));
-
-            return enqueueSuccessful;
         }
 
         #endregion

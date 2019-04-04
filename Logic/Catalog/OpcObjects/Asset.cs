@@ -1,7 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
-using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
@@ -17,10 +16,7 @@ namespace Core.Catalog
     public class Asset : IExcelObject
     {
         #region Consts
-
-        public virtual string DistributedTask { get { return null; } }
-        public virtual string RoutingKey { get { return null; } }
-
+        
         public const string EXTERNAL_ASSET_ID = "External Asset ID ";
         public const string METAS = "METAS";
         public const string TAGS = "TAGS";
@@ -72,7 +68,7 @@ namespace Core.Catalog
         [JsonProperty("StartDate")]
         public DateTime? StartDate { get; set; }
 
-        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
         [JsonProperty("EndDate")]
         public DateTime? EndDate { get; set; }
 
@@ -271,36 +267,18 @@ namespace Core.Catalog
                 excelValues.Add(excelColumn, this.Name);
             }
 
-            if (this.NamesWithLanguages != null && this.NamesWithLanguages.Count > 0)
-            {
-                foreach (var nameInOtherLang in this.NamesWithLanguages)
-                {
-                    if (!nameInOtherLang.IsDefault)
-                    {
-                        var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.NAME_META_SYSTEM_NAME, nameInOtherLang.LanguageCode);
-                        excelValues.Add(excelColumn, nameInOtherLang.Value);
-                    }
-                }
-            }
-
+            var namesInOtherLangForExcel = GetMultilingualExcelValues(AssetManager.NAME_META_SYSTEM_NAME, this.NamesWithLanguages);
+            excelValues.TryAddRange(namesInOtherLangForExcel);
+            
             if (!string.IsNullOrEmpty(this.Description))
             {
                 var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.DESCRIPTION_META_SYSTEM_NAME);
                 excelValues.Add(excelColumn, this.Description);
             }
 
-            if (this.DescriptionsWithLanguages != null && this.DescriptionsWithLanguages.Count > 0)
-            {
-                foreach (var descriptionInOtherLang in this.DescriptionsWithLanguages)
-                {
-                    if (!descriptionInOtherLang.IsDefault)
-                    {
-                        var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.DESCRIPTION_META_SYSTEM_NAME, descriptionInOtherLang.LanguageCode);
-                        excelValues.Add(excelColumn, descriptionInOtherLang.Value);
-                    }
-                }
-            }
-
+            var descriptionsInOtherLangForExcel = GetMultilingualExcelValues(AssetManager.DESCRIPTION_META_SYSTEM_NAME, this.DescriptionsWithLanguages);
+            excelValues.TryAddRange(descriptionsInOtherLangForExcel);
+            
             if (this.StartDate.HasValue)
             {
                 var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
@@ -309,7 +287,7 @@ namespace Core.Catalog
 
             if (this.EndDate.HasValue)
             {
-                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
                 excelValues.TryAdd(excelColumn, this.EndDate);
             }
 
@@ -352,6 +330,25 @@ namespace Core.Catalog
             return excelValues;
         }
 
+        private Dictionary<string, object> GetMultilingualExcelValues(string systemName, List<LanguageContainer> languages)
+        {
+            var multilingualExcelValues = new Dictionary<string, object>();
+
+            if (languages != null && languages.Count > 0)
+            {
+                foreach (var valueInOtherLang in languages)
+                {
+                    if (!valueInOtherLang.IsDefault)
+                    {
+                        var excelColumn = ExcelColumn.GetFullColumnName(systemName, valueInOtherLang.LanguageCode);
+                        multilingualExcelValues.Add(excelColumn, valueInOtherLang.Value);
+                    }
+                }
+            }
+
+            return multilingualExcelValues;
+        }
+
         public virtual void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructure structureObject)
         {
         }
@@ -370,21 +367,21 @@ namespace Core.Catalog
                 case AssetManager.NAME_META_SYSTEM_NAME:
                     if (isDefaultLanguage)
                     {
-                        this.Name = columnValue.Value as string;
+                        this.Name = (string)columnValue.Value;
                     }
                     else
                     {
-                        this.NamesWithLanguages.Add(new LanguageContainer(excelColumn.Language, columnValue.Value as string));
+                        this.NamesWithLanguages.Add(new LanguageContainer(excelColumn.Language, (string)columnValue.Value));
                     }
                     break;
                 case AssetManager.DESCRIPTION_META_SYSTEM_NAME:
                     if (isDefaultLanguage)
                     {
-                        this.Description = columnValue.Value as string;
+                        this.Description = (string)columnValue.Value;
                     }
                     else
                     {
-                        this.DescriptionsWithLanguages.Add(new LanguageContainer(excelColumn.Language, columnValue.Value as string));
+                        this.DescriptionsWithLanguages.Add(new LanguageContainer(excelColumn.Language, (string)columnValue.Value));
                     }
                     break;
                 default:
@@ -408,6 +405,7 @@ namespace Core.Catalog
                 tagMeta.m_sName = systemName;
                 tagMeta.m_sType = topicsMapBySystemName[systemName].Type.ToString();
             }
+
             var values = columnValue.Value.ToString().GetItemsIn<List<string>, string>();
             List<LanguageContainer[]> languageContainers = new List<LanguageContainer[]>();
             foreach (var value in values)
@@ -430,16 +428,6 @@ namespace Core.Catalog
                 };
                 Images.Add(image);
             }
-        }
-
-        public virtual BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, BulkUploadResultStatus status, int index, Status errorStatus)
-        {
-            return null;
-        }
-
-        public virtual bool EnqueueBulkUploadResult(BulkUpload bulkUpload, int resultIndex)
-        {
-            return false;
         }
 
         #endregion
