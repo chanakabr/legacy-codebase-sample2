@@ -27,7 +27,6 @@ using TVinciShared;
 using WebAPI.Models.Upload;
 using WebAPI.App_Start;
 using ApiObjects.BulkUpload;
-using APILogic.Catalog.BulkUpload;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
