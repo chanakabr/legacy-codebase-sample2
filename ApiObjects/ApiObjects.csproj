@@ -1,49 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <LangVersion>6</LangVersion>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <Version>5.2.0.3642</Version>
-    <Description>2019-08-02 13:04:41 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-116-g4860a8cf-dirty</Description>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="EPPlus" Version="4.5.3.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <Reference Include="System.Web" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Epg\xmltv.cs">
-      <DependentUpon>xmltv.xsd</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
-    <None Include="Epg\xmltv.dtd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Epg\xmltv.xsd">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
-    <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj" />
-    <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj" />
-    <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj" />
-    <ProjectReference Include="..\..\tvmcore\ODBCWrapper\ODBCWrapper.csproj" />
-    <ProjectReference Include="..\..\tvmcore\ServiceExtensions\ServiceExtensions.csproj" />
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
-  </ItemGroup>
-  <!-- 
-  This is a workaround (https://github.com/wixtoolset/issues/issues/5705) 
-  that will allow TVM website project to build, if you read this an 
-  TVM no longer exist please remove this <Target Name="GetTargetPath"... element
-   -->
-  <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">
+    <PropertyGroup>
+        <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+        <LangVersion>6</LangVersion>
+        <OutputPath>bin\$(Configuration)\</OutputPath>
+    </PropertyGroup>
     <ItemGroup>
-      <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
+        <PackageReference Include="EPPlus" Version="4.5.3.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     </ItemGroup>
-  </Target>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+        <Reference Include="System.Web" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Epg\xmltv.cs">
+            <DependentUpon>xmltv.xsd</DependentUpon>
+        </Compile>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="ClassDiagram1.cd" />
+        <None Include="Epg\xmltv.dtd">
+            <SubType>Designer</SubType>
+        </None>
+        <None Include="Epg\xmltv.xsd">
+            <SubType>Designer</SubType>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
+        <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj" />
+        <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj" />
+        <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj" />
+        <ProjectReference Include="..\..\tvmcore\ODBCWrapper\ODBCWrapper.csproj" />
+        <ProjectReference Include="..\..\tvmcore\ServiceExtensions\ServiceExtensions.csproj" />
+        <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
+    </ItemGroup>
+    <!-- 
+
+  This is a workaround (https://github.com/wixtoolset/issues/issues/5705) 
+
+  that will allow TVM website project to build, if you read this an 
+
+  TVM no longer exist please remove this <Target Name="GetTargetPath"... element
+
+   -->
+    <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">
+        <ItemGroup>
+            <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
+        </ItemGroup>
+    </Target>
 </Project>

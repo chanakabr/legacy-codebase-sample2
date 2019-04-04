@@ -2,14 +2,12 @@
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
-using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
-using QueueWrapper;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -34,7 +32,7 @@ namespace Core.Catalog
         [JsonProperty("CatalogStartDate")]
         public DateTime? CatalogStartDate { get; set; }
 
-        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
+        [ExcelColumn(ExcelColumnType.AvailabilityMeta, AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, IsMandatory = true, IsUniqueMeta = true)]
         [JsonProperty("FinalEndDate")]
         public DateTime? FinalEndDate { get; set; }
 
@@ -205,10 +203,10 @@ namespace Core.Catalog
                 excelValues.TryAdd(excelColumn, catalogStartDate);
             }
 
-            DateTime? finalEndDate = GetBasicMetaDate(this.FinalEndDate, AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME);
+            DateTime? finalEndDate = GetBasicMetaDate(this.FinalEndDate, AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME);
             if (finalEndDate.HasValue)
             {
-                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+                var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
                 excelValues.TryAdd(excelColumn, finalEndDate);
             }
 
@@ -305,13 +303,8 @@ namespace Core.Catalog
                                     SetFileByExcelValues(groupId, fileValues, fileColumns, structureObject);
                                 }
                                 break;
-                            case ExcelColumnType.Rule:
-                                SetRuleByExcelValues(columnValue);
-                                break;
-                            case ExcelColumnType.AvailabilityMeta:
-                                SetAvailabilityMetaByExcelValues(columnValue);
-                                break;
                             default:
+                                SetPropertyByExcelValue(columns[columnValue.Key].Property, columnValue.Value);
                                 break;
                         }
                     }
@@ -329,70 +322,35 @@ namespace Core.Catalog
 
             foreach (var meta in dicMetas)
             {
-                Metas metas = new Metas();
+                Metas currMeta = new Metas();
                 if (assetStruct.TopicsMapBySystemName.ContainsKey(meta.Key))
                 {
-                    metas.m_oTagMeta = new TagMeta()
+                    currMeta.m_oTagMeta = new TagMeta()
                     {
                         m_sName = meta.Key,
                         m_sType = assetStruct.TopicsMapBySystemName[meta.Key].Type.ToString()
                     };
                 }
 
-                var defaultValue = meta.Value.FirstOrDefault(x => x.IsDefault);
-                if (defaultValue != null)
+                var defaultIndex = meta.Value.FindIndex(x => x.IsDefault);
+                if (defaultIndex != -1)
                 {
-                    metas.m_sValue = defaultValue.Value;
+                    var value = meta.Value[defaultIndex].Value;
+                    if (currMeta.m_oTagMeta != null && currMeta.m_oTagMeta.m_sType.Equals(MetaType.Bool.ToString()))
+                    {
+                        bool boolValue = bool.Parse(value);
+                        value = boolValue ? "1" : "0";
+                    }
+
+                    meta.Value[defaultIndex].Value = value;
+                    currMeta.m_sValue = meta.Value[defaultIndex].Value;
                 }
 
-                metas.Value = meta.Value.ToArray();
-                this.Metas.Add(metas);
+                currMeta.Value = meta.Value.ToArray();
+                this.Metas.Add(currMeta);
             }
         }
-
-        private void SetAvailabilityMetaByExcelValues(KeyValuePair<string, object> columnValue)
-        {
-            // StartDate
-            var startDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(startDateColumnName))
-            {
-                this.StartDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                return;
-            }
-
-            // EndDate
-            var endDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(endDateColumnName))
-            {
-                this.EndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                return;
-            }
-
-            // CatalogStartDate
-            var catalogStartDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(catalogStartDateColumnName))
-            {
-                this.CatalogStartDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                return;
-            }
-
-            // FinalEndDate
-            var finalEndDateColumnName = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(finalEndDateColumnName))
-            {
-                this.FinalEndDate = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
-                return;
-            }
-
-            // IsActive
-            var isActiveColumnName = ExcelColumn.GetFullColumnName(AssetManager.STATUS_META_SYSTEM_NAME, null, null, true);
-            if (columnValue.Key.Equals(isActiveColumnName))
-            {
-                this.IsActive = bool.Parse(columnValue.Value.ToString());
-                return;
-            }
-        }
-
+        
         private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns, IExcelStructure structureObject)
         {
             if (fileValues != null && fileValues.Count > 0 && fileColumns != null && fileColumns.Count > 0)
@@ -402,16 +360,23 @@ namespace Core.Catalog
                 Files.Add(file);
             }
         }
-
-        private void SetRuleByExcelValues(KeyValuePair<string, object> columnValue)
+        
+        private void SetPropertyByExcelValue(PropertyInfo property, object value)
         {
-            if (columnValue.Key.Equals(GEO_RULE_ID))
+            var realType = property.PropertyType.GetRealType();
+            object convertedValue;
+            if (realType == DateUtils.DateTimeType || realType == DateUtils.NullableDateTimeType)
             {
-                this.GeoBlockRuleId = StringUtils.TryConvertTo<int>(columnValue.Value.ToString());
+                convertedValue = DateUtils.ExtractDate(value.ToString(), ExcelManager.DATE_FORMAT);
             }
-            else if (columnValue.Key.Equals(DEVICE_RULE_ID))
+            else
             {
-                this.DeviceRuleId = StringUtils.TryConvertTo<int>(columnValue.Value.ToString());
+                convertedValue = Convert.ChangeType(value, realType);
+            }
+
+            if (convertedValue != null)
+            {
+                property.SetValue(this, convertedValue);
             }
         }
 

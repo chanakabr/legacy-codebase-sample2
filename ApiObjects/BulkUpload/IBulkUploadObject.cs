@@ -1,5 +1,4 @@
-﻿using ApiObjects.Response;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ApiObjects.BulkUpload
 {

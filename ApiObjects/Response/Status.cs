@@ -13,7 +13,7 @@ namespace ApiObjects.Response
         private string message = string.Empty;
         private int code;
         private List<KeyValuePair> args;
-
+        
         public static Status Ok => new Status((int) eResponseStatus.OK);
 
         public Status(int code = 0, string message = "", List<KeyValuePair> args = null)

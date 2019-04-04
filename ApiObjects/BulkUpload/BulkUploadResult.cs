@@ -30,11 +30,14 @@ namespace ApiObjects.BulkUpload
         [JsonProperty("Status")]
         public BulkUploadResultStatus Status { get; set; }
 
-        [JsonProperty("Error")]
-        public Status Error { get; private set; }
+        [JsonProperty("Errors")]
+        public List<Status> Errors { get; private set; }
 
         [JsonProperty("Warnings")]
         public List<Status> Warnings { get; set; }
+
+        [JsonIgnore()]
+        public IBulkUploadObject Object { get; set; }
 
         public BulkUploadResult()
         {
@@ -50,10 +53,13 @@ namespace ApiObjects.BulkUpload
             {
                 sb.AppendFormat(", ObjectId:{0}", ObjectId);
             }
-
-            if (Error != null)
+            
+            if (Errors != null && Errors.Count > 0)
             {
-                sb.AppendFormat(", Error:{0}", Error.ToString());
+                for (int i = 0; i < Errors.Count; i++)
+                {
+                    sb.AppendFormat(", Error {0}:{1}", i + 1, Errors[i].ToString());
+                }
             }
 
             if (Warnings != null && Warnings.Count > 0)
@@ -71,30 +77,18 @@ namespace ApiObjects.BulkUpload
         /// Set the status to Error and update error code and message
         /// </summary>
         /// <param name="errorStatus"></param>
-        public void SetError(Status errorStatus)
+        public void AddError(Status errorStatus)
         {
             this.Status = BulkUploadResultStatus.Error;
+            if (Errors == null)
+            {
+                Errors = new List<Status>();
+            }
+
             if (errorStatus != null)
             {
-                this.Error = errorStatus;
+                this.Errors.Add(errorStatus);
             }
         }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class BulkUploadAssetResult : BulkUploadResult
-    {
-        [JsonProperty("Type")]
-        public int? Type { get; set; }
-
-        [JsonProperty("ExternalId")]
-        public string ExternalId { get; set; }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadMediaAssetResult : BulkUploadAssetResult
-    {
     }
 }

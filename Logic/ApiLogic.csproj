@@ -184,6 +184,7 @@
     <Compile Include="Billing\WinPLCSMS.cs" />
     <Compile Include="Billing\WinPLSMSHelper.cs" />
     <Compile Include="Catalog\AdProvider.cs" />
+    <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
     <Compile Include="Catalog\OpcObjects\Asset.cs" />
     <Compile Include="Catalog\OpcObjects\AssetFile.cs" />
     <Compile Include="Catalog\OpcObjects\AssetStruct.cs" />
@@ -193,7 +194,7 @@
     <Compile Include="Catalog\BaseObject.cs" />
     <Compile Include="Catalog\Bootstrapper.cs" />
     <Compile Include="Catalog\Branding.cs" />
-    <Compile Include="Catalog\BulkUploadAssetData.cs" />
+    <Compile Include="Catalog\BulkUpload\BulkUploadAssetData.cs" />
     <Compile Include="Catalog\Cache\CatalogCache.cs" />
     <Compile Include="Catalog\Cache\EntitlementDefinitionsCache.cs" />
     <Compile Include="Catalog\Cache\ParentalRulesTagsCache.cs" />
