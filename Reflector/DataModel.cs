@@ -403,6 +403,13 @@ namespace Reflector
                                                     file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
                                                 }
                                             }
+                                            else if (schemeArgumentProperty.PropertyType == typeof(double))
+                                            {
+                                                if ((double)val != double.MinValue && (double)val != double.MaxValue)
+                                                {
+                                                    file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                                }
+                                            }
                                             else if (schemeArgumentProperty.PropertyType == typeof(float))
                                             {
                                                 if ((float)val != float.MinValue && (float)val != float.MaxValue)
