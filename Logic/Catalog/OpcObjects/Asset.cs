@@ -299,8 +299,8 @@ namespace Core.Catalog
                    
                     if (meta.m_oTagMeta.m_sType.Equals(MetaType.Bool.ToString()))
                     {
-                        BoolUtils.TryConvert(meta.m_sValue, out bool value);
-                        excelValues.TryAdd(metaColumnName, meta.m_sValue);
+                        var value = meta.m_sValue == "1" ? "True" : "False";
+                        excelValues.TryAdd(metaColumnName, value);
                     }
                     else
                     {
