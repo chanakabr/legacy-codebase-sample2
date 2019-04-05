@@ -49,6 +49,7 @@ namespace AdapterClients.IngestTransformation
         {
             var data = new TransformRequest { FileUrl = fileUrl };
             var request = new RestRequest("Transform", Method.POST);
+            // TODO: Arthur, Add signature to this and all other methods
             request.AddJsonBody(data);
 
             // TODO: Arthur think about the logging of response  when the result here is the full xmlTv data :\
