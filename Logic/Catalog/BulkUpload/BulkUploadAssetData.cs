@@ -124,8 +124,9 @@ namespace Core.Catalog
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadEpgAssetData : BulkUploadAssetData
     {
-        public override string DistributedTask { get { throw new NotImplementedException(); } }
-        public override string RoutingKey { get { throw new NotImplementedException(); } }
+        // TODO: Arthur, remove disterbutedTask and ruting key from media assets and use the event bus instead.
+        public override string DistributedTask { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
+        public override string RoutingKey { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
 
         public override IBulkUploadObject CreateObjectInstance()
         {

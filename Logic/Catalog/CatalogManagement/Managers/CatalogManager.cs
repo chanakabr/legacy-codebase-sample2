@@ -20,7 +20,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();                
+        internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
         internal const string OPC_UI_METADATA = "metadata";
         internal const string OPC_UI_AVAILABILITY = "availability";
         internal const string OPC_UI_TEXTAREA = "textarea";
@@ -116,6 +116,26 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
                 }
+            }
+        }
+
+        public static List<LanguageObj> GetGroupLanguages(int groupId)
+        {
+            if (DoesGroupUsesTemplates(groupId))
+            {
+                if (TryGetCatalogGroupCacheFromCache(groupId, out var catalogCache))
+                {
+                    return catalogCache.LanguageMapById.Values.ToList();
+                }
+                else
+                {
+                    log.Error($"GetGroupLanguages > could not get CatalogGroupCacheFromCache, groupId:[{groupId}]");
+                    return new List<LanguageObj>();
+                }
+            }
+            else
+            {
+                return GroupsCacheManager.GroupsCache.Instance().GetGroup(groupId).GetLangauges();
             }
         }
 
@@ -2105,7 +2125,7 @@ namespace Core.Catalog.CatalogManagement
                 List<string> tags = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key) && x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()))
                                                                                     .Select(x => x.Key).ToList();
 
-                List<string> metas = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key) 
+                List<string> metas = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key)
                                                                                                 && (x.Value.ContainsKey(ApiObjects.MetaType.String.ToString())
                                                                                                     || x.Value.ContainsKey(ApiObjects.MetaType.MultilingualString.ToString())
                                                                                                     || x.Value.ContainsKey(ApiObjects.MetaType.Number.ToString())
@@ -2389,7 +2409,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(eResponseStatus.NoValuesToUpdate);
                     return result;
                 }
-                
+
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 bool shouldUpdateOtherNames = false;
 
@@ -2402,7 +2422,7 @@ namespace Core.Catalog.CatalogManagement
                         languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
                     }
                 }
-                
+
                 if (catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
                 {
                     bool topic = catalogGroupCache.TopicsMapById.ContainsKey(tagToUpdate.topicId);

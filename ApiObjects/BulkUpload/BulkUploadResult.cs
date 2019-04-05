@@ -1,7 +1,9 @@
 ﻿using ApiObjects.Response;
+using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace ApiObjects.BulkUpload
@@ -17,6 +19,7 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadResult
     {
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         // can be assetId, userId etc
         [JsonProperty("ObjectId")]
         public long? ObjectId { get; set; }
@@ -94,6 +97,7 @@ namespace ApiObjects.BulkUpload
         public void AddError(eResponseStatus errorCode, string msg = "")
         {
             var errorStatus = new Status((int)errorCode, msg);
+            _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{msg}]") ;
             AddError(errorStatus);
         }
     }

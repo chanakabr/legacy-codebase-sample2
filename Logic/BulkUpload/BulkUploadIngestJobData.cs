@@ -31,6 +31,7 @@ namespace APILogic.BulkUpload
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string XML_TV_DATE_FORMAT = "yyyyMMddHHmmss";
+        private static readonly XmlSerializer _XmltTVserilizer = new XmlSerializer(typeof(EpgChannels));
         public int IngestProfileId { get; set; }
 
         public override GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
@@ -80,7 +81,6 @@ namespace APILogic.BulkUpload
                 catch (Exception e)
                 {
                     _Logger.Error($"Error while downloading file to ingets, fileUrl:[{fileUrl}]", e);
-
                 }
             }
 
@@ -92,14 +92,10 @@ namespace APILogic.BulkUpload
             EpgChannels xmlTvEpgData = null;
             try
             {
-                var ser = new XmlSerializer(typeof(EpgChannels));
-                var settings = new XmlReaderSettings();
                 using (var textReader = new StringReader(Data))
+                using (var xmlReader = XmlReader.Create(textReader))
                 {
-                    using (var xmlReader = XmlReader.Create(textReader, settings))
-                    {
-                        xmlTvEpgData = (EpgChannels)ser.Deserialize(xmlReader);
-                    }
+                    xmlTvEpgData = (EpgChannels)_XmltTVserilizer.Deserialize(xmlReader);
                 }
 
                 _Logger.Debug($"DeserializeEpgChannel > Successfully  Deserialize xml. got epgchannels.programme.Length:[{xmlTvEpgData.programme.Length}]");
@@ -124,11 +120,10 @@ namespace APILogic.BulkUpload
             var channelExternalIds = xmlTvEpgData.channel.Select(s => s.id).ToList();
             _Logger.Debug($"MapXmlTvProgramToCBEpgProgram > Retriving kaltura channels for external IDs [{string.Join(",", channelExternalIds)}] ");
             var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
-            var languages = GroupsCacheManager.GroupsCache.Instance().GetGroup(groupId).GetLangauges();
+            var languages = Core.Catalog.CatalogManagement.CatalogManager.GetGroupLanguages(groupId);
             var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
             if (defaultLanguage == null)
             {
-                // TODO: Arthur, Check with ophir if we should fail the ingest in this case or just use first language or something else
                 throw new Exception($"No main language defined for group:[{groupId}], ingest failed");
             }
 
@@ -136,7 +131,7 @@ namespace APILogic.BulkUpload
             {
                 // Every channel external id can point to mulitple interbal channels that have to have the same EPG
                 // like channel per region or HD channel vs SD channel etc..
-                var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalId == prog.channel);
+                var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalId.Equals(prog.channel, StringComparison.OrdinalIgnoreCase));
 
                 foreach (var channel in channelsToIngestProgramInto)
                 {
@@ -145,7 +140,6 @@ namespace APILogic.BulkUpload
                         var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code, fieldEntityMapping);
                         response.Add(newEpgAssetResult);
                     }
-
                 }
             }
 
@@ -154,7 +148,9 @@ namespace APILogic.BulkUpload
 
         private BulkUploadEpgAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode, List<FieldTypeEntity> fieldMappings)
         {
+            // TODO: Arthur\ sunny make this code pretty, break into methods .. looks too long. :\
             var response = new BulkUploadEpgAssetResult();
+            response.Type = 0; // EPG Type
             var epgItem = new EpgCB();
 
             epgItem.Language = langCode;
@@ -164,10 +160,16 @@ namespace APILogic.BulkUpload
             epgItem.EpgIdentifier = prog.external_id;
 
             if (ParseXmlTvDateString(prog.start, out var progStartDate)) { epgItem.StartDate = progStartDate; }
-            else { response.AddError(eResponseStatus.EPGSProgramDatesError, $"Start date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]"); }
+            else
+            {
+                response.AddError(eResponseStatus.EPGSProgramDatesError, $"programExternalId:[{prog.external_id}], Start date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
+            }
 
             if (ParseXmlTvDateString(prog.stop, out var progEndDate)) { epgItem.EndDate = progEndDate; }
-            else { response.AddError(eResponseStatus.EPGSProgramDatesError, $"End date:[{prog.stop}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]"); }
+            else
+            {
+                response.AddError(eResponseStatus.EPGSProgramDatesError, $"programExternalId:[{prog.external_id}], End date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
+            }
 
             epgItem.UpdateDate = DateTime.UtcNow;
             epgItem.CreateDate = DateTime.UtcNow;
@@ -178,56 +180,95 @@ namespace APILogic.BulkUpload
             epgItem.EnableStartOver = ParseXmlTvEnableStatusValue(prog.enablestartover);
             epgItem.EnableTrickPlay = ParseXmlTvEnableStatusValue(prog.enabletrickplay);
             epgItem.Crid = prog.crid;
+            epgItem.pictures = prog.icon.Select(p => new EpgPicture
+            {
+                Url = p.src,
+                Ratio = p.ratio,
+                PicWidth = p.width,
+                PicHeight = p.height,
+                ImageTypeId = 0, // TODO: Atthur\sunny look at the code in ws_ingest ingets.cs line#338
+            }).ToList();
 
             epgItem.Name = GetTitleByLanguage(prog.title, langCode, defaultLangCode, out var nameParsingStatus);
-            if (nameParsingStatus != eResponseStatus.OK) { response.AddError(nameParsingStatus, $"Error parsing title for langCode:[{langCode}], defaultLang:[{defaultLangCode}]"); }
-
-            epgItem.Description = GetDescriptionByLanguage(prog.desc, langCode, defaultLangCode, out var descriptionParsingStatus);
-            if (descriptionParsingStatus != eResponseStatus.OK) { response.AddError(nameParsingStatus, $"Error parsing description for langCode:[{langCode}], defaultLang:[{defaultLangCode}]"); }
-
-            epgItem.Metas = new Dictionary<string, List<string>>();
-            foreach (var meta in prog.metas)
+            if (nameParsingStatus != eResponseStatus.OK)
             {
-                // TODO: Cehck with ira, shouldnt meat be a single value and tags be multiple value per type key ? 
-                var mataValues = GetMetaByLanguage(meta, langCode, defaultLangCode, fieldMappings, out var metasParsingStatus);
-                if (metasParsingStatus != eResponseStatus.OK) { _Logger.Error($"GetMetasByLanguage > could not find a match for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]"); }
-                epgItem.Metas[meta.MetaType] = mataValues;
-
+                response.AddError(nameParsingStatus, $"Error parsing title for programExternalId:[{prog.external_id}], langCode:[{langCode}], defaultLang:[{defaultLangCode}]");
             }
 
+            epgItem.Description = GetDescriptionByLanguage(prog.desc, langCode, defaultLangCode, out var descriptionParsingStatus);
+            if (descriptionParsingStatus != eResponseStatus.OK)
+            {
+                response.AddError(nameParsingStatus, $"Error parsing description for programExternalId:[{prog.external_id}], langCode:[{langCode}], defaultLang:[{defaultLangCode}]");
+            }
 
+            epgItem.Metas = ParseMetas(prog, langCode, defaultLangCode, response);
+            epgItem.Tags = ParseTags(prog, langCode, defaultLangCode, response);
+            response.ExternalId = epgItem.EpgIdentifier;
             response.Object = epgItem;
             return response;
         }
 
-        private List<string> GetMetaByLanguage(metas meta, string language, string defaultLanguage, List<FieldTypeEntity> fieldMappings, out eResponseStatus parsingStatus)
+        private Dictionary<string, List<string>> ParseTags(programme prog, string langCode, string defaultLangCode, BulkUploadEpgAssetResult response)
+        {
+            var tagsToSet = new Dictionary<string, List<string>>();
+            foreach (var tag in prog.tags)
+            {
+                var tagValue = GetMetaByLanguage(tag, langCode, defaultLangCode, out var tagParsingStatus);
+                if (tagParsingStatus != eResponseStatus.OK)
+                {
+                    response.AddError(tagParsingStatus, $"Error parsing meta:[{tag.TagType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
+                }
+                tagsToSet[tag.TagType] = tagValue;
+            }
+
+            return tagsToSet;
+        }
+
+        private Dictionary<string, List<string>> ParseMetas(programme prog, string langCode, string defaultLangCode, BulkUploadEpgAssetResult response)
+        {
+            var metasToSet = new Dictionary<string, List<string>>();
+            foreach (var meta in prog.metas)
+            {
+                var mataValue = GetMetaByLanguage(meta, langCode, defaultLangCode, out var metaParsingStatus);
+                if (metaParsingStatus != eResponseStatus.OK)
+                {
+                    response.AddError(metaParsingStatus, $"Error parsing meta:[{meta.MetaType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
+                }
+                metasToSet[meta.MetaType] = mataValue;
+            }
+
+            return metasToSet;
+        }
+
+        private List<string> GetMetaByLanguage(metas meta, string language, string defaultLanguage, out eResponseStatus parsingStatus)
         {
             parsingStatus = eResponseStatus.OK;
-            var response = new Dictionary<string, List<string>>();
-            var metaMapping = fieldMappings.FirstOrDefault(x => x.FieldType == FieldTypes.Meta && x.Name.ToLower() == meta.MetaType);
 
             var valuesByLang = meta.MetaValues.Where(t => t.lang.Equals(language, StringComparison.OrdinalIgnoreCase));
             valuesByLang = valuesByLang ?? meta.MetaValues.Where(t => t.lang.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase));
             if (valuesByLang == null)
             {
                 parsingStatus = eResponseStatus.EPGLanguageNotFound;
+                return new List<string>();
             }
 
             var valuesStrByLang = valuesByLang.Select(v => v.Value).ToList();
-            if (!string.IsNullOrEmpty(metaMapping?.RegexExpression))
-            {
-                var metaRgxValidator = new Regex(metaMapping.RegexExpression);
-                var metaValidationResult = valuesStrByLang
-                    .GroupBy(metaRgxValidator.IsMatch)
-                    .ToDictionary(k => k.Key, v => v.AsEnumerable());
-                if (metaValidationResult.TryGetValue(false, out var invalidMetaValues))
-                {
-                    // TODO: add parsing errors regarding some metas that could not be parsed
-                    _Logger.Warn($"GetMetaByLanguage > following metas failed parsing:[{string.Join(",", invalidMetaValues)}] ");
-                }
+            return valuesStrByLang;
+        }
 
+        private List<string> GetMetaByLanguage(tags tags, string language, string defaultLanguage, out eResponseStatus parsingStatus)
+        {
+            parsingStatus = eResponseStatus.OK;
+
+            var valuesByLang = tags.TagValues.Where(t => t.lang.Equals(language, StringComparison.OrdinalIgnoreCase));
+            valuesByLang = valuesByLang ?? tags.TagValues.Where(t => t.lang.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase));
+            if (valuesByLang == null)
+            {
+                parsingStatus = eResponseStatus.EPGLanguageNotFound;
+                return new List<string>();
             }
 
+            var valuesStrByLang = valuesByLang.Select(v => v.Value).ToList();
             return valuesStrByLang;
         }
 
