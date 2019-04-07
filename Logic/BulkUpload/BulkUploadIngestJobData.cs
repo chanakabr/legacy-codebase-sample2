@@ -48,7 +48,7 @@ namespace APILogic.BulkUpload
 
             var epgData = DeserializeXmlTvEpgData(xmlTvString);
             response.Objects = epgData;
-
+            response.SetStatus(eResponseStatus.OK);
             return response;
         }
 
@@ -122,6 +122,7 @@ namespace APILogic.BulkUpload
             var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
             var languages = Core.Catalog.CatalogManagement.CatalogManager.GetGroupLanguages(groupId);
             var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
+            var itemIndex = 1;
             if (defaultLanguage == null)
             {
                 throw new Exception($"No main language defined for group:[{groupId}], ingest failed");
@@ -138,6 +139,7 @@ namespace APILogic.BulkUpload
                     foreach (var lang in languages)
                     {
                         var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code, fieldEntityMapping);
+                        newEpgAssetResult.Index = itemIndex++;
                         response.Add(newEpgAssetResult);
                     }
                 }
@@ -162,13 +164,15 @@ namespace APILogic.BulkUpload
             if (ParseXmlTvDateString(prog.start, out var progStartDate)) { epgItem.StartDate = progStartDate; }
             else
             {
-                response.AddError(eResponseStatus.EPGSProgramDatesError, $"programExternalId:[{prog.external_id}], Start date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
+                response.AddError(eResponseStatus.EPGSProgramDatesError, 
+                    $"programExternalId:[{prog.external_id}], Start date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
             }
 
             if (ParseXmlTvDateString(prog.stop, out var progEndDate)) { epgItem.EndDate = progEndDate; }
             else
             {
-                response.AddError(eResponseStatus.EPGSProgramDatesError, $"programExternalId:[{prog.external_id}], End date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
+                response.AddError(eResponseStatus.EPGSProgramDatesError, 
+                    $"programExternalId:[{prog.external_id}], End date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
             }
 
             epgItem.UpdateDate = DateTime.UtcNow;
@@ -205,6 +209,7 @@ namespace APILogic.BulkUpload
             epgItem.Tags = ParseTags(prog, langCode, defaultLangCode, response);
             response.ExternalId = epgItem.EpgIdentifier;
             response.Object = epgItem;
+            response.Status = BulkUploadResultStatus.Ok;
             return response;
         }
 
