@@ -186,13 +186,14 @@ namespace TVinciShared
                 {
                     try
                     {
+                        var filePath = GetRelativeFilePath(subDir, fileName);
                         using (var fileTransferUtility = new TransferUtility(client))
                         {
                             var fileTransferUtilityRequest = new TransferUtilityUploadRequest
                             {
                                 BucketName = BucketName,
                                 FilePath = fileInfo.FullName,
-                                Key = fileName
+                                Key = filePath
                             };
                             fileTransferUtility.Upload(fileTransferUtilityRequest);
 
@@ -270,7 +271,12 @@ namespace TVinciShared
 
         protected override string GetUrl(string subDir, string fileName)
         {
-            return string.Format("{0}{1}_{2}", Path, subDir, fileName);
+            return string.Format("{0}{1}", Path, GetRelativeFilePath(subDir, fileName));
+        }
+
+        private string GetRelativeFilePath(string subDir, string fileName)
+        {
+            return string.Format("{0}_{1}", subDir, fileName);
         }
     }
 
