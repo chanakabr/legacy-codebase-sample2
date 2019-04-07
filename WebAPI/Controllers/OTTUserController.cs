@@ -129,7 +129,7 @@ namespace WebAPI.Controllers
         {
             KalturaOTTUser response = null;
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            if ((string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password)) && !string.IsNullOrEmpty(udid))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username or password");
             }

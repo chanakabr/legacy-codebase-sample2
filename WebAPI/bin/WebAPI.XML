@@ -14213,7 +14213,7 @@
             Refresh Token
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaLoginSession.Expiration">
+        <member name="P:WebAPI.Models.Users.KalturaLoginSession.Expiry">
             <summary>
             Expiration
             </summary>

@@ -147,7 +147,7 @@ namespace WebAPI.Managers
             }
 
             session.KS = token.KS;
-            session.Expiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(token.KsObject.Expiration);
+            session.Expiry = DateUtils.DateTimeToUtcUnixTimestampSeconds(token.KsObject.Expiration);
 
             return session;
         }
