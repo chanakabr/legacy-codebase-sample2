@@ -3,6 +3,7 @@ using ConfigurationManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -155,7 +156,14 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
+            Dictionary<string, string> priviliges = null;
+            var tmp = HttpContext.Current.Items["Priviliges"];
+            if (tmp != null)
+            {
+                priviliges = (Dictionary<string, string>)tmp;
+            }
+
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid, priviliges), User = response };
         }
 
         /// <summary>
