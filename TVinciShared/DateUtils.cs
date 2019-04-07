@@ -8,6 +8,9 @@ namespace TVinciShared
     /// </summary>
     public static class DateUtils
     {
+        public static readonly Type DateTimeType = typeof(DateTime);
+        public static readonly Type NullableDateTimeType = typeof(DateTime?);
+
         static public string GetDateForSchedule(DateTime theDate)
         {
             string sRet = "";
