@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0CB48298-7017-415C-8732-6542C9A88F45}"
 	ProjectSection(SolutionItems) = preProject
@@ -56,7 +56,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synchronizer", "..\tvmcore\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvinciImporter", "..\tvmcore\TvinciImporter\TvinciImporter.csproj", "{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingProvider", "..\tvmcore\CachingProvider\CachingProvider.csproj", "{4191D9E7-8502-4B00-A488-771240E2CF40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingProvider", "..\tvmcore\CachingProvider\CachingProvider.csproj", "{4191D9E7-8502-4B00-A488-771240E2CF40}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uploader", "..\tvmcore\Uploader\Uploader.csproj", "{A35BD0D3-3055-4206-8B3F-80079F9ECA15}"
 EndProject
@@ -500,12 +500,12 @@ Global
 		{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4191D9E7-8502-4B00-A488-771240E2CF40}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{4191D9E7-8502-4B00-A488-771240E2CF40}.Local|Any CPU.Build.0 = Local|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{4191D9E7-8502-4B00-A488-771240E2CF40}.Local|Any CPU.Build.0 = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -893,7 +893,7 @@ Global
 		{614D6789-8B4B-4F9E-8792-B3BD7533C0E7} = {B73AD4B5-1AC8-4F26-BF58-CD82247DC9C4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal

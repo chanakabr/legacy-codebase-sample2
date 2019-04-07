@@ -1063,6 +1063,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<BulkUploadMediaAssetResult, KalturaBulkUploadMediaAssetResult>()
                .IncludeBase<BulkUploadAssetResult, KalturaBulkUploadAssetResult>();
 
+            cfg.CreateMap<BulkUploadEpgAssetResult, KalturaBulkUploadProgramAssetResult>()
+               .IncludeBase<BulkUploadAssetResult, KalturaBulkUploadAssetResult>();
+
             cfg.CreateMap<KalturaBulkUploadJobData, BulkUploadJobData>();
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()

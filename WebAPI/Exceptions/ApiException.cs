@@ -425,6 +425,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INGEST_PROFILE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.IngestProfileNotExists, "Ingest profile does not exist");
         public static ClientExceptionType INGEST_PROFILE_REQUIRED = new ClientExceptionType(eResponseStatus.IngestProfileIdRequired, "Ingest profile id is mandatory");
         public static ClientExceptionType NO_INGEsT_PROFILE_TO_INSERT = new ClientExceptionType(eResponseStatus.NoIngestProfileToInsert, "No Ingest Profile found to insert");
+        public static ClientExceptionType EPG_PROGRAM_LANG_NOT_EXISTS = new ClientExceptionType(eResponseStatus.EPGLanguageNotFound, "EPG Program required language not found ", "The EPG program does not have the required language or the required default language as a fallback option");
 
         #endregion
         

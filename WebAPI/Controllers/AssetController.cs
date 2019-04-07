@@ -1384,7 +1384,6 @@ namespace WebAPI.Controllers
                 bulkUploadAssetData.Validate();
 
                 var assetType = bulkUploadAssetData.GetBulkUploadObjectType();
-                bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, assetType, bulkUploadJobData, bulkUploadAssetData); 
                 bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, assetType, bulkUploadJobData, bulkUploadAssetData);
             }
             catch (ClientException ex)

@@ -106,4 +106,8 @@ namespace WebAPI.Models.Upload
     public partial class KalturaBulkUploadMediaAssetResult : KalturaBulkUploadAssetResult
     {
     }
+
+    public partial class KalturaBulkUploadProgramAssetResult : KalturaBulkUploadAssetResult
+    {
+    }
 }
