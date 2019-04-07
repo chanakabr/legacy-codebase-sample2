@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using AdapterClients.IngestTransformation;
-using APILogic.Catalog.BulkUpload;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
@@ -20,7 +19,7 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using Tvinci.Core.DAL;
 
-namespace APILogic.BulkUpload
+namespace Core.Catalog
 {
     /// <summary>
     /// Instructions for ingest of custom data file
@@ -122,7 +121,7 @@ namespace APILogic.BulkUpload
             var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
             var languages = Core.Catalog.CatalogManagement.CatalogManager.GetGroupLanguages(groupId);
             var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
-            var itemIndex = 1;
+            var itemIndex = 0;
             if (defaultLanguage == null)
             {
                 throw new Exception($"No main language defined for group:[{groupId}], ingest failed");
@@ -152,6 +151,7 @@ namespace APILogic.BulkUpload
         {
             // TODO: Arthur\ sunny make this code pretty, break into methods .. looks too long. :\
             var response = new BulkUploadEpgAssetResult();
+            response.Status = BulkUploadResultStatus.InProgress;
             response.Type = 0; // EPG Type
             var epgItem = new EpgCB();
 
@@ -209,7 +209,6 @@ namespace APILogic.BulkUpload
             epgItem.Tags = ParseTags(prog, langCode, defaultLangCode, response);
             response.ExternalId = epgItem.EpgIdentifier;
             response.Object = epgItem;
-            response.Status = BulkUploadResultStatus.Ok;
             return response;
         }
 

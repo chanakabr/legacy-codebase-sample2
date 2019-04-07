@@ -37,7 +37,7 @@ namespace ApiObjects.BulkUpload
                     var bulkUploadResult = objectData.GetNewBulkUploadResult(bulkUploadId, bulkUploadObject.Object, i, errorStatus);
                     response.Objects.Add(bulkUploadResult);
                 }
-               
+
                 response.SetStatus(eResponseStatus.OK);
             }
 

@@ -12,13 +12,13 @@ namespace Core.Catalog
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadAssetData : BulkUploadObjectData
+    public abstract class BulkUploadAssetData : BulkUploadObjectData
     {
-        protected AssetStruct structure { get; private set; }
+        protected AssetStruct structure { get; set; }
 
         [JsonProperty("TypeId")]
         public long TypeId { get; set; }
-        
+
         public override IBulkUploadStructure GetStructure()
         {
             if (structure == null)
@@ -42,14 +42,17 @@ namespace Core.Catalog
 
             return structure;
         }
+    }
 
+    public class BulkUploadMediaAssetData : BulkUploadAssetData
+    {
         public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
         public override string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
 
         public override IBulkUploadObject CreateObjectInstance()
         {
-            var bulkObject = Activator.CreateInstance(typeof(MediaAsset)) as MediaAsset;
-            return bulkObject;
+            var excelObject = Activator.CreateInstance(typeof(MediaAsset)) as MediaAsset;
+            return excelObject;
         }
 
         public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatus)
@@ -72,6 +75,7 @@ namespace Core.Catalog
             {
                 bulkUploadAssetResult.AddError(errorStatus);
             }
+
             return bulkUploadAssetResult;
         }
 
@@ -113,27 +117,19 @@ namespace Core.Catalog
         }
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadMediaAssetData : BulkUploadAssetData
-    {
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    // TODO ARTHUR - FINISH BulkUploadEpgAssetData
     public class BulkUploadEpgAssetData : BulkUploadAssetData
     {
-        // TODO: Arthur, remove disterbutedTask and ruting key from media assets and use the event bus instead.
-        public override string DistributedTask { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
-        public override string RoutingKey { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
+        public override string DistributedTask => throw new NotImplementedException();
+
+        public override string RoutingKey => throw new NotImplementedException();
 
         public override IBulkUploadObject CreateObjectInstance()
         {
-            var bulkObject = Activator.CreateInstance(typeof(EpgAsset)) as EpgAsset;
-            return bulkObject;
+            throw new NotImplementedException();
         }
-        
-        public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> objects)
+
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> results)
         {
             throw new NotImplementedException();
         }
@@ -143,7 +139,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatus)
+        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatusDetails)
         {
             throw new NotImplementedException();
         }

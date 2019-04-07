@@ -22,7 +22,7 @@ namespace ApiObjects.BulkUpload
         public abstract IBulkUploadStructure GetStructure();
         public abstract IBulkUploadObject CreateObjectInstance();
         public abstract Dictionary<string, object> GetMandatoryPropertyToValueMap();
-        
+
         /// <summary>
         /// This creates a new bulk upload result that will display the details of a single item inside the entire bulk upload process
         /// </summary>

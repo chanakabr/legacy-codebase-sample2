@@ -2,8 +2,9 @@
 using Core.Catalog;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
-namespace APILogic.Catalog.BulkUpload
+namespace Core.Catalog
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
@@ -26,6 +27,12 @@ namespace APILogic.Catalog.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadEpgAssetResult : BulkUploadAssetResult
     {
-        //TODO ARTHUR ADD TO MAPPING
+        public List<BulkUploadChannelResult> Channels { get; set; }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class BulkUploadChannelResult : BulkUploadResult
+    {
     }
 }

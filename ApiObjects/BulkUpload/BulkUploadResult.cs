@@ -56,12 +56,12 @@ namespace ApiObjects.BulkUpload
             {
                 sb.AppendFormat(", ObjectId:{0}", ObjectId);
             }
-
+            
             if (Errors != null && Errors.Count > 0)
             {
                 for (int i = 0; i < Errors.Count; i++)
                 {
-                    sb.AppendFormat(", Errors {0}:{1}", i + 1, Errors[i].ToString());
+                    sb.AppendFormat(", Error {0}:{1}", i + 1, Errors[i].ToString());
                 }
             }
 
@@ -90,6 +90,7 @@ namespace ApiObjects.BulkUpload
 
             if (errorStatus != null)
             {
+                _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{errorStatus.Message}]");
                 this.Errors.Add(errorStatus);
             }
         }
@@ -97,7 +98,7 @@ namespace ApiObjects.BulkUpload
         public void AddError(eResponseStatus errorCode, string msg = "")
         {
             var errorStatus = new Status((int)errorCode, msg);
-            _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{msg}]") ;
+            
             AddError(errorStatus);
         }
     }
