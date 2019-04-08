@@ -3291,84 +3291,103 @@ namespace Core.Catalog
 
         public bool PartialUpdate(int groupId, AssetsPartialUpdate assets)
         {
-            bool success = false;
+            // start optimistic
+            bool success = true;
 
-            if (assets != null && assets.AssetIds != null && assets.AssetIds.Count > 0)
+            try
             {
-                string index = string.Empty;
-                string defaultType = string.Empty;
-
-                if (assets.AssetType == eObjectType.Media)
+                if (assets != null && assets.AssetIds != null && assets.AssetIds.Count > 0)
                 {
-                    index = ElasticSearch.Common.Utils.GetGroupMediaIndex(groupId);
-                    defaultType = ES_MEDIA_TYPE;
-                }
-                else if (assets.AssetType == eObjectType.EPG)
-                {
-                    index = ElasticSearch.Common.Utils.GetGroupEpgIndex(groupId);
-                    defaultType = ES_EPG_TYPE;
-                }
-                else
-                {
-                    log.ErrorFormat("Received partial update for invalid object type : {0}", assets.AssetType);
-                    return false;
-                }
+                    string index = string.Empty;
+                    string defaultType = string.Empty;
 
-                string type = string.Empty;
-
-                ElasticSearchApi api = new ElasticSearchApi();
-
-                foreach (var assetId in assets.AssetIds)
-                {
-                    foreach (var update in assets.Updates)
+                    if (assets.AssetType == eObjectType.Media)
                     {
-                        string documentId = assetId.ToString();
+                        index = ElasticSearch.Common.Utils.GetGroupMediaIndex(groupId);
+                        defaultType = ES_MEDIA_TYPE;
+                    }
+                    else if (assets.AssetType == eObjectType.EPG)
+                    {
+                        index = ElasticSearch.Common.Utils.GetGroupEpgIndex(groupId);
+                        defaultType = ES_EPG_TYPE;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Received partial update for invalid object type : {0}", assets.AssetType);
+                        return false;
+                    }
 
-                        JObject body = new JObject();
+                    string type = string.Empty;
 
-                        if (string.IsNullOrEmpty(update.LanguageCode) && !update.ShouldUpdateAllLanguages)
+                    ElasticSearchApi api = new ElasticSearchApi();
+
+                    foreach (var assetId in assets.AssetIds)
+                    {
+                        try
                         {
-                            string fieldName = update.FieldName;
-                            switch (update.FieldType)
+                            foreach (var update in assets.Updates)
                             {
-                                case eUpdateFieldType.Basic:
-                                    break;
-                                case eUpdateFieldType.Tag:
-                                    {
-                                        fieldName = string.Format("tags.{0}", fieldName);
-                                        break;
-                                    }
-                                case eUpdateFieldType.Meta:
-                                    {
-                                        fieldName = string.Format("metas.{0}", fieldName);
-                                        break;
-                                    }
-                                default:
-                                    break;
-                            }
+                                string documentId = assetId.ToString();
 
-                            switch (update.Action)
-                            {
-                                case eUpdateFieldAction.Update:
+                                JObject body = new JObject();
+
+                                if (string.IsNullOrEmpty(update.LanguageCode) && !update.ShouldUpdateAllLanguages)
+                                {
+                                    type = defaultType;
+
+                                    string fieldName = update.FieldName;
+                                    switch (update.FieldType)
                                     {
-                                        body["doc"] = new JObject();
-                                        body["doc"][fieldName] = JToken.FromObject(update.NewValue);
-                                        break;
+                                        case eUpdateFieldType.Basic:
+                                            break;
+                                        case eUpdateFieldType.Tag:
+                                            {
+                                                fieldName = string.Format("tags.{0}", fieldName);
+                                                break;
+                                            }
+                                        case eUpdateFieldType.Meta:
+                                            {
+                                                fieldName = string.Format("metas.{0}", fieldName);
+                                                break;
+                                            }
+                                        default:
+                                            break;
                                     }
-                                case eUpdateFieldAction.Replace:
-                                    break;
-                                case eUpdateFieldAction.Delete:
-                                    break;
-                                default:
-                                    break;
+
+                                    switch (update.Action)
+                                    {
+                                        case eUpdateFieldAction.Update:
+                                            {
+                                                body["doc"] = new JObject();
+                                                body["doc"][fieldName] = JToken.FromObject(update.NewValue);
+                                                break;
+                                            }
+                                        case eUpdateFieldAction.Replace:
+                                            break;
+                                        case eUpdateFieldAction.Delete:
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+
+                                success &= api.PartialUpdate(index, type, documentId, body.ToString());
                             }
                         }
-
-                        api.PartialUpdate(index, type, documentId, body.ToString());
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat(
+                                "Error when performing partial update for group id {0} and asset id = {1} of type {2}. ex = {3}", 
+                                groupId, assetId, assets.AssetType ex);
+                        }
                     }
                 }
-
             }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when performing partial update for group id {0}. ex = {1}", groupId, ex);
+            }
+
             return success;
         }
 
