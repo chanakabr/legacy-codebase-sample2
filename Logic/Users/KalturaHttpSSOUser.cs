@@ -89,7 +89,7 @@ namespace Core.Users
 
                 if (response.Priviliges != null && response.Priviliges.Count > 0)
                 {
-                    HttpContext.Current.Items.Add("Priviliges", response.Priviliges);
+                    HttpContext.Current.Items.Add(Constants.PRIVILIGES, response.Priviliges);
                 }
 
                 return new UserResponseObject { m_RespStatus = ResponseStatus.OK };
