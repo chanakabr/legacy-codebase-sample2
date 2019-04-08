@@ -237,7 +237,7 @@ namespace CouchbaseManager
                     cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", ids.ToArray()));
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                     {
-                        getResults = bucket.Get<T>(ids, TimeSpan.FromMilliseconds(CouchbaseManager.SEARCH_REQUEST_TIMEOUT_DEFAULT_MILLISECONDS));
+                        getResults = bucket.Get<T>(ids, TimeSpan.FromMilliseconds(CouchbaseManager.SEND_TIMEOUT_DEFAULT_MILLISECONDS));
                     }
 
                     // Run on all Get results
@@ -411,7 +411,7 @@ namespace CouchbaseManager
                         cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", idsAndKeys.Keys.ToList()));
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                         {
-                            getResults = bucket.Get<T>(idsAndKeys.Keys.ToList(), TimeSpan.FromMilliseconds(CouchbaseManager.SEARCH_REQUEST_TIMEOUT_DEFAULT_MILLISECONDS));
+                            getResults = bucket.Get<T>(idsAndKeys.Keys.ToList(), TimeSpan.FromMilliseconds(CouchbaseManager.SEND_TIMEOUT_DEFAULT_MILLISECONDS));
                         }
 
                         // Run on all Get results
