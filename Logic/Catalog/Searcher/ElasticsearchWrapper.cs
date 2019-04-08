@@ -3336,30 +3336,33 @@ namespace Core.Catalog
                                     type = defaultType;
 
                                     string fieldName = update.FieldName;
-                                    switch (update.FieldType)
-                                    {
-                                        case eUpdateFieldType.Basic:
-                                            break;
-                                        case eUpdateFieldType.Tag:
-                                            {
-                                                fieldName = string.Format("tags.{0}", fieldName);
-                                                break;
-                                            }
-                                        case eUpdateFieldType.Meta:
-                                            {
-                                                fieldName = string.Format("metas.{0}", fieldName);
-                                                break;
-                                            }
-                                        default:
-                                            break;
-                                    }
-
                                     switch (update.Action)
                                     {
                                         case eUpdateFieldAction.Update:
                                             {
                                                 body["doc"] = new JObject();
-                                                body["doc"][fieldName] = JToken.FromObject(update.NewValue);
+
+                                                switch (update.FieldType)
+                                                {
+                                                    case eUpdateFieldType.Basic:
+                                                        body["doc"][update.FieldName] = JToken.FromObject(update.NewValue);
+                                                        break;
+                                                    case eUpdateFieldType.Tag:
+                                                        {
+                                                            body["doc"]["tags"] = new JObject();
+                                                            body["doc"]["tags"][update.FieldName] = JToken.FromObject(update.NewValue);
+                                                            break;
+                                                        }
+                                                    case eUpdateFieldType.Meta:
+                                                        {
+                                                            body["doc"]["metas"] = new JObject();
+                                                            body["doc"]["metas"][update.FieldName] = JToken.FromObject(update.NewValue);
+                                                            break;
+                                                        }
+                                                    default:
+                                                        break;
+                                                }
+
                                                 break;
                                             }
                                         case eUpdateFieldAction.Replace:
