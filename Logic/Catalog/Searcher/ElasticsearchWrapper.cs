@@ -3378,7 +3378,7 @@ namespace Core.Catalog
                         {
                             log.ErrorFormat(
                                 "Error when performing partial update for group id {0} and asset id = {1} of type {2}. ex = {3}", 
-                                groupId, assetId, assets.AssetType ex);
+                                groupId, assetId, assets.AssetType, ex);
                         }
                     }
                 }
