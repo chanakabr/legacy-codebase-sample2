@@ -7651,6 +7651,8 @@ namespace Core.Api
                 response.ExternalChannel = CatalogDAL.InsertExternalChannel(groupId, externalChannel);
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
+                    CreateVirtualChannel(groupId, userId, response.ExternalChannel);
+
                     response.Status = new Status((int)eResponseStatus.OK, "new external channel insert");
                 }
                 else
@@ -7664,7 +7666,7 @@ namespace Core.Api
                 log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
             return response;
-        }
+        }        
 
         public static Status DeleteExternalChannel(int groupId, int externalChannelId, long userId)
         {
@@ -7725,7 +7727,7 @@ namespace Core.Api
             return response;
         }
 
-        public static ExternalChannelResponse SetExternalChannel(int groupId, ExternalChannel externalChannel, long userId)
+        public static ExternalChannelResponse SetExternalChannel(int groupId, ExternalChannel externalChannel, long userId, bool isFromAsset = false)
         {
             ExternalChannelResponse response = new ExternalChannelResponse();
 
@@ -7807,6 +7809,11 @@ namespace Core.Api
 
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
+                    if (!isFromAsset)
+                    {
+                        UpdateVirtualAsset(groupId, userId, response.ExternalChannel);
+                    }
+
                     response.Status = new Status((int)eResponseStatus.OK, "external channel set changes");
                 }
                 else
@@ -7828,7 +7835,7 @@ namespace Core.Api
                 log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
             return response;
-        }
+        }        
 
         public static ExternalChannelResponseList GetExternalChannels(int groupID)
         {
@@ -11886,6 +11893,84 @@ namespace Core.Api
         {
             var profile = ApiDAL.GetIngestProfiles(profileId: id).FirstOrDefault();
             return (profile != null);
+        }
+
+        private static void CreateVirtualChannel(int groupId, long userId, ExternalChannel channel)
+        {
+            AssetStruct assetStruct = GetExternalChannelAssetStruct(groupId);
+
+            ChannelManager.CreateVirtualChannel(groupId, userId, assetStruct, channel.Name, channel.ID.ToString(), string.Empty);
+        }
+
+        private static AssetStruct GetExternalChannelAssetStruct(int groupId)
+        {
+            CatalogGroupCache catalogGroupCache;
+            AssetStruct assetStruct = null;
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetExternalChannelAssetStruct", groupId);
+                return assetStruct;
+            }
+
+            if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.EXTERNAL_ASSET_STRUCT_NAME))
+            {
+                assetStruct = catalogGroupCache.AssetStructsMapBySystemName[AssetManager.EXTERNAL_ASSET_STRUCT_NAME];
+            }
+
+            if (assetStruct != null && (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0))
+            {
+                if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
+                                                      .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
+                                                      .ToDictionary(x => x.Value.SystemName, y => y.Value);
+                }
+            }
+
+            return assetStruct;
+        }
+
+        private static void UpdateVirtualAsset(int groupId, long userId, ExternalChannel channel)
+        {
+            AssetStruct assetStruct = GetExternalChannelAssetStruct(groupId);
+
+            if (assetStruct == null)
+            {
+                log.ErrorFormat("Failed UpdateVirtualAsset. AssetStruct is missing. groupId {0}, channelId {1}", groupId, channel.ID);
+                return;
+            }
+
+            // build ElasticSearch filter
+            string filter = string.Format("(and {0}='{1}' asset_type='{2}')", AssetManager.CHANNEL_ID_META_SYSTEM_NAME, channel.ID, assetStruct.Id);
+            UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, false);
+
+            if (assets == null || assets.Length == 0)
+            {                
+                log.DebugFormat("UpdateVirtualAsset. Asset not found. CreateVirtualChannel. groupId {0}, channelId {1}", groupId, channel.ID);
+                CreateVirtualChannel(groupId, userId, channel);
+                return;
+            }
+
+            GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+
+            if (!asset.HasObject())
+            {                
+                log.ErrorFormat("Failed UpdateVirtualAsset. virtual asset not found. groupId {0}, channelId {1}", groupId, channel.ID);
+                return;
+            }
+
+            Asset virtualAsset = asset.Object;
+
+            virtualAsset.Name = channel.Name;            
+
+            GenericResponse<Asset> assetUpdateResponse = AssetManager.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
+
+            if (!assetUpdateResponse.IsOkStatusCode())
+            {
+                log.ErrorFormat("Failed update virtual asset {0}, groupId {1}, channelId {2}", virtualAsset.Id, groupId, channel.ID);
+            }
+
+            return;
         }
     }
 }

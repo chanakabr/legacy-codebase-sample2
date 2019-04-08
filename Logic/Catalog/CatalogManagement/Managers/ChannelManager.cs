@@ -3,6 +3,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.Api.Managers;
+using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
 using System;
@@ -425,6 +426,97 @@ namespace Core.Catalog.CatalogManagement
             return channels;
         }
 
+        private static void CreateVirtualChannel(int groupId, long userId, Channel channel)
+        {
+            AssetStruct assetStruct = GetAssetStructIdByChannelType(groupId, channel.m_nChannelTypeID);
+
+            CreateVirtualChannel(groupId, userId, assetStruct,channel.m_sName, channel.m_nChannelID.ToString(), channel.m_sDescription,
+                channel.NamesInOtherLanguages, channel.DescriptionInOtherLanguages);
+        }
+        
+        private static AssetStruct GetAssetStructIdByChannelType(int groupId, int channelTypeId)
+        {
+            AssetStruct assetStruct = null;
+            CatalogGroupCache catalogGroupCache;
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructIdByChannelType", groupId);
+                return assetStruct;
+            }
+
+            if ((ChannelType)channelTypeId == ChannelType.Manual)
+            {
+                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.MANUAL_ASSET_STRUCT_NAME))
+                {
+                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[AssetManager.MANUAL_ASSET_STRUCT_NAME];                    
+                }
+            }
+            else if ((ChannelType)channelTypeId == ChannelType.KSQL)
+            {
+                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.DYNAMIC_ASSET_STRUCT_NAME))
+                {
+                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[AssetManager.DYNAMIC_ASSET_STRUCT_NAME];                    
+                }
+            }
+
+            if (assetStruct != null && (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0))
+            {                
+                if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
+                                                      .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
+                                                      .ToDictionary(x => x.Value.SystemName, y => y.Value);
+                }
+            }
+
+            return assetStruct;
+        }
+
+        private static void UpdateVirtualAsset(int groupId, long userId, Channel channel)
+        {
+            AssetStruct assetStruct = GetAssetStructIdByChannelType(groupId, channel.m_nChannelTypeID);
+
+            if (assetStruct == null)
+            {
+                log.ErrorFormat("Failed UpdateVirtualAsset. AssetStruct is missing groupId {0}, channelId {1}", groupId, channel.m_nChannelTypeID);
+                return;
+            }
+            // build ElasticSearch filter
+            string filter = string.Format("(and {0}='{1}' asset_type='{2}')", AssetManager.CHANNEL_ID_META_SYSTEM_NAME, channel.m_nChannelID, assetStruct.Id);
+            UnifiedSearchResult[] assets = Utils.SearchAssets(groupId, filter, 0, 0, false, false);
+
+            if (assets == null || assets.Length == 0)
+            {
+                log.DebugFormat("UpdateVirtualAsset. Asset not found. CreateVirtualChannel. groupId {0}, channelId {1}", groupId, channel.m_nChannelTypeID);
+                CreateVirtualChannel(groupId, userId, channel);
+                return;
+            }
+
+            GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+
+            if (!asset.HasObject())
+            {
+                log.ErrorFormat("Failed UpdateVirtualAsset. virtual asset not found. groupId {0}, channelId {1}", groupId, channel.m_nChannelID);
+                return;
+            }
+
+            Asset virtualAsset = asset.Object;
+
+            virtualAsset.Name = channel.m_sName;
+            virtualAsset.NamesWithLanguages = channel.NamesInOtherLanguages;
+            virtualAsset.Description = channel.m_sDescription;
+            virtualAsset.DescriptionsWithLanguages = channel.DescriptionInOtherLanguages;
+
+            GenericResponse<Asset> assetUpdateResponse = AssetManager.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
+
+            if (!assetUpdateResponse.IsOkStatusCode())
+            {
+                log.ErrorFormat("Failed update virtual asset {0}, groupId {1}, channelId {2}", virtualAsset.Id, groupId, channel.m_nChannelID);
+            }
+
+            return;
+        }
+
         #endregion
 
         #region Internal Methods
@@ -479,6 +571,51 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        internal static void CreateVirtualChannel(int groupId, long userId, AssetStruct assetStruct, string name, string channelId, 
+            string description, List<LanguageContainer> namesWithLanguages = null, List<LanguageContainer> descriptionsWithLanguages = null)
+        {
+            if (assetStruct != null && assetStruct.TopicsMapBySystemName.ContainsKey(AssetManager.CHANNEL_ID_META_SYSTEM_NAME))
+            {
+                MediaAsset virtualChannel = new MediaAsset()
+                {
+                    AssetType = eAssetTypes.MEDIA,
+                    IsActive = true,
+                    CoGuid = Guid.NewGuid().ToString(),
+                    Name = name,
+                    NamesWithLanguages = namesWithLanguages,
+                    Description = description,
+                    DescriptionsWithLanguages = descriptionsWithLanguages,
+                    CreateDate = DateTime.UtcNow,
+                    Metas = new List<Metas>(),
+                    MediaType = new MediaType()
+                    {
+                        m_nTypeID = (int)assetStruct.Id
+                    }
+                };
+
+                virtualChannel.Metas.Add(new Metas()
+                {
+                    m_oTagMeta = new TagMeta()
+                    {
+                        m_sName = AssetManager.CHANNEL_ID_META_SYSTEM_NAME,
+                        m_sType = ApiObjects.MetaType.Number.ToString()
+                    },
+                    m_sValue = channelId
+                });
+
+                GenericResponse<Asset> virtualChannelResponse = AssetManager.AddAsset(groupId, virtualChannel, userId);
+                if (!virtualChannelResponse.HasObject())
+                {
+                    log.ErrorFormat("Failed create Virtual asset for channel id {0}", channelId);
+                }
+                else
+                {
+                    log.DebugFormat("Success create Virtual asset for channel id {0}, asset id : {1}", channelId, virtualChannelResponse.Object.Id);
+
+                }
+            }
         }
 
         #endregion
@@ -714,6 +851,8 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Object != null && response.Object.m_nChannelID > 0)
                 {
+                    CreateVirtualChannel(groupId, userId, response.Object);
+
                     bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object, userId);
                     if (!updateResult)
                     {
@@ -735,9 +874,9 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
+        }        
 
-        public static GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId, bool isForMigration = false)
+        public static GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId, bool isForMigration = false, bool isFromAsset = false)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
             Channel currentChannel = null;
@@ -920,6 +1059,11 @@ namespace Core.Catalog.CatalogManagement
                 if (response.Object != null && response.Object.m_nChannelID > 0)
                 {
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    if (!isFromAsset)
+                    {
+                        UpdateVirtualAsset(groupId, userId, response.Object);
+                    }
+
                     if (!isForMigration)
                     {
                         bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object, userId);
@@ -945,7 +1089,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
+        }        
 
         public static GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, bool shouldCheckGroupUsesTemplates = true,
             long userId = 0)
