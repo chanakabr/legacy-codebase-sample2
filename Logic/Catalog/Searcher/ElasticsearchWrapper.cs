@@ -34,6 +34,7 @@ namespace Core.Catalog
         public const int STATUS_INTERNAL_ERROR = 500;
 
         protected const string CHANNEL_SEARCH_IS_ACTIVE = "is_active";
+
         protected const string CHANNEL_SEARCH_IS_ACTIVE_VALUE = "1";
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
@@ -3284,9 +3285,93 @@ namespace Core.Catalog
             #endregion
 
             return result;
-        }    
+        }
 
         #endregion
+
+        public bool PartialUpdate(int groupId, AssetsPartialUpdate assets)
+        {
+            bool success = false;
+
+            if (assets != null && assets.AssetIds != null && assets.AssetIds.Count > 0)
+            {
+                string index = string.Empty;
+                string defaultType = string.Empty;
+
+                if (assets.AssetType == eObjectType.Media)
+                {
+                    index = ElasticSearch.Common.Utils.GetGroupMediaIndex(groupId);
+                    defaultType = ES_MEDIA_TYPE;
+                }
+                else if (assets.AssetType == eObjectType.EPG)
+                {
+                    index = ElasticSearch.Common.Utils.GetGroupEpgIndex(groupId);
+                    defaultType = ES_EPG_TYPE;
+                }
+                else
+                {
+                    log.ErrorFormat("Received partial update for invalid object type : {0}", assets.AssetType);
+                    return false;
+                }
+
+                string type = string.Empty;
+
+                ElasticSearchApi api = new ElasticSearchApi();
+
+                foreach (var assetId in assets.AssetIds)
+                {
+                    foreach (var update in assets.Updates)
+                    {
+                        string documentId = assetId.ToString();
+
+                        JObject body = new JObject();
+
+                        if (string.IsNullOrEmpty(update.LanguageCode) && !update.ShouldUpdateAllLanguages)
+                        {
+                            string fieldName = update.FieldName;
+                            switch (update.FieldType)
+                            {
+                                case eUpdateFieldType.Basic:
+                                    break;
+                                case eUpdateFieldType.Tag:
+                                    {
+                                        fieldName = string.Format("tags.{0}", fieldName);
+                                        break;
+                                    }
+                                case eUpdateFieldType.Meta:
+                                    {
+                                        fieldName = string.Format("metas.{0}", fieldName);
+                                        break;
+                                    }
+                                default:
+                                    break;
+                            }
+
+                            switch (update.Action)
+                            {
+                                case eUpdateFieldAction.Update:
+                                    {
+                                        body["doc"] = new JObject();
+                                        body["doc"][fieldName] = JToken.FromObject(update.NewValue);
+                                        break;
+                                    }
+                                case eUpdateFieldAction.Replace:
+                                    break;
+                                case eUpdateFieldAction.Delete:
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                        api.PartialUpdate(index, type, documentId, body.ToString());
+                    }
+                }
+
+            }
+            return success;
+        }
+
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>
