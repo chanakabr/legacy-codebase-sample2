@@ -40,12 +40,15 @@ namespace WebAPI.Controllers
 
             var payload = KSUtils.ExtractKSPayload(ks);
 
+            // return priviliges only for Opertator user
+            string privileges = KS.JoinPrivileges(ks.Privileges, ",", ":");
+            
             return new KalturaSession()
             {
                 ks = ks.ToString(),
                 expiry = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
                 partnerId = ks.GroupId,
-                privileges = KS.JoinPrivileges(ks.Privileges, ",", ":"),
+                privileges = privileges,
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
                 udid = payload.UDID,
@@ -124,7 +127,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, udid);
 
-                loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, udid);
+                loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, udid, ks.Privileges);
                 AuthorizationManager.LogOut(ks);
             }
             catch (ClientException ex)

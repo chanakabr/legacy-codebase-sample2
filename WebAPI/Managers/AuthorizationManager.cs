@@ -748,7 +748,7 @@ namespace WebAPI.Managers
             }
         }
 
-        public static KalturaLoginSession SwitchUser(string userId, int groupId, string udid = null)
+        public static KalturaLoginSession SwitchUser(string userId, int groupId, string udid, Dictionary<string, string> privileges)
         {
             KalturaLoginSession loginSession = null;
 
@@ -763,7 +763,7 @@ namespace WebAPI.Managers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            loginSession = AuthorizationManager.GenerateSession(userId, groupId, false, false, udid);
+            loginSession = AuthorizationManager.GenerateSession(userId, groupId, false, false, udid, privileges);
 
             return loginSession;
         }
