@@ -24,6 +24,7 @@ namespace WebAPI.Models.Upload
     /// <summary>
     /// indicates the asset object type in the bulk file
     /// </summary>
+    [NewObjectType(typeof(KalturaBulkUploadMediaAssetData))]
     public abstract partial class KalturaBulkUploadAssetData : KalturaBulkUploadObjectData
     {
         /// <summary>
@@ -46,7 +47,7 @@ namespace WebAPI.Models.Upload
         {
             return typeof(KalturaMediaAsset);
         }
-        
+
         internal override void Validate()
         {
             if (this.TypeId < 1)
