@@ -169,6 +169,16 @@ namespace ElasticSearch.Common
             }
         }
 
+        public static string GetGroupMediaIndex(int groupID)
+        {
+            return groupID.ToString();
+        }
+
+        public static string GetGroupEpgIndex(int groupID)
+        {
+            return string.Format("{0}_epg", groupID);
+        }
+
         public static string GetGroupStatisticsIndex(int nParentGroupId)
         {
             return string.Concat(nParentGroupId, "_statistics");
