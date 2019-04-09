@@ -26,7 +26,7 @@ RUN rm -rf uz_tvmcore
 
 COPY [".", "Core"]
 
-#RUN dotnet build -c Release "/src/Core/CoreNetCore.sln" --framework "netcoreapp2.0"
+RUN dotnet build -c Release "/src/Core/CoreNetCore.sln" --framework "netcoreapp2.0"
 
 
 
