@@ -1,18 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <ProjectGuid>{F5591A02-7C44-476F-B447-A63F39B2D731}</ProjectGuid>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <AssemblyTitle>CouchBaseExtensions</AssemblyTitle>
-    <Product>CouchBaseExtensions</Product>
-    <Copyright>Copyright ©  2016</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>full</DebugType>
+    
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
+  
+
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
     <PackageReference Include="Common.Logging.Core" Version="3.4.1" />
@@ -21,6 +17,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="OpenTracing" Version="0.12.0" />
   </ItemGroup>
+  
   <!-- This is a workaround that will allow TVM website project to build, if you read this an 
   TVM no longer exist please remove this <Target Name="GetTargetPath"... element-->
   <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">

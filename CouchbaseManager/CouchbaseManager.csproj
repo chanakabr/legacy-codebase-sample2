@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <TargetFramework>net452</TargetFramework>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-  <!-- <PropertyGroup>
-        <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell –NonInteractive –ExecutionPolicy Unrestricted ..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
-        <PostBuildEvent />
-    </PropertyGroup> -->
+  
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Common.Logging" Version="3.4.1" />
     <PackageReference Include="Common.Logging.Core" Version="3.4.1" />
@@ -16,9 +15,22 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="OpenTracing" Version="0.12.0" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
     <ProjectReference Include="..\CouchBaseExtensions\CouchBaseExtensions.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
+  
+  
+  <!-- 
+  This is a workaround (https://github.com/wixtoolset/issues/issues/5705) 
+  that will allow TVM website project to build, if you read this an 
+  TVM no longer exist please remove this <Target Name="GetTargetPath"... element
+   -->
+  <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">
+    <ItemGroup>
+      <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
+    </ItemGroup>
+  </Target>
 </Project>
