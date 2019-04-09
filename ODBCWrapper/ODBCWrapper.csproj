@@ -1,4 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <Version>5.2.0.3672</Version>
+    <Description>2019-04-09 19:07:01 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-146-g5516f6ce-dirty</Description>
+  </PropertyGroup>
 
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
     <TargetFramework>netstandard2.0</TargetFramework>
