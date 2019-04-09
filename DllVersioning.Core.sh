@@ -1,7 +1,12 @@
 #!/bin/bash
+# Comment\ Uncomment this for trace output
+# set -o xtrace
+
 startScanPath=$1
 allProjFiles=$( grep --include=\*.csproj -rnwl ${startScanPath} -e "netstandard2.0")
 tag=$(git describe --always --dirty --long)
+
+echo "VERSION_TAG: $VERSION_TAG"
 commitCount=$(git rev-list --count HEAD)
 commiter=$(git config user.name)
 

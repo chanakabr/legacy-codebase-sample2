@@ -1,5 +1,13 @@
-﻿FROM microsoft/dotnet:2.2-sdk-alpine AS build
+﻿FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine AS build
+#FROM mcr.microsoft.com/dotnet/core/sdk:2.2 as builder
 WORKDIR /src
+
+# unzip required to unzip the downloaded TvmCore repo
+RUN apk add unzip
+# tools required for DllVersioning.Core.sh
+RUN apk --update add grep
+RUN apk --update add git
+RUN apk --update add bash
 
 ARG BRANCH=master
 ARG BITBUCKET_TOKEN
@@ -18,15 +26,21 @@ ENV TCM_APP_ID ${TCM_APP_ID}
 ENV TCM_APP_SECRET ${TCM_APP_SECRET}
 
 ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvmcore/get/${BRANCH}.zip TvmCore.zip
-RUN apk add unzip
+
 RUN unzip TvmCore.zip -d ./uz_tvmcore
 RUN mkdir TvmCore
 RUN mv /src/uz_tvmcore/*/* /src/TvmCore/
 RUN rm -rf uz_tvmcore
+RUN rm -rf TvmCore.zip
+
 
 COPY [".", "Core"]
 
-RUN dotnet build -c Release "/src/Core/CoreNetCore.sln"
+WORKDIR /src/Core
+RUN bash DllVersioning.Core.sh .
+RUN bash DllVersioning.Core.sh ../TvmCore
+
+RUN dotnet build -c Release "./CoreNetCore.sln"
 
 
 
