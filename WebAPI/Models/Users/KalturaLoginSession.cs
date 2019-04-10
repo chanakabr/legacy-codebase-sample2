@@ -37,9 +37,9 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// Expiration
         /// </summary>
-        [DataMember(Name = "expiration")]
-        [JsonProperty("expiration")]
-        [XmlElement(ElementName = "expiration")]
-        public long Expiration { get; set; }
+        [DataMember(Name = "expiry")]
+        [JsonProperty("expiry")]
+        [XmlElement(ElementName = "expiry")]
+        public long Expiry { get; set; }
     }
 }

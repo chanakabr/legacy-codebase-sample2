@@ -61,13 +61,14 @@ namespace WebAPI.Models.Upload
         public KalturaBulkUploadResultStatus Status { get; set; }
 
         /// <summary>
-        /// Error details
+        /// A list of errors
         /// </summary>
-        [DataMember(Name = "error")]
-        [XmlElement("error", IsNullable = true)]
+        [DataMember(Name = "errors")]
         [JsonProperty("error")]
+        [XmlArray(ElementName = "error", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
         [SchemeProperty(ReadOnly = true)]
-        public KalturaMessage Error { get; set; }
+        public List<KalturaMessage> Errors { get; set; }
 
         /// <summary>
         /// A list of warnings
@@ -103,6 +104,10 @@ namespace WebAPI.Models.Upload
     }
 
     public partial class KalturaBulkUploadMediaAssetResult : KalturaBulkUploadAssetResult
+    {
+    }
+
+    public partial class KalturaBulkUploadProgramAssetResult : KalturaBulkUploadAssetResult
     {
     }
 }

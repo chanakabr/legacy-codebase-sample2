@@ -95,7 +95,9 @@ namespace Reflector
                 return "long";
             if (type == typeof(Int32))
                 return "int";
-            if (type == typeof(double) || type == typeof(float))
+            if (type == typeof(double))
+                return "double";
+            if (type == typeof(float))
                 return "float";
             if (type == typeof(bool))
                 return "bool";

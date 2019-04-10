@@ -33,6 +33,7 @@ using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using KlogMonitorHelper;
 using TVinciShared;
+using HttpMultipartParser;
 
 namespace WebAPI.Filters
 {
@@ -138,14 +139,14 @@ namespace WebAPI.Filters
         public const string REQUEST_PATH_DATA = "pathData";
         public const string REQUEST_RESPONSE_PROFILE = "responseProfile";
 
-        public const string MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR= "global_abort_on_error";
+        public const string MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR = "global_abort_on_error";
 
 
         public static object GetRequestPayload()
         {
             return HttpContext.Current.Items[REQUEST_METHOD_PARAMETERS];
         }
-        
+
         public static void setRequestContext(Dictionary<string, object> requestParams, string service, string action, bool globalScope = true)
         {
             // ks
@@ -171,7 +172,7 @@ namespace WebAPI.Filters
             {
                 InitKS((string)HttpContext.Current.Items[REQUEST_GLOBAL_KS]);
             }
-            else if (requestParams.ContainsKey("partnerId") && requestParams["partnerId"] != null)           
+            else if (requestParams.ContainsKey("partnerId") && requestParams["partnerId"] != null)
             {
                 HttpContext.Current.Items[Constants.GROUP_ID] = requestParams["partnerId"];
             }
@@ -290,9 +291,9 @@ namespace WebAPI.Filters
                         ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
                 }
                 else if (requestParams["responseProfile"] is Dictionary<string, object>)
-                {                    
-                     responseProfile = Deserializer.deserialize(type,
-                        ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
+                {
+                    responseProfile = Deserializer.deserialize(type,
+                       ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
                 }
 
                 if (globalScope && HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE] == null)
@@ -319,57 +320,57 @@ namespace WebAPI.Filters
             return true;
         }
 
-        public KeyValuePair<string, object> ParseFormField(byte[] fieldBytes)
-        {
-            Regex rgxName = new Regex("Content-Disposition: form-data; name=\"?([^\" ]+)\"?", RegexOptions.IgnoreCase);
-            Regex rgxFileName = new Regex("filename=\"?([^\"]+)\"?", RegexOptions.IgnoreCase);
+        //public KeyValuePair<string, object> ParseFormField(byte[] fieldBytes)
+        //{
+        //    Regex rgxName = new Regex("Content-Disposition: form-data; name=\"?([^\" ]+)\"?", RegexOptions.IgnoreCase);
+        //    Regex rgxFileName = new Regex("filename=\"?([^\"]+)\"?", RegexOptions.IgnoreCase);
 
-            string fieldStr = Encoding.UTF8.GetString(fieldBytes);
-            string[] fieldLines = fieldStr.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            string name = null;
-            string fileName = null;
-            
-            int index = 0;
-            foreach (string fieldLine in fieldLines)
-            {
-                if (fieldLine.StartsWith("Content-"))
-                {
-                    MatchCollection matches = rgxName.Matches(fieldLine);
-                    if (matches.Count > 0)
-                    {
-                        name = matches[0].Groups[1].Value;
+        //    string fieldStr = Encoding.UTF8.GetString(fieldBytes);
+        //    string[] fieldLines = fieldStr.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        //    string name = null;
+        //    string fileName = null;
 
-                        matches = rgxFileName.Matches(fieldLine);
-                        if (matches.Count > 0)
-                        {
-                            fileName = matches[0].Groups[1].Value;
-                        }
-                    }
-                    index += fieldLine.Length + 2; // \r\n
-                }
-                else
-                {
-                    break;
-                }
-            }
-            index += 2; // \r\n
+        //    int index = 0;
+        //    foreach (string fieldLine in fieldLines)
+        //    {
+        //        if (fieldLine.StartsWith("Content-"))
+        //        {
+        //            MatchCollection matches = rgxName.Matches(fieldLine);
+        //            if (matches.Count > 0)
+        //            {
+        //                name = matches[0].Groups[1].Value;
 
-            if (fileName == null)
-            {
-                return new KeyValuePair<string, object>(name, Encoding.UTF8.GetString(fieldBytes, index, fieldBytes.Length - index - 2));
-            }
-            else
-            {
-                string filePath = String.Format("{0}\\{1}", fileSystemUploaderSourcePath, CreateRandomFileName(fileName));
-                byte[] bytes = new byte[fieldBytes.Length - index - 2];  // \r\n
-                Array.Copy(fieldBytes, index, bytes, 0, bytes.Length);
-                File.WriteAllBytes(filePath, bytes);
+        //                matches = rgxFileName.Matches(fieldLine);
+        //                if (matches.Count > 0)
+        //                {
+        //                    fileName = matches[0].Groups[1].Value;
+        //                }
+        //            }
+        //            index += fieldLine.Length + 2; // \r\n
+        //        }
+        //        else
+        //        {
+        //            break;
+        //        }
+        //    }
+        //    index += 2; // \r\n
 
-                return new KeyValuePair<string, object>(name, new KalturaOTTFile(filePath, fileName));
-            }
+        //    if (fileName == null)
+        //    {
+        //        return new KeyValuePair<string, object>(name, Encoding.UTF8.GetString(fieldBytes, index, fieldBytes.Length - index - 2));
+        //    }
+        //    else
+        //    {
+        //        string filePath = String.Format("{0}\\{1}", fileSystemUploaderSourcePath, CreateRandomFileName(fileName));
+        //        byte[] bytes = new byte[fieldBytes.Length - index - 2];  // \r\n
+        //        Array.Copy(fieldBytes, index, bytes, 0, bytes.Length);
+        //        File.WriteAllBytes(filePath, bytes);
 
-            return new KeyValuePair<string, object>("aaa", "bb");
-        }
+        //        return new KeyValuePair<string, object>(name, new KalturaOTTFile(filePath, fileName));
+        //    }
+
+        //    return new KeyValuePair<string, object>("aaa", "bb");
+        //}
 
         private object CreateRandomFileName(string fileName)
         {
@@ -386,74 +387,33 @@ namespace WebAPI.Filters
                     Directory.CreateDirectory(fileSystemUploaderSourcePath);
                 }
 
-                Dictionary<string, object> ret = new Dictionary<string, object>();
+                var ret = new Dictionary<string, object>();
 
-                byte[] requestBody = (byte[]) HttpContext.Current.Items["body"];
-                string body = Encoding.UTF8.GetString(requestBody);
-                string boundery = body.Substring(0, body.IndexOf("\r") + 2);
-                byte[] bounderyBytes = Encoding.UTF8.GetBytes(boundery);
-                int index = 0;
-                int length;
-                byte[] fieldBytes;
-                for (int i = 0; i < requestBody.Length; ++i)
+                byte[] requestBody = (byte[])HttpContext.Current.Items["body"];
+                using (Stream stream = new MemoryStream(requestBody))
                 {
-                    if (Equals(requestBody, bounderyBytes, i))
+                    var parser = new MultipartFormDataParser(stream);
+                    foreach (var param in parser.Parameters)
                     {
-                        length = i - index;
-                        if (length > 0)
+                        ret.Add(param.Name, param.Data);
+                    };
+
+                    foreach (var uploadedFile in parser.Files)
+                    {
+                        var filePath = $@"{fileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
+                        using (Stream tempFile = File.Create(filePath))
                         {
-                            fieldBytes = new byte[length];
-                            Array.Copy(requestBody, index, fieldBytes, 0, fieldBytes.Length);
-                            KeyValuePair<string, object> keyValue = ParseFormField(fieldBytes);
-                            ret.Add(keyValue.Key, keyValue.Value);
+                            uploadedFile.Data.CopyTo(tempFile);
                         }
-                        index = i + bounderyBytes.Length;
-                        i += bounderyBytes.Length - 1;
+                        ret.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
                     }
+
                 }
-                length = requestBody.Length - index;
-                if (length > 0)
-                {
-                    fieldBytes = new byte[requestBody.Length - index];
-                    Array.Copy(requestBody, index, fieldBytes, 0, fieldBytes.Length);
-                    KeyValuePair<string, object> keyValue = ParseFormField(fieldBytes);
-                    ret.Add(keyValue.Key, keyValue.Value);
-                }
-
-                /*
-                 * This code works perfect against noed.js, php and postman clients but fails against C# client
-                 * 
-                MultipartMemoryStreamProvider streamProvider = await actionContext.Request.Content.ReadAsMultipartAsync();
-                foreach (StreamContent field in streamProvider.Contents)
-                {
-                    string name = field.Headers.ContentDisposition.Name.Trim(new char[]{'"'});
-
-                    if (field.Headers.ContentDisposition.FileName == null)
-                    {
-                        ret.Add(name, await field.ReadAsStringAsync());
-                    }
-                    else
-                    {
-                        string filePath = String.Format("{0}\\{1}", UPLOAD_FOLDER, Path.GetRandomFileName());
-
-                        Stream stream = await field.ReadAsStreamAsync();
-                        var fileStream = File.Create(filePath);
-                        stream.Seek(0, SeekOrigin.Begin);
-                        stream.CopyTo(fileStream);
-                        fileStream.Close();
-
-                        //byte[] bytes = await field.ReadAsByteArrayAsync();
-                        //File.WriteAllBytes(filePath, bytes);
-
-                        ret.Add(name, new KalturaOTTFile(filePath));
-                    }
-                }
-                 * */
 
                 return ret;
             }
             else
-            {   
+            {
                 string query = await actionContext.Request.Content.ReadAsStringAsync();
                 NameValueCollection values = HttpUtility.ParseQueryString(query);
                 Dictionary<string, object> ret = new Dictionary<string, object>();
@@ -519,7 +479,7 @@ namespace WebAPI.Filters
                     pathData = rd.Values["pathData"].ToString();
                 }
             }
-            else if(formData != null)
+            else if (formData != null)
             {
                 currentController = formData["service"].ToString();
                 currentAction = formData["action"].ToString();
@@ -550,7 +510,7 @@ namespace WebAPI.Filters
                 return;
             }
 
-            if(currentController == null && pathData == null)
+            if (currentController == null && pathData == null)
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Unknown Service");
                 return;
@@ -569,7 +529,7 @@ namespace WebAPI.Filters
             {
                 HttpContext.Current.Items[REQUEST_PATH_DATA] = pathData;
             }
-            
+
             if (actionContext.Request.Method == HttpMethod.Post)
             {
                 JObject JObj = null;
@@ -595,7 +555,7 @@ namespace WebAPI.Filters
                     }
                 }
 
-                if(JObj != null)
+                if (JObj != null)
                 {
                     try
                     {
@@ -672,7 +632,7 @@ namespace WebAPI.Filters
                         return;
                     }
                 }
-                else if ((HttpContext.Current.Request.ContentType == "text/xml" || HttpContext.Current.Request.ContentType == "application/xml") 
+                else if ((HttpContext.Current.Request.ContentType == "text/xml" || HttpContext.Current.Request.ContentType == "application/xml")
                     && HttpContext.Current.Request.ContentLength > 0)
                 {
                     //TODO
@@ -854,7 +814,7 @@ namespace WebAPI.Filters
                     BoolUtils.TryConvert(currentRequestParams["abortAllOnError"], out abortAllOnError);
                 }
 
-                KalturaSkipCondition skipCondition = null; 
+                KalturaSkipCondition skipCondition = null;
                 if (currentRequestParams.ContainsKey("skipCondition"))
                 {
                     Dictionary<string, object> skipConditionParams;
@@ -899,7 +859,7 @@ namespace WebAPI.Filters
                     AbortAllOnError = abortAllOnError,
                     SkipCondition = skipCondition
                 };
-                
+
                 requests.Add(currentRequest);
                 requestIndex++;
             }
@@ -1260,6 +1220,6 @@ namespace WebAPI.Filters
         {
             return ksVal.Length > accessTokenLength;
         }
-     
+
     }
 }

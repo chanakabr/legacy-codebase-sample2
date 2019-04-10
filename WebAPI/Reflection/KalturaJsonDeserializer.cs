@@ -299,13 +299,10 @@ namespace WebAPI.Reflection
                     return new KalturaBulkUpload(parameters);
                     
                 case "KalturaBulkUploadAssetData":
-                    return new KalturaBulkUploadAssetData(parameters);
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBulkUploadAssetResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
-                    
-                case "KalturaBulkUploadEpgAssetData":
-                    return new KalturaBulkUploadEpgAssetData(parameters);
                     
                 case "KalturaBulkUploadExcelJobData":
                     return new KalturaBulkUploadExcelJobData(parameters);
@@ -330,6 +327,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBulkUploadObjectData":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaBulkUploadProgramAssetData":
+                    return new KalturaBulkUploadProgramAssetData(parameters);
                     
                 case "KalturaBulkUploadResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -19654,9 +19654,9 @@ namespace WebAPI.Models.Users
                 {
                     RefreshToken = (String) Convert.ChangeType(parameters["refresh_token"], typeof(String));
                 }
-                if (parameters.ContainsKey("expiration") && parameters["expiration"] != null)
+                if (parameters.ContainsKey("expiry") && parameters["expiry"] != null)
                 {
-                    Expiration = (Int64) Convert.ChangeType(parameters["expiration"], typeof(Int64));
+                    Expiry = (Int64) Convert.ChangeType(parameters["expiry"], typeof(Int64));
                 }
             }
         }
@@ -22223,12 +22223,6 @@ namespace WebAPI.Models.Upload
             }
         }
     }
-    public partial class KalturaBulkUploadEpgAssetData
-    {
-        public KalturaBulkUploadEpgAssetData(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
     public partial class KalturaBulkUploadExcelJobData
     {
         public KalturaBulkUploadExcelJobData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -22351,6 +22345,12 @@ namespace WebAPI.Models.Upload
         {
         }
     }
+    public partial class KalturaBulkUploadProgramAssetData
+    {
+        public KalturaBulkUploadProgramAssetData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBulkUploadResult
     {
         private static RuntimeSchemePropertyAttribute ObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
@@ -22393,7 +22393,7 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ErrorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
+        private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -22451,19 +22451,19 @@ namespace WebAPI.Models.Upload
                     }
                     Status = (KalturaBulkUploadResultStatus) Enum.Parse(typeof(KalturaBulkUploadResultStatus), parameters["status"].ToString(), true);
                 }
-                if (parameters.ContainsKey("error") && parameters["error"] != null)
+                if (parameters.ContainsKey("errors") && parameters["errors"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ErrorSchemaProperty.Validate("error", parameters["error"]);
+                        ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
                     }
-                    if (parameters["error"] is JObject)
+                    if (parameters["errors"] is JArray)
                     {
-                        Error = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), ((JObject) parameters["error"]).ToObject<Dictionary<string, object>>());
+                        Errors = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
                     }
-                    else if (parameters["error"] is IDictionary)
+                    else if (parameters["errors"] is IList)
                     {
-                        Error = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), (Dictionary<string, object>) parameters["error"]);
+                        Errors = buildList(typeof(KalturaMessage), parameters["errors"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("warnings") && parameters["warnings"] != null)
