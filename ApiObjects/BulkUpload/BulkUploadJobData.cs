@@ -8,9 +8,11 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadJobData
     {
-        public abstract GenericListResponse<GenericResponse<IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData);
+        public abstract GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData);
     }
 
+
+    // TODO: Arthur\Shir move thsi wirth Excel manager and the EPPLUS nuget from ApiObjects to ApiLogic .. Objects should be clear of any logic.
     /// <summary>
     /// Instructions for upload data type with Excel
     /// </summary>
@@ -18,39 +20,27 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadExcelJobData : BulkUploadJobData
     {
-        public override GenericListResponse<GenericResponse<IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
+        public override GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
-            var response = new GenericListResponse<GenericResponse<IBulkUploadObject>>();
-            var excelResults = ExcelManager.Deserialize(bulkUploadId, fileUrl, objectData);
-            if (!excelResults.IsOkStatusCode())
+            var response = new GenericListResponse<BulkUploadResult>();
+            var excelObjects = ExcelManager.Deserialize(bulkUploadId, fileUrl, objectData);
+            if (!excelObjects.IsOkStatusCode())
             {
-                response.SetStatus(excelResults.Status);
+                response.SetStatus(excelObjects.Status);
             }
             else
             {
-                response.Objects.AddRange(excelResults.Objects);
+                for (int i = 0; i < excelObjects.Objects.Count; i++)
+                {
+                    var bulkUploadObject = excelObjects.Objects[i];
+                    var errorStatus = bulkUploadObject.IsOkStatusCode() ? null : bulkUploadObject.Status;
+                    var bulkUploadResult = objectData.GetNewBulkUploadResult(bulkUploadId, bulkUploadObject.Object, i, errorStatus);
+                    response.Objects.Add(bulkUploadResult);
+                }
+
                 response.SetStatus(eResponseStatus.OK);
             }
 
-            return response;
-        }
-    }
-
-    /// <summary>
-    /// Instructions for ingest of custom data file
-    /// </summary>
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadIngestJobData : BulkUploadJobData
-    {
-        public int IngestProfileId { get; set; }
-
-        public override GenericListResponse<GenericResponse<IBulkUploadObject>> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
-        {
-            var response = new GenericListResponse<GenericResponse<IBulkUploadObject>>();
-            // TODO: Arthur Download the file
-            // TODO: Arthur Call Adapater to deserialize the data inside the file
-            
             return response;
         }
     }

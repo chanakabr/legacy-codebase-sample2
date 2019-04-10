@@ -73,7 +73,7 @@ namespace ApiObjects.Response
 
         public bool HasObject()
         {
-            return (Status != null && Status.Code == (int)eResponseStatus.OK && Object != null);
+            return IsOkStatusCode() && !Object.Equals(default(T));
         }
 
         public string ToStringStatus()

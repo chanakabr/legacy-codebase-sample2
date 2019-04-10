@@ -1,9 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <Version>5.2.0.3673</Version>
+    <Description>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</Description>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup>
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
- 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />

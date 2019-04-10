@@ -5,11 +5,13 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ApiObjects.Epg;
+using ApiObjects.BulkUpload;
+
 namespace ApiObjects
 {
     [Serializable]
     [JsonObject(Id = "epg")]
-    public class EpgCB
+    public class EpgCB : IBulkUploadObject
     {
         #region DataMembers
 

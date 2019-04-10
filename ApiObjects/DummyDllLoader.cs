@@ -8,6 +8,6 @@ namespace ApiObjects
 {
     class DummyDllLoader
     {
-        ServiceExtensions.MessageInspector dummy = new ServiceExtensions.MessageInspector();
+        //ServiceExtensions.MessageInspector dummy = new ServiceExtensions.MessageInspector();
     }
 }
