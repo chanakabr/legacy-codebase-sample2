@@ -183,7 +183,6 @@
     <Compile Include="Billing\WinPLCSMS.cs" />
     <Compile Include="Billing\WinPLSMSHelper.cs" />
     <Compile Include="Catalog\AdProvider.cs" />
-    <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
     <Compile Include="Catalog\OpcObjects\Asset.cs" />
     <Compile Include="Catalog\OpcObjects\AssetFile.cs" />
     <Compile Include="Catalog\OpcObjects\AssetStruct.cs" />

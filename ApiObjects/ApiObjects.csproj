@@ -110,6 +110,7 @@
     <Compile Include="Billing\TransactionUnifiedRenewalDetails.cs" />
     <Compile Include="Billing\TransactionUnifiedRenewalRequest.cs" />
     <Compile Include="BulkUpload\BulkUpload.cs" />
+    <Compile Include="BulkUpload\BulkUploadAssetResult.cs" />
     <Compile Include="BulkUpload\BulkUploadJobData.cs" />
     <Compile Include="BulkUpload\BulkUploadObjectData.cs" />
     <Compile Include="BulkUpload\ExcelManager.cs" />

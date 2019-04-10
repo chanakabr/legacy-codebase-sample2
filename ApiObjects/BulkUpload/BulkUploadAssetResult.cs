@@ -1,8 +1,7 @@
-﻿using ApiObjects.BulkUpload;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 
-namespace Core.Catalog
+namespace ApiObjects.BulkUpload
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]

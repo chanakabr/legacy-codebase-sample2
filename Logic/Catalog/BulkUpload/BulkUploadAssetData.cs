@@ -44,6 +44,8 @@ namespace Core.Catalog
         }
     }
 
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadMediaAssetData : BulkUploadAssetData
     {
         public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
