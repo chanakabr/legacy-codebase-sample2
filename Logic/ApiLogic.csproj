@@ -69,12 +69,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\..\remotetasks\packages\AWSSDK.Core.3.3.100.5\lib\net45\AWSSDK.Core.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\tvpapi_rest\packages\AWSSDK.Core.3.3.100.5\lib\net45\AWSSDK.Core.dll</HintPath>
     </Reference>
     <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\..\remotetasks\packages\AWSSDK.S3.3.3.101.3\lib\net45\AWSSDK.S3.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\tvpapi_rest\packages\AWSSDK.S3.3.3.31.20\lib\net45\AWSSDK.S3.dll</HintPath>
     </Reference>
     <Reference Include="CH.IoC.Infrastructure.Wiring, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\CH.Ioc.Infrastructure.Wiring.1.0.1\lib\net40\CH.IoC.Infrastructure.Wiring.dll</HintPath>
@@ -1408,7 +1406,7 @@
     <None Include="Service References\DmsService\Service11.disco" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\..\remotetasks\packages\AWSSDK.S3.3.3.101.3\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
+    <Analyzer Include="..\..\tvpapi_rest\packages\AWSSDK.S3.3.3.31.20\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
