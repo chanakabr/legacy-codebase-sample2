@@ -2871,6 +2871,11 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
 
+                    if (assetStructId.Value == 0)
+                    {
+                        assetStructId = catalogGroupCache.ProgramAssetStructId;
+                    }
+
                     if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId.Value))
                     {
                         if (metaId.HasValue)
