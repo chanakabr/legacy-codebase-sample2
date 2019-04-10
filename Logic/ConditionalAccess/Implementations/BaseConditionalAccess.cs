@@ -13519,7 +13519,8 @@ namespace Core.ConditionalAccess
                 if (recording.Id == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
                 {
                     log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording.Crid);
+                    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording.Crid,
+                                                                    new List<long>() { domainID });
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
@@ -13653,15 +13654,29 @@ namespace Core.ConditionalAccess
                     recording.Id = domainRecordingId;
                     return recording;
                 }
-                else if (shouldCancel)
-                {
-                    res = RecordingsDAL.CancelDomainRecording(domainRecordingId, domainStatus.Value);  // delete recording id from domain
-                    log.DebugFormat("canceled domainRecordingId: {0} with result: {1}", domainRecordingId, res);
-                }
                 else
                 {
-                    res = RecordingsDAL.DeleteDomainRecording(domainRecordingId, domainStatus.Value);
-                    log.DebugFormat("deleted domainRecordingId: {0} with result: {1}", domainRecordingId, res);
+                    bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value;
+                    if (isPrivateCopy)
+                    {
+                        recording.Status = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, isPrivateCopy, false, domainId);
+                        if (recording.Status.Code != (int)eResponseStatus.OK)
+                        {
+                            recording.Id = domainRecordingId;
+                            return recording;
+                        }
+                    }
+
+                    if (shouldCancel)
+                    {
+                        res = RecordingsDAL.CancelDomainRecording(domainRecordingId, domainStatus.Value);  // delete recording id from domain
+                        log.DebugFormat("canceled domainRecordingId: {0} with result: {1}", domainRecordingId, res);
+                    }
+                    else
+                    {
+                        res = RecordingsDAL.DeleteDomainRecording(domainRecordingId, domainStatus.Value);
+                        log.DebugFormat("deleted domainRecordingId: {0} with result: {1}", domainRecordingId, res);
+                    }
                 }
 
                 if (res)
@@ -14294,8 +14309,8 @@ namespace Core.ConditionalAccess
                 foreach (var id in epgIds)
                 {
                     Recording recording = Utils.GetRecordingByEpgId(m_nGroupID, id);
-
-                    var currentStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording);
+                    bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value;
+                    var currentStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, isPrivateCopy, true);
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
@@ -14877,7 +14892,8 @@ namespace Core.ConditionalAccess
 
                 int totalRecordingsToCleanup = 0;
                 int totalRecordingsDeleted = 0;
-                var groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
+                // dictionary of <groupId, <adapterId, isPrivateCopy>>
+                var groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, KeyValuePair<int, bool>>();
                 HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
 
                 // get first batch
@@ -14888,6 +14904,7 @@ namespace Core.ConditionalAccess
                     totalRecordingsToCleanup += recordingsForDeletion.Count;
                     List<long> deletedRecordingIds = new List<long>();
                     int adapterId = 0;
+                    bool isPrivateCopy = false;
                     // set max amount of concurrent tasks
                     int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                         
@@ -14908,15 +14925,15 @@ namespace Core.ConditionalAccess
                             if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
                             {
                                 adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
-
-                                if (groupIdToAdapterIdMap.TryAdd(pair.Key, adapterId))
+                                isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(pair.Key).IsPrivateCopyEnabled.Value;
+                                if (groupIdToAdapterIdMap.TryAdd(pair.Key, new KeyValuePair<int, bool>(adapterId, isPrivateCopy)))
                                 {
-                                    log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
+                                    log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} and isPrivateCopy {2} to groupIdToAdapterIdMap", pair.Key, adapterId, isPrivateCopy);
                                 }
                             }
 
                             // Try to delete the current recording
-                            ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
+                            ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, groupIdToAdapterIdMap[pair.Key].Value, false);//groupIdToAdapterIdMap[pair.Key].Key);
 
                             if (deleteStatus.Code != (int)eResponseStatus.OK)
                             {
@@ -15524,7 +15541,7 @@ namespace Core.ConditionalAccess
                     DateTime epgPaddedStartDate = epg.StartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
                     DateTime epgPaddedEndDate = epg.EndDate.AddSeconds(paddingAfterProgramEnds);
 
-                    Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
+                    Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid, new List<long>() { domainId });
 
                     if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
                     {
@@ -16397,7 +16414,7 @@ namespace Core.ConditionalAccess
                     // get the link from the CDVR adapter
                     string externalChannelId = Tvinci.Core.DAL.CatalogDAL.GetEPGChannelCDVRId(m_nGroupID, recording.ChannelId);
 
-                    RecordResult recordResult = CdvrAdapterController.GetInstance().GetRecordingLinks(m_nGroupID, externalChannelId, recording.ExternalRecordingId, cdvrAdapter.ID);
+                    RecordResult recordResult = CdvrAdapterController.GetInstance().GetRecordingLinks(m_nGroupID, externalChannelId, recording.ExternalRecordingId, cdvrAdapter.ID, domainId);
 
                     if (recordResult == null || recordResult.Links == null || recordResult.Links.Count == 0)
                     {

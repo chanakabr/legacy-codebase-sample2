@@ -115,7 +115,7 @@ namespace Core.Recordings
 
         #region Public Methods
 
-        public Recording Record(int groupId, long programId, long epgChannelID, DateTime startDate, DateTime endDate, string crid)
+        public Recording Record(int groupId, long programId, long epgChannelID, DateTime startDate, DateTime endDate, string crid, List<long> domainIds)
         {
             Recording recording = null;
 
@@ -127,23 +127,26 @@ namespace Core.Recordings
             syncParmeters.Add("epgChannelID", epgChannelID);
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
+            syncParmeters.Add("domainIds", new List<long>() { 0 });
             syncParmeters.Add("isPrivateCopy", false);
 
             try
             {
                 Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, epgChannelID, programId);
-                bool shouldIssueRecord = recordingsEpgMap.Count == 0;                
+                bool shouldIssueRecord = recordingsEpgMap.Count == 0;
+                bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
+                if (isPrivateCopy)
+                {
+                    syncParmeters["domainIds"] = domainIds;
+                    syncParmeters["isPrivateCopy"] = true;
+                    // for private copy we should always issue a recording
+                    shouldIssueRecord = true;
+                }
+
                 // remember and not forget
                 if (!shouldIssueRecord)
-                {
-                    bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
-                    if (isPrivateCopy)
-                    {
-                        syncParmeters["isPrivateCopy"] = true;
-                        // we for private copy we should always issue a recording
-                        shouldIssueRecord = true;
-                    }
-                    else if (recordingsEpgMap.ContainsKey(programId))
+                {                    
+                    if (recordingsEpgMap.ContainsKey(programId))
                     {
                         recording = recordingsEpgMap[programId];
                     }
@@ -181,10 +184,13 @@ namespace Core.Recordings
                         recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
                     }
 
-                    // Schedule a message to check duplicate crid
-                    DateTime checkTime = endDate.AddDays(7);
-                    eRecordingTask task = eRecordingTask.CheckRecordingDuplicateCrids;
-                    EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
+                    if (!isPrivateCopy)
+                    {
+                        // Schedule a message to check duplicate crid
+                        DateTime checkTime = endDate.AddDays(7);
+                        eRecordingTask task = eRecordingTask.CheckRecordingDuplicateCrids;
+                        EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
+                    }
                 }
             }
             catch (Exception ex)
@@ -245,17 +251,23 @@ namespace Core.Recordings
             return recording;
         }
 
-        public Status DeleteRecording(int groupId, Recording slimRecording, int adapterId = 0)
+        public Status DeleteRecording(int groupId, Recording slimRecording, bool isPrivateCopy, bool deleteEpgEvent, long domainId, int adapterId = 0)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
-                UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, true);
                 List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId);
-                // last recording
-                if (recordingsWithTheSameExternalId.Count == 1)
+                bool isLastRecording = recordingsWithTheSameExternalId.Count == 1;
+                // if last recording then update ES and CB
+                if (isLastRecording || deleteEpgEvent)
+                {
+                    UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
+                    UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, true);
+                }
+                
+                // if last recording or is private recording -> go to the adapter
+                if (isLastRecording || isPrivateCopy)
                 {
                     if (adapterId == 0)
                     {
@@ -271,11 +283,11 @@ namespace Core.Recordings
                         //  recording in status scheduled/recording is canceled, otherwise we delete
                         if (slimRecording.EpgEndDate > DateTime.UtcNow)
                         {
-                            adapterResponse = adapterController.CancelRecording(groupId, externalChannelId, slimRecording.ExternalRecordingId, adapterId);
+                            adapterResponse = adapterController.CancelRecording(groupId, externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainId);
                         }
                         else
                         {
-                            adapterResponse = adapterController.DeleteRecording(groupId, externalChannelId, slimRecording.ExternalRecordingId, adapterId);
+                            adapterResponse = adapterController.DeleteRecording(groupId, externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainId);
                         }
                     }
                     catch (KalturaException ex)
@@ -290,13 +302,21 @@ namespace Core.Recordings
                     }
                 }
 
-                status = internalModifyRecording(groupId, slimRecording.Id, slimRecording.EpgEndDate);
+                // if last recording then update the DB
+                if (isPrivateCopy)
+                {
+                    status = internalModifyRecording(groupId, slimRecording.Id, slimRecording.EpgEndDate);
+                }
+                else
+                {
+                    status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
 
             return status;
         }
 
-        public Recording GetRecordingStatus(int groupId, long recordingId)
+        public Recording GetRecordingStatus(int groupId, long recordingId, List<long> domainIds)
         {
             Recording currentRecording = ConditionalAccess.Utils.GetRecordingById(recordingId);
 
@@ -347,7 +367,7 @@ namespace Core.Recordings
 
                             try
                             {
-                                adapterResponse = adapterController.GetRecordingStatus(groupId, externalChannelId, currentRecording.ExternalRecordingId, adapterId);
+                                adapterResponse = adapterController.GetRecordingStatus(groupId, externalChannelId, currentRecording.ExternalRecordingId, adapterId, domainIds);
                             }
                             catch (KalturaException ex)
                             {
@@ -872,7 +892,8 @@ namespace Core.Recordings
             long epgChannelID = (long)parameters["epgChannelID"];
             DateTime startDate = (DateTime)parameters["startDate"];
             DateTime endDate = (DateTime)parameters["endDate"];
-            bool isPrivateCopy = (bool)parameters["isPrivateCopy"];
+            List<long> domainIds = (List<long>)parameters["domainIds"];
+            bool isPrivateCopy = (bool)parameters["isPrivateCopy"];            
 
             // for private copy we always issue a recording
             bool issueRecord = isPrivateCopy;
@@ -940,7 +961,7 @@ namespace Core.Recordings
                 System.Threading.Tasks.Task async = Task.Run(() =>
                 {
                     cd.Load();
-                    CallAdapterRecord(groupId, epgChannelID, startDate, endDate, isCanceled, (Recording)copyRecording);
+                    CallAdapterRecord(groupId, epgChannelID, startDate, endDate, isCanceled, (Recording)copyRecording, domainIds);
                 });
             }
 
@@ -1105,7 +1126,7 @@ namespace Core.Recordings
             return failStatus;
         }
 
-        private static void CallAdapterRecord(int groupId, long epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
+        private static void CallAdapterRecord(int groupId, long epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording, List<long> domainIds)
         {
             log.DebugFormat("Call adapter record for recording {0}", currentRecording.Id);
             bool shouldRetry = true;            
@@ -1121,7 +1142,7 @@ namespace Core.Recordings
             RecordResult adapterResponse = null;
             try
             {
-                adapterResponse = adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId);
+                adapterResponse = adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId, domainIds);
             }
             catch (KalturaException ex)
             {
