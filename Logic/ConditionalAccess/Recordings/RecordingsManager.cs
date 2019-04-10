@@ -126,36 +126,43 @@ namespace Core.Recordings
             syncParmeters.Add("crid", crid);
             syncParmeters.Add("epgChannelID", epgChannelID);
             syncParmeters.Add("startDate", startDate);
-            syncParmeters.Add("endDate", endDate);            
+            syncParmeters.Add("endDate", endDate);
+            syncParmeters.Add("isPrivateCopy", false);
 
             try
             {
                 Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, epgChannelID, programId);
-                bool shouldIssueRecord = false;
+                bool shouldIssueRecord = recordingsEpgMap.Count == 0;                
                 // remember and not forget
-                if (recordingsEpgMap.Count == 0)
+                if (!shouldIssueRecord)
                 {
-                    shouldIssueRecord = true;
-                }
-                else if (recordingsEpgMap.ContainsKey(programId))
-                {
-                    recording = recordingsEpgMap[programId];
-                }
-                else
-                {
-                    Recording existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
-                    /***** if min recording is already recorded and min recording end date is from at least 7 days ago.
-                     *     we don't go to the adapter and insert the current recording with the min recording external ID  *****/
-                    if (existingRecordingWithMinStartDate.RecordingStatus == TstvRecordingStatus.Recorded && existingRecordingWithMinStartDate.EpgEndDate.AddDays(7) > DateTime.UtcNow)
+                    bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
+                    if (isPrivateCopy)
                     {
-                        recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
-                        recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
-                        recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
-                        UpdateIndex(groupId, recording.Id, eAction.Update);                        
+                        syncParmeters["isPrivateCopy"] = true;
+                        // we for private copy we should always issue a recording
+                        shouldIssueRecord = true;
+                    }
+                    else if (recordingsEpgMap.ContainsKey(programId))
+                    {
+                        recording = recordingsEpgMap[programId];
                     }
                     else
                     {
-                        shouldIssueRecord = true;
+                        Recording existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
+                        /***** if min recording is already recorded and min recording end date is from at least 7 days ago.
+                         *     we don't go to the adapter and insert the current recording with the min recording external ID  *****/
+                        if (existingRecordingWithMinStartDate.RecordingStatus == TstvRecordingStatus.Recorded && existingRecordingWithMinStartDate.EpgEndDate.AddDays(7) > DateTime.UtcNow)
+                        {
+                            recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
+                            recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
+                            recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
+                            UpdateIndex(groupId, recording.Id, eAction.Update);
+                        }
+                        else
+                        {
+                            shouldIssueRecord = true;
+                        }
                     }
                 }
 
@@ -865,60 +872,63 @@ namespace Core.Recordings
             long epgChannelID = (long)parameters["epgChannelID"];
             DateTime startDate = (DateTime)parameters["startDate"];
             DateTime endDate = (DateTime)parameters["endDate"];
+            bool isPrivateCopy = (bool)parameters["isPrivateCopy"];
 
+            // for private copy we always issue a recording
+            bool issueRecord = isPrivateCopy;
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
 
-            bool issueRecord = false;
+            if (!issueRecord)
+            {                         
+                // If there is no recording for this program - create one. This is the first, hurray!
+                if (recording == null)
+                {
+                    issueRecord = true;
+                    recording = new Recording();
+                    recording.EpgId = programId;
+                    recording.Crid = crid;
+                    recording.EpgStartDate = startDate;
+                    recording.EpgEndDate = endDate;
+                    recording.ChannelId = epgChannelID;
+                    recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
-            // If there is no recording for this program - create one. This is the first, hurray!
-            if (recording == null)
-            {
-                issueRecord = true;
-                recording = new Recording();
-                recording.EpgId = programId;
-                recording.Crid = crid;
-                recording.EpgStartDate = startDate;
-                recording.EpgEndDate = endDate;
-                recording.ChannelId = epgChannelID;
-                recording.RecordingStatus = TstvRecordingStatus.Scheduled;
-
-                // Insert recording information to database
-                recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.Waiting);
-            }
-            else if (recording.RecordingStatus == TstvRecordingStatus.Canceled)
-            {
-                issueRecord = true;
+                    // Insert recording information to database
+                    recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.Waiting);
+                }
+                else if (recording.RecordingStatus == TstvRecordingStatus.Canceled)
+                {
+                    issueRecord = true;
+                }
             }
 
             // If it is a new recording or a canceled recording - we call adapter
             if (issueRecord)
             {
-                // Schedule a message to check status 1 minute after recording of program is supposed to be over
-
-                DateTime checkTime = endDate.AddMinutes(1);
-                eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
-
-                EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
-
                 bool isCanceled = recording.RecordingStatus == TstvRecordingStatus.Canceled;
-
-                recording.Status = null;
-
-                // Update Couchbase that the EPG is recorded
-                #region Update CB
-
-                UpdateCouchbase(groupId, programId, recording.Id);
-
-                #endregion
-
-                // After we know that schedule was succesful,
-                // we index data so it is available on search
-                if (recording.RecordingStatus == TstvRecordingStatus.OK ||
-                    recording.RecordingStatus == TstvRecordingStatus.Recorded ||
-                    recording.RecordingStatus == TstvRecordingStatus.Recording ||
-                    recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                // Schedule a message to check status 1 minute after recording of program is supposed to be over
+                if (!isPrivateCopy)
                 {
-                    UpdateIndex(groupId, recording.Id, eAction.Update);
+                    DateTime checkTime = endDate.AddMinutes(1);
+                    eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
+                    EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);                    
+                    recording.Status = null;
+
+                    // Update Couchbase that the EPG is recorded
+                    #region Update CB
+
+                    UpdateCouchbase(groupId, programId, recording.Id);
+
+                    #endregion
+
+                    // After we know that schedule was succesful,
+                    // we index data so it is available on search
+                    if (recording.RecordingStatus == TstvRecordingStatus.OK ||
+                        recording.RecordingStatus == TstvRecordingStatus.Recorded ||
+                        recording.RecordingStatus == TstvRecordingStatus.Recording ||
+                        recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                    {
+                        UpdateIndex(groupId, recording.Id, eAction.Update);
+                    }
                 }
 
                 // We're OK
