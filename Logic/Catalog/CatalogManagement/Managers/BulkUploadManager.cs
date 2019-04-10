@@ -7,13 +7,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using Tvinci.Core.DAL;
-using TVinciShared;
 using System.Linq;
 using System.IO;
 using ApiObjects.BulkUpload;
 using ApiObjects.EventBus;
 using CachingProvider.LayeredCache;
 using EventBus.RabbitMQ;
+using ApiLogic;
 
 namespace Core.Catalog.CatalogManagement
 {
