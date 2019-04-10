@@ -37,7 +37,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\TvmCore\DalCB\DalCB.csproj" />
     <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj" />
-    <ProjectReference Include="..\..\tvmcore\QueueWrapper\QueueWrapper.csproj" />
+    <ProjectReference Include="..\..\TvmCore\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\IngestTransformationAdapterClient\IngestTransformationAdapterClient.csproj" />
