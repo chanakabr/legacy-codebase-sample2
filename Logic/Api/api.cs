@@ -5823,7 +5823,7 @@ namespace Core.Api
                     response.SetStatus(eResponseStatus.TagDoesNotExist);
                     return response;
                 }
-                
+
                 ParentalRule currentParentalRule = result.rules.FirstOrDefault(x => x.id == id);
                 bool shouldUpdateMediaTagValues = parentalRuleToUpdate.mediaTagValues != null;
                 if (shouldUpdateMediaTagValues && currentParentalRule.mediaTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.mediaTagValues))
@@ -7666,7 +7666,7 @@ namespace Core.Api
                 log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
             return response;
-        }        
+        }
 
         public static Status DeleteExternalChannel(int groupId, int externalChannelId, long userId)
         {
@@ -7704,6 +7704,18 @@ namespace Core.Api
                 bool isSet = CatalogDAL.DeleteExternalChannel(groupId, externalChannelId);
                 if (isSet)
                 {
+                    //delete virtual asset
+                    bool needToCreateVirtualAsset = false;
+                    Asset virtualChannel = GetVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
+                    if (virtualChannel != null)
+                    {
+                        Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
+                        if (status == null || !status.IsOkStatusCode())
+                        {
+                            log.ErrorFormat("Failed delete virtual asset {0}. for external channel {1}", virtualChannel.Id, externalChannelId);
+                        }
+                    }
+
                     response = new Status((int)eResponseStatus.OK, "external channel deleted");
                 }
                 else
@@ -7835,7 +7847,7 @@ namespace Core.Api
                 log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
             return response;
-        }        
+        }
 
         public static ExternalChannelResponseList GetExternalChannels(int groupID)
         {
@@ -11857,14 +11869,14 @@ namespace Core.Api
                 {
                     profileToUpdate.Id = ingestProfileId;
                     response.Object = profileToUpdate;
-                    response.SetStatus(eResponseStatus.OK, " ingest profile was successfully updated"); 
+                    response.SetStatus(eResponseStatus.OK, " ingest profile was successfully updated");
                 }
                 else
                 {
                     response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     log.ErrorFormat("Failed to insert ingest profile. Group Id: {0} result from DB update was {1}", groupId, isProfileUpdateSuccess);
                 }
-                
+
 
             }
             catch (Exception ex)
@@ -11932,36 +11944,16 @@ namespace Core.Api
 
         private static void UpdateVirtualAsset(int groupId, long userId, ExternalChannel channel)
         {
-            AssetStruct assetStruct = GetExternalChannelAssetStruct(groupId);
+            bool needToCreateVirtualAsset = false;
+            Asset virtualAsset = GetVirtualAsset(groupId, userId, channel, out needToCreateVirtualAsset);
 
-            if (assetStruct == null)
+            if (needToCreateVirtualAsset)
             {
-                log.ErrorFormat("Failed UpdateVirtualAsset. AssetStruct is missing. groupId {0}, channelId {1}", groupId, channel.ID);
-                return;
-            }
-
-            // build ElasticSearch filter
-            string filter = string.Format("(and {0}='{1}' asset_type='{2}')", AssetManager.CHANNEL_ID_META_SYSTEM_NAME, channel.ID, assetStruct.Id);
-            UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, false);
-
-            if (assets == null || assets.Length == 0)
-            {                
-                log.DebugFormat("UpdateVirtualAsset. Asset not found. CreateVirtualChannel. groupId {0}, channelId {1}", groupId, channel.ID);
                 CreateVirtualChannel(groupId, userId, channel);
                 return;
             }
 
-            GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
-
-            if (!asset.HasObject())
-            {                
-                log.ErrorFormat("Failed UpdateVirtualAsset. virtual asset not found. groupId {0}, channelId {1}", groupId, channel.ID);
-                return;
-            }
-
-            Asset virtualAsset = asset.Object;
-
-            virtualAsset.Name = channel.Name;            
+            virtualAsset.Name = channel.Name;
 
             GenericResponse<Asset> assetUpdateResponse = AssetManager.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
 
@@ -11971,6 +11963,40 @@ namespace Core.Api
             }
 
             return;
+        }
+
+        internal static Asset GetVirtualAsset(int groupId, long userId, ExternalChannel channel, out bool needToCreateVirtualAsset)
+        {
+            needToCreateVirtualAsset = false;
+            Asset asset = null;
+            AssetStruct assetStruct = GetExternalChannelAssetStruct(groupId);
+
+            if (assetStruct == null)
+            {
+                log.ErrorFormat("Failed UpdateVirtualAsset. AssetStruct is missing. groupId {0}, channelId {1}", groupId, channel.ID);
+                return asset;
+            }
+
+            // build ElasticSearch filter
+            string filter = string.Format("(and {0}='{1}' asset_type='{2}')", AssetManager.CHANNEL_ID_META_SYSTEM_NAME, channel.ID, assetStruct.Id);
+            UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, false);
+
+            if (assets == null || assets.Length == 0)
+            {
+                log.DebugFormat("UpdateVirtualAsset. Asset not found. CreateVirtualChannel. groupId {0}, channelId {1}", groupId, channel.ID);
+                needToCreateVirtualAsset = true;
+                return asset;
+            }
+
+            GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+
+            if (!assetResponse.HasObject())
+            {
+                log.ErrorFormat("Failed UpdateVirtualAsset. virtual asset not found. groupId {0}, channelId {1}", groupId, channel.ID);
+                return asset;
+            }
+
+            return assetResponse.Object;
         }
     }
 }

@@ -474,33 +474,14 @@ namespace Core.Catalog.CatalogManagement
 
         private static void UpdateVirtualAsset(int groupId, long userId, Channel channel)
         {
-            AssetStruct assetStruct = GetAssetStructIdByChannelType(groupId, channel.m_nChannelTypeID);
+            bool needToCreateVirtualAsset = false;           
+            Asset virtualAsset = GetVirtualAsset( groupId, userId, channel, out needToCreateVirtualAsset);
 
-            if (assetStruct == null)
+            if (needToCreateVirtualAsset)
             {
-                log.ErrorFormat("Failed UpdateVirtualAsset. AssetStruct is missing groupId {0}, channelId {1}", groupId, channel.m_nChannelTypeID);
-                return;
-            }
-            // build ElasticSearch filter
-            string filter = string.Format("(and {0}='{1}' asset_type='{2}')", AssetManager.CHANNEL_ID_META_SYSTEM_NAME, channel.m_nChannelID, assetStruct.Id);
-            UnifiedSearchResult[] assets = Utils.SearchAssets(groupId, filter, 0, 0, false, false);
-
-            if (assets == null || assets.Length == 0)
-            {
-                log.DebugFormat("UpdateVirtualAsset. Asset not found. CreateVirtualChannel. groupId {0}, channelId {1}", groupId, channel.m_nChannelTypeID);
                 CreateVirtualChannel(groupId, userId, channel);
                 return;
             }
-
-            GenericResponse<Asset> asset = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
-
-            if (!asset.HasObject())
-            {
-                log.ErrorFormat("Failed UpdateVirtualAsset. virtual asset not found. groupId {0}, channelId {1}", groupId, channel.m_nChannelID);
-                return;
-            }
-
-            Asset virtualAsset = asset.Object;
 
             virtualAsset.Name = channel.m_sName;
             virtualAsset.NamesWithLanguages = channel.NamesInOtherLanguages;
@@ -617,6 +598,40 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
+
+        internal static Asset GetVirtualAsset(int groupId, long userId, Channel channel, out bool needToCreateVirtualAsset)
+        {
+            needToCreateVirtualAsset = false;
+            Asset asset = null;
+            AssetStruct assetStruct = GetAssetStructIdByChannelType(groupId, channel.m_nChannelTypeID);
+
+            if (assetStruct == null)
+            {
+                log.ErrorFormat("Failed UpdateVirtualAsset. AssetStruct is missing groupId {0}, channelId {1}", groupId, channel.m_nChannelTypeID);
+                return asset;
+            }
+            // build ElasticSearch filter
+            string filter = string.Format("(and {0}='{1}' asset_type='{2}')", AssetManager.CHANNEL_ID_META_SYSTEM_NAME, channel.m_nChannelID, assetStruct.Id);
+            UnifiedSearchResult[] assets = Utils.SearchAssets(groupId, filter, 0, 0, false, false);
+
+            if (assets == null || assets.Length == 0)
+            {
+                log.DebugFormat("UpdateVirtualAsset. Asset not found. CreateVirtualChannel. groupId {0}, channelId {1}", groupId, channel.m_nChannelTypeID);
+                needToCreateVirtualAsset = true;
+                return asset;
+            }
+
+            GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+
+            if (!assetResponse.HasObject())
+            {
+                log.ErrorFormat("Failed UpdateVirtualAsset. virtual asset not found. groupId {0}, channelId {1}", groupId, channel.m_nChannelID);
+                return asset;
+            }
+
+            return assetResponse.Object;
+        }
+
 
         #endregion
 
@@ -1158,6 +1173,19 @@ namespace Core.Catalog.CatalogManagement
                 {
                     bool deleteResult = false;
                     bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+
+                    //delete virtual asset
+                    bool needToCreateVirtualAsset = false;
+                    Asset virtualChannel = GetVirtualAsset(groupId, userId, channelResponse.Object, out needToCreateVirtualAsset);
+                    if(virtualChannel != null)
+                    {
+                        Status status  = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
+                        if(status == null || !status.IsOkStatusCode())
+                        {
+                            log.ErrorFormat("Failed delete virtual asset {0}. for channel {1}", virtualChannel.Id, channelId);
+                        }
+                    }
+                    
                     // delete index only for OPC accounts since previously channels index didn't exist
                     if (doesGroupUsesTemplates)
                     {
