@@ -230,8 +230,9 @@ namespace QueueWrapper
                 bool createdNew = false;
                 var mutexSecurity = Utils.CreateMutex();
 
-                using (Mutex mutex = new Mutex(false, string.Concat("Connection ", "Mutex"), out createdNew, mutexSecurity))
+                using (Mutex mutex = new Mutex(false, string.Concat("Connection ", "Mutex"), out createdNew))
                 {
+                    mutex.SetAccessControl(mutexSecurity);
                     try
                     {
                         mutex.WaitOne(-1);
