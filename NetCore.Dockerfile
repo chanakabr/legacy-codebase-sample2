@@ -13,7 +13,7 @@ RUN dotnet publish -c Release "./RemoteTasksNetCore.sln" -o /src/published
 
 FROM mcr.microsoft.com/dotnet/core/runtime:2.2-alpine
 ENV RUN_TASK=no-task-selected
-ENV API_LOG_DIR = /logs
+ENV API_LOG_DIR=/logs
 
 WORKDIR /
 COPY --from=builder /src/published .
