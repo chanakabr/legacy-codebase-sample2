@@ -331,6 +331,9 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadProgramAssetData":
                     return new KalturaBulkUploadProgramAssetData(parameters);
                     
+                case "KalturaBulkUploadProgramAssetResult":
+                    return new KalturaBulkUploadProgramAssetResult(parameters);
+                    
                 case "KalturaBulkUploadResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -9617,7 +9620,7 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute MetaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMetaFilter")
         {
@@ -22348,6 +22351,12 @@ namespace WebAPI.Models.Upload
     public partial class KalturaBulkUploadProgramAssetData
     {
         public KalturaBulkUploadProgramAssetData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaBulkUploadProgramAssetResult
+    {
+        public KalturaBulkUploadProgramAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
         {
         }
     }
