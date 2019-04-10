@@ -1366,18 +1366,24 @@ namespace Core.Catalog.CatalogManagement
             if (assetImages != null && assetImages.Count > 0)
             {
                 // get picture sizes
-                var ratioIdToPicSizes = Cache.CatalogCache.Instance().GetGroupRatioIdToPicSizeMapping(groupId);
-                
+                Dictionary<long, List<PicSize>> ratioIdToPicSizes = Cache.CatalogCache.Instance().GetGroupRatioIdToPicSizeMapping(groupId);
+                List<ApiObjects.Ratio> oldGroupRatios = Cache.CatalogCache.Instance().GetGroupRatios(groupId);
+
                 foreach (Image image in assetImages)
                 {
                     ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
                     if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
                     {
-                        if (ratioIdToPicSizes.ContainsKey(imageType.RatioId.Value))
+                        if (!string.IsNullOrEmpty(image.RatioName) && oldGroupRatios != null && oldGroupRatios.Count > 0
+                            && oldGroupRatios.Any(x => x.Name == image.RatioName) && ratioIdToPicSizes != null && ratioIdToPicSizes.Count > 0)
                         {
-                            foreach (var picSize in ratioIdToPicSizes[imageType.RatioId.Value])
+                            ApiObjects.Ratio oldRatio = oldGroupRatios.First(x => x.Name == image.RatioName);
+                            if (ratioIdToPicSizes.ContainsKey(oldRatio.Id))
                             {
-                                pictures.Add(new Picture(groupId, image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value), picSize));
+                                foreach (PicSize picSize in ratioIdToPicSizes[oldRatio.Id])
+                                {
+                                    pictures.Add(new Picture(groupId, image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value), picSize));
+                                }
                             }
                         }
                         else
