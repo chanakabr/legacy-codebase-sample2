@@ -86,7 +86,7 @@
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>

@@ -19,21 +19,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DalCB", "..\TvmCore\DalCB\D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingManager", "..\TvmCore\CachingManager\CachingManager.csproj", "{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingProvider", "..\tvmcore\CachingProvider\CachingProvider.csproj", "{4191D9E7-8502-4B00-A488-771240E2CF40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingProvider", "..\TvmCore\CachingProvider\CachingProvider.csproj", "{4191D9E7-8502-4B00-A488-771240E2CF40}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GroupsCacheManager", "..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj", "{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GroupsCacheManager", "..\TvmCore\GroupsCacheManager\GroupsCacheManager.csproj", "{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationManager", "..\Core\ConfigurationManager\ConfigurationManager.csproj", "{27CC9E99-D886-4403-899B-1E0769FDB649}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KLogMonitor", "..\tvmcore\KLogMonitor\KLogMonitor.csproj", "{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KLogMonitor", "..\TvmCore\KLogMonitor\KLogMonitor.csproj", "{5D56DEA4-3FDA-484D-89E8-5B723D5CD45C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCMClient", "..\Core\TCMClient\TCMClient.csproj", "{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceExtensions", "..\tvmcore\ServiceExtensions\ServiceExtensions.csproj", "{2E48DC40-A9AB-485D-A847-8E3662C69696}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceExtensions", "..\TvmCore\ServiceExtensions\ServiceExtensions.csproj", "{2E48DC40-A9AB-485D-A847-8E3662C69696}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchBaseExtensions", "..\tvmcore\CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchBaseExtensions", "..\TvmCore\CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager", "..\tvmcore\EventManager\EventManager.csproj", "{1168121B-FB3F-48D8-89B9-7E0BE7E9C901}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager", "..\TvmCore\EventManager\EventManager.csproj", "{1168121B-FB3F-48D8-89B9-7E0BE7E9C901}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Abstraction", "..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj", "{6AE8F894-D364-4C89-8D0D-2B26634FE13C}"
 EndProject
@@ -49,7 +49,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StaticHttpContextForNetCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiLogicNetCore", "..\Core\Logic\ApiLogicNetCore.csproj", "{6D78C2E1-C246-4E83-8BDC-1F5C09E771C6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueueWrapper", "..\tvmcore\QueueWrapper\QueueWrapper.csproj", "{3CB79A59-1AE7-4490-AA1E-F3EB030E319C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueueWrapper", "..\TvmCore\QueueWrapper\QueueWrapper.csproj", "{3CB79A59-1AE7-4490-AA1E-F3EB030E319C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
