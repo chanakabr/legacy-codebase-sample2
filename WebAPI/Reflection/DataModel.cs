@@ -167,6 +167,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaApiPriviligesPermissionItem":
+                    switch(property.Name)
+                    {
+                        case "Object":
+                            return "object";
+                        case "Parameter":
+                            return "parameter";
+                    }
+                    break;
+                    
                 case "KalturaApplyDiscountModuleAction":
                     switch(property.Name)
                     {

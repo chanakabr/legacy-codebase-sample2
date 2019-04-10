@@ -24,7 +24,6 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [SchemeArgument("session", RequiresPermission = true)]
-
         static public KalturaSession Get(string session = null)
         {
             KS ks;
@@ -41,7 +40,11 @@ namespace WebAPI.Controllers
             var payload = KSUtils.ExtractKSPayload(ks);
 
             // return priviliges only for Opertator user
-            string privileges = KS.JoinPrivileges(ks.Privileges, ",", ":");
+            string privileges = string.Empty;
+            if (RolesManager.IsPriviligesPermitted("KalturaSession", "Priviliges"))
+            {
+                privileges = KS.JoinPrivileges(ks.Privileges, ",", ":");
+            }
             
             return new KalturaSession()
             {

@@ -1319,7 +1319,7 @@ namespace WebAPI.Clients
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMedia(request, key.ToString(), responseProfile);
+            result = CatalogUtils.GetMedia(request, false, key.ToString(), responseProfile);
 
             return result;
         }
@@ -2804,7 +2804,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetBundleAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-            KalturaAssetOrderBy? orderBy, List<int> mediaTypes, KalturaBundleType bundleType, KalturaDynamicOrderBy assetOrder = null)
+            KalturaAssetOrderBy? orderBy, List<int> mediaTypes, KalturaBundleType bundleType, bool isAllowedToViewInactiveAssets, KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2852,7 +2852,7 @@ namespace WebAPI.Clients
             key.AppendFormat("bundle_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}_type={6}",
                 id, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty, bundleType.ToString());
 
-            result = CatalogUtils.GetMedia(request, key.ToString());
+            result = CatalogUtils.GetMedia(request, isAllowedToViewInactiveAssets, key.ToString());
 
             return result;
         }

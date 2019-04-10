@@ -277,6 +277,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter));
 
+            cfg.CreateMap<ApiPriviligesPermissionItem, KalturaApiPriviligesPermissionItem>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.Object, opt => opt.MapFrom(src => src.Object))
+               .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter));
+
             cfg.CreateMap<Permission, KalturaPermission>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -2353,6 +2359,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     else if (permissionItem is ApiArgumentPermissionItem)
                     {
                         item = AutoMapper.Mapper.Map<KalturaApiArgumentPermissionItem>((ApiArgumentPermissionItem)permissionItem);
+                    }
+                    else if (permissionItem is ApiPriviligesPermissionItem)
+                    {
+                        item = AutoMapper.Mapper.Map<KalturaApiPriviligesPermissionItem>((ApiPriviligesPermissionItem)permissionItem);
                     }
                     else
                     {

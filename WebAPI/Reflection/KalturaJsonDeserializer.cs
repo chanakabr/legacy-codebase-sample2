@@ -82,6 +82,9 @@ namespace WebAPI.Reflection
                 case "KalturaApiParameterPermissionItem":
                     return new KalturaApiParameterPermissionItem(parameters);
                     
+                case "KalturaApiPriviligesPermissionItem":
+                    return new KalturaApiPriviligesPermissionItem(parameters);
+                    
                 case "KalturaApplyDiscountModuleAction":
                     return new KalturaApplyDiscountModuleAction(parameters);
                     
@@ -6069,6 +6072,23 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
                     Action = (KalturaApiParameterPermissionItemAction) Enum.Parse(typeof(KalturaApiParameterPermissionItemAction), parameters["action"].ToString(), true);
+                }
+            }
+        }
+    }
+    public partial class KalturaApiPriviligesPermissionItem
+    {
+        public KalturaApiPriviligesPermissionItem(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("object") && parameters["object"] != null)
+                {
+                    Object = (String) Convert.ChangeType(parameters["object"], typeof(String));
+                }
+                if (parameters.ContainsKey("parameter") && parameters["parameter"] != null)
+                {
+                    Parameter = (String) Convert.ChangeType(parameters["parameter"], typeof(String));
                 }
             }
         }

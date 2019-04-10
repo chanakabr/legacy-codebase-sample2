@@ -10768,6 +10768,16 @@
             Holder object for Household With enum
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaApiPriviligesPermissionItem.Object">
+            <summary>
+            API object name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiPriviligesPermissionItem.Parameter">
+            <summary>
+            API parameter name
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaMessage">
             <summary>
             Message

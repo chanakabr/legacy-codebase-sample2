@@ -326,8 +326,10 @@ namespace WebAPI.Controllers
                 else if (filter is KalturaBundleFilter)
                 {
                     KalturaBundleFilter bundleFilter = (KalturaBundleFilter)filter;
+                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
                     response = ClientsManager.CatalogClient().GetBundleAssets(groupId, userID, domainId, udid, language,
-                       pager.getPageIndex(), pager.PageSize, bundleFilter.IdEqual, bundleFilter.OrderBy, bundleFilter.getTypeIn(), bundleFilter.BundleTypeEqual, bundleFilter.DynamicOrderBy);
+                       pager.getPageIndex(), pager.PageSize, bundleFilter.IdEqual, bundleFilter.OrderBy, bundleFilter.getTypeIn(), bundleFilter.BundleTypeEqual,
+                       isAllowedToViewInactiveAssets, bundleFilter.DynamicOrderBy);
                 }
                 // returns assets that are scheduled to be recorded
                 else if (filter is KalturaScheduledRecordingProgramFilter)
