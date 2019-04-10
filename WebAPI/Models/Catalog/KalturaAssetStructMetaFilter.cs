@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetStructIdEqual")]
         [JsonProperty("assetStructIdEqual")]
         [XmlElement(ElementName = "assetStructIdEqual", IsNullable = true)]
-        [SchemeProperty(MinLong = 1)]
+        [SchemeProperty(MinLong = 0)]
         public long? AssetStructIdEqual { get; set; }
         
         /// <summary>

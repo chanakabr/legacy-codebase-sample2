@@ -4549,6 +4549,40 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
+    public partial class KalturaApiPriviligesPermissionItem
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Object != null)
+            {
+                ret.Add("object", "\"object\": " + "\"" + EscapeJson(Object) + "\"");
+            }
+            if(Parameter != null)
+            {
+                ret.Add("parameter", "\"parameter\": " + "\"" + EscapeJson(Parameter) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(Object != null)
+            {
+                ret.Add("object", "<object>" + EscapeXml(Object) + "</object>");
+            }
+            if(Parameter != null)
+            {
+                ret.Add("parameter", "<parameter>" + EscapeXml(Parameter) + "</parameter>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaAppToken
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -22114,6 +22148,24 @@ namespace WebAPI.Models.Upload
         }
     }
     public partial class KalturaBulkUploadProgramAssetData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            return ret;
+        }
+    }
+    public partial class KalturaBulkUploadProgramAssetResult
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {

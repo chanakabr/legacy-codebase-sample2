@@ -82,6 +82,9 @@ namespace WebAPI.Reflection
                 case "KalturaApiParameterPermissionItem":
                     return new KalturaApiParameterPermissionItem(parameters);
                     
+                case "KalturaApiPriviligesPermissionItem":
+                    return new KalturaApiPriviligesPermissionItem(parameters);
+                    
                 case "KalturaApplyDiscountModuleAction":
                     return new KalturaApplyDiscountModuleAction(parameters);
                     
@@ -330,6 +333,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBulkUploadProgramAssetData":
                     return new KalturaBulkUploadProgramAssetData(parameters);
+                    
+                case "KalturaBulkUploadProgramAssetResult":
+                    return new KalturaBulkUploadProgramAssetResult(parameters);
                     
                 case "KalturaBulkUploadResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -6070,6 +6076,23 @@ namespace WebAPI.Models.General
             }
         }
     }
+    public partial class KalturaApiPriviligesPermissionItem
+    {
+        public KalturaApiPriviligesPermissionItem(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("object") && parameters["object"] != null)
+                {
+                    Object = (String) Convert.ChangeType(parameters["object"], typeof(String));
+                }
+                if (parameters.ContainsKey("parameter") && parameters["parameter"] != null)
+                {
+                    Parameter = (String) Convert.ChangeType(parameters["parameter"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaAppToken
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAppToken")
@@ -9617,7 +9640,7 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute MetaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMetaFilter")
         {
@@ -22348,6 +22371,12 @@ namespace WebAPI.Models.Upload
     public partial class KalturaBulkUploadProgramAssetData
     {
         public KalturaBulkUploadProgramAssetData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaBulkUploadProgramAssetResult
+    {
+        public KalturaBulkUploadProgramAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
         {
         }
     }

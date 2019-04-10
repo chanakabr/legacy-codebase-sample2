@@ -157,7 +157,7 @@ namespace WebAPI.Controllers
             }
 
             Dictionary<string, string> priviliges = null;
-            var tmp = HttpContext.Current.Items["Priviliges"];
+            var tmp = HttpContext.Current.Items[KLogMonitor.Constants.PRIVILIGES];
             if (tmp != null)
             {
                 priviliges = (Dictionary<string, string>)tmp;
