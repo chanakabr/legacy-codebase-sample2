@@ -25,7 +25,7 @@
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
-    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    <ProjectReference Include="..\..\Core\Logic\ApiLogicNetCore.csproj" />
   </ItemGroup>
 
 </Project>
