@@ -335,7 +335,7 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static KalturaAssetListResponse GetMedia(BaseRequest request, string key, KalturaBaseResponseProfile responseProfile = null)
+        public static KalturaAssetListResponse GetMedia(BaseRequest request, bool isAllowedToViewInactiveAssets, string key, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -352,24 +352,7 @@ namespace WebAPI.Utils
                 throw new ClientException(mediaIdsResponse.status.Code, mediaIdsResponse.status.Message);
             }
 
-            if (mediaIdsResponse.aggregationResults != null && mediaIdsResponse.aggregationResults.Count > 0 &&
-                mediaIdsResponse.aggregationResults[0].results != null && mediaIdsResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
-            {
-                // build the assetsBaseDataList from the hit array 
-                result.Objects = CatalogUtils.GetAssets(mediaIdsResponse.aggregationResults[0].results, request, false, responseProfile);
-                result.TotalCount = mediaIdsResponse.aggregationResults[0].totalItems;
-            }
-
-            else if (mediaIdsResponse.searchResults != null && mediaIdsResponse.searchResults.Count > 0)
-            {
-                // get base objects list
-                List<BaseObject> assetsBaseDataList = mediaIdsResponse.searchResults.Select(x => x as BaseObject).ToList();
-
-                // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
-
-                result.TotalCount = mediaIdsResponse.m_nTotalItems;
-            }
+            result = ClientManagers.Client.ClientsManager.CatalogClient().GetAssetFromUnifiedSearchResponse(request.m_nGroupID, mediaIdsResponse, request, isAllowedToViewInactiveAssets, false, responseProfile);
             return result;
         }
 
