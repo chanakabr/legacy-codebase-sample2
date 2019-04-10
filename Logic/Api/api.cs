@@ -11753,6 +11753,31 @@ namespace Core.Api
 
         private static void UpdateVirtualAsset(int groupId, long userId, ExternalChannel channel)
         {
+            bool needToCreateVirtualAsset = false;
+            Asset virtualAsset = GetVirtualAsset(groupId, userId, channel, out needToCreateVirtualAsset);
+
+            if (needToCreateVirtualAsset)
+            {
+                CreateVirtualChannel(groupId, userId, channel);
+                return;
+            }
+
+            virtualAsset.Name = channel.Name;
+
+            GenericResponse<Asset> assetUpdateResponse = AssetManager.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
+
+            if (!assetUpdateResponse.IsOkStatusCode())
+            {
+                log.ErrorFormat("Failed update virtual asset {0}, groupId {1}, channelId {2}", virtualAsset.Id, groupId, channel.ID);
+            }
+
+            return;
+        }
+
+        internal static Asset GetVirtualAsset(int groupId, long userId, ExternalChannel channel, out bool needToCreateVirtualAsset)
+        {
+            needToCreateVirtualAsset = false;
+            Asset asset = null;
             AssetStruct assetStruct = GetExternalChannelAssetStruct(groupId);
 
             if (assetStruct == null)

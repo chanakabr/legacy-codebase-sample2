@@ -571,6 +571,7 @@
     <Compile Include="Pricing\UsageModuleCacheWrapper.cs" />
     <Compile Include="Pricing\Utils.cs" />
     <Compile Include="Pricing\WhenAlgo.cs" />
+    <Compile Include="Profiles\IngestProfileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
