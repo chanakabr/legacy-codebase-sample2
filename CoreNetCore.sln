@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{63B50E12
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Managers", "Managers", "{AD962D33-E896-463E-9743-283E07C70A02}"
 	ProjectSection(SolutionItems) = preProject
-		..\tvmcore\EpgIngest\EpgIngest.csproj = ..\tvmcore\EpgIngest\EpgIngest.csproj
+		..\TvmCore\EpgIngest\EpgIngest.csproj = ..\TvmCore\EpgIngest\EpgIngest.csproj
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingManager", "..\TvmCore\CachingManager\CachingManager.csproj", "{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}"
@@ -56,7 +56,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager", "..\TvmCore\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiLogicNetCore", "Logic\ApiLogicNetCore.csproj", "{81FA4246-36E4-450B-A996-5D219FF46194}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueueWrapper", "..\tvmcore\QueueWrapper\QueueWrapper.csproj", "{47828D21-EB89-4072-843B-2B19E4A64B29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueueWrapper", "..\TvmCore\QueueWrapper\QueueWrapper.csproj", "{47828D21-EB89-4072-843B-2B19E4A64B29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
