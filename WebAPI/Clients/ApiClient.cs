@@ -4346,13 +4346,13 @@ namespace WebAPI.Clients
 
         internal KalturaIngestProfile InsertIngestProfile(int groupId, KalturaIngestProfile ingestProfile, int userId)
         {
-            return ClientUtils.GetResponseFromWS<KalturaIngestProfile, IngestProfile>(ingestProfile, p => Core.Api.api.AddIngestProfile(groupId, userId, p));
+            return ClientUtils.GetResponseFromWS<KalturaIngestProfile, IngestProfile>(ingestProfile, p => Core.Profiles.IngestProfileManager.AddIngestProfile(groupId, userId, p));
 
         }
 
         internal KalturaIngestProfileListResponse GetIngestProfiles(int groupId)
         {
-            var response = ClientUtils.GetResponseListFromWS<KalturaIngestProfile, IngestProfile>(() => Core.Api.api.GetIngestProfiles(groupId));
+            var response = ClientUtils.GetResponseListFromWS<KalturaIngestProfile, IngestProfile>(() => Core.Profiles.IngestProfileManager.GetIngestProfiles(groupId));
             return new KalturaIngestProfileListResponse
             {
                 Objects = response.Objects,
@@ -4362,14 +4362,14 @@ namespace WebAPI.Clients
 
         public bool DeleteIngestProfiles(int groupId, int ingestProfileId, int userId)
         {
-            var status = ClientUtils.GetResponseStatusFromWS(() => Core.Api.api.DeleteIngestProfile(groupId, userId, ingestProfileId));
+            var status = ClientUtils.GetResponseStatusFromWS(() => Core.Profiles.IngestProfileManager.DeleteIngestProfile(groupId, userId, ingestProfileId));
             return status;
 
         }
 
         public KalturaIngestProfile UpdateIngestProfile(int groupId, int ingestProfileId, KalturaIngestProfile ingestProfile, int userId)
         {
-            return ClientUtils.GetResponseFromWS<KalturaIngestProfile, IngestProfile>(ingestProfile, p => Core.Api.api.UpdateIngestProfile(groupId, userId, ingestProfileId, p));
+            return ClientUtils.GetResponseFromWS<KalturaIngestProfile, IngestProfile>(ingestProfile, p => Core.Profiles.IngestProfileManager.UpdateIngestProfile(groupId, userId, ingestProfileId, p));
         }
     }
 }

@@ -21,6 +21,7 @@ using WebAPI.Models.Upload;
 using Exception = System.Exception;
 using UriBuilder = System.UriBuilder;
 using WebAPI.Utils;
+using ApiLogic;
 
 namespace WebAPI.Managers
 {
@@ -87,7 +88,7 @@ namespace WebAPI.Managers
             FileInfo fileInfo = new FileInfo(path);
             cbUploadToken.FileSize = fileInfo.Length;
             
-            var saveFileResponse = TVinciShared.FileHandler.Instance.SaveFile(id, fileInfo, typeof(KalturaUploadToken));
+            var saveFileResponse = FileHandler.Instance.SaveFile(id, fileInfo, typeof(KalturaUploadToken));
             if (!saveFileResponse.HasObject())
             {
                 throw new ClientException(saveFileResponse.Status.Code, saveFileResponse.Status.Message);
