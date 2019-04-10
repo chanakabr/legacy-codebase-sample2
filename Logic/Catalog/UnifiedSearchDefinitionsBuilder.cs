@@ -218,7 +218,7 @@ namespace Core.Catalog
                         }
                     }
 
-                    if (isMetaValid && (type == typeof(int) || type == typeof(double) || type == typeof(long) || type == typeof(float)))
+                    if (isMetaValid && definitions.shouldSearchEpg && (type == typeof(int) || type == typeof(double) || type == typeof(long) || type == typeof(float)))
                     {
                         definitions.order.shouldPadString = true;
                     }
