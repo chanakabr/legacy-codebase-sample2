@@ -4,9 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using AdapterClients.IngestTransformation;
@@ -14,7 +11,7 @@ using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
 using ApiObjects.Response;
-using Core.Api;
+using Core.Profiles;
 using KLogMonitor;
 using Newtonsoft.Json;
 using Tvinci.Core.DAL;
@@ -36,7 +33,7 @@ namespace Core.Catalog
         public override GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
             var response = new GenericListResponse<BulkUploadResult>();
-            var profile = api.GetIngestProfileById(IngestProfileId)?.Object;
+            var profile = IngestProfileManager.GetIngestProfileById(IngestProfileId)?.Object;
             var xmlTvString = GetXmlTv(fileUrl, profile);
 
             if (string.IsNullOrEmpty(xmlTvString))
@@ -115,11 +112,12 @@ namespace Core.Catalog
         {
             var response = new List<BulkUploadResult>();
 
-            var fieldEntityMapping = EpgIngest.Utils.GetMappingFields(parentGroupId);
+            //var fieldEntityMapping = EpgIngest.Utils.GetMappingFields(parentGroupId);
             var channelExternalIds = xmlTvEpgData.channel.Select(s => s.id).ToList();
             _Logger.Debug($"MapXmlTvProgramToCBEpgProgram > Retriving kaltura channels for external IDs [{string.Join(",", channelExternalIds)}] ");
             var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
-            var languages = Core.Catalog.CatalogManagement.CatalogManager.GetGroupLanguages(groupId);
+            //var languages = Core.Catalog.CatalogManagement.CatalogManager.GetGroupLanguages(groupId);
+            var languages = new List<LanguageObj>();
             var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
             var itemIndex = 0;
             if (defaultLanguage == null)
@@ -137,7 +135,7 @@ namespace Core.Catalog
                 {
                     foreach (var lang in languages)
                     {
-                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code, fieldEntityMapping);
+                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code);
                         newEpgAssetResult.Index = itemIndex++;
                         response.Add(newEpgAssetResult);
                     }
@@ -147,7 +145,7 @@ namespace Core.Catalog
             return response;
         }
 
-        private BulkUploadEpgAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode, List<FieldTypeEntity> fieldMappings)
+        private BulkUploadEpgAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode)
         {
             // TODO: Arthur\ sunny make this code pretty, break into methods .. looks too long. :\
             var response = new BulkUploadEpgAssetResult();

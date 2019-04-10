@@ -528,7 +528,8 @@ namespace ApiObjects
     {
         Action = 1,
         Parameter = 2,
-        Argument = 3
+        Argument = 3,
+        Priviliges = 4
     }
 
     public enum ePermissionType

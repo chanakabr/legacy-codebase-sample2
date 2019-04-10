@@ -68,6 +68,12 @@
     <LangVersion>7.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\..\tvpapi_rest\packages\AWSSDK.Core.3.3.100.5\lib\net45\AWSSDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\..\tvpapi_rest\packages\AWSSDK.S3.3.3.31.20\lib\net45\AWSSDK.S3.dll</HintPath>
+    </Reference>
     <Reference Include="CH.IoC.Infrastructure.Wiring, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\CH.Ioc.Infrastructure.Wiring.1.0.1\lib\net40\CH.IoC.Infrastructure.Wiring.dll</HintPath>
     </Reference>
@@ -438,6 +444,7 @@
     <Compile Include="ConditionalAccess\Implementations\FilmoConditionalAccess.cs" />
     <Compile Include="ConditionalAccess\Implementations\TvinciConditionalAccess.cs" />
     <Compile Include="ConditionalAccess\Implementations\VodafoneConditionalAccess.cs" />
+    <Compile Include="FileHandler.cs" />
     <Compile Include="Modules\Domains.cs" />
     <Compile Include="Modules\Notification.cs" />
     <Compile Include="Modules\Social.cs" />
@@ -562,6 +569,7 @@
     <Compile Include="Pricing\UsageModuleCacheWrapper.cs" />
     <Compile Include="Pricing\Utils.cs" />
     <Compile Include="Pricing\WhenAlgo.cs" />
+    <Compile Include="Profiles\IngestProfileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -1396,6 +1404,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\DmsService\Service11.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\..\tvpapi_rest\packages\AWSSDK.S3.3.3.31.20\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
