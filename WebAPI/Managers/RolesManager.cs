@@ -70,6 +70,7 @@ namespace WebAPI.Managers
                             KalturaApiActionPermissionItem apiActionPermissionItem;
                             KalturaApiParameterPermissionItem apiParameterPermissionItem;
                             KalturaApiArgumentPermissionItem apiArgumentPermissionItem;
+                            KalturaApiPriviligesPermissionItem apiPriviligesPermissionItem;
                             string usersGroup;
 
                             foreach (KalturaUserRole role in groupUserRoles)
@@ -133,6 +134,11 @@ namespace WebAPI.Managers
                                         {
                                             apiArgumentPermissionItem = (KalturaApiArgumentPermissionItem)permissionItem;
                                             keyToExcludeMap.Add(string.Format("{0}_{1}_{2}", apiArgumentPermissionItem.Service, apiArgumentPermissionItem.Action, apiArgumentPermissionItem.Parameter).ToLower(), apiArgumentPermissionItem.IsExcluded);
+                                        }
+                                        else if (permissionItem is KalturaApiPriviligesPermissionItem)
+                                        {
+                                            apiPriviligesPermissionItem = (KalturaApiPriviligesPermissionItem)permissionItem;
+                                            keyToExcludeMap.Add(string.Format("{0}_{1}", apiPriviligesPermissionItem.Object, apiPriviligesPermissionItem.Parameter).ToLower(), apiPriviligesPermissionItem.IsExcluded);
                                         }
                                         else
                                         {
@@ -369,6 +375,44 @@ namespace WebAPI.Managers
             string actionName = Enum.GetName(typeof(RequestType), action);
             if (!IsPropertyPermittedForRoles(ks.GroupId, type, property, actionName, roleIds, out allowedUsersGroup))
                 throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(RequestType), action), type, property);
+        }
+
+        internal static bool IsPriviligesPermitted(string @object, string property)
+        {
+            KS ks;
+
+            try
+            {
+                ks = getKS(false);
+            }
+            catch (UnauthorizedException ex)
+            {
+                if (ex.Code == (int)StatusCode.ServiceForbidden)
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, @object, property);
+                }
+
+                throw;
+            }
+
+            List<long> roleIds = GetRoleIds(ks);
+
+            // no roles found for the user
+            if (roleIds == null || roleIds.Count == 0)
+                throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, @object, property);
+
+            string usersGroup = null;
+            return IsPriviligesPermittedForRoles(ks.GroupId, @object, property, roleIds, out usersGroup);
+        }
+
+        private static bool IsPriviligesPermittedForRoles(int groupId, string type, string property, List<long> roleIds, out string usersGroup)
+        {
+            usersGroup = null;
+            StringBuilder usersGroupStringBuilder = new StringBuilder();
+
+            // build the key for the service action key for roles schema (permission items - roles dictionary)
+            string objectPropertyKey = string.Format("{0}_{1}", type, property).ToLower();
+            return IsPermittedForRoles(groupId, objectPropertyKey, roleIds, out usersGroup);
         }
 
         /// <summary>

@@ -1,0 +1,15 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Session_Get_Priviliges",
+      "parameter": "Priviliges",
+      "object": "KalturaSession",
+      "type": "Priviliges"
+    }
+  ],
+  "type": "Parameter"
+}
