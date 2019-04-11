@@ -67,6 +67,7 @@ namespace ElasticSearch.Common
         /// <param name="autocompleteSearchAnalyzer"></param>
         /// <returns></returns>
         public override string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags,
+            HashSet<string> metasToPad,
             MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
@@ -614,20 +615,22 @@ namespace ElasticSearch.Common
             if (metasMap != null && metasMap.Count > 0)
             {
                 HashSet<string> mappedMetas = new HashSet<string>();
+
                 foreach (KeyValuePair<string, KeyValuePair<eESFieldType, string>> meta in metasMap)
                 {
                     string sMetaName = meta.Key;
                     if (!string.IsNullOrEmpty(sMetaName))
                     {
                         sMetaName = sMetaName.ToLower();
+
                         // Don't create double mapping for metas to avoid errors
                         if (mappedMetas.Contains(sMetaName))
                         {
                             continue;
                         }
+
                         if (meta.Value.Key != eESFieldType.DATE)
                         {
-
                             FieldsMappingPropertyV2 multiField = null;
 
                             if (meta.Value.Key == eESFieldType.STRING)
@@ -748,6 +751,19 @@ namespace ElasticSearch.Common
                             });
                         }
 
+                        if (metasToPad.Contains(sMetaName))
+                        {
+                            metas.AddProperty(new BasicMappingPropertyV2()
+                            {
+                                name = string.Format("padded_{0}", AddSuffix(sMetaName, suffix)),
+                                type = eESFieldType.STRING,
+                                index = eMappingIndex.analyzed,
+                                search_analyzer = LOWERCASE_ANALYZER,
+                                analyzer = LOWERCASE_ANALYZER,
+                                null_value = meta.Value.Value
+                            });
+                        }
+
                         mappedMetas.Add(sMetaName);
                     }
                 }
@@ -761,8 +777,9 @@ namespace ElasticSearch.Common
             return mappingObj.ToString();
         }
 
-        public override string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags, MappingAnalyzers specificLanguageAnalyzers,
-                                                MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
+        public override string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags, 
+            HashSet<string> metasToPad,
+            MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
             string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;
@@ -1337,6 +1354,19 @@ namespace ElasticSearch.Common
                                 type = eESFieldType.DATE,
                                 index = eMappingIndex.not_analyzed,
                                 format = DATE_FORMAT
+                            });
+                        }
+
+                        if (metasToPad.Contains(sMetaName))
+                        {
+                            metas.AddProperty(new BasicMappingPropertyV2()
+                            {
+                                name = string.Format("padded_{0}", AddSuffix(sMetaName, suffix)),
+                                type = eESFieldType.STRING,
+                                index = eMappingIndex.analyzed,
+                                search_analyzer = LOWERCASE_ANALYZER,
+                                analyzer = LOWERCASE_ANALYZER,
+                                null_value = meta.Value.Value
                             });
                         }
 
