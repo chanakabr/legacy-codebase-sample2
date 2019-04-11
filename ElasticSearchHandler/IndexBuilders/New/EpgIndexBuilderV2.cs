@@ -127,6 +127,18 @@ namespace ElasticSearchHandler.IndexBuilders
             }
 
             MappingAnalyzers defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, VERSION);
+            Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
+            List<string> tags = null;
+            HashSet<string> metasToPad = null;
+
+            if (!IndexManager.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas,
+                ref tags, ref metasToPad, serializer, group, catalogGroupCache, true))
+            {
+                log.Error("Failed GetMetasAndTagsForMapping as part of BuildIndex");
+                return false;
+            }
+
+            MetasToPad = metasToPad;
 
             #region create mapping
             foreach (ApiObjects.LanguageObj language in languages)
@@ -136,17 +148,9 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 #region Join tags and metas of EPG and media to same mapping
 
-                Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
-                List<string> tags = null;
-                if (!ElasticSearchTaskUtils.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags, serializer, group, catalogGroupCache, true))
-                {
-                    log.Error("Failed GetMetasAndTagsForMapping as part of BuildIndex");
-                    return false;
-                }
-
                 #endregion
 
-                string mappingString = serializer.CreateEpgMapping(metas, tags, specificMappingAnalyzers, defaultMappingAnalyzers, specificType, shouldAddRouting);
+                string mappingString = serializer.CreateEpgMapping(metas, tags, metasToPad, specificMappingAnalyzers, defaultMappingAnalyzers, specificType, shouldAddRouting);
                 bool mappingResult = api.InsertMapping(newIndexName, specificType, mappingString.ToString());
                 
                 if (language.IsDefault && !mappingResult)
@@ -465,12 +469,13 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (epg != null)
                     {
+                        IndexManager.PadEPGMetas(MetasToPad, epg);
+
                         // used only to currently support linear media id search on elastic search
                         if (doesGroupUsesTemplates && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                         {
                             epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
                         }
-
 
                         // Serialize EPG object to string
                         string serializedEpg = SerializeEPGObject(epg, suffix, doesGroupUsesTemplates);
