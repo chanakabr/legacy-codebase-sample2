@@ -124,7 +124,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     tags.AddRange(group.m_oGroupTags.Values);
                 }
 
-                string mapping = serializer.CreateMediaMapping(metas, tags, specificMappingAnlyzers, null);
+                string mapping = serializer.CreateMediaMapping(metas, tags, null, specificMappingAnlyzers, null);
                 string type = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
                 bool bMappingRes = api.InsertMapping(newIndexName, type, mapping.ToString());
 
