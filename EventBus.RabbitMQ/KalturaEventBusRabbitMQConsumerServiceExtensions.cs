@@ -85,7 +85,7 @@ namespace EventBus.RabbitMQ
         {
             services.AddSingleton<IEventBusConsumer>(serviceProvider =>
             {
-                var queueName = _EntryAssembly.GetName().Name + "." + _EntryAssembly.GetName().Version;
+                var queueName = _EntryAssembly.GetName().Name;
                 var rabbitMQPersistentConnection = serviceProvider.GetRequiredService<IRabbitMQPersistentConnection>();
 
                 var eventBus = EventBusConsumerRabbitMQ.GetInstanceUsingTCMConfiguration(serviceProvider, rabbitMQPersistentConnection, queueName);
