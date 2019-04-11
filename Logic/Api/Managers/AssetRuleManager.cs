@@ -160,10 +160,16 @@ namespace Core.Api.Managers
             return result.Count;
         }
 
-        public static bool UpdateMedia(int groupId, long mediaId)
+        public static bool UpdateMedia(int groupId, long mediaId, bool checkGeoAvailabilityEnabled = false)
         {
             try
             {
+                if (checkGeoAvailabilityEnabled && 
+                    (!IsGeoAssetRulesEnabled(groupId) || UtilsDal.GetObjectFromCB<string>(eCouchbaseBucket.OTT_APPS, GetGeoUpdateMediaCbKey(groupId, mediaId)) == null))
+                {
+                    return true;
+                }
+
                 List<AssetRule> assetRules = GetMediaRelatedGeoRules(groupId, mediaId);
                 if (assetRules != null && assetRules.Count > 0)
                 {
@@ -201,6 +207,11 @@ namespace Core.Api.Managers
                 return false;
             }
             return true;
+        }
+
+        private static string GetGeoUpdateMediaCbKey(int groupId, long mediaId)
+        {
+            return string.Format("GeoUpdate_GroupId_{0}_MediaId_{1}", groupId, mediaId);
         }
 
         private static bool AssetRuleAppliesOnMedia(long mediaId, AssetRule assetRule)
@@ -325,7 +336,6 @@ namespace Core.Api.Managers
                         assetIds = new List<int>();
                         string actionKsqlFilter = null;
                         bool isAllowed = false;
-                        int countryToAdd = country;
 
                         if (action.Type == RuleActionType.StartDateOffset)
                         {
@@ -337,8 +347,7 @@ namespace Core.Api.Managers
                         else if (action.Type == RuleActionType.EndDateOffset)
                         {
                             double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
-                            countryToAdd = -1 * country;
-                            actionKsqlFilter = string.Format("(and {0} end_date <= '{1}' allowed_countries != '{2}')", ksqlFilter, -1 * totalOffset, countryToAdd);
+                            actionKsqlFilter = string.Format("(and {0} end_date <= '{1}' allowed_countries != '{2}')", ksqlFilter, -1 * totalOffset, country);
                             isAllowed = true;
                         }
                         else if (action.Type == RuleActionType.Block)
@@ -358,7 +367,7 @@ namespace Core.Api.Managers
                                     assetIds = unifiedSearcjResponse.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                     // Apply rule on assets that returned from search
-                                    if (ApiDAL.InsertMediaCountry(groupId, assetIds, countryToAdd, isAllowed, rule.Id))
+                                    if (ApiDAL.InsertMediaCountry(groupId, assetIds, country, isAllowed, rule.Id))
                                     {
                                         modifiedAssetIds.AddRange(assetIds);
                                         foreach (var assetId in assetIds)
@@ -861,6 +870,33 @@ namespace Core.Api.Managers
             return new Status((int)eResponseStatus.OK);
         }
 
+        public static bool IsGeoAssetRulesEnabled(int groupId)
+        {
+            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    return false;
+                }
+
+                return catalogGroupCache.IsAssetUserRuleEnabled;
+            }
+            else
+            {
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(groupId);
+                if (group == null)
+                {
+                    return false;
+                }
+
+                List<LanguageObj> languages = group.GetLangauges();
+
+                return group.isAssetUserRuleEnabled;
+            }
+        }
+        
         #endregion
 
         #region Private Methods
