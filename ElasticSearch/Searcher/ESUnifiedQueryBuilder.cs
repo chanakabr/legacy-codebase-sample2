@@ -2450,32 +2450,40 @@ namespace ElasticSearch.Searcher
 
             if (order.m_eOrderBy == OrderBy.META)
             {
-                string metaFieldName = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
+                string metaFieldName = string.Empty;
 
                 if (!order.shouldPadString)
                 {
-                    sortBuilder.AppendFormat("\"{0}\": ", metaFieldName);
+                    metaFieldName = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
                 }
                 else
                 {
-                    // "_script": { "type": "string", "script": { "inline": "(doc['metas.episode number'].value == null) ? \"0\" : 
-                    // (!doc['metas.episode number'].value.toString().isDouble()) ? doc['metas.episode number'].value : 
-                    // (doc['metas.episode number'].value.toString().toDouble().trunc(2).toString().padLeft(7,'0'))"},"order": "desc"}}
-                    //       \"_script\": { \"type\": \"string\", \"script\": { \"inline\": \"(doc[\'metas.episode number\'].value == null) ? \\\"0\\\" : 
-                    // (!doc[\'metas.episode number\'].value.toString().isDouble()) ? 
-                    // doc[\'metas.episode number\'].value : (doc['metas.episode number\'].value.toString().toDouble().trunc(2).toString().padLeft(7,'0'))\"},\"order\": \"desc\"}}
-                    sortBuilder.Append("\"_script\": { \"type\": \"string\", \"script\": { \"inline\": \"(doc['");
-                    sortBuilder.Append(metaFieldName);
-                    sortBuilder.Append("'].value == null) ? \\\"0\\\" : (!doc['");
-                    sortBuilder.Append(metaFieldName);
-                    sortBuilder.Append("'].value.toString().isDouble()) ? doc['");
-                    sortBuilder.Append(metaFieldName);
-                    sortBuilder.Append("'].value : (doc['");
-                    sortBuilder.Append(metaFieldName);
-                    sortBuilder.Append("'].value.toString().toDouble().trunc(2).toString().padLeft(7,'0'))\"},\"order\": \"");
-                    sortBuilder.Append(order.m_eOrderDir.ToString().ToLower());
-                    sortBuilder.Append("\"}}");
+                    metaFieldName = string.Format("metas.padded_{0}", order.m_sOrderValue.ToLower());
                 }
+
+                sortBuilder.AppendFormat("\"{0}\": ", metaFieldName);
+                
+                //else
+                //{
+                //    sortBuilder.AppendFormat("\"padded_{0}\": ", metaFieldName);
+                //    //// "_script": { "type": "string", "script": { "inline": "(doc['metas.episode number'].value == null) ? \"0\" : 
+                //    //// (!doc['metas.episode number'].value.toString().isDouble()) ? doc['metas.episode number'].value : 
+                //    //// (doc['metas.episode number'].value.toString().toDouble().trunc(2).toString().padLeft(7,'0'))"},"order": "desc"}}
+                //    ////       \"_script\": { \"type\": \"string\", \"script\": { \"inline\": \"(doc[\'metas.episode number\'].value == null) ? \\\"0\\\" : 
+                //    //// (!doc[\'metas.episode number\'].value.toString().isDouble()) ? 
+                //    //// doc[\'metas.episode number\'].value : (doc['metas.episode number\'].value.toString().toDouble().trunc(2).toString().padLeft(7,'0'))\"},\"order\": \"desc\"}}
+                //    //sortBuilder.Append("\"_script\": { \"type\": \"string\", \"script\": { \"inline\": \"(doc['");
+                //    //sortBuilder.Append(metaFieldName);
+                //    //sortBuilder.Append("'].value == null) ? \\\"0\\\" : (!doc['");
+                //    //sortBuilder.Append(metaFieldName);
+                //    //sortBuilder.Append("'].value.toString().isDouble()) ? doc['");
+                //    //sortBuilder.Append(metaFieldName);
+                //    //sortBuilder.Append("'].value : (doc['");
+                //    //sortBuilder.Append(metaFieldName);
+                //    //sortBuilder.Append("'].value.toString().toDouble().trunc(2).toString().padLeft(7,'0'))\"},\"order\": \"");
+                //    //sortBuilder.Append(order.m_eOrderDir.ToString().ToLower());
+                //    //sortBuilder.Append("\"}}");
+                //}
 
                 returnFields.Add(string.Format("\"{0}\"", metaFieldName));
             }
@@ -2492,7 +2500,8 @@ namespace ElasticSearch.Searcher
                 sortBuilder.AppendFormat(" \"{0}\": ", Enum.GetName(typeof(OrderBy), order.m_eOrderBy).ToLower());
             }
 
-            if (order.m_eOrderBy != OrderBy.META && !order.shouldPadString && sortBuilder.Length > 0)
+            //if (order.m_eOrderBy != OrderBy.META && !order.shouldPadString && sortBuilder.Length > 0)
+            if (sortBuilder.Length > 0)
             {
                 sortBuilder.Append(" {");
                 sortBuilder.AppendFormat("\"order\": \"{0}\"", order.m_eOrderDir.ToString().ToLower());
