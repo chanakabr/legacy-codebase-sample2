@@ -141,17 +141,6 @@ namespace EventBus.RabbitMQ
 
             try
             {
-                _Logger.Debug($"Unbinding all subscribed events");
-                using (var channel = _PersistentConnection.CreateModel())
-                {
-                    foreach (var eventName in _Handlers.Keys)
-                    {
-                        _Logger.Debug($"Unbinding:[{eventName}] from queue:[{_QueueName}] in exchanage:[{_ExchangeName}]");
-
-                        channel.QueueUnbind(_QueueName, _ExchangeName, eventName);
-                    }
-                }
-
                 _Logger.Debug($"Disposing [{_ConsumerChannels?.Count}] consumers...");
                 foreach (var consumer in _ConsumerChannels)
                 {
@@ -291,11 +280,20 @@ namespace EventBus.RabbitMQ
 
                     var eventType = subscription.EventType;
                     var serviceEvent = JsonConvert.DeserializeObject(message, eventType);
-
+                    SetLoggingContext(serviceEvent);
                     await (Task)handleMethod.Invoke(handler, new[] { serviceEvent });
                 }
             }
 
+        }
+
+        private void SetLoggingContext(object serviceEvent)
+        {
+            // TODO: Arthur, Think of the bigger context picture and how should it be managed, for logging and for in memepry data store
+            var eventData = (ServiceEvent)serviceEvent;
+            KLogger.LogContextData[KLogMonitor.Constants.USER_ID] = eventData.UserId;
+            KLogger.LogContextData[KLogMonitor.Constants.GROUP_ID] = eventData.GroupId;
+            KLogger.LogContextData[KLogMonitor.Constants.REQUEST_ID_KEY] = eventData.RequestId;
         }
 
         private void InitializeNewEventBinding(string eventName)

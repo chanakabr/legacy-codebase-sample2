@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>ApiLogic</AssemblyName>
     <Version>5.2.0.3673</Version>
     <Description>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</Description>
   </PropertyGroup>
@@ -24,7 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--<Compile Include="Catalog\BulkUpload\BulkUploadAssetData.cs" />-->
     <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
+    <Compile Include="Catalog\BulkUpload\BulkUploadEpgAssetData.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadIngestJobData.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\BulkUploadManager.cs" />
     <Compile Include="GroupManagers\GroupSettingsManager.cs" />

@@ -9,9 +9,7 @@ namespace ApiObjects.EventBus
 {
     public class BulkUploadTransformationEvent : ServiceEvent
     {
-        public int GroupId { get; set; }
-        public long UserId { get; set; }
-        public BulkUpload.BulkUpload BulkUploadData { get; set; }
+        public long BulkUploadId { get; set; }
     }
 
 }
