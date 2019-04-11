@@ -22,11 +22,11 @@ namespace IngestTransformationHandler
         {
             try
             {
-                _Logger.Debug($"Starting ingest transformation handler requestId:[{serviceEvent.RequestId}], BulkUpload.Id:[{serviceEvent.BulkUploadData.Id}]");
-                var processBulkUploadStatus = BulkUploadManager.ProcessBulkUpload(serviceEvent.GroupId, serviceEvent.UserId, serviceEvent.BulkUploadData);
+                _Logger.Debug($"Starting ingest transformation handler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
+                var processBulkUploadStatus = BulkUploadManager.ProcessBulkUpload(serviceEvent.GroupId, serviceEvent.UserId, serviceEvent.BulkUploadId);
                 if (processBulkUploadStatus?.IsOkStatusCode() == true)
                 {
-                    _Logger.Debug($"ProcessBulkUpload completed successfully BulkUpload.Id:[{serviceEvent.BulkUploadData.Id}]");
+                    _Logger.Debug($"ProcessBulkUpload completed successfully BulkUpload.Id:[{serviceEvent.BulkUploadId}]");
                     return Task.CompletedTask;
                 }
 
@@ -35,7 +35,7 @@ namespace IngestTransformationHandler
             }
             catch (Exception ex)
             {
-                _Logger.Error($"An Exception occurred in BulkUploadTransformationHandler requestId:[{serviceEvent.RequestId}], BulkUpload.Id:[{serviceEvent.BulkUploadData.Id}].", ex);
+                _Logger.Error($"An Exception occurred in BulkUploadTransformationHandler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", ex);
                 return Task.FromException(ex);
             }
 
