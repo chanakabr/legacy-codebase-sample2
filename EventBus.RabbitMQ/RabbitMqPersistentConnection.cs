@@ -97,7 +97,7 @@ namespace EventBus.RabbitMQ
 
         public bool TryConnect()
         {
-            _Logger.Info($"RabbitMQ Client is trying to connect to uri:[{_ConnectionFactory.Uri}]");
+            _Logger.Info($"RabbitMQ Client is trying to connect.");
             if (_IsConnected)
             {
                 _Logger.Info($"Already connected");

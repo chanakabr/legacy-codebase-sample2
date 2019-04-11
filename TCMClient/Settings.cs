@@ -45,16 +45,16 @@ namespace TCMClient
         private bool m_VerifySSL;
         private string m_LocalPath;
 
-#region Constructors
+        #region Constructors
 
         private Settings()
         {
 
         }
 
-#endregion
+        #endregion
 
-#region Public Methods
+        #region Public Methods
 
         /// <summary>
         /// Initializes settings with data from local / remote source according to config
@@ -191,12 +191,15 @@ namespace TCMClient
                     ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
                 }
 
-                HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(string.Format("{0}/{1}/{2}/{3}?app_id={4}&app_secret={5}", m_URL, m_Application, m_Host, m_Environment, m_AppID, m_AppSecret));
+                string tcmRequesturl = $"{m_URL}/{m_Application}/{m_Host}/{m_Environment}?app_id={m_AppID}&app_secret={m_AppSecret}";
+                _Logger.Info($"Issuing TCM (GET) [{tcmRequesturl}]");
+                HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(tcmRequesturl);
                 httpWebRequest.Method = "GET";
                 httpWebRequest.ContentType = "application/json";
                 httpWebRequest.Timeout = 5000;
 
                 httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                _Logger.Info($"TCM Response Status ({httpWebResponse.StatusCode}) [{httpWebResponse.StatusDescription}]");
 
                 using (StreamReader sr = new StreamReader(httpWebResponse.GetResponseStream()))
                 {
@@ -226,7 +229,7 @@ namespace TCMClient
         {
             string settings = null;
             string pathToLocalFile = getPathToLocalFile();
-
+            _Logger.Info($"Getting TCM from local file:[{pathToLocalFile}]");
             if (File.Exists(pathToLocalFile))
             {
                 using (StreamReader sr = new StreamReader(pathToLocalFile))
@@ -282,8 +285,9 @@ namespace TCMClient
                         
                     }
                 }
-                catch
+                catch(Exception e)
                 {
+                    _Logger.Error($"Error while trying to populate TCM settings[{settings}]", e);
                     throw new Exception("Source is corrupted.");
                 }
             }
@@ -330,6 +334,6 @@ namespace TCMClient
             return pathToLocalFile;
         }
 
-#endregion
+        #endregion
     }
 }
