@@ -155,7 +155,12 @@ namespace ElasticSearchHandler.Updaters
                         return false;
                     }
                 }
-                
+
+                Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
+                List<string> tags = null;
+                HashSet<string> metasToPad = null;
+                IndexManager.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags, ref metasToPad, esSerializer, group, catalogGroupCache, true);
+
                 // dictionary contains all language ids and its  code (string)
                 List<LanguageObj> languages = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapById.Values.ToList() : group.GetLangauges();
                 List<string> languageCodes = new List<string>();
@@ -239,6 +244,8 @@ namespace ElasticSearchHandler.Updaters
                                 // Create bulk request object for each program
                                 foreach (EpgCB epg in currentLanguageEpgs)
                                 {
+                                    IndexManager.PadEPGMetas(metasToPad, epg);
+
                                     string suffix = null;
 
                                     if (!language.IsDefault)

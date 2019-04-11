@@ -42,6 +42,7 @@ namespace ElasticSearchHandler.IndexBuilders
         protected int groupId;
         protected ElasticSearchApi api;
         protected BaseESSeralizer serializer;
+        protected HashSet<string> MetasToPad;
 
         #endregion
 
