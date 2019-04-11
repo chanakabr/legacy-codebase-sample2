@@ -103,6 +103,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_ALL_LANGUAGE_LIST_LAYERED_CACHE_CONFIG_NAME = "GetAllLanguageList";
         public const string ASSET_STATS_CONFIG_NAME = "AssetStats";
         public const string GET_BULK_UPLOADS_FROM_CACHE = "GetBulkUploadsFromCache";
+        public const string GET_GROUP_LANGUAGES = "GetGroupLanguages";
+
 
         #endregion
 
