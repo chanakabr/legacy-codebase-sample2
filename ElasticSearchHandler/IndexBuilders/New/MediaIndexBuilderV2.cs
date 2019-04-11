@@ -117,6 +117,19 @@ namespace ElasticSearchHandler.IndexBuilders
             
             MappingAnalyzers defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, VERSION);
 
+            Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
+            List<string> tags = null;
+            HashSet<string> metasToPad = null;
+
+            if (!IndexManager.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags,
+                ref metasToPad, serializer, group, catalogGroupCache))
+            {
+                log.Error("Failed GetMetasAndTagsForMapping as part of BuildIndex");
+                return false;
+            }
+
+            MetasToPad = metasToPad;
+
             // Mapping for each language
             foreach (ApiObjects.LanguageObj language in languages)
             {
@@ -129,16 +142,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language, VERSION);
                 
-                Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
-                List<string> tags = null;
-                if (!ElasticSearchTaskUtils.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags, serializer, group, catalogGroupCache))
-                {
-                    log.Error("Failed GetMetasAndTagsForMapping as part of BuildIndex");
-                    return false;
-                }
-
                 // Ask serializer to create the mapping definitions string
-                string mapping = serializer.CreateMediaMapping(metas, tags, specificMappingAnalyzers, defaultMappingAnalyzers);
+                string mapping = serializer.CreateMediaMapping(metas, tags, metasToPad, specificMappingAnalyzers, defaultMappingAnalyzers);
                 bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
 
                 // Most important is the mapping for the default language, we can live without the others...
@@ -191,6 +196,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         if (media != null)
                         {
+                            IndexManager.PadMediaMetas(MetasToPad, media);
+
                             // Serialize media and create a bulk request for it
                             string serializedMedia = serializer.SerializeMediaObject(media, suffix);
 
@@ -306,6 +313,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             return true;
         }
+
 
         #endregion
 
