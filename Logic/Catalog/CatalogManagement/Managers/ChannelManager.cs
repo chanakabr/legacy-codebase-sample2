@@ -12,6 +12,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -22,7 +23,7 @@ namespace Core.Catalog.CatalogManagement
         private const string ACTION_IS_NOT_ALLOWED = "Action is not allowed";
         #region Private Methods
 
-        private static List<Channel> GetChannelListFromDs(DataSet ds)
+        private static List<Channel> GetChannelListFromDs(DataSet ds, Dictionary<int, Dictionary<string, string>> metaDatas = null)
         {
             List<Channel> channels = new List<Channel>();
             if (ds == null || ds.Tables == null || ds.Tables.Count < 5 || ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count == 0)
@@ -55,7 +56,8 @@ namespace Core.Catalog.CatalogManagement
                     List<DataRow> medias = (from row in channelsMedias
                                             where (Int64)row["CHANNEL_ID"] == id
                                             select row).ToList();
-                    Channel channel = CreateChannel(id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias);
+
+                    Channel channel = CreateChannel(id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias, metaDatas[id]);
                     if (channel != null)
                     {
                         channels.Add(channel);
@@ -66,7 +68,7 @@ namespace Core.Catalog.CatalogManagement
             return channels;
         }
 
-        private static Channel CreateChannel(int id, DataRow dr, List<DataRow> nameTranslations, List<DataRow> descriptionTranslations, List<DataRow> mediaTypes, List<DataRow> channelMedias)
+        private static Channel CreateChannel(int id, DataRow dr, List<DataRow> nameTranslations, List<DataRow> descriptionTranslations, List<DataRow> mediaTypes, List<DataRow> channelMedias, Dictionary<string, string> metaData = null)
         {
             Channel channel = new Channel();
             if (channel.m_lChannelTags == null)
@@ -251,6 +253,8 @@ namespace Core.Catalog.CatalogManagement
             channel.SupportSegmentBasedOrdering = ODBCWrapper.Utils.ExtractBoolean(dr, "SUPPORT_SEGMENT_BASED_ORDERING");
             channel.AssetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ASSET_RULE_ID");
 
+            channel.MetaData = metaData;
+
             return channel;
         }
 
@@ -266,6 +270,7 @@ namespace Core.Catalog.CatalogManagement
         private static List<Channel> GetChannels(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets)
         {
             List<Channel> channels = new List<Channel>();
+
             try
             {
                 if (channelIds == null || channelIds.Count == 0)
@@ -321,7 +326,9 @@ namespace Core.Catalog.CatalogManagement
                     if (channelIds != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
                         DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, isAllowedToViewInactiveAssets.Value);
-                        channels = GetChannelListFromDs(ds);
+                        var metadatas = CatalogDAL.GetChannelsMetadatasByIds(channelIds, eChannelType.Internal);
+
+                        channels = GetChannelListFromDs(ds, metadatas);
                         res = channels.Count() == channelIds.Count() || !isAllowedToViewInactiveAssets.Value;
                     }
 
@@ -860,7 +867,8 @@ namespace Core.Catalog.CatalogManagement
 
                     if (id > 0)
                     {
-                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                        CatalogDAL.InsertChannelMetaData(id, eChannelType.Internal, channelToAdd.MetaData);
+                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds, channelToAdd.MetaData);
                     }
                 }
 

@@ -105,6 +105,11 @@ namespace ApiObjects
             set;
         }
 
+        /// <summary>
+        /// key value pairs
+        /// </summary>
+        public Dictionary<string, string> MetaData { get; set; }
+
         #endregion
     }
 }
