@@ -1884,27 +1884,30 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                if (assetStructId > 0)
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    CatalogGroupCache catalogGroupCache;
-                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                    {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByAssetStructId", groupId);
-                        return response;
-                    }
-
-                    if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
-                    {
-                        List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
-                        if (topicIds != null && topicIds.Count > 0)
-                        {
-                            response.Objects = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
-                                                            .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
-                        }
-                    }
-
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByAssetStructId", groupId);
+                    return response;
                 }
+
+                if (assetStructId == 0)
+                {
+                    assetStructId = catalogGroupCache.ProgramAssetStructId;
+                }
+
+                if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+                {
+                    List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
+                    if (topicIds != null && topicIds.Count > 0)
+                    {
+                        response.Objects = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
+                                                        .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
+                    }
+                }
+
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
             }
             catch (Exception ex)
             {
