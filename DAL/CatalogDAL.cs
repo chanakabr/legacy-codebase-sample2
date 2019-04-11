@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
+using ApiObjects.CouchbaseWrapperObjects;
 using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
@@ -17,6 +18,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 
 namespace Tvinci.Core.DAL
 {
@@ -5304,9 +5306,24 @@ namespace Tvinci.Core.DAL
                 }
 
                 result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
+                InsertChannelMetaData(result.ID, eChannelType.External, channel.MetaData);
             }
 
             return result;
+        }
+               
+        public static void InsertChannelMetaData(int id, eChannelType channelType, Dictionary<string, string> metaData)
+        {
+            var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
+            UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBChannelMetaData { Id = id, MetaData = metaData }, true);
+        }
+               
+        public static Dictionary<int, Dictionary<string, string>> GetChannelsMetadatasByIds(List<int> ids, eChannelType channelType)
+        {
+            var keys = ids.Select(id => CBChannelMetaData.CreateChannelMetaDataKey(id, channelType));
+            var res = UtilsDal.GetObjectListFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, keys.ToList(), true);
+
+            return res.ToDictionary(x => x.Id, x => x.MetaData);
         }
 
         public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int? isActive, int orderBy, int orderByDir, string orderByValue, int? isSlidingWindow,
