@@ -96,7 +96,9 @@ namespace DAL
                     object safeValue = null;
                     if (row.Table.Columns.Contains(fieldName))
                     {
-                        safeValue = row[fieldName] == null ? null : Convert.ChangeType(row[fieldName], propType);
+                        if (row[fieldName] == null) { safeValue = null; }
+                        if (propType.IsEnum) { safeValue = Enum.ToObject(propType, 5); }
+                        else { safeValue = Convert.ChangeType(row[fieldName], propType); }
                     }
 
                     prop.SetValue(obj, safeValue, null);
