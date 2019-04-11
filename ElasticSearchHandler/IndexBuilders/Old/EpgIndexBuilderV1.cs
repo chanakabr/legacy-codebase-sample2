@@ -163,7 +163,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     }
                 }
 
-                string sMapping = serializer.CreateEpgMapping(metas, tags, specificMappingAnlyzers, null, baseType, shouldAddRouting);                
+                string sMapping = serializer.CreateEpgMapping(metas, tags, null, specificMappingAnlyzers, null, baseType, shouldAddRouting);                
                 bool bMappingRes = api.InsertMapping(newIndexName, specificType, sMapping.ToString());
 
                 if (language.IsDefault && !bMappingRes)
