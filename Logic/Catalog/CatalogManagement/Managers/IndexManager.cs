@@ -33,9 +33,10 @@ namespace Core.Catalog.CatalogManagement
         private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
         #region Public Methods
+
         public static bool GetMetasAndTagsForMapping(int groupId, bool? doesGroupUsesTemplates, ref Dictionary<string, KeyValuePair<eESFieldType, string>> metas, ref List<string> tags,
-    ref HashSet<string> metasToPad,
-    BaseESSeralizer serializer, Group group = null, CatalogGroupCache catalogGroupCache = null, bool isEpg = false)
+            ref HashSet<string> metasToPad,
+            BaseESSeralizer serializer, Group group = null, CatalogGroupCache catalogGroupCache = null, bool isEpg = false)
         {
             bool result = true;
             tags = new List<string>();
