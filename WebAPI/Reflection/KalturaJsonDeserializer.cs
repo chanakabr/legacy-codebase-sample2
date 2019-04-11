@@ -14800,7 +14800,7 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
+            MinLong = 0,
         };
         public KalturaMetaFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
