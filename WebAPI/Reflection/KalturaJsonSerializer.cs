@@ -9444,6 +9444,11 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "[" + String.Join(", ", MediaTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("media_types", "\"media_types\": " + propertyValue);
             }
+            if(MetaData != null)
+            {
+                propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("metaData", "\"metaData\": " + propertyValue);
+            }
             propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
             if(propertyValue != null)
             {
@@ -9533,6 +9538,11 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = MediaTypes.Count > 0 ? "<item>" + String.Join("</item><item>", MediaTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("media_types", "<media_types>" + propertyValue + "</media_types>");
+            }
+            if(MetaData != null)
+            {
+                propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("metaData", "<metaData>" + propertyValue + "</metaData>");
             }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             if(OldDescription != null)

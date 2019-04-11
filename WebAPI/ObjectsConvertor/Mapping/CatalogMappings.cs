@@ -260,7 +260,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
                .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => Convert.ToBoolean(src.IsActive)))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToOrder(src.Order)));
-
+            
             //Channel (Catalog) to KalturaDynamicChannel
             cfg.CreateMap<GroupsCacheManager.Channel, WebAPI.Models.Catalog.KalturaDynamicChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
@@ -297,7 +297,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
-               ;
+               .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertMetaData(src.MetaData)));
 
             //Channel (Catalog) to KalturaManualChannel
             cfg.CreateMap<GroupsCacheManager.Channel, WebAPI.Models.Catalog.KalturaManualChannel>()
@@ -334,7 +334,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
-               ;
+               .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertMetaData(src.MetaData)));
 
             //CategoryResponse to Category
             cfg.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()

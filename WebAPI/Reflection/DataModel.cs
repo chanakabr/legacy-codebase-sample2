@@ -1180,6 +1180,8 @@ namespace WebAPI.Reflection
                             return "isActive";
                         case "MediaTypes":
                             return "media_types";
+                        case "MetaData":
+                            return "metaData";
                         case "Name":
                             return "name";
                         case "OldDescription":

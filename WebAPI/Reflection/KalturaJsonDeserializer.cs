@@ -10352,6 +10352,13 @@ namespace WebAPI.Models.Catalog
                     }
                     AssetUserRuleId = (Int64) Convert.ChangeType(parameters["assetUserRuleId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
+                {
+                    if (parameters["metaData"] is JObject)
+                    {
+                        MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
             }
         }
     }
