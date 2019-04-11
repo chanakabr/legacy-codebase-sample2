@@ -5,8 +5,12 @@
     <Description>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</Description>
   </PropertyGroup>
 
-  <PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
     <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -23,10 +27,12 @@
     <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadIngestJobData.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\BulkUploadManager.cs" />
+    <Compile Include="GroupManagers\GroupSettingsManager.cs" />
+    <Compile Include="GroupManagers\GroupLanguageManager.cs" />
     <Compile Include="FileHandler.cs" />
     <Compile Include="Profiles\IngestProfileManager.cs" />
   </ItemGroup>
- 
+
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.Core" Version="3.3.100.5" />
@@ -37,6 +43,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\TvmCore\DalCB\DalCB.csproj" />
     <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj" />
+    <ProjectReference Include="..\..\TvmCore\GroupsCacheManager\GroupsCacheManager.csproj" />
     <ProjectReference Include="..\..\TvmCore\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />

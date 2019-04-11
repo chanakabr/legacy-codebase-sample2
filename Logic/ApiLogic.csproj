@@ -445,6 +445,8 @@
     <Compile Include="ConditionalAccess\Implementations\TvinciConditionalAccess.cs" />
     <Compile Include="ConditionalAccess\Implementations\VodafoneConditionalAccess.cs" />
     <Compile Include="FileHandler.cs" />
+    <Compile Include="GroupManagers\GroupLanguageManager.cs" />
+    <Compile Include="GroupManagers\GroupSettingsManager.cs" />
     <Compile Include="Modules\Domains.cs" />
     <Compile Include="Modules\Notification.cs" />
     <Compile Include="Modules\Social.cs" />

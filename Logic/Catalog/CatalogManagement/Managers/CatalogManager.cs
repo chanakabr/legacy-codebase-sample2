@@ -34,31 +34,6 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
-        private static Tuple<bool, bool> DoesGroupUsesTemplates(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            bool doesGroupUsesTemplates = false;
-            try
-            {
-                if (funcParams != null && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-                    if (groupId.HasValue && groupId.Value > 0)
-                    {
-                        doesGroupUsesTemplates = CatalogDAL.DoesGroupUsesTemplates(groupId.Value);
-                        res = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("DoesGroupUsesTemplates failed params : {0}", funcParams != null ? string.Join(";",
-                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
-            }
-
-            return new Tuple<bool, bool>(doesGroupUsesTemplates, res);
-        }
-
         private static Tuple<CatalogGroupCache, bool> GetCatalogGroupCache(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -117,26 +92,6 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
                 }
-            }
-        }
-
-        public static List<LanguageObj> GetGroupLanguages(int groupId)
-        {
-            if (DoesGroupUsesTemplates(groupId))
-            {
-                if (TryGetCatalogGroupCacheFromCache(groupId, out var catalogCache))
-                {
-                    return catalogCache.LanguageMapById.Values.ToList();
-                }
-                else
-                {
-                    log.Error($"GetGroupLanguages > could not get CatalogGroupCacheFromCache, groupId:[{groupId}]");
-                    return new List<LanguageObj>();
-                }
-            }
-            else
-            {
-                return GroupsCacheManager.GroupsCache.Instance().GetGroup(groupId).GetLangauges();
             }
         }
 
@@ -1317,6 +1272,14 @@ namespace Core.Catalog.CatalogManagement
 
         #region Public Methods        
 
+        /// <summary>
+        /// This method is here for backward compatability, redirecting all calls to the main method in GroupSettingsManager.
+        /// This was done to avoid solution wide chanages 
+        /// </summary>
+        public static bool DoesGroupUsesTemplates(int groupId)
+        {
+            return Core.GroupManagers.GroupSettingsManager.DoesGroupUsesTemplates(groupId);
+        }
         public static bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache)
         {
             bool result = false;
@@ -1908,7 +1871,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
+        } 
 
         public static GenericListResponse<Topic> GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
         {
@@ -2247,26 +2210,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return searchKeys;
-        }
-
-        public static bool DoesGroupUsesTemplates(int groupId)
-        {
-            bool result = false;
-            try
-            {
-                string key = LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheKey(groupId);
-                if (!LayeredCache.Instance.Get<bool>(key, ref result, DoesGroupUsesTemplates, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                        LayeredCacheConfigNames.DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME))
-                {
-                    log.ErrorFormat("Failed getting DoesGroupUsesTemplates from LayeredCache, groupId: {0}", groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed DoesGroupUsesTemplates with groupId: {0}", groupId), ex);
-            }
-
-            return result;
         }
 
         public static bool CheckMetaExsits(int groupId, string metaName)

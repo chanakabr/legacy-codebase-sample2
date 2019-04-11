@@ -11,6 +11,7 @@ using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
 using ApiObjects.Response;
+using Core.GroupManagers;
 using Core.Profiles;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -116,8 +117,7 @@ namespace Core.Catalog
             var channelExternalIds = xmlTvEpgData.channel.Select(s => s.id).ToList();
             _Logger.Debug($"MapXmlTvProgramToCBEpgProgram > Retriving kaltura channels for external IDs [{string.Join(",", channelExternalIds)}] ");
             var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
-            //var languages = Core.Catalog.CatalogManagement.CatalogManager.GetGroupLanguages(groupId);
-            var languages = new List<LanguageObj>();
+            var languages = GroupLanguageManager.GetGroupLanguages(groupId);
             var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
             var itemIndex = 0;
             if (defaultLanguage == null)
