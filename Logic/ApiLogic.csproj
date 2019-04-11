@@ -189,6 +189,7 @@
     <Compile Include="Billing\Utils.cs" />
     <Compile Include="Billing\WinPLCSMS.cs" />
     <Compile Include="Billing\WinPLSMSHelper.cs" />
+    <Compile Include="Catalog\BulkUpload\BulkUploadEpgAssetData.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadIngestJobData.cs" />
     <Compile Include="Catalog\AdProvider.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
