@@ -50,7 +50,6 @@ namespace Core.Catalog.CatalogManagement
                 doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
             }
 
-
             if (doesGroupUsesTemplates.Value && catalogGroupCache != null)
             {
                 try
