@@ -116,7 +116,14 @@ namespace ElasticSearchHandler.Updaters
 
             foreach (int mediaId in mediaIds)
             {
-                result &= Core.Catalog.CatalogManagement.IndexManager.UpsertMedia(groupID, mediaId);
+                bool res = Core.Catalog.CatalogManagement.IndexManager.UpsertMedia(groupID, mediaId);
+
+                if (res)
+                {
+                    Core.Api.Managers.AssetRuleManager.UpdateMedia(groupID, mediaId, true);
+                }
+
+                result &= res;
             }
             
             return result;

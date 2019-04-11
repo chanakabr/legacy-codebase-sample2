@@ -99,6 +99,24 @@ namespace ElasticSearchHandler
                     }
                     #endregion
                 }
+                else if (request.Action == ApiObjects.eAction.GeoUpdate)
+                {
+                    #region GeoUpdate
+                    if (request.DocumentIDs != null && request.DocumentIDs.Count > 0)
+                    {
+                        if (Core.Api.Managers.AssetRuleManager.UpdateMedia(request.GroupID, request.DocumentIDs[0]))
+                        {
+                            res = "success";
+                        }
+                        else
+                        {
+                            throw new Exception(
+                                string.Format("Performing {0} action on asset of type {1} with id: [{2}] did not finish successfully.",
+                                request.Action.ToString(), request.Type.ToString(), string.Join(",", request.DocumentIDs)));
+                        }
+                    }
+                    #endregion
+                }
                 else
                 {
                     #region Update
