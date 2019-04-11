@@ -4754,7 +4754,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while UpdateAssetRulesLastRunDate in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIds), ex);
+                log.ErrorFormat("Error while UpdateAssetRulesLastRunDate in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIdsToRemove), ex);
             }
 
             return result;
