@@ -1219,6 +1219,10 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
                         }
+                        else
+                        {
+                            Catalog.Module.UpdateIndex(new List<int>() { (int)result.Object.Id }, groupId, eAction.GeoUpdate);
+                        }
                     }
 
                     // update meta inherited

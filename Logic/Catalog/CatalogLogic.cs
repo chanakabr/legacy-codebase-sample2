@@ -3221,9 +3221,12 @@ namespace Core.Catalog
                     case eObjectType.Unknown:
                         break;
                     case eObjectType.Media:
-                        foreach (long id in ids)
+                        if (action != eAction.GeoUpdate)
                         {
-                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
+                            foreach (long id in ids)
+                            {
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
+                            }
                         }
                         break;
                     case eObjectType.Channel:
