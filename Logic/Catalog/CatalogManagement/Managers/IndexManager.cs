@@ -50,33 +50,39 @@ namespace Core.Catalog.CatalogManagement
                 doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
             }
 
+
             if (doesGroupUsesTemplates.Value && catalogGroupCache != null)
             {
                 try
                 {
                     HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                    tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key).ToList();
-                    foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Key)).Select(x => x.Value))
+                    tags = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()) && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key.ToLower()).ToList();
+
+                    foreach (KeyValuePair<string, Dictionary<string, Topic>> topics in catalogGroupCache.TopicsMapBySystemNameAndByType)
                     {
-                        string nullValue = string.Empty;
-                        eESFieldType metaType;
+                        if (topics.Value.Keys.Any(x => x != ApiObjects.MetaType.Tag.ToString()))
+                        {
+                            string nullValue = string.Empty;
+                            eESFieldType metaType;
 
-                        if (isEpg)
-                        {
-                            metaType = eESFieldType.STRING;
-                        }
-                        else
-                        {
-                            serializer.GetMetaType(topic.Type, out metaType, out nullValue);
-                        }
+                            if (isEpg)
+                            {
+                                metaType = eESFieldType.STRING;
+                            }
+                            else
+                            {
+                                ApiObjects.MetaType topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
+                                serializer.GetMetaType(topicMetaType, out metaType, out nullValue);
+                            }
 
-                        if (!metas.ContainsKey(topic.SystemName.ToLower()))
-                        {
-                            metas.Add(topic.SystemName.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Duplicate topic found for group {0} name {1}", groupId, topic.SystemName);
+                            if (!metas.ContainsKey(topics.Key.ToLower()))
+                            {
+                                metas.Add(topics.Key.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Duplicate topic found for group {0} name {1}", groupId, topics.Key.ToLower());
+                            }
                         }
                     }
                 }
