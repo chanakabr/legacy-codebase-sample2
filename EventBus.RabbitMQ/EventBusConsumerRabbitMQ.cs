@@ -33,10 +33,10 @@ namespace EventBus.RabbitMQ
         public static EventBusConsumerRabbitMQ GetInstanceUsingTCMConfiguration(IServiceProvider serviceProvide, IRabbitMQPersistentConnection persistentConnection, string queueName)
         {
             var eventBusConsumer = new EventBusConsumerRabbitMQ(
-                serviceProvide, 
+                serviceProvide,
                 persistentConnection,
-                ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value, 
-                queueName, 
+                ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value,
+                queueName,
                 4); // TODO: Make concurrent consumers configurable from TCM
 
             return eventBusConsumer;
@@ -130,7 +130,7 @@ namespace EventBus.RabbitMQ
             {
                 _Logger.Info($"Handlers list is empty, closing connection");
                 _QueueName = string.Empty;
-                _ConsumerChannels.ForEach(c=>c.Close());
+                _ConsumerChannels.ForEach(c => c.Close());
             }
         }
 
@@ -141,22 +141,32 @@ namespace EventBus.RabbitMQ
 
             try
             {
-                _Logger.Debug($"Disposing [{_ConsumerChannels?.Count}] consumers...");
-                _ConsumerChannels?.ForEach(c =>
+                _Logger.Debug($"Unbinding all subscribed events");
+                using (var channel = _PersistentConnection.CreateModel())
                 {
-                    _Logger.Debug($"Disposing: [{c.ToString()}]");
-                    c.Dispose();
-                });
+                    foreach (var eventName in _Handlers.Keys)
+                    {
+                        _Logger.Debug($"Unbinding:[{eventName}] from queue:[{_QueueName}] in exchanage:[{_ExchangeName}]");
+
+                        channel.QueueUnbind(_QueueName, _ExchangeName, eventName);
+                    }
+                }
+
+                _Logger.Debug($"Disposing [{_ConsumerChannels?.Count}] consumers...");
+                foreach (var consumer in _ConsumerChannels)
+                {
+                    _Logger.Debug($"Disposing: [{consumer.ToString()}]");
+                    consumer.Dispose();
+                }
 
                 _Logger.Debug($"Disposing Connection...");
-
                 _PersistentConnection.Dispose();
             }
             catch (Exception e)
             {
                 _Logger.Error("Error while disposing consumer ", e);
             }
-            
+
 
         }
 
@@ -196,7 +206,7 @@ namespace EventBus.RabbitMQ
             currentConsumer.CallbackException += ConsumerOnCallbackException;
 
         }
-      
+
         private void TryRemoveSubscription(SubscriptionInfo subscription, HashSet<SubscriptionInfo> handlersForEvent, string eventName)
         {
             if (handlersForEvent.Remove(subscription))
@@ -295,6 +305,6 @@ namespace EventBus.RabbitMQ
             {
                 channel.QueueBind(_QueueName, _ExchangeName, eventName);
             }
-        }     
+        }
     }
 }

@@ -22,12 +22,10 @@ namespace ApiObjects
         #region Data Members
 
         [DataMember]
-        //[JsonProperty("bulk_upload_id")]
         [JsonIgnore()]
         private long BulkUploadId { get; set; }
 
         [DataMember]
-        //[JsonProperty("user_id")]
         [JsonIgnore()]
         private long UserId { get; set; }
 

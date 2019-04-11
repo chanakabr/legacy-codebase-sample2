@@ -5823,7 +5823,7 @@ namespace Core.Api
                     response.SetStatus(eResponseStatus.TagDoesNotExist);
                     return response;
                 }
-                
+
                 ParentalRule currentParentalRule = result.rules.FirstOrDefault(x => x.id == id);
                 bool shouldUpdateMediaTagValues = parentalRuleToUpdate.mediaTagValues != null;
                 if (shouldUpdateMediaTagValues && currentParentalRule.mediaTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.mediaTagValues))
@@ -7651,6 +7651,8 @@ namespace Core.Api
                 response.ExternalChannel = CatalogDAL.InsertExternalChannel(groupId, externalChannel);
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
+                    CreateVirtualChannel(groupId, userId, response.ExternalChannel);
+
                     response.Status = new Status((int)eResponseStatus.OK, "new external channel insert");
                 }
                 else
@@ -7702,6 +7704,18 @@ namespace Core.Api
                 bool isSet = CatalogDAL.DeleteExternalChannel(groupId, externalChannelId);
                 if (isSet)
                 {
+                    //delete virtual asset
+                    bool needToCreateVirtualAsset = false;
+                    Asset virtualChannel = GetVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
+                    if (virtualChannel != null)
+                    {
+                        Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
+                        if (status == null || !status.IsOkStatusCode())
+                        {
+                            log.ErrorFormat("Failed delete virtual asset {0}. for external channel {1}", virtualChannel.Id, externalChannelId);
+                        }
+                    }
+
                     response = new Status((int)eResponseStatus.OK, "external channel deleted");
                 }
                 else
@@ -7725,7 +7739,7 @@ namespace Core.Api
             return response;
         }
 
-        public static ExternalChannelResponse SetExternalChannel(int groupId, ExternalChannel externalChannel, long userId)
+        public static ExternalChannelResponse SetExternalChannel(int groupId, ExternalChannel externalChannel, long userId, bool isFromAsset = false)
         {
             ExternalChannelResponse response = new ExternalChannelResponse();
 
@@ -7807,6 +7821,11 @@ namespace Core.Api
 
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
+                    if (!isFromAsset)
+                    {
+                        UpdateVirtualAsset(groupId, userId, response.ExternalChannel);
+                    }
+
                     response.Status = new Status((int)eResponseStatus.OK, "external channel set changes");
                 }
                 else
@@ -11697,171 +11716,96 @@ namespace Core.Api
             return res;
         }
 
-        public static GenericResponse<IngestProfile> AddIngestProfile(int groupId, int userId, IngestProfile profileToAdd)
+        private static void CreateVirtualChannel(int groupId, long userId, ExternalChannel channel)
         {
-            var response = new GenericResponse<IngestProfile>();
-            try
-            {
-                if (profileToAdd == null)
-                {
-                    response.SetStatus((int)eResponseStatus.IngestProfileNotExists, NO_PROFILE_TO_INSERT);
-                    return response;
-                }
+            AssetStruct assetStruct = GetExternalChannelAssetStruct(groupId);
 
-                if (string.IsNullOrEmpty(profileToAdd.Name))
-                {
-                    response.SetStatus((int)eResponseStatus.NameRequired, NAME_REQUIRED);
-                    return response;
-                }
-
-                if (IsIngestProfileExternalIdExists(groupId, profileToAdd.ExternalId))
-                {
-                    response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
-                    return response;
-                }
-
-                // Create Shared secret 
-                profileToAdd.TransformationAdapterSharedSecret = profileToAdd.TransformationAdapterSharedSecret ?? Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-
-                int id = ApiDAL.AddIngestProfile(groupId, userId, profileToAdd);
-                if (id > 0)
-                {
-                    profileToAdd.Id = id;
-
-                    response.Object = profileToAdd;
-                    response.SetStatus(eResponseStatus.OK, "New ingest profile was successfully created");
-                }
-                else
-                {
-                    response.SetStatus((int)eResponseStatus.Error, "failed to insert new ingest profile");
-                }
-            }
-            catch (Exception ex)
-            {
-                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.ErrorFormat("Failed to insert ingest profile. Group Id: {0}. ex: {1}", groupId, ex);
-            }
-
-            return response;
+            ChannelManager.CreateVirtualChannel(groupId, userId, assetStruct, channel.Name, channel.ID.ToString(), string.Empty);
         }
 
-        public static GenericListResponse<IngestProfile> GetIngestProfiles(int groupId)
+        private static AssetStruct GetExternalChannelAssetStruct(int groupId)
         {
-            var response = new GenericListResponse<IngestProfile>();
-            try
+            CatalogGroupCache catalogGroupCache;
+            AssetStruct assetStruct = null;
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
-                var profiles = ApiDAL.GetIngestProfiles(groupId);
-                response.SetStatus(eResponseStatus.OK);
-                response.Objects = profiles;
-            }
-            catch (Exception ex)
-            {
-                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.ErrorFormat("Failed to get ingest profiles. Group Id: {0}. ex: {1}", groupId, ex);
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetExternalChannelAssetStruct", groupId);
+                return assetStruct;
             }
 
-            return response;
+            if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.EXTERNAL_ASSET_STRUCT_NAME))
+            {
+                assetStruct = catalogGroupCache.AssetStructsMapBySystemName[AssetManager.EXTERNAL_ASSET_STRUCT_NAME];
+            }
+
+            if (assetStruct != null && (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0))
+            {
+                if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
+                                                      .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
+                                                      .ToDictionary(x => x.Value.SystemName, y => y.Value);
+                }
+            }
+
+            return assetStruct;
         }
 
-        public static Status DeleteIngestProfile(int groupId, int userId, int ingestProfileId)
+        private static void UpdateVirtualAsset(int groupId, long userId, ExternalChannel channel)
         {
-            var response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            try
+            bool needToCreateVirtualAsset = false;
+            Asset virtualAsset = GetVirtualAsset(groupId, userId, channel, out needToCreateVirtualAsset);
+
+            if (needToCreateVirtualAsset)
             {
-                if (ingestProfileId <= 0)
-                {
-                    response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
-                    return response;
-                }
-
-                if (!IsIngestProfileIdExists(groupId, ingestProfileId))
-                {
-                    response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
-                    return response;
-                }
-
-                var isDeleted = ApiDAL.DeleteIngestProfile(ingestProfileId, groupId, userId);
-                if (!isDeleted)
-                {
-                    response.Set((int)eResponseStatus.Error, "Ingest profile failed to delete");
-                    return response;
-                }
-            }
-            catch (Exception ex)
-            {
-                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to delete playback adapter. Group ID: {0}, adapterId: {1}", groupId, ingestProfileId), ex);
-            }
-            return response;
-        }
-
-        public static GenericResponse<IngestProfile> UpdateIngestProfile(int groupId, int userId, int ingestProfileId, IngestProfile profileToUpdate)
-        {
-            var response = new GenericResponse<IngestProfile>();
-            try
-            {
-                if (ingestProfileId <= 0 || profileToUpdate == null || !IsIngestProfileIdExists(groupId, ingestProfileId))
-                {
-                    response.SetStatus((int)eResponseStatus.IngestProfileNotExists, PROFILE_NOT_EXIST);
-                    return response;
-                }
-
-                if (string.IsNullOrEmpty(profileToUpdate.Name))
-                {
-                    response.SetStatus((int)eResponseStatus.NameRequired, NAME_REQUIRED);
-                    return response;
-                }
-
-                if (IsIngestProfileExternalIdExists(groupId, profileToUpdate.ExternalId, ingestProfileId))
-                {
-                    response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
-                    return response;
-                }
-
-                profileToUpdate.TransformationAdapterSharedSecret = profileToUpdate.TransformationAdapterSharedSecret ?? Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-
-                var isProfileUpdateSuccess = ApiDAL.UpdateIngestProfile(ingestProfileId, groupId, userId, profileToUpdate);
-
-                if (isProfileUpdateSuccess)
-                {
-                    profileToUpdate.Id = ingestProfileId;
-                    response.Object = profileToUpdate;
-                    response.SetStatus(eResponseStatus.OK, " ingest profile was successfully updated"); 
-                }
-                else
-                {
-                    response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    log.ErrorFormat("Failed to insert ingest profile. Group Id: {0} result from DB update was {1}", groupId, isProfileUpdateSuccess);
-                }
-                
-
-            }
-            catch (Exception ex)
-            {
-                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.ErrorFormat("Failed to insert ingest profile. Group Id: {0}. ex: {1}", groupId, ex);
+                CreateVirtualChannel(groupId, userId, channel);
+                return;
             }
 
-            return response;
+            virtualAsset.Name = channel.Name;
+
+            GenericResponse<Asset> assetUpdateResponse = AssetManager.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
+
+            if (!assetUpdateResponse.IsOkStatusCode())
+            {
+                log.ErrorFormat("Failed update virtual asset {0}, groupId {1}, channelId {2}", virtualAsset.Id, groupId, channel.ID);
+            }
+
+            return;
         }
 
-        private static bool IsIngestProfileExternalIdExists(int groupId, string externalId)
+        internal static Asset GetVirtualAsset(int groupId, long userId, ExternalChannel channel, out bool needToCreateVirtualAsset)
         {
-            var profile = ApiDAL.GetIngestProfiles(externalId: externalId).FirstOrDefault();
-            return profile != null;
-        }
+            needToCreateVirtualAsset = false;
+            Asset asset = null;
+            AssetStruct assetStruct = GetExternalChannelAssetStruct(groupId);
 
-        private static bool IsIngestProfileExternalIdExists(int groupId, string externalId, int profileId)
-        {
-            var profileById = ApiDAL.GetIngestProfiles(profileId: profileId).FirstOrDefault();
-            var profileByExternalId = ApiDAL.GetIngestProfiles(externalId: externalId).FirstOrDefault();
-            return profileById?.Id != profileByExternalId?.Id;
-        }
+            if (assetStruct == null)
+            {
+                log.ErrorFormat("Failed UpdateVirtualAsset. AssetStruct is missing. groupId {0}, channelId {1}", groupId, channel.ID);
+                return asset;
+            }
 
-        private static bool IsIngestProfileIdExists(int groupId, int id)
-        {
-            var profile = ApiDAL.GetIngestProfiles(profileId: id).FirstOrDefault();
-            return (profile != null);
+            // build ElasticSearch filter
+            string filter = string.Format("(and {0}='{1}' asset_type='{2}')", AssetManager.CHANNEL_ID_META_SYSTEM_NAME, channel.ID, assetStruct.Id);
+            UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, false);
+
+            if (assets == null || assets.Length == 0)
+            {
+                log.DebugFormat("UpdateVirtualAsset. Asset not found. CreateVirtualChannel. groupId {0}, channelId {1}", groupId, channel.ID);
+                needToCreateVirtualAsset = true;
+                return asset;
+            }
+
+            GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+
+            if (!assetResponse.HasObject())
+            {
+                log.ErrorFormat("Failed UpdateVirtualAsset. virtual asset not found. groupId {0}, channelId {1}", groupId, channel.ID);
+                return asset;
+            }
+
+            return assetResponse.Object;
         }
     }
 }

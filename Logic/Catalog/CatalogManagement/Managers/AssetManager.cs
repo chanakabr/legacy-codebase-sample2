@@ -6,7 +6,6 @@ using CachingProvider.LayeredCache;
 using Core.Api.Managers;
 using Core.Catalog.Response;
 using KLogMonitor;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -46,7 +45,11 @@ namespace Core.Catalog.CatalogManagement
         internal const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
         internal const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
         internal const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
-        internal const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";        
+        internal const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
+        internal const string CHANNEL_ID_META_SYSTEM_NAME = "ChannelId";
+        internal const string MANUAL_ASSET_STRUCT_NAME = "Manual";
+        internal const string DYNAMIC_ASSET_STRUCT_NAME = "Dynamic";
+        internal const string EXTERNAL_ASSET_STRUCT_NAME = "External";
 
         private static readonly Dictionary<string, string> BasicMediaAssetMetasSystemNameToName = new Dictionary<string, string>()
         {
@@ -1133,7 +1136,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear,
-                                                                long userId, bool isFromIngest = false, bool isForMigration = false)
+                                                                long userId, bool isFromIngest = false, bool isForMigration = false , bool isFromChannel = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -1214,6 +1217,28 @@ namespace Core.Catalog.CatalogManagement
                     // UpdateIndex
                     if (!isFromIngest)
                     {
+                        if (!isFromChannel && (assetStruct.SystemName == MANUAL_ASSET_STRUCT_NAME || assetStruct.SystemName == DYNAMIC_ASSET_STRUCT_NAME || assetStruct.SystemName == EXTERNAL_ASSET_STRUCT_NAME))
+                        {
+                            if (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0)
+                            {
+                                if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                                {
+                                    assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
+                                                                      .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
+                                                                      .ToDictionary(x => x.Value.SystemName, y => y.Value);
+                                }
+                            }
+
+                            if (assetStruct.SystemName == EXTERNAL_ASSET_STRUCT_NAME)
+                            {
+                                UpdateExternalChannel(groupId, userId, result.Object as MediaAsset, assetStruct);
+                            }
+                            else
+                            {
+                                UpdateChannel(groupId, userId, result.Object as MediaAsset, assetStruct);
+                            }
+                        }
+
                         bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                         if (!indexingResult)
                         {
@@ -2051,6 +2076,98 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static void UpdateChannel(int groupId, long userId, MediaAsset asset, AssetStruct assetStruct)
+        {
+            // Check assetStruct catalogId existence          
+            if (assetStruct.TopicsMapBySystemName.ContainsKey(AssetManager.CHANNEL_ID_META_SYSTEM_NAME))
+            {
+                if (asset != null && asset.Metas != null && asset.Metas.Count > 0)
+                {
+                    int channelId = 0;
+                    var tagMeta = asset.Metas.Where(x => x.m_oTagMeta.m_sName == AssetManager.CHANNEL_ID_META_SYSTEM_NAME).FirstOrDefault();
+                    if(tagMeta == null)
+                    {
+                        log.ErrorFormat("Error while update asset {0} channel. channelId is missing. groupId {1}", asset.Id, groupId);
+                        return;
+                    }
+
+                    int.TryParse(tagMeta.m_sValue, out channelId);
+                    if (channelId == 0)
+                    {
+                        log.ErrorFormat("Error while update asset {0} channel. channelId is missing. groupId {1}", asset.Id, groupId);
+                        return;
+                    }
+
+                    GenericResponse<GroupsCacheManager.Channel> channelToUpdate = ChannelManager.GetChannelById(groupId, channelId, true, userId);
+
+                    if (!channelToUpdate.HasObject())
+                    {
+                        log.ErrorFormat("Failed UpdateChannel. channel not found. groupId {0}, channelId {1}", groupId, channelId);
+                        return;
+                    }
+
+                    GroupsCacheManager.Channel channel = channelToUpdate.Object;
+
+                    channel.m_sName = asset.Name;
+                    channel.NamesInOtherLanguages = asset.NamesWithLanguages;
+                    channel.m_sDescription = asset.Description;
+                    channel.DescriptionInOtherLanguages = asset.DescriptionsWithLanguages;
+
+                    GenericResponse<GroupsCacheManager.Channel> channelUpdateResponse = ChannelManager.UpdateChannel(groupId, channel.m_nChannelID, channel, userId, false, true);
+
+                    if (!channelUpdateResponse.IsOkStatusCode())
+                    {
+                        log.ErrorFormat("Failed update channelId{0}, groupId {1}, channelId {2}", channel.m_nChannelID, groupId);
+                    }
+                }
+            }
+
+            return;
+        }
+
+        private static void UpdateExternalChannel(int groupId, long userId, MediaAsset asset, AssetStruct assetStruct)
+        {
+            if (assetStruct.TopicsMapBySystemName.ContainsKey(AssetManager.CHANNEL_ID_META_SYSTEM_NAME))
+            {
+                if (asset != null && asset.Metas != null && asset.Metas.Count > 0)
+                {
+                    int channelId = 0;
+                    var tagMeta = asset.Metas.Where(x => x.m_oTagMeta.m_sName == AssetManager.CHANNEL_ID_META_SYSTEM_NAME).FirstOrDefault();
+                    if (tagMeta == null)
+                    {
+                        log.ErrorFormat("Error while update asset {0} External channel. channelId is missing. groupId {1}", asset.Id, groupId);
+                        return;
+                    }
+
+                    int.TryParse(tagMeta.m_sValue, out channelId);
+                    if (channelId == 0)
+                    {
+                        log.ErrorFormat("Error while update asset {0} External channel. channelId is missing. groupId {1}", asset.Id, groupId);
+                        return;
+                    }
+
+                    //check external channel exist
+                    ExternalChannel channelToUpdate = CatalogDAL.GetExternalChannelById(groupId, channelId);
+                    if (channelToUpdate == null || channelToUpdate.ID <= 0)
+                    {
+                        log.ErrorFormat("Failed UpdateExternalChannel. External channel not found. groupId {0}, ExternalchannelId {1}", groupId, channelId);
+                        return;
+                    }
+
+                    channelToUpdate.Name = asset.Name;
+
+                    ExternalChannelResponse externalChannelResponse  = Api.api.SetExternalChannel(groupId, channelToUpdate, userId, true);
+
+                    if (externalChannelResponse == null || externalChannelResponse.ExternalChannel == null)
+                    {
+                        log.ErrorFormat("Failed update channelId{0}, groupId {1}, channelId {2}", channelToUpdate.ID, groupId);
+                    }
+                }
+            }
+
+            return;
+        }
+
         #endregion
 
         #region Public Methods
@@ -2327,7 +2444,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public static GenericResponse<Asset> UpdateAsset(int groupId, long id, Asset assetToUpdate, long userId, bool isFromIngest = false,
-                                                        bool isCleared = false, bool isForMigration = false)
+                                                        bool isCleared = false, bool isForMigration = false, bool isFromChannel = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -2395,7 +2512,7 @@ namespace Core.Catalog.CatalogManagement
                         mediaAssetToUpdate.Id = id;
                         if (currentAsset != null && mediaAssetToUpdate != null)
                         {
-                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, isLinear, userId, isFromIngest, isForMigration);
+                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, isLinear, userId, isFromIngest, isForMigration, isFromChannel);
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LiveAsset linearMediaAssetToUpdate = assetToUpdate as LiveAsset;

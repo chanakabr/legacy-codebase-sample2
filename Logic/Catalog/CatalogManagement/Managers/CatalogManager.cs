@@ -4,6 +4,7 @@ using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
 using KLogMonitor;
 using Newtonsoft.Json;
+using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,7 +21,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();                
+        internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
         internal const string OPC_UI_METADATA = "metadata";
         internal const string OPC_UI_AVAILABILITY = "availability";
         internal const string OPC_UI_TEXTAREA = "textarea";
@@ -32,31 +33,6 @@ namespace Core.Catalog.CatalogManagement
         #endregion
 
         #region Private Methods
-
-        private static Tuple<bool, bool> DoesGroupUsesTemplates(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            bool doesGroupUsesTemplates = false;
-            try
-            {
-                if (funcParams != null && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-                    if (groupId.HasValue && groupId.Value > 0)
-                    {
-                        doesGroupUsesTemplates = CatalogDAL.DoesGroupUsesTemplates(groupId.Value);
-                        res = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("DoesGroupUsesTemplates failed params : {0}", funcParams != null ? string.Join(";",
-                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
-            }
-
-            return new Tuple<bool, bool>(doesGroupUsesTemplates, res);
-        }
 
         private static Tuple<CatalogGroupCache, bool> GetCatalogGroupCache(Dictionary<string, object> funcParams)
         {
@@ -617,8 +593,13 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static bool InvalidateCacheAndUpdateIndexForTagAssets(int groupId, long tagId, bool shouldUpdateRowsStatus, long userId)
+        private static bool InvalidateCacheForTagAssets(int groupId, long tagId, bool shouldUpdateRowsStatus, long userId, 
+            out List<int> mediaIds, out List<int> epgIds)
         {
+            // preparing media list and epg
+            mediaIds = new List<int>();
+            epgIds = new List<int>();
+
             bool result = true;
             try
             {
@@ -634,18 +615,39 @@ namespace Core.Catalog.CatalogManagement
                     ds = CatalogDAL.GetTagAssets(groupId, tagId);
                 }
 
-                // preparing media list and epg
-                List<int> mediaIds = null;
-                List<int> epgIds = null;
-
                 CreateAssetsListForUpdateIndexFromDataSet(ds, out mediaIds, out epgIds);
 
-                result = InvalidateCacheAndUpdateIndexForAssets(groupId, false, mediaIds, epgIds);
+                result = InvalidateCacheAssets(groupId, mediaIds, epgIds);
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed InvalidateCacheAndUpdateIndexForTagAssets for groupId: {0}, tagId: {1}", groupId, tagId), ex);
                 result = false;
+            }
+
+            return result;
+        }
+
+        private static bool InvalidateCacheAssets(int groupId, List<int> mediaIds, List<int> epgIds)
+        {
+            bool result = true;
+
+            if (mediaIds != null && mediaIds.Count > 0)
+            {
+                // invalidate medias
+                foreach (int mediaId in mediaIds)
+                {
+                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId) && result;
+                }
+            }
+
+            if (epgIds != null && epgIds.Count > 0)
+            {
+                // invalidate epgs
+                foreach (int epgId in epgIds)
+                {
+                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId) && result;
+                }
             }
 
             return result;
@@ -975,6 +977,33 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        internal static bool UpdateIndexForAssets(int groupId, bool shouldDeleteAssets, List<int> mediaIds, List<int> epgIds)
+        {
+            bool result = true;
+            if (mediaIds != null && mediaIds.Count > 0)
+            {
+                eAction action = shouldDeleteAssets ? eAction.Delete : eAction.Update;
+                // update medias index
+                if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, action))
+                {
+                    result = false;
+                    log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
+                }
+            }
+
+            if (epgIds != null && epgIds.Count > 0)
+            {
+                // update epgs index
+                if (!Core.Catalog.Module.UpdateEpgIndex(epgIds, groupId, eAction.Update))
+                {
+                    result = false;
+                    log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
+                }
+            }
+
+            return result;
+        }
+
         internal static bool IsGroupIdExcludedFromTemplatesImplementation(long groupId)
         {
             bool res = false;
@@ -1243,6 +1272,14 @@ namespace Core.Catalog.CatalogManagement
 
         #region Public Methods        
 
+        /// <summary>
+        /// This method is here for backward compatability, redirecting all calls to the main method in GroupSettingsManager.
+        /// This was done to avoid solution wide chanages 
+        /// </summary>
+        public static bool DoesGroupUsesTemplates(int groupId)
+        {
+            return Core.GroupManagers.GroupSettingsManager.DoesGroupUsesTemplates(groupId);
+        }
         public static bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache)
         {
             bool result = false;
@@ -1638,6 +1675,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         List<long> tagTopicIds = new List<long>();
                         List<long> metaTopicIds = new List<long>();
+
                         foreach (long topicId in removedTopicIds)
                         {
                             if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
@@ -1833,7 +1871,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
+        } 
 
         public static GenericListResponse<Topic> GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
         {
@@ -1846,27 +1884,30 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                if (assetStructId > 0)
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    CatalogGroupCache catalogGroupCache;
-                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                    {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByAssetStructId", groupId);
-                        return response;
-                    }
-
-                    if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
-                    {
-                        List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
-                        if (topicIds != null && topicIds.Count > 0)
-                        {
-                            response.Objects = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
-                                                            .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
-                        }
-                    }
-
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByAssetStructId", groupId);
+                    return response;
                 }
+
+                if (assetStructId == 0)
+                {
+                    assetStructId = catalogGroupCache.ProgramAssetStructId;
+                }
+
+                if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+                {
+                    List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
+                    if (topicIds != null && topicIds.Count > 0)
+                    {
+                        response.Objects = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
+                                                        .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
+                    }
+                }
+
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
             }
             catch (Exception ex)
             {
@@ -2105,7 +2146,7 @@ namespace Core.Catalog.CatalogManagement
                 List<string> tags = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key) && x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()))
                                                                                     .Select(x => x.Key).ToList();
 
-                List<string> metas = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key) 
+                List<string> metas = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => !TopicsToIgnore.Contains(x.Key)
                                                                                                 && (x.Value.ContainsKey(ApiObjects.MetaType.String.ToString())
                                                                                                     || x.Value.ContainsKey(ApiObjects.MetaType.MultilingualString.ToString())
                                                                                                     || x.Value.ContainsKey(ApiObjects.MetaType.Number.ToString())
@@ -2172,26 +2213,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return searchKeys;
-        }
-
-        public static bool DoesGroupUsesTemplates(int groupId)
-        {
-            bool result = false;
-            try
-            {
-                string key = LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheKey(groupId);
-                if (!LayeredCache.Instance.Get<bool>(key, ref result, DoesGroupUsesTemplates, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                        LayeredCacheConfigNames.DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME))
-                {
-                    log.ErrorFormat("Failed getting DoesGroupUsesTemplates from LayeredCache, groupId: {0}", groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed DoesGroupUsesTemplates with groupId: {0}", groupId), ex);
-            }
-
-            return result;
         }
 
         public static bool CheckMetaExsits(int groupId, string metaName)
@@ -2364,7 +2385,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> UpdateTag(int groupId, long id, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId)
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> UpdateTag(int groupId, long tagId, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId)
         {
             var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
 
@@ -2377,7 +2398,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                result = GetTagById(groupId, id);
+                result = GetTagById(groupId, tagId);
                 if (!result.HasObject())
                 {
                     return result;
@@ -2389,7 +2410,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(eResponseStatus.NoValuesToUpdate);
                     return result;
                 }
-                
+
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 bool shouldUpdateOtherNames = false;
 
@@ -2402,28 +2423,69 @@ namespace Core.Catalog.CatalogManagement
                         languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
                     }
                 }
-                
+
+                Topic topic = null;
+
                 if (catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
                 {
-                    bool topic = catalogGroupCache.TopicsMapById.ContainsKey(tagToUpdate.topicId);
-                    if (!topic)
+                    bool topicFound = catalogGroupCache.TopicsMapById.ContainsKey(tagToUpdate.topicId);
+
+                    if (!topicFound)
                     {
                         result.SetStatus(eResponseStatus.TopicNotFound);
                         log.ErrorFormat("Error at UpdateTag. TopicId not found. GroupId: {0}", groupId);
                         return result;
                     }
+                    else
+                    {
+                        topic = catalogGroupCache.TopicsMapById[tagToUpdate.topicId];
+                    }
                 }
 
-                DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
+                DataSet ds = CatalogDAL.UpdateTag(groupId, tagId, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
                 result = CreateTagValueFromDataSet(ds);
                 if (!result.HasObject())
                 {
                     return result;
                 }
 
-                if (!InvalidateCacheAndUpdateIndexForTagAssets(groupId, id, false, userId))
+                List<int> mediaIds;
+                List<int> epgIds;
+
+                bool invalidationResult = InvalidateCacheForTagAssets(groupId, tagId, false, userId, out mediaIds, out epgIds);
+
+                if (!invalidationResult)
                 {
-                    log.ErrorFormat("Failed to InvalidateCacheAndUpdateIndexForTagAssets after UpdateTag for groupId: {0}, tagId: {1}", groupId, id);
+                    log.ErrorFormat("Failed to InvalidateCacheForTagAssets after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagId);
+                }
+
+                // 
+                // TODO: REMOVE THIS ONCE DONE WITH REST OF PARTIAL UPDATE
+                //
+                InvalidateCacheAndUpdateIndexForAssets(groupId, false, mediaIds, epgIds);
+
+                bool partialUpdateResult = PartialTagIndexUpdate(groupId, topic.SystemName, tagToUpdate.value, result.Object.value, string.Empty, mediaIds, epgIds);
+
+                if (!partialUpdateResult)
+                {
+                    log.ErrorFormat("Failed to PartialTagIndexUpdate after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagId);
+
+                }
+
+                if (shouldUpdateOtherNames)
+                {
+                    foreach (var pair in languageCodeToName)
+                    {
+                        string originalValue = string.Empty;
+                        var tagInOtherLanguage = result.Object.TagsInOtherLanguages.FirstOrDefault(t => t.LanguageCode == pair.Key);
+
+                        if (tagInOtherLanguage != null)
+                        {
+                            originalValue = tagInOtherLanguage.Value;
+                        }
+
+                        PartialTagIndexUpdate(groupId, topic.SystemName, pair.Value, originalValue, pair.Key, mediaIds, epgIds);
+                    }
                 }
 
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
@@ -2432,7 +2494,67 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateTag for groupId: {0}, id: {1} and tagToUpdate: {2}", groupId, id, tagToUpdate.ToString()), ex);
+                log.Error(string.Format("Failed UpdateTag for groupId: {0}, id: {1} and tagToUpdate: {2}", groupId, tagId, tagToUpdate.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        private static bool PartialTagIndexUpdate(int groupId, string fieldName, string newValue, string originalValue, string languageCode, List<int> mediaIds, List<int> epgIds)
+        {
+            var queue = new CatalogQueue();
+
+            // we start optimistic
+            bool result = true;
+
+            if (mediaIds != null && mediaIds.Count > 0)
+            {
+                var castedMediaIds = mediaIds.Select(i => (long)i).ToList();
+                var mediaQueueData = new PartialUpdateData(groupId,
+                    new AssetsPartialUpdate()
+                    {
+                        AssetIds = mediaIds,
+                        AssetType = eObjectType.Media,
+                        Updates = new List<PartialUpdate>()
+                        {
+                            new PartialUpdate()
+                            {
+                                Action = eUpdateFieldAction.Replace,
+                                FieldName = fieldName,
+                                FieldType = eUpdateFieldType.Tag,
+                                LanguageCode = languageCode,
+                                NewValue = newValue,
+                                OriginalValue = originalValue,
+                                ShouldUpdateAllLanguages = false
+                            }
+                        }
+                    });
+
+                result &= queue.Enqueue(mediaQueueData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
+            }
+
+            if (epgIds != null && epgIds.Count > 0)
+            {
+                var epgQueueData = new PartialUpdateData(groupId,
+                    new AssetsPartialUpdate()
+                    {
+                        AssetIds = epgIds,
+                        AssetType = eObjectType.EPG,
+                        Updates = new List<PartialUpdate>()
+                        {
+                            new PartialUpdate()
+                            {
+                                Action = eUpdateFieldAction.Replace,
+                                FieldName = fieldName,
+                                FieldType = eUpdateFieldType.Tag,
+                                LanguageCode = languageCode,
+                                NewValue = newValue,
+                                OriginalValue = originalValue,
+                                ShouldUpdateAllLanguages = false
+                            }
+                        }
+                    });
+                result &= queue.Enqueue(epgQueueData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
             }
 
             return result;
@@ -2466,9 +2588,17 @@ namespace Core.Catalog.CatalogManagement
                         return tagResponse.Status;
                     }
 
-                    if (!InvalidateCacheAndUpdateIndexForTagAssets(groupId, tagId, true, userId))
+                    List<int> mediaIds;
+                    List<int> epgIds;
+
+                    if (!InvalidateCacheForTagAssets(groupId, tagId, true, userId, out mediaIds, out epgIds))
                     {
-                        log.ErrorFormat("Failed to InvalidateCacheAndUpdateIndexForTagAssets after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagId);
+                        log.ErrorFormat("Failed to InvalidateCacheForTagAssets after DeleteTag for groupId: {0}, tagId: {1}", groupId, tagId);
+                    }
+
+                    if (!UpdateIndexForAssets(groupId, false, mediaIds, epgIds))
+                    {
+                        log.ErrorFormat("Failed to UpdateIndexForAssets after DeleteTag for groupId: {0}, tagId: {1}", groupId, tagId);
                     }
 
                     tagResponse.SetStatus(eResponseStatus.OK);
@@ -2685,6 +2815,11 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructMetaList", groupId);
                         return response;
+                    }
+
+                    if (assetStructId.Value == 0)
+                    {
+                        assetStructId = catalogGroupCache.ProgramAssetStructId;
                     }
 
                     if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId.Value))

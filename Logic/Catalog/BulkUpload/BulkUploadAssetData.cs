@@ -64,12 +64,13 @@ namespace Core.Catalog
                 BulkUploadId = bulkUploadId,
                 Status = BulkUploadResultStatus.InProgress,
                 Type = mediaAsset.MediaType != null && mediaAsset.MediaType.m_nTypeID > 0 ? mediaAsset.MediaType.m_nTypeID : (int?)null,
-                ExternalId = string.IsNullOrEmpty(mediaAsset.CoGuid) ? null : mediaAsset.CoGuid
+                ExternalId = string.IsNullOrEmpty(mediaAsset.CoGuid) ? null : mediaAsset.CoGuid,
+                Object = bulkUploadObject
             };
 
             if (errorStatus != null)
             {
-                bulkUploadAssetResult.SetError(errorStatus);
+                bulkUploadAssetResult.AddError(errorStatus);
             }
             return bulkUploadAssetResult;
         }
@@ -89,12 +90,12 @@ namespace Core.Catalog
             return mandatoryPropertyToValueMap;
         }
 
-        public override void EnqueueObjects(BulkUpload bulkUpload, List<GenericResponse<IBulkUploadObject>> objects)
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> results)
         {
-            for (var i = 0; i < objects.Count; i++)
+            for (var i = 0; i < results.Count; i++)
             {
-                var mediaAsset = objects[i].Object as MediaAsset;
-                if (objects[i].IsOkStatusCode() && mediaAsset != null)
+                var mediaAsset = results[i].Object as MediaAsset;
+                if (results[i].Status != BulkUploadResultStatus.Error && mediaAsset != null)
                 {
                     // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
                     GenericCeleryQueue queue = new GenericCeleryQueue();
@@ -122,8 +123,9 @@ namespace Core.Catalog
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadEpgAssetData : BulkUploadAssetData
     {
-        public override string DistributedTask { get { throw new NotImplementedException(); } }
-        public override string RoutingKey { get { throw new NotImplementedException(); } }
+        // TODO: Arthur, remove disterbutedTask and ruting key from media assets and use the event bus instead.
+        public override string DistributedTask { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
+        public override string RoutingKey { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
 
         public override IBulkUploadObject CreateObjectInstance()
         {
@@ -131,7 +133,7 @@ namespace Core.Catalog
             return bulkObject;
         }
         
-        public override void EnqueueObjects(BulkUpload bulkUpload, List<GenericResponse<IBulkUploadObject>> objects)
+        public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> objects)
         {
             throw new NotImplementedException();
         }

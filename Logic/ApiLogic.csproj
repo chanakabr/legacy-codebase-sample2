@@ -68,6 +68,12 @@
     <LangVersion>7.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\..\tvpapi_rest\packages\AWSSDK.Core.3.3.100.5\lib\net45\AWSSDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\..\tvpapi_rest\packages\AWSSDK.S3.3.3.31.20\lib\net45\AWSSDK.S3.dll</HintPath>
+    </Reference>
     <Reference Include="CH.IoC.Infrastructure.Wiring, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\CH.Ioc.Infrastructure.Wiring.1.0.1\lib\net40\CH.IoC.Infrastructure.Wiring.dll</HintPath>
     </Reference>
@@ -76,7 +82,7 @@
     </Reference>
     <Reference Include="ComponentSpace.SAML2, Version=2.5.0.8, Culture=neutral, PublicKeyToken=7c51d97b3a0a8ff9, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvmcore\External\ComponentSpace.SAML2.dll</HintPath>
+      <HintPath>..\..\TvmCore\External\ComponentSpace.SAML2.dll</HintPath>
     </Reference>
     <Reference Include="Enyim.Caching, Version=2.11.0.0, Culture=neutral, PublicKeyToken=cec98615db04012e, processorArchitecture=MSIL">
       <HintPath>..\packages\EnyimMemcached.2.11\lib\net35\Enyim.Caching.dll</HintPath>
@@ -93,7 +99,7 @@
     </Reference>
     <Reference Include="PerceptiveMCAPI, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvmcore\External\PerceptiveMCAPI.dll</HintPath>
+      <HintPath>..\..\TvmCore\External\PerceptiveMCAPI.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="SimpleInjector, Version=4.4.3.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
@@ -183,7 +189,9 @@
     <Compile Include="Billing\Utils.cs" />
     <Compile Include="Billing\WinPLCSMS.cs" />
     <Compile Include="Billing\WinPLSMSHelper.cs" />
+    <Compile Include="Catalog\BulkUpload\BulkUploadIngestJobData.cs" />
     <Compile Include="Catalog\AdProvider.cs" />
+    <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
     <Compile Include="Catalog\OpcObjects\Asset.cs" />
     <Compile Include="Catalog\OpcObjects\AssetFile.cs" />
     <Compile Include="Catalog\OpcObjects\AssetStruct.cs" />
@@ -193,7 +201,7 @@
     <Compile Include="Catalog\BaseObject.cs" />
     <Compile Include="Catalog\Bootstrapper.cs" />
     <Compile Include="Catalog\Branding.cs" />
-    <Compile Include="Catalog\BulkUploadAssetData.cs" />
+    <Compile Include="Catalog\BulkUpload\BulkUploadAssetData.cs" />
     <Compile Include="Catalog\Cache\CatalogCache.cs" />
     <Compile Include="Catalog\Cache\EntitlementDefinitionsCache.cs" />
     <Compile Include="Catalog\Cache\ParentalRulesTagsCache.cs" />
@@ -436,6 +444,9 @@
     <Compile Include="ConditionalAccess\Implementations\FilmoConditionalAccess.cs" />
     <Compile Include="ConditionalAccess\Implementations\TvinciConditionalAccess.cs" />
     <Compile Include="ConditionalAccess\Implementations\VodafoneConditionalAccess.cs" />
+    <Compile Include="FileHandler.cs" />
+    <Compile Include="GroupManagers\GroupLanguageManager.cs" />
+    <Compile Include="GroupManagers\GroupSettingsManager.cs" />
     <Compile Include="Modules\Domains.cs" />
     <Compile Include="Modules\Notification.cs" />
     <Compile Include="Modules\Social.cs" />
@@ -560,6 +571,7 @@
     <Compile Include="Pricing\UsageModuleCacheWrapper.cs" />
     <Compile Include="Pricing\Utils.cs" />
     <Compile Include="Pricing\WhenAlgo.cs" />
+    <Compile Include="Profiles\IngestProfileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -755,19 +767,19 @@
       <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
       <Name>CDNTokenizers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\AdapterControllers\AdapterControllers.csproj">
+    <ProjectReference Include="..\..\TvmCore\AdapterControllers\AdapterControllers.csproj">
       <Project>{a1fbded5-52fe-4b67-9aab-e71cc366d5cd}</Project>
       <Name>AdapterControllers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ADIFeeder\ADIFeeder.csproj">
+    <ProjectReference Include="..\..\TvmCore\ADIFeeder\ADIFeeder.csproj">
       <Project>{0b1d4349-8059-48f7-bf8b-31fb1e7a2260}</Project>
       <Name>ADIFeeder</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
+    <ProjectReference Include="..\..\TvmCore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
       <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
       <Name>AkamaiTokenGenerator</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\CachingHelpers\CachingHelpers.csproj">
+    <ProjectReference Include="..\..\TvmCore\CachingHelpers\CachingHelpers.csproj">
       <Project>{c94f4aff-e892-4055-9d20-07586be88f3a}</Project>
       <Name>CachingHelpers</Name>
     </ProjectReference>
@@ -775,7 +787,7 @@
       <Project>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</Project>
       <Name>CachingManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\CachingProvider\CachingProvider.csproj">
+    <ProjectReference Include="..\..\TvmCore\CachingProvider\CachingProvider.csproj">
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
     </ProjectReference>
@@ -783,7 +795,7 @@
       <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
       <Name>CouchbaseManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\DalCB\DalCB.csproj">
+    <ProjectReference Include="..\..\TvmCore\DalCB\DalCB.csproj">
       <Project>{cc97d8e8-cfcb-4a33-a8ae-34ebdb0812c3}</Project>
       <Name>DalCB</Name>
     </ProjectReference>
@@ -791,55 +803,55 @@
       <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ElasticSearch\ElasticSearch.csproj">
+    <ProjectReference Include="..\..\TvmCore\ElasticSearch\ElasticSearch.csproj">
       <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
       <Name>ElasticSearch</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\EpgBL\EpgBL.csproj">
+    <ProjectReference Include="..\..\TvmCore\EpgBL\EpgBL.csproj">
       <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
       <Name>EpgBL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\EpgIngest\EpgIngest.csproj">
+    <ProjectReference Include="..\..\TvmCore\EpgIngest\EpgIngest.csproj">
       <Project>{13504508-227b-4099-9987-3df3d2f8e792}</Project>
       <Name>EpgIngest</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
+    <ProjectReference Include="..\..\TvmCore\EventManager\EventManager.csproj">
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
       <Name>EventManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\GoogleAPI\GoogleAPI.csproj">
+    <ProjectReference Include="..\..\TvmCore\GoogleAPI\GoogleAPI.csproj">
       <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>
       <Name>GoogleAPI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
+    <ProjectReference Include="..\..\TvmCore\GroupsCacheManager\GroupsCacheManager.csproj">
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
       <Name>GroupsCacheManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\KlogMonitorHelper\KlogMonitorHelper.csproj">
+    <ProjectReference Include="..\..\TvmCore\KlogMonitorHelper\KlogMonitorHelper.csproj">
       <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
       <Name>KlogMonitorHelper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">
+    <ProjectReference Include="..\..\TvmCore\M1BL\M1BL.csproj">
       <Project>{d5dc1e20-5e10-4d3c-bc6f-6f596d890981}</Project>
       <Name>M1BL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Mailer\Mailer.csproj">
+    <ProjectReference Include="..\..\TvmCore\Mailer\Mailer.csproj">
       <Project>{8c082dfd-81ee-4623-8be9-32d34ded6407}</Project>
       <Name>Mailer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\MCGroupRules\MCGroupRules.csproj">
+    <ProjectReference Include="..\..\TvmCore\MCGroupRules\MCGroupRules.csproj">
       <Project>{7a9c7a82-02fa-4b2e-9391-175ca212012d}</Project>
       <Name>MCGroupRules</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Notifiers\Notifiers.csproj">
+    <ProjectReference Include="..\..\TvmCore\Notifiers\Notifiers.csproj">
       <Project>{31a03896-6fd2-4591-ab2e-a4278c24f8db}</Project>
       <Name>Notifiers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\NPVR\NPVR.csproj">
+    <ProjectReference Include="..\..\TvmCore\NPVR\NPVR.csproj">
       <Project>{ea7e6211-06bc-41ad-8e44-874e5660fbf1}</Project>
       <Name>NPVR</Name>
     </ProjectReference>
@@ -847,35 +859,35 @@
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\QueueWrapper\QueueWrapper.csproj">
+    <ProjectReference Include="..\..\TvmCore\QueueWrapper\QueueWrapper.csproj">
       <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
       <Name>QueueWrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ScheduledTasks\ScheduledTasks.csproj">
+    <ProjectReference Include="..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\StaticticsBL\StaticticsBL.csproj">
+    <ProjectReference Include="..\..\TvmCore\StaticticsBL\StaticticsBL.csproj">
       <Project>{798abf79-9cc5-4d97-bac3-de1f9b016ec2}</Project>
       <Name>StaticticsBL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\StreamingProvider\StreamingProvider.csproj">
+    <ProjectReference Include="..\..\TvmCore\StreamingProvider\StreamingProvider.csproj">
       <Project>{320c9ff3-da35-42ea-a872-65b1cfe681cb}</Project>
       <Name>StreamingProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Synchronizer\Synchronizer.csproj">
+    <ProjectReference Include="..\..\TvmCore\Synchronizer\Synchronizer.csproj">
       <Project>{9b1d6676-614f-4f0d-9bfb-66422f8a5031}</Project>
       <Name>Synchronizer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
+    <ProjectReference Include="..\..\TvmCore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\TvinciImporter\TvinciImporter.csproj">
+    <ProjectReference Include="..\..\TvmCore\TvinciImporter\TvinciImporter.csproj">
       <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
       <Name>TvinciImporter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\TVinciShared\TVinciShared.csproj">
+    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
@@ -883,7 +895,7 @@
       <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Uploader\Uploader.csproj">
+    <ProjectReference Include="..\..\TvmCore\Uploader\Uploader.csproj">
       <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>
       <Name>Uploader</Name>
     </ProjectReference>
@@ -898,6 +910,10 @@
     <ProjectReference Include="..\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj">
       <Project>{614d6789-8b4b-4f9e-8792-b3bd7533c0e7}</Project>
       <Name>EventBus.RabbitMQ</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IngestTransformationAdapterClient\IngestTransformationAdapterClient.csproj">
+      <Project>{f420f546-19cc-40f4-9bbe-2847d3e520da}</Project>
+      <Name>IngestTransformationAdapterClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\TCMClient\TCMClient.csproj">
       <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
@@ -1390,6 +1406,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\DmsService\Service11.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\..\tvpapi_rest\packages\AWSSDK.S3.3.3.31.20\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

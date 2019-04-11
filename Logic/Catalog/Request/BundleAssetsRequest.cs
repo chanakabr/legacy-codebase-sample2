@@ -65,11 +65,11 @@ namespace Core.Catalog.Request
                     groupInCache = groupManager.GetGroup(parentGroupId);
                 }
 
-                if (groupInCache != null)
-                {
-                    // Get channel IDs of current bundle
-                    List<int> channelIds = CatalogLogic.GetBundleChannelIds(parentGroupId, request.m_nBundleID, request.m_eBundleType);
-                    List<GroupsCacheManager.Channel> allChannels = new List<GroupsCacheManager.Channel>();
+                // Get channel IDs of current bundle
+                List<int> channelIds = CatalogLogic.GetBundleChannelIds(parentGroupId, request.m_nBundleID, request.m_eBundleType);
+                List<GroupsCacheManager.Channel> allChannels = new List<GroupsCacheManager.Channel>();
+
+
                     if (doesGroupUsesTemplates)
                     {
                         long userId = 0;
@@ -86,79 +86,79 @@ namespace Core.Catalog.Request
                     else
                     {
                         allChannels.AddRange(groupManager.GetChannels(channelIds, parentGroupId));
-                    }                     
+                    }
 
-                    if (channelIds != null && channelIds.Count > 0)
+                if (channelIds != null && channelIds.Count > 0)
+                {
+                    if (allChannels.Count > 0)
                     {
-                        if (allChannels.Count > 0)
+                        string[] sMediaTypesFromRequest;
+
+                        if (string.IsNullOrEmpty(request.m_sMediaType))
                         {
-                            string[] sMediaTypesFromRequest;
-
-                            if (string.IsNullOrEmpty(request.m_sMediaType))
+                            sMediaTypesFromRequest = new string[1] { "0" };
+                        }
+                        else
+                        {
+                            if (request.m_sMediaType.EndsWith(";"))
                             {
-                                sMediaTypesFromRequest = new string[1] { "0" };
+                                request.m_sMediaType = request.m_sMediaType.Remove(request.m_sMediaType.Length - 1);
                             }
-                            else
+
+                            sMediaTypesFromRequest = request.m_sMediaType.Split(';');
+                        }
+
+                        int[] deviceRuleIds = null;
+
+                        if (request.m_oFilter != null)
+                        {
+                            deviceRuleIds = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
+                        }
+
+                        List<BaseSearchObject> searchObjectsList = BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, deviceRuleIds, request.m_oOrderObj, parentGroupId, doesGroupUsesTemplates);
+
+                        if (searchObjectsList != null && searchObjectsList.Count > 0)
+                        {
+                            try
                             {
-                                if (request.m_sMediaType.EndsWith(";"))
+                                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                                if (searcher != null)
                                 {
-                                    request.m_sMediaType = request.m_sMediaType.Remove(request.m_sMediaType.Length - 1);
-                                }
-
-                                sMediaTypesFromRequest = request.m_sMediaType.Split(';');
-                            }
-
-                            int[] deviceRuleIds = null;
-
-                            if (request.m_oFilter != null)
-                            {
-                                deviceRuleIds = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
-                            }
-
-                            List<BaseSearchObject> searchObjectsList =  BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, deviceRuleIds, request.m_oOrderObj, parentGroupId, doesGroupUsesTemplates);
-
-                            if (searchObjectsList != null && searchObjectsList.Count > 0)
-                            {
-                                try
-                                {
-                                    ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-                                    if (searcher != null)
+                                    ApiObjects.SearchObjects.OrderObj oSearchOrder = new ApiObjects.SearchObjects.OrderObj();
+                                    if (request.m_oOrderObj == null)
                                     {
-                                        ApiObjects.SearchObjects.OrderObj oSearchOrder = new ApiObjects.SearchObjects.OrderObj();
-                                        if (request.m_oOrderObj == null)
-                                        {
-                                            oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                                            oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                                        }
-                                        CatalogLogic.GetOrderValues(ref oSearchOrder, request.m_oOrderObj);
-                                        if (oSearchOrder.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(oSearchOrder.m_sOrderValue))
-                                        {
-                                            oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                                            oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                                        }
+                                        oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                                        oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                                    }
+                                    CatalogLogic.GetOrderValues(ref oSearchOrder, request.m_oOrderObj);
+                                    if (oSearchOrder.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(oSearchOrder.m_sOrderValue))
+                                    {
+                                        oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                                        oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                                    }
 
-                                        int totalItems = 0;
-                                        var searchResults =
-                                            searcher.SearchSubscriptionAssets(request.m_nGroupID, 
-                                                searchObjectsList, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, 
-                                                request.m_sMediaType, oSearchOrder, request.m_nPageIndex, request.m_nPageSize, ref totalItems);
+                                    int totalItems = 0;
+                                    var searchResults =
+                                        searcher.SearchSubscriptionAssets(request.m_nGroupID,
+                                            searchObjectsList, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate,
+                                            request.m_sMediaType, oSearchOrder, request.m_nPageIndex, request.m_nPageSize, ref totalItems);
 
-                                        if (searchResults != null)
-                                        {
-                                            response.m_nTotalItems = totalItems;
-                                            response.searchResults = searchResults;
-                                        }
+                                    if (searchResults != null)
+                                    {
+                                        response.m_nTotalItems = totalItems;
+                                        response.searchResults = searchResults;
                                     }
                                 }
-                                catch (Exception ex)
-                                {
-                                    response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Search bundle failed");
-                                    log.Error(ex.Message);
-                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Search bundle failed");
+                                log.Error(ex.Message);
                             }
                         }
                     }
                 }
+                
 
                 log.Debug("Info - BundleMediaRequest - total returned items = " + response.m_nTotalItems);
                 return (BaseResponse)response;

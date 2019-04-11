@@ -383,20 +383,16 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // get picture sizes
-                List<PicSize> pictureSizes = Cache.CatalogCache.Instance().GetGroupPicSizes(groupId);
-                Dictionary<long, PicSize> ratioIdToPicSize = new Dictionary<long, PicSize>();
-                if (pictureSizes != null && pictureSizes.Count > 0)
-                {
-                    ratioIdToPicSize = pictureSizes.ToDictionary(x => (long)x.RatioId, x => x);
-                }
-
+                var ratioIdToPicSize = Cache.CatalogCache.Instance().GetGroupRatioIdToPicSizeMapping(groupId);
+                
                 foreach (Image image in imagesResponse.Objects)
                 {
                     ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
                     if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0 && ratioIdToPicSize.ContainsKey(imageType.RatioId.Value))
                     {
-                        image.Height = ratioIdToPicSize[imageType.RatioId.Value].Height;
-                        image.Width = ratioIdToPicSize[imageType.RatioId.Value].Width;
+                        var picSize = ratioIdToPicSize[imageType.RatioId.Value].First();
+                        image.Height = picSize.Height;
+                        image.Width = picSize.Width;
 
                         if (updateUrl)
                         {
@@ -463,12 +459,12 @@ namespace Core.Catalog.CatalogManagement
                 response.Objects = new List<Image>();
                 Dictionary<long, string> imageTypeIdToRatioName = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
                 GenericListResponse<Ratio> ratios = ImageManager.GetRatios(groupId);
-                List<PicSize> pictureSizes = null;
+                Dictionary<long, List<PicSize>> ratioIdToPicSize = null;
                 List<ApiObjects.Ratio> oldGroupRatios = null;
 
                 if (isWithPicSizes)
                 {
-                    pictureSizes = Cache.CatalogCache.Instance().GetGroupPicSizes(groupId);
+                    ratioIdToPicSize = Cache.CatalogCache.Instance().GetGroupRatioIdToPicSizeMapping(groupId);
                     oldGroupRatios = Cache.CatalogCache.Instance().GetGroupRatios(groupId);
                 }
 
@@ -479,16 +475,18 @@ namespace Core.Catalog.CatalogManagement
                     {
                         // backward compatibility for pic sizes
                         if (isWithPicSizes && !string.IsNullOrEmpty(image.RatioName) && oldGroupRatios != null && oldGroupRatios.Count > 0
-                            && oldGroupRatios.Any(x => x.Name == image.RatioName) && pictureSizes != null && pictureSizes.Count > 0)
+                            && oldGroupRatios.Any(x => x.Name == image.RatioName) && ratioIdToPicSize != null && ratioIdToPicSize.Count > 0)
                         {
                             ApiObjects.Ratio oldRatio = oldGroupRatios.First(x => x.Name == image.RatioName);
-                            if (pictureSizes.Any(x => x.RatioId == oldRatio.Id))
+                            if (ratioIdToPicSize.ContainsKey(oldRatio.Id))
                             {
-                                foreach (PicSize picSize in pictureSizes.Where(x => x.RatioId == oldRatio.Id))
+                                foreach (PicSize picSize in ratioIdToPicSize[oldRatio.Id])
                                 {
-                                    Image imageToAdd = new Image(image);
-                                    imageToAdd.Height = picSize.Height;
-                                    imageToAdd.Width = picSize.Width;
+                                    Image imageToAdd = new Image(image)
+                                    {
+                                        Height = picSize.Height,
+                                        Width = picSize.Width
+                                    };
                                     imageToAdd.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, imageToAdd.ContentId, imageToAdd.Version, imageToAdd.Width, imageToAdd.Height, 100);
                                     response.Objects.Add(imageToAdd);
                                 }
@@ -1365,22 +1363,33 @@ namespace Core.Catalog.CatalogManagement
         public static List<Picture> ConvertImagesToPictures(List<Image> assetImages, int groupId)
         {
             List<Picture> pictures = new List<Picture>();
-            // get picture sizes
-            List<PicSize> pictureSizes = Cache.CatalogCache.Instance().GetGroupPicSizes(groupId);
-            Dictionary<long, PicSize> ratioIdToPicSize = new Dictionary<long, PicSize>();
-            if (pictureSizes != null && pictureSizes.Count > 0)
-            {
-                ratioIdToPicSize = pictureSizes.ToDictionary(x => (long)x.RatioId, x => x);
-            }
             if (assetImages != null && assetImages.Count > 0)
             {
+                // get picture sizes
+                Dictionary<long, List<PicSize>> ratioIdToPicSizes = Cache.CatalogCache.Instance().GetGroupRatioIdToPicSizeMapping(groupId);
+                List<ApiObjects.Ratio> oldGroupRatios = Cache.CatalogCache.Instance().GetGroupRatios(groupId);
+
                 foreach (Image image in assetImages)
                 {
                     ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
                     if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
                     {
-                        PicSize picsize = ratioIdToPicSize.ContainsKey(imageType.RatioId.Value) ? ratioIdToPicSize[imageType.RatioId.Value] : null;
-                        pictures.Add(new Picture(groupId, image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value), picsize));
+                        if (!string.IsNullOrEmpty(image.RatioName) && oldGroupRatios != null && oldGroupRatios.Count > 0
+                            && oldGroupRatios.Any(x => x.Name == image.RatioName) && ratioIdToPicSizes != null && ratioIdToPicSizes.Count > 0)
+                        {
+                            ApiObjects.Ratio oldRatio = oldGroupRatios.First(x => x.Name == image.RatioName);
+                            if (ratioIdToPicSizes.ContainsKey(oldRatio.Id))
+                            {
+                                foreach (PicSize picSize in ratioIdToPicSizes[oldRatio.Id])
+                                {
+                                    pictures.Add(new Picture(groupId, image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value), picSize));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            pictures.Add(new Picture(groupId, image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value), null));
+                        }
                     }
                 }
             }

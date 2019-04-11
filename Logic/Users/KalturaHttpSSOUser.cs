@@ -14,6 +14,7 @@ using APILogic.SSOAdapaterService;
 using CachingProvider.LayeredCache;
 using SSOAdapaterUser = APILogic.SSOAdapaterService.User;
 using SSOAdapterUserType = APILogic.SSOAdapaterService.UserType;
+using System.Web;
 
 namespace Core.Users
 {
@@ -85,6 +86,12 @@ namespace Core.Users
                 siteGuid = response.UserId;
                 userName = response.Username;
                 password = response.Password;
+
+                if (response.Priviliges != null && response.Priviliges.Count > 0)
+                {
+                    HttpContext.Current.Items.Add(Constants.PRIVILIGES, response.Priviliges);
+                }
+
                 return new UserResponseObject { m_RespStatus = ResponseStatus.OK };
             }
             catch (Exception e)
