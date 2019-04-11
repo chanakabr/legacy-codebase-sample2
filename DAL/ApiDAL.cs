@@ -3260,6 +3260,15 @@ namespace DAL
                                 IsExcluded = isExcluded
                             };
                             break;
+                        case ePermissionItemType.Priviliges:
+                            permissionItem = new ApiPriviligesPermissionItem()
+                            {
+                                Object = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "OBJECT").Trim(),
+                                Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION").Trim(),
+                                Parameter = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "PARAMETER").Trim(),
+                                IsExcluded = isExcluded
+                            };
+                            break;
                         default:
                             permissionItem = null;
                             break;

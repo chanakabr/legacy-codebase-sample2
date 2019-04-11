@@ -1,28 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
-    <ProjectGuid>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</ProjectGuid>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <!--<PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell –NonInteractive –ExecutionPolicy Unrestricted ..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
-    <PostBuildEvent />-->
+    <Version>5.2.0.3672</Version>
+    <Description>2019-04-09 19:07:01 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-146-g5516f6ce-dirty</Description>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>full</DebugType>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
+  
   <!-- This is a workaround that will allow TVM website project to build, if you read this an 
   TVM no longer exist please remove this <Target Name="GetTargetPath"... element-->
   <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CachingProvider.LayeredCache
@@ -79,6 +80,12 @@ namespace CachingProvider.LayeredCache
         public static string GetDomainBundlesKey(int groupId, int domainId)
         {
             return string.Format("domainBundlesV2_groupId_{0}_domainId_{1}", groupId, domainId);
+        }
+
+        public static string GetGroupLanguagesCacheKey(int groupId)
+        {
+            return string.Format("groupLanguages_groupId_{0}", groupId);
+
         }
 
         public static string GetPermissionsRolesIdsKey(int groupId)

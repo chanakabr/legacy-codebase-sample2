@@ -62,9 +62,9 @@ namespace CouchbaseManager
         private const uint monthInSeconds = 30 * 24 * 60 * 60;
 
         /// <summary>
-        /// Defines the default SearchRequestTimeout value (just like in documentation)
+        /// Defines the default SendTimeout value (just like in documentation)
         /// </summary>
-        internal const uint SEARCH_REQUEST_TIMEOUT_DEFAULT_MILLISECONDS = 75000;
+        internal const uint SEND_TIMEOUT_DEFAULT_MILLISECONDS = 15000;
 
         #endregion
 
@@ -1764,7 +1764,7 @@ namespace CouchbaseManager
                 string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
-                    getResult = bucket.Get<T>(keys, TimeSpan.FromMilliseconds(SEARCH_REQUEST_TIMEOUT_DEFAULT_MILLISECONDS));
+                    getResult = bucket.Get<T>(keys, TimeSpan.FromMilliseconds(SEND_TIMEOUT_DEFAULT_MILLISECONDS));
                 }
 
                 // Success until proven otherwise
@@ -1846,7 +1846,7 @@ namespace CouchbaseManager
                 string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
-                    getResult = bucket.Get<string>(keys, TimeSpan.FromMilliseconds(SEARCH_REQUEST_TIMEOUT_DEFAULT_MILLISECONDS));
+                    getResult = bucket.Get<string>(keys, TimeSpan.FromMilliseconds(SEND_TIMEOUT_DEFAULT_MILLISECONDS));
                 }
 
                 // Success until proven otherwise

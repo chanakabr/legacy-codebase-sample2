@@ -1,15 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
-    <ProjectGuid>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</ProjectGuid>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <Version>5.2.0.3672</Version>
+    <Description>2019-04-09 19:07:01 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-146-g5516f6ce-dirty</Description>
   </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
@@ -17,6 +26,7 @@
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <Compile Remove="ConnectionsStringsHelper.cs" />
   </ItemGroup>

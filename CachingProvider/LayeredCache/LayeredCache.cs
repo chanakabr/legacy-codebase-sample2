@@ -8,6 +8,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using System.Web;
 using ConfigurationManager;
+using System.Runtime.Caching;
 
 namespace CachingProvider.LayeredCache
 {
@@ -245,7 +246,8 @@ namespace CachingProvider.LayeredCache
             {
                 if (HttpContext.Current != null)
                 {
-                    HttpContext.Current.Response.Headers.Set("no-cache", "true");
+                    HttpContext.Current.Response.Headers.Remove("no-cache");
+                    HttpContext.Current.Response.Headers.Add("no-cache", "true");
                 }
 
                 long valueToUpdate = Utils.GetUtcUnixTimestampNow();
@@ -278,7 +280,8 @@ namespace CachingProvider.LayeredCache
             {
                 if (HttpContext.Current != null)
                 {
-                    HttpContext.Current.Response.Headers.Set("no-cache", "true");
+                    HttpContext.Current.Response.Headers.Remove("no-cache");
+                    HttpContext.Current.Response.Headers.Add("no-cache", "true");
                 }
 
                 long valueToUpdate = Utils.GetUtcUnixTimestampNow();
@@ -320,8 +323,7 @@ namespace CachingProvider.LayeredCache
                     if (HttpContext.Current != null)
                     {
                         var invalidationKeysHeader = HttpContext.Current.Response.Headers["invalidationKeys"];
-
-                        if (invalidationKeysHeader == null)
+                        if (string.IsNullOrEmpty(invalidationKeysHeader))
                         {
                             string invalidationKeysString = string.Join(";", invalidationKeys);
 
@@ -330,13 +332,14 @@ namespace CachingProvider.LayeredCache
                         else
                         {
                             // Split and create hashset of all current invalidation keys - to avoid duplications
-                            HashSet<string> invalidationKeysHashSet = new HashSet<string>(invalidationKeysHeader.Split(';'));
+                            HashSet<string> invalidationKeysHashSet = new HashSet<string>(invalidationKeysHeader.ToString().Split(';'));
 
                             invalidationKeysHashSet.UnionWith(invalidationKeys);
 
                             string invalidationKeysString = string.Join(";", invalidationKeysHashSet);
 
-                            HttpContext.Current.Response.Headers.Set("invalidationKeys", invalidationKeysString);
+                            HttpContext.Current.Response.Headers.Remove("invalidationKeys");
+                            HttpContext.Current.Response.Headers.Add("invalidationKeys", invalidationKeysString);
                         }
                     }
                 }
@@ -609,7 +612,7 @@ namespace CachingProvider.LayeredCache
 
                     if (!result)
                     {
-                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key: {0}, with MethodName: {1}, and funcParameters: {2}.", 
+                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key: {0}, with MethodName: {1}, and funcParameters: {2}.",
                                         key,
                                         fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
                                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys) : "No_Func_Parameters");
@@ -732,7 +735,7 @@ namespace CachingProvider.LayeredCache
 
                     if (!result)
                     {
-                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key: {0}, with MethodName: {1}, and funcParameters: {2}.", 
+                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key: {0}, with MethodName: {1}, and funcParameters: {2}.",
                                         string.Join(",", KeyToOriginalValueMap.Keys),
                                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
                                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys) : "No_Func_Parameters");
@@ -1216,14 +1219,11 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                if (HttpContext.Current != null && HttpContext.Current.Cache != null)
+                object cachedObj = MemoryCache.Default.Get(key);
+                if (cachedObj != null)
                 {
-                    object cachedObj = HttpContext.Current.Cache.Get(key);
-                    if (cachedObj != null)
-                    {
-                        genericParameter = (T)cachedObj;
-                        res = genericParameter != null && true;
-                    }
+                    genericParameter = (T)cachedObj;
+                    res = genericParameter != null && true;
                 }
             }
             catch (Exception ex)
@@ -1236,12 +1236,9 @@ namespace CachingProvider.LayeredCache
 
         private void InsertResultsToAppDomainCache<T>(Dictionary<string, T> results, double ttlOnAppDomainInSeconds)
         {
-            if (HttpContext.Current != null && HttpContext.Current.Cache != null)
+            foreach (KeyValuePair<string, T> pair in results)
             {
-                foreach (KeyValuePair<string, T> pair in results)
-                {
-                    HttpContext.Current.Cache.Insert(pair.Key, pair.Value, null, DateTime.UtcNow.AddSeconds(ttlOnAppDomainInSeconds), System.Web.Caching.Cache.NoSlidingExpiration);
-                }
+                MemoryCache.Default.Add(pair.Key, pair.Value, DateTime.UtcNow.AddSeconds(ttlOnAppDomainInSeconds));
             }
         }
 

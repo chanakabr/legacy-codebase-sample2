@@ -5688,6 +5688,7 @@ namespace Tvinci.Core.DAL
             var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
             var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
             
+
             if (!isAnyInError)
             {
                 newStatus = BulkUploadJobStatus.Success;

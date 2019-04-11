@@ -126,7 +126,6 @@
     <Compile Include="DBRecordWebEditor.cs" />
     <Compile Include="DBTableWebEditor.cs" />
     <Compile Include="EncryptUtils.cs" />
-    <Compile Include="FileHandler.cs" />
     <Compile Include="FTPUploader.cs" />
     <Compile Include="GenericExtensionMethods.cs" />
     <Compile Include="HashUtils.cs" />

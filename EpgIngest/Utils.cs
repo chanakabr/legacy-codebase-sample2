@@ -13,11 +13,11 @@ using System.Reflection;
 
 namespace EpgIngest
 {
-    internal static class Utils
+    public static class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static List<LanguageObj> GetLanguages(int nGroupID)
+        public static List<LanguageObj> GetLanguages(int nGroupID)
         {
             List<LanguageObj> lLang = new List<LanguageObj>();
             try
@@ -32,7 +32,7 @@ namespace EpgIngest
             }
         }
 
-        internal static List<FieldTypeEntity> GetMappingFields(int nGroupID)
+        public static List<FieldTypeEntity> GetMappingFields(int nGroupID)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace EpgIngest
             }
         }
 
-        internal static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)
+        public static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)
         {
             if (string.IsNullOrEmpty(dateStr) || dateStr.Length < 14)
                 return false;
@@ -79,7 +79,7 @@ namespace EpgIngest
         }
 
         //Insert rows of table to the db at once using bulk operation.      
-        internal static void InsertBulk(DataTable dt, string sTableName, string sConnName)
+        public static void InsertBulk(DataTable dt, string sTableName, string sConnName)
         {
             if (dt != null)
             {
@@ -107,7 +107,7 @@ namespace EpgIngest
             }
         }
 
-        internal static void GenerateTagsAndValues(ApiObjects.EpgCB epg, List<FieldTypeEntity> FieldEntityMapping, ref Dictionary<int, List<string>> tagsAndValues)
+        public static void GenerateTagsAndValues(ApiObjects.EpgCB epg, List<FieldTypeEntity> FieldEntityMapping, ref Dictionary<int, List<string>> tagsAndValues)
         {
             if (epg == null)
             {
@@ -158,7 +158,7 @@ namespace EpgIngest
         }
 
         //Build docids with languages per programid 
-        internal static List<string> BuildDocIdsToRemoveGroupPrograms(List<long> lProgramsID, List<LanguageObj> lLanguage)
+        public static List<string> BuildDocIdsToRemoveGroupPrograms(List<long> lProgramsID, List<LanguageObj> lLanguage)
         {
             List<string> docIds = new List<string>();
             string docID = string.Empty;

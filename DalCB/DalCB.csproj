@@ -1,28 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <Version>5.2.0.3672</Version>
+    <Description>2019-04-09 19:07:01 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-146-g5516f6ce-dirty</Description>
   </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+    
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+  
   <ItemGroup>
-    <!--<PackageReference Include="Common.Logging" Version="3.3.1" />
-    <PackageReference Include="Common.Logging.Core" Version="3.3.1" />
-    <PackageReference Include="CouchbaseNetClient" Version="2.7.4" />-->
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
-  <ItemGroup>        
-<!--<Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Data.DataSetExtensions" />-->
-  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
-    <!--<ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />-->
   </ItemGroup>
 
   <!-- 
