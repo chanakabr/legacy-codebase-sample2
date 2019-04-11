@@ -249,7 +249,7 @@ namespace TCMClient
                 settings = getSettingsFromServer();
 
                 //if no data from server, try to take data from local file
-                if (string.IsNullOrEmpty(settings))
+                if (string.IsNullOrEmpty(settings) || settings == "null")
                 {
                     settings = getSettingsFromLocal();
                 }
