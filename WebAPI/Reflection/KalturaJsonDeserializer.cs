@@ -20141,12 +20141,12 @@ namespace WebAPI.Models.Users
         };
         private static RuntimeSchemePropertyAttribute RoleIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
-            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
             IsNullable = false,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };

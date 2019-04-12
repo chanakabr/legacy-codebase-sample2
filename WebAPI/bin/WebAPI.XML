@@ -13179,6 +13179,46 @@
             External identifier for the asset
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadXmlTvChannelResult.ChannelExternalId">
+            <summary>
+            External channel id as parsed from xmlTv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadXmlTvChannelResult.InnerChannels">
+            <summary>
+            List of inner kaltura channeles that the externalId from xmlTv is mapped to
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadChannelResult.ChannelId">
+            <summary>
+            The internal kaltura channel id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadChannelResult.Programs">
+            <summary>
+            List of programs that were ingested to the channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadMultilingualProgramAssetResult.LanguageCode">
+            <summary>
+            Language code of the program ingested
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadMultilingualProgramAssetResult.Program">
+            <summary>
+            Ingested program information
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.ProgramId">
+            <summary>
+            The programID that was created
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.ProgramExternalId">
+            <summary>
+            The external program Id as was sent in the xmlTv file
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">
             <summary>
             Upload-token identifier
