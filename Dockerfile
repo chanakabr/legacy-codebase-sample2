@@ -15,6 +15,7 @@ FROM mcr.microsoft.com/dotnet/core/runtime:2.2-alpine
 WORKDIR /
 
 ENV RUN_TASK=no-task-selected
+ENV CONCURRENT_CONSUMERS=4
 ENV API_LOG_DIR=logs/
 
 COPY --from=builder /src/published .
