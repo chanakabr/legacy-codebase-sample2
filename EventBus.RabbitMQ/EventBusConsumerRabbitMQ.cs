@@ -30,14 +30,14 @@ namespace EventBus.RabbitMQ
         private string _QueueName;
         private bool _Disposed;
 
-        public static EventBusConsumerRabbitMQ GetInstanceUsingTCMConfiguration(IServiceProvider serviceProvide, IRabbitMQPersistentConnection persistentConnection, string queueName)
+        public static EventBusConsumerRabbitMQ GetInstanceUsingTCMConfiguration(IServiceProvider serviceProvide, IRabbitMQPersistentConnection persistentConnection, string queueName, int concurrentConsumers)
         {
             var eventBusConsumer = new EventBusConsumerRabbitMQ(
                 serviceProvide,
                 persistentConnection,
                 ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value,
                 queueName,
-                4); // TODO: Make concurrent consumers configurable from TCM
+                concurrentConsumers);
 
             return eventBusConsumer;
         }

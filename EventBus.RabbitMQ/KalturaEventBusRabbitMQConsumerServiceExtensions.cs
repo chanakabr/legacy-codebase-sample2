@@ -83,12 +83,13 @@ namespace EventBus.RabbitMQ
 
         private static void ConfigureRabbitMQEventBus(IServiceCollection services, KalturaMicroserviceConfiguration configuration, List<Type> allServiceHandlers)
         {
-            services.AddSingleton<IEventBusConsumer>(serviceProvider =>
+            services.AddSingleton((Func<IServiceProvider, IEventBusConsumer>)(serviceProvider =>
             {
                 var queueName = _EntryAssembly.GetName().Name;
                 var rabbitMQPersistentConnection = serviceProvider.GetRequiredService<IRabbitMQPersistentConnection>();
+                int concurrentConsumersIntValue = GetConcurrentConsumersFromEnvironmentVars();
 
-                var eventBus = EventBusConsumerRabbitMQ.GetInstanceUsingTCMConfiguration(serviceProvider, rabbitMQPersistentConnection, queueName);
+                var eventBus = EventBusConsumerRabbitMQ.GetInstanceUsingTCMConfiguration(serviceProvider, rabbitMQPersistentConnection, queueName, concurrentConsumersIntValue);
 
                 foreach (var handler in allServiceHandlers)
                 {
@@ -100,7 +101,19 @@ namespace EventBus.RabbitMQ
                 }
 
                 return eventBus;
-            });
+            }));
+        }
+
+        private static int GetConcurrentConsumersFromEnvironmentVars()
+        {
+            var concurrentConsumers = Environment.GetEnvironmentVariable("CONCURRENT_CONSUMERS");
+            concurrentConsumers = concurrentConsumers != null ? Environment.ExpandEnvironmentVariables(concurrentConsumers) : "4";
+            if (!int.TryParse(concurrentConsumers, out var concurrentConsumersIntValue))
+            {
+                concurrentConsumersIntValue = 4;
+            }
+
+            return concurrentConsumersIntValue;
         }
 
         private static bool IsInterfaceAnyGenericOfIServiceHandler(Type i)
