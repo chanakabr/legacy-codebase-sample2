@@ -1063,32 +1063,43 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<BulkUploadMediaAssetResult, KalturaBulkUploadMediaAssetResult>()
                .IncludeBase<BulkUploadAssetResult, KalturaBulkUploadAssetResult>();
 
-            cfg.CreateMap<BulkUploadEpgAssetResult, KalturaBulkUploadProgramAssetResult>()
-               .IncludeBase<BulkUploadAssetResult, KalturaBulkUploadAssetResult>();
+            cfg.CreateMap<BulkUploadProgramAssetResult, KalturaBulkUploadProgramAssetResult>()
+              .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>();
 
+            cfg.CreateMap<BulkUploadMultilingualProgramAssetResult, KalturaBulkUploadMultilingualProgramAssetResult>();
+
+            cfg.CreateMap<BulkUploadChannelResult, KalturaBulkUploadChannelResult>()
+              .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>()
+              .ForMember(dest => dest.Programs, opt => opt.MapFrom(src => src.Programs == null ? null : src.Programs.ToList()));
+
+
+            cfg.CreateMap<BulkUploadXmlTvChannelResult, KalturaBulkUploadXmlTvChannelResult>()
+               .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>()
+               .ForMember(dest => dest.InnerChannels, opt => opt.MapFrom(src => src.InnerChannels == null? null: src.InnerChannels.ToList()));
+            
             cfg.CreateMap<KalturaBulkUploadJobData, BulkUploadJobData>();
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
                .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
-            
+
             cfg.CreateMap<KalturaBulkUploadIngestJobData, BulkUploadIngestJobData>()
                 .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
-            
+
             cfg.CreateMap<KalturaBulkUploadObjectData, BulkUploadObjectData>();
 
             cfg.CreateMap<KalturaBulkUploadAssetData, BulkUploadAssetData>()
                .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId));
-            
+
             cfg.CreateMap<KalturaBulkUploadMediaAssetData, BulkUploadMediaAssetData>()
                .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
 
             cfg.CreateMap<KalturaBulkUploadMediaAssetData, BulkUploadMediaAssetData>()
                .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
-            
+
             cfg.CreateMap<KalturaBulkUploadProgramAssetData, BulkUploadEpgAssetData>()
                .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>();
-            
+
             cfg.CreateMap<ApiObjects.Response.Status, KalturaMessage>()
               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
               .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))

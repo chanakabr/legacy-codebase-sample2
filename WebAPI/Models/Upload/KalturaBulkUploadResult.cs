@@ -81,6 +81,7 @@ namespace WebAPI.Models.Upload
         public List<KalturaMessage> Warnings { get; set; }
     }
 
+    [Serializable]
     public abstract partial class KalturaBulkUploadAssetResult : KalturaBulkUploadResult
     {
         /// <summary>
@@ -103,11 +104,74 @@ namespace WebAPI.Models.Upload
         public string ExternalId { get; set; }
     }
 
+    [Serializable]
     public partial class KalturaBulkUploadMediaAssetResult : KalturaBulkUploadAssetResult
     {
     }
 
-    public partial class KalturaBulkUploadProgramAssetResult : KalturaBulkUploadAssetResult
+    [Serializable]
+    public partial class KalturaBulkUploadXmlTvChannelResult : KalturaBulkUploadAssetResult
     {
+        [DataMember(Name = "channelExternalId")]
+        [JsonProperty(PropertyName = "channelExternalId")]
+        [XmlElement(ElementName = "channelExternalId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string ChannelExternalId { get; set; }
+
+        [DataMember(Name = "innerChannels")]
+        [JsonProperty(PropertyName = "innerChannels")]
+        [XmlElement(ElementName = "innerChannels")]
+        [SchemeProperty(ReadOnly = true)]
+        public List<KalturaBulkUploadChannelResult> InnerChannels { get; set; }
+
+    }
+
+    [Serializable]
+    public partial class KalturaBulkUploadChannelResult : KalturaBulkUploadResult
+    {
+        [DataMember(Name = "channelId")]
+        [JsonProperty(PropertyName = "channelId")]
+        [XmlElement(ElementName = "channelId")]
+        [SchemeProperty(ReadOnly = true)]
+        public int ChannelId { get; set; }
+
+        [DataMember(Name = "programs")]
+        [JsonProperty(PropertyName = "programs")]
+        [XmlElement(ElementName = "programs")]
+        [SchemeProperty(ReadOnly = true)]
+        public List<KalturaBulkUploadMultilingualProgramAssetResult> Programs { get; set; }
+
+    }
+
+    [Serializable]
+    public partial class KalturaBulkUploadMultilingualProgramAssetResult : KalturaOTTObject
+    {
+        [DataMember(Name = "languageCode")]
+        [JsonProperty(PropertyName = "languageCode")]
+        [XmlElement(ElementName = "languageCode")]
+        [SchemeProperty(ReadOnly = true)]
+        public string LanguageCode { get; set; }
+
+        [DataMember(Name = "program")]
+        [JsonProperty(PropertyName = "program")]
+        [XmlElement(ElementName = "program")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaBulkUploadProgramAssetResult Program { get; set; }
+    }
+
+    [Serializable]
+    public partial class KalturaBulkUploadProgramAssetResult : KalturaBulkUploadResult
+    {
+        [DataMember(Name = "programId")]
+        [JsonProperty(PropertyName = "programId")]
+        [XmlElement(ElementName = "programId")]
+        [SchemeProperty(ReadOnly = true)]
+        public int? ProgramId { get; set; }
+
+        [DataMember(Name = "programExternalId")]
+        [JsonProperty(PropertyName = "programExternalId")]
+        [XmlElement(ElementName = "programExternalId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string ProgramExternalId { get; set; }
     }
 }

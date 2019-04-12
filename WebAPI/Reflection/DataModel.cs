@@ -947,6 +947,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBulkUploadChannelResult":
+                    switch(property.Name)
+                    {
+                        case "ChannelId":
+                            return "channelId";
+                        case "Programs":
+                            return "programs";
+                    }
+                    break;
+                    
                 case "KalturaBulkUploadFilter":
                     switch(property.Name)
                     {
@@ -977,6 +987,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBulkUploadMultilingualProgramAssetResult":
+                    switch(property.Name)
+                    {
+                        case "LanguageCode":
+                            return "languageCode";
+                        case "Program":
+                            return "program";
+                    }
+                    break;
+                    
+                case "KalturaBulkUploadProgramAssetResult":
+                    switch(property.Name)
+                    {
+                        case "ProgramExternalId":
+                            return "programExternalId";
+                        case "ProgramId":
+                            return "programId";
+                    }
+                    break;
+                    
                 case "KalturaBulkUploadResult":
                     switch(property.Name)
                     {
@@ -992,6 +1022,16 @@ namespace WebAPI.Reflection
                             return "status";
                         case "Warnings":
                             return "warnings";
+                    }
+                    break;
+                    
+                case "KalturaBulkUploadXmlTvChannelResult":
+                    switch(property.Name)
+                    {
+                        case "ChannelExternalId":
+                            return "channelExternalId";
+                        case "InnerChannels":
+                            return "innerChannels";
                     }
                     break;
                     
