@@ -124,13 +124,6 @@ namespace Core.Catalog
                 throw new Exception($"No main language defined for group:[{groupId}], ingest failed");
             }
 
-
-            //var response = xmlTvEpgData.channel.Select(c=> new BulkUploadXmlTvChannelResult{
-            //    BulkUploadId = bulkUploadId,
-            //    ChannelExternalId = c.id,
-            //    Channels = new List<BulkUploadChannelResult>(),
-            //});
-
             var xmlTvDictionary = new Dictionary<string, BulkUploadXmlTvChannelResult>();
 
             foreach (var prog in xmlTvEpgData.programme)
@@ -144,22 +137,7 @@ namespace Core.Catalog
                     xmlTvDictionary[prog.channel].Status = BulkUploadResultStatus.InProgress;
                 }
 
-                var innerChannelList = new List<BulkUploadChannelResult>();
-                foreach (var channel in channelsToIngestProgramInto)
-                {
-                    var innerChannelResult = new BulkUploadChannelResult(channel.ChannelId);
-                    innerChannelResult.Status = BulkUploadResultStatus.InProgress;
-                    var multilengualPrgorams = new List<BulkUploadMultilingualProgramAssetResult>();
-                    foreach (var lang in languages)
-                    {
-                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code);
-                        multilengualPrgorams.Add(new BulkUploadMultilingualProgramAssetResult(lang.Code, newEpgAssetResult));
-                    }
-
-                    innerChannelResult.Programs = multilengualPrgorams.ToArray();
-                    innerChannelList.Add(innerChannelResult);
-                }
-
+                var innerChannelList = ParseInnerChannels(parentGroupId, groupId, languages, defaultLanguage, prog, channelsToIngestProgramInto);
                 xmlTvDictionary[prog.channel].InnerChannels = innerChannelList.ToArray();
             }
 
@@ -171,6 +149,27 @@ namespace Core.Catalog
 
 
             return response;
+        }
+
+        private List<BulkUploadChannelResult> ParseInnerChannels(int parentGroupId, int groupId, List<LanguageObj> languages, LanguageObj defaultLanguage, programme prog, IEnumerable<EpgChannelObj> channelsToIngestProgramInto)
+        {
+            var innerChannelList = new List<BulkUploadChannelResult>();
+            foreach (var channel in channelsToIngestProgramInto)
+            {
+                var innerChannelResult = new BulkUploadChannelResult(channel.ChannelId);
+                innerChannelResult.Status = BulkUploadResultStatus.InProgress;
+                var multilengualPrgorams = new List<BulkUploadMultilingualProgramAssetResult>();
+                foreach (var lang in languages)
+                {
+                    var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code);
+                    multilengualPrgorams.Add(new BulkUploadMultilingualProgramAssetResult(lang.Code, newEpgAssetResult));
+                }
+
+                innerChannelResult.Programs = multilengualPrgorams.ToArray();
+                innerChannelList.Add(innerChannelResult);
+            }
+
+            return innerChannelList;
         }
 
         private BulkUploadProgramAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode)
