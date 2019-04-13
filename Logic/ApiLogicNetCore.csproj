@@ -51,6 +51,7 @@
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\IngestTransformationAdapterClient\IngestTransformationAdapterClient.csproj" />
+    <ProjectReference Include="..\RestAdaptersCommon\RestAdaptersCommon.csproj" />
     <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
   </ItemGroup>
   <ItemGroup>
