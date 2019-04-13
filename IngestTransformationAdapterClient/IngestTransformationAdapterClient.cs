@@ -7,7 +7,7 @@ using RestAdaptersCommon;
 using Newtonsoft.Json;
 using KLogMonitor;
 using System.Reflection;
-using IngestTransformationAdapterClient.Models;
+using AdapterClients.IngestTransformation.Models;
 using ApiObjects;
 
 namespace AdapterClients.IngestTransformation

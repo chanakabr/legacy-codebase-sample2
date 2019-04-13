@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestTransformationAdapterClient.Models
+namespace AdapterClients.IngestTransformation.Models
 {
     class TransformationResponse : BaseAdapterResponse
     {

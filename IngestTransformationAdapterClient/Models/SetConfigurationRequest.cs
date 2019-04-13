@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestTransformationAdapterClient.Models
+namespace AdapterClients.IngestTransformation.Models
 {
-    class SetConfigurationRequest : BaseAdapterRequest
+    public class SetConfigurationRequest : BaseAdapterRequest
     {
         public Dictionary<string,string> Configuration { get; set; }
     }
