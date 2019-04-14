@@ -220,7 +220,7 @@ namespace Core.Catalog.CatalogManagement
                     RequestId = KLogger.GetRequestId(),
                     GroupId = groupId,
                     UserId = userId,
-                    BulkUploadData = response.Object,
+                    BulkUploadId = response.Object.Id,
                 };
 
                 publisher.Publish(transformationEvent);

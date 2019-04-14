@@ -189,6 +189,7 @@
     <Compile Include="Billing\Utils.cs" />
     <Compile Include="Billing\WinPLCSMS.cs" />
     <Compile Include="Billing\WinPLSMSHelper.cs" />
+    <Compile Include="Catalog\BulkUpload\BulkUploadEpgAssetData.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadIngestJobData.cs" />
     <Compile Include="Catalog\AdProvider.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
@@ -914,6 +915,10 @@
     <ProjectReference Include="..\IngestTransformationAdapterClient\IngestTransformationAdapterClient.csproj">
       <Project>{f420f546-19cc-40f4-9bbe-2847d3e520da}</Project>
       <Name>IngestTransformationAdapterClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RestAdaptersCommon\RestAdaptersCommon.csproj">
+      <Project>{c9c17c05-952d-4bbb-8839-fe9afaa95634}</Project>
+      <Name>RestAdaptersCommon</Name>
     </ProjectReference>
     <ProjectReference Include="..\TCMClient\TCMClient.csproj">
       <Project>{bc7b010e-bfe3-4666-bb4d-6ecc6fab9472}</Project>
