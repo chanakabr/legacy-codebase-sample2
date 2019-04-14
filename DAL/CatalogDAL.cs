@@ -5306,18 +5306,26 @@ namespace Tvinci.Core.DAL
                 }
 
                 result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
-                InsertChannelMetaData(result.ID, eChannelType.External, channel.MetaData);
+                SaveChannelMetaData(result.ID, eChannelType.External, channel.MetaData);
             }
 
             return result;
         }
                
-        public static void InsertChannelMetaData(int id, eChannelType channelType, Dictionary<string, string> metaData)
+        public static void SaveChannelMetaData(int id, eChannelType channelType, Dictionary<string, string> metaData)
         {
             var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
             UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBChannelMetaData { Id = id, MetaData = metaData }, true);
         }
-               
+
+        public static Dictionary<string, string> GetChannelsMetadatasById(int id, eChannelType channelType)
+        {
+            var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
+            var res = UtilsDal.GetObjectFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, key, true);
+
+            return res.MetaData;
+        }
+
         public static Dictionary<int, Dictionary<string, string>> GetChannelsMetadatasByIds(List<int> ids, eChannelType channelType)
         {
             var keys = ids.Select(id => CBChannelMetaData.CreateChannelMetaDataKey(id, channelType));
