@@ -867,7 +867,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (id > 0)
                     {
-                        CatalogDAL.InsertChannelMetaData(id, eChannelType.Internal, channelToAdd.MetaData);
+                        CatalogDAL.SaveChannelMetaData(id, eChannelType.Internal, channelToAdd.MetaData);
                         response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds, channelToAdd.MetaData);
                     }
                 }
@@ -1075,7 +1075,18 @@ namespace Core.Catalog.CatalogManagement
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
                     if (id > 0)
                     {
-                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                        var metaData = channelToUpdate.MetaData;
+
+                        if (metaData != null)
+                        {
+                            CatalogDAL.SaveChannelMetaData(id, eChannelType.Internal, metaData);
+                        }
+                        else
+                        {
+                            metaData = currentChannel.MetaData;
+                        }
+
+                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds, metaData);
                     }
                 }
 
