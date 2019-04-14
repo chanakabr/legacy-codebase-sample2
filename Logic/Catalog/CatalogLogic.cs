@@ -8108,7 +8108,7 @@ namespace Core.Catalog
                             }
                         }
                     }
-                    else if (definitions.isInternalSearch && internalReservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
+                    else if (internalReservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.shouldLowercase = false;
 
