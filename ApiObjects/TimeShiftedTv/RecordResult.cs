@@ -15,6 +15,8 @@ namespace ApiObjects.TimeShiftedTv
         public int FailReason { get; set; }
         public string ProviderStatusCode { get; set; }
         public string ProviderStatusMessage { get; set; }
+
+        public List<long> FailedDomainIds { get; set; }
     }
 
     public class RecordingLink
