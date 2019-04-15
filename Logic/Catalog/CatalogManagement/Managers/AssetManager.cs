@@ -5,6 +5,7 @@ using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using Core.Api.Managers;
 using Core.Catalog.Response;
+using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -292,7 +293,8 @@ namespace Core.Catalog.CatalogManagement
             bool isActive = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "IS_ACTIVE", 0) == 1;
             int? deviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "DEVICE_RULE_ID", -1);
             int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "GEO_BLOCK_RULE_ID", -1);
-            string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");
+            string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");            
+
             result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, images, coGuid,
                                     isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes, assetInheritancePolicy);
 
@@ -490,6 +492,8 @@ namespace Core.Catalog.CatalogManagement
                 result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
                 return result;
             }
+
+            //TODO Anat :  validate relatedEntity
 
             return result;
         }
@@ -804,11 +808,19 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
                                                         assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
                                                         startDate, endDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId, (int)assetToAdd.InheritancePolicy);
+
+
                 
+
+                
+                //CatalogDAL.AddRelatedObjectLists(groupId, id, relatedObjectLists)
+
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
 
                 if (result.HasObject() && result.Object.Id > 0 && !isLinear)
                 {
+                    CreateRelatedEntities(groupId, result.Object.Id, assetToAdd.RelatedEntities);                   
+
                     // UpdateIndex
                     if (isFromIngest)
                     {
@@ -833,7 +845,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
+        }       
 
         private static Status CreateAssetResponseStatusFromResult(long result)
         {
@@ -2168,6 +2180,12 @@ namespace Core.Catalog.CatalogManagement
             return;
         }
 
+        private static void CreateRelatedEntities(int groupId, long assetId, List<RelatedEntities> relatedEntities)
+        {
+            //insert releatedent. add to response
+            CatalogDAL.SaveRelatedEntities(assetId, relatedEntities);
+        }
+
         #endregion
 
         #region Public Methods
@@ -2690,6 +2708,10 @@ namespace Core.Catalog.CatalogManagement
                     List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag
                                                                               && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
                     List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type != ApiObjects.MetaType.Tag
+                                                                              && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+
+                    //TODO anat:
+                    List<long> entIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type != ApiObjects.MetaType.ReleatedEntity
                                                                               && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
 
                     if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId))

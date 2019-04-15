@@ -86,6 +86,12 @@ namespace Core.Catalog
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<Tags> Tags { get; set; }
 
+        [JsonProperty(PropertyName = "RelatedEntities",
+                      TypeNameHandling = TypeNameHandling.Auto,
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
+        public List<RelatedEntities> RelatedEntities { get; set; }
+
         [ExcelColumn(ExcelColumnType.Image, IMAGES)]
         [JsonProperty(PropertyName = "Images",
                       TypeNameHandling = TypeNameHandling.Auto,
