@@ -14,7 +14,7 @@ namespace ApiObjects.Response
         private int code;
         private List<KeyValuePair> args;
 
-        public static Status Ok => new Status((int)eResponseStatus.OK);
+        public static Status Ok { get { return new Status((int)eResponseStatus.OK); } }
 
         public Status(int code = 0, string message = "", List<KeyValuePair> args = null)
         {

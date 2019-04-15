@@ -1132,12 +1132,15 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
             {
-                Status status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, currentAsset.Id);
-                if(status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
+                if (!isForMigration)
                 {
-                    result.SetStatus(eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
-                    return result;
-                }               
+                    Status status = AssetUserRuleManager.CheckAssetUserRuleList(groupId, userId, currentAsset.Id);
+                    if (status == null || status.Code == (int)eResponseStatus.ActionIsNotAllowed)
+                    {
+                        result.SetStatus(eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
+                        return result;
+                    }
+                }
 
                 // validate asset
                 XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate = null;
