@@ -872,11 +872,11 @@ namespace TVinciShared
         {
             Int32 nWatcherID = 0;
             string sTVinciGUID = CookieUtils.GetCookie("tvinci_api");
-            if (sTVinciGUID != "" && System.Web.HttpContext.Current.Session["tvinci_watcher_" + sTVinciGUID] != null)
+            if (sTVinciGUID != "" && System.Web.HttpContext.Current.Session.Get("tvinci_watcher_" + sTVinciGUID) != null)
             {
                 try
                 {
-                    nWatcherID = int.Parse(System.Web.HttpContext.Current.Session["tvinci_watcher_" + sTVinciGUID].ToString());
+                    nWatcherID = int.Parse(System.Web.HttpContext.Current.Session.Get("tvinci_watcher_" + sTVinciGUID).ToString());
                 }
                 catch { }
             }

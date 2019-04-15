@@ -1,22 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>net452</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <None Include="Web References\Lucene_WCF\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+  </ItemGroup>
+
+
   <ItemGroup>
     <PackageReference Include="AWSSDK.Core" Version="3.3.32.2" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.31.20" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="SharpZipLib" Version="1.1.0" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <!--<Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\External\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
+    </Reference>-->
     <Reference Include="Interop.CUWMAuthTickets">
       <HintPath>..\External\Interop.CUWMAuthTickets.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
@@ -31,7 +42,7 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -39,31 +50,21 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Update="Web References\Lucene_WCF\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
   </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
-    <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj" />
-    <ProjectReference Include="..\CachingManager\CachingManager.csproj" />
-    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj" />
-    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
-    <ProjectReference Include="..\DAL\DAL.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
-    <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj" />
-    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
-    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
-    <ProjectReference Include="..\Uploader\Uploader.csproj" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Content Include="CUWMAuthTickets.dll" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <None Include="Web References\Lucene_WCF\SearchResultsObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -82,5 +83,116 @@
     </None>
     <None Include="Web References\Lucene_WCF\Service0.wsdl" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
+    <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj" />
+    <ProjectReference Include="..\CachingManager\CachingManager.csproj" />
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj" />
+    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
+    <ProjectReference Include="..\DAL\DAL.csproj" />
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj" />
+    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
+    <ProjectReference Include="..\Uploader\Uploader.csproj" />
+  </ItemGroup>
+
+  <!--
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <Compile Remove="CBTableWebEditor.cs" />
+    <Compile Remove="CookieUtils.cs" />
+    <Compile Remove="CSVReader.cs" />
+    <Compile Remove="DBRecordWebEditor.cs" />
+    <Compile Remove="DBTableWebEditor.cs" />
+    <Compile Remove="FTPUploader.cs" />
+    <Compile Remove="LoginManager.cs" />
+    <Compile Remove="Mailer.cs" />
+    <Compile Remove="Menu.cs" />
+    <Compile Remove="PageUtils.cs" />
+    <Compile Remove="ProtocolsFuncs.cs" />
+    <Compile Remove="Web References\Lucene_WCF\Reference.cs" />
+
+    <None Include="Web References\Lucene_WCF\Reference.cs" />
+    <None Include="CBTableWebEditor.cs" />
+    <None Include="CookieUtils.cs" />
+    <None Include="CSVReader.cs" />
+    <None Include="DBRecordWebEditor.cs" />
+    <None Include="DBTableWebEditor.cs" />
+    <None Include="FTPUploader.cs" />
+    <None Include="LoginManager.cs" />
+    <None Include="Mailer.cs" />
+    <None Include="Menu.cs" />
+    <None Include="PageUtils.cs" />
+    <None Include="ProtocolsFuncs.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <Compile Include="CBTableWebEditor.cs" />
+    <Compile Include="CookieUtils.cs" />
+    <Compile Include="CSVReader.cs" />
+    <Compile Include="DBRecordWebEditor.cs" />
+    <Compile Include="DBTableWebEditor.cs" />
+    <Compile Include="FTPUploader.cs" />
+    <Compile Include="LoginManager.cs" />
+    <Compile Include="Mailer.cs" />
+    <Compile Include="Menu.cs" />
+    <Compile Include="PageUtils.cs" />
+    <Compile Include="ProtocolsFuncs.cs" />
+    <Compile Include="Web References\Lucene_WCF\Reference.cs" />
+  </ItemGroup>
   
+  <ItemGroup>
+    <Compile Include="BoolUtils.cs" />
+    <Compile Include="CacheServerNotifier.cs" />
+    <Compile Include="CertificateTruster.cs" />
+    <Compile Include="Channel.cs" />
+    <Compile Include="ConcurrentUtils.cs" />
+    <Compile Include="CouchBaseManipulator.cs" />
+    <Compile Include="DateUtils.cs" />
+    <Compile Include="DBChunkUpdater.cs" />
+    <Compile Include="DBManipulator.cs" />
+    <Compile Include="EncryptUtils.cs" />
+    <Compile Include="GenericExtensionMethods.cs" />
+    <Compile Include="HashUtils.cs" />
+    <Compile Include="Hitter.cs" />
+    <Compile Include="ImageUtils.cs" />
+    <Compile Include="IngestionUtils.cs" />
+    <Compile Include="JSONUtils.cs" />
+    <Compile Include="ListUtils.cs" />
+    <Compile Include="Notifier.cs" />
+    <Compile Include="ObjectCopier.cs" />
+    <Compile Include="PasswordGenerator.cs" />
+    <Compile Include="QueueUtils.cs" />
+    <Compile Include="RabbitHelper.cs" />
+    <Compile Include="ScheualerManager.cs" />
+    <Compile Include="Serializer.cs" />
+    <Compile Include="StringUtils.cs" />
+    <Compile Include="UMObj.cs" />
+    <Compile Include="UploadConfig.cs" />
+    <Compile Include="WS_Utils.cs" />
+    <Compile Include="XmlSerialize.cs" />
+    <Compile Include="XmlUtils.cs" />
+    <Compile Include="ZipUtils.cs" />
+  </ItemGroup>
+  
+  
+  
+  
+  -->
+
+
+
+  <!-- This is a workaround that will allow TVM website project to build, if you read this an 
+  TVM no longer exist please remove this <Target Name="GetTargetPath"... element-->
+  <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">
+    <ItemGroup>
+      <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
+    </ItemGroup>
+  </Target>
+
 </Project>

@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Web.Script.Serialization;
 
 namespace TVinciShared
 {
@@ -12,22 +12,22 @@ namespace TVinciShared
 
         public static string ToJSON(this object obj)
         {
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            return serializer.Serialize(obj);
+            return JsonConvert.SerializeObject(obj);
         }
 
         public static string ToJSON(this object obj, int recursionDepth)
         {
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            serializer.RecursionLimit = recursionDepth;
-            return serializer.Serialize(obj);
+            var options = new JsonSerializerSettings
+            {
+                MaxDepth = recursionDepth,
+            };
+            
+            return JsonConvert.SerializeObject(obj, options);
         }
 
         public static T JsonToObject<T>(string json)
         {
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            T obj = js.Deserialize<T>(json);
-            return (T)obj;
+            return JsonConvert.DeserializeObject<T>(json);
         }
 
         public static bool TryGetJSONToken(JToken baseToken, string[] orderedPathDownTheJSONTree, ref string result)

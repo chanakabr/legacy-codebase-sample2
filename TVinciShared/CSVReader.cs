@@ -1,3 +1,4 @@
+#if NET452
 using System;
 using System.Data;
 using System.Configuration;
@@ -12,6 +13,8 @@ using System.IO;
 using System.Text;
 namespace TVinciShared
 {
+
+
     /// <summary>
     /// Summary description for CSVReader
     /// </summary>
@@ -177,3 +180,4 @@ namespace TVinciShared
         public CSVReaderException(string message) : base(message) { }
     }
 }
+#endif
