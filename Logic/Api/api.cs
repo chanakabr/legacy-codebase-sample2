@@ -7707,6 +7707,9 @@ namespace Core.Api
                 bool isSet = CatalogDAL.DeleteExternalChannel(groupId, externalChannelId);
                 if (isSet)
                 {
+                    // delete meta data
+                    CatalogDAL.DeleteChannelMetaData(externalChannelId, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+
                     //delete virtual asset
                     bool needToCreateVirtualAsset = false;
                     Asset virtualChannel = GetVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
@@ -7824,6 +7827,19 @@ namespace Core.Api
 
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
+                    var metaData = externalChannel.MetaData;
+
+                    if (metaData != null)
+                    {
+                        CatalogDAL.SaveChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External, metaData);
+                    }
+                    else
+                    {
+                        metaData = CatalogDAL.GetChannelsMetadatasById(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+                    }
+
+                    response.ExternalChannel.MetaData = metaData;
+
                     if (!isFromAsset)
                     {
                         UpdateVirtualAsset(groupId, userId, response.ExternalChannel);
@@ -7903,6 +7919,8 @@ namespace Core.Api
                         response.ExternalChannels = response.ExternalChannels.Where(x => x.AssetUserRuleId == ruleId).ToList();
                     }
 
+                    AddMetaData(response.ExternalChannels);
+
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -7915,6 +7933,21 @@ namespace Core.Api
 
             return response;
         }
+
+        private static void AddMetaData(List<ExternalChannel> externalChannels)
+        {
+            var ids = externalChannels.Select(ec => ec.ID).ToList();
+            var metadatas = CatalogDAL.GetChannelsMetadatasByIds(ids, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+
+            foreach (var ec in externalChannels)
+            {
+                if (metadatas.ContainsKey(ec.ID))
+                {
+                    ec.MetaData = metadatas[ec.ID];
+                }
+            }
+        }
+
         #endregion
 
         #region Bulk Export
