@@ -115,6 +115,14 @@ namespace WebAPI.Models.Catalog
         public SerializableDictionary<string, KalturaMultilingualStringValueArray> Tags { get; set; }
 
         /// <summary>
+        /// Dynamic collection of key-value pairs according to the related entity defined in the system
+        /// </summary>
+        [DataMember(Name = "relatedEntities")]
+        [JsonProperty(PropertyName = "relatedEntities")]
+        [XmlElement("relatedEntities", IsNullable = true)]
+        public SerializableDictionary<string, KalturaRelatedEntityArray> RelatedEntities { get; set; }
+
+        /// <summary>
         /// Date and time represented as epoch. For VOD – since when the asset is available in the catalog. For EPG/Linear – when the program is aired (can be in the future).
         /// </summary>
         [DataMember(Name = "startDate")]

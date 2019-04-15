@@ -854,6 +854,7 @@
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\API\KalturaPlaybackProfileFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
+    <Compile Include="Models\Catalog\KalturaRelatedEntity.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBumpersPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCaptionPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecordingFilter.cs" />
