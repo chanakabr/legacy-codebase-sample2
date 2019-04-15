@@ -3544,6 +3544,7 @@ namespace Tvinci.Core.DAL
             int enrichments = GetEnrichments(externalChannel.Enrichments);
             sp.AddParameter("@enrichments", enrichments);
             sp.AddParameter("@assetRuleId", externalChannel.AssetUserRuleId);
+            sp.AddParameter("@hasMetadata", externalChannel.MetaData != null);
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -3587,6 +3588,11 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@enrichments", enrichments);
             sp.AddParameter("@assetRuleId", externalChannel.AssetUserRuleId);
 
+            if (externalChannel.MetaData != null)
+            {
+                sp.AddParameter("@hasMetadata",  externalChannel.MetaData.Any());
+            }
+
             DataSet ds = sp.ExecuteDataSet();
 
             externalChannelRes = SetExternalChannel(ds);
@@ -3620,6 +3626,8 @@ namespace Tvinci.Core.DAL
             int enrichmentsVal = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENRICHMENTS");
             result.Enrichments = SetEnrichments(enrichmentsVal);
             result.AssetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ASSET_RULE_ID");
+            result.HasMetadata = ODBCWrapper.Utils.ExtractBoolean(dr, "HAS_METADATA");
+
             return result;
         }
 
@@ -5324,7 +5332,7 @@ namespace Tvinci.Core.DAL
             UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
         }
 
-        public static Dictionary<string, string> GetChannelsMetadatasById(int id, eChannelType channelType)
+        public static Dictionary<string, string> GetChannelMetadataById(int id, eChannelType channelType)
         {
             var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
             var res = UtilsDal.GetObjectFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, key, true);
@@ -5332,7 +5340,7 @@ namespace Tvinci.Core.DAL
             return res.MetaData;
         }
 
-        public static Dictionary<int, Dictionary<string, string>> GetChannelsMetadatasByIds(List<int> ids, eChannelType channelType)
+        public static Dictionary<int, Dictionary<string, string>> GetChannelsMetadataByIds(List<int> ids, eChannelType channelType)
         {
             var keys = ids.Select(id => CBChannelMetaData.CreateChannelMetaDataKey(id, channelType));
             var res = UtilsDal.GetObjectListFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, keys.ToList(), true);
