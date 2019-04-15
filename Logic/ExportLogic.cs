@@ -1,7 +1,10 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkExport;
-using Core.Api;
+using ApiObjects.Catalog;
+using ApiObjects.Epg;
+using ConfigurationManager;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
@@ -14,10 +17,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
-using ApiObjects.Epg;
-using ConfigurationManager;
-using Core.Catalog.CatalogManagement;
 using TVinciShared;
 
 namespace APILogic

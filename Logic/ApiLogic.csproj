@@ -193,6 +193,7 @@
     <Compile Include="Catalog\BulkUpload\BulkUploadIngestJobData.cs" />
     <Compile Include="Catalog\AdProvider.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
+    <Compile Include="Catalog\KeyValue.cs" />
     <Compile Include="Catalog\OpcObjects\Asset.cs" />
     <Compile Include="Catalog\OpcObjects\AssetFile.cs" />
     <Compile Include="Catalog\OpcObjects\AssetStruct.cs" />
@@ -365,7 +366,6 @@
     <Compile Include="Catalog\Searcher\ISearcher.cs" />
     <Compile Include="Catalog\Searcher\LuceneWrapper.cs" />
     <Compile Include="Api\Modules\SearchHistory.cs" />
-    <Compile Include="Catalog\TagMeta.cs" />
     <Compile Include="Catalog\OpcObjects\Topic.cs" />
     <Compile Include="Catalog\UnifiedSearchDefinitionsBuilder.cs" />
     <Compile Include="Catalog\Utils.cs" />
