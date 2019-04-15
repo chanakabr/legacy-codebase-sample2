@@ -2254,6 +2254,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IsActive":
                             return "isActive";
+                        case "MetaData":
+                            return "metaData";
                         case "Name":
                             return "name";
                         case "RecommendationEngineId":

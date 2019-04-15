@@ -13605,6 +13605,11 @@ namespace WebAPI.Models.API
                     ret.Add("is_active", "\"is_active\": " + IsActive.ToString().ToLower());
                 }
             }
+            if(MetaData != null)
+            {
+                propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("metaData", "\"metaData\": " + propertyValue);
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -13661,6 +13666,11 @@ namespace WebAPI.Models.API
                 {
                 ret.Add("is_active", "<is_active>" + IsActive.ToString().ToLower() + "</is_active>");
                 }
+            }
+            if(MetaData != null)
+            {
+                propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("metaData", "<metaData>" + propertyValue + "</metaData>");
             }
             if(Name != null)
             {

@@ -102,5 +102,13 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "assetUserRuleId")]
         [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public long? AssetUserRuleId { get; set; }
+
+        /// <summary>
+        /// key/value map field for extra data
+        /// </summary>
+        [DataMember(Name = "metaData")]
+        [JsonProperty("metaData")]
+        [XmlElement(ElementName = "metaData")]
+        public SerializableDictionary<string, KalturaStringValue> MetaData { get; set; }
     }
 }
