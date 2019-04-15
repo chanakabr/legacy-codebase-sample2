@@ -9,7 +9,11 @@ namespace ApiObjects.EventBus
 {
     public class BulkUploadIngestEvent : ServiceEvent
     {
+        public long BulkUploadId { get; set; }
 
+        public DateTime DateOfProgramsToIngest { get; set; }
+
+        public IEnumerable<EpgCB> ProgramsToIngest { get; set; }
     }
 
 }
