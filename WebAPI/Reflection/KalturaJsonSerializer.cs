@@ -22113,6 +22113,44 @@ namespace WebAPI.Models.Upload
             return ret;
         }
     }
+    public partial class KalturaBulkUploadLiveAssetResult
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(ExternalEpgIngestId != null)
+            {
+                ret.Add("externalEpgIngestId", "\"externalEpgIngestId\": " + "\"" + EscapeJson(ExternalEpgIngestId) + "\"");
+            }
+            ret.Add("id", "\"id\": " + Id);
+            if(Programs != null)
+            {
+                propertyValue = "[" + String.Join(", ", Programs.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("programs", "\"programs\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(ExternalEpgIngestId != null)
+            {
+                ret.Add("externalEpgIngestId", "<externalEpgIngestId>" + EscapeXml(ExternalEpgIngestId) + "</externalEpgIngestId>");
+            }
+            ret.Add("id", "<id>" + Id + "</id>");
+            if(Programs != null)
+            {
+                propertyValue = Programs.Count > 0 ? "<item>" + String.Join("</item><item>", Programs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("programs", "<programs>" + propertyValue + "</programs>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaBulkUploadMediaAssetData
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -22192,6 +22230,14 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            if(ProgramExternalId != null)
+            {
+                ret.Add("programExternalId", "\"programExternalId\": " + "\"" + EscapeJson(ProgramExternalId) + "\"");
+            }
+            if(ProgramId.HasValue)
+            {
+                ret.Add("programId", "\"programId\": " + ProgramId);
+            }
             return ret;
         }
         
@@ -22200,6 +22246,14 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            if(ProgramExternalId != null)
+            {
+                ret.Add("programExternalId", "<programExternalId>" + EscapeXml(ProgramExternalId) + "</programExternalId>");
+            }
+            if(ProgramId.HasValue)
+            {
+                ret.Add("programId", "<programId>" + ProgramId + "</programId>");
+            }
             return ret;
         }
     }

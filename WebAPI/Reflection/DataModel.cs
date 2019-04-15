@@ -977,6 +977,28 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBulkUploadLiveAssetResult":
+                    switch(property.Name)
+                    {
+                        case "ExternalEpgIngestId":
+                            return "externalEpgIngestId";
+                        case "Id":
+                            return "id";
+                        case "Programs":
+                            return "programs";
+                    }
+                    break;
+                    
+                case "KalturaBulkUploadProgramAssetResult":
+                    switch(property.Name)
+                    {
+                        case "ProgramExternalId":
+                            return "programExternalId";
+                        case "ProgramId":
+                            return "programId";
+                    }
+                    break;
+                    
                 case "KalturaBulkUploadResult":
                     switch(property.Name)
                     {

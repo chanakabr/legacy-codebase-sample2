@@ -1069,32 +1069,32 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<BulkUploadMediaAssetResult, KalturaBulkUploadMediaAssetResult>()
                .IncludeBase<BulkUploadAssetResult, KalturaBulkUploadAssetResult>();
 
-            cfg.CreateMap<BulkUploadEpgAssetResult, KalturaBulkUploadProgramAssetResult>()
-               .IncludeBase<BulkUploadAssetResult, KalturaBulkUploadAssetResult>();
+            cfg.CreateMap<BulkUploadProgramAssetResult, KalturaBulkUploadProgramAssetResult>()
+              .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>();
 
             cfg.CreateMap<KalturaBulkUploadJobData, BulkUploadJobData>();
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
                .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
-            
+
             cfg.CreateMap<KalturaBulkUploadIngestJobData, BulkUploadIngestJobData>()
                 .IncludeBase<KalturaBulkUploadJobData, BulkUploadJobData>();
-            
+
             cfg.CreateMap<KalturaBulkUploadObjectData, BulkUploadObjectData>();
 
             cfg.CreateMap<KalturaBulkUploadAssetData, BulkUploadAssetData>()
                .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId));
-            
+
             cfg.CreateMap<KalturaBulkUploadMediaAssetData, BulkUploadMediaAssetData>()
                .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
 
             cfg.CreateMap<KalturaBulkUploadMediaAssetData, BulkUploadMediaAssetData>()
                .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
-            
+
             cfg.CreateMap<KalturaBulkUploadProgramAssetData, BulkUploadEpgAssetData>()
-               .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
-            
+               .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>();
+
             cfg.CreateMap<ApiObjects.Response.Status, KalturaMessage>()
               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
               .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))

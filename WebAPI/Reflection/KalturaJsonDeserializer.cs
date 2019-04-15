@@ -322,6 +322,9 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadListResponse":
                     return new KalturaBulkUploadListResponse(parameters);
                     
+                case "KalturaBulkUploadLiveAssetResult":
+                    return new KalturaBulkUploadLiveAssetResult(parameters);
+                    
                 case "KalturaBulkUploadMediaAssetData":
                     return new KalturaBulkUploadMediaAssetData(parameters);
                     
@@ -22364,6 +22367,78 @@ namespace WebAPI.Models.Upload
             }
         }
     }
+    public partial class KalturaBulkUploadLiveAssetResult
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadLiveAssetResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ExternalEpgIngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadLiveAssetResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ProgramsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadLiveAssetResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaBulkUploadLiveAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("externalEpgIngestId") && parameters["externalEpgIngestId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ExternalEpgIngestIdSchemaProperty.Validate("externalEpgIngestId", parameters["externalEpgIngestId"]);
+                    }
+                    ExternalEpgIngestId = (String) Convert.ChangeType(parameters["externalEpgIngestId"], typeof(String));
+                }
+                if (parameters.ContainsKey("programs") && parameters["programs"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ProgramsSchemaProperty.Validate("programs", parameters["programs"]);
+                    }
+                    if (parameters["programs"] is JArray)
+                    {
+                        Programs = buildList<KalturaBulkUploadProgramAssetResult>(typeof(KalturaBulkUploadProgramAssetResult), (JArray) parameters["programs"]);
+                    }
+                    else if (parameters["programs"] is IList)
+                    {
+                        Programs = buildList(typeof(KalturaBulkUploadProgramAssetResult), parameters["programs"] as object[]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaBulkUploadMediaAssetData
     {
         public KalturaBulkUploadMediaAssetData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -22390,8 +22465,49 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadProgramAssetResult
     {
+        private static RuntimeSchemePropertyAttribute ProgramIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ProgramExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaBulkUploadProgramAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
         {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("programId") && parameters["programId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ProgramIdSchemaProperty.Validate("programId", parameters["programId"]);
+                    }
+                    ProgramId = (Int32) Convert.ChangeType(parameters["programId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("programExternalId") && parameters["programExternalId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ProgramExternalIdSchemaProperty.Validate("programExternalId", parameters["programExternalId"]);
+                    }
+                    ProgramExternalId = (String) Convert.ChangeType(parameters["programExternalId"], typeof(String));
+                }
+            }
         }
     }
     public partial class KalturaBulkUploadResult

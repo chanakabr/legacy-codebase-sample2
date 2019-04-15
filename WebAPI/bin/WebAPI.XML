@@ -13189,6 +13189,41 @@
             External identifier for the asset
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadLiveAssetResult.Id">
+            <summary>
+            The internal kaltura channel id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadLiveAssetResult.ExternalEpgIngestId">
+            <summary>
+            Indicates the epg asset object id in the bulk file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadLiveAssetResult.Programs">
+            <summary>
+            List of programs that were ingested to the channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.ProgramId">
+            <summary>
+            The programID that was created
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.ProgramExternalId">
+            <summary>
+            The external program Id as was sent in the bulk xml file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.LiveAssetId">
+            <summary>
+            The  live asset Id that was identified according liveAssetExternalId that was sent in bulk xml file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.LiveAssetExternalId">
+            <summary>
+            The external live asset Id as was sent in bulk xml file
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">
             <summary>
             Upload-token identifier
