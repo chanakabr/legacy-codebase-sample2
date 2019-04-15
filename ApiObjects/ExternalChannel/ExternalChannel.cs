@@ -79,6 +79,8 @@ namespace ApiObjects
         [DataMember]
         public long? AssetUserRuleId { get; set; }
 
+        public Dictionary<string, string> MetaData { get; set; }
+
         #endregion
 
         public ExternalChannel()

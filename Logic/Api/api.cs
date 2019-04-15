@@ -7651,6 +7651,9 @@ namespace Core.Api
                 response.ExternalChannel = CatalogDAL.InsertExternalChannel(groupId, externalChannel);
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
+                    CatalogDAL.SaveChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External, externalChannel.MetaData);
+                    response.ExternalChannel.MetaData = externalChannel.MetaData;
+
                     CreateVirtualChannel(groupId, userId, response.ExternalChannel);
 
                     response.Status = new Status((int)eResponseStatus.OK, "new external channel insert");
