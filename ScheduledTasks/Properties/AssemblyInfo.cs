@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ScheduledTasks")]
-[assembly: AssemblyDescription("2019-01-16 16:11:57 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
+[assembly: AssemblyDescription("2019-24-15 11:04:32 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-112-gdbf05763-dirty")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("ScheduledTasks")]
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("5.1.1.*")]
-[assembly: AssemblyVersion("5.1.1.*")]
-[assembly: AssemblyInformationalVersion("5.1-1-41-g909e1569-dirty")]
+// [assembly: AssemblyVersion("5.2.0.8551")]
+[assembly: AssemblyVersion("5.2.0.8551")]
+[assembly: AssemblyInformationalVersion("5.2.0.8551")]
