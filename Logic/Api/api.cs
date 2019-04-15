@@ -7651,8 +7651,11 @@ namespace Core.Api
                 response.ExternalChannel = CatalogDAL.InsertExternalChannel(groupId, externalChannel);
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
-                    CatalogDAL.SaveChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External, externalChannel.MetaData);
-                    response.ExternalChannel.MetaData = externalChannel.MetaData;
+                    if (response.ExternalChannel.HasMetadata)
+                    {
+                        CatalogDAL.SaveChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External, externalChannel.MetaData);
+                        response.ExternalChannel.MetaData = externalChannel.MetaData;
+                    }
 
                     CreateVirtualChannel(groupId, userId, response.ExternalChannel);
 
@@ -7831,11 +7834,18 @@ namespace Core.Api
 
                     if (metaData != null)
                     {
-                        CatalogDAL.SaveChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External, metaData);
+                        if (metaData.Any())
+                        {
+                            CatalogDAL.SaveChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External, metaData);
+                        }
+                        else
+                        {
+                            CatalogDAL.DeleteChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+                        }
                     }
                     else
                     {
-                        metaData = CatalogDAL.GetChannelsMetadatasById(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+                        metaData = CatalogDAL.GetChannelMetadataById(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
                     }
 
                     response.ExternalChannel.MetaData = metaData;
@@ -7936,14 +7946,19 @@ namespace Core.Api
 
         private static void AddMetaData(List<ExternalChannel> externalChannels)
         {
-            var ids = externalChannels.Select(ec => ec.ID).ToList();
-            var metadatas = CatalogDAL.GetChannelsMetadatasByIds(ids, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+            var channelsWithMetadata = externalChannels.Where(ec => ec.HasMetadata).ToList();
+            var ids = channelsWithMetadata.Select(ec => ec.ID).ToList();
 
-            foreach (var ec in externalChannels)
+            if (ids.Any())
             {
-                if (metadatas.ContainsKey(ec.ID))
+                var metadatas = CatalogDAL.GetChannelsMetadataByIds(ids, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+
+                foreach (var cwm in channelsWithMetadata)
                 {
-                    ec.MetaData = metadatas[ec.ID];
+                    if (metadatas.ContainsKey(cwm.ID))
+                    {
+                        cwm.MetaData = metadatas[cwm.ID];
+                    }
                 }
             }
         }

@@ -326,7 +326,7 @@ namespace Core.Catalog.CatalogManagement
                     if (channelIds != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
                         DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, isAllowedToViewInactiveAssets.Value);
-                        var metadatas = CatalogDAL.GetChannelsMetadatasByIds(channelIds, eChannelType.Internal);
+                        var metadatas = CatalogDAL.GetChannelsMetadataByIds(channelIds, eChannelType.Internal);
 
                         channels = GetChannelListFromDs(ds, metadatas);
                         res = channels.Count() == channelIds.Count() || !isAllowedToViewInactiveAssets.Value;

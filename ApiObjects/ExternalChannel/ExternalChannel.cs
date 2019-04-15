@@ -81,6 +81,8 @@ namespace ApiObjects
 
         public Dictionary<string, string> MetaData { get; set; }
 
+        public bool HasMetadata { get; set; }
+
         #endregion
 
         public ExternalChannel()
