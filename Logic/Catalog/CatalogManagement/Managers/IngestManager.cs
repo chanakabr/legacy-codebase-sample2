@@ -409,7 +409,8 @@ namespace Core.Catalog.CatalogManagement
                     if (tag.IsTagExists)
                     {
                         var ds = CatalogDAL.GetTagAssets(groupId, tag.TagValue.tagId);
-                        CatalogManager.CreateAssetsListForUpdateIndexFromDataSet(ds, out List<int> mediaIds, out List<int> epgIds);
+                        List<int> mediaIds, epgIds;
+                        CatalogManager.CreateAssetsListForUpdateIndexFromDataSet(ds, out mediaIds, out epgIds);
                         mediaIds.ForEach(x =>
                         {
                             if (!assetsToInvalidate.ContainsKey(x))

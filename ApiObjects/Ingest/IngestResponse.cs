@@ -46,12 +46,18 @@ namespace ApiObjects
             }
         }
 
-        public static IngestResponse Default => new IngestResponse()
+        public static IngestResponse Default
         {
-            IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() },
-            AssetsStatus = new List<IngestAssetStatus>(),
-            Description = string.Empty
-        };
+            get
+            {
+                return new IngestResponse()
+                {
+                    IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() },
+                    AssetsStatus = new List<IngestAssetStatus>(),
+                    Description = string.Empty
+                };
+            }
+        }
     }
 }
 
