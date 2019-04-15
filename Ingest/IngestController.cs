@@ -21,6 +21,7 @@ namespace Ingest
         private const string UNKNOWN_INGEST_TYPE = "Unknown ingest type";
         private const string INVALID_CREDENTIALS = "Invalid credentials";
 
+        // TODO need to delete this mmethod and use Core.Catalog.Controller.IngestController insted (delete this class)
         public static IngestResponse IngestData(IngestRequest request, eIngestType ingestType)
         {
             IngestResponse ingestResponse = new IngestResponse()
