@@ -5318,6 +5318,12 @@ namespace Tvinci.Core.DAL
             UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBChannelMetaData { Id = id, MetaData = metaData }, true);
         }
 
+        public static void DeleteChannelMetaData(int id, eChannelType channelType)
+        {
+            var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
+            UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
         public static Dictionary<string, string> GetChannelsMetadatasById(int id, eChannelType channelType)
         {
             var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
