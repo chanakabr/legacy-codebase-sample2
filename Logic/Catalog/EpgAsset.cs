@@ -1,5 +1,6 @@
 ﻿using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ConfigurationManager;
 using System;

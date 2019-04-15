@@ -114,69 +114,51 @@ namespace Core.Catalog
 
             //var fieldEntityMapping = EpgIngest.Utils.GetMappingFields(parentGroupId);
             var channelExternalIds = xmlTvEpgData.channel.Select(s => s.id).ToList();
+            
             _Logger.Debug($"MapXmlTvProgramToCBEpgProgram > Retriving kaltura channels for external IDs [{string.Join(",", channelExternalIds)}] ");
             var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
             var languages = GroupLanguageManager.GetGroupLanguages(groupId);
             var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
-            var itemIndex = 0;
             if (defaultLanguage == null)
             {
                 throw new Exception($"No main language defined for group:[{groupId}], ingest failed");
             }
 
-            var xmlTvDictionary = new Dictionary<string, BulkUploadXmlTvChannelResult>();
-
+            var response = new List<BulkUploadResult>();
+            var programIndex = 1;
             foreach (var prog in xmlTvEpgData.programme)
             {
+                
+                var channelExternalId = prog.channel;
                 // Every channel external id can point to mulitple interbal channels that have to have the same EPG
                 // like channel per region or HD channel vs SD channel etc..
-                var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalId.Equals(prog.channel, StringComparison.OrdinalIgnoreCase));
-                if (!xmlTvDictionary.ContainsKey(prog.channel))
+                var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalId.Equals(channelExternalId, StringComparison.OrdinalIgnoreCase));
+                var programResults = new List<BulkUploadProgramAssetResult>();
+                foreach (var innerChannel in channelsToIngestProgramInto)
                 {
-                    xmlTvDictionary[prog.channel] = new BulkUploadXmlTvChannelResult(bulkUploadId, prog.channel);
-                    xmlTvDictionary[prog.channel].Status = BulkUploadResultStatus.InProgress;
+                    foreach (var lang in languages)
+                    {
+                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, innerChannel.ChannelId, prog, lang.Code, defaultLanguage.Code);
+                        newEpgAssetResult.BulkUploadId = bulkUploadId;
+                        newEpgAssetResult.Status = BulkUploadResultStatus.InProgress;
+                        newEpgAssetResult.Index = programIndex++;
+                        newEpgAssetResult.LiveAssetExternalId = innerChannel.ChannelExternalId;
+                        newEpgAssetResult.LiveAssetId = innerChannel.ChannelId;
+                        programResults.Add(newEpgAssetResult);
+                    }
                 }
 
-                var innerChannelList = ParseInnerChannels(parentGroupId, groupId, languages, defaultLanguage, prog, channelsToIngestProgramInto);
-                xmlTvDictionary[prog.channel].InnerChannels = innerChannelList.ToArray();
+                response.AddRange(programResults);
             }
 
-            var response = new List<BulkUploadResult>();
-            foreach (var xmlTvChannelResult in xmlTvDictionary.Values)
-            {
-                response.Add(xmlTvChannelResult);
-            }
-
-
-            return response;
+            return response.ToList();
         }
 
-        private List<BulkUploadChannelResult> ParseInnerChannels(int parentGroupId, int groupId, List<LanguageObj> languages, LanguageObj defaultLanguage, programme prog, IEnumerable<EpgChannelObj> channelsToIngestProgramInto)
-        {
-            var innerChannelList = new List<BulkUploadChannelResult>();
-            foreach (var channel in channelsToIngestProgramInto)
-            {
-                var innerChannelResult = new BulkUploadChannelResult(channel.ChannelId);
-                innerChannelResult.Status = BulkUploadResultStatus.InProgress;
-                var multilengualPrgorams = new List<BulkUploadMultilingualProgramAssetResult>();
-                foreach (var lang in languages)
-                {
-                    var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code);
-                    multilengualPrgorams.Add(new BulkUploadMultilingualProgramAssetResult(lang.Code, newEpgAssetResult));
-                }
-
-                innerChannelResult.Programs = multilengualPrgorams.ToArray();
-                innerChannelList.Add(innerChannelResult);
-            }
-
-            return innerChannelList;
-        }
 
         private BulkUploadProgramAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode)
         {
             // TODO: Arthur\ sunny make this code pretty, break into methods .. looks too long. :\
             var response = new BulkUploadProgramAssetResult();
-            response.Status = BulkUploadResultStatus.InProgress;
             var epgItem = new EpgCB();
 
             epgItem.Language = langCode;

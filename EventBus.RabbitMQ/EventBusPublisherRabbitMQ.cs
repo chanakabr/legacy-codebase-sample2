@@ -22,10 +22,10 @@ namespace EventBus.RabbitMQ
         private readonly string _ExchangeName;
         private readonly int _RetryCount;
 
-        public static EventBusPublisherRabbitMQ GetInstanceUsingTCMConfiguration(IRabbitMQPersistentConnection persistentConnection)
+        public static EventBusPublisherRabbitMQ GetInstanceUsingTCMConfiguration()
         {
             var eventBusConsumer = new EventBusPublisherRabbitMQ(
-                persistentConnection,
+                RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration(),
                 ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value, 
                 ApplicationConfiguration.QueueFailLimit.IntValue);
 
@@ -89,12 +89,6 @@ namespace EventBus.RabbitMQ
                     _Logger.Warn(ex.ToString());
                     _Logger.Warn($"Waiting for:[{time.TotalSeconds}] seconds until next publish retry");
                 });
-        }
-
-        public void Dispose()
-        {
-            _Logger.Debug("Disposing connection...");
-            _PersistentConnection?.Dispose();
         }
     }
 }

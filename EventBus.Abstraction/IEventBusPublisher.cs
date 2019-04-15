@@ -2,7 +2,7 @@
 
 namespace EventBus.Abstraction
 {
-    public interface IEventBusPublisher : IDisposable
+    public interface IEventBusPublisher
     {
         void Publish(ServiceEvent serviceEvent);
     }

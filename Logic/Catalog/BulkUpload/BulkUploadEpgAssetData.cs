@@ -1,8 +1,12 @@
-﻿using ApiObjects.BulkUpload;
+﻿using ApiObjects;
+using ApiObjects.BulkUpload;
 using ApiObjects.Response;
+using EventBus.RabbitMQ;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using ApiObjects.EventBus;
 
 namespace Core.Catalog
 {
@@ -18,10 +22,17 @@ namespace Core.Catalog
         {
             throw new NotImplementedException();
         }
-        
+
         public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> objects)
         {
-            // TODO: implement split into 24Hr and send over event bus for ingest
+            var programResults = objects.Select(p => (EpgCB)p.Object);
+            var programsByDay = programResults.GroupBy(p => p.StartDate.Date);
+            var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+
+            var bulkUploadIngestEvent = new BulkUploadIngestEvent { };
+            publisher.Publish(bulkUploadIngestEvent);
+
+
         }
 
         public override Dictionary<string, object> GetMandatoryPropertyToValueMap()
