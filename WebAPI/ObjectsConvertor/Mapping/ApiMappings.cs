@@ -234,7 +234,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.ExternalChannel.IsActive))
                .ForMember(dest => dest.Enrichments, opt => opt.ResolveUsing(src => ConvertEnrichments(src.ExternalChannel.Enrichments)))
                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.ExternalChannel.AssetUserRuleId))
-               ;
+               .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertMetaData(src.ExternalChannel.MetaData)))
+               .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
 
             #endregion
 
