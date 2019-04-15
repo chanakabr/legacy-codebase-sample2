@@ -44,6 +44,7 @@ namespace EventBus.RabbitMQ
                             DispatchConsumersAsync = true,
                         };
 
+                        _Logger.Info($"Constructing connection factory with HostName:[{configuration.HostName.Value}] on port:[{configuration.Port.IntValue}]");
                         _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.QueueFailLimit.IntValue);
                     }
                 }
@@ -96,7 +97,7 @@ namespace EventBus.RabbitMQ
 
         public bool TryConnect()
         {
-            _Logger.Info("RabbitMQ Client is trying to connect");
+            _Logger.Info($"RabbitMQ Client is trying to connect.");
             if (_IsConnected)
             {
                 _Logger.Info($"Already connected");

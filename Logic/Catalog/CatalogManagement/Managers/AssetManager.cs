@@ -1244,6 +1244,10 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
                         }
+                        else if (Core.Api.Managers.AssetRuleManager.IsGeoAssetRulesEnabled(groupId))
+                        {
+                            Catalog.Module.UpdateIndex(new List<int>() { (int)result.Object.Id }, groupId, eAction.GeoUpdate);
+                        }
                     }
 
                     // update meta inherited

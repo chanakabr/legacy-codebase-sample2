@@ -7,6 +7,9 @@ namespace ApiObjects
         [DBFieldMapping("ID")]
         public int Id { get; set; }
 
+        [DBFieldMappingAttribute("group_id")]
+        public int GroupId { get; set; }
+
         [DBFieldMapping("name")]
         public string Name { get; set; }
 
@@ -30,5 +33,10 @@ namespace ApiObjects
 
         [DBFieldMapping("default_overlap_policy")]
         public int DefaultOverlapPolicy { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{ id:'{Id}', groupId:'{GroupId}', name:'{Name}', assetType:'{AssetTypeId}' }}";
+        }
     }
 }

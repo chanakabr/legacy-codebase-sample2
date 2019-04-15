@@ -22,7 +22,8 @@ namespace Core.GroupManagers
                 List<LanguageObj> result = null;
                 string key = LayeredCacheKeys.GetGroupLanguagesCacheKey(groupId);
                 var getGroupLanguagesMethodParams = new Dictionary<string, object> { { "groupId", groupId } };
-                if (!LayeredCache.Instance.Get(key, ref result, GetGroupLanguages, getGroupLanguagesMethodParams, groupId, LayeredCacheConfigNames.GET_GROUP_LANGUAGES))
+                var invalidationKeys = new List<string>();
+                if (!LayeredCache.Instance.Get(key, ref result, GetGroupLanguages, getGroupLanguagesMethodParams, groupId, LayeredCacheConfigNames.GET_GROUP_LANGUAGES, invalidationKeys))
                 {
                     _logger.ErrorFormat("Failed getting DoesGroupUsesTemplates from LayeredCache, groupId: {0}", groupId);
                 }
@@ -36,7 +37,8 @@ namespace Core.GroupManagers
 
         private static Tuple<List<LanguageObj>, bool> GetGroupLanguages(Dictionary<string, object> arg)
         {
-            throw new NotImplementedException();
+            var languages = CatalogDAL.GetGroupLanguages((int)arg["groupId"]);
+            return Tuple.Create(languages, true);
         }
     }
 }

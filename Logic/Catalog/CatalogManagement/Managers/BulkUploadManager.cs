@@ -212,21 +212,18 @@ namespace Core.Catalog.CatalogManagement
 
         private static GenericResponse<BulkUpload> SendTransformationEventToServiceEventBus(int groupId, long userId, GenericResponse<BulkUpload> response)
         {
-            using (var conn = RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration())
-            using (var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration(conn))
+            var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            var transformationEvent = new BulkUploadTransformationEvent
             {
-                var transformationEvent = new BulkUploadTransformationEvent
-                {
-                    RequestId = KLogger.GetRequestId(),
-                    GroupId = groupId,
-                    UserId = userId,
-                    BulkUploadData = response.Object,
-                };
+                RequestId = KLogger.GetRequestId(),
+                GroupId = groupId,
+                UserId = userId,
+                BulkUploadId = response.Object.Id,
+            };
 
-                publisher.Publish(transformationEvent);
-                response = UpdateBulkUploadStatusWithVersionCheck(response.Object, BulkUploadJobStatus.Queued);
-            }
-
+            publisher.Publish(transformationEvent);
+            response = UpdateBulkUploadStatusWithVersionCheck(response.Object, BulkUploadJobStatus.Queued);
+            return response;
             return response;
         }
 
