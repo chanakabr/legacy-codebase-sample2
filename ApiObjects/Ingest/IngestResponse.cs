@@ -45,6 +45,13 @@ namespace ApiObjects
                 this.Description += " | " + errorMessage;
             }
         }
+
+        public static IngestResponse Default => new IngestResponse()
+        {
+            IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() },
+            AssetsStatus = new List<IngestAssetStatus>(),
+            Description = string.Empty
+        };
     }
 }
 

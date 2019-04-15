@@ -121,6 +121,7 @@
     <Compile Include="BulkUpload\ExcelColumn.cs" />
     <Compile Include="BulkUpload\ExcelStructure.cs" />
     <Compile Include="Catalog\ImageType.cs" />
+    <Compile Include="Catalog\Topic.cs" />
     <Compile Include="Compensation.cs" />
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
@@ -138,7 +139,7 @@
     <Compile Include="Billing\Response\BillingResponse.cs" />
     <Compile Include="CachedEntitlementResults.cs" />
     <Compile Include="Catalog\Enums.cs" />
-    <Compile Include="Catalog\IngestWarnings.cs" />
+    <Compile Include="Ingest\IngestWarnings.cs" />
     <Compile Include="CDNAdapter\CDNAdapter.cs" />
     <Compile Include="CDNAdapter\CDNAdapterSettings.cs" />
     <Compile Include="CDNAdapter\CDNAdapterListResponse.cs" />
@@ -155,6 +156,7 @@
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
     <Compile Include="GeneralPartnerConfig.cs" />
+    <Compile Include="Ingest\TopicTagTranslations.cs" />
     <Compile Include="PlaybackAdapter\AccessControlMessage.cs" />
     <Compile Include="PlaybackAdapter\AssetFile.cs" />
     <Compile Include="PlaybackAdapter\BumpersPlaybackPluginData.cs" />
@@ -257,8 +259,8 @@
     <Compile Include="DeviceFamilyResponse.cs" />
     <Compile Include="DevicePinResponse.cs" />
     <Compile Include="DummyDllLoader.cs" />
-    <Compile Include="EpgIngestResponse.cs" />
-    <Compile Include="IngestAssetStatus.cs" />
+    <Compile Include="Ingest\EpgIngestResponse.cs" />
+    <Compile Include="Ingest\IngestAssetStatus.cs" />
     <Compile Include="IngestBusinessModules\BusinessModuleResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestModule.cs" />
     <Compile Include="IngestBusinessModules\IngestMultiPricePlan.cs" />
@@ -266,7 +268,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="IngestBusinessModules\IngestPriceCode.cs" />
-    <Compile Include="IngestResponse.cs" />
+    <Compile Include="Ingest\IngestResponse.cs" />
     <Compile Include="Notification\AddMessageAnnouncementResponse.cs" />
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\DMSPushRequest.cs" />

@@ -679,7 +679,7 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static void CreateAssetsListForUpdateIndexFromDataSet(DataSet ds, out List<int> mediaIds, out List<int> epgIds)
+        internal static void CreateAssetsListForUpdateIndexFromDataSet(DataSet ds, out List<int> mediaIds, out List<int> epgIds)
         {
             mediaIds = new List<int>();
             epgIds = new List<int>();
@@ -2312,7 +2312,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId)
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId, bool isFromIngest = false)
         {
             GenericResponse<ApiObjects.SearchObjects.TagValue> result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
             try
@@ -2353,8 +2353,11 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
+                if (!isFromIngest)
+                {
+                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                    result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
+                }
             }
             catch (Exception ex)
             {
@@ -2364,7 +2367,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> UpdateTag(int groupId, long id, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId)
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> UpdateTag(int groupId, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId, bool isFromIngest = false)
         {
             var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
 
@@ -2377,7 +2380,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                result = GetTagById(groupId, id);
+                result = GetTagById(groupId, tagToUpdate.tagId);
                 if (!result.HasObject())
                 {
                     return result;
@@ -2414,25 +2417,27 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
+                DataSet ds = CatalogDAL.UpdateTag(groupId, tagToUpdate.tagId, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
                 result = CreateTagValueFromDataSet(ds);
                 if (!result.HasObject())
                 {
                     return result;
                 }
 
-                if (!InvalidateCacheAndUpdateIndexForTagAssets(groupId, id, false, userId))
+                if (!isFromIngest)
                 {
-                    log.ErrorFormat("Failed to InvalidateCacheAndUpdateIndexForTagAssets after UpdateTag for groupId: {0}, tagId: {1}", groupId, id);
+                    if (!InvalidateCacheAndUpdateIndexForTagAssets(groupId, tagToUpdate.tagId, false, userId))
+                    {
+                        log.ErrorFormat("Failed to InvalidateCacheAndUpdateIndexForTagAssets after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagToUpdate.tagId);
+                    }
+
+                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                    result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
                 }
-
-                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
-
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateTag for groupId: {0}, id: {1} and tagToUpdate: {2}", groupId, id, tagToUpdate.ToString()), ex);
+                log.Error(string.Format("Failed UpdateTag for groupId: {0}, id: {1} and tagToUpdate: {2}", groupId, tagToUpdate.tagId, tagToUpdate.ToString()), ex);
             }
 
             return result;

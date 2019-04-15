@@ -808,11 +808,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result.HasObject() && result.Object.Id > 0 && !isLinear)
                 {
                     // UpdateIndex
-                    if (isFromIngest)
-                    {
-                        CatalogLogic.UpdateIndex(new List<long>() { (int)result.Object.Id }, groupId, eAction.Update);
-                    }
-                    else
+                    if (!isFromIngest)
                     {
                         bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                         if (!indexingResult)
@@ -2402,7 +2398,7 @@ namespace Core.Catalog.CatalogManagement
                         break;
                 }
 
-                if (result.Status.Code == (int)eResponseStatus.OK)
+                if (!isFromIngest && result.IsOkStatusCode())
                 {
                     // invalidate asset
                     InvalidateAsset(assetToUpdate.AssetType, id);
