@@ -234,7 +234,8 @@ namespace Core.Recordings
                     else
                     {
                         HashSet<long> failedDomainIds;
-                        CallAdapterRecord(groupId, recording.EpgId.ToString(), recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, false, recording, new List<long>(), out failedDomainIds);
+                        CallAdapterRecord(groupId, recording.EpgId.ToString(), recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, false, recording, false,
+                                            new List<long>(), out failedDomainIds);
 
                         // If we got through here without any exception, we're ok.
                         recording.Status = new Status((int)eResponseStatus.OK);
@@ -905,18 +906,18 @@ namespace Core.Recordings
             DateTime startDate = (DateTime)parameters["startDate"];
             DateTime endDate = (DateTime)parameters["endDate"];
             List<long> domainIds = (List<long>)parameters["domainIds"];
-            bool isPrivateCopy = (bool)parameters["isPrivateCopy"];            
+            bool isPrivateCopy = (bool)parameters["isPrivateCopy"];
+            bool shouldInsertRecording = (bool)parameters["shouldInsertRecording"];
 
-            // for private copy we always issue a recording
-            bool issueRecord = isPrivateCopy;
+            // for private copy we always issue a recording            
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
-
-            if (!issueRecord)
+            bool shouldCallAdapter = false;
+            if (shouldInsertRecording)
             {                         
                 // If there is no recording for this program - create one. This is the first, hurray!
                 if (recording == null)
                 {
-                    issueRecord = true;
+                    shouldCallAdapter = true;
                     recording = new Recording();
                     recording.EpgId = programId;
                     recording.Crid = crid;
@@ -930,30 +931,26 @@ namespace Core.Recordings
                 }
                 else if (recording.RecordingStatus == TstvRecordingStatus.Canceled)
                 {
-                    issueRecord = true;
+                    shouldCallAdapter = true;
                 }
             }
 
             // If it is a new recording or a canceled recording - we call adapter
-            if (issueRecord)
+            if (shouldCallAdapter || isPrivateCopy)
             {
                 bool isCanceled = recording.RecordingStatus == TstvRecordingStatus.Canceled;
                 // Schedule a message to check status 1 minute after recording of program is supposed to be over
-                if (!isPrivateCopy)
+                if (shouldInsertRecording)
                 {
                     DateTime checkTime = endDate.AddMinutes(1);
                     eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
-                    EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);                    
+                    EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
                     recording.Status = null;
 
                     // Update Couchbase that the EPG is recorded
-                    #region Update CB
-
                     UpdateCouchbase(groupId, programId, recording.Id);
 
-                    #endregion
-
-                    // After we know that schedule was succesful,
+                    // After we know that schedule was successful,
                     // we index data so it is available on search
                     if (recording.RecordingStatus == TstvRecordingStatus.OK ||
                         recording.RecordingStatus == TstvRecordingStatus.Recorded ||
@@ -962,7 +959,7 @@ namespace Core.Recordings
                     {
                         UpdateIndex(groupId, recording.Id, eAction.Update);
                     }
-                }
+                }                
 
                 // We're OK
                 recording.Status = new Status((int)eResponseStatus.OK);
@@ -974,7 +971,7 @@ namespace Core.Recordings
                 {
                     cd.Load();
                     HashSet<long> failedDomainIds;
-                    CallAdapterRecord(groupId, programId.ToString(), epgChannelID, startDate, endDate, isCanceled, (Recording)copyRecording, domainIds, out failedDomainIds);
+                    CallAdapterRecord(groupId, programId.ToString(), epgChannelID, startDate, endDate, isCanceled, (Recording)copyRecording, isPrivateCopy, domainIds, out failedDomainIds);
                     if (failedDomainIds != null && failedDomainIds.Count > 0)
                     {
                         parameters["failedDomainIds"] = failedDomainIds;
@@ -1144,7 +1141,7 @@ namespace Core.Recordings
         }
 
         private static void CallAdapterRecord(int groupId, string epgId, long epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording,
-                                                List<long> domainIds, out HashSet<long> failedDomainIds)
+                                                bool isPrivateRecording, List<long> domainIds, out HashSet<long> failedDomainIds)
         {
             log.DebugFormat("Call adapter record for recording {0}", currentRecording.Id);
             bool shouldRetry = true;            
@@ -1243,7 +1240,7 @@ namespace Core.Recordings
                 currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
             }
 
-            if (shouldRetry)
+            if (shouldRetry && !isPrivateRecording)
             {
                 log.DebugFormat("Call adapter record for recording {0} will retry", currentRecording.Id);
                 RetryTaskBeforeProgramStarted(groupId, currentRecording, eRecordingTask.Record);
