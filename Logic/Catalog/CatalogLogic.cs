@@ -2021,8 +2021,6 @@ namespace Core.Catalog
                 searchObj.m_bUseStartDate = request.m_oFilter.m_bUseStartDate;
                 searchObj.m_bUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 searchObj.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
-                searchObj.m_bUseActive = request.m_oFilter.m_bOnlyActiveMedia;
-
 
                 searchObj.m_nMediaID = request.m_nMediaID;
                 if (request.m_nMediaTypes != null && request.m_nMediaTypes.Count > 0)
