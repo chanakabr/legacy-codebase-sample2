@@ -21959,36 +21959,6 @@ namespace WebAPI.Models.Upload
             return ret;
         }
     }
-    public partial class KalturaBulkUploadChannelResult
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            ret.Add("channelId", "\"channelId\": " + ChannelId);
-            if(Programs != null)
-            {
-                propertyValue = "[" + String.Join(", ", Programs.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("programs", "\"programs\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-            ret.Add("channelId", "<channelId>" + ChannelId + "</channelId>");
-            if(Programs != null)
-            {
-                propertyValue = Programs.Count > 0 ? "<item>" + String.Join("</item><item>", Programs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("programs", "<programs>" + propertyValue + "</programs>");
-            }
-            return ret;
-        }
-    }
     public partial class KalturaBulkUploadExcelJobData
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -22123,6 +22093,44 @@ namespace WebAPI.Models.Upload
             return ret;
         }
     }
+    public partial class KalturaBulkUploadLiveAssetResult
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+            if(ExternalEpgIngestId != null)
+            {
+                ret.Add("externalEpgIngestId", "\"externalEpgIngestId\": " + "\"" + EscapeJson(ExternalEpgIngestId) + "\"");
+            }
+            ret.Add("id", "\"id\": " + Id);
+            if(Programs != null)
+            {
+                propertyValue = "[" + String.Join(", ", Programs.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("programs", "\"programs\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+            if(ExternalEpgIngestId != null)
+            {
+                ret.Add("externalEpgIngestId", "<externalEpgIngestId>" + EscapeXml(ExternalEpgIngestId) + "</externalEpgIngestId>");
+            }
+            ret.Add("id", "<id>" + Id + "</id>");
+            if(Programs != null)
+            {
+                propertyValue = Programs.Count > 0 ? "<item>" + String.Join("</item><item>", Programs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("programs", "<programs>" + propertyValue + "</programs>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaBulkUploadMediaAssetData
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -22156,42 +22164,6 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            return ret;
-        }
-    }
-    public partial class KalturaBulkUploadMultilingualProgramAssetResult
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            if(LanguageCode != null)
-            {
-                ret.Add("languageCode", "\"languageCode\": " + "\"" + EscapeJson(LanguageCode) + "\"");
-            }
-            if(Program != null)
-            {
-                propertyValue = Program.ToJson(currentVersion, omitObsolete);
-                ret.Add("program", "\"program\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-            if(LanguageCode != null)
-            {
-                ret.Add("languageCode", "<languageCode>" + EscapeXml(LanguageCode) + "</languageCode>");
-            }
-            if(Program != null)
-            {
-                propertyValue = Program.ToXml(currentVersion, omitObsolete);
-                ret.Add("program", "<program>" + propertyValue + "</program>");
-            }
             return ret;
         }
     }
@@ -22313,42 +22285,6 @@ namespace WebAPI.Models.Upload
             {
                 propertyValue = Warnings.Count > 0 ? "<item>" + String.Join("</item><item>", Warnings.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("warnings", "<warnings>" + propertyValue + "</warnings>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaBulkUploadXmlTvChannelResult
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-            if(ChannelExternalId != null)
-            {
-                ret.Add("channelExternalId", "\"channelExternalId\": " + "\"" + EscapeJson(ChannelExternalId) + "\"");
-            }
-            if(InnerChannels != null)
-            {
-                propertyValue = "[" + String.Join(", ", InnerChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("innerChannels", "\"innerChannels\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-            if(ChannelExternalId != null)
-            {
-                ret.Add("channelExternalId", "<channelExternalId>" + EscapeXml(ChannelExternalId) + "</channelExternalId>");
-            }
-            if(InnerChannels != null)
-            {
-                propertyValue = InnerChannels.Count > 0 ? "<item>" + String.Join("</item><item>", InnerChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("innerChannels", "<innerChannels>" + propertyValue + "</innerChannels>");
             }
             return ret;
         }

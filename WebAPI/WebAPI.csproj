@@ -1827,6 +1827,10 @@
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ServiceExtensions\ServiceExtensions.csproj">
+      <Project>{2e48dc40-a9ab-485d-a847-8e3662c69696}</Project>
+      <Name>ServiceExtensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>

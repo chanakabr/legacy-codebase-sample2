@@ -110,40 +110,25 @@ namespace WebAPI.Models.Upload
     }
 
     [Serializable]
-    public partial class KalturaBulkUploadXmlTvChannelResult : KalturaBulkUploadAssetResult
-    {
-        /// <summary>
-        /// External channel id as parsed from xmlTv
-        /// </summary>
-        [DataMember(Name = "channelExternalId")]
-        [JsonProperty(PropertyName = "channelExternalId")]
-        [XmlElement(ElementName = "channelExternalId")]
-        [SchemeProperty(ReadOnly = true)]
-        public string ChannelExternalId { get; set; }
-
-        /// <summary>
-        /// List of inner kaltura channeles that the externalId from xmlTv is mapped to
-        /// </summary>
-        [DataMember(Name = "innerChannels")]
-        [JsonProperty(PropertyName = "innerChannels")]
-        [XmlArray(ElementName = "innerChannels", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        [SchemeProperty(ReadOnly = true)]
-        public List<KalturaBulkUploadChannelResult> InnerChannels { get; set; }
-
-    }
-
-    [Serializable]
-    public partial class KalturaBulkUploadChannelResult : KalturaBulkUploadResult
+    public partial class KalturaBulkUploadLiveAssetResult : KalturaBulkUploadResult
     {
         /// <summary>
         /// The internal kaltura channel id
         /// </summary>
-        [DataMember(Name = "channelId")]
-        [JsonProperty(PropertyName = "channelId")]
-        [XmlElement(ElementName = "channelId")]
+        [DataMember(Name = "id")]
+        [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
         [SchemeProperty(ReadOnly = true)]
-        public int ChannelId { get; set; }
+        public int Id { get; set; }
+
+        /// <summary>
+        /// Indicates the epg asset object id in the bulk file
+        /// </summary>
+        [DataMember(Name = "externalEpgIngestId")]
+        [JsonProperty(PropertyName = "externalEpgIngestId")]
+        [XmlElement(ElementName = "externalEpgIngestId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string ExternalEpgIngestId { get; set; }
 
         /// <summary>
         /// List of programs that were ingested to the channel
@@ -153,30 +138,7 @@ namespace WebAPI.Models.Upload
         [XmlArray(ElementName = "programs", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         [SchemeProperty(ReadOnly = true)]
-        public List<KalturaBulkUploadMultilingualProgramAssetResult> Programs { get; set; }
-
-    }
-
-    [Serializable]
-    public partial class KalturaBulkUploadMultilingualProgramAssetResult : KalturaOTTObject
-    {
-        /// <summary>
-        /// Language code of the program ingested
-        /// </summary>
-        [DataMember(Name = "languageCode")]
-        [JsonProperty(PropertyName = "languageCode")]
-        [XmlElement(ElementName = "languageCode")]
-        [SchemeProperty(ReadOnly = true)]
-        public string LanguageCode { get; set; }
-
-        /// <summary>
-        /// Ingested program information
-        /// </summary>
-        [DataMember(Name = "program")]
-        [JsonProperty(PropertyName = "program")]
-        [XmlElement(ElementName = "program")]
-        [SchemeProperty(ReadOnly = true)]
-        public KalturaBulkUploadProgramAssetResult Program { get; set; }
+        public List<KalturaBulkUploadProgramAssetResult> Programs { get; set; }
     }
 
     [Serializable]
@@ -192,12 +154,30 @@ namespace WebAPI.Models.Upload
         public int? ProgramId { get; set; }
 
         /// <summary>
-        /// The external program Id as was sent in the xmlTv file
+        /// The external program Id as was sent in the bulk xml file
         /// </summary>
         [DataMember(Name = "programExternalId")]
         [JsonProperty(PropertyName = "programExternalId")]
         [XmlElement(ElementName = "programExternalId")]
         [SchemeProperty(ReadOnly = true)]
         public string ProgramExternalId { get; set; }
+
+        /// <summary>
+        /// The  live asset Id that was identified according liveAssetExternalId that was sent in bulk xml file
+        /// </summary>
+        [DataMember(Name = "liveAssetId")]
+        [JsonProperty(PropertyName = "liveAssetId")]
+        [XmlElement(ElementName = "liveAssetId")]
+        [SchemeProperty(ReadOnly = true)]
+        public int LiveAssetId { get; set; }
+
+        /// <summary>
+        /// The external live asset Id as was sent in bulk xml file
+        /// </summary>
+        [DataMember(Name = "liveAssetExternalId")]
+        [JsonProperty(PropertyName = "liveAssetExternalId")]
+        [XmlElement(ElementName = "liveAssetExternalId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string LiveAssetExternalId { get; set; }
     }
 }
