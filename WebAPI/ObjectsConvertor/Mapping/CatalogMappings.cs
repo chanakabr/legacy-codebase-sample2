@@ -1066,17 +1066,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<BulkUploadProgramAssetResult, KalturaBulkUploadProgramAssetResult>()
               .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>();
 
-            cfg.CreateMap<BulkUploadMultilingualProgramAssetResult, KalturaBulkUploadMultilingualProgramAssetResult>();
-
-            cfg.CreateMap<BulkUploadChannelResult, KalturaBulkUploadChannelResult>()
-              .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>()
-              .ForMember(dest => dest.Programs, opt => opt.MapFrom(src => src.Programs == null ? null : src.Programs.ToList()));
-
-
-            cfg.CreateMap<BulkUploadXmlTvChannelResult, KalturaBulkUploadXmlTvChannelResult>()
-               .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>()
-               .ForMember(dest => dest.InnerChannels, opt => opt.MapFrom(src => src.InnerChannels == null? null: src.InnerChannels.ToList()));
-            
             cfg.CreateMap<KalturaBulkUploadJobData, BulkUploadJobData>();
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
