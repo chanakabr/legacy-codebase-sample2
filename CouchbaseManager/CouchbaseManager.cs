@@ -382,7 +382,27 @@ namespace CouchbaseManager
                 case Couchbase.IO.ResponseStatus.NotSupported:
                     break;
                 case Couchbase.IO.ResponseStatus.OperationTimeout:
-                    break;
+                    {
+                        log.Debug("CouchBase : OperationTimeout detected. " +
+                            "Due to SDK bug, most likely the timeout will repeat infinitely until restart. Therefore, restarting cluster connection now.");
+
+                        IsClusterInitialized = false;
+
+                        if (!IsClusterInitialized)
+                        {
+                            lock (locker)
+                            {
+                                if (!IsClusterInitialized)
+                                {
+                                    ClusterHelper.Close();
+                                    ClusterHelper.Initialize(clientConfiguration);
+                                    IsClusterInitialized = true;
+                                }
+                            }
+                        }
+
+                        break;
+                    }
                 case Couchbase.IO.ResponseStatus.OutOfMemory:
                     break;
                 case Couchbase.IO.ResponseStatus.Success:
