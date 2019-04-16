@@ -271,7 +271,8 @@ namespace Core.Catalog.CatalogManagement
             var otherLanguagesIndex = 0;
             foreach (var tag in tags)
             {
-                slimTags.AddRange(tag.m_lValues.Select(x => new Tuple<string, string, LanguageContainer[]>(tag.m_oTagMeta.m_sName, x, tag.Values[otherLanguagesIndex++])));
+                var translations = tag.Values != null && tag.Values.Count > 0 && tag.Values.Count > otherLanguagesIndex ? tag.Values[otherLanguagesIndex++] : null;
+                slimTags.AddRange(tag.m_lValues.Select(x => new Tuple<string, string, LanguageContainer[]>(tag.m_oTagMeta.m_sName, x, translations)));
             }
 
             var existingTagsTranslations = new List<Tuple<string, LanguageContainer>>();
@@ -285,7 +286,10 @@ namespace Core.Catalog.CatalogManagement
                 if (tagsTranslations.ContainsKey(tagKey))
                 {
                     tagsTranslations[tagKey].AssetsToInvalidate.Add(new KeyValuePair<int, bool>(mediaId, isMediaExists));
-                    existingTagsTranslations.AddRange(translations.Select(x => new Tuple<string, LanguageContainer>(tagKey, x)));
+                    if (translations != null && translations.Length > 0)
+                    {
+                        existingTagsTranslations.AddRange(translations.Select(x => new Tuple<string, LanguageContainer>(tagKey, x)));
+                    }
                 }
                 else
                 {

@@ -20,7 +20,15 @@ namespace ApiObjects
         {
             this.TopicSystemName = topicSystemName;
             this.DefaultTagValue = defaultTagValue;
-            this.Translations = translations.ToDictionary(x => x.LanguageCode, y => y);
+            if (translations == null)
+            {
+                this.Translations = new Dictionary<string, LanguageContainer>();
+            }
+            else
+            {
+                this.Translations = translations.ToDictionary(x => x.LanguageCode, y => y);
+            }
+            
             this.AssetsToInvalidate = new List<KeyValuePair<int, bool>>() { new KeyValuePair<int, bool>(mediaId, isMediaExists) } ;
         }
 
