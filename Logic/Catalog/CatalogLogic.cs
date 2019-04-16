@@ -8568,7 +8568,7 @@ namespace Core.Catalog
 
             #region Geo Availability
 
-            if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
+            if (!definitions.isAllowedToViewInactiveAssets && doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
             {
                 definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
             }
