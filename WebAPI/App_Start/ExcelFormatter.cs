@@ -36,6 +36,7 @@ using WebAPI.Models.API;
 using ApiObjects.BulkUpload;
 using WebAPI.Managers;
 using System.Net;
+using System.Net.Http;
 
 namespace WebAPI.App_Start
 {
@@ -148,7 +149,7 @@ namespace WebAPI.App_Start
                 }
             }
 
-            if (HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
+            if (HttpContext.Current.Request.HttpMethod.Equals("POST") && HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
             {
                 HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
