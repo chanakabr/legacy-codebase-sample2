@@ -23,7 +23,7 @@ namespace Core.Catalog.CatalogManagement
         private const string ACTION_IS_NOT_ALLOWED = "Action is not allowed";
         #region Private Methods
 
-        private static List<Channel> GetChannelListFromDs(DataSet ds, Dictionary<int, Dictionary<string, string>> metaDatas = null)
+        private static List<Channel> GetChannelListFromDs(DataSet ds)
         {
             List<Channel> channels = new List<Channel>();
             if (ds == null || ds.Tables == null || ds.Tables.Count < 5 || ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count == 0)
@@ -57,7 +57,7 @@ namespace Core.Catalog.CatalogManagement
                                             where (Int64)row["CHANNEL_ID"] == id
                                             select row).ToList();
 
-                    Channel channel = CreateChannel(id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias, metaDatas[id]);
+                    Channel channel = CreateChannel(id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias);
                     if (channel != null)
                     {
                         channels.Add(channel);
@@ -68,7 +68,7 @@ namespace Core.Catalog.CatalogManagement
             return channels;
         }
 
-        private static Channel CreateChannel(int id, DataRow dr, List<DataRow> nameTranslations, List<DataRow> descriptionTranslations, List<DataRow> mediaTypes, List<DataRow> channelMedias, Dictionary<string, string> metaData = null)
+        private static Channel CreateChannel(int id, DataRow dr, List<DataRow> nameTranslations, List<DataRow> descriptionTranslations, List<DataRow> mediaTypes, List<DataRow> channelMedias)
         {
             Channel channel = new Channel();
             if (channel.m_lChannelTags == null)
@@ -88,6 +88,7 @@ namespace Core.Catalog.CatalogManagement
             channel.SystemName = ODBCWrapper.Utils.ExtractString(dr, "SYSTEM_NAME");
             channel.CreateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
             channel.UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+            channel.HasMetadata = ODBCWrapper.Utils.ExtractBoolean(dr, "HAS_METADATA");
 
             #region translated names
 
@@ -253,8 +254,6 @@ namespace Core.Catalog.CatalogManagement
             channel.SupportSegmentBasedOrdering = ODBCWrapper.Utils.ExtractBoolean(dr, "SUPPORT_SEGMENT_BASED_ORDERING");
             channel.AssetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ASSET_RULE_ID");
 
-            channel.MetaData = metaData;
-
             return channel;
         }
 
@@ -326,9 +325,24 @@ namespace Core.Catalog.CatalogManagement
                     if (channelIds != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
                         DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, isAllowedToViewInactiveAssets.Value);
-                        var metadatas = CatalogDAL.GetChannelsMetadataByIds(channelIds, eChannelType.Internal);
+                        channels = GetChannelListFromDs(ds);
 
-                        channels = GetChannelListFromDs(ds, metadatas);
+                        var channelsWithMetadata = channels.Where(c => c.HasMetadata).ToList();
+                        var channelsIdsWithMetadata = channelsWithMetadata.Select(c => c.m_nChannelID).ToList();
+
+                        if (channelsIdsWithMetadata.Any())
+                        {
+                            var metadatas = CatalogDAL.GetChannelsMetadataByIds(channelIds, eChannelType.Internal);
+
+                            foreach (var item in channelsWithMetadata)
+                            {
+                                if (metadatas.ContainsKey(item.m_nChannelID))
+                                {
+                                    item.MetaData = metadatas[item.m_nChannelID];
+                                }
+                            }
+                        }
+
                         res = channels.Count() == channelIds.Count() || !isAllowedToViewInactiveAssets.Value;
                     }
 
@@ -854,7 +868,7 @@ namespace Core.Catalog.CatalogManagement
                     channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
                     (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, isSlidingWindow, slidingWindowPeriod, channelToAdd.m_nChannelTypeID,
                     channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
-                    mediaIdsToOrderNum, userId, channelToAdd.SupportSegmentBasedOrdering, channelToAdd.AssetUserRuleId);
+                    mediaIdsToOrderNum, userId, channelToAdd.SupportSegmentBasedOrdering, channelToAdd.AssetUserRuleId, channelToAdd.MetaData != null);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
@@ -867,8 +881,13 @@ namespace Core.Catalog.CatalogManagement
 
                     if (id > 0)
                     {
-                        CatalogDAL.SaveChannelMetaData(id, eChannelType.Internal, channelToAdd.MetaData);
-                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds, channelToAdd.MetaData);
+                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+
+                        if (response.Object.HasMetadata)
+                        {
+                            CatalogDAL.SaveChannelMetaData(id, eChannelType.Internal, channelToAdd.MetaData);
+                            response.Object.MetaData = channelToAdd.MetaData;
+                        }
                     }
                 }
 
@@ -1060,10 +1079,16 @@ namespace Core.Catalog.CatalogManagement
                     updatedChannelType = channelToUpdate.m_nChannelTypeID;
                 }
 
+                bool? hasMetadata = null;
+                if (channelToUpdate.MetaData != null)
+                {
+                    hasMetadata = channelToUpdate.MetaData.Any();
+                }
+
                 DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
                                                         orderByDir, orderByValue, isSlidingWindow, slidingWindowPeriod, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
                                                         mediaIdsToOrderNum, userId, channelToUpdate.SupportSegmentBasedOrdering,
-                                                        channelToUpdate.AssetUserRuleId, assetTypesValuesInd, updatedChannelType);
+                                                        channelToUpdate.AssetUserRuleId, assetTypesValuesInd, hasMetadata, updatedChannelType);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
@@ -1079,14 +1104,22 @@ namespace Core.Catalog.CatalogManagement
 
                         if (metaData != null)
                         {
-                            CatalogDAL.SaveChannelMetaData(id, eChannelType.Internal, metaData);
+                            if (metaData.Any())
+                            {
+                                CatalogDAL.SaveChannelMetaData(id, eChannelType.Internal, metaData);
+                            }
+                            else
+                            {
+                                CatalogDAL.DeleteChannelMetaData(id, eChannelType.Internal);
+                            }
                         }
                         else
                         {
                             metaData = currentChannel.MetaData;
                         }
 
-                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds, metaData);
+                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                        response.Object.MetaData = metaData;
                     }
                 }
 
@@ -1190,6 +1223,8 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Object.m_nChannelTypeID, userId))
                 {
+                    CatalogDAL.DeleteChannelMetaData(channelId, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.Internal);
+                    
                     bool deleteResult = false;
                     bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
 
