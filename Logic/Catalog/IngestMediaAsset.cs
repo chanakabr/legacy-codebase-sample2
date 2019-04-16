@@ -243,8 +243,7 @@ namespace Core.Catalog
                     {
                         if (metaTagsContainersToDefaultValue.ContainsKey(metaTag.Name))
                         {
-                            // TODO SHIR - set error of MUST TO BE unique
-                            //status.Set((int)eResponseStatus.NameRequired, parameterName + " cannot be empty");
+                            response.SetStatus(eResponseStatus.Error, string.Format("meta: {0} has been sent more than once.", metaTag.Name));
                             return response;
                         }
                         
