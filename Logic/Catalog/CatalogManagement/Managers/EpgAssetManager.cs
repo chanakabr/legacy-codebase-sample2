@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;

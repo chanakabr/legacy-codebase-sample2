@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Billing;
+using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.Social;
 using ConfigurationManager;

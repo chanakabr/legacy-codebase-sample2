@@ -1,5 +1,6 @@
 ﻿using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Catalog;
 using Core.Catalog.CatalogManagement;
 using System;
 using System.Collections.Generic;

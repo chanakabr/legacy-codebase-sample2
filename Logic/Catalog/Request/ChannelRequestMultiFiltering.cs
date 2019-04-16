@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
 
 namespace Core.Catalog.Request
