@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
+using System.Linq;
 using System.Text;
+
 
 
 #if NET452
@@ -58,6 +62,37 @@ namespace TVinciShared
             return req.Browser;
         }
 
+        public static NameValueCollection GetQueryString(this HttpRequest req)
+        {
+            return req.QueryString;
+        }
+
+        public static NameValueCollection GetForm(this HttpRequest req)
+        {
+            return req.Form;
+        }
+
+        public static string GetForwardedForHeader(this HttpRequest req)
+        {
+            return req.ServerVariables["HTTP_X_FORWARDED_FOR"];
+        }
+
+        public static string GetRemoteAddress(this HttpRequest req)
+        {
+            return req.ServerVariables["REMOTE_ADDR"];
+        }
+
+        public static string GetRemoteHost(this HttpRequest req)
+        {
+            return req.ServerVariables["REMOTE_HOST"];
+        }
+
+
+        public static HttpFileCollection GetFiles(this HttpRequest req)
+        {
+            return req.Files;
+        }
+
         public static string GetFilePath(this HttpRequest req)
         {
             return req.FilePath;
@@ -75,7 +110,7 @@ namespace TVinciShared
         public static object Get(this ISession session, string key)
         {
             session.TryGetValue(key, out var value);
-           
+
             return value;
         }
 
@@ -124,6 +159,58 @@ namespace TVinciShared
             return req.Headers["Referer"].ToString();
         }
 
+        public static string GetForwardedForHeader(this HttpRequest req)
+        {
+            return req.Headers["x-forwarded-for"];
+        }
+
+        public static string GetRemoteAddress(this HttpRequest req)
+        {
+            return req.HttpContext.Connection.RemoteIpAddress.ToString();
+        }
+
+        public static string GetRemoteHost(this HttpRequest req)
+        {
+            return req.Host.Value;
+        }
+
+        public static NameValueCollection GetQueryString(this HttpRequest req)
+        {
+            var queryVals = req.Query.Select(f => new KeyValuePair<string, string>(f.Key, f.Value.ToString()));
+            var retVal = new NameValueCollection();
+            foreach (var qVal in queryVals)
+            {
+                retVal.Add(qVal.Key, qVal.Value);
+            }
+            return retVal;
+        }
+
+        public static NameValueCollection GetForm(this HttpRequest req)
+        {
+            var formVals = req.Form.Select(f => new KeyValuePair<string, string>(f.Key, f.Value.ToString()));
+            var retVal = new NameValueCollection();
+            foreach (var formVal in formVals)
+            {
+                retVal.Add(formVal.Key, formVal.Value);
+            }
+            return retVal;
+
+        }
+
+        public static IFormFileCollection GetFiles(this HttpRequest req)
+        {
+            return req.Form.Files;
+        }
+
+        public static void SaveAs(this IFormFile file, string path)
+        {
+            using (var fileStream = new FileStream(path, FileMode.Create))
+            {
+                file.CopyTo(fileStream);
+            }
+        }
+
+
         /// <summary>
         /// Note! this is a shim for netstandard. this should not be used! always will return null
         /// </summary>
@@ -147,9 +234,7 @@ namespace TVinciShared
         /// </summary>
         public static string ServerMapPath(this HttpContext ctx, string path)
         {
-
-            // TODO: find out what to return here in netstandard2.0
-            return "";
+            return Path.Combine(System.Web.HostingEnvironment.Current.WebRootPath, path);
         }
 
 #endif

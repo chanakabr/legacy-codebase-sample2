@@ -101,7 +101,7 @@ namespace TVinciShared
         {
             Int32 nGroupID = LoginManager.GetLoginGroupID();
 
-            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.GetForm();
             string sTableName = coll["table_name"].ToString();
             Int32 nCount = coll.Count;
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(sTableName);
@@ -260,7 +260,7 @@ namespace TVinciShared
                     if (sType == "file")
                     {
                         string sPicBaseName = "";
-                        string sBasePath = HttpContext.Current.Server.MapPath("");
+                        string sBasePath = HttpContext.Current.ServerMapPath("");
                         string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
 
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
@@ -270,7 +270,7 @@ namespace TVinciShared
                         string sUploadedFile = "";
                         string sFileObjName = nCounter.ToString() + "_val";
                         string sUploadedFileExt = "";
-                        HttpPostedFile theFile = HttpContext.Current.Request.Files[sFileObjName];
+                        var theFile = HttpContext.Current.Request.GetFiles()[sFileObjName];
                         string sIsImage = coll[nCounter.ToString() + "_isPic"].ToString();
                         string sDirectory = coll[nCounter.ToString() + "_directory"].ToString();
                         string ratioIndex = string.Empty;
@@ -325,12 +325,12 @@ namespace TVinciShared
                                     #region useRabbitQueue
 
                                     int mediaID = 0;
-                                    if (HttpContext.Current.Session["media_id"] != null)
+                                    if (HttpContext.Current.Session.Get("media_id") != null)
                                     {
-                                        string mediaIdStr = HttpContext.Current.Session["media_id"].ToString();
+                                        string mediaIdStr = HttpContext.Current.Session.Get("media_id").ToString();
                                         if (!string.IsNullOrEmpty(mediaIdStr))
                                         {
-                                            if (HttpContext.Current.Session["media_file_id"] == null)
+                                            if (HttpContext.Current.Session.Get("media_file_id") == null)
                                             {
                                                 mediaID = int.Parse(mediaIdStr);
                                             }
@@ -429,12 +429,12 @@ namespace TVinciShared
                                 {
                                     #region useUploader
                                     int mediaID = 0;
-                                    if (HttpContext.Current.Session["media_id"] != null)
+                                    if (HttpContext.Current.Session.Get("media_id") != null)
                                     {
-                                        string mediaIdStr = HttpContext.Current.Session["media_id"].ToString();
+                                        string mediaIdStr = HttpContext.Current.Session.Get("media_id").ToString();
                                         if (!string.IsNullOrEmpty(mediaIdStr))
                                         {
-                                            if (HttpContext.Current.Session["media_file_id"] == null)
+                                            if (HttpContext.Current.Session.Get("media_file_id") == null)
                                             {
                                                 mediaID = int.Parse(mediaIdStr);
                                             }
@@ -579,7 +579,7 @@ namespace TVinciShared
                     selectQuery = null;
                     updateQuery.Finish();
                     updateQuery = null;
-                    HttpContext.Current.Session["error_msg"] = "* הנתונים שהוSendו אינם חוקיים או מלאים";
+                    HttpContext.Current.Session.Set("error_msg", "* הנתונים שהוSendו אינם חוקיים או מלאים");
                     return;
                 }
                 if (sType == "multi")
@@ -602,7 +602,7 @@ namespace TVinciShared
             }
             else
             {
-                HttpContext.Current.Session["error_msg"] = "* הנתונים שהוSendו אינם חוקיים או מלאים";
+                HttpContext.Current.Session.Set("error_msg","* הנתונים שהוSendו אינם חוקיים או מלאים");
             }
             updateQuery.Finish();
             updateQuery = null;
@@ -776,7 +776,7 @@ namespace TVinciShared
 
         static protected void HandleMany2Many(ref ODBCWrapper.DataSetSelectQuery selectQuery, string sConnectionKey)
         {
-            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.GetForm();
             HandleMany2Many(ref coll, ref selectQuery, sConnectionKey);
         }
 
@@ -1408,7 +1408,7 @@ namespace TVinciShared
             Int32 nGroupID = LoginManager.GetLoginGroupID();
 
             Int32 nID = 0;
-            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.GetForm();
             string sUniquField = "";
             string sUniqueValue = "";
             string sUniqueType = "";
@@ -1604,7 +1604,7 @@ namespace TVinciShared
                         }
 
                         string sPicBaseName = "";
-                        string sBasePath = HttpContext.Current.Server.MapPath("");
+                        string sBasePath = HttpContext.Current.ServerMapPath("");
                         string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
                         {
@@ -1614,7 +1614,7 @@ namespace TVinciShared
                         string sUploadedFile = "";
                         string sFileObjName = nCounter.ToString() + "_val";
                         string sUploadedFileExt = "";
-                        HttpPostedFile theFile = HttpContext.Current.Request.Files[sFileObjName];
+                        var theFile = HttpContext.Current.Request.GetFiles()[sFileObjName];
                         string sIsImage = coll[nCounter.ToString() + "_isPic"].ToString();
                         string sDirectory = coll[nCounter.ToString() + "_directory"].ToString();
                         string ratioIndex = string.Empty;
@@ -1658,12 +1658,12 @@ namespace TVinciShared
                                     log.DebugFormat("downloadPicWithQueue");
 
                                     int mediaID = 0;
-                                    if (HttpContext.Current.Session["media_id"] != null)
+                                    if (HttpContext.Current.Session.Get("media_id") != null)
                                     {
-                                        string mediaIdStr = HttpContext.Current.Session["media_id"].ToString();
+                                        string mediaIdStr = HttpContext.Current.Session.Get("media_id").ToString();
                                         if (!string.IsNullOrEmpty(mediaIdStr))
                                         {
-                                            if (HttpContext.Current.Session["media_file_id"] == null)
+                                            if (HttpContext.Current.Session.Get("media_file_id") == null)
                                             {
                                                 mediaID = int.Parse(mediaIdStr);
                                             }
@@ -1737,12 +1737,12 @@ namespace TVinciShared
                                 {
                                     #region useUploader
                                     int mediaID = 0;
-                                    if (HttpContext.Current.Session["media_id"] != null)
+                                    if (HttpContext.Current.Session.Get("media_id") != null)
                                     {
-                                        string mediaIdStr = HttpContext.Current.Session["media_id"].ToString();
+                                        string mediaIdStr = HttpContext.Current.Session.Get("media_id").ToString();
                                         if (!string.IsNullOrEmpty(mediaIdStr))
                                         {
-                                            if (HttpContext.Current.Session["media_file_id"] == null)
+                                            if (HttpContext.Current.Session.Get("media_file_id") == null)
                                             {
                                                 mediaID = int.Parse(mediaIdStr);
                                             }
@@ -1883,7 +1883,7 @@ namespace TVinciShared
                     selectQuery = null;
                     insertQuery.Finish();
                     insertQuery = null;
-                    HttpContext.Current.Session["error_msg"] = "* הנתונים שהוSendו אינם חוקיים או מלאים";
+                    HttpContext.Current.Session.Set("error_msg", "* הנתונים שהוSendו אינם חוקיים או מלאים");
                     return 0;
                 }
                 if (sType == "multi")
@@ -1899,7 +1899,7 @@ namespace TVinciShared
                 if (bNew == true)
                     insertQuery.Execute();
                 else
-                    HttpContext.Current.Session["error_msg"] = "* הנתונים שהוSendו מהווים כפילות לרשומה קיימת";
+                    HttpContext.Current.Session.Set("error_msg", "* הנתונים שהוSendו מהווים כפילות לרשומה קיימת");
             }
             insertQuery.Finish();
             insertQuery = null;
@@ -1925,7 +1925,7 @@ namespace TVinciShared
             }
             else
             {
-                HttpContext.Current.Session["error_msg"] = "* הנתונים שהוSendו אינם חוקיים או מלאים";
+                HttpContext.Current.Session.Set("error_msg", "* הנתונים שהוSendו אינם חוקיים או מלאים");
             }
 
             selectQuery.Finish();
@@ -1983,10 +1983,10 @@ namespace TVinciShared
         static public Int32 DoTheWork(string sConnectionKey)
         {
             Int32 nID = 0;
-            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.GetForm();
             if (coll["table_name"] == null)
             {
-                HttpContext.Current.Session["error_msg"] = "חסרה טבלה לעידכון";
+                HttpContext.Current.Session.Set("error_msg", "חסרה טבלה לעידכון");
                 EndOfAction();
             }
             if (coll["id"] != null)
@@ -2006,8 +2006,8 @@ namespace TVinciShared
 
         static protected void EndOfAction()
         {
-            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
-            if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
+            System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.GetForm();
+            if (HttpContext.Current.Session.Get("error_msg") != null && HttpContext.Current.Session.Get("error_msg").ToString() != "")
             {
                 // string sFailure = coll["failure_back_page"].ToString();
                 if (coll["failure_back_page"] != null)
@@ -2017,12 +2017,12 @@ namespace TVinciShared
             }
             else
             {
-                if (HttpContext.Current.Request.QueryString["back_n_next"] != null)
+                if (HttpContext.Current.Request.GetQueryString()["back_n_next"] != null)
                 {
-                    HttpContext.Current.Session["last_page_html"] = null;
-                    string s = HttpContext.Current.Session["back_n_next"].ToString();
+                    HttpContext.Current.Session.Set("last_page_html", null);
+                    string s = HttpContext.Current.Session.Get("back_n_next").ToString();
                     HttpContext.Current.Response.Write("<script>window.document.location.href='" + s.ToString() + "';</script>");
-                    HttpContext.Current.Session["back_n_next"] = null;
+                    HttpContext.Current.Session.Set("back_n_next", null);
                 }
                 else
                 {

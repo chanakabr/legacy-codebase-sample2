@@ -4960,7 +4960,7 @@ namespace TVinciShared
                 {
                     bAdmin = true;
                     bWithCache = false;
-                    HttpContext.Current.Session.Set("ODBC_CACH_SEC". "0");
+                    HttpContext.Current.Session.Set("ODBC_CACH_SEC", "0");
                     nCountryID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["COUNTRY_ID"].ToString());
                     Int32 nLanguageID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["LANGUAGE_ID"].ToString());
                     object oLang = ODBCWrapper.Utils.GetTableSingleVal("lu_languages", "NAME", nCountryID);
@@ -6325,12 +6325,13 @@ namespace TVinciShared
             StringBuilder sRet = new StringBuilder();
 
             // call lucene search
-            string sInner = GetSearchMediaWithLucene(nStartIndex, nNumOfItems, nMediaID, nGroupID, sMediaTypes, sName, false, true, string.Empty, ref theMetaList, ref theTagsList,
-                    "", ref theDoc, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, nPlayerID, ref theInfoStruct, bIsAdmin,
-                    bWithFileTypes, nCountryID, "", "", sDocStruct, ref theWSInfoStruct, nDeviceID, bUseStartDate, deviceRules);
+            // Arthur: Removed Lucene_WCF
+            //string sInner = GetSearchMediaWithLucene(nStartIndex, nNumOfItems, nMediaID, nGroupID, sMediaTypes, sName, false, true, string.Empty, ref theMetaList, ref theTagsList,
+            //        "", ref theDoc, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, nPlayerID, ref theInfoStruct, bIsAdmin,
+            //        bWithFileTypes, nCountryID, "", "", sDocStruct, ref theWSInfoStruct, nDeviceID, bUseStartDate, deviceRules);
 
             sRet.Append("<response type=\"search_related\">");
-            sRet.Append(sInner);
+            //sRet.Append(sInner);
             sRet.Append("</response>");
             return sRet.ToString();
 
@@ -11666,14 +11667,15 @@ namespace TVinciShared
                             ref initObj, ref theWSInfoStruct, ref theChannelObj, nDeviceID, nLastMediaID);
                         */
 
-                        string sInner = GetSearchMediaWithLucene(nStartIndex, nNumOfItems, nLastMediaID, nGroupID, sMediaTypes, sName, false, true, sDescription,
-                            ref theMetaList, ref theTagsList, sPlayListSchema, ref theDoc, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, nPlayerID, ref theInfoStruct,
-                            bIsAdmin, bWithFileTypes, nCountryID, string.Empty, string.Empty, sDocStruct, ref theWSInfoStruct, nDeviceID, true, deviceRules);
+                        // Arthur: Removed Lucene_WCF
+                        //string sInner = GetSearchMediaWithLucene(nStartIndex, nNumOfItems, nLastMediaID, nGroupID, sMediaTypes, sName, false, true, sDescription,
+                        //    ref theMetaList, ref theTagsList, sPlayListSchema, ref theDoc, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, nPlayerID, ref theInfoStruct,
+                        //    bIsAdmin, bWithFileTypes, nCountryID, string.Empty, string.Empty, sDocStruct, ref theWSInfoStruct, nDeviceID, true, deviceRules);
 
                         if (initObj == null)
                         {
                             retVal.Append("<response type=\"personal_recommended\">");
-                            retVal.Append(sInner);
+                            //retVal.Append(sInner);
                             retVal.Append("</response>");
 
                         }
@@ -13274,9 +13276,10 @@ namespace TVinciShared
             if (sOrderBy == "")
                 sOrderBy = " order by q1.co desc ";
 
-            sRet.Append(GetSearchMediaWithLucene(nStartIndex, nNumOfItems, 0, nGroupID, sMediaTypes, sName, bAnd, bExact, sDescription, ref theMetaList, ref theTagsList,
-                    sPlaylistSchema, ref theDoc, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, nPlayerID, ref theInfoStruct, bIsAdmin,
-                    bWithFileTypes, nCountryID, sMinDate, sMaxDate, sDocStruct, ref theWSInfoStruct, nDeviceID, bUseStartDate, deviceRules));
+            // Arthur: Removed Lucene_WCF
+            //sRet.Append(GetSearchMediaWithLucene(nStartIndex, nNumOfItems, 0, nGroupID, sMediaTypes, sName, bAnd, bExact, sDescription, ref theMetaList, ref theTagsList,
+            //        sPlaylistSchema, ref theDoc, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, nPlayerID, ref theInfoStruct, bIsAdmin,
+            //        bWithFileTypes, nCountryID, sMinDate, sMaxDate, sDocStruct, ref theWSInfoStruct, nDeviceID, bUseStartDate, deviceRules));
 
             if (theSearchCriteria == null)
                 sRet.Append("</response>");
@@ -14293,48 +14296,49 @@ namespace TVinciShared
 
                     if (channelIds.Count > 0)
                     {
-                        Lucene_WCF.Service s = new Lucene_WCF.Service();
+                        // Arthur: Removed Lucene_WCF
+                        //Lucene_WCF.Service s = new Lucene_WCF.Service();
 
-                        string sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore 
-                        if (!String.IsNullOrEmpty(sWSURL))
-                            s.Url = sWSURL;
+                        //string sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore 
+                        //if (!String.IsNullOrEmpty(sWSURL))
+                        //    s.Url = sWSURL;
 
-                        log.Info(String.Format("GetChannelsMedias:{0}, subID:{1}, channels:({2})", nGroupID, nSubscriptionID, string.Join(",", channelIds.Select(x => x.ToString()).ToArray())));
+                        //log.Info(String.Format("GetChannelsMedias:{0}, subID:{1}, channels:({2})", nGroupID, nSubscriptionID, string.Join(",", channelIds.Select(x => x.ToString()).ToArray())));
 
-                        int[] mediaIds = null;
-                        try
-                        {
-                            var res = s.GetChannelsMedias(nGroupID, channelIds.ToArray(), sMediaType, 0, GetOrderValues(theDoc, nGroupID), 0, 10000);
-                            if (res != null && res.n_TotalItems > 0)
-                            {
-                                mediaIds = res.m_resultIDs;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error("", ex);
-                            mediaIds = new int[0];
-                        }
+                        //int[] mediaIds = null;
+                        //try
+                        //{
+                        //    var res = s.GetChannelsMedias(nGroupID, channelIds.ToArray(), sMediaType, 0, GetOrderValues(theDoc, nGroupID), 0, 10000);
+                        //    if (res != null && res.n_TotalItems > 0)
+                        //    {
+                        //        mediaIds = res.m_resultIDs;
+                        //    }
+                        //}
+                        //catch (Exception ex)
+                        //{
+                        //    log.Error("", ex);
+                        //    mediaIds = new int[0];
+                        //}
 
-                        mediaCount = mediaIds.Count(); //d.DefaultView.Count;
+                        //mediaCount = mediaIds.Count(); //d.DefaultView.Count;
 
-                        Int32 nBlocakble = int.Parse(PageUtils.GetTableSingleVal("groups", "BLOCKS_ACTIVE", nGroupID).ToString());
-                        string sFileFormat = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "file_format");
-                        string sSubFileFormat = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "sub_file_format");
-                        string sFileQuality = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "file_quality");
-                        if (nNumOfItems == 0)
-                            nNumOfItems = mediaCount;
-                        Int32 nPageSize = nNumOfItems;
-                        if (mediaCount - nStartIndex < nPageSize)
-                            nPageSize = mediaCount - nStartIndex;
+                        //Int32 nBlocakble = int.Parse(PageUtils.GetTableSingleVal("groups", "BLOCKS_ACTIVE", nGroupID).ToString());
+                        //string sFileFormat = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "file_format");
+                        //string sSubFileFormat = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "sub_file_format");
+                        //string sFileQuality = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "file_quality");
+                        //if (nNumOfItems == 0)
+                        //    nNumOfItems = mediaCount;
+                        //Int32 nPageSize = nNumOfItems;
+                        //if (mediaCount - nStartIndex < nPageSize)
+                        //    nPageSize = mediaCount - nStartIndex;
 
-                        sRetChannels.Append("<channel>");
-                        for (int i1 = nStartIndex; i1 < nStartIndex + nPageSize; i1++)
-                        {
-                            Int32 nMediaID = mediaIds.ElementAt(i1);    //int.Parse(d.DefaultView[i1].Row["ID"].ToString());
-                            sRetChannels.Append(ProtocolsFuncs.GetMediaTagNeto(ref theDoc, nMediaID, "media", nGroupID, nCountryID, nBlocakble, sFileFormat, sFileQuality, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, sSubFileFormat, nPlayerID, ref theInfoStruct, bIsAdmin, true, bWithFileTypes, nDeviceID));
-                        }
-                        sRetChannels.Append("</channel>");
+                        //sRetChannels.Append("<channel>");
+                        //for (int i1 = nStartIndex; i1 < nStartIndex + nPageSize; i1++)
+                        //{
+                        //    Int32 nMediaID = mediaIds.ElementAt(i1);    //int.Parse(d.DefaultView[i1].Row["ID"].ToString());
+                        //    sRetChannels.Append(ProtocolsFuncs.GetMediaTagNeto(ref theDoc, nMediaID, "media", nGroupID, nCountryID, nBlocakble, sFileFormat, sFileQuality, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, sSubFileFormat, nPlayerID, ref theInfoStruct, bIsAdmin, true, bWithFileTypes, nDeviceID));
+                        //}
+                        //sRetChannels.Append("</channel>");
                     }
                 }
 
@@ -15058,703 +15062,703 @@ namespace TVinciShared
             return bConcurrent;
         }
 
-#if NET452
-        //Get Media with Lucene Search , then complite media data with ProtocolsFuncs.GetMediaTag
-        static public string GetSearchMediaWithLucene(int nStartIndex, int nNumOfItems, int nMediaID, Int32 nGroupID, string sMediaTypeID, string sName, bool bAnd, bool bExact,
-            string sDescription, ref XmlNodeList theMetaList, ref XmlNodeList theTagsList,
-            string sPlaylistSchema, ref XmlDocument theDoc, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID,
-            bool bWithInfo, bool bWithCache, Int32 nPlayerID, ref XmlNode theInfoStruct, bool bIsAdmin,
-             bool bWithFileTypes, Int32 nCountryID, string sMinDate, string sMaxDate, string sDocStruct,
-            ref ApiObjects.MediaInfoStructObject theWSInfoStruct, Int32 nDeviceID, bool bUseStartDate, int[] nDeviceRules)
-        {
-            StringBuilder sRet = new StringBuilder("");
-            string sWSURL = string.Empty;
-            try
-            {
-        #region Search with Lucene
-                //Build 2 CondList for search tags / metaStr / metaDobule .
-                List<Lucene_WCF.SearchValue> m_dAnd = new List<Lucene_WCF.SearchValue>();
-                List<Lucene_WCF.SearchValue> m_dOr = new List<Lucene_WCF.SearchValue>();
+//#if NET452
+//        //Get Media with Lucene Search , then complite media data with ProtocolsFuncs.GetMediaTag
+//        static public string GetSearchMediaWithLucene(int nStartIndex, int nNumOfItems, int nMediaID, Int32 nGroupID, string sMediaTypeID, string sName, bool bAnd, bool bExact,
+//            string sDescription, ref XmlNodeList theMetaList, ref XmlNodeList theTagsList,
+//            string sPlaylistSchema, ref XmlDocument theDoc, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID,
+//            bool bWithInfo, bool bWithCache, Int32 nPlayerID, ref XmlNode theInfoStruct, bool bIsAdmin,
+//             bool bWithFileTypes, Int32 nCountryID, string sMinDate, string sMaxDate, string sDocStruct,
+//            ref ApiObjects.MediaInfoStructObject theWSInfoStruct, Int32 nDeviceID, bool bUseStartDate, int[] nDeviceRules)
+//        {
+//            StringBuilder sRet = new StringBuilder("");
+//            string sWSURL = string.Empty;
+//            try
+//            {
+//        #region Search with Lucene
+//                //Build 2 CondList for search tags / metaStr / metaDobule .
+//                List<Lucene_WCF.SearchValue> m_dAnd = new List<Lucene_WCF.SearchValue>();
+//                List<Lucene_WCF.SearchValue> m_dOr = new List<Lucene_WCF.SearchValue>();
 
-                if (theMetaList.Count > 0)
-                    SearchObjectMeta(m_dAnd, m_dOr, theMetaList, nGroupID, bAnd); // add Metas values to m_dAnd / m_dOr .
-                if (theTagsList.Count > 0)
-                    SearchObjectTags(m_dAnd, m_dOr, theTagsList, nGroupID, bAnd); // add Tags values to m_dAnd / m_dOr .
-                if (!string.IsNullOrEmpty(sName) || !string.IsNullOrEmpty(sDescription))
-                {
-                    SearchObjectString(m_dAnd, m_dOr, sName, sDescription, bAnd);// add name + description values to m_dAnd / m_dOr .
-                }
-        #endregion
+//                if (theMetaList.Count > 0)
+//                    SearchObjectMeta(m_dAnd, m_dOr, theMetaList, nGroupID, bAnd); // add Metas values to m_dAnd / m_dOr .
+//                if (theTagsList.Count > 0)
+//                    SearchObjectTags(m_dAnd, m_dOr, theTagsList, nGroupID, bAnd); // add Tags values to m_dAnd / m_dOr .
+//                if (!string.IsNullOrEmpty(sName) || !string.IsNullOrEmpty(sDescription))
+//                {
+//                    SearchObjectString(m_dAnd, m_dOr, sName, sDescription, bAnd);// add name + description values to m_dAnd / m_dOr .
+//                }
+//        #endregion
 
-        #region Build Lucene Search Object
-                Lucene_WCF.SearchObj searchObj = new Lucene_WCF.SearchObj();
-                searchObj.m_bUseStartDate = bUseStartDate;
-                searchObj.m_nMediaID = nMediaID;
-                searchObj.m_sMediaTypes = sMediaTypeID;
-                searchObj.m_sName = sName;
-                searchObj.m_sDescription = sDescription;
-                searchObj.m_oOrder = GetOrderValues(theDoc, nGroupID);
-                searchObj.m_nDeviceRuleId = nDeviceRules;
+//        #region Build Lucene Search Object
+//                Lucene_WCF.SearchObj searchObj = new Lucene_WCF.SearchObj();
+//                searchObj.m_bUseStartDate = bUseStartDate;
+//                searchObj.m_nMediaID = nMediaID;
+//                searchObj.m_sMediaTypes = sMediaTypeID;
+//                searchObj.m_sName = sName;
+//                searchObj.m_sDescription = sDescription;
+//                searchObj.m_oOrder = GetOrderValues(theDoc, nGroupID);
+//                searchObj.m_nDeviceRuleId = nDeviceRules;
 
-                if (m_dOr.Count > 0)
-                {
-                    searchObj.m_dOr = m_dOr.ToArray();
-                }
-                if (m_dAnd.Count > 0)
-                {
-                    searchObj.m_dAnd = m_dAnd.ToArray();
-                }
+//                if (m_dOr.Count > 0)
+//                {
+//                    searchObj.m_dOr = m_dOr.ToArray();
+//                }
+//                if (m_dAnd.Count > 0)
+//                {
+//                    searchObj.m_dAnd = m_dAnd.ToArray();
+//                }
 
-                searchObj.m_bExact = bExact;
-                if (bAnd)
-                    searchObj.m_eCutWith = Lucene_WCF.CutWith.AND;
-                else
-                    searchObj.m_eCutWith = Lucene_WCF.CutWith.OR;
-        #endregion
+//                searchObj.m_bExact = bExact;
+//                if (bAnd)
+//                    searchObj.m_eCutWith = Lucene_WCF.CutWith.AND;
+//                else
+//                    searchObj.m_eCutWith = Lucene_WCF.CutWith.OR;
+//        #endregion
 
-        #region call Lucene Search
+//        #region call Lucene Search
 
-                Lucene_WCF.Service s = new Lucene_WCF.Service();
+//                Lucene_WCF.Service s = new Lucene_WCF.Service();
 
-                sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore 
-                if (!String.IsNullOrEmpty(sWSURL))
-                    s.Url = sWSURL;
+//                sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore 
+//                if (!String.IsNullOrEmpty(sWSURL))
+//                    s.Url = sWSURL;
 
-                int[] mediaIds = null;
-                try
-                {
-                    mediaIds = s.SearchMedias(nGroupID, searchObj, nLangID, bUseStartDate);
-                    log.Info(string.Format("GetSearchMediaWithLucene:{0}, lucene:{1}, res:{2}", nGroupID, s.Url, mediaIds.Length));
-                }
-                catch (Exception ex)
-                {
-                    log.Error("", ex);
-                    mediaIds = new int[0];
-                }
+//                int[] mediaIds = null;
+//                try
+//                {
+//                    mediaIds = s.SearchMedias(nGroupID, searchObj, nLangID, bUseStartDate);
+//                    log.Info(string.Format("GetSearchMediaWithLucene:{0}, lucene:{1}, res:{2}", nGroupID, s.Url, mediaIds.Length));
+//                }
+//                catch (Exception ex)
+//                {
+//                    log.Error("", ex);
+//                    mediaIds = new int[0];
+//                }
 
-        #endregion
+//        #endregion
 
-        #region GetMediaInfo
+//        #region GetMediaInfo
 
-                if (mediaIds == null)
-                {
-                    return sRet.ToString();
-                }
+//                if (mediaIds == null)
+//                {
+//                    return sRet.ToString();
+//                }
 
-                if (mediaIds.Length > nNumOfItems + nStartIndex)
-                {
-                    nNumOfItems = nNumOfItems + nStartIndex;
-                }
-                else
-                {
-                    nNumOfItems = mediaIds.Length;
-                }
+//                if (mediaIds.Length > nNumOfItems + nStartIndex)
+//                {
+//                    nNumOfItems = nNumOfItems + nStartIndex;
+//                }
+//                else
+//                {
+//                    nNumOfItems = mediaIds.Length;
+//                }
 
-                sRet.Append("<channel id=\"\" media_count=\"").Append(mediaIds.Length).Append("\" >");
-                sRet.Append(sPlaylistSchema);
-                if (mediaIds.Length > 0)
-                {
-                    for (int i = nStartIndex; i < nNumOfItems; i++)
-                    {
-                        int nMedia = mediaIds[i];
-                        sRet.Append(ProtocolsFuncs.GetMediaTag(ref theDoc, nMedia, "media", nGroupID, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, nPlayerID, ref theInfoStruct, bIsAdmin,
-                            true, bWithFileTypes, nCountryID, nDeviceID, false, string.Empty, DateTime.MaxValue, bUseStartDate));
-                    }
-                }
-                sRet.Append("</channel>");
-        #endregion
-            }
-            catch (Exception ex)
-            {
-                log.Error("", ex);
-            }
-            return sRet.ToString();
-        }
+//                sRet.Append("<channel id=\"\" media_count=\"").Append(mediaIds.Length).Append("\" >");
+//                sRet.Append(sPlaylistSchema);
+//                if (mediaIds.Length > 0)
+//                {
+//                    for (int i = nStartIndex; i < nNumOfItems; i++)
+//                    {
+//                        int nMedia = mediaIds[i];
+//                        sRet.Append(ProtocolsFuncs.GetMediaTag(ref theDoc, nMedia, "media", nGroupID, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCache, nPlayerID, ref theInfoStruct, bIsAdmin,
+//                            true, bWithFileTypes, nCountryID, nDeviceID, false, string.Empty, DateTime.MaxValue, bUseStartDate));
+//                    }
+//                }
+//                sRet.Append("</channel>");
+//        #endregion
+//            }
+//            catch (Exception ex)
+//            {
+//                log.Error("", ex);
+//            }
+//            return sRet.ToString();
+//        }
 
 
 
-        //Fill Metas into list of And / Or conditions. - For Lucene Search
-        private static void SearchObjectMeta(List<Lucene_WCF.SearchValue> m_dAnd, List<Lucene_WCF.SearchValue> m_dOr, XmlNodeList theMetaList, int nGroupID, bool bAnd)
-        {
-            Lucene_WCF.SearchValue searchValue;
+//        //Fill Metas into list of And / Or conditions. - For Lucene Search
+//        private static void SearchObjectMeta(List<Lucene_WCF.SearchValue> m_dAnd, List<Lucene_WCF.SearchValue> m_dOr, XmlNodeList theMetaList, int nGroupID, bool bAnd)
+//        {
+//            Lucene_WCF.SearchValue searchValue;
 
-            try
-            {
-                if (theMetaList != null)
-                {
-                    for (int i = 0; i < theMetaList.Count; i++)
-                    {
-                        XmlNode theMetaName = theMetaList[i].SelectSingleNode("@name");
-                        XmlNode theMetaValue = theMetaList[i].SelectSingleNode("@value");
+//            try
+//            {
+//                if (theMetaList != null)
+//                {
+//                    for (int i = 0; i < theMetaList.Count; i++)
+//                    {
+//                        XmlNode theMetaName = theMetaList[i].SelectSingleNode("@name");
+//                        XmlNode theMetaValue = theMetaList[i].SelectSingleNode("@value");
 
-                        string sMetaName = "";
-                        string sMetaValue = "";
+//                        string sMetaName = "";
+//                        string sMetaValue = "";
 
-                        if (theMetaName != null)
-                            sMetaName = theMetaName.Value;
+//                        if (theMetaName != null)
+//                            sMetaName = theMetaName.Value;
 
-                        if (theMetaValue != null)
-                            sMetaValue = theMetaValue.Value;
+//                        if (theMetaValue != null)
+//                            sMetaValue = theMetaValue.Value;
 
-                        if (!String.IsNullOrEmpty(sMetaName) && !String.IsNullOrEmpty(sMetaValue))
-                        {
-                            searchValue = new Lucene_WCF.SearchValue();
-                            searchValue.m_sKey = sMetaName;
-                            searchValue.m_sValue = sMetaValue;
+//                        if (!String.IsNullOrEmpty(sMetaName) && !String.IsNullOrEmpty(sMetaValue))
+//                        {
+//                            searchValue = new Lucene_WCF.SearchValue();
+//                            searchValue.m_sKey = sMetaName;
+//                            searchValue.m_sValue = sMetaValue;
 
-                            if (bAnd)
-                            {
-                                m_dAnd.Add(searchValue);
-                            }
-                            else
-                            {
-                                m_dOr.Add(searchValue);
-                            }
-                        }
-                        searchValue = null;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("", ex);
-            }
-        }
+//                            if (bAnd)
+//                            {
+//                                m_dAnd.Add(searchValue);
+//                            }
+//                            else
+//                            {
+//                                m_dOr.Add(searchValue);
+//                            }
+//                        }
+//                        searchValue = null;
+//                    }
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                log.Error("", ex);
+//            }
+//        }
 
                 
 
-        //Fill tags into list of And / Or conditions. - For Lucene Search
-        private static void SearchObjectTags(List<Lucene_WCF.SearchValue> m_dAnd, List<Lucene_WCF.SearchValue> m_dOr, XmlNodeList theTagsList, int nGroupID, bool bAnd)
-        {
-            Lucene_WCF.SearchValue searchValue;
-            try
-            {
-                for (int i = 0; i < theTagsList.Count; i++)
-                {
-                    XmlNode theTagName = theTagsList[i].SelectSingleNode("@name");
-                    XmlNode theTagValue = theTagsList[i].SelectSingleNode("@value");
-                    XmlNode theTagMust = theTagsList[i].SelectSingleNode("@cut_with");
+//        //Fill tags into list of And / Or conditions. - For Lucene Search
+//        private static void SearchObjectTags(List<Lucene_WCF.SearchValue> m_dAnd, List<Lucene_WCF.SearchValue> m_dOr, XmlNodeList theTagsList, int nGroupID, bool bAnd)
+//        {
+//            Lucene_WCF.SearchValue searchValue;
+//            try
+//            {
+//                for (int i = 0; i < theTagsList.Count; i++)
+//                {
+//                    XmlNode theTagName = theTagsList[i].SelectSingleNode("@name");
+//                    XmlNode theTagValue = theTagsList[i].SelectSingleNode("@value");
+//                    XmlNode theTagMust = theTagsList[i].SelectSingleNode("@cut_with");
 
-                    string sTagName = "";
-                    string sTagValue = "";
-                    bool bTagMust = bAnd;
+//                    string sTagName = "";
+//                    string sTagValue = "";
+//                    bool bTagMust = bAnd;
 
-                    if (theTagName != null)
-                        sTagName = theTagName.Value;
-                    if (theTagValue != null)
-                        sTagValue = theTagValue.Value;
+//                    if (theTagName != null)
+//                        sTagName = theTagName.Value;
+//                    if (theTagValue != null)
+//                        sTagValue = theTagValue.Value;
 
-                    if (theTagMust != null && theTagMust.Value.ToLower().Equals("and"))
-                        bTagMust = true;
+//                    if (theTagMust != null && theTagMust.Value.ToLower().Equals("and"))
+//                        bTagMust = true;
 
-                    if (!String.IsNullOrEmpty(sTagName) && !String.IsNullOrEmpty(sTagValue))
-                    {
-                        searchValue = new Lucene_WCF.SearchValue();
-                        searchValue.m_sKey = sTagName;
-                        searchValue.m_sValue = sTagValue;
+//                    if (!String.IsNullOrEmpty(sTagName) && !String.IsNullOrEmpty(sTagValue))
+//                    {
+//                        searchValue = new Lucene_WCF.SearchValue();
+//                        searchValue.m_sKey = sTagName;
+//                        searchValue.m_sValue = sTagValue;
 
-                        if (bTagMust)  //Only on "and" parameter
-                        {
-                            m_dAnd.Add(searchValue);
-                        }
-                        else
-                        {
-                            m_dOr.Add(searchValue);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("", ex);
-            }
-        }
+//                        if (bTagMust)  //Only on "and" parameter
+//                        {
+//                            m_dAnd.Add(searchValue);
+//                        }
+//                        else
+//                        {
+//                            m_dOr.Add(searchValue);
+//                        }
+//                    }
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                log.Error("", ex);
+//            }
+//        }
 
-        private static void SearchObjectString(List<Lucene_WCF.SearchValue> m_dAnd, List<Lucene_WCF.SearchValue> m_dOr, string sName, string sDescription, bool bAnd)
-        {
-            Lucene_WCF.SearchValue searchValue;
-            try
-            {
-                if (!String.IsNullOrEmpty(sName))
-                {
-                    searchValue = new Lucene_WCF.SearchValue();
-                    searchValue.m_sKey = "name";
-                    searchValue.m_sValue = sName;
-                    if (bAnd)
-                    {
-                        m_dAnd.Add(searchValue);
-                    }
-                    else
-                    {
-                        m_dOr.Add(searchValue);
-                    }
-                }
-                if (!String.IsNullOrEmpty(sDescription))
-                {
-                    searchValue = new Lucene_WCF.SearchValue();
-                    searchValue.m_sKey = "description";
-                    searchValue.m_sValue = sDescription;
-                    if (bAnd)
-                    {
-                        m_dAnd.Add(searchValue);
-                    }
-                    else
-                    {
-                        m_dOr.Add(searchValue);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("SearchObjectString", ex);
-            }
-        }
+//        private static void SearchObjectString(List<Lucene_WCF.SearchValue> m_dAnd, List<Lucene_WCF.SearchValue> m_dOr, string sName, string sDescription, bool bAnd)
+//        {
+//            Lucene_WCF.SearchValue searchValue;
+//            try
+//            {
+//                if (!String.IsNullOrEmpty(sName))
+//                {
+//                    searchValue = new Lucene_WCF.SearchValue();
+//                    searchValue.m_sKey = "name";
+//                    searchValue.m_sValue = sName;
+//                    if (bAnd)
+//                    {
+//                        m_dAnd.Add(searchValue);
+//                    }
+//                    else
+//                    {
+//                        m_dOr.Add(searchValue);
+//                    }
+//                }
+//                if (!String.IsNullOrEmpty(sDescription))
+//                {
+//                    searchValue = new Lucene_WCF.SearchValue();
+//                    searchValue.m_sKey = "description";
+//                    searchValue.m_sValue = sDescription;
+//                    if (bAnd)
+//                    {
+//                        m_dAnd.Add(searchValue);
+//                    }
+//                    else
+//                    {
+//                        m_dOr.Add(searchValue);
+//                    }
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                log.Error("SearchObjectString", ex);
+//            }
+//        }
 
-        /*
-        private static void GetOrderValues(ref Lucene_WCF.OrderBy eOrderBy, ref Lucene_WCF.OrderDir eOrderDir, XmlDocument theDoc, int nGroupID)
-        {
-            try
-            {
-                string sOrderDir = String.Empty;
+//        /*
+//        private static void GetOrderValues(ref Lucene_WCF.OrderBy eOrderBy, ref Lucene_WCF.OrderDir eOrderDir, XmlDocument theDoc, int nGroupID)
+//        {
+//            try
+//            {
+//                string sOrderDir = String.Empty;
 
-        #region name
-                XmlNode theOrderNameDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/name/@order_dir");
-                if (theOrderNameDir != null)
-                {
-                    sOrderDir = theOrderNameDir.Value;
+//        #region name
+//                XmlNode theOrderNameDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/name/@order_dir");
+//                if (theOrderNameDir != null)
+//                {
+//                    sOrderDir = theOrderNameDir.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        eOrderBy = Lucene_WCF.OrderBy.NAME;
-                    }
-                }
-        #endregion
-        #region description
-                XmlNode theOrderDescDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/description/@order_dir");
-                if (theOrderDescDir != null)
-                {
-                    sOrderDir = theOrderDescDir.Value;
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        eOrderBy = Lucene_WCF.OrderBy.NAME;
+//                    }
+//                }
+//        #endregion
+//        #region description
+//                XmlNode theOrderDescDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/description/@order_dir");
+//                if (theOrderDescDir != null)
+//                {
+//                    sOrderDir = theOrderDescDir.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        //eOrderBy = Lucene_WCF.OrderBy.; TODO !!!!!!!!!
-                    }
-                }
-        #endregion
-        #region date = startDate
-                XmlNode theOrderDateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/date/@order_dir");
-                if (theOrderDateDir != null)
-                {
-                    sOrderDir = theOrderDateDir.Value;
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        //eOrderBy = Lucene_WCF.OrderBy.; TODO !!!!!!!!!
+//                    }
+//                }
+//        #endregion
+//        #region date = startDate
+//                XmlNode theOrderDateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/date/@order_dir");
+//                if (theOrderDateDir != null)
+//                {
+//                    sOrderDir = theOrderDateDir.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        eOrderBy = Lucene_WCF.OrderBy.START_DATE;
-                    }
-                }
-        #endregion
-        #region views
-                XmlNode theOrderViewsDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/views/@order_dir");
-                if (theOrderViewsDir != null)
-                {
-                    sOrderDir = theOrderViewsDir.Value;
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        eOrderBy = Lucene_WCF.OrderBy.START_DATE;
+//                    }
+//                }
+//        #endregion
+//        #region views
+//                XmlNode theOrderViewsDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/views/@order_dir");
+//                if (theOrderViewsDir != null)
+//                {
+//                    sOrderDir = theOrderViewsDir.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        eOrderBy = Lucene_WCF.OrderBy.VIEWS;
-                    }
-                }
-        #endregion
-        #region rate
-                XmlNode theOrderRateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/rate/@order_dir");
-                if (theOrderRateDir != null)
-                {
-                    sOrderDir = theOrderRateDir.Value;
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        eOrderBy = Lucene_WCF.OrderBy.VIEWS;
+//                    }
+//                }
+//        #endregion
+//        #region rate
+//                XmlNode theOrderRateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/rate/@order_dir");
+//                if (theOrderRateDir != null)
+//                {
+//                    sOrderDir = theOrderRateDir.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        eOrderBy = Lucene_WCF.OrderBy.VOTES_COUNT;
-                    }
-                }
-        #endregion
-        #region id
-                XmlNode theIdDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/id/@order_dir");
-                if (theIdDir != null)
-                {
-                    sOrderDir = theIdDir.Value;
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        eOrderBy = Lucene_WCF.OrderBy.VOTES_COUNT;
+//                    }
+//                }
+//        #endregion
+//        #region id
+//                XmlNode theIdDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/id/@order_dir");
+//                if (theIdDir != null)
+//                {
+//                    sOrderDir = theIdDir.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        eOrderBy = Lucene_WCF.OrderBy.ID;
-                    }
-                }
-        #endregion
-        #region like_counter
-                XmlNode theLikeCounterDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/like_counter/@order_dir");
-                if (theLikeCounterDir != null)
-                {
-                    sOrderDir = theLikeCounterDir.Value;
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        eOrderBy = Lucene_WCF.OrderBy.ID;
+//                    }
+//                }
+//        #endregion
+//        #region like_counter
+//                XmlNode theLikeCounterDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/like_counter/@order_dir");
+//                if (theLikeCounterDir != null)
+//                {
+//                    sOrderDir = theLikeCounterDir.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        eOrderBy = Lucene_WCF.OrderBy.LIKE_COUNTER;
-                    }
-                }
-        #endregion
-        #region votes_count
-                XmlNode theVotesCountDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/votes_count/@order_dir");
-                if (theVotesCountDir != null)
-                {
-                    sOrderDir = theVotesCountDir.Value;
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        eOrderBy = Lucene_WCF.OrderBy.LIKE_COUNTER;
+//                    }
+//                }
+//        #endregion
+//        #region votes_count
+//                XmlNode theVotesCountDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/votes_count/@order_dir");
+//                if (theVotesCountDir != null)
+//                {
+//                    sOrderDir = theVotesCountDir.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        eOrderBy = Lucene_WCF.OrderBy.VOTES_COUNT;
-                    }
-                }
-        #endregion
-        #region date = createDate
-                XmlNode theCreateDateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/create_date/@order_dir");
-                if (theCreateDateDir != null)
-                {
-                    sOrderDir = theCreateDateDir.Value;
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        eOrderBy = Lucene_WCF.OrderBy.VOTES_COUNT;
+//                    }
+//                }
+//        #endregion
+//        #region date = createDate
+//                XmlNode theCreateDateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/create_date/@order_dir");
+//                if (theCreateDateDir != null)
+//                {
+//                    sOrderDir = theCreateDateDir.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        eOrderBy = Lucene_WCF.OrderBy.CREATE_DATE;
-                    }
-                }
-        #endregion
-
-
-                XmlNodeList theOrderMetaList = theDoc.SelectNodes("/root/request/search_data/order_values/meta");
-                IEnumerator iterMeta = theOrderMetaList.GetEnumerator();
-
-                while (iterMeta.MoveNext())
-                {
-
-                    XmlNode theMeta = (XmlNode)(iterMeta.Current);
-
-                    XmlNode theOrderMetaDir = theMeta.SelectSingleNode("@order_dir");
-                    XmlNode theOrderMetaName = theMeta.SelectSingleNode("@name");
-
-                    string sOrderMetaDir = "";
-                    string sOrderMetaName = "";
-                    if (theOrderMetaDir != null)
-                        sOrderMetaDir = theOrderMetaDir.Value;
-                    if (theOrderMetaName != null)
-                        sOrderMetaName = theOrderMetaName.Value;
-
-                    if (!string.IsNullOrEmpty(sOrderMetaDir))
-                    {
-                        sOrderDir = sOrderMetaDir;
-                    }
-
-                    if (sOrderMetaName != "")
-                    {
-                        Int32 nStrID = PageUtils.GetStringMetaIDByMetaName(nGroupID, sOrderMetaName);
-                        if (nStrID == 0)
-                        {
-                            nStrID = PageUtils.GetDoubleMetaIDByMetaName(nGroupID, sOrderMetaName);
-                            if (nStrID != 0)
-                                nStrID += 20; // Add 20 Becouse the values of Lucene_WCF.OrderBy Doubles values are 21-30
-                        }
-
-                        switch (nStrID)
-                        {
-                            case 0:
-                                break;
-                            case 1:
-                                eOrderBy = Lucene_WCF.OrderBy.META1_STR;
-                                break;
-                            case 2:
-                                eOrderBy = Lucene_WCF.OrderBy.META2_STR;
-                                break;
-                            case 3:
-                                eOrderBy = Lucene_WCF.OrderBy.META3_STR;
-                                break;
-                            case 4:
-                                eOrderBy = Lucene_WCF.OrderBy.META4_STR;
-                                break;
-                            case 5:
-                                eOrderBy = Lucene_WCF.OrderBy.META5_STR;
-                                break;
-                            case 6:
-                                eOrderBy = Lucene_WCF.OrderBy.META6_STR;
-                                break;
-                            case 7:
-                                eOrderBy = Lucene_WCF.OrderBy.META7_STR;
-                                break;
-                            case 8:
-                                eOrderBy = Lucene_WCF.OrderBy.META8_STR;
-                                break;
-                            case 9:
-                                eOrderBy = Lucene_WCF.OrderBy.META9_STR;
-                                break;
-                            case 10:
-                                eOrderBy = Lucene_WCF.OrderBy.META10_STR;
-                                break;
-                            case 11:
-                                eOrderBy = Lucene_WCF.OrderBy.META11_STR;
-                                break;
-                            case 12:
-                                eOrderBy = Lucene_WCF.OrderBy.META12_STR;
-                                break;
-                            case 13:
-                                eOrderBy = Lucene_WCF.OrderBy.META13_STR;
-                                break;
-                            case 14:
-                                eOrderBy = Lucene_WCF.OrderBy.META14_STR;
-                                break;
-                            case 15:
-                                eOrderBy = Lucene_WCF.OrderBy.META15_STR;
-                                break;
-                            case 16:
-                                eOrderBy = Lucene_WCF.OrderBy.META16_STR;
-                                break;
-                            case 17:
-                                eOrderBy = Lucene_WCF.OrderBy.META17_STR;
-                                break;
-                            case 18:
-                                eOrderBy = Lucene_WCF.OrderBy.META18_STR;
-                                break;
-                            case 19:
-                                eOrderBy = Lucene_WCF.OrderBy.META19_STR;
-                                break;
-                            case 20:
-                                eOrderBy = Lucene_WCF.OrderBy.META20_STR;
-                                break;
-                            case 21:
-                                eOrderBy = Lucene_WCF.OrderBy.META1_DOUBLE;
-                                break;
-                            case 22:
-                                eOrderBy = Lucene_WCF.OrderBy.META2_DOUBLE;
-                                break;
-                            case 23:
-                                eOrderBy = Lucene_WCF.OrderBy.META3_DOUBLE;
-                                break;
-                            case 24:
-                                eOrderBy = Lucene_WCF.OrderBy.META4_DOUBLE;
-                                break;
-                            case 25:
-                                eOrderBy = Lucene_WCF.OrderBy.META5_DOUBLE;
-                                break;
-                            case 26:
-                                eOrderBy = Lucene_WCF.OrderBy.META6_DOUBLE;
-                                break;
-                            case 27:
-                                eOrderBy = Lucene_WCF.OrderBy.META7_DOUBLE;
-                                break;
-                            case 28:
-                                eOrderBy = Lucene_WCF.OrderBy.META8_DOUBLE;
-                                break;
-                            case 29:
-                                eOrderBy = Lucene_WCF.OrderBy.META9_DOUBLE;
-                                break;
-                            case 30:
-                                eOrderBy = Lucene_WCF.OrderBy.META10_DOUBLE;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        eOrderBy = Lucene_WCF.OrderBy.CREATE_DATE;
+//                    }
+//                }
+//        #endregion
 
 
-                //Set OrderDir with value
-                if (!string.IsNullOrEmpty(sOrderDir))
-                {
-                    if (sOrderDir.ToLower() == "asc")
-                    {
-                        eOrderDir = Lucene_WCF.OrderDir.ASC;
-                    }
-                    else
-                    {
-                        eOrderDir = Lucene_WCF.OrderDir.DESC;
-                    }
-                }
+//                XmlNodeList theOrderMetaList = theDoc.SelectNodes("/root/request/search_data/order_values/meta");
+//                IEnumerator iterMeta = theOrderMetaList.GetEnumerator();
 
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message, ex);
-            }
-        }
-        */
+//                while (iterMeta.MoveNext())
+//                {
 
-        private static Lucene_WCF.OrderObj GetOrderValues(XmlDocument theDoc, int nGroupID)
-        {
-            Lucene_WCF.OrderObj oOrderObj = new Lucene_WCF.OrderObj();
-            oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.CREATE_DATE;
-            oOrderObj.m_eOrderDir = Lucene_WCF.OrderDir.DESC;
-            try
-            {
+//                    XmlNode theMeta = (XmlNode)(iterMeta.Current);
 
-                string sOrderDir = String.Empty;
+//                    XmlNode theOrderMetaDir = theMeta.SelectSingleNode("@order_dir");
+//                    XmlNode theOrderMetaName = theMeta.SelectSingleNode("@name");
 
-        #region name
-                XmlNode theOrderNameDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/name/@order_dir");
-                if (theOrderNameDir != null)
-                {
-                    sOrderDir = theOrderNameDir.Value;
+//                    string sOrderMetaDir = "";
+//                    string sOrderMetaName = "";
+//                    if (theOrderMetaDir != null)
+//                        sOrderMetaDir = theOrderMetaDir.Value;
+//                    if (theOrderMetaName != null)
+//                        sOrderMetaName = theOrderMetaName.Value;
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.NAME;
-                    }
-                }
-        #endregion
-        #region description
-                XmlNode theOrderDescDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/description/@order_dir");
-                if (theOrderDescDir != null)
-                {
-                    sOrderDir = theOrderDescDir.Value;
+//                    if (!string.IsNullOrEmpty(sOrderMetaDir))
+//                    {
+//                        sOrderDir = sOrderMetaDir;
+//                    }
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        //eOrderBy = Lucene_WCF.OrderBy.; TODO !!!!!!!!!
-                    }
-                }
-        #endregion
-        #region date = startDate
-                XmlNode theOrderDateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/date/@order_dir");
-                if (theOrderDateDir != null)
-                {
-                    sOrderDir = theOrderDateDir.Value;
+//                    if (sOrderMetaName != "")
+//                    {
+//                        Int32 nStrID = PageUtils.GetStringMetaIDByMetaName(nGroupID, sOrderMetaName);
+//                        if (nStrID == 0)
+//                        {
+//                            nStrID = PageUtils.GetDoubleMetaIDByMetaName(nGroupID, sOrderMetaName);
+//                            if (nStrID != 0)
+//                                nStrID += 20; // Add 20 Becouse the values of Lucene_WCF.OrderBy Doubles values are 21-30
+//                        }
 
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.START_DATE;
-                    }
-                }
-        #endregion
-        #region views
-                XmlNode theOrderViewsDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/views/@order_dir");
-                if (theOrderViewsDir != null)
-                {
-                    sOrderDir = theOrderViewsDir.Value;
-
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.VIEWS;
-                    }
-                }
-        #endregion
-        #region rate
-                XmlNode theOrderRateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/rate/@order_dir");
-                if (theOrderRateDir != null)
-                {
-                    sOrderDir = theOrderRateDir.Value;
-
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.RATING;
-                    }
-                }
-        #endregion
-        #region id
-                XmlNode theIdDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/id/@order_dir");
-                if (theIdDir != null)
-                {
-                    sOrderDir = theIdDir.Value;
-
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.ID;
-                    }
-                }
-        #endregion
-        #region like_counter
-                XmlNode theLikeCounterDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/like_counter/@order_dir");
-                if (theLikeCounterDir != null)
-                {
-                    sOrderDir = theLikeCounterDir.Value;
-
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.LIKE_COUNTER;
-                    }
-                }
-        #endregion
-        #region votes_count
-                XmlNode theVotesCountDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/votes_count/@order_dir");
-                if (theVotesCountDir != null)
-                {
-                    sOrderDir = theVotesCountDir.Value;
-
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.VOTES_COUNT;
-                        ;
-                    }
-                }
-        #endregion
-        #region date = createDate
-                XmlNode theCreateDateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/create_date/@order_dir");
-                if (theCreateDateDir != null)
-                {
-                    sOrderDir = theCreateDateDir.Value;
-
-                    if (!String.IsNullOrEmpty(sOrderDir))
-                    {
-                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.CREATE_DATE;
-                    }
-                }
-        #endregion
-
-                XmlNodeList theOrderMetaList = theDoc.SelectNodes("/root/request/search_data/order_values/meta");
-                IEnumerator iterMeta = theOrderMetaList.GetEnumerator();
-
-                while (iterMeta.MoveNext())
-                {
-
-                    XmlNode theMeta = (XmlNode)(iterMeta.Current);
-
-                    XmlNode theOrderMetaDir = theMeta.SelectSingleNode("@order_dir");
-                    XmlNode theOrderMetaName = theMeta.SelectSingleNode("@name");
-
-                    string sOrderMetaDir = "";
-                    string sOrderMetaName = "";
-                    if (theOrderMetaDir != null)
-                        sOrderMetaDir = theOrderMetaDir.Value;
-                    if (theOrderMetaName != null)
-                        sOrderMetaName = theOrderMetaName.Value;
-
-                    if (!string.IsNullOrEmpty(sOrderMetaDir))
-                    {
-                        sOrderDir = sOrderMetaDir;
-                    }
-
-                    if (sOrderMetaName != "")
-                    {
-                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.META;
-                        oOrderObj.m_sOrderVal = sOrderMetaName;
-                    }
-                }
+//                        switch (nStrID)
+//                        {
+//                            case 0:
+//                                break;
+//                            case 1:
+//                                eOrderBy = Lucene_WCF.OrderBy.META1_STR;
+//                                break;
+//                            case 2:
+//                                eOrderBy = Lucene_WCF.OrderBy.META2_STR;
+//                                break;
+//                            case 3:
+//                                eOrderBy = Lucene_WCF.OrderBy.META3_STR;
+//                                break;
+//                            case 4:
+//                                eOrderBy = Lucene_WCF.OrderBy.META4_STR;
+//                                break;
+//                            case 5:
+//                                eOrderBy = Lucene_WCF.OrderBy.META5_STR;
+//                                break;
+//                            case 6:
+//                                eOrderBy = Lucene_WCF.OrderBy.META6_STR;
+//                                break;
+//                            case 7:
+//                                eOrderBy = Lucene_WCF.OrderBy.META7_STR;
+//                                break;
+//                            case 8:
+//                                eOrderBy = Lucene_WCF.OrderBy.META8_STR;
+//                                break;
+//                            case 9:
+//                                eOrderBy = Lucene_WCF.OrderBy.META9_STR;
+//                                break;
+//                            case 10:
+//                                eOrderBy = Lucene_WCF.OrderBy.META10_STR;
+//                                break;
+//                            case 11:
+//                                eOrderBy = Lucene_WCF.OrderBy.META11_STR;
+//                                break;
+//                            case 12:
+//                                eOrderBy = Lucene_WCF.OrderBy.META12_STR;
+//                                break;
+//                            case 13:
+//                                eOrderBy = Lucene_WCF.OrderBy.META13_STR;
+//                                break;
+//                            case 14:
+//                                eOrderBy = Lucene_WCF.OrderBy.META14_STR;
+//                                break;
+//                            case 15:
+//                                eOrderBy = Lucene_WCF.OrderBy.META15_STR;
+//                                break;
+//                            case 16:
+//                                eOrderBy = Lucene_WCF.OrderBy.META16_STR;
+//                                break;
+//                            case 17:
+//                                eOrderBy = Lucene_WCF.OrderBy.META17_STR;
+//                                break;
+//                            case 18:
+//                                eOrderBy = Lucene_WCF.OrderBy.META18_STR;
+//                                break;
+//                            case 19:
+//                                eOrderBy = Lucene_WCF.OrderBy.META19_STR;
+//                                break;
+//                            case 20:
+//                                eOrderBy = Lucene_WCF.OrderBy.META20_STR;
+//                                break;
+//                            case 21:
+//                                eOrderBy = Lucene_WCF.OrderBy.META1_DOUBLE;
+//                                break;
+//                            case 22:
+//                                eOrderBy = Lucene_WCF.OrderBy.META2_DOUBLE;
+//                                break;
+//                            case 23:
+//                                eOrderBy = Lucene_WCF.OrderBy.META3_DOUBLE;
+//                                break;
+//                            case 24:
+//                                eOrderBy = Lucene_WCF.OrderBy.META4_DOUBLE;
+//                                break;
+//                            case 25:
+//                                eOrderBy = Lucene_WCF.OrderBy.META5_DOUBLE;
+//                                break;
+//                            case 26:
+//                                eOrderBy = Lucene_WCF.OrderBy.META6_DOUBLE;
+//                                break;
+//                            case 27:
+//                                eOrderBy = Lucene_WCF.OrderBy.META7_DOUBLE;
+//                                break;
+//                            case 28:
+//                                eOrderBy = Lucene_WCF.OrderBy.META8_DOUBLE;
+//                                break;
+//                            case 29:
+//                                eOrderBy = Lucene_WCF.OrderBy.META9_DOUBLE;
+//                                break;
+//                            case 30:
+//                                eOrderBy = Lucene_WCF.OrderBy.META10_DOUBLE;
+//                                break;
+//                            default:
+//                                break;
+//                        }
+//                    }
+//                }
 
 
-                //Set OrderDir with value
-                if (!string.IsNullOrEmpty(sOrderDir))
-                {
-                    if (sOrderDir.ToLower() == "asc")
-                    {
-                        oOrderObj.m_eOrderDir = Lucene_WCF.OrderDir.ASC;
-                    }
-                    else
-                    {
-                        oOrderObj.m_eOrderDir = Lucene_WCF.OrderDir.DESC;
-                    }
-                }
+//                //Set OrderDir with value
+//                if (!string.IsNullOrEmpty(sOrderDir))
+//                {
+//                    if (sOrderDir.ToLower() == "asc")
+//                    {
+//                        eOrderDir = Lucene_WCF.OrderDir.ASC;
+//                    }
+//                    else
+//                    {
+//                        eOrderDir = Lucene_WCF.OrderDir.DESC;
+//                    }
+//                }
+
+//            }
+//            catch (Exception ex)
+//            {
+//                log.Error(ex.Message, ex);
+//            }
+//        }
+//        */
+
+//        private static Lucene_WCF.OrderObj GetOrderValues(XmlDocument theDoc, int nGroupID)
+//        {
+//            Lucene_WCF.OrderObj oOrderObj = new Lucene_WCF.OrderObj();
+//            oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.CREATE_DATE;
+//            oOrderObj.m_eOrderDir = Lucene_WCF.OrderDir.DESC;
+//            try
+//            {
+
+//                string sOrderDir = String.Empty;
+
+//        #region name
+//                XmlNode theOrderNameDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/name/@order_dir");
+//                if (theOrderNameDir != null)
+//                {
+//                    sOrderDir = theOrderNameDir.Value;
+
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.NAME;
+//                    }
+//                }
+//        #endregion
+//        #region description
+//                XmlNode theOrderDescDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/description/@order_dir");
+//                if (theOrderDescDir != null)
+//                {
+//                    sOrderDir = theOrderDescDir.Value;
+
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        //eOrderBy = Lucene_WCF.OrderBy.; TODO !!!!!!!!!
+//                    }
+//                }
+//        #endregion
+//        #region date = startDate
+//                XmlNode theOrderDateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/date/@order_dir");
+//                if (theOrderDateDir != null)
+//                {
+//                    sOrderDir = theOrderDateDir.Value;
+
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.START_DATE;
+//                    }
+//                }
+//        #endregion
+//        #region views
+//                XmlNode theOrderViewsDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/views/@order_dir");
+//                if (theOrderViewsDir != null)
+//                {
+//                    sOrderDir = theOrderViewsDir.Value;
+
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.VIEWS;
+//                    }
+//                }
+//        #endregion
+//        #region rate
+//                XmlNode theOrderRateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/rate/@order_dir");
+//                if (theOrderRateDir != null)
+//                {
+//                    sOrderDir = theOrderRateDir.Value;
+
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.RATING;
+//                    }
+//                }
+//        #endregion
+//        #region id
+//                XmlNode theIdDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/id/@order_dir");
+//                if (theIdDir != null)
+//                {
+//                    sOrderDir = theIdDir.Value;
+
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.ID;
+//                    }
+//                }
+//        #endregion
+//        #region like_counter
+//                XmlNode theLikeCounterDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/like_counter/@order_dir");
+//                if (theLikeCounterDir != null)
+//                {
+//                    sOrderDir = theLikeCounterDir.Value;
+
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.LIKE_COUNTER;
+//                    }
+//                }
+//        #endregion
+//        #region votes_count
+//                XmlNode theVotesCountDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/votes_count/@order_dir");
+//                if (theVotesCountDir != null)
+//                {
+//                    sOrderDir = theVotesCountDir.Value;
+
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.VOTES_COUNT;
+//                        ;
+//                    }
+//                }
+//        #endregion
+//        #region date = createDate
+//                XmlNode theCreateDateDir = theDoc.SelectSingleNode("/root/request/search_data/order_values/create_date/@order_dir");
+//                if (theCreateDateDir != null)
+//                {
+//                    sOrderDir = theCreateDateDir.Value;
+
+//                    if (!String.IsNullOrEmpty(sOrderDir))
+//                    {
+//                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.CREATE_DATE;
+//                    }
+//                }
+//        #endregion
+
+//                XmlNodeList theOrderMetaList = theDoc.SelectNodes("/root/request/search_data/order_values/meta");
+//                IEnumerator iterMeta = theOrderMetaList.GetEnumerator();
+
+//                while (iterMeta.MoveNext())
+//                {
+
+//                    XmlNode theMeta = (XmlNode)(iterMeta.Current);
+
+//                    XmlNode theOrderMetaDir = theMeta.SelectSingleNode("@order_dir");
+//                    XmlNode theOrderMetaName = theMeta.SelectSingleNode("@name");
+
+//                    string sOrderMetaDir = "";
+//                    string sOrderMetaName = "";
+//                    if (theOrderMetaDir != null)
+//                        sOrderMetaDir = theOrderMetaDir.Value;
+//                    if (theOrderMetaName != null)
+//                        sOrderMetaName = theOrderMetaName.Value;
+
+//                    if (!string.IsNullOrEmpty(sOrderMetaDir))
+//                    {
+//                        sOrderDir = sOrderMetaDir;
+//                    }
+
+//                    if (sOrderMetaName != "")
+//                    {
+//                        oOrderObj.m_eOrderBy = Lucene_WCF.OrderBy.META;
+//                        oOrderObj.m_sOrderVal = sOrderMetaName;
+//                    }
+//                }
 
 
-            }
-            catch (Exception ex)
-            {
-                log.Error("", ex);
-            }
+//                //Set OrderDir with value
+//                if (!string.IsNullOrEmpty(sOrderDir))
+//                {
+//                    if (sOrderDir.ToLower() == "asc")
+//                    {
+//                        oOrderObj.m_eOrderDir = Lucene_WCF.OrderDir.ASC;
+//                    }
+//                    else
+//                    {
+//                        oOrderObj.m_eOrderDir = Lucene_WCF.OrderDir.DESC;
+//                    }
+//                }
 
-            return oOrderObj;
-        }
-#endif
+
+//            }
+//            catch (Exception ex)
+//            {
+//                log.Error("", ex);
+//            }
+
+//            return oOrderObj;
+//        }
+//#endif
     }
 }
