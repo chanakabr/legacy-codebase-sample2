@@ -104,6 +104,8 @@ namespace GroupsCacheManager
         [DataMember]
         public long? AssetUserRuleId { get; set; }
 
+        public bool HasMetadata { get; set; }
+
         /// <summary>
         /// key value pairs
         /// </summary>

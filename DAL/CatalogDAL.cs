@@ -5351,7 +5351,7 @@ namespace Tvinci.Core.DAL
         public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int? isActive, int orderBy, int orderByDir, string orderByValue, int? isSlidingWindow,
                                             int? slidingWindowPeriod, int channelType, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages,
                                             List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId,
-                                            bool supportSegmentBasedOrdering, long? assetUserRuleId)
+                                            bool supportSegmentBasedOrdering, long? assetUserRuleId, bool hasMetadata)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5379,6 +5379,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@UpdaterID", userId);
             sp.AddParameter("@supportSegmentBasedOrdering", supportSegmentBasedOrdering);
             sp.AddParameter("@assetRuleId", assetUserRuleId);
+            sp.AddParameter("@hasMetadata", hasMetadata);
 
             return sp.ExecuteDataSet();
         }
@@ -5388,7 +5389,7 @@ namespace Tvinci.Core.DAL
             int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy,
             List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
             List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering,
-            long? assetUserRuleId, int assetTypesValuesInd, int? channelType = null)
+            long? assetUserRuleId, int assetTypesValuesInd, bool? hasMetadata, int? channelType = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5417,6 +5418,11 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@supportSegmentBasedOrdering", supportSegmentBasedOrdering);
             sp.AddParameter("@ChannelType", channelType);
             sp.AddParameter("@AssetRuleId", assetUserRuleId);
+
+            if (hasMetadata.HasValue)
+            {
+                sp.AddParameter("@hasMetadata", hasMetadata.Value);
+            }
 
             return sp.ExecuteDataSet();
         }
