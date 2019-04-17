@@ -104,7 +104,7 @@ namespace IngestHandler
                 DateTime minStartDate = programsToIngest.Min(program => program.StartDate);
                 DateTime maxEndDate = programsToIngest.Max(program => program.EndDate);
 
-                var currentPrograms = GetProgramsByDate(groupId, minStartDate, maxEndDate);
+                var currentPrograms = GetCurrentProgramsByDate(groupId, minStartDate, maxEndDate);
 
                 CalculateCRUDOperations(groupId, currentPrograms, programsToIngest);
             }
@@ -118,13 +118,41 @@ namespace IngestHandler
             throw new NotImplementedException();
         }
 
-        private List<EpgCB> GetProgramsByDate(int groupId, DateTime minStartDate, DateTime maxEndDate)
+        private List<EpgCB> GetCurrentProgramsByDate(int groupId, DateTime minStartDate, DateTime maxEndDate)
         {
             List<EpgCB> result = new List<EpgCB>();
             string index = GetProgramIndexAlias(groupId);
+
+            // if index does not exist - then we have a fresh start, we have 0 programs currently
+            if (!elasticSearchClient.IndexExists(index))
+            {
+                return result;
+            }
+
             string type = DEFAULT_INDEX_TYPE;
 
             FilteredQuery query = new FilteredQuery(true);
+
+            ESRange minimumRange = new ESRange(false)
+            {
+                Key = "end_date"
+            };
+            minimumRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minStartDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT)));
+
+            ESRange maximumRange = new ESRange(false)
+            {
+                Key = "start_date"
+            };
+            maximumRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maxEndDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT)));
+
+            FilterCompositeType filterCompositeType = new FilterCompositeType(ApiObjects.SearchObjects.CutWith.AND);
+            filterCompositeType.AddChild(minimumRange);
+            filterCompositeType.AddChild(maximumRange);
+
+            query.Filter = new QueryFilter()
+            {
+                FilterSettings = filterCompositeType
+            };
 
             string searchQuery = query.ToString();
             var searchResult = elasticSearchClient.Search(index, type, ref searchQuery);
