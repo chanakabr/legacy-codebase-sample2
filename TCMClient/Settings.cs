@@ -196,7 +196,7 @@ namespace TCMClient
                 HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(tcmRequesturl);
                 httpWebRequest.Method = "GET";
                 httpWebRequest.ContentType = "application/json";
-                httpWebRequest.Timeout = 5000;
+                httpWebRequest.Timeout = 10000;
 
                 httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
                 _Logger.Info($"TCM Response Status ({httpWebResponse.StatusCode}) [{httpWebResponse.StatusDescription}]");
@@ -213,8 +213,9 @@ namespace TCMClient
                     sw.Write(settings);
                 }
             }
-            catch
+            catch (Exception e)
             {
+                _Logger.Error($"Error while trying to get TCM data", e);
             }
             finally
             {
