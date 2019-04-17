@@ -140,7 +140,15 @@ namespace Core.Catalog
                     {
                         var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, innerChannel.ChannelId, prog, lang.Code, defaultLanguage.Code);
                         newEpgAssetResult.BulkUploadId = bulkUploadId;
-                        newEpgAssetResult.Status = BulkUploadResultStatus.InProgress;
+                        if (newEpgAssetResult.Errors.Any())
+                        {
+                            newEpgAssetResult.Status = BulkUploadResultStatus.Error;
+                        }
+                        else
+                        {
+                            newEpgAssetResult.Status = BulkUploadResultStatus.InProgress;
+                        }
+
                         newEpgAssetResult.Index = programIndex++;
                         newEpgAssetResult.LiveAssetExternalId = innerChannel.ChannelExternalId;
                         newEpgAssetResult.LiveAssetId = innerChannel.ChannelId;

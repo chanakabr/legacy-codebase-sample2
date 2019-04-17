@@ -27,6 +27,8 @@ namespace EventBus.RabbitMQ
 
     public static class KalturaEventBusRabbitMQConsumerServiceExtensions
     {
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static readonly Assembly _EntryAssembly = Assembly.GetEntryAssembly();
         private static readonly Type[] _EntryAssemblyTypes = _EntryAssembly.GetTypes();
         private static readonly List<Type> _AllServiceHandlers = _EntryAssemblyTypes.Where(IsTypeImplementsIServiceHandler).ToList();
@@ -59,10 +61,42 @@ namespace EventBus.RabbitMQ
 
                 services.AddSingleton<IRabbitMQPersistentConnection>(RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration());
                 ConfigureRabbitMQEventBus(services, configuration, _AllServiceHandlers);
+                var isHealthy = HealthCheck(services);
+                if (!isHealthy) { throw new Exception("Health check returned errors, service will not start"); }
+
                 services.AddHostedService<KalturaEventBusRabbitMQConsumerService>();
+
             });
 
             return builder;
+        }
+
+        private static bool HealthCheck(IServiceCollection services)
+        {
+            _Logger.Info($"Starting health check.");
+            _Logger.Info($"Checking couchbase connection...");
+            var cb = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+            var cbIsSuccess = cb.Set<string>($"HealthCheckDoc_{_EntryAssembly.GetName()}", "", 1);
+            if (!cbIsSuccess)
+            {
+                _Logger.Error("Could not get document from couchbase");
+                return false;
+            }
+
+            _Logger.Info($"Checking SQL DB connection...");
+            var q = new ODBCWrapper.SelectQuery();
+            q += "select 1";
+            var sqlIsSuccess = q.Execute();
+            if (!sqlIsSuccess)
+            {
+                _Logger.Error("Could not query SQL DB");
+                return false;
+            }
+
+
+            _Logger.Info($"Health check passed.");
+            return true;
+
         }
 
         private static void InitLogger()

@@ -224,7 +224,6 @@ namespace Core.Catalog.CatalogManagement
             publisher.Publish(transformationEvent);
             response = UpdateBulkUploadStatusWithVersionCheck(response.Object, BulkUploadJobStatus.Queued);
             return response;
-            return response;
         }
 
         private static GenericResponse<BulkUpload> EnqueueExcelBulkUploadJobUsingCelery(int groupId, long userId, GenericResponse<BulkUpload> response)
