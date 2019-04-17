@@ -704,81 +704,7 @@ namespace Core.Api.Managers
 
                 if (assetRule.HasCountryConditions())
                 {
-                    //get old rule
-                    var oldRuleResopnse = GetAssetRule(groupId, assetRule.Id);
-                    if (oldRuleResopnse != null && oldRuleResopnse.HasObject())
-                    {
-                        var oldRule = oldRuleResopnse.Object;
-                        //1. countries
-
-                        HashSet<int> oldCountries = GetRuleCountriesList(groupId, oldRule);
-                        HashSet<int> newCountries = GetRuleCountriesList(groupId, assetRule);
-
-                        var toRemove = oldCountries.Where(x => !newCountries.Contains(x)).ToList();
-                        if (toRemove != null && toRemove.Count > 0)
-                        {
-                            //get assets with rule+countries
-                            //remove from table
-                        }
-
-                        //2. Ksql
-                        List<AssetCondition> oldKsqlConditions = oldRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
-                        List<AssetCondition> newKsqlConditions = assetRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
-
-
-
-                        //3. Block
-                        var oldAssetActionBlock = oldRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.Block);
-                        var newAssetActionBlock = assetRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.Block);
-                        if (oldAssetActionBlock != null && newAssetActionBlock == null)
-                        {
-                            //remove block from table
-                        }
-
-                        //4. StartDate
-                        TimeOffsetRuleAction oldAssetActionStartDate = oldRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.StartDateOffset) as TimeOffsetRuleAction;
-                        TimeOffsetRuleAction newAssetActionStartDate = assetRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.StartDateOffset) as TimeOffsetRuleAction;
-                        if (oldAssetActionStartDate != null && newAssetActionStartDate == null)
-                        {
-                            //remove allowd from table
-                        }
-
-                        if (oldAssetActionStartDate != null && newAssetActionStartDate != null)
-                        {
-                            if (oldAssetActionStartDate.Offset < newAssetActionStartDate.Offset)
-                            {
-
-                            }
-
-                        }
-
-                        //5. EndtDate
-                        TimeOffsetRuleAction oldAssetActionEndDate = oldRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.EndDateOffset) as TimeOffsetRuleAction;
-                        TimeOffsetRuleAction newAssetActionEndDate = assetRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.EndDateOffset) as TimeOffsetRuleAction;
-                        if (oldAssetActionEndDate != null && newAssetActionEndDate == null)
-                        {
-                            //remove allowd from table
-                        }
-
-                        if (oldAssetActionStartDate != null && newAssetActionStartDate != null)
-                        {
-                            if (oldAssetActionStartDate.Offset < newAssetActionStartDate.Offset)
-                            {
-
-                            }
-
-                        }
-
-                    }
-
-
-
-
-
-
-
-                    ResetMediaCountries(groupId, assetRule.Id);
-                    //TODO Irena - run rule after update
+                    HandleRuleUpdate(groupId, assetRule);
                 }
 
                 // upsert dtUpdatedAssetRulesActions            
@@ -1229,6 +1155,79 @@ namespace Core.Api.Managers
             }
 
             return result;
+        }
+
+        private static void HandleRuleUpdate(int groupId, AssetRule assetRule)
+        {
+            //get old rule
+            var oldRuleResopnse = GetAssetRule(groupId, assetRule.Id);
+            if (oldRuleResopnse != null && oldRuleResopnse.HasObject())
+            {
+                var oldRule = oldRuleResopnse.Object;
+                
+                //1. countries
+                HashSet<int> oldCountries = GetRuleCountriesList(groupId, oldRule);
+                HashSet<int> newCountries = GetRuleCountriesList(groupId, assetRule);
+
+                var toRemove = oldCountries.Where(x => !newCountries.Contains(x)).ToList();
+                if (toRemove != null && toRemove.Count > 0)
+                {
+                    //get assets with rule+countries
+                    //remove from table
+                }
+
+                //2. Ksql
+                List<AssetCondition> oldKsqlConditions = oldRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
+                List<AssetCondition> newKsqlConditions = assetRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
+
+
+
+                //3. Block
+                var oldAssetActionBlock = oldRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.Block);
+                var newAssetActionBlock = assetRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.Block);
+                if (oldAssetActionBlock != null && newAssetActionBlock == null)
+                {
+                    //remove block from table
+                }
+
+                //4. StartDate
+                TimeOffsetRuleAction oldAssetActionStartDate = oldRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.StartDateOffset) as TimeOffsetRuleAction;
+                TimeOffsetRuleAction newAssetActionStartDate = assetRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.StartDateOffset) as TimeOffsetRuleAction;
+                if (oldAssetActionStartDate != null && newAssetActionStartDate == null)
+                {
+                    //remove allowd from table
+                }
+
+                if (oldAssetActionStartDate != null && newAssetActionStartDate != null)
+                {
+                    if (oldAssetActionStartDate.Offset < newAssetActionStartDate.Offset)
+                    {
+
+                    }
+
+                }
+
+                //5. EndtDate
+                TimeOffsetRuleAction oldAssetActionEndDate = oldRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.EndDateOffset) as TimeOffsetRuleAction;
+                TimeOffsetRuleAction newAssetActionEndDate = assetRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.EndDateOffset) as TimeOffsetRuleAction;
+                if (oldAssetActionEndDate != null && newAssetActionEndDate == null)
+                {
+                    //remove allowd from table
+                }
+
+                if (oldAssetActionStartDate != null && newAssetActionStartDate != null)
+                {
+                    if (oldAssetActionStartDate.Offset < newAssetActionStartDate.Offset)
+                    {
+
+                    }
+
+                }
+
+            }
+
+            ResetMediaCountries(groupId, assetRule.Id);
+            //TODO Irena - run rule after update
         }
 
         #endregion
