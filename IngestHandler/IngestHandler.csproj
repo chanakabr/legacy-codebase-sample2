@@ -9,6 +9,7 @@
     <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogicNetCore.csproj" />
+    <ProjectReference Include="..\..\TvmCore\ElasticSearch\ElasticSearch.csproj" />
   </ItemGroup>
 
 </Project>
