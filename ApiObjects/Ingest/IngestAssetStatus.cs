@@ -20,5 +20,18 @@ namespace ApiObjects
 
         [DataMember]
         public List<Status> Warnings { get; set; }
+
+        public static IngestAssetStatus Default
+        {
+            get
+            {
+                IngestAssetStatus ingestAssetStatus = new IngestAssetStatus()
+                {
+                    Warnings = new List<Status>(),
+                    Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() }
+                };
+                return ingestAssetStatus;
+            }
+        }
     }
 }

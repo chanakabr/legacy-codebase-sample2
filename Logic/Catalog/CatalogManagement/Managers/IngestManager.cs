@@ -11,7 +11,9 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
+using Tvinci.Core.DAL;
 using TVinciShared;
+using TagValue = ApiObjects.SearchObjects.TagValue;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -48,63 +50,33 @@ namespace Core.Catalog.CatalogManagement
         public static IngestResponse HandleMediaIngest(int groupId, string xml)
         {
             log.DebugFormat("Start HandleMediaIngest. groupId:{0}", groupId);
-            string notifyXml = string.Empty;
+            IngestResponse ingestResponse = IngestResponse.Default;
 
-            IngestResponse ingestResponse = ConvertToMediaAssets(xml, groupId);
-
-            if (ingestResponse == null)
+            var feedResponse = DeserializeXmlToFeed(xml, groupId, ref ingestResponse);
+            if (!feedResponse.HasObject())
             {
-                log.Warn("For input " + xml + " response is empty");
-                return new IngestResponse() { Status = "ERROR" };
-            }
-
-            if (ingestResponse.IngestStatus == null || ingestResponse.IngestStatus.Code == (int)eResponseStatus.Error)
-            {
-                // TODO - SET SOME ERROR
-            }
-
-            log.DebugFormat("End HandleMediaIngest. groupId:{0}", groupId);
-
-            return ingestResponse;
-        }
-
-        private static IngestResponse ConvertToMediaAssets(string xml, int groupId)
-        {
-            IngestResponse ingestResponse = new IngestResponse()
-            {
-                IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() },
-                AssetsStatus = new List<IngestAssetStatus>(),
-                Description = string.Empty
-            };
-
-            IngestVODFeed feed = DeserializeXmlToFeed(xml, groupId, ref ingestResponse);
-            if (feed == null || feed.Export == null || feed.Export.MediaList == null || feed.Export.MediaList.Count == 0 ||
-                ingestResponse.IngestStatus.Code == (int)eResponseStatus.IllegalXml)
-            {
+                ingestResponse.IngestStatus = feedResponse.Status;
                 return ingestResponse;
             }
 
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            CatalogGroupCache cache;
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out cache))
             {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling ConvertToMediaAssets", groupId);
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling HandleMediaIngest", groupId);
                 return ingestResponse;
             }
 
             // get data for group
-            GenericListResponse<MediaFileType> mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
-            string groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
-            Dictionary<string, ImageType> groupRatioNamesToImageTypes = ImageManager.GetImageTypesMapBySystemName(groupId);
-            Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations = new Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>>();
+            var mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
+            var groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
+            var groupRatioNamesToImageTypes = ImageManager.GetImageTypesMapBySystemName(groupId);
+            var tagsTranslations = new Dictionary<string, TagsTranslations>();
+            var assetsWithNoTags = new Dictionary<int, bool>();
 
-            for (int i = 0; i < feed.Export.MediaList.Count; i++)
+            for (int i = 0; i < feedResponse.Object.Export.MediaList.Count; i++)
             {
-                IngestMedia media = feed.Export.MediaList[i];
-                ingestResponse.AssetsStatus.Add(new IngestAssetStatus()
-                {
-                    Warnings = new List<Status>(),
-                    Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() }
-                });
+                IngestMedia media = feedResponse.Object.Export.MediaList[i];
+                ingestResponse.AssetsStatus.Add(IngestAssetStatus.Default);
 
                 // check media.CoGuid
                 if (string.IsNullOrEmpty(media.CoGuid))
@@ -118,58 +90,23 @@ namespace Core.Catalog.CatalogManagement
                 try
                 {
                     int mediaId = BulkAssetManager.GetMediaIdByCoGuid(groupId, media.CoGuid);
-                    Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagNameToTranslations;
-
-                    if (ValidateMedia(i, media, groupId, catalogGroupCache, mediaId, ref ingestResponse, out tagNameToTranslations))
+                    List<Tags> currentTags;
+                    if (ValidateMedia(i, media, groupId, cache, mediaId, ref ingestResponse, out currentTags))
                     {
                         if (media.Action.Equals(DELETE_ACTION))
                         {
                             if (!DeleteMediaAsset(mediaId, media.CoGuid, groupId, ref ingestResponse, i))
-                            {
                                 continue;
-                            }
                         }
                         else
                         {
-                            DateTime startDate = GetDateTimeFromString(media.Basic.Dates.Start, DateTime.UtcNow);
-                            DateTime endDate = GetDateTimeFromString(media.Basic.Dates.CatalogEnd, new DateTime(2099, 1, 1));
-
-                            string mediaType = media.Basic.MediaType;
-                            if (mediaId != 0)
+                            bool isMediaExists = false;
+                            MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, currentTags);
+                            if (mediaAsset.Id > 0)
                             {
-                                var assetRespone = AssetManager.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, true);
-                                if (assetRespone != null && assetRespone.HasObject() && assetRespone.Object is MediaAsset)
-                                {
-                                    mediaType = (assetRespone.Object as MediaAsset).MediaType.m_sTypeName;
-                                }
+                                isMediaExists = true;
                             }
-
-                            // CREATE mediaAsset
-                            MediaAsset mediaAsset = new MediaAsset()
-                            {
-                                Id = mediaId,
-                                AssetType = eAssetTypes.MEDIA,
-                                MediaAssetType = MediaAssetType.Media,
-                                CoGuid = media.CoGuid,
-                                EntryId = media.EntryId,
-                                IsActive = StringUtils.TryConvertTo<bool>(media.IsActive),
-                                MediaType = new MediaType(mediaType, (int)catalogGroupCache.AssetStructsMapBySystemName[mediaType].Id),
-                                Name = GetMainLanguageValue(catalogGroupCache.DefaultLanguage.Code, media.Basic.Name),
-                                NamesWithLanguages = GetOtherLanguages(catalogGroupCache.DefaultLanguage.Code, media.Basic.Name),
-                                Description = GetMainLanguageValue(catalogGroupCache.DefaultLanguage.Code, media.Basic.Description),
-                                DescriptionsWithLanguages = GetOtherLanguages(catalogGroupCache.DefaultLanguage.Code, media.Basic.Description),
-                                StartDate = startDate,
-                                CatalogStartDate = GetDateTimeFromString(media.Basic.Dates.CatalogStart, startDate),
-                                EndDate = endDate,
-                                FinalEndDate = GetDateTimeFromString(media.Basic.Dates.End, endDate),
-                                GeoBlockRuleId = (int?)TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
-                                DeviceRuleId = (int?)TvmRuleManager.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
-                                Metas = GetMetasList(media.Structure, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache),
-                                Tags = GetTagsList(tagNameToTranslations, catalogGroupCache.DefaultLanguage.Code, ref tagsTranslations)
-                            };
-
-                            // TODO - ASK IRA IF SOMEONE SENT IT AND THE MEDIA IS NEW, NEED EXAMPLE
-                            //string sEpgIdentifier = GetNodeValue(ref theItem, "basic/epg_identifier");
+                            
                             var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
                             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes);
 
@@ -177,15 +114,21 @@ namespace Core.Catalog.CatalogManagement
                             if (!upsertStatus.IsOkStatusCode())
                             {
                                 ingestResponse.AssetsStatus[i].Status = upsertStatus.Status;
-                                ingestResponse.Set(mediaAsset.CoGuid, "AddAsset faild", "FAILED", 0);
-                                //ingestResponse.Set(mediaAsset.CoGuid, "UpdateAsset faild", "FAILED", (int)mediaAsset.Id);
+                                ingestResponse.Set(mediaAsset.CoGuid, "UpsertMediaAsset faild", "FAILED", (int)mediaAsset.Id);
                                 continue;
                             }
 
                             ingestResponse.AssetsStatus[i].Warnings.AddRange(upsertStatus.Objects);
-                            ingestResponse.Set(mediaAsset.CoGuid, "succeeded insert media", "OK", (int)mediaAsset.Id);
-                            //ingestResponse.Set(mediaAsset.CoGuid, "succeeded update media", "OK", (int)mediaAsset.Id);
+                            ingestResponse.Set(mediaAsset.CoGuid, "succeeded Upsert media", "OK", (int)mediaAsset.Id);
                             ingestResponse.AssetsStatus[i].InternalAssetId = (int)mediaAsset.Id;
+                            if (mediaAsset.Tags.Count == 0)
+                            {
+                                assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
+                            }
+                            else
+                            {
+                                AddTagsToTranslations(currentTags, (int)mediaAsset.Id, isMediaExists, ref tagsTranslations);
+                            }
                         }
 
                         //// update notification 
@@ -195,7 +138,7 @@ namespace Core.Catalog.CatalogManagement
                         //}
 
                         // succeeded import media
-                        ingestResponse.AssetsStatus[i].Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        ingestResponse.AssetsStatus[i].Status.Set(eResponseStatus.OK);
                         log.DebugFormat("succeeded import media. CoGuid:{0}, MediaID:{1}, ErrorMessage:{2}", media.CoGuid, mediaId, media.IsActive, ingestResponse.Description);
                     }
                     else
@@ -206,7 +149,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 catch (Exception ex)
                 {
-                    string errorMsg = string.Format("Exception while ConvertToMediaAssets for mediaIndex: {0}, Exception:{1}", i, ex);
+                    string errorMsg = string.Format("Exception while HandleMediaIngest for mediaIndex: {0}, Exception:{1}", i, ex);
                     log.Error(errorMsg);
                     ingestResponse.AssetsStatus[i].Status.Set((int)eResponseStatus.Error, errorMsg);
                 }
@@ -214,67 +157,297 @@ namespace Core.Catalog.CatalogManagement
 
             if (ingestResponse.AssetsStatus.All(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK))
             {
-                ingestResponse.IngestStatus.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                ingestResponse.IngestStatus.Set(eResponseStatus.OK);
             }
 
-            HandleTagsTranslations(tagsTranslations, groupId, catalogGroupCache, ref ingestResponse);
+            if (tagsTranslations.Count > 0)
+            {
+                HandleTagsTranslations(tagsTranslations, groupId, cache, ref ingestResponse);
+            }
+
+            if (assetsWithNoTags.Count > 0)
+            {
+                IndexAndInvalidateAssets(groupId, assetsWithNoTags);
+            }
+            
+            log.DebugFormat("End HandleMediaIngest. groupId:{0}", groupId);
 
             return ingestResponse;
         }
         
-        private static void HandleTagsTranslations(Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations, int groupId, 
-                                                   CatalogGroupCache catalogGroupCache, ref IngestResponse ingestResponse)
+        private static GenericResponse<IngestVODFeed> DeserializeXmlToFeed(string xml, int groupId, ref IngestResponse ingestResponse)
         {
-            foreach (var topic in tagsTranslations)
+            var response = new GenericResponse<IngestVODFeed>();
+            Object deserializeObject = null;
+
+            try
             {
-                // tagsTranslation.Key == Genre
-                if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(topic.Key) && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(MetaType.Tag.ToString()))
+                using (StringReader stringReader = new StringReader(xml))
                 {
-                    Topic catalogTopic = catalogGroupCache.TopicsMapBySystemNameAndByType[topic.Key][MetaType.Tag.ToString()];
-
-                    foreach (var tag in topic.Value)
+                    using (XmlTextReader xmlReader = new XmlTextReader(stringReader))
                     {
-                        //topic.Key == drama
-                        var tagValues = 
-                            CatalogManager.SearchTags(groupId, true, tag.Key, (int)catalogTopic.Id, catalogGroupCache.DefaultLanguage.ID, 0, 1);
-
-                        ApiObjects.SearchObjects.TagValue tagValueToUpsert = new ApiObjects.SearchObjects.TagValue()
-                        {
-                            topicId = (int)catalogTopic.Id, // genre
-                            value = tag.Key, // tag_eng_drama
-                            languageId = catalogGroupCache.DefaultLanguage.ID, // eng
-                        };
-                        tagValueToUpsert.TagsInOtherLanguages.AddRange(tag.Value.Select(x => x.Value)); // drama in all other lang
-
-                        if (tagValues == null || !tagValues.HasObjects())
-                        {
-                            var addTagResponse = CatalogManager.AddTag(groupId, tagValueToUpsert, USER_ID);
-                            if (addTagResponse != null && !addTagResponse.HasObject())
-                            {
-                                string errorMsg = string.Format("HandleTagsTranslations-AddTag faild. topicName: {0}, topicId: {1}, tagValue: {2}, addTagStatus: {3}.",
-                                                                topic.Key, catalogTopic.Id, tag.Key, addTagResponse.ToStringStatus());
-                                ingestResponse.AddError(errorMsg);
-                                log.Debug(errorMsg);
-                            }
-                        }
-                        else
-                        {
-                            tagValueToUpsert.tagId = tagValues.Objects[0].tagId;
-                            tagValueToUpsert.TagsInOtherLanguages = tagValueToUpsert.TagsInOtherLanguages.Union(tagValues.Objects[0].TagsInOtherLanguages, new LanguageContainerComparer()).ToList();
-                            
-                            if (tagValues.Objects[0].IsNeedToUpdate(tagValueToUpsert))
-                            {
-                                var updateTagResponse = CatalogManager.UpdateTag(groupId, tagValueToUpsert.tagId, tagValueToUpsert, USER_ID);
-                                if (!updateTagResponse.HasObject() && updateTagResponse.Status.Code != (int)eResponseStatus.NoValuesToUpdate)
-                                {
-                                    string errorMsg = string.Format("HandleTagsTranslations-UpdateTag faild. topicName: {0}, topicId: {1}, tagValue: {2}, tagId: {3}, updateTagStatus: {4}.",
-                                                                    topic.Key, catalogTopic.Id, tag.Key, tagValues.Objects[0].tagId, updateTagResponse.ToStringStatus());
-                                    ingestResponse.AddError(errorMsg);
-                                    log.Debug(errorMsg);
-                                }
-                            }
-                        }
+                        deserializeObject = xmlIngestFeedSerializer.Deserialize(xmlReader);
                     }
+                }
+            }
+            catch (XmlException ex)
+            {
+                response.SetStatus(eResponseStatus.IllegalXml, "XML file with wrong format");
+                log.ErrorFormat("XML file with wrong format: {0}. groupId:{1}. Exception: {2}", xml, groupId, ex);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus(eResponseStatus.IllegalXml, "Error while loading file");
+                log.ErrorFormat("Failed loading file: {0}. groupId:{1}. Exception: {2}", xml, groupId, ex);
+                return response;
+            }
+
+            if (deserializeObject == null || !(deserializeObject is IngestVODFeed))
+            {
+                response.SetStatus(eResponseStatus.IllegalXml, "TODO - SET ERROR MSG");
+                log.ErrorFormat("XML file with wrong format: {0}. groupId:{1}.", xml, groupId);
+                return response;
+            }
+
+            var feed = deserializeObject as IngestVODFeed;
+            if (feed == null || feed.Export == null || feed.Export.MediaList == null || feed.Export.MediaList.Count == 0)
+            {
+                response.SetStatus(eResponseStatus.IllegalXml);
+                return response;
+            }
+
+            response.Object = feed;
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        private static MediaAsset CreateMediaAsset(int groupId, int mediaId, IngestMedia media, CatalogGroupCache cache, List<Tags> tags)
+        {
+            DateTime startDate = GetDateTimeFromString(media.Basic.Dates.Start, DateTime.UtcNow);
+            DateTime endDate = GetDateTimeFromString(media.Basic.Dates.CatalogEnd, new DateTime(2099, 1, 1));
+
+            string mediaType = media.Basic.MediaType;
+            if (mediaId != 0)
+            {
+                var assetRespone = AssetManager.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, true);
+                if (assetRespone.HasObject() && assetRespone.Object is MediaAsset)
+                {
+                    mediaType = (assetRespone.Object as MediaAsset).MediaType.m_sTypeName;
+                }
+            }
+
+            MediaAsset mediaAsset = new MediaAsset()
+            {
+                Id = mediaId,
+                AssetType = eAssetTypes.MEDIA,
+                MediaAssetType = MediaAssetType.Media,
+                CoGuid = media.CoGuid,
+                EntryId = media.EntryId,
+                IsActive = StringUtils.TryConvertTo<bool>(media.IsActive),
+                MediaType = new MediaType(mediaType, (int)cache.AssetStructsMapBySystemName[mediaType].Id),
+                Name = GetMainLanguageValue(cache.DefaultLanguage.Code, media.Basic.Name),
+                NamesWithLanguages = GetOtherLanguages(cache.DefaultLanguage.Code, media.Basic.Name),
+                Description = GetMainLanguageValue(cache.DefaultLanguage.Code, media.Basic.Description),
+                DescriptionsWithLanguages = GetOtherLanguages(cache.DefaultLanguage.Code, media.Basic.Description),
+                StartDate = startDate,
+                CatalogStartDate = GetDateTimeFromString(media.Basic.Dates.CatalogStart, startDate),
+                EndDate = endDate,
+                FinalEndDate = GetDateTimeFromString(media.Basic.Dates.End, endDate),
+                GeoBlockRuleId = (int?)TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
+                DeviceRuleId = (int?)TvmRuleManager.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
+                Metas = GetMetasList(media.Structure, cache.DefaultLanguage.Code, cache),
+                Tags = tags
+                // TODO - ASK IRA IF SOMEONE SENT IT AND THE MEDIA IS NEW, NEED EXAMPLE
+                //string sEpgIdentifier = GetNodeValue(ref theItem, "basic/epg_identifier");
+            };
+
+            return mediaAsset;
+        }
+
+        private static void AddTagsToTranslations(List<Tags> tags, int mediaId, bool isMediaExists, ref Dictionary<string, TagsTranslations> tagsTranslations)
+        {
+            var slimTags = new List<Tuple<string, string, LanguageContainer[]>>();
+            var otherLanguagesIndex = 0;
+            foreach (var tag in tags)
+            {
+                var translations = tag.Values != null && tag.Values.Count > 0 && tag.Values.Count > otherLanguagesIndex ? tag.Values[otherLanguagesIndex++] : null;
+                slimTags.AddRange(tag.m_lValues.Select(x => new Tuple<string, string, LanguageContainer[]>(tag.m_oTagMeta.m_sName, x, translations)));
+            }
+
+            var existingTagsTranslations = new List<Tuple<string, LanguageContainer>>();
+            foreach (var slimTag in slimTags)
+            {
+                var topicSystemName = slimTag.Item1;
+                var defaultTagValue = slimTag.Item2;
+                var translations = slimTag.Item3;
+
+                var tagKey = TagsTranslations.GetKey(topicSystemName, defaultTagValue);
+                if (tagsTranslations.ContainsKey(tagKey))
+                {
+                    tagsTranslations[tagKey].AssetsToInvalidate.Add(new KeyValuePair<int, bool>(mediaId, isMediaExists));
+                    if (translations != null && translations.Length > 0)
+                    {
+                        existingTagsTranslations.AddRange(translations.Select(x => new Tuple<string, LanguageContainer>(tagKey, x)));
+                    }
+                }
+                else
+                {
+                    tagsTranslations.Add(tagKey, new TagsTranslations(topicSystemName, defaultTagValue, translations, mediaId, isMediaExists));
+                }
+            }
+            
+            if (existingTagsTranslations.Count > 0)
+            {
+                foreach (var translation in existingTagsTranslations)
+                {
+                    var tagKey = translation.Item1;
+                    var language = translation.Item2;
+                    if (tagsTranslations[tagKey].Translations.ContainsKey(language.LanguageCode))
+                    {
+                        tagsTranslations[tagKey].Translations[language.LanguageCode].Value = language.Value;
+                    }
+                    else
+                    {
+                        tagsTranslations[tagKey].Translations.Add(language.LanguageCode, language);
+                    }
+                }
+            }
+        }
+        
+        private static void HandleTagsTranslations(Dictionary<string, TagsTranslations> tagsTranslations, int groupId, CatalogGroupCache cache, ref IngestResponse response)
+        {
+            var tagMetaType = MetaType.Tag.ToString();
+            List<TagToInvalidate> tagsToInvalidate = new List<TagToInvalidate>();
+            var defaultLanguageId = cache.DefaultLanguage.ID;
+
+            foreach (var tag in tagsTranslations)
+            {
+                if (cache.TopicsMapBySystemNameAndByType.ContainsKey(tag.Value.TopicSystemName) &&
+                    cache.TopicsMapBySystemNameAndByType[tag.Value.TopicSystemName].ContainsKey(tagMetaType))
+                {
+                    Topic topicTag = cache.TopicsMapBySystemNameAndByType[tag.Value.TopicSystemName][tagMetaType];
+                    tag.Value.TopicId = topicTag.Id;
+                    
+                    var tagResponse = CatalogManager.SearchTags(groupId, true, tag.Value.DefaultTagValue, (int)topicTag.Id, defaultLanguageId, 0, 1);
+
+                    if (!tagResponse.HasObjects())
+                    {
+                        tagsToInvalidate.Add(AddTagTranslations(groupId, tag.Value, defaultLanguageId, ref response));
+                    }
+                    else
+                    {
+                        tagsToInvalidate.Add(UpdateTagTranslations(groupId, tag.Value, defaultLanguageId, tagResponse.Objects[0], ref response));
+                    }
+                }
+            }
+
+            // invalidate assets and tags
+            IndexAndInvalidateTags(groupId, tagsToInvalidate, cache);
+        }
+
+        private static TagToInvalidate AddTagTranslations(int groupId, TagsTranslations tag, int defaultLanguageId, ref IngestResponse response)
+        {
+            var tagToInvalidate = tag.GetTagToInvalidate(false, defaultLanguageId); 
+
+            var addTagResponse = CatalogManager.AddTag(groupId, tagToInvalidate.TagValue, USER_ID, true);
+            if (!addTagResponse.HasObject())
+            {
+                string errorMsg = string.Format("AddTagTranslations faild. topicName: {0}, topicId: {1}, tagValue: {2}, addTagStatus: {3}.",
+                                                tag.TopicSystemName, tag.TopicId, tag.DefaultTagValue, addTagResponse.ToStringStatus());
+                response.AddError(errorMsg);
+                log.Debug(errorMsg);
+                return tagToInvalidate;
+            }
+
+            tagToInvalidate.TagValue.tagId = addTagResponse.Object.tagId;
+            return tagToInvalidate;
+        }
+
+        private static TagToInvalidate UpdateTagTranslations(int groupId, TagsTranslations tag, int defaultLanguageId, TagValue oldTagValue, ref IngestResponse response)
+        {
+            oldTagValue.TagsInOtherLanguages.ForEach(x =>
+            {
+                if (!tag.Translations.ContainsKey(x.LanguageCode))
+                {
+                    tag.Translations.Add(x.LanguageCode, x);
+                }
+            });
+
+            var tagToInvalidate = tag.GetTagToInvalidate(true, defaultLanguageId);
+            tagToInvalidate.TagValue.tagId = oldTagValue.tagId;
+
+            if (oldTagValue.IsNeedToUpdate(tagToInvalidate.TagValue))
+            {
+                var updateTagResponse = CatalogManager.UpdateTag(groupId, tagToInvalidate.TagValue, USER_ID, true);
+                if (!updateTagResponse.HasObject() && updateTagResponse.Status.Code != (int)eResponseStatus.NoValuesToUpdate)
+                {
+                    string errorMsg = string.Format("UpdateTagTranslations faild. topicName: {0}, topicId: {1}, tagValue: {2}, tagId: {3}, updateTagStatus: {4}.",
+                                                    tag.TopicSystemName, tag.TopicId, tag.DefaultTagValue, oldTagValue.tagId, updateTagResponse.ToStringStatus());
+                    response.AddError(errorMsg);
+                    log.Debug(errorMsg);
+                    tagToInvalidate.TagValue.tagId = -1;
+                }
+            }
+
+            return tagToInvalidate;
+        }
+        
+        private static void IndexAndInvalidateTags(int groupId, List<TagToInvalidate> tagsToInvalidate, CatalogGroupCache catalogGroupCache)
+        {
+            var wrapper = new ElasticsearchWrapper();
+            var assetsToInvalidate = new Dictionary<int, bool>();
+
+            foreach (var tag in tagsToInvalidate)
+            {
+                tag.AssetsToInvalidate.ForEach(x =>
+                {
+                    if (!assetsToInvalidate.ContainsKey(x.Key))
+                    {
+                        assetsToInvalidate.Add(x.Key, x.Value);
+                    }
+                });
+
+                if (tag.TagValue.tagId > 0)
+                {
+                    if (tag.IsTagExists)
+                    {
+                        var ds = CatalogDAL.GetTagAssets(groupId, tag.TagValue.tagId);
+                        List<int> mediaIds, epgIds;
+                        CatalogManager.CreateAssetsListForUpdateIndexFromDataSet(ds, out mediaIds, out epgIds);
+                        mediaIds.ForEach(x =>
+                        {
+                            if (!assetsToInvalidate.ContainsKey(x))
+                            {
+                                assetsToInvalidate.Add(x, true);
+                            }
+                        });
+                    }
+
+                    var result = wrapper.UpdateTag(groupId, catalogGroupCache, tag.TagValue);
+                    if (!result.IsOkStatusCode())
+                    {
+                        log.ErrorFormat("Failed UpdateTag index for tag: {0}, groupId: {1}, error: {2} after IndexAndInvalidateTags", tag.TagValue.ToString(), groupId, result.ToString());
+                    }
+                }
+            }
+
+            IndexAndInvalidateAssets(groupId, assetsToInvalidate);
+        }
+        
+        private static void IndexAndInvalidateAssets(int groupId, Dictionary<int, bool> assetsToInvalidate)
+        {
+            foreach (var asset in assetsToInvalidate)
+            {
+                if (!IndexManager.UpsertMedia(groupId, asset.Key))
+                {
+                    log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after IndexAndInvalidateAssets", asset.Key, groupId);
+                }
+
+                // if asset is exists
+                if (asset.Value)
+                {
+                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, asset.Key);
                 }
             }
         }
@@ -376,70 +549,18 @@ namespace Core.Catalog.CatalogManagement
 
             return metas;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tagNameToTranslations">{Genre, {eng, {drama, action}},{heb, {דרמה, אקשן}}}</param>
-        /// <param name="mainLanguageCode"></param>
-        /// <param name="tagsTranslations">{Genre, {Drama, {[heb, דרמה], [jap, ドラマ]}, }}</param>
-        /// <returns></returns>
-        private static List<Tags> GetTagsList(Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagNameToTranslations, 
-                                              string mainLanguageCode, 
-                                              ref Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagsTranslations)
+        
+        private static bool ValidateMedia(int mediaIndex, IngestMedia media, int groupId, CatalogGroupCache cache, int mediaId, ref IngestResponse response, out List<Tags> tags)
         {
-            List<Tags> tags = new List<Tags>();
-
-            foreach (var tagTranslation in tagNameToTranslations)
-            {
-                tags.Add(new Tags(new TagMeta(tagTranslation.Key, MetaType.Tag.ToString()),
-                                  tagTranslation.Value.Select(x => x.Key).ToList(),
-                                  tagTranslation.Value.Select(x => x.Value.Select(lang => lang.Value).ToArray())));
-
-                if (!tagsTranslations.ContainsKey(tagTranslation.Key))
-                {
-                    tagsTranslations.Add(tagTranslation.Key, tagTranslation.Value);
-                }
-                else 
-                {
-                    foreach (var tagValue in tagTranslation.Value)
-                    {
-                        if (!tagsTranslations[tagTranslation.Key].ContainsKey(tagValue.Key))
-                        {
-                            tagsTranslations[tagTranslation.Key].Add(tagValue.Key, tagValue.Value);
-                        }
-                        else
-                        {
-                            foreach (var otherTagValue in tagValue.Value)
-                            {
-                                if (!tagsTranslations[tagTranslation.Key][tagValue.Key].ContainsKey(otherTagValue.Key))
-                                {
-                                    tagsTranslations[tagTranslation.Key][tagValue.Key].Add(otherTagValue.Key, otherTagValue.Value);
-                                }
-                                else
-                                {
-                                    tagsTranslations[tagTranslation.Key][tagValue.Key][otherTagValue.Key] = otherTagValue.Value;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return tags;
-        }
-
-        private static bool ValidateMedia(int mediaIndex, IngestMedia media, int groupId, CatalogGroupCache catalogGroupCache, int mediaId, ref IngestResponse ingestResponse, out Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagNameToTranslations)
-        {
-            tagNameToTranslations = null;
+            tags = null;
             if (string.IsNullOrEmpty(media.EntryId))
             {
-                ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.MissingEntryId, MISSING_ENTRY_ID));
+                response.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.MissingEntryId, MISSING_ENTRY_ID));
             }
 
             if (string.IsNullOrEmpty(media.Action))
             {
-                ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.MissingAction, MISSING_ACTION));
+                response.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.MissingAction, MISSING_ACTION));
             }
 
             if (string.IsNullOrEmpty(media.IsActive))
@@ -452,16 +573,16 @@ namespace Core.Catalog.CatalogManagement
                 if (media.Basic == null)
                 {
                     string errMsg = string.Format(CANNOT_BE_EMPTY, "media.Basic");
-                    ingestResponse.AddError(errMsg);
-                    ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, errMsg);
+                    response.AddError(errMsg);
+                    response.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, errMsg);
                     return false;
                 }
 
                 // CHECK RULES
                 if (media.Basic.Rules == null)
                 {
-                    ingestResponse.AddError("media.Basic.Rules cannot be empty");
-                    ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Rules cannot be empty");
+                    response.AddError("media.Basic.Rules cannot be empty");
+                    response.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Rules cannot be empty");
                     return false;
                 }
 
@@ -470,9 +591,9 @@ namespace Core.Catalog.CatalogManagement
                     var geoBlockRuleId = TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule);
                     if (!geoBlockRuleId.HasValue || geoBlockRuleId.Value == 0)
                     {
-                        ingestResponse.AddError(GEO_BLOCK_RULE_NOT_RECOGNIZED);
+                        response.AddError(GEO_BLOCK_RULE_NOT_RECOGNIZED);
                         log.DebugFormat("ValidateMedia - Geo block rule not recognized. mediaIndex:{0}, GeoBlockRule:{1}", mediaIndex, media.Basic.Rules.GeoBlockRule);
-                        ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.NotRecognizedGeoBlockRule, GEO_BLOCK_RULE_NOT_RECOGNIZED));
+                        response.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.NotRecognizedGeoBlockRule, GEO_BLOCK_RULE_NOT_RECOGNIZED));
                     }
                 }
 
@@ -481,24 +602,24 @@ namespace Core.Catalog.CatalogManagement
                     var deviceRuleId = TvmRuleManager.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule);
                     if (!deviceRuleId.HasValue || deviceRuleId.Value == 0)
                     {
-                        ingestResponse.AddError(DEVICE_RULE_NOT_RECOGNIZED);
+                        response.AddError(DEVICE_RULE_NOT_RECOGNIZED);
                         log.DebugFormat("ValidateMedia - Device rule not recognized. mediaIndex:{0}, DeviceRule:{1}", mediaIndex, media.Basic.Rules.DeviceRule);
-                        ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.NotRecognizedDeviceRule, DEVICE_RULE_NOT_RECOGNIZED));
+                        response.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.NotRecognizedDeviceRule, DEVICE_RULE_NOT_RECOGNIZED));
                     }
                 }
 
                 // check dates  
                 if (media.Basic.Dates == null)
                 {
-                    ingestResponse.AddError("media.Basic.Dates cannot be empty");
-                    ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Dates cannot be empty");
+                    response.AddError("media.Basic.Dates cannot be empty");
+                    response.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Dates cannot be empty");
                     return false;
                 }
 
                 if (media.Structure == null)
                 {
-                    ingestResponse.AddError("media.Structure cannot be empty");
-                    ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Structure cannot be empty");
+                    response.AddError("media.Structure cannot be empty");
+                    response.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Structure cannot be empty");
                     return false;
                 }
 
@@ -507,65 +628,66 @@ namespace Core.Catalog.CatalogManagement
                 {
                     // check MediaType
                     if (string.IsNullOrEmpty(media.Basic.MediaType) ||
-                        !catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(media.Basic.MediaType) ||
-                        catalogGroupCache.AssetStructsMapBySystemName[media.Basic.MediaType].Id == 0)
+                        !cache.AssetStructsMapBySystemName.ContainsKey(media.Basic.MediaType) ||
+                        cache.AssetStructsMapBySystemName[media.Basic.MediaType].Id == 0)
                     {
-                        ingestResponse.AddError(ITEM_TYPE_NOT_RECOGNIZED);
+                        response.AddError(ITEM_TYPE_NOT_RECOGNIZED);
                         log.DebugFormat("ValidateMedia - {0}. co-guid:{1}", ITEM_TYPE_NOT_RECOGNIZED, media.CoGuid);
-                        ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.InvalidMediaType, string.Format("Invalid media type \"{0}\"", media.Basic.MediaType));
+                        response.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.InvalidMediaType, string.Format("Invalid media type \"{0}\"", media.Basic.MediaType));
                         return false;
                     }
 
                     if (media.Basic.Name == null)
                     {
-                        ingestResponse.AddError("media.Basic.Name cannot be empty");
-                        ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Name cannot be empty");
+                        response.AddError("media.Basic.Name cannot be empty");
+                        response.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Name cannot be empty");
                         return false;
                     }
 
-                    Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
-                    if (nameValidationStatus != null && nameValidationStatus.Code != (int)eResponseStatus.OK)
+                    Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", cache.DefaultLanguage.Code, cache.LanguageMapByCode);
+                    if (!nameValidationStatus.IsOkStatusCode())
                     {
-                        ingestResponse.AddError(nameValidationStatus.Message);
-                        ingestResponse.AssetsStatus[mediaIndex].Status = nameValidationStatus;
+                        response.AddError(nameValidationStatus.Message);
+                        response.AssetsStatus[mediaIndex].Status = nameValidationStatus;
                         return false;
                     }
 
                     if (media.Basic.Description == null)
                     {
-                        ingestResponse.AddError("media.Basic.Description cannot be empty");
-                        ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Description cannot be empty");
+                        response.AddError("media.Basic.Description cannot be empty");
+                        response.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.Basic.Description cannot be empty");
                         return false;
                     }
 
-                    Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
-                    if (descriptionValidationStatus != null && descriptionValidationStatus.Code != (int)eResponseStatus.OK)
+                    Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", cache.DefaultLanguage.Code, cache.LanguageMapByCode);
+                    if (!descriptionValidationStatus.IsOkStatusCode())
                     {
-                        ingestResponse.AddError(descriptionValidationStatus.Message);
-                        ingestResponse.AssetsStatus[mediaIndex].Status = descriptionValidationStatus;
+                        response.AddError(descriptionValidationStatus.Message);
+                        response.AssetsStatus[mediaIndex].Status = descriptionValidationStatus;
                         return false;
                     }
 
-                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemNameAndByType, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
-                    if (stringsValidationStatus != null && stringsValidationStatus.Code != (int)eResponseStatus.OK)
+                    Status stringsValidationStatus = media.Structure.ValidateStrings(cache.TopicsMapBySystemNameAndByType, cache.DefaultLanguage.Code, cache.LanguageMapByCode);
+                    if (!stringsValidationStatus.IsOkStatusCode())
                     {
-                        ingestResponse.AddError(stringsValidationStatus.Message);
-                        ingestResponse.AssetsStatus[mediaIndex].Status = stringsValidationStatus;
+                        response.AddError(stringsValidationStatus.Message);
+                        response.AssetsStatus[mediaIndex].Status = stringsValidationStatus;
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode, out tagNameToTranslations);
-                    if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
+                    var metasValidation = media.Structure.ValidateMetaTags(cache.DefaultLanguage, cache.LanguageMapByCode);
+                    if (!metasValidation.IsOkStatusCode())
                     {
-                        ingestResponse.AddError(metasValidationStatus.Message);
-                        ingestResponse.AssetsStatus[mediaIndex].Status = metasValidationStatus;
+                        response.AddError(metasValidation.Status.Message);
+                        response.AssetsStatus[mediaIndex].Status = metasValidation.Status;
                         return false;
                     }
+                    tags = metasValidation.Objects;
 
                     if (!TRUE.Equals(media.IsActive) && !FALSE.Equals(media.IsActive))
                     {
-                        ingestResponse.AddError("media.IsActive cannot be empty");
-                        ingestResponse.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.IsActive cannot be empty");
+                        response.AddError("media.IsActive cannot be empty");
+                        response.AssetsStatus[mediaIndex].Status.Set((int)eResponseStatus.NameRequired, "media.IsActive cannot be empty");
                         return false;
                     }
                 }
@@ -575,82 +697,46 @@ namespace Core.Catalog.CatalogManagement
                     if (media.Basic.Name != null && media.Basic.Name.Values != null && media.Basic.Name.Values.Count > 0)
                     {
                         // TODO - SET METHOD COMMON FOR ALL ERROS
-                        Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
-                        if (nameValidationStatus != null && nameValidationStatus.Code != (int)eResponseStatus.OK)
+                        Status nameValidationStatus = media.Basic.Name.Validate("media.basic.name", cache.DefaultLanguage.Code, cache.LanguageMapByCode);
+                        if (!nameValidationStatus.IsOkStatusCode())
                         {
-                            ingestResponse.AddError(nameValidationStatus.Message);
-                            ingestResponse.AssetsStatus[mediaIndex].Status = nameValidationStatus;
+                            response.AddError(nameValidationStatus.Message);
+                            response.AssetsStatus[mediaIndex].Status = nameValidationStatus;
                             return false;
                         }
                     }
 
                     if (media.Basic.Description != null && media.Basic.Description.Values != null && media.Basic.Description.Values.Count > 0)
                     {
-                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
-                        if (descriptionValidationStatus != null && descriptionValidationStatus.Code != (int)eResponseStatus.OK)
+                        Status descriptionValidationStatus = media.Basic.Description.Validate("media.basic.description", cache.DefaultLanguage.Code, cache.LanguageMapByCode);
+                        if (!descriptionValidationStatus.IsOkStatusCode())
                         {
-                            ingestResponse.AddError(descriptionValidationStatus.Message);
-                            ingestResponse.AssetsStatus[mediaIndex].Status = descriptionValidationStatus;
+                            response.AddError(descriptionValidationStatus.Message);
+                            response.AssetsStatus[mediaIndex].Status = descriptionValidationStatus;
                             return false;
                         }
                     }
 
-                    Status stringsValidationStatus = media.Structure.ValidateStrings(catalogGroupCache.TopicsMapBySystemNameAndByType, catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode);
-                    if (stringsValidationStatus != null && stringsValidationStatus.Code != (int)eResponseStatus.OK)
+                    Status stringsValidationStatus = media.Structure.ValidateStrings(cache.TopicsMapBySystemNameAndByType, cache.DefaultLanguage.Code, cache.LanguageMapByCode);
+                    if (!stringsValidationStatus.IsOkStatusCode())
                     {
-                        ingestResponse.AddError(stringsValidationStatus.Message);
-                        ingestResponse.AssetsStatus[mediaIndex].Status = stringsValidationStatus;
+                        response.AddError(stringsValidationStatus.Message);
+                        response.AssetsStatus[mediaIndex].Status = stringsValidationStatus;
                         return false;
                     }
 
-                    Status metasValidationStatus = media.Structure.ValidateMetaTags(catalogGroupCache.DefaultLanguage.Code, catalogGroupCache.LanguageMapByCode, out tagNameToTranslations);
-                    if (metasValidationStatus != null && metasValidationStatus.Code != (int)eResponseStatus.OK)
+                    var metasValidation = media.Structure.ValidateMetaTags(cache.DefaultLanguage, cache.LanguageMapByCode);
+                    if (!metasValidation.IsOkStatusCode())
                     {
-                        ingestResponse.AddError(metasValidationStatus.Message);
-                        ingestResponse.AssetsStatus[mediaIndex].Status = metasValidationStatus;
+                        response.AddError(metasValidation.Status.Message);
+                        response.AssetsStatus[mediaIndex].Status = metasValidation.Status;
                         return false;
                     }
+                    tags = metasValidation.Objects;
                 }
             }
 
             return true;
-        }
-
-        private static IngestVODFeed DeserializeXmlToFeed(string xml, int groupId, ref IngestResponse ingestResponse)
-        {
-            Object deserializeObject = null;
-
-            try
-            {
-                using (StringReader stringReader = new StringReader(xml))
-                {
-                    using (XmlTextReader xmlReader = new XmlTextReader(stringReader))
-                    {
-                        deserializeObject = xmlIngestFeedSerializer.Deserialize(xmlReader);
-                    }
-                }
-            }
-            catch (XmlException ex)
-            {
-                ingestResponse.IngestStatus.Set((int)eResponseStatus.IllegalXml, "XML file with wrong format");
-                log.ErrorFormat("XML file with wrong format: {0}. groupId:{1}. Exception: {2}", xml, groupId, ex);
-                return null;
-            }
-            catch (Exception ex)
-            {
-                ingestResponse.IngestStatus.Set((int)eResponseStatus.IllegalXml, "Error while loading file");
-                log.ErrorFormat("Failed loading file: {0}. groupId:{1}. Exception: {2}", xml, groupId, ex);
-                return null;
-            }
-
-            if (deserializeObject == null || !(deserializeObject is IngestVODFeed))
-            {
-                ingestResponse.IngestStatus.Set((int)eResponseStatus.IllegalXml, "TODO - SET ERROR MSG");
-                log.ErrorFormat("XML file with wrong format: {0}. groupId:{1}.", xml, groupId);
-                return null;
-            }
-
-            return deserializeObject as IngestVODFeed;
         }
         
         private static DateTime GetDateTimeFromString(string date, DateTime defaultDate)
@@ -746,7 +832,7 @@ namespace Core.Catalog.CatalogManagement
                     images = new Dictionary<long, Image>() { { image.ImageTypeId, image } };
                 }
 
-                if (basic.PicsRatio.Ratios != null && basic.PicsRatio.Ratios.Count > 0)
+                if (basic.PicsRatio != null && basic.PicsRatio.Ratios != null && basic.PicsRatio.Ratios.Count > 0)
                 {
                     foreach (var ratio in basic.PicsRatio.Ratios)
                     {

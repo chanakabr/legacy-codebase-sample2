@@ -682,7 +682,7 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static void CreateAssetsListForUpdateIndexFromDataSet(DataSet ds, out List<int> mediaIds, out List<int> epgIds)
+        internal static void CreateAssetsListForUpdateIndexFromDataSet(DataSet ds, out List<int> mediaIds, out List<int> epgIds)
         {
             mediaIds = new List<int>();
             epgIds = new List<int>();
@@ -2334,7 +2334,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId)
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId, bool isFromIngest = false)
         {
             GenericResponse<ApiObjects.SearchObjects.TagValue> result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
             try
@@ -2375,8 +2375,11 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
+                if (!isFromIngest)
+                {
+                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                    result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
+                }
             }
             catch (Exception ex)
             {
@@ -2386,7 +2389,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> UpdateTag(int groupId, long tagId, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId)
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> UpdateTag(int groupId, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId, bool isFromIngest = false)
         {
             var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
 
@@ -2398,8 +2401,8 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTag", groupId);
                     return result;
                 }
-
-                result = GetTagById(groupId, tagId);
+                
+                result = GetTagById(groupId, tagToUpdate.tagId);
                 if (!result.HasObject())
                 {
                     return result;
@@ -2443,59 +2446,54 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateTag(groupId, tagId, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
+                DataSet ds = CatalogDAL.UpdateTag(groupId, tagToUpdate.tagId, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
                 result = CreateTagValueFromDataSet(ds);
                 if (!result.HasObject())
                 {
                     return result;
                 }
-
-                List<int> mediaIds;
-                List<int> epgIds;
-
-                bool invalidationResult = InvalidateCacheForTagAssets(groupId, tagId, false, userId, out mediaIds, out epgIds);
-
-                if (!invalidationResult)
+                
+                if (!isFromIngest)
                 {
-                    log.ErrorFormat("Failed to InvalidateCacheForTagAssets after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagId);
-                }
-
-                // 
-                // TODO: REMOVE THIS ONCE DONE WITH REST OF PARTIAL UPDATE
-                //
-                InvalidateCacheAndUpdateIndexForAssets(groupId, false, mediaIds, epgIds);
-
-                bool partialUpdateResult = PartialTagIndexUpdate(groupId, topic.SystemName, tagToUpdate.value, result.Object.value, string.Empty, mediaIds, epgIds);
-
-                if (!partialUpdateResult)
-                {
-                    log.ErrorFormat("Failed to PartialTagIndexUpdate after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagId);
-
-                }
-
-                if (shouldUpdateOtherNames)
-                {
-                    foreach (var pair in languageCodeToName)
+                    List<int> mediaIds, epgIds;
+                    if (!InvalidateCacheForTagAssets(groupId, tagToUpdate.tagId, false, userId, out mediaIds, out epgIds))
                     {
-                        string originalValue = string.Empty;
-                        var tagInOtherLanguage = result.Object.TagsInOtherLanguages.FirstOrDefault(t => t.LanguageCode == pair.Key);
-
-                        if (tagInOtherLanguage != null)
-                        {
-                            originalValue = tagInOtherLanguage.Value;
-                        }
-
-                        PartialTagIndexUpdate(groupId, topic.SystemName, pair.Value, originalValue, pair.Key, mediaIds, epgIds);
+                        log.ErrorFormat("Failed to InvalidateCacheForTagAssets after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagToUpdate.tagId);
                     }
+
+                    // 
+                    // TODO: REMOVE THIS ONCE DONE WITH REST OF PARTIAL UPDATE
+                    //
+                    InvalidateCacheAndUpdateIndexForAssets(groupId, false, mediaIds, epgIds);
+
+                    // TODO SHIR - TALK WITH SUNNY DO THE SAME IN INGEST
+                    if (!PartialTagIndexUpdate(groupId, topic.SystemName, tagToUpdate.value, result.Object.value, string.Empty, mediaIds, epgIds))
+                    {
+                        log.ErrorFormat("Failed to PartialTagIndexUpdate after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagToUpdate.tagId);
+                    }
+
+                    if (shouldUpdateOtherNames)
+                    {
+                        foreach (var pair in languageCodeToName)
+                        {
+                            string originalValue = string.Empty;
+                            var tagInOtherLanguage = result.Object.TagsInOtherLanguages.FirstOrDefault(t => t.LanguageCode == pair.Key);
+                            if (tagInOtherLanguage != null)
+                            {
+                                originalValue = tagInOtherLanguage.Value;
+                            }
+
+                            PartialTagIndexUpdate(groupId, topic.SystemName, pair.Value, originalValue, pair.Key, mediaIds, epgIds);
+                        }
+                    }
+
+                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                    result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
                 }
-
-                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
-
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateTag for groupId: {0}, id: {1} and tagToUpdate: {2}", groupId, tagId, tagToUpdate.ToString()), ex);
+                log.Error(string.Format("Failed UpdateTag for groupId: {0}, id: {1} and tagToUpdate: {2}", groupId, tagToUpdate.tagId, tagToUpdate.ToString()), ex);
             }
 
             return result;

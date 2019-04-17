@@ -12,13 +12,13 @@ namespace Core.Catalog
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadAssetData : BulkUploadObjectData
+    public abstract class BulkUploadAssetData : BulkUploadObjectData
     {
         protected AssetStruct structure { get; private set; }
 
         [JsonProperty("TypeId")]
         public long TypeId { get; set; }
-        
+
         public override IBulkUploadStructure GetStructure()
         {
             if (structure == null)
@@ -42,7 +42,12 @@ namespace Core.Catalog
 
             return structure;
         }
+    }
 
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class BulkUploadMediaAssetData : BulkUploadAssetData
+    {
         public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
         public override string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
 
@@ -111,11 +116,5 @@ namespace Core.Catalog
                 }
             }
         }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadMediaAssetData : BulkUploadAssetData
-    {
     }
 }

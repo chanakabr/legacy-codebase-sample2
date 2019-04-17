@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace ApiObjects
 {
@@ -56,7 +57,19 @@ namespace ApiObjects
             return LanguageCode.Equals(other.LanguageCode) &&
                 Value.Equals(other.Value) &&
                 IsDefault == other.IsDefault;
-        }       
+        }
+
+        /// <summary>
+        /// LanguageContainer override ToString
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(string.Format("Language Code: {0}, ", LanguageCode));
+            sb.AppendFormat("Value: {0}, ", Value);
+            sb.AppendFormat("Is Default: {0}.", IsDefault);
+            return sb.ToString();
+        }
     }
 
     public class LanguageContainerComparer : IEqualityComparer<LanguageContainer>

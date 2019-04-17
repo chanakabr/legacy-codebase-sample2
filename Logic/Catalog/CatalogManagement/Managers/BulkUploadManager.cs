@@ -326,7 +326,11 @@ namespace Core.Catalog.CatalogManagement
                 return objectsListResponse;
             }
 
-            var errorMessage = $"Error while trying to deserialize file. bulkUpload.Id:[{bulkUpload.Id}],  bulkUploadResponse.Status.Code:[{bulkUploadResponse.Status.Code}] bulkUploadResponse.Status.Message:[{bulkUploadResponse.Status.Message}].";
+            // 0 = {bulkUpload.Id}
+            // 1 = {bulkUploadResponse.Status.Code}
+            // 2 = {bulkUploadResponse.Status.Message}
+            var errorMessage = string.Format("Error while trying to deserialize file. bulkUpload.Id:[{0}],  bulkUploadResponse.Status.Code:[{1}] bulkUploadResponse.Status.Message:[{2}].", 
+                bulkUpload.Id, bulkUploadResponse.Status.Code, bulkUploadResponse.Status.Message);
             log.Error(errorMessage);
             UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Failed);
 
@@ -467,7 +471,7 @@ namespace Core.Catalog.CatalogManagement
                     if (shouldGetValuesFromCB || FinishedBulkUploadStatuses.Contains(bulkUpload.Status))
                     {
                         BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUpload.Id);
-                        if (bulkUploadWithResults != null || bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
+                        if (bulkUploadWithResults != null && bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
                         {
                             bulkUpload.Results = bulkUploadWithResults.Results;
                             bulkUpload.JobData = bulkUploadWithResults.JobData;
