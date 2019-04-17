@@ -54,6 +54,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestHandler", "IngestHandler\IngestHandler.csproj", "{12936DCB-BCD9-4864-B493-78917C728A48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -418,6 +420,22 @@ Global
 		{3CB79A59-1AE7-4490-AA1E-F3EB030E319C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3CB79A59-1AE7-4490-AA1E-F3EB030E319C}.Release|x86.ActiveCfg = Release|Any CPU
 		{3CB79A59-1AE7-4490-AA1E-F3EB030E319C}.Release|x86.Build.0 = Release|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Basic|x86.ActiveCfg = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Basic|x86.Build.0 = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Debug|x86.Build.0 = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Local|x86.ActiveCfg = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Local|x86.Build.0 = Debug|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Release|x86.ActiveCfg = Release|Any CPU
+		{12936DCB-BCD9-4864-B493-78917C728A48}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,10 +14,6 @@ namespace IngestTransformationHandler
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public BulkUploadTransformationHandler()
-        {
-        }
-
         public Task Handle(BulkUploadTransformationEvent serviceEvent)
         {
             try

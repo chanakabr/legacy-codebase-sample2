@@ -11,7 +11,7 @@ namespace EPGTransformationHandler
             var builder = new HostBuilder()
                 .ConfigureEventBustConsumer(c =>
                 {
-                    c.HandlerUniqueId = "13232";
+                    c.QueueName = "debug";
                     c.ConcurrentConsumers = 3;
                 });
             await builder.RunConsoleAsync();
