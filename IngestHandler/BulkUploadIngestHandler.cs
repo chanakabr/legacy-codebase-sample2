@@ -11,6 +11,8 @@ using ApiObjects;
 using System.Collections.Generic;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
+using DalCB;
+using Newtonsoft.Json.Linq;
 
 namespace IngestHandler
 {
@@ -30,8 +32,8 @@ namespace IngestHandler
 
         #region Data Members
 
-        ElasticSearchApi elasticSearchClient = null;
-
+        private ElasticSearchApi elasticSearchClient = null;
+        
         #endregion
 
         #region Ctor
@@ -157,6 +159,22 @@ namespace IngestHandler
             string searchQuery = query.ToString();
             var searchResult = elasticSearchClient.Search(index, type, ref searchQuery);
 
+            List<string> epgIds = new List<string>();
+
+            if (!string.IsNullOrEmpty(searchResult))
+            {
+                JObject json = JObject.Parse(searchResult);
+
+                var hits = (json["hits"] as JArray);
+
+                foreach (var hit in hits)
+                {
+                    epgIds.Add(hit["epg_id"].ToString());
+                }
+
+                result = new EpgDal_Couchbase(groupId).GetProgram(epgIds);
+            }
+
             return result;
         }
 
@@ -168,6 +186,7 @@ namespace IngestHandler
         {
             return $"{groupId}_epg_v2";
         }
+
         #endregion
     }
 
