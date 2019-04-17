@@ -6165,12 +6165,13 @@ namespace Core.Catalog
                         groupId = request.m_nGroupID,
                         permittedWatchRules = watchRules,
                         specificAssets = new Dictionary<eAssetTypes, List<string>>(),
-                        shouldUseEndDateForEpg = true,
-                        shouldUseStartDateForEpg = true,
                         shouldUseFinalEndDate = true,
                         shouldUseStartDateForMedia = true,
                         shouldAddIsActiveTerm = true,
-                        shouldIgnoreDeviceRuleID = true
+                        shouldIgnoreDeviceRuleID = true,
+                        shouldUseSearchEndDate = true,
+                        shouldUseEndDateForEpg = false,
+                        shouldUseStartDateForEpg = false
                     };
 
                     int elasticSearchPageSize = 0;
