@@ -1228,22 +1228,22 @@ namespace Core.Catalog.CatalogManagement
                     
                     bool deleteResult = false;
                     bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
-
-                    //delete virtual asset
-                    bool needToCreateVirtualAsset = false;
-                    Asset virtualChannel = GetVirtualAsset(groupId, userId, channelResponse.Object, out needToCreateVirtualAsset);
-                    if(virtualChannel != null)
-                    {
-                        Status status  = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
-                        if(status == null || !status.IsOkStatusCode())
-                        {
-                            log.ErrorFormat("Failed delete virtual asset {0}. for channel {1}", virtualChannel.Id, channelId);
-                        }
-                    }
                     
                     // delete index only for OPC accounts since previously channels index didn't exist
                     if (doesGroupUsesTemplates)
                     {
+                        //delete virtual asset
+                        bool needToCreateVirtualAsset = false;
+                        Asset virtualChannel = GetVirtualAsset(groupId, userId, channelResponse.Object, out needToCreateVirtualAsset);
+                        if (virtualChannel != null)
+                        {
+                            Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
+                            if (status == null || !status.IsOkStatusCode())
+                            {
+                                log.ErrorFormat("Failed delete virtual asset {0}. for channel {1}", virtualChannel.Id, channelId);
+                            }
+                        }
+
                         deleteResult = IndexManager.DeleteChannel(groupId, channelId);
                     }
                     else
