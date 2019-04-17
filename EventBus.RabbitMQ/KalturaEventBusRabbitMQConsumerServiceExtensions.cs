@@ -11,9 +11,9 @@ using Microsoft.Extensions.Hosting;
 namespace EventBus.RabbitMQ
 {
     // TODO: is there a service handler configuration required here ? 
-    public class KalturaMicroserviceConfiguration
+    public class EventBusConfiguration
     {
-        public string HandlerUniqueId { get; set; }
+        public string QueueName { get; set; }
         public int ConcurrentConsumers { get; set; }
     }
 
@@ -37,10 +37,10 @@ namespace EventBus.RabbitMQ
             return builder;
         }
 
-        public static IHostBuilder ConfigureEventBustConsumer(this IHostBuilder builder, Action<KalturaMicroserviceConfiguration> configureService)
+        public static IHostBuilder ConfigureEventBustConsumer(this IHostBuilder builder, Action<EventBusConfiguration> configureService)
         {
             // Default configuration
-            var configuration = new KalturaMicroserviceConfiguration
+            var configuration = new EventBusConfiguration
             {
 
             };
@@ -81,7 +81,7 @@ namespace EventBus.RabbitMQ
 
         }
 
-        private static void ConfigureRabbitMQEventBus(IServiceCollection services, KalturaMicroserviceConfiguration configuration, List<Type> allServiceHandlers)
+        private static void ConfigureRabbitMQEventBus(IServiceCollection services, EventBusConfiguration configuration, List<Type> allServiceHandlers)
         {
             services.AddSingleton((Func<IServiceProvider, IEventBusConsumer>)(serviceProvider =>
             {

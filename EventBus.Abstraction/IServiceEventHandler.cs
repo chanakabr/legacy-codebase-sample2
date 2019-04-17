@@ -4,6 +4,6 @@ namespace EventBus.Abstraction
 {
     public interface IServiceEventHandler<in TEvent> where TEvent: ServiceEvent
     {
-        Task Handle(TEvent @event);
+        Task Handle(TEvent serviceEvent);
     }
 }
