@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ElasticSearch.Common;
-using ElasticsearchTasksCommon;
-using ApiObjects.SearchObjects;
-using ElasticSearch.Searcher;
-using GroupsCacheManager;
-using System.Data;
 using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
-using ApiObjects.Response;
 using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
-using Newtonsoft.Json.Linq;
 using Core.Catalog;
+using ApiObjects;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
