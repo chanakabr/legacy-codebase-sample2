@@ -7657,7 +7657,10 @@ namespace Core.Api
                         response.ExternalChannel.MetaData = externalChannel.MetaData;
                     }
 
-                    CreateVirtualChannel(groupId, userId, response.ExternalChannel);
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    {
+                        CreateVirtualChannel(groupId, userId, response.ExternalChannel);
+                    }
 
                     response.Status = new Status((int)eResponseStatus.OK, "new external channel insert");
                 }
@@ -7713,15 +7716,18 @@ namespace Core.Api
                     // delete meta data
                     CatalogDAL.DeleteChannelMetaData(externalChannelId, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
 
-                    //delete virtual asset
-                    bool needToCreateVirtualAsset = false;
-                    Asset virtualChannel = GetVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
-                    if (virtualChannel != null)
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
                     {
-                        Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
-                        if (status == null || !status.IsOkStatusCode())
+                        //delete virtual asset
+                        bool needToCreateVirtualAsset = false;
+                        Asset virtualChannel = GetVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
+                        if (virtualChannel != null)
                         {
-                            log.ErrorFormat("Failed delete virtual asset {0}. for external channel {1}", virtualChannel.Id, externalChannelId);
+                            Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
+                            if (status == null || !status.IsOkStatusCode())
+                            {
+                                log.ErrorFormat("Failed delete virtual asset {0}. for external channel {1}", virtualChannel.Id, externalChannelId);
+                            }
                         }
                     }
 
@@ -7850,7 +7856,7 @@ namespace Core.Api
 
                     response.ExternalChannel.MetaData = metaData;
 
-                    if (!isFromAsset)
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId) && !isFromAsset)
                     {
                         UpdateVirtualAsset(groupId, userId, response.ExternalChannel);
                     }
