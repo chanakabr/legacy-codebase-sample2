@@ -2643,9 +2643,41 @@ namespace ElasticSearch.Searcher
             
             if (order.m_eOrderBy == OrderBy.META)
             {
-                string analyzedMeta = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
-                primaryOrderField = analyzedMeta;
-                returnFields.Add(string.Format("\"{0}\"", analyzedMeta));
+                string metaFieldName = string.Empty;
+
+                if (!order.shouldPadString)
+                {
+                    metaFieldName = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
+                }
+                else
+                {
+                    metaFieldName = string.Format("metas.padded_{0}", order.m_sOrderValue.ToLower());
+                }
+
+                primaryOrderField = metaFieldName;
+                returnFields.Add(string.Format("\"{0}\"", metaFieldName));
+                
+                //else
+                //{
+                //    sortBuilder.AppendFormat("\"padded_{0}\": ", metaFieldName);
+                //    //// "_script": { "type": "string", "script": { "inline": "(doc['metas.episode number'].value == null) ? \"0\" : 
+                //    //// (!doc['metas.episode number'].value.toString().isDouble()) ? doc['metas.episode number'].value : 
+                //    //// (doc['metas.episode number'].value.toString().toDouble().trunc(2).toString().padLeft(7,'0'))"},"order": "desc"}}
+                //    ////       \"_script\": { \"type\": \"string\", \"script\": { \"inline\": \"(doc[\'metas.episode number\'].value == null) ? \\\"0\\\" : 
+                //    //// (!doc[\'metas.episode number\'].value.toString().isDouble()) ? 
+                //    //// doc[\'metas.episode number\'].value : (doc['metas.episode number\'].value.toString().toDouble().trunc(2).toString().padLeft(7,'0'))\"},\"order\": \"desc\"}}
+                //    //sortBuilder.Append("\"_script\": { \"type\": \"string\", \"script\": { \"inline\": \"(doc['");
+                //    //sortBuilder.Append(metaFieldName);
+                //    //sortBuilder.Append("'].value == null) ? \\\"0\\\" : (!doc['");
+                //    //sortBuilder.Append(metaFieldName);
+                //    //sortBuilder.Append("'].value.toString().isDouble()) ? doc['");
+                //    //sortBuilder.Append(metaFieldName);
+                //    //sortBuilder.Append("'].value : (doc['");
+                //    //sortBuilder.Append(metaFieldName);
+                //    //sortBuilder.Append("'].value.toString().toDouble().trunc(2).toString().padLeft(7,'0'))\"},\"order\": \"");
+                //    //sortBuilder.Append(order.m_eOrderDir.ToString().ToLower());
+                //    //sortBuilder.Append("\"}}");
+                //}
             }
             else if (order.m_eOrderBy == OrderBy.ID)
             {
@@ -2664,6 +2696,8 @@ namespace ElasticSearch.Searcher
                 primaryOrderField = Enum.GetName(typeof(OrderBy), order.m_eOrderBy).ToLower();
             }
 
+            ////if (order.m_eOrderBy != OrderBy.META && !order.shouldPadString && sortBuilder.Length > 0)
+            //if (sortBuilder.Length > 0)
             if (!string.IsNullOrWhiteSpace(primaryOrderField))
             {
                 JObject primaryOrder = new JObject();
