@@ -4,3 +4,5 @@ packages/
 /.vs
 *.user
 settings.json
+[Dd]ebug*/
+[Rr]elease*/
