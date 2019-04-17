@@ -5,6 +5,7 @@ using ApiObjects.Response;
 using System.Linq;
 using System;
 using ApiObjects;
+using ApiObjects.Catalog;
 
 namespace Core.Catalog
 {
