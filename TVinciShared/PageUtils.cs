@@ -278,22 +278,22 @@ namespace TVinciShared
 
         static public void GetErrorMsg(Int32 nCollspan)
         {
-            if (HttpContext.Current.Session["error_msg"] == null && HttpContext.Current.Session["ok_msg"] == null)
+            if (HttpContext.Current.Session.Get("error_msg") == null && HttpContext.Current.Session.Get("ok_msg") == null)
                 return;
             string sText = "";
-            if (HttpContext.Current.Session["error_msg"] != null)
-                sText = HttpContext.Current.Session["error_msg"].ToString();
-            else if (HttpContext.Current.Session["ok_msg"] != null)
+            if (HttpContext.Current.Session.Get("error_msg") != null)
+                sText = HttpContext.Current.Session.Get("error_msg").ToString();
+            else if (HttpContext.Current.Session.Get("ok_msg") != null)
             {
-                sText = HttpContext.Current.Session["ok_msg"].ToString();
+                sText = HttpContext.Current.Session.Get("ok_msg").ToString();
             }
 
             string sTmp = "<tr><td class=alert_text nowrap>* &nbsp;&nbsp;";
-            if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
+            if (HttpContext.Current.Session.Get("error_msg") != null && HttpContext.Current.Session.Get("error_msg").ToString() != "")
                 sTmp += sText;
             sTmp += "</td></tr>";
-            HttpContext.Current.Session["error_msg"] = null;
-            HttpContext.Current.Session["ok_msg"] = null;
+            HttpContext.Current.Session.Set("error_msg", null);
+            HttpContext.Current.Session.Set("ok_msg", null);
             HttpContext.Current.Response.Write(sTmp);
         }
 
@@ -996,14 +996,14 @@ namespace TVinciShared
         static public string GetCallerIP()
         {
             string sIP = "";
-            if (HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"] != null)
-                sIP = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].Trim();
+            if (HttpContext.Current.Request.GetForwardedForHeader() != null)
+                sIP = HttpContext.Current.Request.GetForwardedForHeader().Trim();
 
             //if (sIP == "" || sIP.ToLower() == "unknown")
             //sIP = HttpContext.Current.Request.UserHostAddress.Trim();
 
             if (sIP == "" || sIP.ToLower() == "unknown")
-                sIP = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"].Trim();
+                sIP = HttpContext.Current.Request.GetRemoteAddress().Trim();
 
             // remove port
             if (sIP.Contains(":"))
@@ -1029,11 +1029,11 @@ namespace TVinciShared
             }
             else
             {
-                if (HttpContext.Current.Session["tvinci_geo_" + sIP] != null)
+                if (HttpContext.Current.Session.Get("tvinci_geo_" + sIP) != null)
                 {
                     try
                     {
-                        return int.Parse(HttpContext.Current.Session["tvinci_geo_" + sIP].ToString());
+                        return int.Parse(HttpContext.Current.Session.Get("tvinci_geo_" + sIP).ToString());
                     }
                     catch { }
                 }
@@ -1071,7 +1071,7 @@ namespace TVinciShared
                 selectQuery.Finish();
                 selectQuery = null;
             }
-            HttpContext.Current.Session["tvinci_geo_" + sIP] = nCountry;
+            HttpContext.Current.Session.Set("tvinci_geo_" + sIP, nCountry);
             return nCountry;
         }
 
@@ -1257,8 +1257,8 @@ namespace TVinciShared
         {
             Int32 nGroupID = 0;
             string sHost = "";
-            if (HttpContext.Current.Request.ServerVariables["REMOTE_HOST"] != null)
-                sHost = HttpContext.Current.Request.ServerVariables["REMOTE_HOST"].ToLower();
+            if (HttpContext.Current.Request.GetRemoteHost() != null)
+                sHost = HttpContext.Current.Request.GetRemoteHost().ToLower();
             log.Debug("Domain - " + sHost);
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetCachedSec(86400);
@@ -1279,7 +1279,7 @@ namespace TVinciShared
 
         static public void SendBugMail(Int32 nBugID, string sAction, string sTemplate, bool bWithOpener)
         {
-            string sProject = PageUtils.GetTableSingleVal("bs_projects", "NAME", int.Parse(HttpContext.Current.Session["project_id"].ToString())).ToString();
+            string sProject = PageUtils.GetTableSingleVal("bs_projects", "NAME", int.Parse(HttpContext.Current.Session.Get("project_id").ToString())).ToString();
             string sMessage = "";
             string sBaseName = "";
             if (sTemplate == "FeatureReport.html")
@@ -1297,7 +1297,7 @@ namespace TVinciShared
                 sMessage = "The " + sBaseName + " was reopened";
 
             string sID = nBugID.ToString();
-            string sProjectID = HttpContext.Current.Session["project_id"].ToString();
+            string sProjectID = HttpContext.Current.Session.Get("project_id").ToString();
             string sCreateDate = "";
             string sShortDescription = "";
             string sSavirity = "";
@@ -1416,7 +1416,7 @@ namespace TVinciShared
             Mailer t = new Mailer(1);
             string sEmail = "";
             if (bWithOpener == false)
-                sEmail = GetBugsEmails(int.Parse(sID), int.Parse(HttpContext.Current.Session["project_id"].ToString()), nReporter, nAssigned, nCloser, nReopener, bWithOpener);
+                sEmail = GetBugsEmails(int.Parse(sID), int.Parse(HttpContext.Current.Session.Get("project_id").ToString()), nReporter, nAssigned, nCloser, nReopener, bWithOpener);
             else
                 sEmail = GetBugsEmails(int.Parse(sID), 0, nReporter, 0, 0, nReopener, bWithOpener);
             sEmail = MergeEmail(sEmail, "support@tvinci.com");
@@ -1576,7 +1576,7 @@ namespace TVinciShared
                     string sCloseDesc, string sReopenDate, string sReopenDesc, string sReopener, string sFiles, string sTemplate)
         {
             MailTemplateEngine mt = new MailTemplateEngine();
-            string sFilePath = HttpContext.Current.Server.MapPath("");
+            string sFilePath = HttpContext.Current.ServerMapPath("");
             sFilePath += "/mailTemplates/" + sTemplate;
             mt.Init(sFilePath);
             mt.Replace("PROJECT_ID", sProjectID);

@@ -26,7 +26,7 @@ namespace TVinciShared
         static public void ClearServersCache(Int32 nGroupID)
         {
 
-            HttpContext.Current.Session["tvp_cache_error"] = "";
+            HttpContext.Current.Session.Set("tvp_cache_error", "");
             Int32 nStatus = 0;
             string sURLs = "";
             object oCachecleanURL = null;
@@ -44,24 +44,29 @@ namespace TVinciShared
                 }
             }
             log.Debug("Clear Cache String - Start Staging Clear Cache - strng is " + sURLs);
+            var tvpCacheError = HttpContext.Current.Session.Get("tvp_cache_error");
             if (sURLs != "")
             {
                 //sURLs = oCachecleanURL.ToString();
                 string[] sSep = { ";" };
                 string[] sUrlsArray = sURLs.Split(sSep, StringSplitOptions.RemoveEmptyEntries);
-                HttpContext.Current.Session["tvp_cache_error"] = "";
+                HttpContext.Current.Session.Set("tvp_cache_error", "");
                 for (int i = 0; i < sUrlsArray.Length; i++)
                 {
                     string sResp = TVinciShared.Notifier.SendGetHttpReq(sUrlsArray[i], ref nStatus);
-                    HttpContext.Current.Session["tvp_cache_error"] += "Url: " + sUrlsArray[i] + " Status: " + nStatus.ToString() + "<br/>";
+
+                    
+                    tvpCacheError += "Url: " + sUrlsArray[i] + " Status: " + nStatus.ToString() + "<br/>";
+                    
                 }
                 if (sUrlsArray.Length <= 0)
-                    HttpContext.Current.Session["tvp_cache_error"] += "No Cache URLs defined for TVP <br/>";
+                    tvpCacheError += "No Cache URLs defined for TVP <br/>";
             }
             else
             {
-                HttpContext.Current.Session["tvp_cache_error"] += "No Cache URLs defined for TVP <br/>";
+                tvpCacheError += "No Cache URLs defined for TVP <br/>";
             }
+            
 
 
             string sTvinciServersCache = ApplicationConfiguration.ClearCachePath.Value;
@@ -73,13 +78,14 @@ namespace TVinciShared
                 for (int i = 0; i < sUrlsArray.Length; i++)
                 {
                     string sResp = TVinciShared.Notifier.SendGetHttpReq(sUrlsArray[i], ref nStatus);
-                    HttpContext.Current.Session["tvp_cache_error"] += "Url: " + sUrlsArray[i] + " Status: " + nStatus.ToString() + "<br/>";
+                    tvpCacheError += "Url: " + sUrlsArray[i] + " Status: " + nStatus.ToString() + "<br/>";
                 }
                 if (sUrlsArray.Length <= 0)
-                    HttpContext.Current.Session["tvp_cache_error"] += "No Cache URLs defined for Tvinci servers <br/>";
+                    tvpCacheError += "No Cache URLs defined for Tvinci servers <br/>";
             }
             else
-                HttpContext.Current.Session["tvp_cache_error"] += "No Cache URLs defined for Tvinci servers <br/>";
+                tvpCacheError += "No Cache URLs defined for Tvinci servers <br/>";
+            HttpContext.Current.Session.Set("tvp_cache_error", tvpCacheError);
         }
 
         static protected Int32 GetResponseCode(HttpStatusCode theCode)

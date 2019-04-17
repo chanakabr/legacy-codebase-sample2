@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using System.Web;
+
+#if NET452
 using System.Web.UI;
 using System.Web.UI.WebControls;
+#endif
 
 namespace TVinciShared
 {
@@ -79,7 +82,7 @@ namespace TVinciShared
             m_sCellCSS = sCellCss;
             m_sLinkCss = sLinkCss;
             m_sTableCss = sTableCss;
-            HttpContext.Current.Session["order_by"] = sOrderBy;
+            HttpContext.Current.Session.Set("order_by", sOrderBy);
             m_nPageSize = nPageSize;
             m_OrderByColumns = new System.Collections.Specialized.NameValueCollection();
             m_bWithTechDetails = false;
@@ -153,18 +156,20 @@ namespace TVinciShared
         protected void PageToSession(string sPageURL)
         {
             if (sPageURL != "")
-                HttpContext.Current.Session["ContentPage"] = sPageURL;
-            string sURL = HttpContext.Current.Request.FilePath.ToString();
+                HttpContext.Current.Session.Set("ContentPage", sPageURL);
+            string sURL = HttpContext.Current.Request.GetFilePath().ToString();
             Int32 nStart = sURL.LastIndexOf('/'); ;
             Int32 nEnd = sURL.Length;
             string sPage = sURL.Substring(nStart + 1, nEnd - nStart - 1);
             if (sPageURL == "")
-                HttpContext.Current.Session["ContentPage"] = sPage;
-            HttpContext.Current.Session["LastContentPage"] = sPage;
+                HttpContext.Current.Session.Set("ContentPage", sPage);
+            HttpContext.Current.Session.Set("LastContentPage", sPage);
             if (m_sNewParameters != "")
             {
-                HttpContext.Current.Session["LastContentPage"] += "?";
-                HttpContext.Current.Session["LastContentPage"] += m_sNewParameters;
+                string LastContentPage = HttpContext.Current.Session.Get("LastContentPage")?.ToString() ?? "";
+                LastContentPage += "?";
+                LastContentPage += m_sNewParameters;
+                HttpContext.Current.Session.Set("LastContentPage", LastContentPage);
             }
         }
 
@@ -194,12 +199,12 @@ namespace TVinciShared
             string sBasePicsURL = PageUtils.GetBasePicURL(nGroupID);
             if (bEnterToSession == true)
                 PageToSession(sPageURL);
-            if (HttpContext.Current.Session["LastTablePage"] != null)
+            if (HttpContext.Current.Session.Get("LastTablePage") != null)
             {
-                if (HttpContext.Current.Session["LastTablePage"].ToString() == LoginManager.GetCurrentPageURL() &&
-                    nPageNum == 0 && HttpContext.Current.Session["LastTablePageNum"] != null)
+                if (HttpContext.Current.Session.Get("LastTablePage").ToString() == LoginManager.GetCurrentPageURL() &&
+                    nPageNum == 0 && HttpContext.Current.Session.Get("LastTablePageNum") != null)
                 {
-                    nPageNum = int.Parse(HttpContext.Current.Session["LastTablePageNum"].ToString());
+                    nPageNum = int.Parse(HttpContext.Current.Session.Get("LastTablePageNum").ToString());
                 }
             }
             if (nPageNum == 0)
@@ -207,8 +212,8 @@ namespace TVinciShared
 
             if (bEnterToSession == true)
             {
-                HttpContext.Current.Session["LastTablePageNum"] = nPageNum;
-                HttpContext.Current.Session["LastTablePage"] = LoginManager.GetCurrentPageURL();
+                HttpContext.Current.Session.Set("LastTablePageNum", nPageNum);
+                HttpContext.Current.Session.Set("LastTablePage", LoginManager.GetCurrentPageURL());
             }
 
             Int32 nStartPage = (nPageNum - 1) * m_nPageSize + 1;
@@ -229,7 +234,7 @@ namespace TVinciShared
             nPages = (Int32)dPages + 1;
             if (dPages == (Int32)dPages && nPages > 1)
                 nPages--;
-            Int32 nRowsCount = m_theDataTable.Columns.Count;       
+            Int32 nRowsCount = m_theDataTable.Columns.Count;
 
             //string sTable = "<table cellpadding=0 cellspacing=1 width=100%>";
             StringBuilder sTable = new StringBuilder();
@@ -469,11 +474,11 @@ namespace TVinciShared
 
                     if (m_hiddenFields.ContainsKey(sName.ToUpper()) && (bool)(m_hiddenFields[sName.ToUpper()]) == true)
                         continue;
-                    
+
                     if (m_ImageFields.ContainsKey(sName.ToUpper()))
                     {
                         string sFileName = sValue.ToString();
-                        
+
                         if (!string.IsNullOrEmpty(sFileName) && sFileName != "-")
                         {
                             if (ImageUtils.IsDownloadPicWithImageServer())
@@ -503,7 +508,7 @@ namespace TVinciShared
                                 }
 
                                 sTable.AppendFormat("<td><img src='{0}'/></td>", sFileName);
-                            }   
+                            }
                         }
                         else
                         {
@@ -591,7 +596,7 @@ namespace TVinciShared
                         if (sFileName != "")
                         {
                             sTable.Append("<td >");
-                            sTable.Append("<IFRAME SRC=\"admin_player.aspx?player_type=audio&autoplay=false&audio_url=" + HttpContext.Current.Server.UrlEncode(sFileName.ToString()));
+                            sTable.Append("<IFRAME SRC=\"admin_player.aspx?player_type=audio&autoplay=false&audio_url=" + System.Web.HttpUtility.UrlEncode(sFileName.ToString()));
                             sTable.Append("\" WIDTH=\"50\" HEIGHT=\"22\" FRAMEBORDER=\"0\"></IFRAME>");
                             sTable.Append("</td>");
                         }
@@ -795,7 +800,7 @@ namespace TVinciShared
                     sTable.Append("<td nowrap>");
                     sTable.Append("<img style='cursor: pointer;' src='");
                     sTable.Append("images/info_btn.gif");
-                    sTable.Append("' onmouseover='javascript:openLocalWindow(\"" + HttpContext.Current.Server.HtmlEncode(sRemarks.Replace("\r\n", "<br\\>").Replace("\"", "").Replace("'", "").Trim()) + "\");' onclick='return false;' onmouseout='closeCollDiv(\"\");'");
+                    sTable.Append("' onmouseover='javascript:openLocalWindow(\"" + System.Web.HttpUtility.HtmlEncode(sRemarks.Replace("\r\n", "<br\\>").Replace("\"", "").Replace("'", "").Trim()) + "\");' onclick='return false;' onmouseout='closeCollDiv(\"\");'");
                     sTable.Append(" />");
                     sTable.Append("</td>");
                 }
@@ -819,7 +824,7 @@ namespace TVinciShared
             sTable.Append("</table>");
             if (nCounter >= 20)
                 sTable.Append(GetTopLine(nPages, nStartPage, nEndPage, nPageNum, sOrderBy));
-            HttpContext.Current.Session["order_by"] = sOrderBy;
+            HttpContext.Current.Session.Set("order_by", sOrderBy);
             return sTable.ToString();
         }
 
@@ -911,7 +916,7 @@ namespace TVinciShared
 
         protected string GetNewPageURL()
         {
-            string sURL = HttpContext.Current.Request.FilePath.ToString();
+            string sURL = HttpContext.Current.Request.GetFilePath().ToString();
             Int32 nStart = 0;
             Int32 nEnd = sURL.LastIndexOf('.');
             string sPage = sURL.Substring(nStart, nEnd - nStart);
@@ -1044,6 +1049,7 @@ namespace TVinciShared
             }
         }
 
+#if NET452
         public string OpenCSV()
         {
             if (m_theDataTable == null)
@@ -1067,5 +1073,7 @@ namespace TVinciShared
             HttpContext.Current.Response.End();
             return "";
         }
+#endif
     }
+
 }

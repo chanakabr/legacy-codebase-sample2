@@ -451,12 +451,12 @@ namespace TVinciShared
                 if (string.IsNullOrEmpty(sDirectory))
                 {
                     if (HttpContext.Current != null)
-                        sBasePath = HttpContext.Current.Server.MapPath("");
+                        sBasePath = HttpContext.Current.ServerMapPath("");
                     else
                     {
-                        if (!string.IsNullOrEmpty(HttpRuntime.AppDomainAppPath))
+                        if (!string.IsNullOrEmpty(AppDomain.CurrentDomain.BaseDirectory))
                         {
-                            sBasePath = HttpRuntime.AppDomainAppPath;
+                            sBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"bin");
                         }
                         else
                             sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);

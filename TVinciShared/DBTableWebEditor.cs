@@ -1,14 +1,13 @@
 using System;
 using System.Data;
-using System.Configuration;
 using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using System.IO;
 using System.Text;
+
+#if NET452
+using System.Web.UI.WebControls;
+using System.Web.UI;
+#endif
 
 namespace TVinciShared
 {
@@ -230,9 +229,9 @@ namespace TVinciShared
         static public void GetSearchFree(string sHeader, string sInputID, string sDir)
         {
             string sSelectedID = "";
-            if (HttpContext.Current.Session["search_save"] != null)
-                if (HttpContext.Current.Session[sInputID] != null)
-                    sSelectedID = HttpContext.Current.Session[sInputID].ToString().Replace("''", "'");
+            if (HttpContext.Current.Session.Get("search_save") != null)
+                if (HttpContext.Current.Session.Get(sInputID) != null)
+                    sSelectedID = HttpContext.Current.Session.Get(sInputID).ToString().Replace("''", "'");
             string sRet = "<span style=\"white-space:nowrap;\" class=\"adm_table_header_nbg\" >" + sHeader + "</span>&nbsp;:&nbsp;<input type=\"text\" dir=\"" + sDir + "\" class=\"FormInputSmall\" id=\"" + sInputID + "\" value=\"" + sSelectedID + "\" />";
             HttpContext.Current.Response.Write(sRet);
         }
@@ -266,9 +265,9 @@ namespace TVinciShared
         static public void GetSearchSelectOptions(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus, string sConnectionKey)
         {
             string sSelectedID = "";
-            if (HttpContext.Current.Session["search_save"] != null)
-                if (HttpContext.Current.Session[sSelectID] != null)
-                    sSelectedID = HttpContext.Current.Session[sSelectID].ToString();
+            if (HttpContext.Current.Session.Get("search_save") != null)
+                if (HttpContext.Current.Session.Get(sSelectID) != null)
+                    sSelectedID = HttpContext.Current.Session.Get(sSelectID).ToString();
             string sRet = "<span style=\"white-space:nowrap;\" class=\"adm_table_header_nbg\" >" + sHeader + "</span>&nbsp;:&nbsp;<select id=\"" + sSelectID + "\" class=\"FormInput\">\r\n";
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select " + sFieldText + "," + sFieldID + " from " + sTable + "  ";
@@ -303,9 +302,9 @@ namespace TVinciShared
         static public void GetSearchSelectOptionsExp(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus, string sWhereStr, string sConncetionKey)
         {
             string sSelectedID = "";
-            if (HttpContext.Current.Session["search_save"] != null)
-                if (HttpContext.Current.Session[sSelectID] != null)
-                    sSelectedID = HttpContext.Current.Session[sSelectID].ToString();
+            if (HttpContext.Current.Session.Get("search_save") != null)
+                if (HttpContext.Current.Session.Get(sSelectID) != null)
+                    sSelectedID = HttpContext.Current.Session.Get(sSelectID).ToString();
             string sRet = "<span style=\"white-space:nowrap;\" class=\"adm_table_header_nbg\" >" + sHeader + "</span>&nbsp;:&nbsp;<select id=\"" + sSelectID + "\" class=\"FormInput\">\r\n";
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select " + sFieldText + "," + sFieldID + " from " + sTable + "  ";
@@ -421,7 +420,7 @@ namespace TVinciShared
             m_sCellCSS = sCellCss;
             m_sLinkCss = sLinkCss;
             m_sTableCss = sTableCss;
-            HttpContext.Current.Session["order_by"] = sOrderBy;
+            HttpContext.Current.Session.Set("order_by", sOrderBy);
             m_theQuery = new ODBCWrapper.DataSetSelectQuery();
             m_theDataTable = null;
             m_nPageSize = nPageSize;
@@ -689,7 +688,7 @@ namespace TVinciShared
 
         protected string GetNewPageURL()
         {
-            string sURL = HttpContext.Current.Request.FilePath.ToString();
+            string sURL = HttpContext.Current.Request.GetFilePath().ToString();
             Int32 nStart = 0;
             Int32 nEnd = sURL.LastIndexOf('.');
             string sPage = sURL.Substring(nStart, nEnd - nStart);
@@ -705,18 +704,20 @@ namespace TVinciShared
         protected void PageToSession(string sPageURL)
         {
             if (sPageURL != "")
-                HttpContext.Current.Session["ContentPage"] = sPageURL;
-            string sURL = HttpContext.Current.Request.FilePath.ToString();
+                HttpContext.Current.Session.Set("ContentPage", sPageURL);
+            string sURL = HttpContext.Current.Request.GetFilePath().ToString();
             Int32 nStart = sURL.LastIndexOf('/'); ;
             Int32 nEnd = sURL.Length;
             string sPage = sURL.Substring(nStart + 1, nEnd - nStart - 1);
             if (sPageURL == "")
-                HttpContext.Current.Session["ContentPage"] = sPage;
-            HttpContext.Current.Session["LastContentPage"] = sPage;
+                HttpContext.Current.Session.Set("ContentPage", sPage);
+            HttpContext.Current.Session.Set("LastContentPage", sPage);
             if (m_sNewParameters != "")
             {
-                HttpContext.Current.Session["LastContentPage"] += "?";
-                HttpContext.Current.Session["LastContentPage"] += m_sNewParameters;
+                var LastContentPage = HttpContext.Current.Session.Get("LastContentPage");
+                LastContentPage += "?";
+                LastContentPage += m_sNewParameters;
+                HttpContext.Current.Session.Set("LastContentPage", LastContentPage);
             }
 
         }
@@ -864,12 +865,12 @@ namespace TVinciShared
             string sBasePicsURL = PageUtils.GetBasePicURL(nGroupID);
             if (bEnterToSession == true)
                 PageToSession(sPageURL);
-            if (HttpContext.Current.Session["LastTablePage"] != null)
+            if (HttpContext.Current.Session.Get("LastTablePage") != null)
             {
-                if (HttpContext.Current.Session["LastTablePage"].ToString() == LoginManager.GetCurrentPageURL() &&
-                    nPageNum == 0 && HttpContext.Current.Session["LastTablePageNum"] != null)
+                if (HttpContext.Current.Session.Get("LastTablePage").ToString() == LoginManager.GetCurrentPageURL() &&
+                    nPageNum == 0 && HttpContext.Current.Session.Get("LastTablePageNum") != null)
                 {
-                    nPageNum = int.Parse(HttpContext.Current.Session["LastTablePageNum"].ToString());
+                    nPageNum = int.Parse(HttpContext.Current.Session.Get("LastTablePageNum").ToString());
                 }
             }
             if (nPageNum == 0)
@@ -891,8 +892,8 @@ namespace TVinciShared
 
             if (bEnterToSession == true)
             {
-                HttpContext.Current.Session["LastTablePageNum"] = nPageNum;
-                HttpContext.Current.Session["LastTablePage"] = LoginManager.GetCurrentPageURL();
+                HttpContext.Current.Session.Set("LastTablePageNum", nPageNum);
+                HttpContext.Current.Session.Set("LastTablePage", LoginManager.GetCurrentPageURL());
             }
 
             Int32 nStartPage = (nPageNum - 1) * m_nPageSize + 1;
@@ -1212,8 +1213,8 @@ namespace TVinciShared
                                             {
                                                 sTable.Append("<img src='" + PageUtils.GetPicImageUrlByRatio(int.Parse(picId.ToString()), 90, 65, int.Parse(groupId.ToString())));
                                                 sTable.Append("'/>");
-                                    
-                                            }                                            
+
+                                            }
                                         }
                                         else
                                         {
@@ -1320,7 +1321,7 @@ namespace TVinciShared
                         if (sFileName != "")
                         {
                             sTable.Append("<td >");
-                            sTable.Append("<IFRAME SRC=\"admin_player.aspx?player_type=audio&autoplay=false&audio_url=" + HttpContext.Current.Server.UrlEncode(sFileName.ToString()));
+                            sTable.Append("<IFRAME SRC=\"admin_player.aspx?player_type=audio&autoplay=false&audio_url=" + HttpUtility.UrlEncode(sFileName.ToString()));
                             sTable.Append("\" WIDTH=\"50\" HEIGHT=\"22\" FRAMEBORDER=\"0\"></IFRAME>");
                             sTable.Append("</td>");
                         }
@@ -1560,7 +1561,7 @@ namespace TVinciShared
                         //sTable += "</a>";
                         sTable.Append("<img style='cursor: pointer;' src='");
                         sTable.Append("images/info_btn.gif");
-                        sTable.Append("' onmouseover='javascript:openLocalWindow(\"" + HttpContext.Current.Server.HtmlEncode(sRemarks.Replace("\r\n", "<br\\>").Replace("\"", "").Replace("'", "").Trim()) + "\");' onclick='return false;' onmouseout='closeCollDiv(\"\");'");
+                        sTable.Append("' onmouseover='javascript:openLocalWindow(\"" + HttpUtility.HtmlEncode(sRemarks.Replace("\r\n", "<br\\>").Replace("\"", "").Replace("'", "").Trim()) + "\");' onclick='return false;' onmouseout='closeCollDiv(\"\");'");
                         sTable.Append(" />");
                         sTable.Append("</td>");
                     }
@@ -1591,7 +1592,7 @@ namespace TVinciShared
             if (nCounter >= 20)
                 sTable.Append(GetTopLine(nPages, nStartPage, nEndPage, nPageNum, sOrderBy));
             //sTable += "</table>";
-            HttpContext.Current.Session["order_by"] = sOrderBy;
+            HttpContext.Current.Session.Set("order_by", sOrderBy);
             return sTable.ToString();
         }
 
@@ -1666,6 +1667,7 @@ namespace TVinciShared
             return sTable;
         }
 
+        #if NET452
         public string OpenCSV()
         {
             if (m_theDataTable == null)
@@ -1701,6 +1703,7 @@ namespace TVinciShared
             HttpContext.Current.Response.End();
             return "";
         }
+        #endif
 
         public DataTable GetDT()
         {
@@ -1712,7 +1715,7 @@ namespace TVinciShared
         {
 
             string sFileName = "CSV/report_" + DateTime.UtcNow.Ticks.ToString() + ".CSV";
-            string sLogFileName = HttpContext.Current.Server.MapPath("");
+            string sLogFileName = HttpContext.Current.ServerMapPath("");
             sLogFileName += "/" + sFileName;
             if (File.Exists(sLogFileName))
             {
