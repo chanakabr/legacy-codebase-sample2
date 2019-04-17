@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <!--<Compile Include="Catalog\BulkUpload\BulkUploadAssetData.cs" />-->
-    <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadEpgAssetData.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadIngestJobData.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\BulkUploadManager.cs" />
