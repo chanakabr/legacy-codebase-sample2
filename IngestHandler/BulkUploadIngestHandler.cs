@@ -13,6 +13,9 @@ using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using DalCB;
 using Newtonsoft.Json.Linq;
+using Core.Catalog;
+using Core.Profiles;
+using CouchbaseManager;
 
 namespace IngestHandler
 {
@@ -27,6 +30,7 @@ namespace IngestHandler
         #region Consts
 
         public static readonly string DEFAULT_INDEX_TYPE = "epg";
+        public static readonly string EPG_SEQUENCE_DOCUMENT = "epg_sequence_document";
 
         #endregion
 
@@ -93,7 +97,6 @@ namespace IngestHandler
 
                 throw new Exception($"Received invalid bulk upload. group id ={serviceEvent.GroupId} id = {serviceEvent.BulkUploadId} message = {message}");
             }
-
             int groupId = serviceEvent.GroupId;
             var programsToIngest = serviceEvent.ProgramsToIngest.ToList();
 
@@ -103,6 +106,13 @@ namespace IngestHandler
             }
             else
             {
+                var programAssetResultsDictionary = bulkUploadData.Object.Results.Cast<BulkUploadProgramAssetResult>().ToList().ToDictionary(program => program.ProgramExternalId);
+
+                foreach (var programToIngest in programsToIngest)
+                {
+                    programAssetResultsDictionary[programToIngest.EpgIdentifier].Object = programToIngest;
+                }
+
                 DateTime minStartDate = programsToIngest.Min(program => program.StartDate);
                 DateTime maxEndDate = programsToIngest.Max(program => program.EndDate);
 
@@ -111,9 +121,43 @@ namespace IngestHandler
                 List<EpgCB> programsToAdd;
                 List<EpgCB> programsToUpdate;
                 List<EpgCB> programsToDelete;
+
                 CalculateCRUDOperations(groupId, currentPrograms, programsToIngest, out programsToAdd, out programsToUpdate, out programsToDelete);
+
+                List<EpgCB> caluclatedPrograms = CalculateSimulatedFinalStateAfterIngest(programsToAdd, programsToUpdate);
+
+                // duplicate the index of this day
+                var dateOfIngest = serviceEvent.DateOfProgramsToIngest;
+
+                var ingestProfileId = (bulkUploadData.Object.JobData as BulkUploadIngestJobData).IngestProfileId;
+
+                var profile = IngestProfileManager.GetIngestProfileById(ingestProfileId)?.Object;
+
+
+                
+                // update bulk upload in the end
+                BulkUploadManager.UpdateBulkUpload(bulkUploadData.Object);
+            }
+        }
+
+        private List<EpgCB> CalculateSimulatedFinalStateAfterIngest(List<EpgCB> programsToAdd, List<EpgCB> programsToUpdate)
+        {
+            List<EpgCB> result = new List<EpgCB>();
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
+
+            // set the new programs with new IDs from sequence document in couchbase
+            foreach (var program in programsToAdd)
+            {
+                program.EpgID = couchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, 1);
             }
 
+            // union lists and order by start date
+            result.Union(programsToAdd);
+            result.Union(programsToUpdate);
+            result = result.OrderBy(program => program.StartDate).ToList();
+
+            return result;
         }
 
         private void CalculateCRUDOperations(int groupId, List<EpgCB> currentPrograms, List<EpgCB> programsToIngest,
@@ -132,6 +176,8 @@ namespace IngestHandler
                 // if a program exists both on newly ingested epgs and in index - it's an update
                 if (currentProgramsDictionary.ContainsKey(programToIngest.Key))
                 {
+                    // update the epg id of the ingested programs with their existing epg id from CB
+                    programToIngest.Value.EpgID = currentProgramsDictionary[programToIngest.Key].EpgID;
                     programsToUpdate.Add(programToIngest.Value);
                 }
                 else
