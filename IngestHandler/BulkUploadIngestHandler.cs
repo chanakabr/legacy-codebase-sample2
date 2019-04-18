@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using Core.Catalog;
 using Core.Profiles;
 using CouchbaseManager;
+using ApiObjects.Response;
 
 namespace IngestHandler
 {
@@ -106,7 +107,11 @@ namespace IngestHandler
             }
             else
             {
+                // convert results to dictionary of programs by external identifier
                 var programAssetResultsDictionary = bulkUploadData.Object.Results.Cast<BulkUploadProgramAssetResult>().ToList().ToDictionary(program => program.ProgramExternalId);
+
+                // get ingest profile data by id (if it exists)
+                IngestProfile ingestProfile = GetIngestProfile(bulkUploadData);
 
                 foreach (var programToIngest in programsToIngest)
                 {
@@ -124,20 +129,99 @@ namespace IngestHandler
 
                 CalculateCRUDOperations(groupId, currentPrograms, programsToIngest, out programsToAdd, out programsToUpdate, out programsToDelete);
 
-                List<EpgCB> caluclatedPrograms = CalculateSimulatedFinalStateAfterIngest(programsToAdd, programsToUpdate);
+                List<EpgCB> calculatedPrograms = CalculateSimulatedFinalStateAfterIngest(programsToAdd, programsToUpdate);
 
                 // duplicate the index of this day
                 var dateOfIngest = serviceEvent.DateOfProgramsToIngest;
 
-                var ingestProfileId = (bulkUploadData.Object.JobData as BulkUploadIngestJobData).IngestProfileId;
+                bool isValid = ValidateResult(calculatedPrograms, programAssetResultsDictionary, ingestProfile);
 
-                var profile = IngestProfileManager.GetIngestProfileById(ingestProfileId)?.Object;
+                if (!isValid)
+                {
+                    bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.OK, "Ingest handler success");
+                }
+                else
+                {
+                    bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.Fail, "Ingest handler failure");
+                }
 
-
-                
                 // update bulk upload in the end
                 BulkUploadManager.UpdateBulkUpload(bulkUploadData.Object);
             }
+        }
+
+        private static IngestProfile GetIngestProfile(ApiObjects.Response.GenericResponse<BulkUpload> bulkUploadData)
+        {
+            IngestProfile ingestProfile = null;
+
+            if (bulkUploadData.Object.JobData != null && bulkUploadData.Object is BulkUpload)
+            {
+                var ingestProfileId = (bulkUploadData.Object.JobData as BulkUploadIngestJobData).IngestProfileId;
+                ingestProfile = IngestProfileManager.GetIngestProfileById(ingestProfileId)?.Object;
+            }
+
+            if (ingestProfile == null)
+            {
+                string message = $"Received bulk upload ingest event with invalid ingest profile.";
+                log.Error(message);
+                throw new Exception(message);
+            }
+
+            return ingestProfile;
+        }
+
+        private bool ValidateResult(List<EpgCB> calculatedPrograms, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary, IngestProfile ingestProfile)
+        {
+            bool isValid = true;
+
+            bool checkOverlap = ingestProfile.DefaultOverlapPolicy == 0;
+            bool checkGaps = ingestProfile.DefaultAutoFillPolicy == 0;
+
+            // if at least one of the policies means rejecting, we will go over the programs and validate them
+            if (checkOverlap || checkGaps)
+            {
+                for (int programIndex = 0; programIndex < calculatedPrograms.Count - 1; programIndex++)
+                {
+                    var currentProgram = calculatedPrograms[programIndex];
+
+                    bool continueToNextProgram = false;
+
+                    // we check the next SEVERAL programs because some of them might be overlapping the current one
+                    for (int secondaryIndex = programIndex + 1; (secondaryIndex < calculatedPrograms.Count) && continueToNextProgram; secondaryIndex++)
+                    {
+                        var nextProgram = calculatedPrograms[secondaryIndex];
+
+                        // if the current program doesn't end when the next one starts
+                        if ((currentProgram.EndDate - nextProgram.StartDate).TotalSeconds > 1)
+                        {
+                            // if the next program starts before the current ends, it means we have an overlap
+                            if (checkOverlap && currentProgram.EndDate > nextProgram.StartDate)
+                            {
+                                programAssetResultsDictionary[currentProgram.EpgIdentifier].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
+                                programAssetResultsDictionary[nextProgram.EpgIdentifier].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
+                            }
+
+                            // if the next program starts after the current ends, it means we have a gap
+                            if (currentProgram.StartDate > currentProgram.EndDate)
+                            {
+                                continueToNextProgram = true;
+
+                                if (checkGaps)
+                                {
+                                    programAssetResultsDictionary[currentProgram.EpgIdentifier].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
+                                    programAssetResultsDictionary[nextProgram.EpgIdentifier].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            continueToNextProgram = true;
+                        }
+                    }
+                }
+            }
+
+            return isValid;
         }
 
         private List<EpgCB> CalculateSimulatedFinalStateAfterIngest(List<EpgCB> programsToAdd, List<EpgCB> programsToUpdate)
