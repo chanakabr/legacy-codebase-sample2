@@ -3196,8 +3196,9 @@ namespace WebAPI.Clients
 
         internal KalturaTag UpdateTag(int groupId, long id, KalturaTag tag, long userId)
         {
+            tag.Id = id;
             Func<TagValue, GenericResponse<TagValue>> updateTagFunc = (TagValue tagToUpdate) =>
-                Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId, id, tagToUpdate, userId);
+                Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId, tagToUpdate, userId);
 
             KalturaTag result =
                 ClientUtils.GetResponseFromWS<KalturaTag, TagValue>(tag, updateTagFunc);

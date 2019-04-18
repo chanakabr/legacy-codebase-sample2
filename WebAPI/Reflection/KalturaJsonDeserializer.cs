@@ -302,7 +302,7 @@ namespace WebAPI.Reflection
                     return new KalturaBulkUpload(parameters);
                     
                 case "KalturaBulkUploadAssetData":
-                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    return new KalturaBulkUploadMediaAssetData(parameters);
                     
                 case "KalturaBulkUploadAssetResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
