@@ -1,5 +1,6 @@
 ﻿ARG CORE_BUILD_TAG=netcore-latest
-FROM 870777418594.dkr.ecr.eu-west-1.amazonaws.com/core:${CORE_BUILD_TAG} AS builder
+ARG CORE_IMAGE=870777418594.dkr.ecr.eu-west-1.amazonaws.com/core
+FROM ${CORE_IMAGE}:${CORE_BUILD_TAG} AS builder
 
 ARG BRANCH=master
 
@@ -11,7 +12,10 @@ WORKDIR /src/RemoteTasks
 RUN bash /src/Core/DllVersioning.Core.sh .
 RUN dotnet publish -c Release "./RemoteTasksNetCore.sln" -o /src/published
 
-FROM mcr.microsoft.com/dotnet/core/runtime:2.2-alpine
+# Cannot use alpine base runtime image because of this issue:
+# https://github.com/dotnet/corefx/issues/29147
+# Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
+FROM mcr.microsoft.com/dotnet/core/runtime:2.2
 WORKDIR /
 
 ENV RUN_TASK=no-task-selected
