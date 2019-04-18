@@ -108,16 +108,47 @@ namespace IngestHandler
 
                 var currentPrograms = GetCurrentProgramsByDate(groupId, minStartDate, maxEndDate);
 
-                CalculateCRUDOperations(groupId, currentPrograms, programsToIngest);
+                List<EpgCB> programsToAdd;
+                List<EpgCB> programsToUpdate;
+                List<EpgCB> programsToDelete;
+                CalculateCRUDOperations(groupId, currentPrograms, programsToIngest, out programsToAdd, out programsToUpdate, out programsToDelete);
             }
 
-
-            throw new NotImplementedException();
         }
 
-        private void CalculateCRUDOperations(int groupId, List<EpgCB> currentPrograms, List<EpgCB> programsToIngest)
+        private void CalculateCRUDOperations(int groupId, List<EpgCB> currentPrograms, List<EpgCB> programsToIngest,
+            out List<EpgCB> programsToAdd, out List<EpgCB> programsToUpdate, out List<EpgCB> programsToDelete)
         {
-            throw new NotImplementedException();
+            programsToAdd = new List<EpgCB>();
+            programsToUpdate = new List<EpgCB>();
+            programsToDelete = new List<EpgCB>();
+
+            var currentProgramsDictionary = currentPrograms.ToDictionary(epg => epg.EpgIdentifier);
+            var programsToIngestDictionary = programsToIngest.ToDictionary(epg => epg.EpgIdentifier);
+
+            
+            foreach (var programToIngest in programsToIngestDictionary)
+            {
+                // if a program exists both on newly ingested epgs and in index - it's an update
+                if (currentProgramsDictionary.ContainsKey(programToIngest.Key))
+                {
+                    programsToUpdate.Add(programToIngest.Value);
+                }
+                else
+                {
+                    // if it exists only on newly ingested epgs and not in index, it's a program to add
+                    programsToAdd.Add(programToIngest.Value);
+                }
+            }
+
+            foreach (var currentProgram in currentProgramsDictionary)
+            {
+                // if a program exists in index but not in newly ingested programs, it should be deleted
+                if (!programsToIngestDictionary.ContainsKey(currentProgram.Key))
+                {
+                    programsToDelete.Add(currentProgram.Value);
+                }
+            }
         }
 
         private List<EpgCB> GetCurrentProgramsByDate(int groupId, DateTime minStartDate, DateTime maxEndDate)
@@ -135,12 +166,14 @@ namespace IngestHandler
 
             FilteredQuery query = new FilteredQuery(true);
 
+            // Program end date > minimum start date
             ESRange minimumRange = new ESRange(false)
             {
                 Key = "end_date"
             };
             minimumRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minStartDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT)));
 
+            // program start date < maximum end date
             ESRange maximumRange = new ESRange(false)
             {
                 Key = "start_date"
@@ -161,6 +194,7 @@ namespace IngestHandler
 
             List<string> epgIds = new List<string>();
 
+            // get the programs - epg ids from elasticsearch, information from EPG DAL
             if (!string.IsNullOrEmpty(searchResult))
             {
                 JObject json = JObject.Parse(searchResult);
