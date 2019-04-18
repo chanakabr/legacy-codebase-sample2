@@ -4754,7 +4754,6 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("RemoveCountryRulesFromMedia");
-                sp.AddParameter("@groupId", groupId);
                 sp.AddIDListParameter<long>("@assetRuleIds", assetRuleIdsToRemove, "ID");
                 sp.AddParameter("@mediaId", mediaId);
                 sp.AddParameter("@groupId", groupId);
@@ -4763,7 +4762,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while UpdateAssetRulesLastRunDate in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIdsToRemove), ex);
+                log.ErrorFormat("Error while RemoveCountryRulesFromMedia in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIdsToRemove), ex);
             }
 
             return result;
