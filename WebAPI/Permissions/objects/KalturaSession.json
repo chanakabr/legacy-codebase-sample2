@@ -5,10 +5,11 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "Session_Get_Priviliges",
-      "parameter": "Priviliges",
+      "name": "KalturaSession_Privileges_Read",
       "object": "KalturaSession",
-      "type": "Priviliges"
+      "parameter": "Privileges",
+      "action": "READ",
+      "type": "Parameter"
     }
   ],
   "type": "Parameter"

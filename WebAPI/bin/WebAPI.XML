@@ -4986,6 +4986,16 @@
             <param name="silent">Fail silently</param>
             <returns>True if the property is permitted, false otherwise</returns>
         </member>
+        <member name="M:WebAPI.Managers.RolesManager.IsPropertyPermitted(System.String,System.String,WebAPI.Filters.RequestType,System.Boolean)">
+            <summary>
+            Checks if a property of an object is allowed
+            </summary>
+            <param name="type">Type name</param>
+            <param name="property">Property name</param>
+            <param name="action">Required action</param>
+            <param name="silent">Fail silently</param>
+            <returns>True if the property is permitted, false otherwise</returns>
+        </member>
         <member name="M:WebAPI.Managers.RolesManager.ValidateArgumentPermitted(System.String,System.String,System.String,System.Boolean)">
             <summary>
             Checks if a property of an object is allowed

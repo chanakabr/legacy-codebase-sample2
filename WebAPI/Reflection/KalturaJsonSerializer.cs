@@ -1,8 +1,11 @@
 // NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project
 using System;
 using System.Linq;
+using System.Web;
 using System.Collections.Generic;
 using WebAPI.Managers.Scheme;
+using WebAPI.Filters;
+using WebAPI.Managers;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.MultiRequest;
@@ -32,6 +35,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -40,6 +44,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -50,6 +55,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
@@ -66,6 +72,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
@@ -84,6 +91,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Sources != null)
             {
                 propertyValue = "[" + String.Join(", ", Sources.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -97,6 +105,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Sources != null)
             {
                 propertyValue = Sources.Count > 0 ? "<item>" + String.Join("</item><item>", Sources.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -112,6 +121,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdsParams != null)
             {
                 ret.Add("adsParam", "\"adsParam\": " + "\"" + EscapeJson(AdsParams) + "\"");
@@ -136,6 +146,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdsParams != null)
             {
                 ret.Add("adsParam", "<adsParam>" + EscapeXml(AdsParams) + "</adsParam>");
@@ -162,6 +173,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -170,6 +182,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -180,6 +193,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("discountModuleId", "\"discountModuleId\": " + DiscountModuleId);
             return ret;
         }
@@ -189,6 +203,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("discountModuleId", "<discountModuleId>" + DiscountModuleId + "</discountModuleId>");
             return ret;
         }
@@ -200,6 +215,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("adapterId", "\"adapterId\": " + AdapterId);
             return ret;
         }
@@ -209,6 +225,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("adapterId", "<adapterId>" + AdapterId + "</adapterId>");
             return ret;
         }
@@ -220,6 +237,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FullLifeCycle != null)
             {
                 ret.Add("fullLifeCycle", "\"fullLifeCycle\": " + "\"" + EscapeJson(FullLifeCycle) + "\"");
@@ -237,6 +255,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FullLifeCycle != null)
             {
                 ret.Add("fullLifeCycle", "<fullLifeCycle>" + EscapeXml(FullLifeCycle) + "</fullLifeCycle>");
@@ -256,6 +275,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -264,6 +284,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -274,6 +295,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -282,6 +304,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -292,6 +315,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -300,6 +324,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -310,6 +335,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("applyOnChannel", "\"applyOnChannel\": " + ApplyOnChannel.ToString().ToLower());
             return ret;
         }
@@ -319,6 +345,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("applyOnChannel", "<applyOnChannel>" + ApplyOnChannel.ToString().ToLower() + "</applyOnChannel>");
             return ret;
         }
@@ -330,6 +357,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalReceiptCode != null)
             {
                 ret.Add("externalReceiptCode", "\"externalReceiptCode\": " + "\"" + EscapeJson(ExternalReceiptCode) + "\"");
@@ -354,6 +382,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalReceiptCode != null)
             {
                 ret.Add("externalReceiptCode", "<externalReceiptCode>" + EscapeXml(ExternalReceiptCode) + "</externalReceiptCode>");
@@ -380,6 +409,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(actionDate.HasValue)
             {
                 ret.Add("actionDate", "\"actionDate\": " + actionDate);
@@ -497,6 +527,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(actionDate.HasValue)
             {
                 ret.Add("actionDate", "<actionDate>" + actionDate + "</actionDate>");
@@ -616,6 +647,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(transactions != null)
             {
                 propertyValue = "[" + String.Join(", ", transactions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -629,6 +661,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(transactions != null)
             {
                 propertyValue = transactions.Count > 0 ? "<item>" + String.Join("</item><item>", transactions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -644,6 +677,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -652,6 +686,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -662,6 +697,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(StreamerType != null)
             {
                 ret.Add("streamertype", "\"streamertype\": " + "\"" + EscapeJson(StreamerType) + "\"");
@@ -678,6 +714,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(StreamerType != null)
             {
                 ret.Add("streamertype", "<streamertype>" + EscapeXml(StreamerType) + "</streamertype>");
@@ -696,6 +733,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Format != null)
             {
                 ret.Add("format", "\"format\": " + "\"" + EscapeJson(Format) + "\"");
@@ -720,6 +758,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Format != null)
             {
                 ret.Add("format", "<format>" + EscapeXml(Format) + "</format>");
@@ -746,6 +785,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
@@ -807,6 +847,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
@@ -870,6 +911,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -883,6 +925,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -898,6 +941,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -906,6 +950,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -916,6 +961,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("amount", "\"amount\": " + Amount);
             ret.Add("appliedRenewalIterations", "\"appliedRenewalIterations\": " + AppliedRenewalIterations);
             ret.Add("compensationType", "\"compensationType\": " + "\"" + Enum.GetName(typeof(KalturaCompensationType), CompensationType) + "\"");
@@ -931,6 +977,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("amount", "<amount>" + Amount + "</amount>");
             ret.Add("appliedRenewalIterations", "<appliedRenewalIterations>" + AppliedRenewalIterations + "</appliedRenewalIterations>");
             ret.Add("compensationType", "<compensationType>" + "" + Enum.GetName(typeof(KalturaCompensationType), CompensationType) + "" + "</compensationType>");
@@ -948,6 +995,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Data != null)
             {
                 ret.Add("data", "\"data\": " + "\"" + EscapeJson(Data) + "\"");
@@ -960,6 +1008,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Data != null)
             {
                 ret.Add("data", "<data>" + EscapeXml(Data) + "</data>");
@@ -974,6 +1023,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LicenseURL != null)
             {
                 ret.Add("licenseURL", "\"licenseURL\": " + "\"" + EscapeJson(LicenseURL) + "\"");
@@ -987,6 +1037,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LicenseURL != null)
             {
                 ret.Add("licenseURL", "<licenseURL>" + EscapeXml(LicenseURL) + "</licenseURL>");
@@ -1002,6 +1053,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -1010,6 +1062,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -1020,6 +1073,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CurrentDate.HasValue)
             {
                 ret.Add("currentDate", "\"currentDate\": " + CurrentDate);
@@ -1186,6 +1240,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CurrentDate.HasValue)
             {
                 ret.Add("currentDate", "<currentDate>" + CurrentDate + "</currentDate>");
@@ -1354,6 +1409,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("householdId", "\"householdId\": " + HouseholdId);
             ret.Add("id", "\"id\": " + Id);
             if(ProductId != null)
@@ -1376,6 +1432,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
             ret.Add("id", "<id>" + Id + "</id>");
             if(ProductId != null)
@@ -1400,6 +1457,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && EntitlementTypeEqual.HasValue)
             {
                 ret.Add("entitlementTypeEqual", "\"entitlementTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), EntitlementTypeEqual) + "\"");
@@ -1425,6 +1483,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("4.8.0.0", currentVersion) && EntitlementTypeEqual.HasValue)
             {
                 ret.Add("entitlementTypeEqual", "<entitlementTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), EntitlementTypeEqual) + "" + "</entitlementTypeEqual>");
@@ -1452,6 +1511,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Entitlements != null)
             {
                 propertyValue = "[" + String.Join(", ", Entitlements.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -1465,6 +1525,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Entitlements != null)
             {
                 propertyValue = Entitlements.Count > 0 ? "<item>" + String.Join("</item><item>", Entitlements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -1480,6 +1541,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("date", "\"date\": " + Date);
             if(Price != null)
             {
@@ -1497,6 +1559,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("date", "<date>" + Date + "</date>");
             if(Price != null)
             {
@@ -1516,6 +1579,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("price", "\"price\": " + Price);
             ret.Add("purchaseId", "\"purchaseId\": " + PurchaseId);
             ret.Add("subscriptionId", "\"subscriptionId\": " + SubscriptionId);
@@ -1527,6 +1591,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("price", "<price>" + Price + "</price>");
             ret.Add("purchaseId", "<purchaseId>" + PurchaseId + "</purchaseId>");
             ret.Add("subscriptionId", "<subscriptionId>" + SubscriptionId + "</subscriptionId>");
@@ -1540,6 +1605,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "\"by\": " + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "\"");
             ret.Add("entitlementType", "\"entitlementType\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), EntitlementType) + "\"");
             if (currentVersion == null || isOldVersion)
@@ -1554,6 +1620,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
             ret.Add("entitlementType", "<entitlementType>" + "" + Enum.GetName(typeof(KalturaTransactionType), EntitlementType) + "" + "</entitlementType>");
             if (currentVersion == null || isOldVersion)
@@ -1570,6 +1637,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PaymentGatewayName != null)
             {
                 ret.Add("paymentGatewayName", "\"paymentGatewayName\": " + "\"" + EscapeJson(PaymentGatewayName) + "\"");
@@ -1586,6 +1654,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PaymentGatewayName != null)
             {
                 ret.Add("paymentGatewayName", "<paymentGatewayName>" + EscapeXml(PaymentGatewayName) + "</paymentGatewayName>");
@@ -1604,6 +1673,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExpiryDate.HasValue)
             {
                 ret.Add("expiryDate", "\"expiryDate\": " + ExpiryDate);
@@ -1625,6 +1695,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExpiryDate.HasValue)
             {
                 ret.Add("expiryDate", "<expiryDate>" + ExpiryDate + "</expiryDate>");
@@ -1648,6 +1719,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MetaData != null)
             {
                 propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
@@ -1661,6 +1733,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MetaData != null)
             {
                 propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
@@ -1676,6 +1749,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Certificate != null)
             {
                 ret.Add("certificate", "\"certificate\": " + "\"" + EscapeJson(Certificate) + "\"");
@@ -1688,6 +1762,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Certificate != null)
             {
                 ret.Add("certificate", "<certificate>" + EscapeXml(Certificate) + "</certificate>");
@@ -1702,6 +1777,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -1710,6 +1786,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -1720,6 +1797,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PremiumServices != null)
             {
                 propertyValue = "[" + String.Join(", ", PremiumServices.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -1733,6 +1811,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PremiumServices != null)
             {
                 propertyValue = PremiumServices.Count > 0 ? "<item>" + String.Join("</item><item>", PremiumServices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -1748,6 +1827,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("availableQuota", "\"availableQuota\": " + AvailableQuota);
             ret.Add("householdId", "\"householdId\": " + HouseholdId);
             ret.Add("totalQuota", "\"totalQuota\": " + TotalQuota);
@@ -1759,6 +1839,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("availableQuota", "<availableQuota>" + AvailableQuota + "</availableQuota>");
             ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
             ret.Add("totalQuota", "<totalQuota>" + TotalQuota + "</totalQuota>");
@@ -1772,6 +1853,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AltUrl != null)
             {
                 ret.Add("altUrl", "\"altUrl\": " + "\"" + EscapeJson(AltUrl) + "\"");
@@ -1796,6 +1878,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AltUrl != null)
             {
                 ret.Add("altUrl", "<altUrl>" + EscapeXml(AltUrl) + "</altUrl>");
@@ -1822,6 +1905,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetId != null)
             {
                 ret.Add("assetId", "\"assetId\": " + "\"" + EscapeJson(AssetId) + "\"");
@@ -1834,6 +1918,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetId != null)
             {
                 ret.Add("assetId", "<assetId>" + EscapeXml(AssetId) + "</assetId>");
@@ -1848,6 +1933,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("startDate", "\"startDate\": " + StartDate);
             ret.Add("streamType", "\"streamType\": " + "\"" + Enum.GetName(typeof(KalturaStreamType), StreamType) + "\"");
             return ret;
@@ -1858,6 +1944,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
             ret.Add("streamType", "<streamType>" + "" + Enum.GetName(typeof(KalturaStreamType), StreamType) + "" + "</streamType>");
             return ret;
@@ -1870,6 +1957,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BaseUrl != null)
             {
                 ret.Add("baseUrl", "\"baseUrl\": " + "\"" + EscapeJson(BaseUrl) + "\"");
@@ -1883,6 +1971,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BaseUrl != null)
             {
                 ret.Add("baseUrl", "<baseUrl>" + EscapeXml(BaseUrl) + "</baseUrl>");
@@ -1898,6 +1987,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FileType != null)
             {
                 ret.Add("fileType", "\"fileType\": " + "\"" + EscapeJson(FileType) + "\"");
@@ -1910,6 +2000,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FileType != null)
             {
                 ret.Add("fileType", "<fileType>" + EscapeXml(FileType) + "</fileType>");
@@ -1924,6 +2015,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(QuotaInMinutes.HasValue)
             {
                 ret.Add("quotaInMinutes", "\"quotaInMinutes\": " + QuotaInMinutes);
@@ -1936,6 +2028,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(QuotaInMinutes.HasValue)
             {
                 ret.Add("quotaInMinutes", "<quotaInMinutes>" + QuotaInMinutes + "</quotaInMinutes>");
@@ -1950,6 +2043,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = "[" + String.Join(", ", Actions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -1983,6 +2077,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -2018,6 +2113,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterData != null)
             {
                 propertyValue = "{" + String.Join(", ", AdapterData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
@@ -2048,6 +2144,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterData != null)
             {
                 propertyValue = AdapterData.Count > 0 ? "<item>" + String.Join("</item><item>", AdapterData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
@@ -2080,6 +2177,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -2088,6 +2186,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -2098,6 +2197,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("4.6.0.0", currentVersion) && AdsParams != null)
             {
                 ret.Add("adsParam", "\"adsParam\": " + "\"" + EscapeJson(AdsParams) + "\"");
@@ -2128,6 +2228,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("4.6.0.0", currentVersion) && AdsParams != null)
             {
                 ret.Add("adsParam", "<adsParam>" + EscapeXml(AdsParams) + "</adsParam>");
@@ -2160,6 +2261,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -2168,6 +2270,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -2178,6 +2281,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!ret.ContainsKey("mediaFileId") && MediaFileId.HasValue)
             {
                 ret.Add("mediaFileId", "\"mediaFileId\": " + MediaFileId);
@@ -2202,6 +2306,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!ret.ContainsKey("mediaFileId") && MediaFileId.HasValue)
             {
                 ret.Add("mediaFileId", "<mediaFileId>" + MediaFileId + "</mediaFileId>");
@@ -2228,6 +2333,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -2244,6 +2350,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -2262,6 +2369,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FilesIds != null)
             {
                 propertyValue = "[" + String.Join(", ", FilesIds.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -2296,6 +2404,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FilesIds != null)
             {
                 propertyValue = FilesIds.Count > 0 ? "<item>" + String.Join("</item><item>", FilesIds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -2332,6 +2441,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CollectionIdIn != null)
             {
                 ret.Add("collectionIdIn", "\"collectionIdIn\": " + "\"" + EscapeJson(CollectionIdIn) + "\"");
@@ -2360,6 +2470,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CollectionIdIn != null)
             {
                 ret.Add("collectionIdIn", "<collectionIdIn>" + EscapeXml(CollectionIdIn) + "</collectionIdIn>");
@@ -2390,6 +2501,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Coupon != null)
             {
                 ret.Add("coupon", "\"coupon\": " + "\"" + EscapeJson(Coupon) + "\"");
@@ -2415,6 +2527,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Coupon != null)
             {
                 ret.Add("coupon", "<coupon>" + EscapeXml(Coupon) + "</coupon>");
@@ -2442,6 +2555,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterData != null)
             {
                 ret.Add("adapterData", "\"adapterData\": " + "\"" + EscapeJson(AdapterData) + "\"");
@@ -2460,6 +2574,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterData != null)
             {
                 ret.Add("adapterData", "<adapterData>" + EscapeXml(AdapterData) + "</adapterData>");
@@ -2480,6 +2595,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PreviewModuleId.HasValue)
             {
                 ret.Add("previewModuleId", "\"previewModuleId\": " + PreviewModuleId);
@@ -2492,6 +2608,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PreviewModuleId.HasValue)
             {
                 ret.Add("previewModuleId", "<previewModuleId>" + PreviewModuleId + "</previewModuleId>");
@@ -2506,6 +2623,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "\"assetId\": " + AssetId);
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             if(Id.HasValue)
@@ -2528,6 +2646,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(Id.HasValue)
@@ -2552,6 +2671,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "\"assetId\": " + AssetId);
             ret.Add("code", "\"code\": " + Code);
             if(Message != null)
@@ -2571,6 +2691,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             ret.Add("code", "<code>" + Code + "</code>");
             if(Message != null)
@@ -2592,6 +2713,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdIn != null)
             {
                 ret.Add("assetIdIn", "\"assetIdIn\": " + "\"" + EscapeJson(AssetIdIn) + "\"");
@@ -2604,6 +2726,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdIn != null)
             {
                 ret.Add("assetIdIn", "<assetIdIn>" + EscapeXml(AssetIdIn) + "</assetIdIn>");
@@ -2618,6 +2741,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -2631,6 +2755,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -2646,6 +2771,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalRecordingIdIn != null)
             {
                 ret.Add("externalRecordingIdIn", "\"externalRecordingIdIn\": " + "\"" + EscapeJson(ExternalRecordingIdIn) + "\"");
@@ -2670,6 +2796,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalRecordingIdIn != null)
             {
                 ret.Add("externalRecordingIdIn", "<externalRecordingIdIn>" + EscapeXml(ExternalRecordingIdIn) + "</externalRecordingIdIn>");
@@ -2696,6 +2823,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -2709,6 +2837,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -2724,6 +2853,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
@@ -2737,6 +2867,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
@@ -2752,6 +2883,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("channelId", "\"channelId\": " + ChannelId);
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             ret.Add("epgId", "\"epgId\": " + EpgId);
@@ -2779,6 +2911,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("channelId", "<channelId>" + ChannelId + "</channelId>");
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             ret.Add("epgId", "<epgId>" + EpgId + "</epgId>");
@@ -2808,6 +2941,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -2816,6 +2950,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -2826,6 +2961,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -2839,6 +2975,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -2854,6 +2991,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -2862,6 +3000,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -2872,6 +3011,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!ret.ContainsKey("isInGracePeriod") && IsInGracePeriod.HasValue)
             {
                 ret.Add("isInGracePeriod", "\"isInGracePeriod\": " + IsInGracePeriod.ToString().ToLower());
@@ -2929,6 +3069,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!ret.ContainsKey("isInGracePeriod") && IsInGracePeriod.HasValue)
             {
                 ret.Add("isInGracePeriod", "<isInGracePeriod>" + IsInGracePeriod.ToString().ToLower() + "</isInGracePeriod>");
@@ -2988,6 +3129,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("offset", "\"offset\": " + Offset);
             ret.Add("timeZone", "\"timeZone\": " + TimeZone.ToString().ToLower());
             return ret;
@@ -2998,6 +3140,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("offset", "<offset>" + Offset + "</offset>");
             ret.Add("timeZone", "<timeZone>" + TimeZone.ToString().ToLower() + "</timeZone>");
             return ret;
@@ -3010,6 +3153,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CreatedAt.HasValue)
             {
                 ret.Add("createdAt", "\"createdAt\": " + CreatedAt);
@@ -3058,6 +3202,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CreatedAt.HasValue)
             {
                 ret.Add("createdAt", "<createdAt>" + CreatedAt + "</createdAt>");
@@ -3108,6 +3253,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndDateLessThanOrEqual.HasValue)
             {
                 ret.Add("endDateLessThanOrEqual", "\"endDateLessThanOrEqual\": " + EndDateLessThanOrEqual);
@@ -3125,6 +3271,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndDateLessThanOrEqual.HasValue)
             {
                 ret.Add("endDateLessThanOrEqual", "<endDateLessThanOrEqual>" + EndDateLessThanOrEqual + "</endDateLessThanOrEqual>");
@@ -3144,6 +3291,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "\"by\": " + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "\"");
             if(EndDate.HasValue)
             {
@@ -3169,6 +3317,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
             if(EndDate.HasValue)
             {
@@ -3196,6 +3345,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("adapterTransactionStatus", "\"adapterTransactionStatus\": " + "\"" + Enum.GetName(typeof(KalturaTransactionAdapterStatus), AdapterStatus) + "\"");
             if(ExternalId != null)
             {
@@ -3218,6 +3368,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("adapterTransactionStatus", "<adapterTransactionStatus>" + "" + Enum.GetName(typeof(KalturaTransactionAdapterStatus), AdapterStatus) + "" + "</adapterTransactionStatus>");
             if(ExternalId != null)
             {
@@ -3242,6 +3393,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("date", "\"date\": " + Date);
             if(Entitlements != null)
             {
@@ -3263,6 +3415,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("date", "<date>" + Date + "</date>");
             if(Entitlements != null)
             {
@@ -3286,6 +3439,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(UserFullName != null)
             {
                 ret.Add("userFullName", "\"userFullName\": " + "\"" + EscapeJson(UserFullName) + "\"");
@@ -3310,6 +3464,7 @@ namespace WebAPI.Models.ConditionalAccess
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(UserFullName != null)
             {
                 ret.Add("userFullName", "<userFullName>" + EscapeXml(UserFullName) + "</userFullName>");
@@ -3340,6 +3495,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "\"action\": " + "\"" + EscapeJson(Action) + "\"");
@@ -3358,6 +3514,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "<action>" + EscapeXml(Action) + "</action>");
@@ -3378,6 +3535,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Comments != null)
             {
                 propertyValue = "[" + String.Join(", ", Comments.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -3395,6 +3553,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Comments != null)
             {
                 propertyValue = Comments.Count > 0 ? "<item>" + String.Join("</item><item>", Comments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -3414,6 +3573,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -3422,6 +3582,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -3432,6 +3593,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Network.HasValue)
             {
                 ret.Add("network", "\"network\": " + "\"" + Enum.GetName(typeof(KalturaSocialNetwork), Network) + "\"");
@@ -3445,6 +3607,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Network.HasValue)
             {
                 ret.Add("network", "<network>" + "" + Enum.GetName(typeof(KalturaSocialNetwork), Network) + "" + "</network>");
@@ -3460,6 +3623,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Birthday != null)
             {
                 ret.Add("birthday", "\"birthday\": " + "\"" + EscapeJson(Birthday) + "\"");
@@ -3508,6 +3672,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Birthday != null)
             {
                 ret.Add("birthday", "<birthday>" + EscapeXml(Birthday) + "</birthday>");
@@ -3558,6 +3723,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("actionType", "\"actionType\": " + "\"" + Enum.GetName(typeof(KalturaSocialActionType), ActionType) + "\"");
             if(AssetId.HasValue)
             {
@@ -3584,6 +3750,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("actionType", "<actionType>" + "" + Enum.GetName(typeof(KalturaSocialActionType), ActionType) + "" + "</actionType>");
             if(AssetId.HasValue)
             {
@@ -3612,6 +3779,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActionTypeIn != null)
             {
                 ret.Add("actionTypeIn", "\"actionTypeIn\": " + "\"" + EscapeJson(ActionTypeIn) + "\"");
@@ -3629,6 +3797,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActionTypeIn != null)
             {
                 ret.Add("actionTypeIn", "<actionTypeIn>" + EscapeXml(ActionTypeIn) + "</actionTypeIn>");
@@ -3648,6 +3817,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -3661,6 +3831,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -3676,6 +3847,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("rate", "\"rate\": " + Rate);
             return ret;
         }
@@ -3685,6 +3857,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("rate", "<rate>" + Rate + "</rate>");
             return ret;
         }
@@ -3696,6 +3869,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             if(Header != null)
             {
@@ -3717,6 +3891,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(Header != null)
             {
@@ -3740,6 +3915,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetIdEqual", "\"assetIdEqual\": " + AssetIdEqual);
             ret.Add("assetTypeEqual", "\"assetTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "\"");
             ret.Add("createDateGreaterThan", "\"createDateGreaterThan\": " + CreateDateGreaterThan);
@@ -3752,6 +3928,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetIdEqual", "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>");
             ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             ret.Add("createDateGreaterThan", "<createDateGreaterThan>" + CreateDateGreaterThan + "</createDateGreaterThan>");
@@ -3766,6 +3943,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -3779,6 +3957,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -3794,6 +3973,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -3802,6 +3982,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -3812,6 +3993,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AppId != null)
             {
                 ret.Add("appId", "\"appId\": " + "\"" + EscapeJson(AppId) + "\"");
@@ -3832,6 +4014,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AppId != null)
             {
                 ret.Add("appId", "<appId>" + EscapeXml(AppId) + "</appId>");
@@ -3854,6 +4037,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SocialAction != null)
             {
                 propertyValue = SocialAction.ToJson(currentVersion, omitObsolete);
@@ -3875,6 +4059,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SocialAction != null)
             {
                 propertyValue = SocialAction.ToXml(currentVersion, omitObsolete);
@@ -3898,6 +4083,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActionTypeIn != null)
             {
                 ret.Add("actionTypeIn", "\"actionTypeIn\": " + "\"" + EscapeJson(ActionTypeIn) + "\"");
@@ -3918,6 +4104,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActionTypeIn != null)
             {
                 ret.Add("actionTypeIn", "<actionTypeIn>" + EscapeXml(ActionTypeIn) + "</actionTypeIn>");
@@ -3940,6 +4127,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -3953,6 +4141,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -3968,6 +4157,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AuthorImageUrl != null)
             {
                 ret.Add("authorImageUrl", "\"authorImageUrl\": " + "\"" + EscapeJson(AuthorImageUrl) + "\"");
@@ -3984,6 +4174,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AuthorImageUrl != null)
             {
                 ret.Add("authorImageUrl", "<authorImageUrl>" + EscapeXml(AuthorImageUrl) + "</authorImageUrl>");
@@ -4002,6 +4193,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Data != null)
             {
                 ret.Add("data", "\"data\": " + "\"" + EscapeJson(Data) + "\"");
@@ -4067,6 +4259,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Data != null)
             {
                 ret.Add("data", "<data>" + EscapeXml(Data) + "</data>");
@@ -4134,6 +4327,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Birthday != null)
             {
                 ret.Add("birthday", "\"birthday\": " + "\"" + EscapeJson(Birthday) + "\"");
@@ -4186,6 +4380,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Birthday != null)
             {
                 ret.Add("birthday", "<birthday>" + EscapeXml(Birthday) + "</birthday>");
@@ -4240,6 +4435,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PermissionItems != null)
             {
                 propertyValue = "[" + String.Join(", ", PermissionItems.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -4253,6 +4449,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PermissionItems != null)
             {
                 propertyValue = PermissionItems.Count > 0 ? "<item>" + String.Join("</item><item>", PermissionItems.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -4268,6 +4465,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -4276,6 +4474,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -4286,6 +4485,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(NetworkStatus != null)
             {
                 propertyValue = "[" + String.Join(", ", NetworkStatus.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -4304,6 +4504,7 @@ namespace WebAPI.Models.Social
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(NetworkStatus != null)
             {
                 propertyValue = NetworkStatus.Count > 0 ? "<item>" + String.Join("</item><item>", NetworkStatus.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -4328,6 +4529,7 @@ namespace WebAPI.Models.MultiRequest
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("aggregationType", "\"aggregationType\": " + "\"" + Enum.GetName(typeof(KalturaAggregationType), AggregationType) + "\"");
             return ret;
         }
@@ -4337,6 +4539,7 @@ namespace WebAPI.Models.MultiRequest
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("aggregationType", "<aggregationType>" + "" + Enum.GetName(typeof(KalturaAggregationType), AggregationType) + "" + "</aggregationType>");
             return ret;
         }
@@ -4348,6 +4551,7 @@ namespace WebAPI.Models.MultiRequest
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("operator", "\"operator\": " + "\"" + Enum.GetName(typeof(KalturaSkipOperators), Operator) + "\"");
             if(PropertyPath != null)
             {
@@ -4365,6 +4569,7 @@ namespace WebAPI.Models.MultiRequest
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("operator", "<operator>" + "" + Enum.GetName(typeof(KalturaSkipOperators), Operator) + "" + "</operator>");
             if(PropertyPath != null)
             {
@@ -4384,6 +4589,7 @@ namespace WebAPI.Models.MultiRequest
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -4392,6 +4598,7 @@ namespace WebAPI.Models.MultiRequest
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -4402,6 +4609,7 @@ namespace WebAPI.Models.MultiRequest
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("condition", "\"condition\": " + "\"" + Enum.GetName(typeof(KalturaSkipOptions), Condition) + "\"");
             return ret;
         }
@@ -4411,6 +4619,7 @@ namespace WebAPI.Models.MultiRequest
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("condition", "<condition>" + "" + Enum.GetName(typeof(KalturaSkipOptions), Condition) + "" + "</condition>");
             return ret;
         }
@@ -4426,6 +4635,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -4434,6 +4644,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -4444,6 +4655,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "\"action\": " + "\"" + EscapeJson(Action) + "\"");
@@ -4460,6 +4672,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "<action>" + EscapeXml(Action) + "</action>");
@@ -4478,6 +4691,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "\"action\": " + "\"" + EscapeJson(Action) + "\"");
@@ -4498,6 +4712,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "<action>" + EscapeXml(Action) + "</action>");
@@ -4520,6 +4735,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaApiParameterPermissionItemAction), Action) + "\"");
             if(Object != null)
             {
@@ -4537,6 +4753,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaApiParameterPermissionItemAction), Action) + "" + "</action>");
             if(Object != null)
             {
@@ -4556,6 +4773,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Object != null)
             {
                 ret.Add("object", "\"object\": " + "\"" + EscapeJson(Object) + "\"");
@@ -4572,6 +4790,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Object != null)
             {
                 ret.Add("object", "<object>" + EscapeXml(Object) + "</object>");
@@ -4590,6 +4809,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             if(Expiry.HasValue)
             {
@@ -4640,6 +4860,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(Expiry.HasValue)
             {
@@ -4692,6 +4913,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -4700,6 +4922,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -4710,6 +4933,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "\"value\": " + value.ToString().ToLower());
             return ret;
         }
@@ -4719,6 +4943,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "<value>" + value.ToString().ToLower() + "</value>");
             return ret;
         }
@@ -4730,6 +4955,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ApiVersion != null)
             {
                 ret.Add("apiVersion", "\"apiVersion\": " + "\"" + EscapeJson(ApiVersion) + "\"");
@@ -4746,6 +4972,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ApiVersion != null)
             {
                 ret.Add("apiVersion", "<apiVersion>" + EscapeXml(ApiVersion) + "</apiVersion>");
@@ -4764,6 +4991,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("filter", "\"filter\": " + Filter);
             if(Name != null)
             {
@@ -4782,6 +5010,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("filter", "<filter>" + Filter + "</filter>");
             if(Name != null)
             {
@@ -4802,6 +5031,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "\"value\": " + value);
             return ret;
         }
@@ -4811,6 +5041,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "<value>" + value + "</value>");
             return ret;
         }
@@ -4822,6 +5053,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("orderBy", "\"orderBy\": " + OrderBy);
             return ret;
         }
@@ -4831,6 +5063,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("orderBy", "<orderBy>" + OrderBy + "</orderBy>");
             return ret;
         }
@@ -4842,6 +5075,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PageIndex.HasValue)
             {
                 ret.Add("pageIndex", "\"pageIndex\": " + PageIndex);
@@ -4858,6 +5092,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PageIndex.HasValue)
             {
                 ret.Add("pageIndex", "<pageIndex>" + PageIndex + "</pageIndex>");
@@ -4876,6 +5111,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -4889,6 +5125,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -4904,6 +5141,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Group != null)
             {
                 ret.Add("group", "\"group\": " + "\"" + EscapeJson(Group) + "\"");
@@ -4916,6 +5154,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Group != null)
             {
                 ret.Add("group", "<group>" + EscapeXml(Group) + "</group>");
@@ -4930,6 +5169,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "\"by\": " + "\"" + Enum.GetName(typeof(KalturaIdentifierTypeBy), By) + "\"");
             if(Identifier != null)
             {
@@ -4943,6 +5183,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaIdentifierTypeBy), By) + "" + "</by>");
             if(Identifier != null)
             {
@@ -4958,6 +5199,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "\"value\": " + value);
             return ret;
         }
@@ -4967,6 +5209,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "<value>" + value + "</value>");
             return ret;
         }
@@ -4978,6 +5221,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Values != null)
             {
                 propertyValue = "[" + String.Join(", ", Values.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -4991,6 +5235,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Values != null)
             {
                 propertyValue = Values.Count > 0 ? "<item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -5006,6 +5251,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(key != null)
             {
                 ret.Add("key", "\"key\": " + "\"" + EscapeJson(key) + "\"");
@@ -5022,6 +5268,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(key != null)
             {
                 ret.Add("key", "<key>" + EscapeXml(key) + "</key>");
@@ -5040,6 +5287,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("totalCount", "\"totalCount\": " + TotalCount);
             return ret;
         }
@@ -5049,6 +5297,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("totalCount", "<totalCount>" + TotalCount + "</totalCount>");
             return ret;
         }
@@ -5060,6 +5309,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "\"value\": " + value);
             return ret;
         }
@@ -5069,6 +5319,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "<value>" + value + "</value>");
             return ret;
         }
@@ -5080,6 +5331,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Args != null)
             {
                 propertyValue = "{" + String.Join(", ", Args.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
@@ -5098,6 +5350,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Args != null)
             {
                 propertyValue = Args.Count > 0 ? "<item>" + String.Join("</item><item>", Args.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
@@ -5118,6 +5371,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             propertyValue = value.ToCustomJson(currentVersion, omitObsolete, "value");
             if(propertyValue != null)
             {
@@ -5131,6 +5385,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", value.ToCustomXml(currentVersion, omitObsolete, "value"));
             return ret;
         }
@@ -5142,6 +5397,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -5155,6 +5411,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -5170,6 +5427,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(eventObject != null)
             {
                 propertyValue = eventObject.ToJson(currentVersion, omitObsolete);
@@ -5196,6 +5454,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(eventObject != null)
             {
                 propertyValue = eventObject.ToXml(currentVersion, omitObsolete);
@@ -5224,6 +5483,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(objectType != null)
             {
                 ret.Add("objectType", "\"objectType\": " + "\"" + EscapeJson(objectType) + "\"");
@@ -5241,6 +5501,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(objectType != null)
             {
                 ret.Add("objectType", "<objectType>" + EscapeXml(objectType) + "</objectType>");
@@ -5260,6 +5521,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -5268,6 +5530,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -5278,6 +5541,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -5290,6 +5554,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
@@ -5304,6 +5569,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -5312,6 +5578,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -5322,6 +5589,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -5330,6 +5598,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -5340,6 +5609,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -5353,6 +5623,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -5368,6 +5639,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("abortAllOnError", "\"abortAllOnError\": " + AbortAllOnError.ToString().ToLower());
             ret.Add("abortOnError", "\"abortOnError\": " + AbortOnError.ToString().ToLower());
             if(Currency != null)
@@ -5408,6 +5680,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("abortAllOnError", "<abortAllOnError>" + AbortAllOnError.ToString().ToLower() + "</abortAllOnError>");
             ret.Add("abortOnError", "<abortOnError>" + AbortOnError.ToString().ToLower() + "</abortOnError>");
             if(Currency != null)
@@ -5450,6 +5723,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(value != null)
             {
                 ret.Add("value", "\"value\": " + "\"" + EscapeJson(value) + "\"");
@@ -5462,6 +5736,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(value != null)
             {
                 ret.Add("value", "<value>" + EscapeXml(value) + "</value>");
@@ -5476,6 +5751,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -5489,6 +5765,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -5504,6 +5781,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Language != null)
             {
                 ret.Add("language", "\"language\": " + "\"" + EscapeJson(Language) + "\"");
@@ -5520,6 +5798,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Language != null)
             {
                 ret.Add("language", "<language>" + EscapeXml(Language) + "</language>");
@@ -5538,6 +5817,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(description) + "\"");
@@ -5550,6 +5830,7 @@ namespace WebAPI.Models.General
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(description) + "</description>");
@@ -5568,6 +5849,7 @@ namespace WebAPI.Models.Notifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Enabled.HasValue)
             {
                 ret.Add("enabled", "\"enabled\": " + Enabled.ToString().ToLower());
@@ -5620,6 +5902,7 @@ namespace WebAPI.Models.Notifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Enabled.HasValue)
             {
                 ret.Add("enabled", "<enabled>" + Enabled.ToString().ToLower() + "</enabled>");
@@ -5674,6 +5957,7 @@ namespace WebAPI.Models.Notifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "\"assetId\": " + AssetId);
             return ret;
         }
@@ -5683,6 +5967,7 @@ namespace WebAPI.Models.Notifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             return ret;
         }
@@ -5694,6 +5979,7 @@ namespace WebAPI.Models.Notifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -5711,6 +5997,7 @@ namespace WebAPI.Models.Notifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -5730,6 +6017,7 @@ namespace WebAPI.Models.Notifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("epgChannelId", "\"epgChannelId\": " + EpgChannelId);
             if(SeasonNumber.HasValue)
             {
@@ -5747,6 +6035,7 @@ namespace WebAPI.Models.Notifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("epgChannelId", "<epgChannelId>" + EpgChannelId + "</epgChannelId>");
             if(SeasonNumber.HasValue)
             {
@@ -5770,6 +6059,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -5778,6 +6068,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -5788,6 +6079,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Announcements != null)
             {
                 propertyValue = "[" + String.Join(", ", Announcements.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -5801,6 +6093,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Announcements != null)
             {
                 propertyValue = Announcements.Count > 0 ? "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -5816,6 +6109,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -5824,6 +6118,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -5834,6 +6129,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BccAddress != null)
             {
                 ret.Add("bccAddress", "\"bccAddress\": " + "\"" + EscapeJson(BccAddress) + "\"");
@@ -5879,6 +6175,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BccAddress != null)
             {
                 ret.Add("bccAddress", "<bccAddress>" + EscapeXml(BccAddress) + "</bccAddress>");
@@ -5926,6 +6223,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterDynamicData != null)
             {
                 ret.Add("adapterDynamicData", "\"adapterDynamicData\": " + "\"" + EscapeJson(AdapterDynamicData) + "\"");
@@ -5949,6 +6247,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterDynamicData != null)
             {
                 ret.Add("adapterDynamicData", "<adapterDynamicData>" + EscapeXml(AdapterDynamicData) + "</adapterDynamicData>");
@@ -5974,6 +6273,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
@@ -6003,6 +6303,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
@@ -6034,6 +6335,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -6050,6 +6352,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -6068,6 +6371,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EngagementAdapters != null)
             {
                 propertyValue = "[" + String.Join(", ", EngagementAdapters.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -6081,6 +6385,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EngagementAdapters != null)
             {
                 propertyValue = EngagementAdapters.Count > 0 ? "<item>" + String.Join("</item><item>", EngagementAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -6096,6 +6401,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SendTimeGreaterThanOrEqual.HasValue)
             {
                 ret.Add("sendTimeGreaterThanOrEqual", "\"sendTimeGreaterThanOrEqual\": " + SendTimeGreaterThanOrEqual);
@@ -6112,6 +6418,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SendTimeGreaterThanOrEqual.HasValue)
             {
                 ret.Add("sendTimeGreaterThanOrEqual", "<sendTimeGreaterThanOrEqual>" + SendTimeGreaterThanOrEqual + "</sendTimeGreaterThanOrEqual>");
@@ -6130,6 +6437,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Engagements != null)
             {
                 propertyValue = "[" + String.Join(", ", Engagements.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -6143,6 +6451,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Engagements != null)
             {
                 propertyValue = Engagements.Count > 0 ? "<item>" + String.Join("</item><item>", Engagements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -6158,6 +6467,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "\"assetId\": " + AssetId);
             if (currentVersion == null || isOldVersion)
             {
@@ -6171,6 +6481,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             if (currentVersion == null || isOldVersion)
             {
@@ -6186,6 +6497,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("announcementId", "\"announcementId\": " + AnnouncementId);
             if (currentVersion == null || isOldVersion)
             {
@@ -6213,6 +6525,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("announcementId", "<announcementId>" + AnnouncementId + "</announcementId>");
             if (currentVersion == null || isOldVersion)
             {
@@ -6242,6 +6555,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "\"assetId\": " + AssetId);
             if (currentVersion == null || isOldVersion)
             {
@@ -6255,6 +6569,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             if (currentVersion == null || isOldVersion)
             {
@@ -6270,6 +6585,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "\"assetId\": " + AssetId);
             return ret;
         }
@@ -6279,6 +6595,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             return ret;
         }
@@ -6290,6 +6607,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -6298,6 +6616,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -6308,6 +6627,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FollowDataList != null)
             {
                 propertyValue = "[" + String.Join(", ", FollowDataList.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -6321,6 +6641,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FollowDataList != null)
             {
                 propertyValue = FollowDataList.Count > 0 ? "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -6336,6 +6657,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createdAt", "\"createdAt\": " + CreatedAt);
             if(Id != null)
             {
@@ -6359,6 +6681,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createdAt", "<createdAt>" + CreatedAt + "</createdAt>");
             if(Id != null)
             {
@@ -6384,6 +6707,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CreatedAtGreaterThanOrEqual.HasValue)
             {
                 ret.Add("createdAtGreaterThanOrEqual", "\"createdAtGreaterThanOrEqual\": " + CreatedAtGreaterThanOrEqual);
@@ -6404,6 +6728,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CreatedAtGreaterThanOrEqual.HasValue)
             {
                 ret.Add("createdAtGreaterThanOrEqual", "<createdAtGreaterThanOrEqual>" + CreatedAtGreaterThanOrEqual + "</createdAtGreaterThanOrEqual>");
@@ -6426,6 +6751,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(InboxMessages != null)
             {
                 propertyValue = "[" + String.Join(", ", InboxMessages.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -6439,6 +6765,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(InboxMessages != null)
             {
                 propertyValue = InboxMessages.Count > 0 ? "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -6454,6 +6781,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(InboxMessages != null)
             {
                 propertyValue = "[" + String.Join(", ", InboxMessages.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -6467,6 +6795,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(InboxMessages != null)
             {
                 propertyValue = InboxMessages.Count > 0 ? "<item>" + String.Join("</item><item>", InboxMessages.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -6482,6 +6811,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaInboxMessageType), type) + "\"");
             return ret;
         }
@@ -6491,6 +6821,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaInboxMessageType), type) + "" + "</type>");
             return ret;
         }
@@ -6502,6 +6833,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FollowDataList != null)
             {
                 propertyValue = "[" + String.Join(", ", FollowDataList.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -6515,6 +6847,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FollowDataList != null)
             {
                 propertyValue = FollowDataList.Count > 0 ? "<item>" + String.Join("</item><item>", FollowDataList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -6530,6 +6863,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Announcements != null)
             {
                 propertyValue = "[" + String.Join(", ", Announcements.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -6543,6 +6877,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Announcements != null)
             {
                 propertyValue = Announcements.Count > 0 ? "<item>" + String.Join("</item><item>", Announcements.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -6558,6 +6893,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "\"action\": " + "\"" + EscapeJson(Action) + "\"");
@@ -6611,6 +6947,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "<action>" + EscapeXml(Action) + "</action>");
@@ -6666,6 +7003,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -6674,6 +7012,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -6684,6 +7023,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AutomaticIssueFollowNotification.HasValue)
             {
                 ret.Add("automaticIssueFollowNotification", "\"automaticIssueFollowNotification\": " + AutomaticIssueFollowNotification.ToString().ToLower());
@@ -6776,6 +7116,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AutomaticIssueFollowNotification.HasValue)
             {
                 ret.Add("automaticIssueFollowNotification", "<automaticIssueFollowNotification>" + AutomaticIssueFollowNotification.ToString().ToLower() + "</automaticIssueFollowNotification>");
@@ -6870,6 +7211,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MailEnabled.HasValue)
             {
                 ret.Add("mailEnabled", "\"mailEnabled\": " + MailEnabled.ToString().ToLower());
@@ -6902,6 +7244,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MailEnabled.HasValue)
             {
                 ret.Add("mailEnabled", "<mailEnabled>" + MailEnabled.ToString().ToLower() + "</mailEnabled>");
@@ -6936,6 +7279,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -6944,6 +7288,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -6954,6 +7299,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -6962,6 +7308,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -6972,6 +7319,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -6980,6 +7328,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -6990,6 +7339,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PersonalFollowFeed != null)
             {
                 propertyValue = "[" + String.Join(", ", PersonalFollowFeed.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -7003,6 +7353,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PersonalFollowFeed != null)
             {
                 propertyValue = PersonalFollowFeed.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -7018,6 +7369,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -7026,6 +7378,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -7036,6 +7389,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PersonalFollowFeed != null)
             {
                 propertyValue = "[" + String.Join(", ", PersonalFollowFeed.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -7049,6 +7403,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PersonalFollowFeed != null)
             {
                 propertyValue = PersonalFollowFeed.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalFollowFeed.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -7064,6 +7419,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "\"action\": " + "\"" + EscapeJson(Action) + "\"");
@@ -7088,6 +7444,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "<action>" + EscapeXml(Action) + "</action>");
@@ -7114,6 +7471,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("announcementId", "\"announcementId\": " + AnnouncementId);
             if(Key != null)
             {
@@ -7131,6 +7489,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("announcementId", "<announcementId>" + AnnouncementId + "</announcementId>");
             if(Key != null)
             {
@@ -7150,6 +7509,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && KSql != null)
             {
                 ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(KSql) + "\"");
@@ -7162,6 +7522,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && KSql != null)
             {
                 ret.Add("kSql", "<kSql>" + EscapeXml(KSql) + "</kSql>");
@@ -7176,6 +7537,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Reminders != null)
             {
                 propertyValue = "[" + String.Join(", ", Reminders.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -7189,6 +7551,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Reminders != null)
             {
                 propertyValue = Reminders.Count > 0 ? "<item>" + String.Join("</item><item>", Reminders.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -7204,6 +7567,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EpgChannelIdEqual.HasValue)
             {
                 ret.Add("epgChannelIdEqual", "\"epgChannelIdEqual\": " + EpgChannelIdEqual);
@@ -7224,6 +7588,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EpgChannelIdEqual.HasValue)
             {
                 ret.Add("epgChannelIdEqual", "<epgChannelIdEqual>" + EpgChannelIdEqual + "</epgChannelIdEqual>");
@@ -7246,6 +7611,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EpgChannelIdEqual.HasValue)
             {
                 ret.Add("epgChannelIdEqual", "\"epgChannelIdEqual\": " + EpgChannelIdEqual);
@@ -7262,6 +7628,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EpgChannelIdEqual.HasValue)
             {
                 ret.Add("epgChannelIdEqual", "<epgChannelIdEqual>" + EpgChannelIdEqual + "</epgChannelIdEqual>");
@@ -7280,6 +7647,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("automaticIssueNotification", "\"automaticIssueNotification\": " + "\"" + Enum.GetName(typeof(KalturaTopicAutomaticIssueNotification), AutomaticIssueNotification) + "\"");
             if(Id != null)
             {
@@ -7302,6 +7670,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("automaticIssueNotification", "<automaticIssueNotification>" + "" + Enum.GetName(typeof(KalturaTopicAutomaticIssueNotification), AutomaticIssueNotification) + "" + "</automaticIssueNotification>");
             if(Id != null)
             {
@@ -7326,6 +7695,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -7334,6 +7704,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -7344,6 +7715,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Topics != null)
             {
                 propertyValue = "[" + String.Join(", ", Topics.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -7357,6 +7729,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Topics != null)
             {
                 propertyValue = Topics.Count > 0 ? "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -7372,6 +7745,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Topics != null)
             {
                 propertyValue = "[" + String.Join(", ", Topics.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -7385,6 +7759,7 @@ namespace WebAPI.Models.Notification
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Topics != null)
             {
                 propertyValue = Topics.Count > 0 ? "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -7404,6 +7779,7 @@ namespace WebAPI.App_Start
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(args != null)
             {
                 propertyValue = "[" + String.Join(", ", args.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -7429,6 +7805,7 @@ namespace WebAPI.App_Start
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(args != null)
             {
                 propertyValue = args.Count > 0 ? "<item>" + String.Join("</item><item>", args.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -7456,6 +7833,7 @@ namespace WebAPI.App_Start
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(name) + "\"");
@@ -7472,6 +7850,7 @@ namespace WebAPI.App_Start
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(name) + "</name>");
@@ -7490,6 +7869,7 @@ namespace WebAPI.App_Start
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(error != null)
             {
                 propertyValue = error.ToJson(currentVersion, omitObsolete);
@@ -7503,6 +7883,7 @@ namespace WebAPI.App_Start
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(error != null)
             {
                 propertyValue = error.ToXml(currentVersion, omitObsolete);
@@ -7522,6 +7903,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
             if(propertyValue != null)
@@ -7603,6 +7985,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && EnableCatchUp.HasValue)
@@ -7678,6 +8061,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IsFinishedWatching.HasValue)
             {
                 ret.Add("finishedWatching", "\"finishedWatching\": " + IsFinishedWatching.ToString().ToLower());
@@ -7708,6 +8092,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IsFinishedWatching.HasValue)
             {
                 ret.Add("finishedWatching", "<finishedWatching>" + IsFinishedWatching.ToString().ToLower() + "</finishedWatching>");
@@ -7740,6 +8125,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Bookmarks != null)
             {
                 propertyValue = "[" + String.Join(", ", Bookmarks.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -7753,6 +8139,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Bookmarks != null)
             {
                 propertyValue = Bookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -7768,6 +8155,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "\"assetId\": " + AssetId);
             ret.Add("assetType", "\"assetType\": " + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"");
             ret.Add("id", "\"id\": " + Id);
@@ -7783,6 +8171,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</assetType>");
             ret.Add("id", "<id>" + Id + "</id>");
@@ -7800,6 +8189,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetIdEqual", "\"assetIdEqual\": " + AssetIdEqual);
             ret.Add("assetTypeEqual", "\"assetTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "\"");
             return ret;
@@ -7810,6 +8200,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetIdEqual", "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>");
             ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             return ret;
@@ -7822,6 +8213,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -7835,6 +8227,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -7850,6 +8243,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("count", "\"count\": " + Count);
             if(SubCounts != null)
             {
@@ -7868,6 +8262,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("count", "<count>" + Count + "</count>");
             if(SubCounts != null)
             {
@@ -7888,6 +8283,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetsCount", "\"assetsCount\": " + AssetsCount);
             if(Objects != null)
             {
@@ -7902,6 +8298,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetsCount", "<assetsCount>" + AssetsCount + "</assetsCount>");
             if(Objects != null)
             {
@@ -7918,6 +8315,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "\"value\": " + "\"" + Enum.GetName(typeof(KalturaGroupByField), Value) + "\"");
             return ret;
         }
@@ -7927,6 +8325,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("value", "<value>" + "" + Enum.GetName(typeof(KalturaGroupByField), Value) + "" + "</value>");
             return ret;
         }
@@ -7938,6 +8337,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Url != null)
             {
                 ret.Add("url", "\"url\": " + "\"" + EscapeJson(Url) + "\"");
@@ -7950,6 +8350,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Url != null)
             {
                 ret.Add("url", "<url>" + EscapeXml(Url) + "</url>");
@@ -7964,6 +8365,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DynamicOrderBy != null)
             {
                 propertyValue = DynamicOrderBy.ToJson(currentVersion, omitObsolete);
@@ -7977,6 +8379,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DynamicOrderBy != null)
             {
                 propertyValue = DynamicOrderBy.ToXml(currentVersion, omitObsolete);
@@ -7992,6 +8395,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -8000,6 +8404,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -8010,6 +8415,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "\"assetId\": " + AssetId);
             ret.Add("assetType", "\"assetType\": " + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"");
             if(Duration.HasValue)
@@ -8036,6 +8442,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</assetType>");
             if(Duration.HasValue)
@@ -8064,6 +8471,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdIn != null)
             {
                 ret.Add("assetIdIn", "\"assetIdIn\": " + "\"" + EscapeJson(AssetIdIn) + "\"");
@@ -8110,6 +8518,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdIn != null)
             {
                 ret.Add("assetIdIn", "<assetIdIn>" + EscapeXml(AssetIdIn) + "</assetIdIn>");
@@ -8158,6 +8567,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -8171,6 +8581,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -8186,6 +8597,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndDate.HasValue)
             {
                 ret.Add("endDate", "\"endDate\": " + EndDate);
@@ -8229,6 +8641,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndDate.HasValue)
             {
                 ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
@@ -8274,6 +8687,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("cut_with", "\"cut_with\": " + "\"" + Enum.GetName(typeof(KalturaCutWith), cutWith) + "\"");
             if(FilterTags != null)
             {
@@ -8298,6 +8712,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("cut_with", "<cut_with>" + "" + Enum.GetName(typeof(KalturaCutWith), cutWith) + "" + "</cut_with>");
             if(FilterTags != null)
             {
@@ -8324,6 +8739,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -8345,6 +8761,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -8368,6 +8785,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -8381,6 +8799,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -8396,6 +8815,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Value != null)
             {
                 ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
@@ -8408,6 +8828,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Value != null)
             {
                 ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
@@ -8422,6 +8843,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetsBookmarks != null)
             {
                 propertyValue = "[" + String.Join(", ", AssetsBookmarks.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -8435,6 +8857,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetsBookmarks != null)
             {
                 propertyValue = AssetsBookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -8450,6 +8873,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Field != null)
             {
                 ret.Add("field", "\"field\": " + "\"" + EscapeJson(Field) + "\"");
@@ -8467,6 +8891,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Field != null)
             {
                 ret.Add("field", "<field>" + EscapeXml(Field) + "</field>");
@@ -8486,6 +8911,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Assets != null)
             {
                 propertyValue = "[" + String.Join(", ", Assets.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -8503,6 +8929,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Assets != null)
             {
                 propertyValue = Assets.Count > 0 ? "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -8522,6 +8949,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "\"assetId\": " + AssetId);
             if (currentVersion == null || isOldVersion)
             {
@@ -8552,6 +8980,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
             if (currentVersion == null || isOldVersion)
             {
@@ -8584,6 +9013,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetsStatistics != null)
             {
                 propertyValue = "[" + String.Join(", ", AssetsStatistics.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -8597,6 +9027,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetsStatistics != null)
             {
                 propertyValue = AssetsStatistics.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsStatistics.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -8612,6 +9043,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdIn != null)
             {
                 ret.Add("assetIdIn", "\"assetIdIn\": " + "\"" + EscapeJson(AssetIdIn) + "\"");
@@ -8627,6 +9059,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdIn != null)
             {
                 ret.Add("assetIdIn", "<assetIdIn>" + EscapeXml(AssetIdIn) + "</assetIdIn>");
@@ -8644,6 +9077,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConnectedParentMetaId.HasValue)
             {
                 ret.Add("connectedParentMetaId", "\"connectedParentMetaId\": " + ConnectedParentMetaId);
@@ -8692,6 +9126,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConnectedParentMetaId.HasValue)
             {
                 ret.Add("connectedParentMetaId", "<connectedParentMetaId>" + ConnectedParentMetaId + "</connectedParentMetaId>");
@@ -8738,6 +9173,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -8758,6 +9194,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -8780,6 +9217,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetStructs != null)
             {
                 propertyValue = "[" + String.Join(", ", AssetStructs.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -8793,6 +9231,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetStructs != null)
             {
                 propertyValue = AssetStructs.Count > 0 ? "<item>" + String.Join("</item><item>", AssetStructs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -8808,6 +9247,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetStructId", "\"assetStructId\": " + AssetStructId);
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             if(DefaultIngestValue != null)
@@ -8836,6 +9276,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetStructId", "<assetStructId>" + AssetStructId + "</assetStructId>");
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(DefaultIngestValue != null)
@@ -8866,6 +9307,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetStructIdEqual.HasValue)
             {
                 ret.Add("assetStructIdEqual", "\"assetStructIdEqual\": " + AssetStructIdEqual);
@@ -8882,6 +9324,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetStructIdEqual.HasValue)
             {
                 ret.Add("assetStructIdEqual", "<assetStructIdEqual>" + AssetStructIdEqual + "</assetStructIdEqual>");
@@ -8900,6 +9343,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetStructMetas != null)
             {
                 propertyValue = "[" + String.Join(", ", AssetStructMetas.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -8913,6 +9357,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetStructMetas != null)
             {
                 propertyValue = AssetStructMetas.Count > 0 ? "<item>" + String.Join("</item><item>", AssetStructMetas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -8928,6 +9373,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
@@ -8971,6 +9417,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
@@ -9016,6 +9463,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -9028,6 +9476,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -9042,6 +9491,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(GroupBy != null)
             {
                 propertyValue = "[" + String.Join(", ", GroupBy.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -9063,6 +9513,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(GroupBy != null)
             {
                 propertyValue = GroupBy.Count > 0 ? "<item>" + String.Join("</item><item>", GroupBy.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -9086,6 +9537,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IsFinishedWatching.HasValue)
             {
                 ret.Add("finishedWatching", "\"finishedWatching\": " + IsFinishedWatching.ToString().ToLower());
@@ -9119,6 +9571,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IsFinishedWatching.HasValue)
             {
                 ret.Add("finishedWatching", "<finishedWatching>" + IsFinishedWatching.ToString().ToLower() + "</finishedWatching>");
@@ -9154,6 +9607,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdIn != null)
             {
                 ret.Add("assetIdIn", "\"assetIdIn\": " + "\"" + EscapeJson(AssetIdIn) + "\"");
@@ -9175,6 +9629,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdIn != null)
             {
                 ret.Add("assetIdIn", "<assetIdIn>" + EscapeXml(AssetIdIn) + "</assetIdIn>");
@@ -9198,6 +9653,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetsBookmarks != null)
             {
                 propertyValue = "[" + String.Join(", ", AssetsBookmarks.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -9211,6 +9667,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetsBookmarks != null)
             {
                 propertyValue = AssetsBookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", AssetsBookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -9226,6 +9683,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaBookmarkActionType), action) + "\"");
             if(averageBitRate.HasValue)
             {
@@ -9251,6 +9709,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaBookmarkActionType), action) + "" + "</action>");
             if(averageBitRate.HasValue)
             {
@@ -9278,6 +9737,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("bundleTypeEqual", "\"bundleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaBundleType), BundleTypeEqual) + "\"");
             ret.Add("idEqual", "\"idEqual\": " + IdEqual);
             if(TypeIn != null)
@@ -9292,6 +9752,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("bundleTypeEqual", "<bundleTypeEqual>" + "" + Enum.GetName(typeof(KalturaBundleType), BundleTypeEqual) + "" + "</bundleTypeEqual>");
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
             if(TypeIn != null)
@@ -9308,6 +9769,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AvgScore.HasValue)
             {
                 ret.Add("avgScore", "\"avgScore\": " + AvgScore);
@@ -9340,6 +9802,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AvgScore.HasValue)
             {
                 ret.Add("avgScore", "<avgScore>" + AvgScore + "</avgScore>");
@@ -9374,6 +9837,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaCatalogWith), type) + "\"");
             return ret;
         }
@@ -9383,6 +9847,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaCatalogWith), type) + "" + "</type>");
             return ret;
         }
@@ -9394,6 +9859,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && !DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && AssetTypes != null)
             {
                 propertyValue = "[" + String.Join(", ", AssetTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -9493,6 +9959,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && !DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && AssetTypes != null)
             {
                 propertyValue = AssetTypes.Count > 0 ? "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -9586,6 +10053,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FreeText != null)
             {
                 ret.Add("freeText", "\"freeText\": " + "\"" + EscapeJson(FreeText) + "\"");
@@ -9600,6 +10068,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FreeText != null)
             {
                 ret.Add("freeText", "<freeText>" + EscapeXml(FreeText) + "</freeText>");
@@ -9616,6 +10085,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("excludeWatched", "\"excludeWatched\": " + ExcludeWatched.ToString().ToLower());
             ret.Add("idEqual", "\"idEqual\": " + IdEqual);
             if(KSql != null)
@@ -9634,6 +10104,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("excludeWatched", "<excludeWatched>" + ExcludeWatched.ToString().ToLower() + "</excludeWatched>");
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
             if(KSql != null)
@@ -9654,6 +10125,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = "[" + String.Join(", ", Channels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -9667,6 +10139,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -9682,6 +10155,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DynamicOrderBy != null)
             {
                 propertyValue = DynamicOrderBy.ToJson(currentVersion, omitObsolete);
@@ -9703,6 +10177,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DynamicOrderBy != null)
             {
                 propertyValue = DynamicOrderBy.ToXml(currentVersion, omitObsolete);
@@ -9726,8 +10201,13 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             ret.Add("idEqual", "\"idEqual\": " + IdEqual);
-            ret.Add("mediaIdEqual", "\"mediaIdEqual\": " + MediaIdEqual);
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaChannelsFilter", "MediaIdEqual", requestType.Value)))
+            {
+                ret.Add("mediaIdEqual", "\"mediaIdEqual\": " + MediaIdEqual);
+            }
             if(NameEqual != null)
             {
                 ret.Add("nameEqual", "\"nameEqual\": " + "\"" + EscapeJson(NameEqual) + "\"");
@@ -9744,8 +10224,13 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
-            ret.Add("mediaIdEqual", "<mediaIdEqual>" + MediaIdEqual + "</mediaIdEqual>");
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaChannelsFilter", "MediaIdEqual", requestType.Value)))
+            {
+                ret.Add("mediaIdEqual", "<mediaIdEqual>" + MediaIdEqual + "</mediaIdEqual>");
+            }
             if(NameEqual != null)
             {
                 ret.Add("nameEqual", "<nameEqual>" + EscapeXml(NameEqual) + "</nameEqual>");
@@ -9764,6 +10249,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -9772,6 +10258,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -9782,6 +10269,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!ret.ContainsKey("assetTypes") && !isOldVersion && AssetTypes != null)
             {
                 propertyValue = "[" + String.Join(", ", AssetTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -9804,6 +10292,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!ret.ContainsKey("assetTypes") && !isOldVersion && AssetTypes != null)
             {
                 propertyValue = AssetTypes.Count > 0 ? "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -9828,6 +10317,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -9844,6 +10334,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
@@ -9862,6 +10353,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Assets != null)
             {
                 propertyValue = "[" + String.Join(", ", Assets.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -9883,6 +10375,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Assets != null)
             {
                 propertyValue = Assets.Count > 0 ? "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -9906,6 +10399,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = "[" + String.Join(", ", Channels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -9923,6 +10417,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -9942,6 +10437,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndTime.HasValue)
             {
                 ret.Add("endTime", "\"endTime\": " + EndTime);
@@ -9971,6 +10467,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndTime.HasValue)
             {
                 ret.Add("endTime", "<endTime>" + EndTime + "</endTime>");
@@ -10002,6 +10499,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ContentId != null)
             {
                 ret.Add("contentId", "\"contentId\": " + "\"" + EscapeJson(ContentId) + "\"");
@@ -10034,6 +10532,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ContentId != null)
             {
                 ret.Add("contentId", "<contentId>" + EscapeXml(ContentId) + "</contentId>");
@@ -10068,6 +10567,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -10092,6 +10592,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -10118,6 +10619,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Images != null)
             {
                 propertyValue = "[" + String.Join(", ", Images.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -10131,6 +10633,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Images != null)
             {
                 propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -10146,6 +10649,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DefaultImageId.HasValue)
             {
                 ret.Add("defaultImageId", "\"defaultImageId\": " + DefaultImageId);
@@ -10179,6 +10683,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DefaultImageId.HasValue)
             {
                 ret.Add("defaultImageId", "<defaultImageId>" + DefaultImageId + "</defaultImageId>");
@@ -10214,6 +10719,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -10230,6 +10736,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -10248,6 +10755,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ImageTypes != null)
             {
                 propertyValue = "[" + String.Join(", ", ImageTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -10261,6 +10769,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ImageTypes != null)
             {
                 propertyValue = ImageTypes.Count > 0 ? "<item>" + String.Join("</item><item>", ImageTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -10276,6 +10785,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("position", "\"position\": " + Position);
             ret.Add("position_owner", "\"position_owner\": " + "\"" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "\"");
             if(UserId != null)
@@ -10290,6 +10800,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("position", "<position>" + Position + "</position>");
             ret.Add("position_owner", "<position_owner>" + "" + Enum.GetName(typeof(KalturaPositionOwner), PositionOwner) + "" + "</position_owner>");
             if(UserId != null)
@@ -10306,6 +10817,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "\"by\": " + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "\"");
             if(Ids != null)
             {
@@ -10321,6 +10833,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
             if(Ids != null)
             {
@@ -10338,6 +10851,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LastPositions != null)
             {
                 propertyValue = "[" + String.Join(", ", LastPositions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -10351,6 +10865,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LastPositions != null)
             {
                 propertyValue = LastPositions.Count > 0 ? "<item>" + String.Join("</item><item>", LastPositions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -10366,6 +10881,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BufferCatchUp.HasValue)
             {
                 ret.Add("bufferCatchUpSetting", "\"bufferCatchUpSetting\": " + BufferCatchUp);
@@ -10421,6 +10937,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BufferCatchUp.HasValue)
             {
                 ret.Add("bufferCatchUpSetting", "<bufferCatchUpSetting>" + BufferCatchUp + "</bufferCatchUpSetting>");
@@ -10478,6 +10995,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MediaIds != null)
             {
                 ret.Add("mediaIds", "\"mediaIds\": " + "\"" + EscapeJson(MediaIds) + "\"");
@@ -10490,6 +11008,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MediaIds != null)
             {
                 ret.Add("mediaIds", "<mediaIds>" + EscapeXml(MediaIds) + "</mediaIds>");
@@ -10504,6 +11023,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && CatchUpBuffer.HasValue)
             {
                 ret.Add("catchUpBuffer", "\"catchUpBuffer\": " + CatchUpBuffer);
@@ -10564,6 +11084,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && CatchUpBuffer.HasValue)
             {
                 ret.Add("catchUpBuffer", "<catchUpBuffer>" + CatchUpBuffer + "</catchUpBuffer>");
@@ -10626,6 +11147,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdditionalData != null)
             {
                 ret.Add("additionalData", "\"additionalData\": " + "\"" + EscapeJson(AdditionalData) + "\"");
@@ -10763,6 +11285,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdditionalData != null)
             {
                 ret.Add("additionalData", "<additionalData>" + EscapeXml(AdditionalData) + "</additionalData>");
@@ -10902,6 +11425,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetIdEqual", "\"assetIdEqual\": " + AssetIdEqual);
             ret.Add("idEqual", "\"idEqual\": " + IdEqual);
             return ret;
@@ -10912,6 +11436,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetIdEqual", "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>");
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
             return ret;
@@ -10924,6 +11449,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Files != null)
             {
                 propertyValue = "[" + String.Join(", ", Files.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -10937,6 +11463,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Files != null)
             {
                 propertyValue = Files.Count > 0 ? "<item>" + String.Join("</item><item>", Files.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -10952,6 +11479,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AudioCodecs != null)
             {
                 ret.Add("audioCodecs", "\"audioCodecs\": " + "\"" + EscapeJson(AudioCodecs) + "\"");
@@ -11005,6 +11533,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AudioCodecs != null)
             {
                 ret.Add("audioCodecs", "<audioCodecs>" + EscapeXml(AudioCodecs) + "</audioCodecs>");
@@ -11060,6 +11589,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Types != null)
             {
                 propertyValue = "[" + String.Join(", ", Types.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -11073,6 +11603,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Types != null)
             {
                 propertyValue = Types.Count > 0 ? "<item>" + String.Join("</item><item>", Types.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -11088,6 +11619,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Height.HasValue)
             {
                 ret.Add("height", "\"height\": " + Height);
@@ -11128,6 +11660,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Height.HasValue)
             {
                 ret.Add("height", "<height>" + Height + "</height>");
@@ -11170,6 +11703,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = "[" + String.Join(", ", Channels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -11213,6 +11747,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -11258,6 +11793,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Bookmarks != null)
             {
                 propertyValue = "[" + String.Join(", ", Bookmarks.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -11282,6 +11818,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Bookmarks != null)
             {
                 propertyValue = Bookmarks.Count > 0 ? "<item>" + String.Join("</item><item>", Bookmarks.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -11308,6 +11845,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -11321,6 +11859,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -11336,6 +11875,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FileIds != null)
             {
                 propertyValue = "[" + String.Join(", ", FileIds.Select(item => item.ToString())) + "]";
@@ -11358,6 +11898,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FileIds != null)
             {
                 propertyValue = FileIds.Count > 0 ? "<item>" + String.Join("</item><item>", FileIds.Select(item => item.ToString())) + "</item>" : "";
@@ -11382,6 +11923,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaPersonalAssetWith), type) + "\"");
             return ret;
         }
@@ -11391,6 +11933,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaPersonalAssetWith), type) + "" + "</type>");
             return ret;
         }
@@ -11402,6 +11945,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Discounted.HasValue)
             {
                 ret.Add("discounted", "\"discounted\": " + Discounted.ToString().ToLower());
@@ -11426,6 +11970,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Discounted.HasValue)
             {
                 ret.Add("discounted", "<discounted>" + Discounted.ToString().ToLower() + "</discounted>");
@@ -11452,6 +11997,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PartnerListTypeIn != null)
             {
                 ret.Add("partnerListTypeIn", "\"partnerListTypeIn\": " + "\"" + EscapeJson(PartnerListTypeIn) + "\"");
@@ -11464,6 +12010,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PartnerListTypeIn != null)
             {
                 ret.Add("partnerListTypeIn", "<partnerListTypeIn>" + EscapeXml(PartnerListTypeIn) + "</partnerListTypeIn>");
@@ -11478,6 +12025,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(action != null)
             {
                 ret.Add("action", "\"action\": " + "\"" + EscapeJson(action) + "\"");
@@ -11518,6 +12066,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(action != null)
             {
                 ret.Add("action", "<action>" + EscapeXml(action) + "</action>");
@@ -11560,6 +12109,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CatchUpEnabled.HasValue)
             {
                 ret.Add("enableCatchUp", "\"enableCatchUp\": " + CatchUpEnabled.ToString().ToLower());
@@ -11604,6 +12154,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CatchUpEnabled.HasValue)
             {
                 ret.Add("enableCatchUp", "<enableCatchUp>" + CatchUpEnabled.ToString().ToLower() + "</enableCatchUp>");
@@ -11650,6 +12201,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("height", "\"height\": " + Height);
             ret.Add("id", "\"id\": " + Id);
             if(Name != null)
@@ -11666,6 +12218,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("height", "<height>" + Height + "</height>");
             ret.Add("id", "<id>" + Id + "</id>");
             if(Name != null)
@@ -11684,6 +12237,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Ratios != null)
             {
                 propertyValue = "[" + String.Join(", ", Ratios.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -11697,6 +12251,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Ratios != null)
             {
                 propertyValue = Ratios.Count > 0 ? "<item>" + String.Join("</item><item>", Ratios.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -11712,6 +12267,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(RecordingId != null)
             {
                 ret.Add("recordingId", "\"recordingId\": " + "\"" + EscapeJson(RecordingId) + "\"");
@@ -11728,6 +12284,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(RecordingId != null)
             {
                 ret.Add("recordingId", "<recordingId>" + EscapeXml(RecordingId) + "</recordingId>");
@@ -11746,6 +12303,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FreeText != null)
             {
                 ret.Add("freeText", "\"freeText\": " + "\"" + EscapeJson(FreeText) + "\"");
@@ -11764,6 +12322,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FreeText != null)
             {
                 ret.Add("freeText", "<freeText>" + EscapeXml(FreeText) + "</freeText>");
@@ -11784,6 +12343,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("excludeWatched", "\"excludeWatched\": " + ExcludeWatched.ToString().ToLower());
             if(IdEqual.HasValue)
             {
@@ -11801,6 +12361,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("excludeWatched", "<excludeWatched>" + ExcludeWatched.ToString().ToLower() + "</excludeWatched>");
             if(IdEqual.HasValue)
             {
@@ -11820,6 +12381,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ChannelsIn != null)
             {
                 ret.Add("channelsIn", "\"channelsIn\": " + "\"" + EscapeJson(ChannelsIn) + "\"");
@@ -11841,6 +12403,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ChannelsIn != null)
             {
                 ret.Add("channelsIn", "<channelsIn>" + EscapeXml(ChannelsIn) + "</channelsIn>");
@@ -11864,6 +12427,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -11880,6 +12444,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -11898,6 +12463,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("excludeWatched", "\"excludeWatched\": " + ExcludeWatched.ToString().ToLower());
             return ret;
         }
@@ -11907,6 +12473,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("excludeWatched", "<excludeWatched>" + ExcludeWatched.ToString().ToLower() + "</excludeWatched>");
             return ret;
         }
@@ -11918,6 +12485,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Query != null)
             {
                 ret.Add("query", "\"query\": " + "\"" + EscapeJson(Query) + "\"");
@@ -11935,6 +12503,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Query != null)
             {
                 ret.Add("query", "<query>" + EscapeXml(Query) + "</query>");
@@ -11954,6 +12523,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id != null)
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
@@ -11967,6 +12537,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id != null)
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
@@ -11982,6 +12553,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -11995,6 +12567,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12010,6 +12583,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("id", "\"id\": " + Id);
             propertyValue = Tag.ToCustomJson(currentVersion, omitObsolete, "tag");
             if(propertyValue != null)
@@ -12025,6 +12599,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("id", "<id>" + Id + "</id>");
             ret.Add("tag", Tag.ToCustomXml(currentVersion, omitObsolete, "tag"));
             ret.Add("type", "<type>" + TagTypeId + "</type>");
@@ -12038,6 +12613,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LanguageEqual != null)
             {
                 ret.Add("languageEqual", "\"languageEqual\": " + "\"" + EscapeJson(LanguageEqual) + "\"");
@@ -12059,6 +12635,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LanguageEqual != null)
             {
                 ret.Add("languageEqual", "<languageEqual>" + EscapeXml(LanguageEqual) + "</languageEqual>");
@@ -12082,6 +12659,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Tags != null)
             {
                 propertyValue = "[" + String.Join(", ", Tags.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -12095,6 +12673,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Tags != null)
             {
                 propertyValue = Tags.Count > 0 ? "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12110,6 +12689,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Token != null)
             {
                 ret.Add("token", "\"token\": " + "\"" + EscapeJson(Token) + "\"");
@@ -12122,6 +12702,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Token != null)
             {
                 ret.Add("token", "<token>" + EscapeXml(Token) + "</token>");
@@ -12136,6 +12717,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Url != null)
             {
                 ret.Add("url", "\"url\": " + "\"" + EscapeJson(Url) + "\"");
@@ -12148,6 +12730,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Url != null)
             {
                 ret.Add("url", "<url>" + EscapeXml(Url) + "</url>");
@@ -12162,6 +12745,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Asset != null)
             {
                 propertyValue = Asset.ToJson(currentVersion, omitObsolete);
@@ -12199,6 +12783,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Asset != null)
             {
                 propertyValue = Asset.ToXml(currentVersion, omitObsolete);
@@ -12238,6 +12823,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -12251,6 +12837,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12270,6 +12857,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Ksql != null)
             {
                 ret.Add("ksql", "\"ksql\": " + "\"" + EscapeJson(Ksql) + "\"");
@@ -12282,6 +12870,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Ksql != null)
             {
                 ret.Add("ksql", "<ksql>" + EscapeXml(Ksql) + "</ksql>");
@@ -12296,6 +12885,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = "[" + String.Join(", ", Actions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -12314,6 +12904,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12334,6 +12925,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -12342,6 +12934,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -12352,6 +12945,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActionsContainType.HasValue)
             {
                 ret.Add("actionsContainType", "\"actionsContainType\": " + "\"" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "\"");
@@ -12370,6 +12964,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActionsContainType.HasValue)
             {
                 ret.Add("actionsContainType", "<actionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "" + "</actionsContainType>");
@@ -12390,6 +12985,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -12403,6 +12999,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12418,6 +13015,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = "[" + String.Join(", ", Actions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -12436,6 +13034,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12456,6 +13055,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActionsContainType.HasValue)
             {
                 ret.Add("actionsContainType", "\"actionsContainType\": " + "\"" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "\"");
@@ -12472,6 +13072,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActionsContainType.HasValue)
             {
                 ret.Add("actionsContainType", "<actionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "" + "</actionsContainType>");
@@ -12490,6 +13091,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -12503,6 +13105,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12518,6 +13121,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BusinessModuleId.HasValue)
             {
                 ret.Add("businessModuleId", "\"businessModuleId\": " + BusinessModuleId);
@@ -12534,6 +13138,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BusinessModuleId.HasValue)
             {
                 ret.Add("businessModuleId", "<businessModuleId>" + BusinessModuleId + "</businessModuleId>");
@@ -12552,6 +13157,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = "[" + String.Join(", ", Actions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -12572,6 +13178,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12594,6 +13201,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BusinessModuleIdApplied.HasValue)
             {
                 ret.Add("businessModuleIdApplied", "\"businessModuleIdApplied\": " + BusinessModuleIdApplied);
@@ -12614,6 +13222,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BusinessModuleIdApplied.HasValue)
             {
                 ret.Add("businessModuleIdApplied", "<businessModuleIdApplied>" + BusinessModuleIdApplied + "</businessModuleIdApplied>");
@@ -12636,6 +13245,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -12649,6 +13259,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12664,6 +13275,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
@@ -12705,6 +13317,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
@@ -12748,6 +13361,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Adapters != null)
             {
                 propertyValue = "[" + String.Join(", ", Adapters.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -12761,6 +13375,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Adapters != null)
             {
                 propertyValue = Adapters.Count > 0 ? "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -12776,6 +13391,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DefaultAdapterId.HasValue)
             {
                 ret.Add("defaultAdapterId", "\"defaultAdapterId\": " + DefaultAdapterId);
@@ -12792,6 +13408,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DefaultAdapterId.HasValue)
             {
                 ret.Add("defaultAdapterId", "<defaultAdapterId>" + DefaultAdapterId + "</defaultAdapterId>");
@@ -12810,6 +13427,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaChannelEnrichment), type) + "\"");
             return ret;
         }
@@ -12819,6 +13437,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaChannelEnrichment), type) + "" + "</type>");
             return ret;
         }
@@ -12830,6 +13449,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetTypes != null)
             {
                 propertyValue = "[" + String.Join(", ", AssetTypes.Select(item => item.ToString())) + "]";
@@ -12876,6 +13496,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetTypes != null)
             {
                 propertyValue = AssetTypes.Count > 0 ? "<item>" + String.Join("</item><item>", AssetTypes.Select(item => item.ToString())) + "</item>" : "";
@@ -12924,6 +13545,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("concurrencyLimitationType", "\"concurrencyLimitationType\": " + "\"" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "\"");
             ret.Add("limit", "\"limit\": " + Limit);
             return ret;
@@ -12934,6 +13556,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("concurrencyLimitationType", "<concurrencyLimitationType>" + "" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "" + "</concurrencyLimitationType>");
             ret.Add("limit", "<limit>" + Limit + "</limit>");
             return ret;
@@ -12946,6 +13569,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
@@ -12959,6 +13583,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
@@ -12974,6 +13599,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Countries != null)
             {
                 ret.Add("countries", "\"countries\": " + "\"" + EscapeJson(Countries) + "\"");
@@ -12986,6 +13612,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Countries != null)
             {
                 ret.Add("countries", "<countries>" + EscapeXml(Countries) + "</countries>");
@@ -13000,6 +13627,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -13020,6 +13648,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -13042,6 +13671,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13055,6 +13685,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13070,6 +13701,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
@@ -13092,6 +13724,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
@@ -13116,6 +13749,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CodeIn != null)
             {
                 ret.Add("codeIn", "\"codeIn\": " + "\"" + EscapeJson(CodeIn) + "\"");
@@ -13132,6 +13766,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CodeIn != null)
             {
                 ret.Add("codeIn", "<codeIn>" + EscapeXml(CodeIn) + "</codeIn>");
@@ -13150,6 +13785,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13163,6 +13799,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13178,6 +13815,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("endDate", "\"endDate\": " + EndDate);
             ret.Add("startDate", "\"startDate\": " + StartDate);
             return ret;
@@ -13188,6 +13826,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
             ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
             return ret;
@@ -13200,6 +13839,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13213,6 +13853,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13228,6 +13869,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13241,6 +13883,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13256,6 +13899,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
@@ -13292,6 +13936,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
@@ -13330,6 +13975,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Adapters != null)
             {
                 propertyValue = "[" + String.Join(", ", Adapters.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13343,6 +13989,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Adapters != null)
             {
                 propertyValue = Adapters.Count > 0 ? "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13358,6 +14005,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ids != null)
             {
                 propertyValue = "[" + String.Join(", ", ids.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13371,6 +14019,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ids != null)
             {
                 propertyValue = ids.Count > 0 ? "<item>" + String.Join("</item><item>", ids.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13386,6 +14035,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Alias != null)
             {
                 ret.Add("alias", "\"alias\": " + "\"" + EscapeJson(Alias) + "\"");
@@ -13449,6 +14099,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Alias != null)
             {
                 ret.Add("alias", "<alias>" + EscapeXml(Alias) + "</alias>");
@@ -13514,6 +14165,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -13526,6 +14178,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -13540,6 +14193,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13553,6 +14207,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13568,6 +14223,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetUserRuleId.HasValue)
             {
                 ret.Add("assetUserRuleId", "\"assetUserRuleId\": " + AssetUserRuleId);
@@ -13630,6 +14286,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetUserRuleId.HasValue)
             {
                 ret.Add("assetUserRuleId", "<assetUserRuleId>" + AssetUserRuleId + "</assetUserRuleId>");
@@ -13694,6 +14351,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13707,6 +14365,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13722,6 +14381,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
@@ -13747,6 +14407,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
@@ -13774,6 +14435,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetId.HasValue)
             {
                 ret.Add("assetId", "\"assetId\": " + AssetId);
@@ -13798,6 +14460,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetId.HasValue)
             {
                 ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
@@ -13824,6 +14487,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(GenericRules != null)
             {
                 propertyValue = "[" + String.Join(", ", GenericRules.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13837,6 +14501,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(GenericRules != null)
             {
                 propertyValue = GenericRules.Count > 0 ? "<item>" + String.Join("</item><item>", GenericRules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13852,6 +14517,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Key != null)
             {
                 ret.Add("key", "\"key\": " + "\"" + EscapeJson(Key) + "\"");
@@ -13868,6 +14534,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Key != null)
             {
                 ret.Add("key", "<key>" + EscapeXml(Key) + "</key>");
@@ -13886,6 +14553,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetTypeId", "\"assetTypeId\": " + AssetTypeId);
             ret.Add("defaultAutoFillPolicy", "\"defaultAutoFillPolicy\": " + DefaultAutoFillPolicy);
             ret.Add("defaultOverlapPolicy", "\"defaultOverlapPolicy\": " + DefaultOverlapPolicy);
@@ -13922,6 +14590,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetTypeId", "<assetTypeId>" + AssetTypeId + "</assetTypeId>");
             ret.Add("defaultAutoFillPolicy", "<defaultAutoFillPolicy>" + DefaultAutoFillPolicy + "</defaultAutoFillPolicy>");
             ret.Add("defaultOverlapPolicy", "<defaultOverlapPolicy>" + DefaultOverlapPolicy + "</defaultOverlapPolicy>");
@@ -13960,6 +14629,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -13973,6 +14643,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -13988,6 +14659,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FromIP != null)
             {
                 ret.Add("fromIP", "\"fromIP\": " + "\"" + EscapeJson(FromIP) + "\"");
@@ -14004,6 +14676,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FromIP != null)
             {
                 ret.Add("fromIP", "<fromIP>" + EscapeXml(FromIP) + "</fromIP>");
@@ -14022,6 +14695,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
@@ -14048,6 +14722,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
@@ -14076,6 +14751,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CodeIn != null)
             {
                 ret.Add("codeIn", "\"codeIn\": " + "\"" + EscapeJson(CodeIn) + "\"");
@@ -14092,6 +14768,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CodeIn != null)
             {
                 ret.Add("codeIn", "<codeIn>" + EscapeXml(CodeIn) + "</codeIn>");
@@ -14110,6 +14787,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -14123,6 +14801,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -14138,6 +14817,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("concurrencyLimitationType", "\"concurrencyLimitationType\": " + "\"" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "\"");
             if(Id != null)
             {
@@ -14156,6 +14836,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("concurrencyLimitationType", "<concurrencyLimitationType>" + "" + Enum.GetName(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType) + "" + "</concurrencyLimitationType>");
             if(Id != null)
             {
@@ -14176,6 +14857,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -14189,6 +14871,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -14204,6 +14887,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && AssetType.HasValue)
             {
                 ret.Add("assetType", "\"assetType\": " + "\"" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "\"");
@@ -14267,6 +14951,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && AssetType.HasValue)
             {
                 ret.Add("assetType", "<assetType>" + "" + Enum.GetName(typeof(KalturaAssetType), AssetType) + "" + "</assetType>");
@@ -14328,6 +15013,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetStructIdEqual.HasValue)
             {
                 ret.Add("assetStructIdEqual", "\"assetStructIdEqual\": " + AssetStructIdEqual);
@@ -14372,6 +15058,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetStructIdEqual.HasValue)
             {
                 ret.Add("assetStructIdEqual", "<assetStructIdEqual>" + AssetStructIdEqual + "</assetStructIdEqual>");
@@ -14418,6 +15105,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Metas != null)
             {
                 propertyValue = "[" + String.Join(", ", Metas.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -14431,6 +15119,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Metas != null)
             {
                 propertyValue = Metas.Count > 0 ? "<item>" + String.Join("</item><item>", Metas.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -14446,6 +15135,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Not.HasValue)
             {
                 ret.Add("not", "\"not\": " + Not.ToString().ToLower());
@@ -14458,6 +15148,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Not.HasValue)
             {
                 ret.Add("not", "<not>" + Not.ToString().ToLower() + "</not>");
@@ -14472,6 +15163,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Conditions != null)
             {
                 propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -14485,6 +15177,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Conditions != null)
             {
                 propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -14500,6 +15193,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -14516,6 +15210,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -14534,6 +15229,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
@@ -14583,6 +15279,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
@@ -14634,6 +15331,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(OSSAdapterProfiles != null)
             {
                 propertyValue = "[" + String.Join(", ", OSSAdapterProfiles.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -14647,6 +15345,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(OSSAdapterProfiles != null)
             {
                 propertyValue = OSSAdapterProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", OSSAdapterProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -14662,6 +15361,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(blockAnonymousAccess.HasValue)
             {
                 ret.Add("blockAnonymousAccess", "\"blockAnonymousAccess\": " + blockAnonymousAccess.ToString().ToLower());
@@ -14745,6 +15445,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(blockAnonymousAccess.HasValue)
             {
                 ret.Add("blockAnonymousAccess", "<blockAnonymousAccess>" + blockAnonymousAccess.ToString().ToLower() + "</blockAnonymousAccess>");
@@ -14830,6 +15531,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EntityReferenceEqual.HasValue)
             {
                 ret.Add("entityReferenceEqual", "\"entityReferenceEqual\": " + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "\"");
@@ -14842,6 +15544,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EntityReferenceEqual.HasValue)
             {
                 ret.Add("entityReferenceEqual", "<entityReferenceEqual>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "" + "</entityReferenceEqual>");
@@ -14856,6 +15559,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ParentalRule != null)
             {
                 propertyValue = "[" + String.Join(", ", ParentalRule.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -14869,6 +15573,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ParentalRule != null)
             {
                 propertyValue = ParentalRule.Count > 0 ? "<item>" + String.Join("</item><item>", ParentalRule.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -14884,6 +15589,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FriendlyName != null)
             {
                 ret.Add("friendlyName", "\"friendlyName\": " + "\"" + EscapeJson(FriendlyName) + "\"");
@@ -14904,6 +15610,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FriendlyName != null)
             {
                 ret.Add("friendlyName", "<friendlyName>" + EscapeXml(FriendlyName) + "</friendlyName>");
@@ -14926,6 +15633,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CurrentUserPermissionsContains.HasValue)
             {
                 ret.Add("currentUserPermissionsContains", "\"currentUserPermissionsContains\": " + CurrentUserPermissionsContains.ToString().ToLower());
@@ -14938,6 +15646,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CurrentUserPermissionsContains.HasValue)
             {
                 ret.Add("currentUserPermissionsContains", "<currentUserPermissionsContains>" + CurrentUserPermissionsContains.ToString().ToLower() + "</currentUserPermissionsContains>");
@@ -14952,6 +15661,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -14969,6 +15679,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -14988,6 +15699,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Permissions != null)
             {
                 propertyValue = "[" + String.Join(", ", Permissions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -15001,6 +15713,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Permissions != null)
             {
                 propertyValue = Permissions.Count > 0 ? "<item>" + String.Join("</item><item>", Permissions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -15016,6 +15729,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("origin", "\"origin\": " + "\"" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "\"");
             if(PIN != null)
             {
@@ -15030,6 +15744,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("origin", "<origin>" + "" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "" + "</origin>");
             if(PIN != null)
             {
@@ -15046,6 +15761,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("origin", "\"origin\": " + "\"" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "\"");
             if(PIN != null)
             {
@@ -15060,6 +15776,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("origin", "<origin>" + "" + Enum.GetName(typeof(KalturaRuleLevel), Origin) + "" + "</origin>");
             if(PIN != null)
             {
@@ -15076,6 +15793,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
@@ -15112,6 +15830,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
@@ -15150,6 +15869,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PlaybackProfileIdEqual.HasValue)
             {
                 ret.Add("playbackProfileEqual", "\"playbackProfileEqual\": " + PlaybackProfileIdEqual);
@@ -15162,6 +15882,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PlaybackProfileIdEqual.HasValue)
             {
                 ret.Add("playbackProfileEqual", "<playbackProfileEqual>" + PlaybackProfileIdEqual + "</playbackProfileEqual>");
@@ -15176,6 +15897,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PlaybackProfiles != null)
             {
                 propertyValue = "[" + String.Join(", ", PlaybackProfiles.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -15189,6 +15911,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PlaybackProfiles != null)
             {
                 propertyValue = PlaybackProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -15204,6 +15927,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Permission.HasValue)
             {
                 ret.Add("permission", "\"permission\": " + "\"" + Enum.GetName(typeof(KalturaPurchaseSettingsType), Permission) + "\"");
@@ -15216,6 +15940,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Permission.HasValue)
             {
                 ret.Add("permission", "<permission>" + "" + Enum.GetName(typeof(KalturaPurchaseSettingsType), Permission) + "" + "</permission>");
@@ -15230,6 +15955,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PurchaseSettingsType.HasValue)
             {
                 ret.Add("purchaseSettingsType", "\"purchaseSettingsType\": " + "\"" + Enum.GetName(typeof(KalturaPurchaseSettingsType), PurchaseSettingsType) + "\"");
@@ -15246,6 +15972,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PurchaseSettingsType.HasValue)
             {
                 ret.Add("purchaseSettingsType", "<purchaseSettingsType>" + "" + Enum.GetName(typeof(KalturaPurchaseSettingsType), PurchaseSettingsType) + "" + "</purchaseSettingsType>");
@@ -15264,6 +15991,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
@@ -15321,6 +16049,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
@@ -15380,6 +16109,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(RecommendationProfiles != null)
             {
                 propertyValue = "[" + String.Join(", ", RecommendationProfiles.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -15393,6 +16123,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(RecommendationProfiles != null)
             {
                 propertyValue = RecommendationProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", RecommendationProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -15408,6 +16139,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalId != null)
             {
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
@@ -15431,6 +16163,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalId != null)
             {
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
@@ -15456,6 +16189,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("channelNumber", "\"channelNumber\": " + ChannelNumber);
             ret.Add("linearChannelId", "\"linearChannelId\": " + LinearChannelId);
             return ret;
@@ -15466,6 +16200,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("channelNumber", "<channelNumber>" + ChannelNumber + "</channelNumber>");
             ret.Add("linearChannelId", "<linearChannelId>" + LinearChannelId + "</linearChannelId>");
             return ret;
@@ -15478,6 +16213,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalIdIn != null)
             {
                 ret.Add("externalIdIn", "\"externalIdIn\": " + "\"" + EscapeJson(ExternalIdIn) + "\"");
@@ -15490,6 +16226,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalIdIn != null)
             {
                 ret.Add("externalIdIn", "<externalIdIn>" + EscapeXml(ExternalIdIn) + "</externalIdIn>");
@@ -15504,6 +16241,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Regions != null)
             {
                 propertyValue = "[" + String.Join(", ", Regions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -15517,6 +16255,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Regions != null)
             {
                 propertyValue = Regions.Count > 0 ? "<item>" + String.Join("</item><item>", Regions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -15532,6 +16271,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Key != null)
             {
                 ret.Add("key", "\"key\": " + "\"" + EscapeJson(Key) + "\"");
@@ -15548,6 +16288,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Key != null)
             {
                 ret.Add("key", "<key>" + EscapeXml(Key) + "</key>");
@@ -15566,6 +16307,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(RegistrySettings != null)
             {
                 propertyValue = "[" + String.Join(", ", RegistrySettings.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -15579,6 +16321,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(RegistrySettings != null)
             {
                 propertyValue = RegistrySettings.Count > 0 ? "<item>" + String.Join("</item><item>", RegistrySettings.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -15594,6 +16337,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
@@ -15611,6 +16355,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
@@ -15630,6 +16375,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "\"by\": " + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "\"");
             return ret;
         }
@@ -15639,6 +16385,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), By) + "" + "</by>");
             return ret;
         }
@@ -15650,6 +16397,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "\"action\": " + "\"" + EscapeJson(Action) + "\"");
@@ -15687,6 +16435,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Action != null)
             {
                 ret.Add("action", "<action>" + EscapeXml(Action) + "</action>");
@@ -15726,6 +16475,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -15734,6 +16484,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -15744,6 +16495,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -15757,6 +16509,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -15772,6 +16525,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SegmentsIds != null)
             {
                 ret.Add("segmentsIds", "\"segmentsIds\": " + "\"" + EscapeJson(SegmentsIds) + "\"");
@@ -15784,6 +16538,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SegmentsIds != null)
             {
                 ret.Add("segmentsIds", "<segmentsIds>" + EscapeXml(SegmentsIds) + "</segmentsIds>");
@@ -15798,6 +16553,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CatchUpBufferLength.HasValue)
             {
                 ret.Add("catchUpBufferLength", "\"catchUpBufferLength\": " + CatchUpBufferLength);
@@ -15922,6 +16678,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CatchUpBufferLength.HasValue)
             {
                 ret.Add("catchUpBufferLength", "<catchUpBufferLength>" + CatchUpBufferLength + "</catchUpBufferLength>");
@@ -16048,6 +16805,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DeviceBrandIds != null)
             {
                 ret.Add("deviceBrandIds", "\"deviceBrandIds\": " + "\"" + EscapeJson(DeviceBrandIds) + "\"");
@@ -16060,6 +16818,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DeviceBrandIds != null)
             {
                 ret.Add("deviceBrandIds", "<deviceBrandIds>" + EscapeXml(DeviceBrandIds) + "</deviceBrandIds>");
@@ -16074,6 +16833,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CountryIds != null)
             {
                 ret.Add("countryIds", "\"countryIds\": " + "\"" + EscapeJson(CountryIds) + "\"");
@@ -16097,6 +16857,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CountryIds != null)
             {
                 ret.Add("countryIds", "<countryIds>" + EscapeXml(CountryIds) + "</countryIds>");
@@ -16122,6 +16883,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             ret.Add("ruleType", "\"ruleType\": " + "\"" + Enum.GetName(typeof(KalturaTvmRuleType), RuleType) + "\"");
             return ret;
@@ -16132,6 +16894,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             ret.Add("ruleType", "<ruleType>" + "" + Enum.GetName(typeof(KalturaTvmRuleType), RuleType) + "" + "</ruleType>");
             return ret;
@@ -16144,6 +16907,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(NameEqual != null)
             {
                 ret.Add("nameEqual", "\"nameEqual\": " + "\"" + EscapeJson(NameEqual) + "\"");
@@ -16160,6 +16924,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(NameEqual != null)
             {
                 ret.Add("nameEqual", "<nameEqual>" + EscapeXml(NameEqual) + "</nameEqual>");
@@ -16178,6 +16943,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -16191,6 +16957,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -16206,6 +16973,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
@@ -16227,6 +16995,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
@@ -16250,6 +17019,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdEqual.HasValue)
             {
                 ret.Add("assetIdEqual", "\"assetIdEqual\": " + AssetIdEqual);
@@ -16266,6 +17036,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetIdEqual.HasValue)
             {
                 ret.Add("assetIdEqual", "<assetIdEqual>" + AssetIdEqual + "</assetIdEqual>");
@@ -16284,6 +17055,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Rules != null)
             {
                 propertyValue = "[" + String.Join(", ", Rules.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -16297,6 +17069,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Rules != null)
             {
                 propertyValue = Rules.Count > 0 ? "<item>" + String.Join("</item><item>", Rules.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -16312,6 +17085,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExcludedPermissionNames != null)
             {
                 ret.Add("excludedPermissionNames", "\"excludedPermissionNames\": " + "\"" + EscapeJson(ExcludedPermissionNames) + "\"");
@@ -16341,6 +17115,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExcludedPermissionNames != null)
             {
                 ret.Add("excludedPermissionNames", "<excludedPermissionNames>" + EscapeXml(ExcludedPermissionNames) + "</excludedPermissionNames>");
@@ -16372,6 +17147,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CurrentUserRoleIdsContains.HasValue)
             {
                 ret.Add("currentUserRoleIdsContains", "\"currentUserRoleIdsContains\": " + CurrentUserRoleIdsContains.ToString().ToLower());
@@ -16393,6 +17169,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CurrentUserRoleIdsContains.HasValue)
             {
                 ret.Add("currentUserRoleIdsContains", "<currentUserRoleIdsContains>" + CurrentUserRoleIdsContains.ToString().ToLower() + "</currentUserRoleIdsContains>");
@@ -16416,6 +17193,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(UserRoles != null)
             {
                 propertyValue = "[" + String.Join(", ", UserRoles.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -16429,6 +17207,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(UserRoles != null)
             {
                 propertyValue = UserRoles.Count > 0 ? "<item>" + String.Join("</item><item>", UserRoles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -16448,6 +17227,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetFileId", "\"assetFileId\": " + AssetFileId);
             if(EndDate.HasValue)
             {
@@ -16466,6 +17246,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetFileId", "<assetFileId>" + AssetFileId + "</assetFileId>");
             if(EndDate.HasValue)
             {
@@ -16486,6 +17267,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetFileIdEqual.HasValue)
             {
                 ret.Add("assetFileIdEqual", "\"assetFileIdEqual\": " + AssetFileIdEqual);
@@ -16502,6 +17284,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetFileIdEqual.HasValue)
             {
                 ret.Add("assetFileIdEqual", "<assetFileIdEqual>" + AssetFileIdEqual + "</assetFileIdEqual>");
@@ -16520,6 +17303,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetFilesPpvs != null)
             {
                 propertyValue = "[" + String.Join(", ", AssetFilesPpvs.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -16533,6 +17317,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetFilesPpvs != null)
             {
                 propertyValue = AssetFilesPpvs.Count > 0 ? "<item>" + String.Join("</item><item>", AssetFilesPpvs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -16548,6 +17333,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetId != null)
             {
                 ret.Add("asset_id", "\"asset_id\": " + "\"" + EscapeJson(AssetId) + "\"");
@@ -16566,6 +17352,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AssetId != null)
             {
                 ret.Add("asset_id", "<asset_id>" + EscapeXml(AssetId) + "</asset_id>");
@@ -16586,6 +17373,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = "[" + String.Join(", ", Channels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -16653,6 +17441,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -16714,6 +17503,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CollectionIdIn != null)
             {
                 ret.Add("collectionIdIn", "\"collectionIdIn\": " + "\"" + EscapeJson(CollectionIdIn) + "\"");
@@ -16730,6 +17520,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CollectionIdIn != null)
             {
                 ret.Add("collectionIdIn", "<collectionIdIn>" + EscapeXml(CollectionIdIn) + "</collectionIdIn>");
@@ -16748,6 +17539,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Collections != null)
             {
                 propertyValue = "[" + String.Join(", ", Collections.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -16761,6 +17553,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Collections != null)
             {
                 propertyValue = Collections.Count > 0 ? "<item>" + String.Join("</item><item>", Collections.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -16776,6 +17569,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -16784,6 +17578,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -16794,6 +17589,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CouponsGroup != null)
             {
                 propertyValue = CouponsGroup.ToJson(currentVersion, omitObsolete);
@@ -16820,6 +17616,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CouponsGroup != null)
             {
                 propertyValue = CouponsGroup.ToXml(currentVersion, omitObsolete);
@@ -16848,6 +17645,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -16856,6 +17654,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -16866,6 +17665,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CouponGroupType.HasValue)
             {
                 ret.Add("couponGroupType", "\"couponGroupType\": " + "\"" + Enum.GetName(typeof(KalturaCouponGroupType), CouponGroupType) + "\"");
@@ -16935,6 +17735,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CouponGroupType.HasValue)
             {
                 ret.Add("couponGroupType", "<couponGroupType>" + "" + Enum.GetName(typeof(KalturaCouponGroupType), CouponGroupType) + "" + "</couponGroupType>");
@@ -17006,6 +17807,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(couponsGroups != null)
             {
                 propertyValue = "[" + String.Join(", ", couponsGroups.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -17019,6 +17821,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(couponsGroups != null)
             {
                 propertyValue = couponsGroups.Count > 0 ? "<item>" + String.Join("</item><item>", couponsGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -17034,6 +17837,8 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             ret.Add("percentage", "\"percentage\": " + Percentage);
             return ret;
         }
@@ -17043,6 +17848,8 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             ret.Add("percentage", "<percentage>" + Percentage + "</percentage>");
             return ret;
         }
@@ -17054,6 +17861,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("endDate", "\"endDate\": " + EndtDate);
             if(Id.HasValue)
             {
@@ -17077,6 +17885,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("endDate", "<endDate>" + EndtDate + "</endDate>");
             if(Id.HasValue)
             {
@@ -17102,6 +17911,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -17114,6 +17924,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -17128,6 +17939,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Discounts != null)
             {
                 propertyValue = "[" + String.Join(", ", Discounts.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -17141,6 +17953,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Discounts != null)
             {
                 propertyValue = Discounts.Count > 0 ? "<item>" + String.Join("</item><item>", Discounts.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -17156,6 +17969,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndDate.HasValue)
             {
                 ret.Add("endDate", "\"endDate\": " + EndDate);
@@ -17184,6 +17998,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndDate.HasValue)
             {
                 ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
@@ -17214,6 +18029,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FileId.HasValue)
             {
                 ret.Add("fileId", "\"fileId\": " + FileId);
@@ -17239,6 +18055,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FileId.HasValue)
             {
                 ret.Add("fileId", "<fileId>" + FileId + "</fileId>");
@@ -17266,6 +18083,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ItemPrice != null)
             {
                 propertyValue = "[" + String.Join(", ", ItemPrice.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -17279,6 +18097,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ItemPrice != null)
             {
                 propertyValue = ItemPrice.Count > 0 ? "<item>" + String.Join("</item><item>", ItemPrice.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -17294,6 +18113,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CouponsGroup != null)
             {
                 propertyValue = CouponsGroup.ToJson(currentVersion, omitObsolete);
@@ -17352,6 +18172,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CouponsGroup != null)
             {
                 propertyValue = CouponsGroup.ToXml(currentVersion, omitObsolete);
@@ -17412,6 +18233,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -17424,6 +18246,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -17438,6 +18261,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CollectionId != null)
             {
                 ret.Add("collectionId", "\"collectionId\": " + "\"" + EscapeJson(CollectionId) + "\"");
@@ -17587,6 +18411,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CollectionId != null)
             {
                 ret.Add("collectionId", "<collectionId>" + EscapeXml(CollectionId) + "</collectionId>");
@@ -17738,6 +18563,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Ppvs != null)
             {
                 propertyValue = "[" + String.Join(", ", Ppvs.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -17751,6 +18577,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Ppvs != null)
             {
                 propertyValue = Ppvs.Count > 0 ? "<item>" + String.Join("</item><item>", Ppvs.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -17766,6 +18593,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CollectionId != null)
             {
                 ret.Add("collectionId", "\"collectionId\": " + "\"" + EscapeJson(CollectionId) + "\"");
@@ -17845,6 +18673,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CollectionId != null)
             {
                 ret.Add("collectionId", "<collectionId>" + EscapeXml(CollectionId) + "</collectionId>");
@@ -17926,6 +18755,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -17958,6 +18788,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -17992,11 +18823,13 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             if(Amount.HasValue)
             {
                 ret.Add("amount", "\"amount\": " + Amount);
             }
-            if(CountryId.HasValue)
+            if(CountryId.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaPrice", "CountryId", requestType.Value)))
             {
                 ret.Add("countryId", "\"countryId\": " + CountryId);
             }
@@ -18020,11 +18853,13 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             if(Amount.HasValue)
             {
                 ret.Add("amount", "<amount>" + Amount + "</amount>");
             }
-            if(CountryId.HasValue)
+            if(CountryId.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaPrice", "CountryId", requestType.Value)))
             {
                 ret.Add("countryId", "<countryId>" + CountryId + "</countryId>");
             }
@@ -18050,6 +18885,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Descriptions != null)
             {
                 propertyValue = "[" + String.Join(", ", Descriptions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -18081,6 +18917,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Descriptions != null)
             {
                 propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -18114,6 +18951,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -18126,6 +18964,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -18140,6 +18979,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Prices != null)
             {
                 propertyValue = "[" + String.Join(", ", Prices.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -18153,6 +18993,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Prices != null)
             {
                 propertyValue = Prices.Count > 0 ? "<item>" + String.Join("</item><item>", Prices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -18168,6 +19009,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DiscountId.HasValue)
             {
                 ret.Add("discountId", "\"discountId\": " + DiscountId);
@@ -18212,6 +19054,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DiscountId.HasValue)
             {
                 ret.Add("discountId", "<discountId>" + DiscountId + "</discountId>");
@@ -18258,6 +19101,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -18270,6 +19114,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -18284,6 +19129,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PricePlans != null)
             {
                 propertyValue = "[" + String.Join(", ", PricePlans.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -18297,6 +19143,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PricePlans != null)
             {
                 propertyValue = PricePlans.Count > 0 ? "<item>" + String.Join("</item><item>", PricePlans.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -18312,6 +19159,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
@@ -18328,6 +19176,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
@@ -18346,6 +19195,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!isOldVersion && Price != null)
             {
                 propertyValue = Price.ToJson(currentVersion, omitObsolete);
@@ -18376,6 +19226,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!isOldVersion && Price != null)
             {
                 propertyValue = Price.ToXml(currentVersion, omitObsolete);
@@ -18408,6 +19259,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ProductsPrices != null)
             {
                 propertyValue = "[" + String.Join(", ", ProductsPrices.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -18421,6 +19273,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ProductsPrices != null)
             {
                 propertyValue = ProductsPrices.Count > 0 ? "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -18436,6 +19289,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ProductsPrices != null)
             {
                 propertyValue = "[" + String.Join(", ", ProductsPrices.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -18449,6 +19303,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ProductsPrices != null)
             {
                 propertyValue = ProductsPrices.Count > 0 ? "<item>" + String.Join("</item><item>", ProductsPrices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -18464,6 +19319,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
@@ -18476,6 +19332,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
@@ -18490,6 +19347,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("numberOfCoupons", "\"numberOfCoupons\": " + NumberOfCoupons);
             if(UseLetters.HasValue)
             {
@@ -18511,6 +19369,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("numberOfCoupons", "<numberOfCoupons>" + NumberOfCoupons + "</numberOfCoupons>");
             if(UseLetters.HasValue)
             {
@@ -18534,6 +19393,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = "[" + String.Join(", ", Channels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -18771,6 +19631,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Channels != null)
             {
                 propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -19002,6 +19863,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BaseSubscriptionId.HasValue)
             {
                 ret.Add("baseSubscriptionId", "\"baseSubscriptionId\": " + BaseSubscriptionId);
@@ -19014,6 +19876,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BaseSubscriptionId.HasValue)
             {
                 ret.Add("baseSubscriptionId", "<baseSubscriptionId>" + BaseSubscriptionId + "</baseSubscriptionId>");
@@ -19028,6 +19891,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BaseSubscriptionIdIn != null)
             {
                 ret.Add("baseSubscriptionIdIn", "\"baseSubscriptionIdIn\": " + "\"" + EscapeJson(BaseSubscriptionIdIn) + "\"");
@@ -19040,6 +19904,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BaseSubscriptionIdIn != null)
             {
                 ret.Add("baseSubscriptionIdIn", "<baseSubscriptionIdIn>" + EscapeXml(BaseSubscriptionIdIn) + "</baseSubscriptionIdIn>");
@@ -19054,6 +19919,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalIdIn != null)
             {
                 ret.Add("externalIdIn", "\"externalIdIn\": " + "\"" + EscapeJson(ExternalIdIn) + "\"");
@@ -19074,6 +19940,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalIdIn != null)
             {
                 ret.Add("externalIdIn", "<externalIdIn>" + EscapeXml(ExternalIdIn) + "</externalIdIn>");
@@ -19096,6 +19963,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Subscriptions != null)
             {
                 propertyValue = "[" + String.Join(", ", Subscriptions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -19109,6 +19977,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Subscriptions != null)
             {
                 propertyValue = Subscriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Subscriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -19124,6 +19993,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndDate.HasValue)
             {
                 ret.Add("endDate", "\"endDate\": " + EndDate);
@@ -19149,6 +20019,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(EndDate.HasValue)
             {
                 ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
@@ -19176,6 +20047,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("id", "\"id\": " + Id);
             if(Name != null)
             {
@@ -19197,6 +20069,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("id", "<id>" + Id + "</id>");
             if(Name != null)
             {
@@ -19220,6 +20093,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -19240,6 +20114,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -19262,6 +20137,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SubscriptionSets != null)
             {
                 propertyValue = "[" + String.Join(", ", SubscriptionSets.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -19275,6 +20151,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SubscriptionSets != null)
             {
                 propertyValue = SubscriptionSets.Count > 0 ? "<item>" + String.Join("</item><item>", SubscriptionSets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -19290,6 +20167,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "\"by\": " + "\"" + Enum.GetName(typeof(KalturaSubscriptionsFilterBy), By) + "\"");
             if(Ids != null)
             {
@@ -19304,6 +20182,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("by", "<by>" + "" + Enum.GetName(typeof(KalturaSubscriptionsFilterBy), By) + "" + "</by>");
             if(Ids != null)
             {
@@ -19320,6 +20199,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -19328,6 +20208,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -19338,6 +20219,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CouponId.HasValue)
             {
                 ret.Add("couponId", "\"couponId\": " + CouponId);
@@ -19410,6 +20292,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CouponId.HasValue)
             {
                 ret.Add("couponId", "<couponId>" + CouponId + "</couponId>");
@@ -19488,6 +20371,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FirstName != null)
             {
                 ret.Add("firstName", "\"firstName\": " + "\"" + EscapeJson(FirstName) + "\"");
@@ -19520,6 +20404,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(FirstName != null)
             {
                 ret.Add("firstName", "<firstName>" + EscapeXml(FirstName) + "</firstName>");
@@ -19554,6 +20439,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
@@ -19595,6 +20481,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Code != null)
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
@@ -19638,6 +20525,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && Asset != null)
             {
                 propertyValue = Asset.ToJson(currentVersion, omitObsolete);
@@ -19661,6 +20549,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && Asset != null)
             {
                 propertyValue = Asset.ToXml(currentVersion, omitObsolete);
@@ -19686,6 +20575,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MediaIdIn != null)
             {
                 ret.Add("mediaIdIn", "\"mediaIdIn\": " + "\"" + EscapeJson(MediaIdIn) + "\"");
@@ -19723,6 +20613,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MediaIdIn != null)
             {
                 ret.Add("mediaIdIn", "<mediaIdIn>" + EscapeXml(MediaIdIn) + "</mediaIdIn>");
@@ -19762,6 +20653,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Favorites != null)
             {
                 propertyValue = "[" + String.Join(", ", Favorites.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -19775,6 +20667,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Favorites != null)
             {
                 propertyValue = Favorites.Count > 0 ? "<item>" + String.Join("</item><item>", Favorites.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -19790,6 +20683,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LoginSession != null)
             {
                 propertyValue = LoginSession.ToJson(currentVersion, omitObsolete);
@@ -19812,6 +20706,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LoginSession != null)
             {
                 propertyValue = LoginSession.ToXml(currentVersion, omitObsolete);
@@ -19836,6 +20731,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("expiry", "\"expiry\": " + Expiry);
             if(KS != null)
             {
@@ -19857,6 +20753,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("expiry", "<expiry>" + Expiry + "</expiry>");
             if(KS != null)
             {
@@ -19880,6 +20777,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Address != null)
             {
                 ret.Add("address", "\"address\": " + "\"" + EscapeJson(Address) + "\"");
@@ -20011,6 +20909,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Address != null)
             {
                 ret.Add("address", "<address>" + EscapeXml(Address) + "</address>");
@@ -20144,6 +21043,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Key != null)
             {
                 ret.Add("key", "\"key\": " + "\"" + EscapeJson(Key) + "\"");
@@ -20165,6 +21065,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Key != null)
             {
                 ret.Add("key", "<key>" + EscapeXml(Key) + "</key>");
@@ -20188,6 +21089,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("dynamicData", "\"dynamicData\": " + DynamicData);
             if(UserId != null)
             {
@@ -20201,6 +21103,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("dynamicData", "<dynamicData>" + DynamicData + "</dynamicData>");
             if(UserId != null)
             {
@@ -20216,11 +21119,13 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(ExternalIdEqual != null)
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
+            if(ExternalIdEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "ExternalIdEqual", requestType.Value)))
             {
                 ret.Add("externalIdEqual", "\"externalIdEqual\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
             }
-            if(IdIn != null)
+            if(IdIn != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "IdIn", requestType.Value)))
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
@@ -20228,7 +21133,7 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("roleIdsIn", "\"roleIdsIn\": " + "\"" + EscapeJson(RoleIdsIn) + "\"");
             }
-            if(UsernameEqual != null)
+            if(UsernameEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "UsernameEqual", requestType.Value)))
             {
                 ret.Add("usernameEqual", "\"usernameEqual\": " + "\"" + EscapeJson(UsernameEqual) + "\"");
             }
@@ -20240,11 +21145,13 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(ExternalIdEqual != null)
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
+            if(ExternalIdEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "ExternalIdEqual", requestType.Value)))
             {
                 ret.Add("externalIdEqual", "<externalIdEqual>" + EscapeXml(ExternalIdEqual) + "</externalIdEqual>");
             }
-            if(IdIn != null)
+            if(IdIn != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "IdIn", requestType.Value)))
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
             }
@@ -20252,7 +21159,7 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("roleIdsIn", "<roleIdsIn>" + EscapeXml(RoleIdsIn) + "</roleIdsIn>");
             }
-            if(UsernameEqual != null)
+            if(UsernameEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "UsernameEqual", requestType.Value)))
             {
                 ret.Add("usernameEqual", "<usernameEqual>" + EscapeXml(UsernameEqual) + "</usernameEqual>");
             }
@@ -20266,6 +21173,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Users != null)
             {
                 propertyValue = "[" + String.Join(", ", Users.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -20279,6 +21187,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Users != null)
             {
                 propertyValue = Users.Count > 0 ? "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -20294,6 +21203,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
@@ -20310,6 +21220,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
@@ -20328,6 +21239,8 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             ret.Add("createDate", "\"createDate\": " + createDate);
             if(expiry.HasValue)
             {
@@ -20341,7 +21254,7 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("partnerId", "\"partnerId\": " + partnerId);
             }
-            if(privileges != null)
+            if(privileges != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaSession", "privileges", requestType.Value)))
             {
                 ret.Add("privileges", "\"privileges\": " + "\"" + EscapeJson(privileges) + "\"");
             }
@@ -20365,6 +21278,8 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             ret.Add("createDate", "<createDate>" + createDate + "</createDate>");
             if(expiry.HasValue)
             {
@@ -20378,7 +21293,7 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("partnerId", "<partnerId>" + partnerId + "</partnerId>");
             }
-            if(privileges != null)
+            if(privileges != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaSession", "privileges", requestType.Value)))
             {
                 ret.Add("privileges", "<privileges>" + EscapeXml(privileges) + "</privileges>");
             }
@@ -20404,6 +21319,8 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             return ret;
         }
         
@@ -20412,6 +21329,8 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             return ret;
         }
     }
@@ -20422,6 +21341,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
@@ -20459,6 +21379,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
@@ -20498,6 +21419,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SSOAdapters != null)
             {
                 propertyValue = "[" + String.Join(", ", SSOAdapters.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -20511,6 +21433,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SSOAdapters != null)
             {
                 propertyValue = SSOAdapters.Count > 0 ? "<item>" + String.Join("</item><item>", SSOAdapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -20526,6 +21449,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(List != null)
             {
                 propertyValue = "[" + String.Join(", ", List.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -20544,6 +21468,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(List != null)
             {
                 propertyValue = List.Count > 0 ? "<item>" + String.Join("</item><item>", List.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -20564,6 +21489,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetTypeEqual", "\"assetTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaUserAssetsListItemType), AssetTypeEqual) + "\"");
             if (currentVersion == null || isOldVersion)
             {
@@ -20583,6 +21509,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("assetTypeEqual", "<assetTypeEqual>" + "" + Enum.GetName(typeof(KalturaUserAssetsListItemType), AssetTypeEqual) + "" + "</assetTypeEqual>");
             if (currentVersion == null || isOldVersion)
             {
@@ -20604,6 +21531,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id != null)
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
@@ -20638,6 +21566,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id != null)
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
@@ -20674,6 +21603,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id != null)
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
@@ -20691,6 +21621,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id != null)
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
@@ -20710,6 +21641,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(UserInterests != null)
             {
                 propertyValue = "[" + String.Join(", ", UserInterests.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -20723,6 +21655,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(UserInterests != null)
             {
                 propertyValue = UserInterests.Count > 0 ? "<item>" + String.Join("</item><item>", UserInterests.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -20738,6 +21671,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MetaId != null)
             {
                 ret.Add("metaId", "\"metaId\": " + "\"" + EscapeJson(MetaId) + "\"");
@@ -20759,6 +21693,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(MetaId != null)
             {
                 ret.Add("metaId", "<metaId>" + EscapeXml(MetaId) + "</metaId>");
@@ -20782,6 +21717,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExpirationTime.HasValue)
             {
                 ret.Add("expirationTime", "\"expirationTime\": " + ExpirationTime);
@@ -20814,6 +21750,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExpirationTime.HasValue)
             {
                 ret.Add("expirationTime", "<expirationTime>" + ExpirationTime + "</expirationTime>");
@@ -20852,6 +21789,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -20860,6 +21798,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -20870,6 +21809,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -20878,6 +21818,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -20888,6 +21829,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaContentAction), Action) + "\"");
             if(Length.HasValue)
             {
@@ -20906,6 +21848,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaContentAction), Action) + "" + "</action>");
             if(Length.HasValue)
             {
@@ -20926,6 +21869,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = "[" + String.Join(", ", Actions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -20960,6 +21904,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Actions != null)
             {
                 propertyValue = Actions.Count > 0 ? "<item>" + String.Join("</item><item>", Actions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -20996,6 +21941,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Field != null)
             {
                 ret.Add("field", "\"field\": " + "\"" + EscapeJson(Field) + "\"");
@@ -21008,6 +21954,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Field != null)
             {
                 ret.Add("field", "<field>" + EscapeXml(Field) + "</field>");
@@ -21022,6 +21969,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Days.HasValue)
             {
                 ret.Add("days", "\"days\": " + Days);
@@ -21044,6 +21992,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Days.HasValue)
             {
                 ret.Add("days", "<days>" + Days + "</days>");
@@ -21068,6 +22017,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("days", "\"days\": " + Days);
             ret.Add("operator", "\"operator\": " + "\"" + Enum.GetName(typeof(KalturaMathemticalOperatorType), Operator) + "\"");
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaMonetizationType), Type) + "\"");
@@ -21079,6 +22029,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("days", "<days>" + Days + "</days>");
             ret.Add("operator", "<operator>" + "" + Enum.GetName(typeof(KalturaMathemticalOperatorType), Operator) + "" + "</operator>");
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaMonetizationType), Type) + "" + "</type>");
@@ -21092,6 +22043,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(NameFormat != null)
             {
                 ret.Add("nameFormat", "\"nameFormat\": " + "\"" + EscapeJson(NameFormat) + "\"");
@@ -21104,6 +22056,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(NameFormat != null)
             {
                 ret.Add("nameFormat", "<nameFormat>" + EscapeXml(NameFormat) + "</nameFormat>");
@@ -21118,6 +22071,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Conditions != null)
             {
                 propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -21147,6 +22101,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Conditions != null)
             {
                 propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -21178,6 +22133,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -21190,6 +22146,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -21204,6 +22161,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SegmentationTypes != null)
             {
                 propertyValue = "[" + String.Join(", ", SegmentationTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -21217,6 +22175,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(SegmentationTypes != null)
             {
                 propertyValue = SegmentationTypes.Count > 0 ? "<item>" + String.Join("</item><item>", SegmentationTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -21232,6 +22191,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Equals.HasValue)
             {
                 ret.Add("equals", "\"equals\": " + Equals);
@@ -21269,6 +22229,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Equals.HasValue)
             {
                 ret.Add("equals", "<equals>" + Equals + "</equals>");
@@ -21308,6 +22269,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Ranges != null)
             {
                 propertyValue = "[" + String.Join(", ", Ranges.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -21326,6 +22288,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Ranges != null)
             {
                 propertyValue = Ranges.Count > 0 ? "<item>" + String.Join("</item><item>", Ranges.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -21346,6 +22309,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -21354,6 +22318,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -21364,6 +22329,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("id", "\"id\": " + Id);
             if(Name != null)
             {
@@ -21385,6 +22351,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("id", "<id>" + Id + "</id>");
             if(Name != null)
             {
@@ -21408,6 +22375,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Source != null)
             {
                 propertyValue = Source.ToJson(currentVersion, omitObsolete);
@@ -21426,6 +22394,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Source != null)
             {
                 propertyValue = Source.ToXml(currentVersion, omitObsolete);
@@ -21446,6 +22415,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("affectedUsers", "\"affectedUsers\": " + AffectedUsers);
             ret.Add("id", "\"id\": " + Id);
             return ret;
@@ -21456,6 +22426,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("affectedUsers", "<affectedUsers>" + AffectedUsers + "</affectedUsers>");
             ret.Add("id", "<id>" + Id + "</id>");
             return ret;
@@ -21468,6 +22439,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Field != null)
             {
                 ret.Add("field", "\"field\": " + "\"" + EscapeJson(Field) + "\"");
@@ -21484,6 +22456,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Field != null)
             {
                 ret.Add("field", "<field>" + EscapeXml(Field) + "</field>");
@@ -21502,6 +22475,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Field != null)
             {
                 ret.Add("field", "\"field\": " + "\"" + EscapeJson(Field) + "\"");
@@ -21514,6 +22488,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Field != null)
             {
                 ret.Add("field", "<field>" + EscapeXml(Field) + "</field>");
@@ -21528,6 +22503,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("segmentId", "\"segmentId\": " + SegmentId);
             if(UserId != null)
             {
@@ -21541,6 +22517,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("segmentId", "<segmentId>" + SegmentId + "</segmentId>");
             if(UserId != null)
             {
@@ -21556,6 +22533,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(UserIdEqual != null)
             {
                 ret.Add("userIdEqual", "\"userIdEqual\": " + "\"" + EscapeJson(UserIdEqual) + "\"");
@@ -21568,6 +22546,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(UserIdEqual != null)
             {
                 ret.Add("userIdEqual", "<userIdEqual>" + EscapeXml(UserIdEqual) + "</userIdEqual>");
@@ -21582,6 +22561,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Segments != null)
             {
                 propertyValue = "[" + String.Join(", ", Segments.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -21595,6 +22575,7 @@ namespace WebAPI.Models.Segmentation
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Segments != null)
             {
                 propertyValue = Segments.Count > 0 ? "<item>" + String.Join("</item><item>", Segments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -21614,6 +22595,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && PartnerConfigurationType != null)
             {
                 propertyValue = PartnerConfigurationType.ToJson(currentVersion, omitObsolete);
@@ -21636,6 +22618,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && PartnerConfigurationType != null)
             {
                 propertyValue = PartnerConfigurationType.ToXml(currentVersion, omitObsolete);
@@ -21660,6 +22643,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DeviceFamilyIds != null)
             {
                 ret.Add("deviceFamilyIds", "\"deviceFamilyIds\": " + "\"" + EscapeJson(DeviceFamilyIds) + "\"");
@@ -21673,6 +22657,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DeviceFamilyIds != null)
             {
                 ret.Add("deviceFamilyIds", "<deviceFamilyIds>" + EscapeXml(DeviceFamilyIds) + "</deviceFamilyIds>");
@@ -21688,6 +22673,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DateFormat != null)
             {
                 ret.Add("dateFormat", "\"dateFormat\": " + "\"" + EscapeJson(DateFormat) + "\"");
@@ -21736,6 +22722,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DateFormat != null)
             {
                 ret.Add("dateFormat", "<dateFormat>" + EscapeXml(DateFormat) + "</dateFormat>");
@@ -21786,6 +22773,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -21794,6 +22782,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -21804,6 +22793,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("partnerConfigurationTypeEqual", "\"partnerConfigurationTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaPartnerConfigurationType), PartnerConfigurationTypeEqual) + "\"");
             return ret;
         }
@@ -21813,6 +22803,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("partnerConfigurationTypeEqual", "<partnerConfigurationTypeEqual>" + "" + Enum.GetName(typeof(KalturaPartnerConfigurationType), PartnerConfigurationTypeEqual) + "" + "</partnerConfigurationTypeEqual>");
             return ret;
         }
@@ -21824,6 +22815,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaPartnerConfigurationType), type) + "\"");
             return ret;
         }
@@ -21833,6 +22825,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaPartnerConfigurationType), type) + "" + "</type>");
             return ret;
         }
@@ -21844,6 +22837,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -21857,6 +22851,7 @@ namespace WebAPI.Models.Partner
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -21876,6 +22871,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobAction), Action) + "\"");
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             if(FileName != null)
@@ -21903,6 +22899,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobAction), Action) + "" + "</action>");
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(FileName != null)
@@ -21932,6 +22929,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("typeId", "\"typeId\": " + TypeId);
             return ret;
         }
@@ -21941,6 +22939,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("typeId", "<typeId>" + TypeId + "</typeId>");
             return ret;
         }
@@ -21952,6 +22951,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalId != null)
             {
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
@@ -21968,6 +22968,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalId != null)
             {
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
@@ -21986,6 +22987,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -21994,6 +22996,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -22004,6 +23007,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BulkObjectTypeEqual != null)
             {
                 ret.Add("bulkObjectTypeEqual", "\"bulkObjectTypeEqual\": " + "\"" + EscapeJson(BulkObjectTypeEqual) + "\"");
@@ -22028,6 +23032,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(BulkObjectTypeEqual != null)
             {
                 ret.Add("bulkObjectTypeEqual", "<bulkObjectTypeEqual>" + EscapeXml(BulkObjectTypeEqual) + "</bulkObjectTypeEqual>");
@@ -22054,6 +23059,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("ingestProfileId", "\"ingestProfileId\": " + IngestProfileId);
             return ret;
         }
@@ -22063,6 +23069,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("ingestProfileId", "<ingestProfileId>" + IngestProfileId + "</ingestProfileId>");
             return ret;
         }
@@ -22074,6 +23081,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -22082,6 +23090,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -22092,6 +23101,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -22105,6 +23115,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -22120,6 +23131,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalEpgIngestId != null)
             {
                 ret.Add("externalEpgIngestId", "\"externalEpgIngestId\": " + "\"" + EscapeJson(ExternalEpgIngestId) + "\"");
@@ -22138,6 +23150,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalEpgIngestId != null)
             {
                 ret.Add("externalEpgIngestId", "<externalEpgIngestId>" + EscapeXml(ExternalEpgIngestId) + "</externalEpgIngestId>");
@@ -22158,6 +23171,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -22166,6 +23180,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -22176,6 +23191,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -22184,6 +23200,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -22194,6 +23211,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -22202,6 +23220,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -22212,6 +23231,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -22220,6 +23240,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -22230,6 +23251,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LiveAssetExternalId != null)
             {
                 ret.Add("liveAssetExternalId", "\"liveAssetExternalId\": " + "\"" + EscapeJson(LiveAssetExternalId) + "\"");
@@ -22251,6 +23273,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(LiveAssetExternalId != null)
             {
                 ret.Add("liveAssetExternalId", "<liveAssetExternalId>" + EscapeXml(LiveAssetExternalId) + "</liveAssetExternalId>");
@@ -22274,6 +23297,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("bulkUploadId", "\"bulkUploadId\": " + BulkUploadId);
             if(Errors != null)
             {
@@ -22299,6 +23323,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("bulkUploadId", "<bulkUploadId>" + BulkUploadId + "</bulkUploadId>");
             if(Errors != null)
             {
@@ -22326,6 +23351,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CreateDate.HasValue)
             {
                 ret.Add("createDate", "\"createDate\": " + CreateDate);
@@ -22354,6 +23380,7 @@ namespace WebAPI.Models.Upload
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(CreateDate.HasValue)
             {
                 ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
@@ -22388,6 +23415,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationIdentifiers != null)
             {
                 propertyValue = "[" + String.Join(", ", ConfigurationIdentifiers.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -22417,6 +23445,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationIdentifiers != null)
             {
                 propertyValue = ConfigurationIdentifiers.Count > 0 ? "<item>" + String.Join("</item><item>", ConfigurationIdentifiers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -22448,6 +23477,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupId != null)
             {
                 ret.Add("configurationGroupId", "\"configurationGroupId\": " + "\"" + EscapeJson(ConfigurationGroupId) + "\"");
@@ -22465,6 +23495,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupId != null)
             {
                 ret.Add("configurationGroupId", "<configurationGroupId>" + EscapeXml(ConfigurationGroupId) + "</configurationGroupId>");
@@ -22484,6 +23515,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupIdEqual != null)
             {
                 ret.Add("configurationGroupIdEqual", "\"configurationGroupIdEqual\": " + "\"" + EscapeJson(ConfigurationGroupIdEqual) + "\"");
@@ -22496,6 +23528,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupIdEqual != null)
             {
                 ret.Add("configurationGroupIdEqual", "<configurationGroupIdEqual>" + EscapeXml(ConfigurationGroupIdEqual) + "</configurationGroupIdEqual>");
@@ -22510,6 +23543,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -22523,6 +23557,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -22538,6 +23573,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -22551,6 +23587,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -22566,6 +23603,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupId != null)
             {
                 ret.Add("configurationGroupId", "\"configurationGroupId\": " + "\"" + EscapeJson(ConfigurationGroupId) + "\"");
@@ -22583,6 +23621,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupId != null)
             {
                 ret.Add("configurationGroupId", "<configurationGroupId>" + EscapeXml(ConfigurationGroupId) + "</configurationGroupId>");
@@ -22602,6 +23641,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupIdEqual != null)
             {
                 ret.Add("configurationGroupIdEqual", "\"configurationGroupIdEqual\": " + "\"" + EscapeJson(ConfigurationGroupIdEqual) + "\"");
@@ -22614,6 +23654,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupIdEqual != null)
             {
                 ret.Add("configurationGroupIdEqual", "<configurationGroupIdEqual>" + EscapeXml(ConfigurationGroupIdEqual) + "</configurationGroupIdEqual>");
@@ -22628,6 +23669,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -22641,6 +23683,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -22656,6 +23699,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id != null)
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
@@ -22672,6 +23716,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id != null)
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
@@ -22690,6 +23735,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AppName != null)
             {
                 ret.Add("appName", "\"appName\": " + "\"" + EscapeJson(AppName) + "\"");
@@ -22725,6 +23771,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AppName != null)
             {
                 ret.Add("appName", "<appName>" + EscapeXml(AppName) + "</appName>");
@@ -22762,6 +23809,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupIdEqual != null)
             {
                 ret.Add("configurationGroupIdEqual", "\"configurationGroupIdEqual\": " + "\"" + EscapeJson(ConfigurationGroupIdEqual) + "\"");
@@ -22774,6 +23822,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupIdEqual != null)
             {
                 ret.Add("configurationGroupIdEqual", "<configurationGroupIdEqual>" + EscapeXml(ConfigurationGroupIdEqual) + "</configurationGroupIdEqual>");
@@ -22788,6 +23837,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -22801,6 +23851,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -22816,6 +23867,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupId != null)
             {
                 ret.Add("configurationGroupId", "\"configurationGroupId\": " + "\"" + EscapeJson(ConfigurationGroupId) + "\"");
@@ -22860,6 +23912,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConfigurationGroupId != null)
             {
                 ret.Add("configurationGroupId", "<configurationGroupId>" + EscapeXml(ConfigurationGroupId) + "</configurationGroupId>");
@@ -22906,6 +23959,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("lastAccessDateGreaterThanOrEqual", "\"lastAccessDateGreaterThanOrEqual\": " + LastAccessDateGreaterThanOrEqual);
             return ret;
         }
@@ -22915,6 +23969,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("lastAccessDateGreaterThanOrEqual", "<lastAccessDateGreaterThanOrEqual>" + LastAccessDateGreaterThanOrEqual + "</lastAccessDateGreaterThanOrEqual>");
             return ret;
         }
@@ -22926,6 +23981,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalToken != null)
             {
                 ret.Add("externalToken", "\"externalToken\": " + "\"" + EscapeJson(ExternalToken) + "\"");
@@ -22942,6 +23998,7 @@ namespace WebAPI.Models.DMS
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ExternalToken != null)
             {
                 ret.Add("externalToken", "<externalToken>" + EscapeXml(ExternalToken) + "</externalToken>");
@@ -22964,6 +24021,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -22972,6 +24030,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -22982,6 +24041,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DeviceFamilyId.HasValue)
             {
                 ret.Add("deviceFamilyid", "\"deviceFamilyid\": " + DeviceFamilyId);
@@ -23002,6 +24062,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(DeviceFamilyId.HasValue)
             {
                 ret.Add("deviceFamilyid", "<deviceFamilyid>" + DeviceFamilyId + "</deviceFamilyid>");
@@ -23024,6 +24085,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && Devices != null)
             {
                 propertyValue = "[" + String.Join(", ", Devices.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -23037,6 +24099,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && Devices != null)
             {
                 propertyValue = Devices.Count > 0 ? "<item>" + String.Join("</item><item>", Devices.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -23052,6 +24115,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && ConcurrentLimit.HasValue)
             {
                 ret.Add("concurrentLimit", "\"concurrentLimit\": " + ConcurrentLimit);
@@ -23084,6 +24148,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && ConcurrentLimit.HasValue)
             {
                 ret.Add("concurrentLimit", "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>");
@@ -23118,6 +24183,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Pin != null)
             {
                 ret.Add("pin", "\"pin\": " + "\"" + EscapeJson(Pin) + "\"");
@@ -23130,6 +24196,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Pin != null)
             {
                 ret.Add("pin", "<pin>" + EscapeXml(Pin) + "</pin>");
@@ -23144,6 +24211,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaDeviceRegistrationStatus), Status) + "\"");
             return ret;
         }
@@ -23153,6 +24221,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaDeviceRegistrationStatus), Status) + "" + "</status>");
             return ret;
         }
@@ -23164,6 +24233,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
@@ -23196,6 +24266,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
@@ -23230,6 +24301,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -23243,6 +24315,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -23258,6 +24331,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConcurrentLimit.HasValue)
             {
                 ret.Add("concurrentLimit", "\"concurrentLimit\": " + ConcurrentLimit);
@@ -23403,6 +24477,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConcurrentLimit.HasValue)
             {
                 ret.Add("concurrentLimit", "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>");
@@ -23550,6 +24625,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActivatedOn.HasValue)
             {
                 ret.Add("activatedOn", "\"activatedOn\": " + ActivatedOn);
@@ -23604,6 +24680,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ActivatedOn.HasValue)
             {
                 ret.Add("activatedOn", "<activatedOn>" + ActivatedOn + "</activatedOn>");
@@ -23660,6 +24737,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!ret.ContainsKey("concurrentLimit") && ConcurrentLimit.HasValue)
             {
                 ret.Add("concurrentLimit", "\"concurrentLimit\": " + ConcurrentLimit);
@@ -23688,6 +24766,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!ret.ContainsKey("concurrentLimit") && ConcurrentLimit.HasValue)
             {
                 ret.Add("concurrentLimit", "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>");
@@ -23718,11 +24797,13 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             if(DeviceFamilyIdIn != null)
             {
                 ret.Add("deviceFamilyIdIn", "\"deviceFamilyIdIn\": " + "\"" + EscapeJson(DeviceFamilyIdIn) + "\"");
             }
-            if(HouseholdIdEqual.HasValue)
+            if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdDeviceFilter", "HouseholdIdEqual", requestType.Value)))
             {
                 ret.Add("householdIdEqual", "\"householdIdEqual\": " + HouseholdIdEqual);
             }
@@ -23734,11 +24815,13 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             if(DeviceFamilyIdIn != null)
             {
                 ret.Add("deviceFamilyIdIn", "<deviceFamilyIdIn>" + EscapeXml(DeviceFamilyIdIn) + "</deviceFamilyIdIn>");
             }
-            if(HouseholdIdEqual.HasValue)
+            if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdDeviceFilter", "HouseholdIdEqual", requestType.Value)))
             {
                 ret.Add("householdIdEqual", "<householdIdEqual>" + HouseholdIdEqual + "</householdIdEqual>");
             }
@@ -23752,6 +24835,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -23765,6 +24849,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -23780,6 +24865,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConcurrentLimit.HasValue)
             {
                 ret.Add("concurrentLimit", "\"concurrentLimit\": " + ConcurrentLimit);
@@ -23869,6 +24955,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(ConcurrentLimit.HasValue)
             {
                 ret.Add("concurrentLimit", "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>");
@@ -23960,6 +25047,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -23973,6 +25061,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -23988,6 +25077,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(HouseholdId.HasValue)
             {
                 ret.Add("householdId", "\"householdId\": " + HouseholdId);
@@ -24017,6 +25107,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(HouseholdId.HasValue)
             {
                 ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
@@ -24048,7 +25139,9 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            if(HouseholdIdEqual.HasValue)
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
+            if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdUserFilter", "HouseholdIdEqual", requestType.Value)))
             {
                 ret.Add("householdIdEqual", "\"householdIdEqual\": " + HouseholdIdEqual);
             }
@@ -24060,7 +25153,9 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            if(HouseholdIdEqual.HasValue)
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
+            if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdUserFilter", "HouseholdIdEqual", requestType.Value)))
             {
                 ret.Add("householdIdEqual", "<householdIdEqual>" + HouseholdIdEqual + "</householdIdEqual>");
             }
@@ -24074,6 +25169,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -24087,6 +25183,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -24102,6 +25199,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaHouseholdWith), type) + "\"");
             return ret;
         }
@@ -24111,6 +25209,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaHouseholdWith), type) + "" + "</type>");
             return ret;
         }
@@ -24126,6 +25225,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -24147,6 +25247,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -24170,6 +25271,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -24183,6 +25285,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -24198,6 +25301,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && AllowMultiInstance.HasValue)
             {
                 ret.Add("allowMultiInstance", "\"allowMultiInstance\": " + AllowMultiInstance.ToString().ToLower());
@@ -24239,6 +25343,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(!omitObsolete && AllowMultiInstance.HasValue)
             {
                 ret.Add("allowMultiInstance", "<allowMultiInstance>" + AllowMultiInstance.ToString().ToLower() + "</allowMultiInstance>");
@@ -24282,6 +25387,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -24295,6 +25401,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Objects != null)
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -24310,6 +25417,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(paymentGateway != null)
             {
                 propertyValue = paymentGateway.ToJson(currentVersion, omitObsolete);
@@ -24324,6 +25432,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(paymentGateway != null)
             {
                 propertyValue = paymentGateway.ToXml(currentVersion, omitObsolete);
@@ -24340,6 +25449,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "\"id\": " + Id);
@@ -24381,6 +25491,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Id.HasValue)
             {
                 ret.Add("id", "<id>" + Id + "</id>");
@@ -24424,6 +25535,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Configuration != null)
             {
                 propertyValue = "[" + String.Join(", ", Configuration.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -24441,6 +25553,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(Configuration != null)
             {
                 propertyValue = Configuration.Count > 0 ? "<item>" + String.Join("</item><item>", Configuration.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -24460,6 +25573,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
@@ -24566,6 +25680,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AdapterUrl != null)
             {
                 ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
@@ -24674,6 +25789,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PaymentGatewayProfiles != null)
             {
                 propertyValue = "[" + String.Join(", ", PaymentGatewayProfiles.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -24687,6 +25803,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PaymentGatewayProfiles != null)
             {
                 propertyValue = PaymentGatewayProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PaymentGatewayProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -24702,6 +25819,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AllowMultiInstance.HasValue)
             {
                 ret.Add("allowMultiInstance", "\"allowMultiInstance\": " + AllowMultiInstance.ToString().ToLower());
@@ -24735,6 +25853,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AllowMultiInstance.HasValue)
             {
                 ret.Add("allowMultiInstance", "<allowMultiInstance>" + AllowMultiInstance.ToString().ToLower() + "</allowMultiInstance>");
@@ -24770,6 +25889,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AllowMultiInstance.HasValue)
             {
                 ret.Add("allowMultiInstance", "\"allowMultiInstance\": " + AllowMultiInstance.ToString().ToLower());
@@ -24798,6 +25918,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(AllowMultiInstance.HasValue)
             {
                 ret.Add("allowMultiInstance", "<allowMultiInstance>" + AllowMultiInstance.ToString().ToLower() + "</allowMultiInstance>");
@@ -24828,6 +25949,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PaymentGatewayIdEqual.HasValue)
             {
                 ret.Add("paymentGatewayIdEqual", "\"paymentGatewayIdEqual\": " + PaymentGatewayIdEqual);
@@ -24840,6 +25962,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PaymentGatewayIdEqual.HasValue)
             {
                 ret.Add("paymentGatewayIdEqual", "<paymentGatewayIdEqual>" + PaymentGatewayIdEqual + "</paymentGatewayIdEqual>");
@@ -24854,6 +25977,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PaymentMethodProfiles != null)
             {
                 propertyValue = "[" + String.Join(", ", PaymentMethodProfiles.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -24867,6 +25991,7 @@ namespace WebAPI.Models.Billing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PaymentMethodProfiles != null)
             {
                 propertyValue = PaymentMethodProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PaymentMethodProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -24886,6 +26011,7 @@ namespace WebAPI.EventNotifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
         
@@ -24894,6 +26020,7 @@ namespace WebAPI.EventNotifications
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             return ret;
         }
     }
@@ -24908,6 +26035,7 @@ namespace WebAPI.Models.Api
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             ret.Add("id", "\"id\": " + Id);
             if(Ksql != null)
@@ -24927,6 +26055,7 @@ namespace WebAPI.Models.Api
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             ret.Add("id", "<id>" + Id + "</id>");
             if(Ksql != null)
@@ -24948,6 +26077,7 @@ namespace WebAPI.Models.Api
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PartnerListTypeIn != null)
             {
                 ret.Add("partnerListTypeIn", "\"partnerListTypeIn\": " + "\"" + EscapeJson(PartnerListTypeIn) + "\"");
@@ -24960,6 +26090,7 @@ namespace WebAPI.Models.Api
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PartnerListTypeIn != null)
             {
                 ret.Add("partnerListTypeIn", "<partnerListTypeIn>" + EscapeXml(PartnerListTypeIn) + "</partnerListTypeIn>");
@@ -24974,6 +26105,7 @@ namespace WebAPI.Models.Api
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PersonalListList != null)
             {
                 propertyValue = "[" + String.Join(", ", PersonalListList.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -24987,6 +26119,7 @@ namespace WebAPI.Models.Api
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+
             if(PersonalListList != null)
             {
                 propertyValue = PersonalListList.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalListList.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";

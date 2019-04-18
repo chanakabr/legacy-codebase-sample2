@@ -20254,10 +20254,22 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaSession
     {
+        private static RuntimeSchemePropertyAttribute privilegesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSession")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaSession(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ks") && parameters["ks"] != null)
                 {
                     ks = (String) Convert.ChangeType(parameters["ks"], typeof(String));
@@ -20280,6 +20292,10 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("privileges") && parameters["privileges"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        privilegesSchemaProperty.Validate("privileges", parameters["privileges"]);
+                    }
                     privileges = (String) Convert.ChangeType(parameters["privileges"], typeof(String));
                 }
                 if (parameters.ContainsKey("udid") && parameters["udid"] != null)

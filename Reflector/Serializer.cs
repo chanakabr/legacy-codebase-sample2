@@ -50,14 +50,17 @@ namespace Reflector
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
             file.WriteLine("using System;");
             file.WriteLine("using System.Linq;");
+            file.WriteLine("using System.Web;");
             file.WriteLine("using System.Collections.Generic;");
             file.WriteLine("using WebAPI.Managers.Scheme;");
+            file.WriteLine("using WebAPI.Filters;");
+            file.WriteLine("using WebAPI.Managers;");
         }
 
         protected override void writeBody()
         {
-            wrtieUsing();
-            wrtiePartialClasses();
+            writeUsing();
+            writePartialClasses();
         }
 
         protected override void writeFooter()
@@ -79,10 +82,20 @@ namespace Reflector
             return null;
         }
 
-        private void wrtieSerializeTypeProperties(Type type, SerializeType serializeType)
+        private void writeSerializeTypeProperties(Type type, SerializeType serializeType)
         {
+            var name = type.Name;
+
             List<PropertyInfo> properties = type.GetProperties().ToList();
             properties.Sort(new PropertyInfoComparer());
+            
+            if (properties.Any(doesPropertyRequiresReadPermission))
+            {
+                file.WriteLine("            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];");
+            }
+
+            file.Write(Environment.NewLine);
+
             foreach (PropertyInfo property in properties)
             {
                 if (property.DeclaringType != type)
@@ -187,7 +200,12 @@ namespace Reflector
                     conditions.Add(propertyName + " != null");
                 }
 
-                if(conditions.Count > 0)
+                if (doesPropertyRequiresReadPermission(property))
+                {
+                    conditions.Add(string.Format("(requestType != RequestType.READ || RolesManager.IsPropertyPermitted(\"{0}\", \"{1}\", requestType.Value))", type.Name, propertyName));
+                }
+
+                if (conditions.Count > 0)
                 {
                     tab = "    ";
                     file.WriteLine("            if(" + String.Join(" && ", conditions) + ")");
@@ -349,8 +367,15 @@ namespace Reflector
                 }
             }
         }
-    
-        private void wrtiePartialClass(Type type)
+
+        private static bool doesPropertyRequiresReadPermission(PropertyInfo arg)
+        {
+            return arg.CustomAttributes.Any(ca =>
+                    ca.AttributeType.IsEquivalentTo(typeof(SchemePropertyAttribute))
+                    && ca.NamedArguments.Any(na => na.MemberName.Equals("RequiresPermission") && na.TypedValue.Value.Equals(1)));
+        }
+
+        private void writePartialClass(Type type)
         {
             file.WriteLine("    public partial class " + GetTypeName(type, true));
             file.WriteLine("    {");
@@ -359,7 +384,7 @@ namespace Reflector
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);");
             file.WriteLine("            string propertyValue;");
-            wrtieSerializeTypeProperties(type, SerializeType.JSON);
+            writeSerializeTypeProperties(type, SerializeType.JSON);
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
             file.WriteLine("        ");
@@ -368,13 +393,13 @@ namespace Reflector
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);");
             file.WriteLine("            string propertyValue;");
-            wrtieSerializeTypeProperties(type, SerializeType.XML);
+            writeSerializeTypeProperties(type, SerializeType.XML);
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
             file.WriteLine("    }");
         }
 
-        private void wrtieNamespace(string namespaceName)
+        private void writeNamespace(string namespaceName)
         {
             file.WriteLine("");
             file.WriteLine("namespace " + namespaceName);
@@ -384,14 +409,14 @@ namespace Reflector
             {
                 if (type.Namespace == namespaceName)
                 {
-                    wrtiePartialClass(type);
+                    writePartialClass(type);
                 }
             }
 
             file.WriteLine("}");
         }
 
-        private void wrtieUsing()
+        private void writeUsing()
         {
             HashSet<string> namespaces = new HashSet<string>();
             foreach (Type type in types)
@@ -404,7 +429,7 @@ namespace Reflector
             }
         }
 
-        private void wrtiePartialClasses()
+        private void writePartialClasses()
         {
             HashSet<string> namespaces = new HashSet<string>();
             foreach (Type type in types)
@@ -412,7 +437,7 @@ namespace Reflector
                 if (!namespaces.Contains(type.Namespace))
                 {
                     namespaces.Add(type.Namespace);
-                    wrtieNamespace(type.Namespace);
+                    writeNamespace(type.Namespace);
                 }
             }
         }
