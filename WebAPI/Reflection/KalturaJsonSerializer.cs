@@ -14555,8 +14555,8 @@ namespace WebAPI.Models.API
             string propertyValue;
 
             ret.Add("assetTypeId", "\"assetTypeId\": " + AssetTypeId);
-            ret.Add("defaultAutoFillPolicy", "\"defaultAutoFillPolicy\": " + DefaultAutoFillPolicy);
-            ret.Add("defaultOverlapPolicy", "\"defaultOverlapPolicy\": " + DefaultOverlapPolicy);
+            ret.Add("defaultAutoFillPolicy", "\"defaultAutoFillPolicy\": " + "\"" + Enum.GetName(typeof(KalturaIngestProfileAutofillPolicy), DefaultAutoFillPolicy) + "\"");
+            ret.Add("defaultOverlapPolicy", "\"defaultOverlapPolicy\": " + "\"" + Enum.GetName(typeof(KalturaIngestProfileOverlapPolicy), DefaultOverlapPolicy) + "\"");
             if(ExternalId != null)
             {
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
@@ -14592,8 +14592,8 @@ namespace WebAPI.Models.API
             string propertyValue;
 
             ret.Add("assetTypeId", "<assetTypeId>" + AssetTypeId + "</assetTypeId>");
-            ret.Add("defaultAutoFillPolicy", "<defaultAutoFillPolicy>" + DefaultAutoFillPolicy + "</defaultAutoFillPolicy>");
-            ret.Add("defaultOverlapPolicy", "<defaultOverlapPolicy>" + DefaultOverlapPolicy + "</defaultOverlapPolicy>");
+            ret.Add("defaultAutoFillPolicy", "<defaultAutoFillPolicy>" + "" + Enum.GetName(typeof(KalturaIngestProfileAutofillPolicy), DefaultAutoFillPolicy) + "" + "</defaultAutoFillPolicy>");
+            ret.Add("defaultOverlapPolicy", "<defaultOverlapPolicy>" + "" + Enum.GetName(typeof(KalturaIngestProfileOverlapPolicy), DefaultOverlapPolicy) + "" + "</defaultOverlapPolicy>");
             if(ExternalId != null)
             {
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");

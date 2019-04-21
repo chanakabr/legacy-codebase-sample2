@@ -14443,11 +14443,11 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("defaultAutoFillPolicy") && parameters["defaultAutoFillPolicy"] != null)
                 {
-                    DefaultAutoFillPolicy = (Int32) Convert.ChangeType(parameters["defaultAutoFillPolicy"], typeof(Int32));
+                    DefaultAutoFillPolicy = (KalturaIngestProfileAutofillPolicy) Enum.Parse(typeof(KalturaIngestProfileAutofillPolicy), parameters["defaultAutoFillPolicy"].ToString(), true);
                 }
                 if (parameters.ContainsKey("defaultOverlapPolicy") && parameters["defaultOverlapPolicy"] != null)
                 {
-                    DefaultOverlapPolicy = (Int32) Convert.ChangeType(parameters["defaultOverlapPolicy"], typeof(Int32));
+                    DefaultOverlapPolicy = (KalturaIngestProfileOverlapPolicy) Enum.Parse(typeof(KalturaIngestProfileOverlapPolicy), parameters["defaultOverlapPolicy"].ToString(), true);
                 }
             }
         }

@@ -5006,6 +5006,22 @@
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaIngestProfileAutofillPolicy">
+            <summary>
+            0 - reject input with holes
+            1 - autofill holes
+            2 - keep holes and don’t autofill
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaIngestProfileOverlapPolicy">
+            <summary>
+            indicates how overlaps in EPG should be managed
+            (a setting per liniar media id will also be avaiable)
+            0 - reject input with overlap
+            1 - cut source
+            2 - cut target
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaIngestProfile">
             <summary>
             Ingest profile
