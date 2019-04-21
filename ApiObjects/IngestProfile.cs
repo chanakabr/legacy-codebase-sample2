@@ -29,14 +29,40 @@ namespace ApiObjects
         public string TransformationAdapterSharedSecret { get; set; }
 
         [DBFieldMapping("default_autofill_policy")]
-        public int DefaultAutoFillPolicy { get; set; }
+        public eIngestProfileAutofillPolicy DefaultAutoFillPolicy { get; set; }
 
         [DBFieldMapping("default_overlap_policy")]
-        public int DefaultOverlapPolicy { get; set; }
+        public eIngestProfileOverlapPolicy DefaultOverlapPolicy { get; set; }
 
         public override string ToString()
         {
             return $"{{ id:'{Id}', groupId:'{GroupId}', name:'{Name}', assetType:'{AssetTypeId}' }}";
         }
+    }
+
+    /// <summary>
+    /// 0 - reject input with holes
+    /// 1 - autofill holes
+    /// 2 - keep holes and don’t autofill
+    /// </summary>
+    public enum eIngestProfileAutofillPolicy
+    {
+        Reject = 0,
+        Autofill = 1,
+        KeepHoles = 2
+    }
+
+    /// <summary>
+    /// indicates how overlaps in EPG should be managed
+    /// (a setting per liniar media id will also be avaiable)
+    /// 0 - reject input with overlap
+    /// 1 - cut source
+    /// 2 - cut target
+    /// </summary>
+    public enum eIngestProfileOverlapPolicy
+    {
+        Reject = 0,
+        CutSource = 1,
+        CutTarget = 2
     }
 }
