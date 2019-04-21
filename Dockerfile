@@ -19,7 +19,7 @@ FROM mcr.microsoft.com/dotnet/core/runtime:2.2
 WORKDIR /
 
 ENV RUN_TASK=no-task-selected
-ENV CONCURRENT_CONSUMERS=4
+ENV CONCURRENT_CONSUMERS=1
 ENV API_LOG_DIR=/var/log/remote-tasks/
 
 COPY --from=builder /src/published .
