@@ -471,11 +471,11 @@ namespace Core.Catalog.CatalogManagement
                     if (shouldGetValuesFromCB || FinishedBulkUploadStatuses.Contains(bulkUpload.Status))
                     {
                         BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUpload.Id);
-                        if (bulkUploadWithResults != null && bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
+                        if (bulkUploadWithResults != null)
                         {
-                            bulkUpload.Results = bulkUploadWithResults.Results;
                             bulkUpload.JobData = bulkUploadWithResults.JobData;
                             bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
+                            bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();
                         }
                     }
                 }
