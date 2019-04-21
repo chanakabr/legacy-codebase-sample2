@@ -917,6 +917,11 @@ namespace WebAPI.Filters
                         if (paramAsString != null)
                         {
                             value = Enum.Parse(methodArg.Type, paramAsString, true);
+
+                            if (!Enum.IsDefined(methodArg.Type, value))
+                            {
+                                throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", value, methodArg.Type));
+                            }
                         }
                     }
 
