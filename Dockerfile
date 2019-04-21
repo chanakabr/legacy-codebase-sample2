@@ -20,7 +20,7 @@ WORKDIR /
 
 ENV RUN_TASK=no-task-selected
 ENV CONCURRENT_CONSUMERS=4
-ENV API_LOG_DIR=logs/
+ENV API_LOG_DIR=/var/log/remote-tasks
 
 COPY --from=builder /src/published .
 ENTRYPOINT [ "sh", "-c", "dotnet ./${RUN_TASK}.dll" ]
