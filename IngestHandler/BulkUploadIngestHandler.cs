@@ -175,7 +175,7 @@ namespace IngestHandler
 
                         if (isClonedIndexValid)
                         {
-                            SwitchAliases(bulkUploadId, dateOfIngest);
+                            SwitchAliases(groupId, bulkUploadId, dateOfIngest);
 
                             bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.OK, "Ingest handler success");
                         }
@@ -572,9 +572,23 @@ namespace IngestHandler
         /// </summary>
         /// <param name="bulkUploadId"></param>
         /// <param name="dateOfIngest"></param>
-        private void SwitchAliases(long bulkUploadId, DateTime dateOfIngest)
+        private void SwitchAliases(int groupId, long bulkUploadId, DateTime dateOfIngest)
         {
-            throw new NotImplementedException();
+            string dateAlias = GetProgramIndexDateAlias(groupId, dateOfIngest);
+            string generalAlias = GetProgramIndexAlias(groupId);
+
+            var previousIndices = elasticSearchClient.GetAliases(dateAlias);
+
+            foreach (var index in previousIndices)
+            {
+                elasticSearchClient.RemoveAlias(index, generalAlias);
+                elasticSearchClient.RemoveAlias(index, dateAlias);
+            }
+
+            string newIndex = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
+            elasticSearchClient.AddAlias(newIndex, dateAlias);
+            elasticSearchClient.AddAlias(newIndex, generalAlias);
+
         }
 
         #endregion
