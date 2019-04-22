@@ -1036,7 +1036,7 @@ namespace ElasticSearch.Common
 
             if (withRouting)
             {
-                sRecord.AppendFormat("\"date_routing\" : {0},", oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"));
+                sRecord.AppendFormat("\"date_routing\" : {0},", oEpg.StartDate.ToUniversalTime().ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT));
             }
 
             #region add metas

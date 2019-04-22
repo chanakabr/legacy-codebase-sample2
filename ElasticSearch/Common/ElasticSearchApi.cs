@@ -161,6 +161,61 @@ namespace ElasticSearch.Common
             return result;
         }
 
+        public bool Reindex(string source, string destination)
+        {
+            bool result = false;
+            /*
+             POST /_reindex
+            {
+              "source": {
+                "index": "twitter"
+              },
+              "dest": {
+                "index": "new_twitter"
+              }
+            }
+             */
+            try
+            {
+                string url = $"{baseUrl}/_reindex";
+
+                JObject jsonBody = new JObject();
+                string body = jsonBody.ToString();
+                int status = 0;
+                string postResult = SendPostHttpReq(url, ref status, string.Empty, string.Empty, body, true);
+
+                if (!string.IsNullOrEmpty(postResult))
+                {
+                    /*
+                     {
+                        "took": 235,
+                        "timed_out": false,
+                        "total": 42,
+                        "updated": 0,
+                        "created": 42,
+                        "batches": 1,
+                        "version_conflicts": 0,
+                        "noops": 0,
+                        "retries": 0,
+                        "failures": []
+                      }
+                     */
+                    JObject jsonResult = JObject.Parse(postResult);
+
+                    log.Debug($"Reindex of {source} to {destination} result is {postResult}");
+
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed reindex of {source} to {destination} with ex {ex}", ex);
+                result = false;
+            }
+
+            return result;
+        }
+
         #region Index definitions: Analyzers, filters, tokenizers
 
         protected static Dictionary<string, string> dESAnalyzers = new Dictionary<string, string>();
