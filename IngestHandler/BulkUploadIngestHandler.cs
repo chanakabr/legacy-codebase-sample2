@@ -18,6 +18,9 @@ using Core.Profiles;
 using CouchbaseManager;
 using ApiObjects.Response;
 using ConfigurationManager;
+using Polly;
+using Polly.Retry;
+using ApiObjects.SearchObjects;
 
 namespace IngestHandler
 {
@@ -31,8 +34,8 @@ namespace IngestHandler
 
         #region Consts
 
-        public static readonly string DEFAULT_INDEX_TYPE = "epg";
-        public static readonly string EPG_SEQUENCE_DOCUMENT = "epg_sequence_document";
+        private static readonly string DEFAULT_INDEX_TYPE = "epg";
+        private static readonly string EPG_SEQUENCE_DOCUMENT = "epg_sequence_document";
         private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
         #endregion
@@ -168,7 +171,7 @@ namespace IngestHandler
                     {
                         UpdateClonedIndex(groupId, bulkUploadId, dateOfIngest, calculatedPrograms, programsToDelete);
 
-                        bool isClonedIndexValid = ValidateClonedIndex(groupId, dateOfIngest, calculatedPrograms);
+                        bool isClonedIndexValid = ValidateClonedIndex(groupId, bulkUploadId, dateOfIngest, calculatedPrograms);
 
                         if (isClonedIndexValid)
                         {
@@ -409,13 +412,11 @@ namespace IngestHandler
 
         private void UpdateClonedIndex(int groupId, long bulkUploadId, DateTime dateOfIngest, List<EpgCB> calculatedPrograms, List<EpgCB> programsToDelete)
         {
+            // basic variables initialization
             int bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
-
             string index = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
-
             List<ESBulkRequestObj<string>> bulkRequests = new List<ESBulkRequestObj<string>>();
             ESSerializerV2 serializer = new ESSerializerV2();
-
             bool doesGroupUseTemplates = false; // CatalogManager.DoesGroupUsesTemplates(groupId);
             HashSet<string> metasToPad = GetMetasToPad(groupId);
 
@@ -488,24 +489,79 @@ namespace IngestHandler
             return new HashSet<string>();
         }
 
-        private bool ValidateClonedIndex(int groupId, DateTime dateOfIngest, List<EpgCB> calculatedPrograms)
+        private bool ValidateClonedIndex(int groupId, long bulkUploadId, DateTime dateOfIngest, List<EpgCB> calculatedPrograms)
         {
             bool result = false;
 
+            // tcm configurable?
+            int retryCount = 3;
+
+            var policy = RetryPolicy.Handle<Exception>()
+                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                {
+                    log.Warn(ex.ToString());
+                }
+            );
+
+            string index = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
+            string type = DEFAULT_INDEX_TYPE;
+            int bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+
+            bool isValid = true;
+
+            policy.Execute(() =>
+            {
+                int skip = 0;
+
+                while (isValid && skip < calculatedPrograms.Count)
+                {
+                    // Build query for getting programs
+                    FilteredQuery query = new FilteredQuery(true);
+                    QueryFilter filter = new QueryFilter();
+
+                    // basic initialization
+                    query.PageIndex = 0;
+                    query.PageSize = 1;
+                    query.ReturnFields.Clear();
+
+                    FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
+
+                    // build terms query: epg_id IN (1, 2, 3 ... bulkSize)
+                    var programIds = calculatedPrograms.Skip(skip).Take(bulkSize).Select(program => program.EpgID.ToString());
+                    ESTerms terms = new ESTerms(true);
+                    terms.Value.AddRange(programIds);
+                    composite.AddChild(terms);
+
+                    filter.FilterSettings = composite;
+                    query.Filter = filter;
+
+                    string searchQuery = query.ToString();
+
+                    string searchResult = elasticSearchClient.Search(index, type, ref searchQuery);
+
+                    var jsonResult = JObject.Parse(searchResult);
+
+                    JToken tempToken;
+
+                    // check total items - if count is different, something is missed
+                    int totalItems = ((tempToken = jsonResult.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                    if (!(totalItems == programIds.Count()))
+                    {
+                        isValid = false;
+                    }
+                }
+
+                if (!isValid)
+                {
+                    log.Warn($"Missing program from ES index.");
+                    throw new Exception("Missing program from ES index");
+                }
+            });
+
+            result = isValid;
+
             return result;
-
-            //var policy = RetryPolicy.Handle<SocketException>()
-            //    .Or<BrokerUnreachableException>()
-            //    .WaitAndRetry(_RetryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
-            //    {
-            //        _Logger.Warn(ex.ToString());
-            //    }
-            //);
-            //policy.Execute(() =>
-            //{
-            //    _Connection = _ConnectionFactory.CreateConnection("EventBus_Connection");
-            //});
-
         }
 
         /// <summary>
