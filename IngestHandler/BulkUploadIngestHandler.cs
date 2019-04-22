@@ -187,7 +187,7 @@ namespace IngestHandler
                 }
 
                 // update bulk upload in the end
-                BulkUploadManager.UpdateBulkUpload(bulkUploadData.Object);
+                BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(bulkUploadData.Object, BulkUploadJobStatus.Success);
             }
         }
 
