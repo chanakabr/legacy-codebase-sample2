@@ -197,7 +197,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         if (media != null)
                         {
-                            IndexManager.PadMediaMetas(MetasToPad, media);
+                            media.PadMetas(MetasToPad);
 
                             // Serialize media and create a bulk request for it
                             string serializedMedia = serializer.SerializeMediaObject(media, suffix);

@@ -478,7 +478,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (epg != null)
                     {
-                        IndexManager.PadEPGMetas(MetasToPad, epg);
+                        epg.PadMetas(MetasToPad);
 
                         // used only to currently support linear media id search on elastic search
                         if (doesGroupUsesTemplates && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))

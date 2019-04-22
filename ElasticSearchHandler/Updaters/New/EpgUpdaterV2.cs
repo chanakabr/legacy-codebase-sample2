@@ -245,7 +245,7 @@ namespace ElasticSearchHandler.Updaters
                                 // Create bulk request object for each program
                                 foreach (EpgCB epg in currentLanguageEpgs)
                                 {
-                                    IndexManager.PadEPGMetas(metasToPad, epg);
+                                    epg.PadMetas(metasToPad);
 
                                     string suffix = null;
 
