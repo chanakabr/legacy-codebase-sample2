@@ -5468,8 +5468,8 @@ namespace DAL
                 sp.AddParameter("@transformationAdapterUrl", profileToAdd.TransformationAdapterUrl);
                 sp.AddParameter("@transformationAdapterSharedSecret", profileToAdd.TransformationAdapterSharedSecret);
                 sp.AddParameter("@assetType", profileToAdd.AssetTypeId);
-                sp.AddParameter("@defaultAutoFillPolicy", profileToAdd.DefaultAutoFillPolicy);
-                sp.AddParameter("@defaultOverlapPolicy", profileToAdd.DefaultOverlapPolicy);
+                sp.AddParameter("@defaultAutoFillPolicy", (int)profileToAdd.DefaultAutoFillPolicy);
+                sp.AddParameter("@defaultOverlapPolicy", (int)profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
 
                 MergeIngestProfileAdapaterSettings(groupId, profileToAdd.Id, userId, profileToAdd.Settings);
