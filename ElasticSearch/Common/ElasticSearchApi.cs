@@ -711,6 +711,16 @@ namespace ElasticSearch.Common
             return invalidRecords;
         }
 
+        public void AddAlias(string index, string alias)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveAlias(string index, string alias)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Creates and sends an ElasticSearch bulk request bulk request. Returns the requests that failed and their errors.
         /// </summary>
