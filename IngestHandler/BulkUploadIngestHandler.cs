@@ -17,6 +17,7 @@ using Core.Catalog;
 using Core.Profiles;
 using CouchbaseManager;
 using ApiObjects.Response;
+using ConfigurationManager;
 
 namespace IngestHandler
 {
@@ -32,13 +33,15 @@ namespace IngestHandler
 
         public static readonly string DEFAULT_INDEX_TYPE = "epg";
         public static readonly string EPG_SEQUENCE_DOCUMENT = "epg_sequence_document";
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
         #endregion
 
         #region Data Members
 
         private ElasticSearchApi elasticSearchClient = null;
-        
+        private CouchbaseManager.CouchbaseManager couchbaseManager = null;
+
         #endregion
 
         #region Ctor
@@ -46,6 +49,7 @@ namespace IngestHandler
         public BulkUploadIngestHandler()
         {
             elasticSearchClient = new ElasticSearchApi();
+            couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
         }
 
         #endregion
@@ -85,7 +89,8 @@ namespace IngestHandler
                 throw new Exception($"Received bulk upload ingest event with null programs to insert. group id ={serviceEvent.GroupId} id = {serviceEvent.BulkUploadId}");
             }
 
-            var bulkUploadData = BulkUploadManager.GetBulkUpload(serviceEvent.GroupId, serviceEvent.BulkUploadId);
+            long bulkUploadId = serviceEvent.BulkUploadId;
+            var bulkUploadData = BulkUploadManager.GetBulkUpload(serviceEvent.GroupId, bulkUploadId);
 
             if (bulkUploadData == null || bulkUploadData.Object == null)
             {
@@ -131,22 +136,140 @@ namespace IngestHandler
 
                 List<EpgCB> calculatedPrograms = CalculateSimulatedFinalStateAfterIngest(programsToAdd, programsToUpdate);
 
-                // duplicate the index of this day
-                var dateOfIngest = serviceEvent.DateOfProgramsToIngest;
-
-                bool isValid = ValidateResult(calculatedPrograms, programAssetResultsDictionary, ingestProfile);
+                bool isValid = ValidateProgramDates(calculatedPrograms, programAssetResultsDictionary, ingestProfile);
 
                 if (!isValid)
                 {
-                    bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.OK, "Ingest handler success");
+                    bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.Fail, "Ingest handler failure");
                 }
                 else
                 {
-                    bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.Fail, "Ingest handler failure");
+                    UpdateCouchbase(groupId, calculatedPrograms, bulkUploadId);
+
+                    /*
+                     *  real name: epg_203_20190422_123456
+                        alias: epg_203_20190422
+
+                        reindex epg_203_20190422 to epg_203_20190422_current_bulk_upload_id
+
+                        update cloned index
+                     */
+
+                    // duplicate the index of this day
+                    var dateOfIngest = serviceEvent.DateOfProgramsToIngest;
+                    bool cloneResult = CloneIndex(groupId, bulkUploadId, dateOfIngest);
+
+                    if (cloneResult)
+                    {
+                        bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.OK, "Ingest handler success");
+                    }
+                    else
+                    {
+                        UpdateClonedIndex(bulkUploadId, dateOfIngest, calculatedPrograms, programsToDelete);
+
+                        bool isClonedIndexValid = ValidateClonedIndex(groupId, dateOfIngest, calculatedPrograms);
+
+                        if (isClonedIndexValid)
+                        {
+                            SwitchAliases(bulkUploadId, dateOfIngest);
+
+                            bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.OK, "Ingest handler success");
+                        }
+                        else
+                        {
+                            bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.Fail, "Ingest handler failure");
+                        }
+                    }
                 }
 
                 // update bulk upload in the end
                 BulkUploadManager.UpdateBulkUpload(bulkUploadData.Object);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// switch aliases - 
+        /// delete epg_203_20190422 for epg_203_20190422_old_bulk_upload_id
+        /// add epg_203_20190422 for epg_203_20190422_current_bulk_upload_id
+        /// </summary>
+        /// <param name="bulkUploadId"></param>
+        /// <param name="dateOfIngest"></param>
+        private void SwitchAliases(long bulkUploadId, DateTime dateOfIngest)
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ValidateClonedIndex(int groupId, DateTime dateOfIngest, List<EpgCB> calculatedPrograms)
+        {
+            bool result = false;
+
+            return result;
+
+            //var policy = RetryPolicy.Handle<SocketException>()
+            //    .Or<BrokerUnreachableException>()
+            //    .WaitAndRetry(_RetryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+            //    {
+            //        _Logger.Warn(ex.ToString());
+            //    }
+            //);
+            //policy.Execute(() =>
+            //{
+            //    _Connection = _ConnectionFactory.CreateConnection("EventBus_Connection");
+            //});
+
+        }
+
+        private void UpdateClonedIndex(long bulkUploadId, DateTime dateOfIngest, List<EpgCB> calculatedPrograms, List<EpgCB> programsToDelete)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// real name: epg_203_20190422_123456
+        /// alias: epg_203_20190422
+        /// reindex epg_203_20190422 to epg_203_20190422_current_bulk_upload_id
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="bulkUploadId"></param>
+        /// <param name="dateOfIngest"></param>
+        private bool CloneIndex(int groupId, long bulkUploadId, DateTime dateOfIngest)
+        {
+            string source = GetProgramIndexDateAlias(groupId, dateOfIngest);
+            string destination = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
+            bool result = elasticSearchClient.Reindex(source, destination);
+
+            if (result)
+            {
+                log.Debug($"Reindex {source} to {destination} success");
+            }
+            else
+            {
+                log.ErrorFormat($"Reindex {source} to {destination} failure");
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// create new documents for ALL epgs - generate document key {epg_id}_{language}_{bulk_upload_id}
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="calculatedPrograms"></param>
+        /// <param name="bulkUploadId"></param>
+        private void UpdateCouchbase(int groupId, List<EpgCB> calculatedPrograms, long bulkUploadId)
+        {
+            var dal = new EpgDal_Couchbase(groupId);
+
+            foreach (var program in calculatedPrograms)
+            {
+                string key = $"{program.EpgID}_{bulkUploadId}";
+                bool insertResult = dal.InsertProgram(key, program, program.EndDate.AddDays(EXPIRY_DATE));
+
+                if (!insertResult)
+                {
+                    log.Error($"Failed inserting program. group {groupId} epgId {program.EpgID} bulkUploadId {bulkUploadId}");
+                }
             }
         }
 
@@ -170,12 +293,12 @@ namespace IngestHandler
             return ingestProfile;
         }
 
-        private bool ValidateResult(List<EpgCB> calculatedPrograms, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary, IngestProfile ingestProfile)
+        private bool ValidateProgramDates(List<EpgCB> calculatedPrograms, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary, IngestProfile ingestProfile)
         {
             bool isValid = true;
 
-            bool checkOverlap = ingestProfile.DefaultOverlapPolicy == 0;
-            bool checkGaps = ingestProfile.DefaultAutoFillPolicy == 0;
+            bool checkOverlap = ingestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.Reject;
+            bool checkGaps = ingestProfile.DefaultAutoFillPolicy == eIngestProfileAutofillPolicy.Reject;
 
             // if at least one of the policies means rejecting, we will go over the programs and validate them
             if (checkOverlap || checkGaps)
@@ -228,8 +351,6 @@ namespace IngestHandler
         {
             List<EpgCB> result = new List<EpgCB>();
 
-            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
-
             // set the new programs with new IDs from sequence document in couchbase
             foreach (var program in programsToAdd)
             {
@@ -253,7 +374,6 @@ namespace IngestHandler
 
             var currentProgramsDictionary = currentPrograms.ToDictionary(epg => epg.EpgIdentifier);
             var programsToIngestDictionary = programsToIngest.ToDictionary(epg => epg.EpgIdentifier);
-
             
             foreach (var programToIngest in programsToIngestDictionary)
             {
@@ -349,6 +469,18 @@ namespace IngestHandler
         private string GetProgramIndexAlias(int groupId)
         {
             return $"{groupId}_epg_v2";
+        }
+
+        private string GetProgramIndexDateAlias(int groupId, DateTime date)
+        {
+            string dateString = date.ToString(Utils.ES_DATEONLY_FORMAT);
+            return $"{groupId}_epg_v2_{dateString}";
+        }
+
+        private string GetProgramIndexDateName(int groupId, DateTime date, long bulkUploadId)
+        {
+            string dateString = date.ToString(Utils.ES_DATEONLY_FORMAT);
+            return $"{groupId}_epg_v2_{dateString}_{bulkUploadId}";
         }
 
         #endregion
