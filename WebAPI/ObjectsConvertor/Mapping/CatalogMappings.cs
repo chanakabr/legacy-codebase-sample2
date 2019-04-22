@@ -301,7 +301,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertMetaData(src.MetaData)))
-               .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null ? dest.MetaData : null);
+               .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
                
             //Channel (Catalog) to KalturaManualChannel
             cfg.CreateMap<GroupsCacheManager.Channel, WebAPI.Models.Catalog.KalturaManualChannel>()
@@ -340,7 +340,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertMetaData(src.MetaData)))
-               .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null ? dest.MetaData : null);
+               .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
             
             //CategoryResponse to Category
             cfg.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
