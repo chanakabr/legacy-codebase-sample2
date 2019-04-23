@@ -173,8 +173,7 @@ namespace Core.Catalog.CatalogManagement
 
                 var objectTypeName = FileHandler.Instance.GetFileObjectTypeName(bulkObjectType.Name);
                 response.Object.BulkObjectType = objectTypeName.Object;
-                response.Object.Status = BulkUploadJobStatus.Uploaded;
-                response = UpdateBulkUpload(response.Object);
+                response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded);
 
                 //use the regular celery-remoteTasks mechanism to avoid breaks in exsisting upload from excel
                 // TODO: Arthur make the excel upload work using the service bus as well.
@@ -245,13 +244,12 @@ namespace Core.Catalog.CatalogManagement
                 if (bulkUploadResponse.Object.NumOfObjects == 0)
                 {
                     log.ErrorFormat("ProcessBulkUpload Deserialize file with no objects. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUpload.Id);
-                    bulkUploadResponse.Object.Status = BulkUploadJobStatus.Success;
-                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object);
+                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Success);
                     return bulkUploadResponse.Status;
                 }
+
                 bulkUploadResponse.Object.Results = bulkUploadResults.Objects;
-                bulkUploadResponse.Object.Status = BulkUploadJobStatus.Processing;
-                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object);
+                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
                 bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, bulkUploadResults.Objects);
                 bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
             }
@@ -341,19 +339,22 @@ namespace Core.Catalog.CatalogManagement
 
             return response;
         }
-        
-        public static GenericResponse<BulkUpload> UpdateBulkUpload(BulkUpload bulkUploadToUpdate)
+
+        public static GenericResponse<BulkUpload> UpdateBulkUpload(BulkUpload bulkUploadToUpdate, BulkUploadJobStatus newStatus)
         {
             var response = new GenericResponse<BulkUpload>();
             try
             {
+                var originalStatus = bulkUploadToUpdate.Status;
                 response.Object = bulkUploadToUpdate;
+                response.Object.Status = newStatus;
+               
                 if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
                 {
                     log.ErrorFormat("UpdateBulkUpload - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, bulkUploadToUpdate.Status);
                 }
 
-                UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, bulkUploadToUpdate.Status);
+                UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
