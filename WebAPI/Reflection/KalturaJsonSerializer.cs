@@ -15633,10 +15633,15 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
 
             if(CurrentUserPermissionsContains.HasValue)
             {
                 ret.Add("currentUserPermissionsContains", "\"currentUserPermissionsContains\": " + CurrentUserPermissionsContains.ToString().ToLower());
+            }
+            if(RoleIDIn.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaPermissionFilter", "RoleIDIn", requestType.Value)))
+            {
+                ret.Add("roleIdIn", "\"roleIdIn\": " + RoleIDIn);
             }
             return ret;
         }
@@ -15646,10 +15651,15 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
 
             if(CurrentUserPermissionsContains.HasValue)
             {
                 ret.Add("currentUserPermissionsContains", "<currentUserPermissionsContains>" + CurrentUserPermissionsContains.ToString().ToLower() + "</currentUserPermissionsContains>");
+            }
+            if(RoleIDIn.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaPermissionFilter", "RoleIDIn", requestType.Value)))
+            {
+                ret.Add("roleIdIn", "<roleIdIn>" + RoleIDIn + "</roleIdIn>");
             }
             return ret;
         }

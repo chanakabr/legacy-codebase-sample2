@@ -16044,13 +16044,33 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionFilter
     {
+        private static RuntimeSchemePropertyAttribute RoleIDInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermissionFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaPermissionFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("currentUserPermissionsContains") && parameters["currentUserPermissionsContains"] != null)
                 {
                     CurrentUserPermissionsContains = (Boolean) Convert.ChangeType(parameters["currentUserPermissionsContains"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("roleIdIn") && parameters["roleIdIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        RoleIDInSchemaProperty.Validate("roleIdIn", parameters["roleIdIn"]);
+                    }
+                    RoleIDIn = (Int64) Convert.ChangeType(parameters["roleIdIn"], typeof(Int64));
                 }
             }
         }

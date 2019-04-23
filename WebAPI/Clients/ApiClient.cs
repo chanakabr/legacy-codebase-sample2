@@ -2491,7 +2491,7 @@ namespace WebAPI.Clients
             return roles;
         }
 
-        internal KalturaPermissionListResponse GetPermissions(int groupId, long userId)
+        internal KalturaPermissionListResponse GetPermissions(int groupId, long userId, long? roleIdIn)
         {
             KalturaPermissionListResponse result = new KalturaPermissionListResponse();
             PermissionsResponse response = null;
@@ -2505,7 +2505,7 @@ namespace WebAPI.Clients
                     }
                     else
                     {
-                        response = Core.Api.Module.GetGroupPermissions(groupId);
+                        response = Core.Api.Module.GetGroupPermissions(groupId, roleIdIn);
                     }
                 }
             }

@@ -3994,6 +3994,8 @@ namespace WebAPI.Reflection
                     {
                         case "CurrentUserPermissionsContains":
                             return "currentUserPermissionsContains";
+                        case "RoleIDIn":
+                            return "roleIdIn";
                     }
                     break;
                     

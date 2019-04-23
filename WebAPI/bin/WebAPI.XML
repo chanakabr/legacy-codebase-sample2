@@ -6155,6 +6155,11 @@
             Indicates whether the results should be filtered by userId using the current
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaPermissionFilter.RoleIDIn">
+            <summary>
+            Return permissions by role ID
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaExportFilter">
             <summary>
             Bulk export tasks filter
