@@ -459,9 +459,77 @@ namespace ElasticSearch.Common
 
         }
 
+
+        public bool AddAlias(string index, string alias)
+        {
+            bool result = false;
+
+            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(alias))
+                return result;
+
+            // /{index}/_alias/{name}
+            string url = string.Format("{0}/{1}/_alias/{2}", baseUrl, index, alias);
+            
+            try
+            {
+                string putResult = SendPutHttpRequest(url, string.Empty);
+
+                JObject jsonResult = JObject.Parse(putResult);
+
+                if (jsonResult.ContainsKey("acknowledged") && jsonResult["acknowledged"].Value<string>() == "true")
+                {
+                    result = true;
+                }
+                else
+                {
+                    log.ErrorFormat("error when adding alias {0} to index {1} putResult = {2}", alias, index, putResult);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("error when adding alias {0} to index {1} ex = {2}", alias, index, ex);
+            }
+
+            return result;
+        }
+
+        public bool RemoveAlias(string index, string alias)
+        {
+            bool result = false;
+
+            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(alias))
+                return result;
+
+            // /{index}/_alias/{name}
+            string url = string.Format("{0}/{1}/_alias/{2}", baseUrl, index, alias);
+
+            try
+            {
+                int status = 0;
+                string deleteResult = SendDeleteHttpReq(url, ref status, string.Empty, string.Empty, string.Empty, true);
+
+                JObject jsonResult = JObject.Parse(deleteResult);
+
+                if (jsonResult.ContainsKey("acknowledged") && jsonResult["acknowledged"].Value<string>() == "true")
+                {
+                    result = true;
+                }
+                else
+                {
+                    log.ErrorFormat("error when removing alias {0} to index {1} putResult = {2}", alias, index, deleteResult);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("error when removing alias {0} to index {1} ex = {2}", alias, index, ex);
+            }
+
+            return result;
+        }
+
         #endregion
 
-        #region Insert, Update, Delet
+        #region Insert, Update, Delete
 
         public bool InsertRecord(string sIndex, string sType, string sID, string sDoc)
         {
@@ -709,16 +777,6 @@ namespace ElasticSearch.Common
             }
 
             return invalidRecords;
-        }
-
-        public void AddAlias(string index, string alias)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveAlias(string index, string alias)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -1093,13 +1151,28 @@ namespace ElasticSearch.Common
 
         #region HTTP requests
 
-        public string SendPostHttpReq(string url, ref int status, string userName, string password, string parameters, bool isFirstTry)
+        public string SendPutHttpRequest(string url, string body)
+        {
+            int status = 0;
+            return SendPostHttpReq(url, ref status, string.Empty, string.Empty, body, true, true);
+        }
+        
+        public string SendPostHttpReq(string url, ref int status, string userName, string password, string parameters, bool isFirstTry, bool isPut = false)
         {
             Int32 nStatusCode = -1;
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
             webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Method = "POST";
+
+            if (!isPut)
+            {
+                webRequest.Method = "POST";
+            }
+            else
+            {
+                webRequest.Method = "PUT";
+            }
+
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(parameters);
             webRequest.ContentLength = bytes.Length;
             using (System.IO.Stream os = webRequest.GetRequestStream())
