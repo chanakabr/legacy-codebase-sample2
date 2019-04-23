@@ -7849,7 +7849,7 @@ namespace Core.Api
                             CatalogDAL.DeleteChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
                         }
                     }
-                    else
+                    else if (response.ExternalChannel.HasMetadata)
                     {
                         metaData = CatalogDAL.GetChannelMetadataById(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
                     }
