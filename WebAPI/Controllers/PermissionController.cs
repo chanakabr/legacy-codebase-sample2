@@ -62,12 +62,14 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
-                if (!filter.CurrentUserPermissionsContains.HasValue || !filter.CurrentUserPermissionsContains.Value)
+                filter.Validate();
+
+                if ((!filter.CurrentUserPermissionsContains.HasValue || !filter.CurrentUserPermissionsContains.Value || filter.RoleIDIn.HasValue))
                 {
                     userId = 0;
                 }
 
-                response = ClientsManager.ApiClient().GetPermissions(groupId, userId);
+                response = ClientsManager.ApiClient().GetPermissions(groupId, userId, filter.RoleIDIn);
             }
             catch (ClientException ex)
             {

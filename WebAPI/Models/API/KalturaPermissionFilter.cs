@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -25,16 +27,31 @@ namespace WebAPI.Models.API
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool? CurrentUserPermissionsContains { get; set; }
 
+        /// <summary>
+        /// Return permissions by role ID
+        /// </summary>
+        [DataMember(Name = "roleIdIn")]
+        [JsonProperty(PropertyName = "roleIdIn")]
+        [XmlElement(ElementName = "roleIdIn", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
+        public long? RoleIDIn { get; set; }
+
         public override KalturaPermissionOrderBy GetDefaultOrderByValue()
         {
             return KalturaPermissionOrderBy.NONE;
         }
 
+        internal void Validate()
+        {
+            if (CurrentUserPermissionsContains.HasValue && RoleIDIn.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaPermissionFilter.CurrentUserPermissionsContains, KalturaPermissionFilter.RoleIDIn");
+            }
+        }
     }
 
     public enum KalturaPermissionOrderBy
     {
         NONE
     }
-
 }
