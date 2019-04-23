@@ -21,6 +21,8 @@ using ConfigurationManager;
 using Polly;
 using Polly.Retry;
 using ApiObjects.SearchObjects;
+using ApiLogic;
+using Core.GroupManagers;
 
 namespace IngestHandler
 {
@@ -81,11 +83,7 @@ namespace IngestHandler
         #endregion
 
         #region Private Methods
-
-        // TODO: for sunny
-        // Get Ingest Profile by ingest Profile ID
-        // according to defaultAutoFillPolicy if 2 and have holes reject input
-        // 
+        
         private void ValidateServiceEvent(BulkUploadIngestEvent serviceEvent)
         {
             if (serviceEvent.ProgramsToIngest == null)
@@ -122,9 +120,12 @@ namespace IngestHandler
                 // get ingest profile data by id (if it exists)
                 IngestProfile ingestProfile = GetIngestProfile(bulkUploadData);
 
-                foreach (var programToIngest in programsToIngest)
+                foreach (EpgCB programToIngest in programsToIngest)
                 {
                     programAssetResultsDictionary[programToIngest.EpgIdentifier].Object = programToIngest;
+
+                    // update linear media id with live asset it from bulk upload result
+                    programToIngest.LinearMediaId = programAssetResultsDictionary[programToIngest.EpgIdentifier].LiveAssetId;
                 }
 
                 DateTime minStartDate = programsToIngest.Min(program => program.StartDate);
@@ -148,6 +149,14 @@ namespace IngestHandler
                 }
                 else
                 {
+                    // ?
+                    // ?
+                    // ?
+                    // TODO : UPLOAD PICTURES
+                    // ?
+                    // ?
+                    // ?
+
                     InsertIngestedProgramsToCouchbase(groupId, calculatedPrograms, bulkUploadId);
 
                     /*
@@ -176,6 +185,8 @@ namespace IngestHandler
                         if (isClonedIndexValid)
                         {
                             SwitchAliases(groupId, bulkUploadId, dateOfIngest);
+                            
+                            // update all INGESTED bulk upload results to status success
 
                             bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.OK, "Ingest handler success");
                         }
@@ -231,9 +242,14 @@ namespace IngestHandler
                 FilterSettings = filterCompositeType
             };
 
+            // get the epg ids from elasticsearch
             string searchQuery = query.ToString();
             var searchResult = elasticSearchClient.Search(index, type, ref searchQuery);
 
+            //
+            // TODO : get epg complete data from CB
+            // LANGUAGE
+            //
             List<string> epgIds = new List<string>();
 
             // get the programs - epg ids from elasticsearch, information from EPG DAL
@@ -322,15 +338,22 @@ namespace IngestHandler
                 {
                     var currentProgram = calculatedPrograms[programIndex];
 
-                    bool continueToNextProgram = false;
+                    bool continueCheckingOverlap = true;
 
                     // we check the next SEVERAL programs because some of them might be overlapping the current one
-                    for (int secondaryIndex = programIndex + 1; (secondaryIndex < calculatedPrograms.Count) && continueToNextProgram; secondaryIndex++)
+                    for (int secondaryIndex = programIndex + 1; (secondaryIndex < calculatedPrograms.Count) && continueCheckingOverlap; secondaryIndex++)
                     {
                         var nextProgram = calculatedPrograms[secondaryIndex];
 
-                        // if the current program doesn't end when the next one starts
-                        if ((currentProgram.EndDate - nextProgram.StartDate).TotalSeconds > 1)
+                        // if the current program ends when the next one starts - we're valid
+                        // TODO minor : only equals? we need to think about it
+                        if (currentProgram.EndDate == nextProgram.StartDate)
+                        {
+                            // we don't need to continue checking overlaps/gaps if the programs are valid
+                            continueCheckingOverlap = false;
+                        }
+                        // if they're different, we're not valid. let's see if it's a gap or an overlap
+                        else
                         {
                             // if the next program starts before the current ends, it means we have an overlap
                             if (checkOverlap && currentProgram.EndDate > nextProgram.StartDate)
@@ -342,7 +365,8 @@ namespace IngestHandler
                             // if the next program starts after the current ends, it means we have a gap
                             if (currentProgram.StartDate > currentProgram.EndDate)
                             {
-                                continueToNextProgram = true;
+                                // we don't need to check anymore overlaps when we have a gap
+                                continueCheckingOverlap = false;
 
                                 if (checkGaps)
                                 {
@@ -350,10 +374,6 @@ namespace IngestHandler
                                     programAssetResultsDictionary[nextProgram.EpgIdentifier].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
                                 }
                             }
-                        }
-                        else
-                        {
-                            continueToNextProgram = true;
                         }
                     }
                 }
@@ -374,7 +394,10 @@ namespace IngestHandler
 
             foreach (var program in calculatedPrograms)
             {
+                // TODO: CONSIDER LANGUAGE
                 string key = $"{program.EpgID}_{bulkUploadId}";
+                program.DocumentId = key;
+
                 bool insertResult = dal.InsertProgram(key, program, program.EndDate.AddDays(EXPIRY_DATE));
 
                 if (!insertResult)
@@ -396,6 +419,7 @@ namespace IngestHandler
         {
             string source = GetProgramIndexDateAlias(groupId, dateOfIngest);
             string destination = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
+            // TODO: check if reindex works with alias. if not, get the original index name and reindex it
             bool result = elasticSearchClient.Reindex(source, destination);
 
             if (result)
@@ -417,15 +441,18 @@ namespace IngestHandler
             string index = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
             List<ESBulkRequestObj<string>> bulkRequests = new List<ESBulkRequestObj<string>>();
             ESSerializerV2 serializer = new ESSerializerV2();
-            bool doesGroupUseTemplates = false; // CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool isOpc = GroupSettingsManager.IsOpc(groupId);
             HashSet<string> metasToPad = GetMetasToPad(groupId);
 
             foreach (var program in calculatedPrograms)
             {
                 program.PadMetas(metasToPad);
 
+                //
+                // TODO: this should already happen in deserialize???
+                // 
                 //// used only to currently support linear media id search on elastic search
-                //if (doesGroupUsesTemplates && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
+                //if (isOpc && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                 //{
                 //    epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
                 //}
@@ -434,7 +461,7 @@ namespace IngestHandler
                 LanguageObj language = null;
 
                 // Serialize EPG object to string
-                string serializedEpg = serializer.SerializeEpgObject(program, suffix, doesGroupUseTemplates);
+                string serializedEpg = serializer.SerializeEpgObject(program, suffix, isOpc);
                 string epgType = GetTanslationType(DEFAULT_INDEX_TYPE, language);
 
                 double totalMinutes = GetTTLMinutes(program);
@@ -484,6 +511,11 @@ namespace IngestHandler
             }
         }
 
+        /// <summary>
+        /// TODO: DO THIS
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
         private HashSet<string> GetMetasToPad(int groupId)
         {
             return new HashSet<string>();
@@ -499,11 +531,14 @@ namespace IngestHandler
             var policy = RetryPolicy.Handle<Exception>()
                 .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
                 {
+                    // TODO: improve logging
                     log.Warn(ex.ToString());
                 }
             );
 
             string index = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
+
+            // TODO: LANGUAGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             string type = DEFAULT_INDEX_TYPE;
             int bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
 
@@ -543,13 +578,15 @@ namespace IngestHandler
 
                     JToken tempToken;
 
-                    // check total items - if count is different, something is missed
+                    // check total items - if count is different, something is missing
                     int totalItems = ((tempToken = jsonResult.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
 
                     if (!(totalItems == programIds.Count()))
                     {
                         isValid = false;
                     }
+
+                    // TODO : explain failures
                 }
 
                 if (!isValid)
