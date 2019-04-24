@@ -1467,9 +1467,9 @@ namespace Core.Api
             return Core.Api.api.GetCurrentUserPermissions(groupId, userId);
         }
 
-        public static PermissionsResponse GetGroupPermissions(int groupId)
+        public static PermissionsResponse GetGroupPermissions(int groupId, long? roleIdIn)
         {
-            return Core.Api.api.GetGroupPermissions(groupId);
+            return Core.Api.api.GetGroupPermissions(groupId, roleIdIn);
         }
 
         public static PermissionsResponse GetUserPermissions(int groupId, string userId)

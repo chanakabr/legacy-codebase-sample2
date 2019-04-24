@@ -384,19 +384,22 @@ namespace Core.Catalog.CatalogManagement
             {
                 // get picture sizes
                 var ratioIdToPicSize = Cache.CatalogCache.Instance().GetGroupRatioIdToPicSizeMapping(groupId);
-                
-                foreach (Image image in imagesResponse.Objects)
-                {
-                    ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
-                    if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0 && ratioIdToPicSize.ContainsKey(imageType.RatioId.Value))
-                    {
-                        var picSize = ratioIdToPicSize[imageType.RatioId.Value].First();
-                        image.Height = picSize.Height;
-                        image.Width = picSize.Width;
 
-                        if (updateUrl)
+                if (ratioIdToPicSize != null && ratioIdToPicSize.Count > 0)
+                {
+                    foreach (Image image in imagesResponse.Objects)
+                    {
+                        ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
+                        if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0 && ratioIdToPicSize.ContainsKey(imageType.RatioId.Value))
                         {
-                            image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, image.Width, image.Height, 100);
+                            var picSize = ratioIdToPicSize[imageType.RatioId.Value].First();
+                            image.Height = picSize.Height;
+                            image.Width = picSize.Width;
+
+                            if (updateUrl)
+                            {
+                                image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, image.Width, image.Height, 100);
+                            }
                         }
                     }
                 }

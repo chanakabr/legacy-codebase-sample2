@@ -1,10 +1,9 @@
-﻿using ApiObjects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Core.Catalog
+namespace ApiObjects
 {
     public class Topic
     {
@@ -101,7 +100,7 @@ namespace Core.Catalog
             }
         }
 
-        internal string GetFeaturesForDB(HashSet<string> existingFeatures = null)
+        public string GetFeaturesForDB(HashSet<string> existingFeatures = null)
         {
             string result = string.Empty;
             if (this.Features == null && existingFeatures != null && existingFeatures.Count > 0)

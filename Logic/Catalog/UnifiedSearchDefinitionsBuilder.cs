@@ -196,6 +196,10 @@ namespace Core.Catalog
 
                 if (order.m_eOrderBy == OrderBy.META)
                 {
+                    bool isTagOrMeta = false;
+                    Type type = null;
+                    bool isMetaValid = false;
+
                     if (doesGroupUsesTemplates)
                     {
                         if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
@@ -204,12 +208,30 @@ namespace Core.Catalog
                             log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
                             throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
                         }
+                        else
+                        {
+                            isMetaValid = true;
+                            CatalogManagement.CatalogManager.GetUnifiedSearchKey(request.m_nGroupID, order.m_sOrderValue.ToLower(), out isTagOrMeta, out type);
+                        }
                     }
-                    else if (!Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, order.m_sOrderValue.ToLower()))
+                    else
                     {
-                        //return error - meta not erxsits
-                        log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
-                        throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
+                        if (!Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, order.m_sOrderValue.ToLower()))
+                        {
+                            //return error - meta not erxsits
+                            log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
+                            throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
+                        }
+                        else
+                        {
+                            isMetaValid = true;
+                            CatalogLogic.GetUnifiedSearchKey(order.m_sOrderValue, group, out isTagOrMeta, out type);
+                        }
+                    }
+
+                    if (isMetaValid && definitions.shouldSearchEpg && (type == typeof(int) || type == typeof(double) || type == typeof(long) || type == typeof(float)))
+                    {
+                        definitions.order.shouldPadString = true;
                     }
                 }
 
@@ -380,7 +402,8 @@ namespace Core.Catalog
 
                 #region Geo Availability
 
-                if (!definitions.isInternalSearch && (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled))
+                if (!definitions.isAllowedToViewInactiveAssets && !definitions.isInternalSearch && 
+                    (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled))
                 {
                     definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
                 }

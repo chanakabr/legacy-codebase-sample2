@@ -95,7 +95,7 @@ namespace Core.Catalog.Controller
                                 Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
                                 if (CatalogManager.DoesGroupUsesTemplates(groupID))
                                 {
-                                    groupRatioNamesToImageTypes = ImageManager.GetImageTypesMapBySystemName(groupID);
+                                    groupRatioNamesToImageTypes = Core.Catalog.CatalogManagement.ImageManager.GetImageTypesMapBySystemName(groupID);
                                 }
 
                                 isSucceeded = ingest.Initialize(request.Data, groupID, CatalogManager.DoesGroupUsesTemplates(groupID), groupRatioNamesToImageTypes, out ingestResponse);

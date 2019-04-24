@@ -175,10 +175,8 @@ namespace Core.Catalog.CatalogManagement
 
                 var objectTypeName = FileHandler.Instance.GetFileObjectTypeName(bulkObjectType.Name);
                 response.Object.BulkObjectType = objectTypeName.Object;
-                response.Object.Status = BulkUploadJobStatus.Uploaded;
-                response = UpdateBulkUpload(response.Object);
-
-                //
+                response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded);
+                
                 //
                 // We are in the beginning of a transition to .NET core and new scheduled tasks architecture.
                 // Previous setting is using celery and enqueuing a celery-based message to rabbit (with QueueWrapper of old .NET)
@@ -223,7 +221,6 @@ namespace Core.Catalog.CatalogManagement
 
             publisher.Publish(transformationEvent);
             response = UpdateBulkUploadStatusWithVersionCheck(response.Object, BulkUploadJobStatus.Queued);
-            return response;
             return response;
         }
 
@@ -282,15 +279,12 @@ namespace Core.Catalog.CatalogManagement
                 if (bulkUploadResponse.Object.NumOfObjects == 0)
                 {
                     log.ErrorFormat("ProcessBulkUpload Deserialize file with no objects. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUpload.Id);
-                    bulkUploadResponse.Object.Status = BulkUploadJobStatus.Success;
-                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object);
+                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Success);
                     return bulkUploadResponse.Status;
                 }
 
                 bulkUploadResponse.Object.Results = objectsListResponse.Objects;
-                bulkUploadResponse.Object.Status = BulkUploadJobStatus.Processing;
-                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object);
-
+                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
                 bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, objectsListResponse.Objects);
                 bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
             }
@@ -327,7 +321,11 @@ namespace Core.Catalog.CatalogManagement
                 return objectsListResponse;
             }
 
-            var errorMessage = $"Error while trying to deserialize file. bulkUpload.Id:[{bulkUpload.Id}],  bulkUploadResponse.Status.Code:[{bulkUploadResponse.Status.Code}] bulkUploadResponse.Status.Message:[{bulkUploadResponse.Status.Message}].";
+            // 0 = {bulkUpload.Id}
+            // 1 = {bulkUploadResponse.Status.Code}
+            // 2 = {bulkUploadResponse.Status.Message}
+            var errorMessage = string.Format("Error while trying to deserialize file. bulkUpload.Id:[{0}],  bulkUploadResponse.Status.Code:[{1}] bulkUploadResponse.Status.Message:[{2}].", 
+                bulkUpload.Id, bulkUploadResponse.Status.Code, bulkUploadResponse.Status.Message);
             log.Error(errorMessage);
             UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Failed);
 
@@ -377,18 +375,21 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<BulkUpload> UpdateBulkUpload(BulkUpload bulkUploadToUpdate)
+        public static GenericResponse<BulkUpload> UpdateBulkUpload(BulkUpload bulkUploadToUpdate, BulkUploadJobStatus newStatus)
         {
             var response = new GenericResponse<BulkUpload>();
             try
             {
+                var originalStatus = bulkUploadToUpdate.Status;
                 response.Object = bulkUploadToUpdate;
+                response.Object.Status = newStatus;
+               
                 if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
                 {
                     log.ErrorFormat("UpdateBulkUpload - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, bulkUploadToUpdate.Status);
                 }
 
-                UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, bulkUploadToUpdate.Status);
+                UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -464,15 +465,15 @@ namespace Core.Catalog.CatalogManagement
                         UpdaterId = ODBCWrapper.Utils.GetLongSafeVal(row, "UPDATER_ID"),
                         BulkObjectType = ODBCWrapper.Utils.GetSafeStr(row, "BULK_OBJECT_TYPE")
                     };
-
+                    
                     if (shouldGetValuesFromCB || FinishedBulkUploadStatuses.Contains(bulkUpload.Status))
                     {
                         BulkUpload bulkUploadWithResults = CatalogDAL.GetBulkUploadCB(bulkUpload.Id);
-                        if (bulkUploadWithResults != null || bulkUploadWithResults.Results != null && bulkUploadWithResults.Results.Count > 0)
+                        if (bulkUploadWithResults != null)
                         {
-                            bulkUpload.Results = bulkUploadWithResults.Results;
                             bulkUpload.JobData = bulkUploadWithResults.JobData;
                             bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
+                            bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();
                         }
                     }
                 }

@@ -7530,9 +7530,6 @@ namespace Core.ConditionalAccess
                 }
 
                 res.m_ePaymentMethod = pm;
-
-                res.m_bIsRecurring = false;
-
                 res.m_sRecieptCode = sID;
                 res.m_nBillingProviderRef = nBILLING_PROVIDER_REFFERENCE;
                 res.m_nPurchaseID = nPURCHASE_ID;

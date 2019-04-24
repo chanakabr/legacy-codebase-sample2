@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiLogic", "Logic\ApiLogic.csproj", "{27C6F3ED-B660-466A-9415-DE2D43E58FF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiLogic", "Logic\ApiLogic.csproj", "{27C6F3ED-B660-466A-9415-DE2D43E58FF0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiObjects", "ApiObjects\ApiObjects.csproj", "{6E476AD6-433C-4345-A26D-0E34BC03D9A9}"
 EndProject
@@ -63,7 +63,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticticsBL", "..\TvmCore\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synchronizer", "..\TvmCore\Synchronizer\Synchronizer.csproj", "{9B1D6676-614F-4F0D-9BFB-66422F8A5031}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVinciShared", "..\TvmCore\TVinciShared\TVinciShared.csproj", "{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVinciShared", "..\TvmCore\TVinciShared\TVinciShared.csproj", "{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logic", "Logic", "{457B38E7-2358-4C31-AED0-FB7AB73428C1}"
 EndProject
@@ -147,12 +147,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.Build.0 = Local|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.Build.0 = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E476AD6-433C-4345-A26D-0E34BC03D9A9}.Basic|Any CPU.ActiveCfg = Release|Any CPU
@@ -355,12 +355,12 @@ Global
 		{9B1D6676-614F-4F0D-9BFB-66422F8A5031}.Local|Any CPU.Build.0 = Release|Any CPU
 		{9B1D6676-614F-4F0D-9BFB-66422F8A5031}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B1D6676-614F-4F0D-9BFB-66422F8A5031}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Local|Any CPU.Build.0 = Local|Any CPU
+		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Local|Any CPU.Build.0 = Release|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D458E586-6306-4111-8080-E3FCDBF82995}.Basic|Any CPU.ActiveCfg = Local|Any CPU

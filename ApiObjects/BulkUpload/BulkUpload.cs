@@ -72,10 +72,5 @@ namespace ApiObjects.BulkUpload
 
         [JsonProperty("ObjectData")]
         public BulkUploadObjectData ObjectData { get; set; }
-
-        public BulkUpload()
-        {
-            Results = new List<BulkUploadResult>();
-        }
     }
 }

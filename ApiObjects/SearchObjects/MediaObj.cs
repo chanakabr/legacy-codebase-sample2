@@ -176,6 +176,45 @@ namespace ApiObjects.SearchObjects
             return clone;
         }
 
+        public void PadMetas(HashSet<string> metasToPad)
+        {
+            if (metasToPad != null)
+            {
+                foreach (var meta in this.m_dMeatsValues.ToList())
+                {
+                    if (metasToPad.Contains(meta.Key.ToLower()))
+                    {
+                        string metaValue = meta.Value;
+
+                        metaValue = PadValue(metaValue);
+
+                        this.m_dMeatsValues[string.Format("padded_{0}", meta.Key.ToLower())] = metaValue;
+                    }
+                }
+            }
+        }
+
+        public static string PadValue(string metaValue)
+        {
+            if (string.IsNullOrEmpty(metaValue))
+            {
+                return metaValue;
+            }
+
+            double parsedDouble;
+            int parsedInt;
+
+            // only for doubles and not for integers - get only the first two decimal digits
+            if (double.TryParse(metaValue, out parsedDouble) && !int.TryParse(metaValue, out parsedInt))
+            {
+                metaValue = string.Format("{0:N2}", parsedDouble);
+            }
+
+            metaValue = metaValue.PadLeft(7, '0');
+
+            return metaValue;
+        }
+
         #endregion
     }
 

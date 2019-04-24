@@ -93,6 +93,10 @@ namespace ApiObjects.SearchObjects
         }
 
 
+        [DataMember]
+        [JsonProperty()]
+        public bool shouldPadString { get; set; }
+
         public OrderObj()
         {
             m_eOrderBy = OrderBy.ID;

@@ -13,6 +13,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -56,6 +57,7 @@ namespace Core.Catalog.CatalogManagement
                     List<DataRow> medias = (from row in channelsMedias
                                             where (Int64)row["CHANNEL_ID"] == id
                                             select row).ToList();
+
                     Channel channel = CreateChannel(id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias);
                     if (channel != null)
                     {
@@ -87,6 +89,7 @@ namespace Core.Catalog.CatalogManagement
             channel.SystemName = ODBCWrapper.Utils.ExtractString(dr, "SYSTEM_NAME");
             channel.CreateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
             channel.UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+            channel.HasMetadata = ODBCWrapper.Utils.ExtractBoolean(dr, "HAS_METADATA");
 
             #region translated names
 
@@ -267,6 +270,7 @@ namespace Core.Catalog.CatalogManagement
         private static List<Channel> GetChannels(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets)
         {
             List<Channel> channels = new List<Channel>();
+
             try
             {
                 if (channelIds == null || channelIds.Count == 0)
@@ -323,6 +327,23 @@ namespace Core.Catalog.CatalogManagement
                     {
                         DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, isAllowedToViewInactiveAssets.Value);
                         channels = GetChannelListFromDs(ds);
+
+                        var channelsWithMetadata = channels.Where(c => c.HasMetadata).ToList();
+                        var channelsIdsWithMetadata = channelsWithMetadata.Select(c => c.m_nChannelID).ToList();
+
+                        if (channelsIdsWithMetadata.Any())
+                        {
+                            var metadatas = CatalogDAL.GetChannelsMetadataByIds(channelIds, eChannelType.Internal);
+
+                            foreach (var item in channelsWithMetadata)
+                            {
+                                if (metadatas.ContainsKey(item.m_nChannelID))
+                                {
+                                    item.MetaData = metadatas[item.m_nChannelID];
+                                }
+                            }
+                        }
+
                         res = channels.Count() == channelIds.Count() || !isAllowedToViewInactiveAssets.Value;
                     }
 
@@ -848,7 +869,7 @@ namespace Core.Catalog.CatalogManagement
                     channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
                     (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, isSlidingWindow, slidingWindowPeriod, channelToAdd.m_nChannelTypeID,
                     channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
-                    mediaIdsToOrderNum, userId, channelToAdd.SupportSegmentBasedOrdering, channelToAdd.AssetUserRuleId);
+                    mediaIdsToOrderNum, userId, channelToAdd.SupportSegmentBasedOrdering, channelToAdd.AssetUserRuleId, channelToAdd.MetaData != null);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
@@ -862,6 +883,12 @@ namespace Core.Catalog.CatalogManagement
                     if (id > 0)
                     {
                         response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+
+                        if (response.Object.HasMetadata)
+                        {
+                            CatalogDAL.SaveChannelMetaData(id, eChannelType.Internal, channelToAdd.MetaData);
+                            response.Object.MetaData = channelToAdd.MetaData;
+                        }
                     }
                 }
 
@@ -1053,10 +1080,16 @@ namespace Core.Catalog.CatalogManagement
                     updatedChannelType = channelToUpdate.m_nChannelTypeID;
                 }
 
+                bool? hasMetadata = null;
+                if (channelToUpdate.MetaData != null)
+                {
+                    hasMetadata = channelToUpdate.MetaData.Any();
+                }
+
                 DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
                                                         orderByDir, orderByValue, isSlidingWindow, slidingWindowPeriod, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
                                                         mediaIdsToOrderNum, userId, channelToUpdate.SupportSegmentBasedOrdering,
-                                                        channelToUpdate.AssetUserRuleId, assetTypesValuesInd, updatedChannelType);
+                                                        channelToUpdate.AssetUserRuleId, assetTypesValuesInd, hasMetadata, updatedChannelType);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
@@ -1068,7 +1101,26 @@ namespace Core.Catalog.CatalogManagement
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
                     if (id > 0)
                     {
+                        var metaData = channelToUpdate.MetaData;
+
+                        if (metaData != null)
+                        {
+                            if (metaData.Any())
+                            {
+                                CatalogDAL.SaveChannelMetaData(id, eChannelType.Internal, metaData);
+                            }
+                            else
+                            {
+                                CatalogDAL.DeleteChannelMetaData(id, eChannelType.Internal);
+                            }
+                        }
+                        else
+                        {
+                            metaData = currentChannel.MetaData;
+                        }
+
                         response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                        response.Object.MetaData = metaData;
                     }
                 }
 
@@ -1172,24 +1224,26 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Object.m_nChannelTypeID, userId))
                 {
+                    CatalogDAL.DeleteChannelMetaData(channelId, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.Internal);
+                    
                     bool deleteResult = false;
                     bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
-
-                    //delete virtual asset
-                    bool needToCreateVirtualAsset = false;
-                    Asset virtualChannel = GetVirtualAsset(groupId, userId, channelResponse.Object, out needToCreateVirtualAsset);
-                    if(virtualChannel != null)
-                    {
-                        Status status  = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
-                        if(status == null || !status.IsOkStatusCode())
-                        {
-                            log.ErrorFormat("Failed delete virtual asset {0}. for channel {1}", virtualChannel.Id, channelId);
-                        }
-                    }
                     
                     // delete index only for OPC accounts since previously channels index didn't exist
                     if (doesGroupUsesTemplates)
                     {
+                        //delete virtual asset
+                        bool needToCreateVirtualAsset = false;
+                        Asset virtualChannel = GetVirtualAsset(groupId, userId, channelResponse.Object, out needToCreateVirtualAsset);
+                        if (virtualChannel != null)
+                        {
+                            Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
+                            if (status == null || !status.IsOkStatusCode())
+                            {
+                                log.ErrorFormat("Failed delete virtual asset {0}. for channel {1}", virtualChannel.Id, channelId);
+                            }
+                        }
+
                         deleteResult = IndexManager.DeleteChannel(groupId, channelId);
                     }
                     else

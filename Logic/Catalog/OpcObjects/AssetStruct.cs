@@ -341,7 +341,7 @@ namespace Core.Catalog
                 // IMAGES
                 if (systemNameToExcelAttribute.ContainsKey(Asset.IMAGES))
                 {
-                    var imageTypeListResponse = ImageManager.GetImageTypes(groupId, false, null);
+                    var imageTypeListResponse = Core.Catalog.CatalogManagement.ImageManager.GetImageTypes(groupId, false, null);
                     if (imageTypeListResponse.HasObjects())
                     {
                         foreach (var imageType in imageTypeListResponse.Objects)
