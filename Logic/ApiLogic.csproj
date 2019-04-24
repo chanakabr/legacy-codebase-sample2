@@ -9,11 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="4.0.0-ci1036" />
     <PackageReference Include="AWSSDK.Core" Version="3.3.100.5" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.31.20" />
-    <PackageReference Include="CH.Ioc.Infrastructure.Wiring" Version="1.0.1" />
-    <PackageReference Include="CH.Memcached" Version="1.6" />
     <PackageReference Include="EnyimMemcached" Version="2.11" />
     <PackageReference Include="LinqToTwitter" Version="2.1.11" />
     <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />
@@ -34,9 +31,7 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System.configuration" />
-    <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Activation" />
     <Reference Include="System.ServiceModel.Web" />
@@ -97,11 +92,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
-    <!--<Compile Update="Web References\Lucene\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>-->
   </ItemGroup>
 
   <ItemGroup>
@@ -118,7 +108,6 @@
     <ProjectReference Include="..\..\TvmCore\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\..\TvmCore\EpgBL\EpgBL.csproj" />
     <ProjectReference Include="..\..\TvmCore\EpgIngest\EpgIngest.csproj" />
-    <ProjectReference Include="..\..\TvmCore\EventManager\EventManager.csproj" />
     <ProjectReference Include="..\..\TvmCore\GoogleAPI\GoogleAPI.csproj" />
     <ProjectReference Include="..\..\TvmCore\GroupsCacheManager\GroupsCacheManager.csproj" />
     <ProjectReference Include="..\..\TvmCore\KlogMonitorHelper\KlogMonitorHelper.csproj" />
@@ -138,7 +127,6 @@
     <ProjectReference Include="..\..\TvmCore\TvinciImporter\TvinciImporter.csproj" />
     <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\..\TvmCore\Uploader\Uploader.csproj" />
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
@@ -362,42 +350,6 @@
     <None Include="Web References\AdyenRecAPI\StoreTokenResult.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Lucene\ChannelContainObj.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\Lucene\ChannelContainObj1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\Lucene\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\Lucene\SearchResult1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\Lucene\SearchResultsObj.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\Lucene\SearchResultsObj1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\Lucene\Service.wsdl" />
-    <None Include="Web References\Lucene\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\Lucene\Service0.wsdl" />
-    <None Include="Web References\Lucene\Service0.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\Lucene\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\Lucene\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\Lucene\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\tikle\Cinema.datasource">
@@ -424,9 +376,6 @@
     </None>
     <None Include="Web References\tikle\service.disco" />
     <None Include="Web References\tikle\service.wsdl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\Lucene\Service.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\OSSAdapterService\configuration91.svcinfo" />
