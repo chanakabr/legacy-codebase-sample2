@@ -280,7 +280,9 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags, MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers)
+        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap,  List<string> groupTags, 
+            HashSet<string> metasToPad,
+            MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
             string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;
@@ -687,8 +689,9 @@ namespace ElasticSearch.Common
             }
         }
 
-        public virtual string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> lTags, MappingAnalyzers specificLanguageAnalyzers,
-                                                MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
+        public virtual string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> lTags, 
+            HashSet<string> metasToPad,
+            MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
             string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;
@@ -1033,7 +1036,7 @@ namespace ElasticSearch.Common
 
             if (withRouting)
             {
-                sRecord.AppendFormat("\"date_routing\" : {0},", oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"));
+                sRecord.AppendFormat("\"date_routing\" : {0},", oEpg.StartDate.ToUniversalTime().ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT));
             }
 
             #region add metas

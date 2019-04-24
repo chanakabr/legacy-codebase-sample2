@@ -1,12 +1,5 @@
 using System;
-using System.Data;
-using System.Configuration;
 using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using System.Text.RegularExpressions;
 using KLogMonitor;
 using System.Reflection;
@@ -42,8 +35,8 @@ namespace TVinciShared
             Int32 nAcctID = 0;
             try
             {
-                if (HttpContext.Current != null && HttpContext.Current.Session["Login"] != null)
-                    nAcctID = int.Parse(HttpContext.Current.Session["Login"].ToString());
+                if (HttpContext.Current != null && HttpContext.Current.Session.Get("Login") != null)
+                    nAcctID = int.Parse(HttpContext.Current.Session.Get("Login").ToString());
                 else
                     nAcctID = 0;
             }
@@ -59,8 +52,8 @@ namespace TVinciShared
             Int32 nGroupID = 0;
             try
             {
-                if (HttpContext.Current != null && HttpContext.Current.Session["LoginGroup"] != null)
-                    nGroupID = int.Parse(HttpContext.Current.Session["LoginGroup"].ToString());
+                if (HttpContext.Current != null && HttpContext.Current.Session.Get("LoginGroup") != null)
+                    nGroupID = int.Parse(HttpContext.Current.Session.Get("LoginGroup").ToString());
                 else
                     nGroupID = 0;
             }
@@ -75,10 +68,10 @@ namespace TVinciShared
         {
             try
             {
-                //string sURL = HttpContext.Current.Request.Url.ToString().ToLower();
+                //string sURL = HttpContext.Current.Request.GetUrl().ToString().ToLower();
                 //if (sURL.IndexOf("404;") != -1)
                 //sURL = sURL.Substring(sURL.IndexOf("404;") + 4);
-                //HttpContext.Current.Session["RequestedURL"] = sURL;
+                //HttpContext.Current.Session.Get("RequestedURL"] = sURL;
                 Int32 nAcctID = GetLoginID();
                 if (nAcctID == 0)
                     return false;
@@ -95,7 +88,7 @@ namespace TVinciShared
                     directQuery.Finish();
                     directQuery = null;
                 }
-                //HttpContext.Current.Session["RequestedURL"] = null;
+                //HttpContext.Current.Session.Get("RequestedURL"] = null;
                 return true;
             }
             catch
@@ -106,7 +99,7 @@ namespace TVinciShared
 
         static public string GetCurrentPageURL()
         {
-            string sURL = HttpContext.Current.Request.FilePath.ToString();
+            string sURL = HttpContext.Current.Request.GetFilePath().ToString();
             Int32 nStart = sURL.LastIndexOf('/') + 1;
             Int32 nEnd = sURL.Length;
             string sPage = sURL.Substring(nStart, nEnd - nStart);
@@ -218,15 +211,15 @@ namespace TVinciShared
         static public string GetLoginName()
         {
             string sUserName = "";
-            if (HttpContext.Current.Session["username"] != null)
-                sUserName = HttpContext.Current.Session["username"].ToString();
+            if (HttpContext.Current.Session.Get("username") != null)
+                sUserName = HttpContext.Current.Session.Get("username").ToString();
             return sUserName;
         }
         static public string GetLoginGroupName()
         {
             string sGroupName = "";
-            if (HttpContext.Current.Session["groupname"] != null)
-                sGroupName = HttpContext.Current.Session["groupname"].ToString();
+            if (HttpContext.Current.Session.Get("groupname") != null)
+                sGroupName = HttpContext.Current.Session.Get("groupname").ToString();
             return sGroupName;
         }
 
@@ -263,12 +256,12 @@ namespace TVinciShared
             if (bSessinCheck == true)
             {
                 selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "=", HttpContext.Current.Session.SessionID.ToString());
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "=", HttpContext.Current.Session.GetSessionID().ToString());
             }
             else
             {
                 selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "<>", HttpContext.Current.Session.SessionID.ToString());
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "<>", HttpContext.Current.Session.GetSessionID().ToString());
             }
             if (selectQuery.Execute("query", true) != null)
             {
@@ -293,7 +286,7 @@ namespace TVinciShared
             updateQuery += "where ";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("account_id", "=", nAcctID);
             updateQuery += "and id not in (select id from admin_login where ";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "=", HttpContext.Current.Session.SessionID.ToString());
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "=", HttpContext.Current.Session.GetSessionID().ToString());
             updateQuery += ")";
             updateQuery.Execute();
             updateQuery.Finish();
@@ -321,9 +314,9 @@ namespace TVinciShared
                 updateQuery = null;
 
                 HttpContext.Current.Session.RemoveAll();
-                if (HttpContext.Current.Request.Url != null && HttpContext.Current.Request.Url.PathAndQuery.IndexOf("logout") == -1 &&
-                    HttpContext.Current.Request.Url.PathAndQuery.IndexOf("login") == -1)
-                    HttpContext.Current.Session["LOGOUT_FROM_PAGE"] = HttpContext.Current.Request.Url.PathAndQuery;
+                if (HttpContext.Current.Request.GetUrl() != null && HttpContext.Current.Request.GetUrl().PathAndQuery.IndexOf("logout") == -1 &&
+                    HttpContext.Current.Request.GetUrl().PathAndQuery.IndexOf("login") == -1)
+                    HttpContext.Current.Session.Set("LOGOUT_FROM_PAGE", HttpContext.Current.Request.GetUrl().PathAndQuery);
                 HttpContext.Current.Response.Write("<script>document.location.href='" + sBaseURL + sFileToTransferTo + "';</script>");
             }
             catch
@@ -369,10 +362,10 @@ namespace TVinciShared
                         {
                             if (nFailCount >= 3)
                             {
-                                HttpContext.Current.Session["Login"] = "";
-                                HttpContext.Current.Session["LoginGroup"] = "";
-                                HttpContext.Current.Session["username"] = "";
-                                HttpContext.Current.Session["groupname"] = "";
+                                HttpContext.Current.Session.Set("Login","");
+                                HttpContext.Current.Session.Set("LoginGroup", "");
+                                HttpContext.Current.Session.Set("username", "");
+                                HttpContext.Current.Session.Set("groupname", "");
                                 HttpContext.Current.Session.Remove("Login");
                                 HttpContext.Current.Session.Remove("LoginGroup");
                                 HttpContext.Current.Session.Remove("username");
@@ -385,14 +378,14 @@ namespace TVinciShared
                             }
                         }
 
-                        HttpContext.Current.Session["Login"] = nCO;
-                        HttpContext.Current.Session["LoginGroup"] = nGroupID;
-                        HttpContext.Current.Session["username"] = selectQuery.Table("query").DefaultView[0].Row["username"].ToString();
-                        HttpContext.Current.Session["groupname"] = sGroupName;
+                        HttpContext.Current.Session.Set("Login", nCO);
+                        HttpContext.Current.Session.Set("LoginGroup", nGroupID);
+                        HttpContext.Current.Session.Set("username", selectQuery.Table("query").DefaultView[0].Row["username"].ToString());
+                        HttpContext.Current.Session.Set("groupname", sGroupName);
 
                         if (nRHEntityID > 0)
                         {
-                            HttpContext.Current.Session["RightHolder"] = nRHEntityID;
+                            HttpContext.Current.Session.Set("RightHolder", nRHEntityID);
                         }
 
                         bRet = true;
@@ -409,10 +402,10 @@ namespace TVinciShared
                     }
                     else
                     {
-                        HttpContext.Current.Session["Login"] = "";
-                        HttpContext.Current.Session["LoginGroup"] = "";
-                        HttpContext.Current.Session["username"] = "";
-                        HttpContext.Current.Session["groupname"] = "";
+                        HttpContext.Current.Session.Set("Login", "");
+                        HttpContext.Current.Session.Set("LoginGroup", "");
+                        HttpContext.Current.Session.Set("username", "");
+                        HttpContext.Current.Session.Set("groupname", "");
                         HttpContext.Current.Session.Remove("Login");
                         HttpContext.Current.Session.Remove("LoginGroup");
                         HttpContext.Current.Session.Remove("username");
@@ -432,10 +425,10 @@ namespace TVinciShared
                 }
                 else
                 {
-                    HttpContext.Current.Session["Login"] = "";
-                    HttpContext.Current.Session["LoginGroup"] = "";
-                    HttpContext.Current.Session["username"] = "";
-                    HttpContext.Current.Session["groupname"] = "";
+                    HttpContext.Current.Session.Set("Login", "");
+                    HttpContext.Current.Session.Set("LoginGroup", "");
+                    HttpContext.Current.Session.Set("username", "");
+                    HttpContext.Current.Session.Set("groupname", "");
                     HttpContext.Current.Session.Remove("Login");
                     HttpContext.Current.Session.Remove("LoginGroup");
                     HttpContext.Current.Session.Remove("username");
@@ -691,10 +684,10 @@ namespace TVinciShared
             }
             if (bOtherLogin == true)
             {
-                HttpContext.Current.Session["Login"] = "";
-                HttpContext.Current.Session["LoginGroup"] = "";
-                HttpContext.Current.Session["username"] = "";
-                HttpContext.Current.Session["groupname"] = "";
+                HttpContext.Current.Session.Set("Login", "");
+                HttpContext.Current.Session.Set("LoginGroup", "");
+                HttpContext.Current.Session.Set("username", "");
+                HttpContext.Current.Session.Set("groupname", "");
 
                 HttpContext.Current.Session.Remove("Login");
                 HttpContext.Current.Session.Remove("LoginGroup");
@@ -746,7 +739,7 @@ namespace TVinciShared
 
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("admin_login");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("last_action_date", "=", DateTime.UtcNow);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "=", HttpContext.Current.Session.SessionID.ToString());
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "=", HttpContext.Current.Session.GetSessionID().ToString());
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("account_id", "=", nAcctID);
                 insertQuery.Execute();
                 insertQuery.Finish();

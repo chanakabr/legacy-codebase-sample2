@@ -4754,7 +4754,6 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("RemoveCountryRulesFromMedia");
-                sp.AddParameter("@groupId", groupId);
                 sp.AddIDListParameter<long>("@assetRuleIds", assetRuleIdsToRemove, "ID");
                 sp.AddParameter("@mediaId", mediaId);
                 sp.AddParameter("@groupId", groupId);
@@ -4763,7 +4762,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while UpdateAssetRulesLastRunDate in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIdsToRemove), ex);
+                log.ErrorFormat("Error while RemoveCountryRulesFromMedia in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIdsToRemove), ex);
             }
 
             return result;
@@ -5469,8 +5468,8 @@ namespace DAL
                 sp.AddParameter("@transformationAdapterUrl", profileToAdd.TransformationAdapterUrl);
                 sp.AddParameter("@transformationAdapterSharedSecret", profileToAdd.TransformationAdapterSharedSecret);
                 sp.AddParameter("@assetType", profileToAdd.AssetTypeId);
-                sp.AddParameter("@defaultAutoFillPolicy", profileToAdd.DefaultAutoFillPolicy);
-                sp.AddParameter("@defaultOverlapPolicy", profileToAdd.DefaultOverlapPolicy);
+                sp.AddParameter("@defaultAutoFillPolicy", (int)profileToAdd.DefaultAutoFillPolicy);
+                sp.AddParameter("@defaultOverlapPolicy", (int)profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
 
                 MergeIngestProfileAdapaterSettings(groupId, profileToAdd.Id, userId, profileToAdd.Settings);

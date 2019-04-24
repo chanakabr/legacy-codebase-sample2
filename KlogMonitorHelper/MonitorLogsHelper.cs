@@ -62,8 +62,6 @@ namespace KlogMonitorHelper
             else
             {
                 // get request ID
-                
-
                 if (_CurrentRequest.Headers[Constants.REQUEST_ID_KEY] == null)
                     _LogContextData[Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
                 else

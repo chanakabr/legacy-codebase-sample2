@@ -872,11 +872,11 @@ namespace TVinciShared
         {
             Int32 nWatcherID = 0;
             string sTVinciGUID = CookieUtils.GetCookie("tvinci_api");
-            if (sTVinciGUID != "" && System.Web.HttpContext.Current.Session["tvinci_watcher_" + sTVinciGUID] != null)
+            if (sTVinciGUID != "" && System.Web.HttpContext.Current.Session.Get("tvinci_watcher_" + sTVinciGUID) != null)
             {
                 try
                 {
-                    nWatcherID = int.Parse(System.Web.HttpContext.Current.Session["tvinci_watcher_" + sTVinciGUID].ToString());
+                    nWatcherID = int.Parse(System.Web.HttpContext.Current.Session.Get("tvinci_watcher_" + sTVinciGUID).ToString());
                 }
                 catch { }
             }
@@ -957,40 +957,41 @@ namespace TVinciShared
             DataTable dt = null;
             string sWSURL = string.Empty;
 
-            try
-            {
-                Lucene_WCF.Service client = new Lucene_WCF.Service();
-                sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore
+            // Arthur: Removed Lucene_WCF
+            //try
+            //{
+            //    //Lucene_WCF.Service client = new Lucene_WCF.Service();
+            //    sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore
 
-                if (!String.IsNullOrEmpty(sWSURL))
-                    client.Url = sWSURL;
+            //    if (!String.IsNullOrEmpty(sWSURL))
+            //        client.Url = sWSURL;
 
-                log.Debug("GetChannelMedias - "+ string.Format("group:{0}, channel:{1}, lucene_url:{2}", m_nGroupID, m_nChannelID, client.Url));
+            //    log.Debug("GetChannelMedias - "+ string.Format("group:{0}, channel:{1}, lucene_url:{2}", m_nGroupID, m_nChannelID, client.Url));
 
-                var medias = client.GetChannelMedias(m_nGroupID, m_nChannelID, m_nLangID, nFileTypes, bOnlyActiveMedias, bUseStartDate, m_nDevicesRules, 0, 0, 0);
-                if (medias == null)
-                {
-                    return null;
-                }
+            //    var medias = client.GetChannelMedias(m_nGroupID, m_nChannelID, m_nLangID, nFileTypes, bOnlyActiveMedias, bUseStartDate, m_nDevicesRules, 0, 0, 0);
+            //    if (medias == null)
+            //    {
+            //        return null;
+            //    }
 
-                dt = new DataTable();
-                dt.Columns.Add("id");
+            //    dt = new DataTable();
+            //    dt.Columns.Add("id");
 
-                DataRow dataRow = dt.NewRow();
+            //    DataRow dataRow = dt.NewRow();
 
-                foreach (int media in medias.m_resultIDs)
-                {
-                    dataRow["id"] = media.ToString();
-                    dt.Rows.Add(dataRow);
-                    dataRow = dt.NewRow();
-                }
+            //    foreach (int media in medias.m_resultIDs)
+            //    {
+            //        dataRow["id"] = media.ToString();
+            //        dt.Rows.Add(dataRow);
+            //        dataRow = dt.NewRow();
+            //    }
 
-                log.Debug("GetChannelMedias - "+ string.Format("channel:{0}, res:{1}", m_nChannelID, medias.n_TotalItems));
-            }
-            catch (Exception ex)
-            {
-                log.Error("GetChannelMedias - Error - " + string.Format("cahnnel:{0}, ex:{1}", m_nChannelID, ex.Message), ex);
-            }
+            //    log.Debug("GetChannelMedias - "+ string.Format("channel:{0}, res:{1}", m_nChannelID, medias.n_TotalItems));
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.Error("GetChannelMedias - Error - " + string.Format("cahnnel:{0}, ex:{1}", m_nChannelID, ex.Message), ex);
+            //}
 
             return dt;
         }

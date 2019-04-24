@@ -451,12 +451,12 @@ namespace TVinciShared
                 if (string.IsNullOrEmpty(sDirectory))
                 {
                     if (HttpContext.Current != null)
-                        sBasePath = HttpContext.Current.Server.MapPath("");
+                        sBasePath = HttpContext.Current.ServerMapPath("");
                     else
                     {
-                        if (!string.IsNullOrEmpty(HttpRuntime.AppDomainAppPath))
+                        if (!string.IsNullOrEmpty(AppDomain.CurrentDomain.BaseDirectory))
                         {
-                            sBasePath = HttpRuntime.AppDomainAppPath;
+                            sBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"bin");
                         }
                         else
                             sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -655,7 +655,7 @@ namespace TVinciShared
                 {
                     case eHttpRequestType.Post:
 
-                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING");
+                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING", 120);
                         if (imageServerUrlObj == null || string.IsNullOrWhiteSpace(imageServerUrlObj.ToString()))
                             log.ErrorFormat(string.Format("INTERNAL_IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
                         else
@@ -667,7 +667,7 @@ namespace TVinciShared
 
                     case eHttpRequestType.Get:
 
-                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING");
+                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING", 120);
                         if (imageServerUrlObj == null || string.IsNullOrWhiteSpace(imageServerUrlObj.ToString()))
                             log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
                         else
@@ -679,7 +679,7 @@ namespace TVinciShared
 
                     case eHttpRequestType.Delete:
 
-                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING");
+                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING", 120);
                         if (imageServerUrlObj == null || string.IsNullOrWhiteSpace(imageServerUrlObj.ToString()))
                             log.ErrorFormat(string.Format("INTERNAL_IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
                         else

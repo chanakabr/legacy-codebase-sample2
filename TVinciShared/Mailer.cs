@@ -1,13 +1,5 @@
 using System;
-using System.Data;
-using System.Configuration;
 using System.Web;
-using System.Web.Mail;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using System.Xml;
 using System.Net.Mail;
 using KLogMonitor;
@@ -97,7 +89,7 @@ namespace TVinciShared
         {
             string sAttach = "";
             if (HttpContext.Current != null)
-                sAttach = HttpContext.Current.Server.MapPath("") + "\\";
+                sAttach = HttpContext.Current.ServerMapPath("") + "\\";
             else
                 //get from DB
                 sAttach = m_sBasePath;

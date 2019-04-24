@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
+using ApiObjects.CouchbaseWrapperObjects;
 using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
@@ -17,6 +18,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 
 namespace Tvinci.Core.DAL
 {
@@ -3542,6 +3544,7 @@ namespace Tvinci.Core.DAL
             int enrichments = GetEnrichments(externalChannel.Enrichments);
             sp.AddParameter("@enrichments", enrichments);
             sp.AddParameter("@assetRuleId", externalChannel.AssetUserRuleId);
+            sp.AddParameter("@hasMetadata", externalChannel.MetaData != null);
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -3585,6 +3588,11 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@enrichments", enrichments);
             sp.AddParameter("@assetRuleId", externalChannel.AssetUserRuleId);
 
+            if (externalChannel.MetaData != null)
+            {
+                sp.AddParameter("@hasMetadata",  externalChannel.MetaData.Any());
+            }
+
             DataSet ds = sp.ExecuteDataSet();
 
             externalChannelRes = SetExternalChannel(ds);
@@ -3618,6 +3626,8 @@ namespace Tvinci.Core.DAL
             int enrichmentsVal = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENRICHMENTS");
             result.Enrichments = SetEnrichments(enrichmentsVal);
             result.AssetUserRuleId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ASSET_RULE_ID");
+            result.HasMetadata = ODBCWrapper.Utils.ExtractBoolean(dr, "HAS_METADATA");
+
             return result;
         }
 
@@ -5304,15 +5314,44 @@ namespace Tvinci.Core.DAL
                 }
 
                 result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
+                SaveChannelMetaData(result.ID, eChannelType.External, channel.MetaData);
             }
 
             return result;
+        }
+               
+        public static void SaveChannelMetaData(int id, eChannelType channelType, Dictionary<string, string> metaData)
+        {
+            var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
+            UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBChannelMetaData { Id = id, MetaData = metaData }, true);
+        }
+
+        public static void DeleteChannelMetaData(int id, eChannelType channelType)
+        {
+            var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
+            UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static Dictionary<string, string> GetChannelMetadataById(int id, eChannelType channelType)
+        {
+            var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
+            var res = UtilsDal.GetObjectFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, key, true);
+
+            return res.MetaData;
+        }
+
+        public static Dictionary<int, Dictionary<string, string>> GetChannelsMetadataByIds(List<int> ids, eChannelType channelType)
+        {
+            var keys = ids.Select(id => CBChannelMetaData.CreateChannelMetaDataKey(id, channelType));
+            var res = UtilsDal.GetObjectListFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, keys.ToList(), true);
+
+            return res.ToDictionary(x => x.Id, x => x.MetaData);
         }
 
         public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int? isActive, int orderBy, int orderByDir, string orderByValue, int? isSlidingWindow,
                                             int? slidingWindowPeriod, int channelType, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages,
                                             List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId,
-                                            bool supportSegmentBasedOrdering, long? assetUserRuleId)
+                                            bool supportSegmentBasedOrdering, long? assetUserRuleId, bool hasMetadata)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5340,6 +5379,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@UpdaterID", userId);
             sp.AddParameter("@supportSegmentBasedOrdering", supportSegmentBasedOrdering);
             sp.AddParameter("@assetRuleId", assetUserRuleId);
+            sp.AddParameter("@hasMetadata", hasMetadata);
 
             return sp.ExecuteDataSet();
         }
@@ -5349,7 +5389,7 @@ namespace Tvinci.Core.DAL
             int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy,
             List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
             List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering,
-            long? assetUserRuleId, int assetTypesValuesInd, int? channelType = null)
+            long? assetUserRuleId, int assetTypesValuesInd, bool? hasMetadata, int? channelType = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5378,6 +5418,11 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@supportSegmentBasedOrdering", supportSegmentBasedOrdering);
             sp.AddParameter("@ChannelType", channelType);
             sp.AddParameter("@AssetRuleId", assetUserRuleId);
+
+            if (hasMetadata.HasValue)
+            {
+                sp.AddParameter("@hasMetadata", hasMetadata.Value);
+            }
 
             return sp.ExecuteDataSet();
         }

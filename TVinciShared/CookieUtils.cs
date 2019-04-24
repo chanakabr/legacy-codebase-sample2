@@ -2,13 +2,22 @@ using System;
 using System.Data;
 using System.Configuration;
 using System.Web;
+
+using KLogMonitor;
+using System.Reflection;
+
+#if NET452
 using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
-using KLogMonitor;
-using System.Reflection;
+#endif
+
+#if NETSTANDARD2_0
+using Microsoft.AspNetCore.Http;
+#endif
+
 namespace TVinciShared
 {
     /// <summary>
@@ -77,6 +86,7 @@ namespace TVinciShared
             //HttpContext.Current.Response.Cookies["ASP.NET_SessionId"].Domain = sDomain;
         }
 
+#if NET452
         static public bool SetCookie(string cookiename, string cookievalue, int iMinToExpire)
         {
             try
@@ -98,6 +108,7 @@ namespace TVinciShared
             }
             return true;
         }
+
 
         static public string GetCookie(string cookiename)
         {
@@ -125,5 +136,55 @@ namespace TVinciShared
 
             return cookyval;
         }
+#endif
+
+
+
+#if NETSTANDARD2_0
+        static public bool SetCookie(string cookiename, string cookievalue, int iMinToExpire)
+        {
+            try
+            {
+                var option = new CookieOptions();
+                option.Expires = DateTime.Now.AddMinutes(iMinToExpire);
+                option.Domain = ".tvinci.com";
+                System.Web.HttpContext.Current.Response.Cookies.Append(cookiename, cookievalue, option);
+            }
+            catch (Exception e)
+            {
+                string s = e.Message;
+                log.Error("exception - " + s, e);
+                return false;
+            }
+            return true;
+        }
+
+        static public string GetCookie(string cookiename)
+        {
+            string cookyval = "";
+
+            try
+            {
+                if (System.Web.HttpContext.Current.Request.Cookies[cookiename] == null)
+                {
+                    return cookyval;
+                }
+
+                cookyval = System.Web.HttpContext.Current.Request.Cookies[cookiename];
+                string sCN = cookyval.ToLower();
+                if (sCN.IndexOf(cookiename.ToLower() + "=") == 0)
+                {
+                    cookyval = cookyval.Substring(cookiename.Length + 1);
+                }
+            }
+            catch (Exception e)
+            {
+                string s = e.Message;
+                cookyval = "";
+            }
+
+            return cookyval;
+        }
+#endif
     }
 }

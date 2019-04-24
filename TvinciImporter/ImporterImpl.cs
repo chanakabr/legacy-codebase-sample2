@@ -6273,7 +6273,7 @@ namespace TvinciImporter
                                         parentGroupID, actionCatalog);
 
                                     string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                    log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
+                                    log.DebugFormat("Update index {0} in catalog '{1}' for epg ids {2}", sInfo, sEndPointAddress, string.Join(",", epgIds));
 
                                     wsCatalog.Close();
                                 }

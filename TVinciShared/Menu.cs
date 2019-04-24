@@ -1,12 +1,5 @@
 using System;
-using System.Data;
-using System.Configuration;
 using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
@@ -108,7 +101,7 @@ namespace TVinciShared
         static protected Int32 GetOriginalMenuIDByURL(Int32 nParentID, string sURL, bool bRemoveQuery)
         {
             if (sURL == "")
-                sURL = HttpContext.Current.Request.Url.PathAndQuery;
+                sURL = HttpContext.Current.Request.GetUrl().PathAndQuery;
             Int32 nL = sURL.LastIndexOf("/");
             if (nL != -1)
                 sURL = sURL.Substring(nL + 1);
@@ -117,7 +110,7 @@ namespace TVinciShared
             sURL = sURL.Replace("_translate", "");
             if (bRemoveQuery == true)
             {
-                string sQuery = HttpContext.Current.Request.Url.Query;
+                string sQuery = HttpContext.Current.Request.GetUrl().Query;
                 if (sQuery != "")
                     sURL = sURL.Replace(sQuery, "");
             }

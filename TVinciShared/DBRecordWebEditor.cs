@@ -1,14 +1,7 @@
 using System;
 using System.Data;
-using System.Configuration;
 using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using System.Text;
-using System.Collections.Generic;
 using System.Runtime.Caching;
 
 namespace TVinciShared
@@ -368,7 +361,7 @@ namespace TVinciShared
             sTmp.Append("dir='").Append(m_sDir).Append("' ");
             sTmp.Append("size=").Append(m_nWidth.ToString()).Append(" ");
             sTmp.Append("maxlength=").Append(m_nMaxLength.ToString()).Append(" ");
-            m_sStartValue = HttpContext.Current.Server.HtmlDecode(m_sStartValue).Replace("\"", "''");
+            m_sStartValue = HttpUtility.HtmlDecode(m_sStartValue).Replace("\"", "''");
             if (m_sStartValue != "")
                 sTmp.Append("value=\"").Append(m_sStartValue.ToString()).Append("\" ");
             sTmp.Append("/>");
@@ -706,7 +699,7 @@ namespace TVinciShared
             //string sIFRameLink = "adm_video_player.aspx?cdnid=" + sCDNID.ToString() + "&cdntype=" + sCDNType.ToString() + "&streamid=" + sStreamID.ToString();
             //string sTVBOXLink = "tvbox.aspx?clip=" + m_nID.ToString();
             string sRet = "";
-            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&cdn_type=" + sCDNType + "&flv=" + HttpContext.Current.Server.UrlEncode(GetFLVSrc()) + "&autoplay=true";
+            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&cdn_type=" + sCDNType + "&flv=" + HttpUtility.UrlEncode(GetFLVSrc()) + "&autoplay=true";
             sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&media_file_id=" + m_nID.ToString() + "&autoplay=true";
             sRet += "\" WIDTH=\"480\" HEIGHT=\"400\" FRAMEBORDER=\"0\"></IFRAME>";
             if (sStreamID != "")
@@ -723,7 +716,7 @@ namespace TVinciShared
             //string sIFRameLink = "adm_video_player.aspx?cdnid=" + sCDNID.ToString() + "&cdntype=" + sCDNType.ToString() + "&streamid=" + sStreamID.ToString();
             //string sTVBOXLink = "tvbox.aspx?clip=" + m_nID.ToString();
             string sRet = "";
-            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&cdn_type=" + sCDNType + "&flv=" + HttpContext.Current.Server.UrlEncode(GetFLVSrc()) + "&autoplay=false";
+            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&cdn_type=" + sCDNType + "&flv=" + HttpUtility.UrlEncode(GetFLVSrc()) + "&autoplay=false";
             sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&media_file_id=" + m_nID.ToString() + "&autoplay=false";
             sRet += "\" WIDTH=\"200\" HEIGHT=\"175\" FRAMEBORDER=\"0\"></IFRAME>";
             if (sStreamID != "")
@@ -973,9 +966,9 @@ namespace TVinciShared
             string sCodeField = m_sPreField + "ADDITIONAL_DATA";
             object sCode = "";
             if (nCacheSec > 0)
-                sCode = HttpContext.Current.Server.HtmlDecode(ODBCWrapper.Utils.GetTableSingleVal(m_sTable, sCodeField, m_nID, nCacheSec).ToString()).Replace("<br\\>", "");
+                sCode = HttpUtility.HtmlDecode(ODBCWrapper.Utils.GetTableSingleVal(m_sTable, sCodeField, m_nID, nCacheSec).ToString()).Replace("<br\\>", "");
             else
-                sCode = HttpContext.Current.Server.HtmlDecode(ODBCWrapper.Utils.GetTableSingleVal(m_sTable, sCodeField, m_nID).ToString()).Replace("<br\\>", "");
+                sCode = HttpUtility.HtmlDecode(ODBCWrapper.Utils.GetTableSingleVal(m_sTable, sCodeField, m_nID).ToString()).Replace("<br\\>", "");
             return sCode.ToString();
         }
 
@@ -1132,7 +1125,7 @@ namespace TVinciShared
                         sRet = sRet.Replace("!--config_data--", "brt=" + GetConfigData(7200));
                     }
                 }
-                sRet = HttpContext.Current.Server.HtmlDecode(sRet).Replace("''", "\"");
+                sRet = HttpUtility.HtmlDecode(sRet).Replace("''", "\"");
                 return sRet;
             }
             return "";
@@ -1149,7 +1142,7 @@ namespace TVinciShared
             string sRet = "";
             //if (m_nMediaType == 1)
             //{
-            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&cdn_type=" + sCDNType + "&flv=" + HttpContext.Current.Server.UrlEncode(GetFLVSrc()) + "&autoplay=false";
+            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&cdn_type=" + sCDNType + "&flv=" + HttpUtility.UrlEncode(GetFLVSrc()) + "&autoplay=false";
             sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&media_file_id=" + m_nID.ToString() + "&autoplay=false";
             sRet += "\" WIDTH=\"480\" HEIGHT=\"400\" FRAMEBORDER=\"0\"></IFRAME>";
             if (sStreamID != "")
@@ -1169,7 +1162,7 @@ namespace TVinciShared
             string sRet = "";
             //if (m_nMediaType == 1)
             //{
-            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&cdn_type=" + sCDNType + "&flv=" + HttpContext.Current.Server.UrlEncode(GetFLVSrc()) + "&autoplay=false";
+            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&cdn_type=" + sCDNType + "&flv=" + HttpUtility.UrlEncode(GetFLVSrc()) + "&autoplay=false";
             sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&media_file_id=" + m_nID.ToString() + "&autoplay=false";
             sRet += "\" WIDTH=\"200\" HEIGHT=\"200\" FRAMEBORDER=\"0\"></IFRAME>";
             if (sStreamID != "")
@@ -3427,7 +3420,7 @@ namespace TVinciShared
                 if (s.Length == 2 && m_bIsPic == true)
                 {
                     string sPic = s[0] + "_tn." + s[1];
-                    string sFullPath = HttpContext.Current.Server.MapPath("") + "\\" + m_sDir + "\\" + sPic;
+                    string sFullPath = HttpContext.Current.ServerMapPath("") + "\\" + m_sDir + "\\" + sPic;
                     if (System.IO.File.Exists(sFullPath) == true)
                     {
                         sTmp += "<img src=\"";
@@ -3447,7 +3440,7 @@ namespace TVinciShared
             if (s.Length == 2 && m_bIsPic == false)
             {
                 string sPic = s[0] + "." + s[1];
-                string sFullPath = HttpContext.Current.Server.MapPath("") + "\\" + m_sDir + "\\" + sPic;
+                string sFullPath = HttpContext.Current.ServerMapPath("") + "\\" + m_sDir + "\\" + sPic;
                 string sPicURL = "<a href=\"" + "http://tvm.tvinci.com/" + m_sDir + "/" + sPic + "\" target=\"_blank\">" + sPic + "</a>";
                 if (System.IO.File.Exists(sFullPath) == true)
                 {
@@ -3459,7 +3452,7 @@ namespace TVinciShared
             sTmp += "</br>";
             sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='file' ";
             sTmp += "size=" + m_nWidth.ToString() + " ";
-            m_sStartValue = HttpContext.Current.Server.HtmlDecode(m_sStartValue).Replace("\"", "''");
+            m_sStartValue = HttpUtility.HtmlDecode(m_sStartValue).Replace("\"", "''");
             if (m_sStartValue != "")
                 sTmp += "value=\"" + m_sStartValue.ToString() + "\" ";
             sTmp += "/>";
@@ -3899,13 +3892,13 @@ namespace TVinciShared
 
         protected string GetUpperString()
         {
-            if (HttpContext.Current.Session["error_msg"] == null)
+            if (HttpContext.Current.Session.Get("error_msg") == null)
                 return "";
-            if (HttpContext.Current.Session["error_msg"].ToString() == "")
+            if (HttpContext.Current.Session.Get("error_msg").ToString() == "")
                 return "";
             string sTmp = "<tr><td><table width=100% cellpadding=0 cellspacing=1 class='" + m_sUpperCss + "' ><tr height=20px ><td class=alert_text nowrap>";
-            if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
-                sTmp += HttpContext.Current.Session["error_msg"].ToString();
+            if (HttpContext.Current.Session.Get("error_msg") != null && HttpContext.Current.Session.Get("error_msg").ToString() != "")
+                sTmp += HttpContext.Current.Session.Get("error_msg").ToString();
             sTmp += "</td><td width=100% nowrap></td></tr></table></td></tr>";
             return sTmp;
         }
@@ -3926,7 +3919,7 @@ namespace TVinciShared
 
         protected string GetCurrentPageURL()
         {
-            string sURL = HttpContext.Current.Request.FilePath.ToString();
+            string sURL = HttpContext.Current.Request.GetFilePath().ToString();
             Int32 nStart = sURL.LastIndexOf('/');
             Int32 nEnd = sURL.Length;
             string sPage = sURL.Substring(nStart + 1, nEnd - nStart - 1);
@@ -4024,7 +4017,7 @@ namespace TVinciShared
 
         public void SaveTable(string sTable)
         {
-            HttpContext.Current.Session["last_page_html"] = sTable;
+            HttpContext.Current.Session.Set("last_page_html", sTable);
         }
 
         public string GetTableHTML(string thePage)

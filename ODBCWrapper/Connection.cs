@@ -30,6 +30,7 @@ namespace ODBCWrapper
             if (connString.ToLower().Contains(DB_NAME_CONNECTION_STRING_TEMPLATE) && !string.IsNullOrEmpty(dbName))
                 connString = Regex.Replace(connString, DB_NAME_CONNECTION_STRING_TEMPLATE, dbName, RegexOptions.IgnoreCase);
 
+            //_Log.Debug($"Connecting to DB using: [{connString}]");
             return connString;
         }
 

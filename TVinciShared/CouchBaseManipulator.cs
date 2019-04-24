@@ -21,10 +21,10 @@ namespace TVinciShared
         public static int DoTheWork(ref EpgCB epg, Dictionary<int, string> dMetaTyps, Dictionary<int, string> dTagTyps)
         {
             int nID = 0;
-            NameValueCollection coll = HttpContext.Current.Request.Form;
+            NameValueCollection coll = HttpContext.Current.Request.GetForm();
             if (coll["table_name"] == null)
             {
-                HttpContext.Current.Session["error_msg"] = "missing table name - cannot update";
+                HttpContext.Current.Session.Set("error_msg", "missing table name - cannot update");
                 EndOfAction();
             }
 
@@ -48,10 +48,10 @@ namespace TVinciShared
         public static int SavePicture(ref EpgCB epg)
         {
             int nID = 0;
-            NameValueCollection coll = HttpContext.Current.Request.Form;
+            NameValueCollection coll = HttpContext.Current.Request.GetForm();
             if (coll["table_name"] == null)
             {
-                HttpContext.Current.Session["error_msg"] = "missing table name - cannot update";
+                HttpContext.Current.Session.Set("error_msg", "missing table name - cannot update");
                 EndOfAction();
             }
 
@@ -317,11 +317,11 @@ namespace TVinciShared
                     }
                     else if (sFieldName.Trim().ToLower() == "start_date" && sType == "datetime")
                     {
-                        epg.StartDate = getDateTime(sVal, nCounter, ref  coll, ref bValid);
+                        epg.StartDate = getDateTime(sVal, nCounter, ref coll, ref bValid);
                     }
                     else if (sFieldName.Trim().ToLower() == "end_date" && sType == "datetime")
                     {
-                        epg.EndDate = getDateTime(sVal, nCounter, ref  coll, ref bValid);
+                        epg.EndDate = getDateTime(sVal, nCounter, ref coll, ref bValid);
                     }
                     else if (sFieldName.Trim().ToLower() == "pic_id" && sType == "int")
                     {
@@ -401,7 +401,7 @@ namespace TVinciShared
                     if (sFieldName.Trim() == "CRID" && (sType == "string" || sType == "long_string"))
                     {
                         epg.Crid = DBStrEncode(sVal);
-                    }                  
+                    }
                     nCounter++;
                 }
             }
@@ -423,7 +423,7 @@ namespace TVinciShared
             string baseURL = string.Empty;
             string sBasePath = PageUtils.GetBasePicURL(nGroupID);
             string sFileObjName = nCounter.ToString() + "_val";
-            HttpPostedFile theFile = HttpContext.Current.Request.Files[sFileObjName];
+            var theFile = HttpContext.Current.Request.GetFiles()[sFileObjName];
             string sUploadedFile = "";
             string sUploadedFileExt = "";
 
@@ -507,7 +507,7 @@ namespace TVinciShared
                                     log.Debug("Ratio found - Ratio is :" + sRatio);
                                     if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
                                     {
-                                        log.Debug("Ratio un-matched - "+ selectedRatioVal);
+                                        log.Debug("Ratio un-matched - " + selectedRatioVal);
                                         isResize = false;
                                     }
                                     else
@@ -554,7 +554,7 @@ namespace TVinciShared
                     }
                     else
                     {
-                        sBasePath = HttpContext.Current.Server.MapPath("");
+                        sBasePath = HttpContext.Current.ServerMapPath("");
                         string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
 
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
@@ -616,12 +616,12 @@ namespace TVinciShared
                                     }
                                     else
                                     {
-                                        log.Debug("Ratio matched - "+ sTmpImage);
+                                        log.Debug("Ratio matched - " + sTmpImage);
                                     }
                                 }
                                 else
                                 {
-                                    log.Debug("Ratio not found - "+ sTmpImage);
+                                    log.Debug("Ratio not found - " + sTmpImage);
                                 }
                                 if (isResize)
                                 {
