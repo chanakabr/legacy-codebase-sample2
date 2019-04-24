@@ -4524,7 +4524,7 @@ namespace DAL
             return false;
         }
 
-        public static DataTable UpdateMediaCountry(int groupId, long ruleId)
+        public static DataTable UpdateMediaCountries(int groupId, long ruleId, List<int> countryIds = null)
         {
             DataTable dt = null;
             try
@@ -4533,6 +4533,7 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@ruleId", ruleId);
                 sp.AddParameter("@status", 2);
+                sp.AddIDListParameter("@countryIds", countryIds != null ? countryIds : new List<int>(), "ID");
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -4544,6 +4545,32 @@ namespace DAL
             catch (Exception ex)
             {
                 log.Error("Error while update media country", ex);
+            }
+
+            return dt;
+        }
+
+        public static DataTable UpdateMediaCountries(int groupId, long ruleId, bool isAllowed)
+        {
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountries");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ruleId", ruleId);
+                sp.AddParameter("@status", 2);
+                sp.AddParameter("@isAllowed", isAllowed ? 1 : 0);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dt = ds.Tables[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while UpdateMediaCountries", ex);
             }
 
             return dt;
