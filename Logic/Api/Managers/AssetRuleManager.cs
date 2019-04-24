@@ -1104,7 +1104,7 @@ namespace Core.Api.Managers
         
         private static void ResetMediaCountries(int groupId, long ruleId)
         {
-            DataTable mediaTable = ApiDAL.UpdateMediaCountry(groupId, ruleId);
+            DataTable mediaTable = ApiDAL.UpdateMediaCountries(groupId, ruleId);
             if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
             {
                 List<int> mediaIds = new List<int>();
@@ -1163,8 +1163,9 @@ namespace Core.Api.Managers
             var oldRuleResopnse = GetAssetRule(groupId, assetRule.Id);
             if (oldRuleResopnse != null && oldRuleResopnse.HasObject())
             {
+                List<int> updatedMediaIds = new List<int>();
                 var oldRule = oldRuleResopnse.Object;
-                
+                DataTable mediaTable;
                 //1. countries
                 HashSet<int> oldCountries = GetRuleCountriesList(groupId, oldRule);
                 HashSet<int> newCountries = GetRuleCountriesList(groupId, assetRule);
@@ -1172,10 +1173,18 @@ namespace Core.Api.Managers
                 var toRemove = oldCountries.Where(x => !newCountries.Contains(x)).ToList();
                 if (toRemove != null && toRemove.Count > 0)
                 {
-                    //get assets with rule+countries
+                    //get assets with rule+countries - TODO: IRA - why do we need this?
                     //remove from table
+                    mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, toRemove);
+                    if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in mediaTable.Rows)
+                        {
+                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                            updatedMediaIds.Add(mediaId);
+                        }
+                    }
                 }
-
                 //2. Ksql
                 List<AssetCondition> oldKsqlConditions = oldRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
                 List<AssetCondition> newKsqlConditions = assetRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
@@ -1188,6 +1197,16 @@ namespace Core.Api.Managers
                 if (oldAssetActionBlock != null && newAssetActionBlock == null)
                 {
                     //remove block from table
+                    mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, false);
+                    if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in mediaTable.Rows)
+                        {
+                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                            updatedMediaIds.Add(mediaId);
+                        }
+                        updatedMediaIds = updatedMediaIds.Distinct().ToList();
+                    }
                 }
 
                 //4. StartDate
@@ -1196,6 +1215,16 @@ namespace Core.Api.Managers
                 if (oldAssetActionStartDate != null && newAssetActionStartDate == null)
                 {
                     //remove allowd from table
+                    mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, true);
+                    if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in mediaTable.Rows)
+                        {
+                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                            updatedMediaIds.Add(mediaId);
+                        }
+                    }
+                    updatedMediaIds = updatedMediaIds.Distinct().ToList();
                 }
 
                 if (oldAssetActionStartDate != null && newAssetActionStartDate != null)
@@ -1213,6 +1242,16 @@ namespace Core.Api.Managers
                 if (oldAssetActionEndDate != null && newAssetActionEndDate == null)
                 {
                     //remove allowd from table
+                    mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, true);
+                    if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in mediaTable.Rows)
+                        {
+                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                            updatedMediaIds.Add(mediaId);
+                        }
+                    }
+                    updatedMediaIds = updatedMediaIds.Distinct().ToList();
                 }
 
                 if (oldAssetActionStartDate != null && newAssetActionStartDate != null)
