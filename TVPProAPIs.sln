@@ -26,7 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generator", "Generator\Gene
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvinciCache", "..\tvmcore\TvinciCache\TvinciCache.csproj", "{D57B2371-DA31-4035-8B00-6A6D0256EC00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVinciShared", "..\tvmcore\TVinciShared\TVinciShared.csproj", "{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVinciShared", "..\tvmcore\TVinciShared\TVinciShared.csproj", "{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ODBCWrapper", "..\tvmcore\ODBCWrapper\ODBCWrapper.csproj", "{48CB3B25-623B-4500-8E88-2E77A7074238}"
 EndProject
@@ -106,7 +106,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventManager", "..\tvmcore\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiObjects", "..\Core\ApiObjects\ApiObjects.csproj", "{6E476AD6-433C-4345-A26D-0E34BC03D9A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiLogic", "..\Core\Logic\ApiLogic.csproj", "{27C6F3ED-B660-466A-9415-DE2D43E58FF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiLogic", "..\Core\Logic\ApiLogic.csproj", "{27C6F3ED-B660-466A-9415-DE2D43E58FF0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADIFeeder", "..\tvmcore\ADIFeeder\ADIFeeder.csproj", "{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}"
 EndProject
@@ -696,12 +696,12 @@ Global
 		{6E476AD6-433C-4345-A26D-0E34BC03D9A9}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{6E476AD6-433C-4345-A26D-0E34BC03D9A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E476AD6-433C-4345-A26D-0E34BC03D9A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.Build.0 = Local|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.Build.0 = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -932,7 +932,7 @@ Global
 		{6476E4B4-7BCD-4989-8EA3-D09AE83E4A34} = {6BFFB0D0-FC88-4A56-881B-345E07928B3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal

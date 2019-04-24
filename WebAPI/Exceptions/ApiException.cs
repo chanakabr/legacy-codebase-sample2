@@ -291,7 +291,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ILLEGAL_EXCEL_FILE = new ClientExceptionType(eResponseStatus.IllegalExcelFile, "Illegal Excel File", "The Excel is formatted incorrectly. Please check the file for format errors");
         public static ClientExceptionType ENQUEUE_FAILED = new ClientExceptionType(eResponseStatus.EnqueueFailed, "Enqueue Failed", "Enqueue object to Celery queue failed");
         public static ClientExceptionType EXCEL_MANDTORY_VALUE_IS_MISSING = new ClientExceptionType(eResponseStatus.ExcelMandatoryValueIsMissing, "Mandatory Value In Excel File Is Missing", "One of the mandatory values in the excel is missing");
-        public static ClientExceptionType INVALID_AGRUMENT_VALUE = new ClientExceptionType(eResponseStatus.InvalidArgumentValue, "Invalid Argument Value", "Argument value is not the correct type");
+        
         #endregion
 
         #region Billing 6000 - 6999
