@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.156
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0CB48298-7017-415C-8732-6542C9A88F45}"
 	ProjectSection(SolutionItems) = preProject
@@ -64,9 +64,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UploadQueue", "..\tvmcore\F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageManager", "..\tvmcore\ImageManager\ImageManager.csproj", "{145E19BB-EA2E-430A-8CA6-707877D53D02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkamaiTokenGenerator", "..\tvmcore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj", "{4E22204A-9560-4E78-8805-EFED0D0EEC9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AkamaiTokenGenerator", "..\tvmcore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj", "{4E22204A-9560-4E78-8805-EFED0D0EEC9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLNWMediaVault", "..\tvmcore\LLNWMediaVault\LLNWMediaVault.csproj", "{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLNWMediaVault", "..\tvmcore\LLNWMediaVault\LLNWMediaVault.csproj", "{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M1BL", "..\tvmcore\M1BL\M1BL.csproj", "{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}"
 EndProject
@@ -356,12 +356,12 @@ Global
 		{D57B2371-DA31-4035-8B00-6A6D0256EC00}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{D57B2371-DA31-4035-8B00-6A6D0256EC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D57B2371-DA31-4035-8B00-6A6D0256EC00}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Local|Any CPU.Build.0 = Local|Any CPU
+		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Local|Any CPU.Build.0 = Release|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -932,7 +932,7 @@ Global
 		{6476E4B4-7BCD-4989-8EA3-D09AE83E4A34} = {6BFFB0D0-FC88-4A56-881B-345E07928B3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal

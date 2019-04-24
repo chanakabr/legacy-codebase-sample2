@@ -377,42 +377,26 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(RequestType), action), type, property);
         }
 
-        internal static bool IsPriviligesPermitted(string @object, string property)
+        /// <summary>
+        /// Checks if a property of an object is allowed
+        /// </summary>
+        /// <param name="type">Type name</param>
+        /// <param name="property">Property name</param>
+        /// <param name="action">Required action</param>
+        /// <param name="silent">Fail silently</param>
+        /// <returns>True if the property is permitted, false otherwise</returns>
+        internal static bool IsPropertyPermitted(string type, string property, RequestType action, bool silent = false)
         {
-            KS ks;
-
             try
             {
-                ks = getKS(false);
+                ValidatePropertyPermitted(type, property, action, silent);
+                return true;
             }
-            catch (UnauthorizedException ex)
+            catch
             {
-                if (ex.Code == (int)StatusCode.ServiceForbidden)
-                {
-                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, @object, property);
-                }
-
-                throw;
+                return false;
             }
 
-            List<long> roleIds = GetRoleIds(ks);
-
-            // no roles found for the user
-            if (roleIds == null || roleIds.Count == 0)
-                throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, @object, property);
-
-            string usersGroup = null;
-            return IsPriviligesPermittedForRoles(ks.GroupId, @object, property, roleIds, out usersGroup);
-        }
-
-        private static bool IsPriviligesPermittedForRoles(int groupId, string type, string property, List<long> roleIds, out string usersGroup)
-        {
-            usersGroup = null;
-            StringBuilder usersGroupStringBuilder = new StringBuilder();
-
-            // build the key for the service action key for roles schema (permission items - roles dictionary)
-            string objectPropertyKey = string.Format("{0}_{1}", type, property).ToLower();
-            return IsPermittedForRoles(groupId, objectPropertyKey, roleIds, out usersGroup);
         }
 
         /// <summary>

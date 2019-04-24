@@ -38,20 +38,13 @@ namespace WebAPI.Controllers
             }
 
             var payload = KSUtils.ExtractKSPayload(ks);
-
-            // return priviliges only for Opertator user
-            string privileges = string.Empty;
-            if (RolesManager.IsPriviligesPermitted("KalturaSession", "Priviliges"))
-            {
-                privileges = KS.JoinPrivileges(ks.Privileges, ",", ":");
-            }
             
             return new KalturaSession()
             {
                 ks = ks.ToString(),
                 expiry = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
                 partnerId = ks.GroupId,
-                privileges = privileges,
+                privileges = KS.JoinPrivileges(ks.Privileges, ",", ":"),
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
                 udid = payload.UDID,

@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using TVinciShared;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -65,6 +66,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "privileges")]
         [JsonProperty(PropertyName = "privileges")]
         [XmlElement("privileges")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public string privileges { get; set; }
 
         /// <summary>

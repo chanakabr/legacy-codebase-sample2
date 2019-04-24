@@ -992,6 +992,10 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadProgramAssetResult":
                     switch(property.Name)
                     {
+                        case "LiveAssetExternalId":
+                            return "liveAssetExternalId";
+                        case "LiveAssetId":
+                            return "liveAssetId";
                         case "ProgramExternalId":
                             return "programExternalId";
                         case "ProgramId":
@@ -1202,6 +1206,8 @@ namespace WebAPI.Reflection
                             return "isActive";
                         case "MediaTypes":
                             return "media_types";
+                        case "MetaData":
+                            return "metaData";
                         case "Name":
                             return "name";
                         case "OldDescription":
@@ -2274,6 +2280,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IsActive":
                             return "isActive";
+                        case "MetaData":
+                            return "metaData";
                         case "Name":
                             return "name";
                         case "RecommendationEngineId":
@@ -3986,6 +3994,8 @@ namespace WebAPI.Reflection
                     {
                         case "CurrentUserPermissionsContains":
                             return "currentUserPermissionsContains";
+                        case "RoleIDIn":
+                            return "roleIdIn";
                     }
                     break;
                     
