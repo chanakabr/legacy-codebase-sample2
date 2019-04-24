@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Segmentation
 {
@@ -130,6 +126,6 @@ namespace ApiObjects.Segmentation
         public double? LessThan;
 
         [JsonProperty()]
-        public double? Equals;
+        public new double? Equals { get; set; }
     }
 }
