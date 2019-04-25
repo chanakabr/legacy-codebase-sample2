@@ -129,7 +129,7 @@ namespace Core.Catalog.Response
             GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? TvmRuleManager.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
             DeviceRule = mediaAsset.DeviceRuleId.HasValue ? TvmRuleManager.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
             m_lFiles = FileManager.ConvertFiles(mediaAsset.Files, groupId);
-            m_lPicture = ImageManager.ConvertImagesToPictures(mediaAsset.Images, groupId);
+            m_lPicture = Core.Catalog.CatalogManagement.ImageManager.ConvertImagesToPictures(mediaAsset.Images, groupId);
         }
     }
 

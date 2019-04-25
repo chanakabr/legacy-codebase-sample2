@@ -238,7 +238,7 @@ namespace APILogic.Api.Managers
             return status;
         }
 
-        public static List<Permission> GetGroupPermissions(int groupId)
+        public static List<Permission> GetGroupPermissions(int groupId, long? roleIdIn)
         {
             List<Permission> result = null;
             try
@@ -255,7 +255,12 @@ namespace APILogic.Api.Managers
 
                 if (roles != null && roles.Any())
                 {
-                    result = roles.SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => x.First()).ToList();
+                    if (roleIdIn.HasValue)
+                    {
+                        roles = roles.Where(r => r.Id.Equals(roleIdIn.Value)).ToList();
+                    }
+
+                    result = roles.Where(x => x.Permissions != null).SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => x.First()).ToList();
                 }
             }
             catch (Exception ex)

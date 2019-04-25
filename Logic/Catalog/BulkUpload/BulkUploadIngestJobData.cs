@@ -125,10 +125,10 @@ namespace Core.Catalog
             }
 
             var response = new List<BulkUploadResult>();
-            var programIndex = 1;
+            var programIndex = 0;
             foreach (var prog in xmlTvEpgData.programme)
             {
-                
+                programIndex++;
                 var channelExternalId = prog.channel;
                 // Every channel external id can point to mulitple interbal channels that have to have the same EPG
                 // like channel per region or HD channel vs SD channel etc..
@@ -140,7 +140,7 @@ namespace Core.Catalog
                     {
                         var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, innerChannel.ChannelId, prog, lang.Code, defaultLanguage.Code);
                         newEpgAssetResult.BulkUploadId = bulkUploadId;
-                        if (newEpgAssetResult.Errors.Any())
+                        if (newEpgAssetResult.Errors?.Any() == true)
                         {
                             newEpgAssetResult.Status = BulkUploadResultStatus.Error;
                         }
@@ -149,7 +149,7 @@ namespace Core.Catalog
                             newEpgAssetResult.Status = BulkUploadResultStatus.InProgress;
                         }
 
-                        newEpgAssetResult.Index = programIndex++;
+                        newEpgAssetResult.Index = programIndex;
                         newEpgAssetResult.LiveAssetExternalId = innerChannel.ChannelExternalId;
                         newEpgAssetResult.LiveAssetId = innerChannel.ChannelId;
                         programResults.Add(newEpgAssetResult);

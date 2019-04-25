@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiLogic", "Logic\ApiLogic.csproj", "{27C6F3ED-B660-466A-9415-DE2D43E58FF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiLogic", "Logic\ApiLogic.csproj", "{27C6F3ED-B660-466A-9415-DE2D43E58FF0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiObjects", "ApiObjects\ApiObjects.csproj", "{6E476AD6-433C-4345-A26D-0E34BC03D9A9}"
 EndProject
@@ -147,12 +147,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.Build.0 = Local|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Local|Any CPU.Build.0 = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E476AD6-433C-4345-A26D-0E34BC03D9A9}.Basic|Any CPU.ActiveCfg = Release|Any CPU

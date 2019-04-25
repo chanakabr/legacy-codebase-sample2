@@ -1922,6 +1922,7 @@ namespace Core.Catalog
                 searchObj.m_bUseStartDate = request.m_oFilter.m_bUseStartDate;
                 searchObj.m_bUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 searchObj.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
+                searchObj.m_bUseActive = request.m_oFilter.m_bOnlyActiveMedia;
 
                 searchObj.m_nMediaID = request.m_nMediaID;
                 if (request.m_nMediaTypes != null && request.m_nMediaTypes.Count > 0)
@@ -6170,12 +6171,13 @@ namespace Core.Catalog
                         groupId = request.m_nGroupID,
                         permittedWatchRules = watchRules,
                         specificAssets = new Dictionary<eAssetTypes, List<string>>(),
-                        shouldUseEndDateForEpg = true,
-                        shouldUseStartDateForEpg = true,
                         shouldUseFinalEndDate = true,
                         shouldUseStartDateForMedia = true,
                         shouldAddIsActiveTerm = true,
-                        shouldIgnoreDeviceRuleID = true
+                        shouldIgnoreDeviceRuleID = true,
+                        shouldUseSearchEndDate = true,
+                        shouldUseEndDateForEpg = false,
+                        shouldUseStartDateForEpg = false
                     };
 
                     int elasticSearchPageSize = 0;

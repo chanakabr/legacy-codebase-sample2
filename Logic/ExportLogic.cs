@@ -834,7 +834,7 @@ namespace APILogic
                 // images
                 if (asset.Images != null)
                 {
-                    Dictionary<long, string> ratiosMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                    Dictionary<long, string> ratiosMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId);
 
                     xml.Append("<images>");
                     foreach (var image in asset.Images)
@@ -1030,7 +1030,7 @@ namespace APILogic
                 // images
                 if (program.Images != null)
                 {
-                    Dictionary<long, string> ratiosMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                    Dictionary<long, string> ratiosMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId);
 
                     xml.Append("<images>");
                     foreach (var image in program.Images)

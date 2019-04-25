@@ -7849,7 +7849,7 @@ namespace Core.Api
                             CatalogDAL.DeleteChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
                         }
                     }
-                    else
+                    else if (response.ExternalChannel.HasMetadata)
                     {
                         metaData = CatalogDAL.GetChannelMetadataById(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
                     }
@@ -8440,7 +8440,7 @@ namespace Core.Api
             return result;
         }
 
-        public static ApiObjects.Roles.PermissionsResponse GetGroupPermissions(int groupId)
+        public static ApiObjects.Roles.PermissionsResponse GetGroupPermissions(int groupId, long? roleIdIn)
         {
             PermissionsResponse response = new PermissionsResponse()
             {
@@ -8449,7 +8449,7 @@ namespace Core.Api
 
             try
             {
-                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId);
+                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
                 if (response.Permissions != null)
                 {
                     response.Permissions = response.Permissions.OrderBy(x => x.Id).ToList();

@@ -88,6 +88,8 @@ namespace APILogic.Users
 
                 response.SSOAdapter = DAL.UsersDal.AddSSOAdapters(adapterDetails, updaterId);
 
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(adapterDetails.GroupId));
+
             }
             catch (Exception ex)
             {
@@ -154,6 +156,8 @@ namespace APILogic.Users
                 {
                     response = new Status((int)eResponseStatus.SSOAdapterNotExist, SSO_ADAPTER_NOT_EXIST);
                 }
+
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(groupId));
 
 
             }
