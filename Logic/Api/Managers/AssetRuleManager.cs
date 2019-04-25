@@ -56,27 +56,12 @@ namespace Core.Api.Managers
                 foreach (KeyValuePair<int, List<AssetRule>> pair in allRules)
                 {
                     groupId = pair.Key;
-                    bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
-                    Group group = null;
-                    CatalogGroupCache catalogGroupCache = null;
-                    List<int> mediaTypes = null;
+                    bool isGeoAvailabilityWindowingEnabled;
+                    bool doesGroupUsesTemplates;
+                    List<int> mediaTypes =  GetGroupMediaTypes(groupId, out doesGroupUsesTemplates, out isGeoAvailabilityWindowingEnabled);
 
-                    if (doesGroupUsesTemplates)
-                    {
-                        if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                        {
-                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
-                            return result.Count;
-                        }
-                        mediaTypes = catalogGroupCache.AssetStructsMapById.Values.Where(a => !a.IsProgramAssetStruct).Select(a => (int)a.Id).ToList();
-                    }
-                    else
-                    {
-                        group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
-                        mediaTypes = group.GetMediaTypes();
-                    }
-                                        
-                    if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
+
+                    if (isGeoAvailabilityWindowingEnabled)
                     {
                         List<AssetRule> rules = pair.Value;
                         Task<List<int>>[] tasks = new Task<List<int>>[rules.Count];
@@ -114,39 +99,13 @@ namespace Core.Api.Managers
                         {
                             log.DebugFormat("going to update index for {0} assets", result.Count);
 
-                            if (doesGroupUsesTemplates)
+                            RebuildIndexForMedias(groupId, doesGroupUsesTemplates, result);
+
+                            List<long> ranRules = allRules.Values.SelectMany(ar => ar).Select(ar => ar.Id).ToList();
+                            if (!ApiDAL.UpdateAssetRulesLastRunDate(groupId, ranRules))
                             {
-                                foreach (var assetId in result)
-                                {
-                                    bool indexingResult = Catalog.CatalogManagement.IndexManager.UpsertMedia(groupId, assetId);
-                                    if (!indexingResult)
-                                    {
-                                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}", assetId);
-                                    }
-
-                                    Catalog.CatalogManagement.AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetId);
-                                }
-
+                                log.ErrorFormat("Failed to update asset rule last run date, rule IDs = {0}", string.Join(", ", ranRules));
                             }
-                            else
-                            {
-                                if (Catalog.Module.UpdateIndex(result, groupId, eAction.Update))
-                                {
-                                    log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", result));
-                                    return result.Count;
-                                }
-                                else
-                                {
-                                    log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
-                                    return 0;
-                                }
-                            }
-                        }
-
-                        List<long> ranRules = allRules.Values.SelectMany(ar => ar).Select(ar => ar.Id).ToList();
-                        if (!ApiDAL.UpdateAssetRulesLastRunDate(groupId, ranRules))
-                        {
-                            log.ErrorFormat("Failed to update asset rule last run date, rule IDs = {0}", string.Join(", ", ranRules));
                         }
                     }
                     #endregion
@@ -521,6 +480,64 @@ namespace Core.Api.Managers
 
             // Call catalog
             return unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+        }
+
+        public static List<int> GetGroupMediaTypes(int groupId, out bool doesGroupUsesTemplates, out bool isGeoAvailabilityWindowingEnabled)
+        {
+            List<int> mediaTypes = null;
+
+            doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            Group group = null;
+            CatalogGroupCache catalogGroupCache = null;
+            isGeoAvailabilityWindowingEnabled = doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled;
+            
+            if (doesGroupUsesTemplates)
+            {
+                if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
+                    return mediaTypes;
+                }
+                mediaTypes = catalogGroupCache.AssetStructsMapById.Values.Where(a => !a.IsProgramAssetStruct).Select(a => (int)a.Id).ToList();
+            }
+            else
+            {
+                group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                mediaTypes = group.GetMediaTypes();
+            }
+            return mediaTypes;
+        }
+
+        public static int RebuildIndexForMedias(int groupId, bool doesGroupUsesTemplates, List<int> mediaToUpdate)
+        {
+            if (doesGroupUsesTemplates)
+            {
+                foreach (var assetId in mediaToUpdate)
+                {
+                    bool indexingResult = Catalog.CatalogManagement.IndexManager.UpsertMedia(groupId, assetId);
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}", assetId);
+                    }
+
+                    Catalog.CatalogManagement.AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetId);
+
+                }
+                return mediaToUpdate.Count;
+            }
+            else
+            {
+                if (Catalog.Module.UpdateIndex(mediaToUpdate, groupId, eAction.Update))
+                {
+                    log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", mediaToUpdate));
+                    return mediaToUpdate.Count;
+                }
+                else
+                {
+                    log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", mediaToUpdate));
+                    return 0;
+                }
+            }
         }
 
         #endregion
@@ -1188,7 +1205,7 @@ namespace Core.Api.Managers
                 //2. Ksql
                 List<AssetCondition> oldKsqlConditions = oldRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
                 List<AssetCondition> newKsqlConditions = assetRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
-
+                // TODO:
 
 
                 //3. Block
@@ -1260,13 +1277,37 @@ namespace Core.Api.Managers
                     {
 
                     }
-
                 }
+
+                foreach (var mediaId in updatedMediaIds)
+                {
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId));
+                }
+
+                if (Catalog.Module.UpdateIndex(updatedMediaIds, groupId, eAction.Update))
+                {
+                    log.InfoFormat("Successfully updated index after asset rule update for assets: {0}", string.Join(",", updatedMediaIds));
+                }
+                else
+                {
+                    log.InfoFormat("Failed to update index after asset rule update for assets", string.Join(",", updatedMediaIds));
+                }
+            
 
             }
 
-            ResetMediaCountries(groupId, assetRule.Id);
+            //ResetMediaCountries(groupId, assetRule.Id);
             //TODO Irena - run rule after update
+            bool isGeoAvailabilityWindowingEnabled;
+            bool doesGroupUsesTemplates;
+            List<int> mediaTypes = GetGroupMediaTypes(groupId, out doesGroupUsesTemplates, out isGeoAvailabilityWindowingEnabled);
+            List<int> mediaToUpdate = DoActionOnRule(assetRule, groupId, mediaTypes);
+            RebuildIndexForMedias(groupId, doesGroupUsesTemplates, mediaToUpdate);
+
+            if (!ApiDAL.UpdateAssetRulesLastRunDate(groupId, new List<long>() { assetRule.Id }))
+            {
+                log.ErrorFormat("Failed to update asset rule last run date, rule ID = {0}", assetRule.Id);
+            }
         }
 
         #endregion
