@@ -5807,5 +5807,11 @@ namespace Tvinci.Core.DAL
             string key = UtilsDal.GetRelatedEntitiesKey(assetId);
             return UtilsDal.SaveObjectInCB<List<RelatedEntities>>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key, relatedEntityLists);
         }
+
+        public static List<RelatedEntities> GetReleatedEntitiesForAsset(long assetId)
+        {
+            string key = UtilsDal.GetRelatedEntitiesKey(assetId);
+            return UtilsDal.GetObjectFromCB<List<RelatedEntities>>(eCouchbaseBucket.OTT_APPS, key, true);
+        }
     }
 }
