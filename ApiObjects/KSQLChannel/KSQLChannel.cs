@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace ApiObjects
 {
@@ -108,6 +109,7 @@ namespace ApiObjects
         /// <summary>
         /// key value pairs
         /// </summary>
+        [XmlIgnore]
         public Dictionary<string, string> MetaData { get; set; }
 
         #endregion
