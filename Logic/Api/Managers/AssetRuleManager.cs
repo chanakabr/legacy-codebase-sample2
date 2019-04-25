@@ -1105,7 +1105,7 @@ namespace Core.Api.Managers
         
         private static void ResetMediaCountries(int groupId, long ruleId)
         {
-            DataTable mediaTable = ApiDAL.UpdateMediaCountry(groupId, ruleId);
+            DataTable mediaTable = ApiDAL.UpdateMediaCountries(groupId, ruleId);
             if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
             {
                 List<int> mediaIds = new List<int>();
