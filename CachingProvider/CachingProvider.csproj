@@ -1,39 +1,30 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>5.2.0.3672</Version>
-    <Description>2019-04-09 19:07:01 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-146-g5516f6ce-dirty</Description>
+    <Version>5.2.0.8582</Version>
+    <Description>2019-11-23 13:04:02 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-143-g18da3095-dirty</Description>
   </PropertyGroup>
-  
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-    
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
-  
   <!--TODO: Make bash script equivilant-->
   <PropertyGroup Condition="'$(Configuration)' == 'Release' And '$(OS)' == 'Windows_NT' ">
     <PreBuildEvent>cd $(MSBuildProjectDirectory) &amp; powershell -NonInteractive -ExecutionPolicy Unrestricted ..\..\Core\DllVersioning.ps1</PreBuildEvent>
   </PropertyGroup>
-  
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>
-  
-
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
-  
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System.Web" />
   </ItemGroup>
-  
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
   </ItemGroup>

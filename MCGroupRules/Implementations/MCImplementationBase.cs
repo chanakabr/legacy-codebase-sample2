@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Web.Script.Serialization;
 using TVinciShared;
 using System.Data;
 using KLogMonitor;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace MCGroupRules
 {
@@ -50,8 +50,7 @@ namespace MCGroupRules
             {
                 try
                 {
-                    JavaScriptSerializer jsSer = new JavaScriptSerializer();
-                    string json = jsSer.Serialize(mcObj);
+                    string json = JsonConvert.SerializeObject(mcObj);
                     string sResp = WS_Utils.SendXMLHttpReq("https://mandrillapp.com/api/1.0/messages/send-template.json", json, null);
                     log.DebugFormat("Mail Response: {0}", sResp);
 

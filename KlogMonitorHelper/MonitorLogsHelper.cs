@@ -9,11 +9,16 @@ using System.Xml;
 using KLogMonitor;
 using log4net.Util;
 
+
+
 namespace KlogMonitorHelper
 {
     public class MonitorLogsHelper
     {
+        #if NET452
         private static readonly HttpRequest _CurrentRequest = HttpContext.Current?.Request;
+        #endif
+
         private static readonly LogicalThreadContextProperties _LogContextData = log4net.LogicalThreadContext.Properties;
 
         private static readonly KLogger _Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -23,6 +28,7 @@ namespace KlogMonitorHelper
         private const string PREFIX_METHOD_NAME = @"urn:Iservice/";
         private const int MAX_LOG_REQUEST_SIZE = 30000;
 
+         #if NET452
 
         // TODO: Move this to a different helper, this is not related to logs its simply reads the body of an http request
         public static string GetWebServiceRequestString()
@@ -264,6 +270,7 @@ namespace KlogMonitorHelper
                 //log.Error("Error while trying to dispose monitor object", ex);
             }
         }
+        #endif
 
         public static void AddHeaderToWebService(HttpWebRequest request)
         {
