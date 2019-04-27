@@ -67,7 +67,6 @@ namespace FtpApiServer.InMemoryFtp
         /// <returns>The changed file system entry.</returns>
         public InMemoryFileSystemEntry WithOwner(IFtpUser user)
         {
-            Owner = user.Name;
             return this;
         }
 

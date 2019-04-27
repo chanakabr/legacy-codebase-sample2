@@ -22,7 +22,7 @@ namespace FubarDev.FtpServer
         /// <returns>the server builder used to configure the FTP server.</returns>
         public static IFtpServerBuilder UseInMemoryFileSystem(this IFtpServerBuilder builder)
         {
-            builder.Services.AddSingleton<IFileSystemClassFactory, InMemoryFileSystemProvider>();
+            builder.Services.AddScoped<IFileSystemClassFactory, IngestProfileApiProxyFileSystemProvider>();
             return builder;
         }
     }

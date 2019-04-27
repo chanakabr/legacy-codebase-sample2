@@ -3,9 +3,9 @@ using FubarDev.FtpServer.AccountManagement;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FtpApiServer
+namespace FtpApiServer.Authentication
 {
-    public static class KalturaFtpMembershipProviderExtensions
+    public static class KalturaOttAuthenticationProviderExtensions
     {
         /// <summary>
         /// Enables authentication using OttUser.Login api for Kaltura
@@ -14,7 +14,7 @@ namespace FtpApiServer
         /// <returns></returns>
         public static IFtpServerBuilder UseKalturaOttAuthentication(this IFtpServerBuilder builder)
         {
-            builder.Services.AddSingleton<IMembershipProvider, KalturaOttAuthenticationProvider>();
+            builder.Services.AddScoped<IMembershipProvider, KalturaOttAuthenticationProvider>();
             return builder;
         }
     }

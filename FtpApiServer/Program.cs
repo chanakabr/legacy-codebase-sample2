@@ -1,14 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using ConfigurationManager;
+using FtpApiServer.Authentication;
+using FtpApiServer.Helpers;
 using FtpApiServer.InMemoryFtp;
 using FubarDev.FtpServer;
 using FubarDev.FtpServer.FileSystem;
 using FubarDev.FtpServer.FileSystem.DotNet;
 using FubarDev.FtpServer.FileSystem.Generic;
+using Kaltura;
 using KLogMonitor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,24 +26,24 @@ namespace FtpApiServer
         public static void Main(string[] args)
         {
             InitLogger();
+            EnableOutbountHttpsComunication();
             ApplicationConfiguration.Initialize();
 
             // Setup dependency injection
             var services = new ServiceCollection();
-            services.AddLogging(builder => builder.SetMinimumLevel(LogLevel.Trace).AddConsole());
+            services.Configure<InMemoryFileSystemOptions>(o => o.OnFileUpload = OnFileUploaded);
+            services.Configure<FtpServerOptions>(opt =>  {
+                opt.ServerAddress = ApplicationConfiguration.FtpApiServerConfiguration.FtpServerAddress.Value;
+                opt.Port = ApplicationConfiguration.FtpApiServerConfiguration.FtpServerPort.IntValue;
+            });
 
+            services.AddScoped<Kaltura.Client>(GetCalturaClient);
+            services.AddLogging(builder => builder.SetMinimumLevel(LogLevel.Trace).AddConsole());
             services.AddFtpServer(builder => builder
                .UseInMemoryFileSystem()
                .UseKalturaOttAuthentication());
 
-            services.Configure<InMemoryFileSystemOptions>(o => o.OnFileUpload = OnFileUploaded);
-
             // Configure the FTP server
-            services.Configure<FtpServerOptions>(opt =>
-            {
-                opt.ServerAddress = "127.0.0.1";
-                opt.Port = 21;
-            });
 
             // Build the service provider
             using (var serviceProvider = services.BuildServiceProvider())
@@ -57,6 +61,25 @@ namespace FtpApiServer
             }
         }
 
+
+
+        private static Kaltura.Client GetCalturaClient(IServiceProvider sp)
+        {
+            var clientConfig = new Kaltura.Configuration
+            {
+                Logger = new KalturaClientKloggerWrapper(),
+                ServiceUrl = ApplicationConfiguration.FtpApiServerConfiguration.PhoenixServerUrl.Value,
+            };
+            var client = new Kaltura.Client(clientConfig);
+            client.setClientTag($"Kaltura.FtpApiServer.{Assembly.GetExecutingAssembly().GetName().Version}");
+            return client;
+        }
+
+        private static void EnableOutbountHttpsComunication()
+        {
+            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, error) => true;
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls | SecurityProtocolType.SystemDefault;
+        }
 
 
         private static void OnFileUploaded(string folderName, string fileName, Stream fileDataStream)

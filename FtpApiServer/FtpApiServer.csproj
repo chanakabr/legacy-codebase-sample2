@@ -23,13 +23,14 @@
     <PackageReference Include="FubarDev.FtpServer" Version="2.2.1" />
     <PackageReference Include="FubarDev.FtpServer.Abstractions" Version="2.2.1" />
     <PackageReference Include="FubarDev.FtpServer.FileSystem.DotNet" Version="2.2.1" />
+    <PackageReference Include="KalturaClient.Net.Core" Version="5.2.2.1424" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Logic\ApiLogicNetCore.csproj" />
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
 

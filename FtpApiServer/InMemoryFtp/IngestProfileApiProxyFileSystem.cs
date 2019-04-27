@@ -11,44 +11,71 @@ using System.Threading.Tasks;
 
 using FubarDev.FtpServer.BackgroundTransfer;
 using FubarDev.FtpServer.FileSystem;
+using Kaltura.Services;
+using Kaltura.Request;
 using Microsoft.Extensions.Logging;
+using KLogMonitor;
+using System.Reflection;
+using Kaltura.Types;
+using FubarDev.FtpServer;
+using FtpApiServer.Authentication;
 
 namespace FtpApiServer.InMemoryFtp
 {
-    public class InMemoryFileSystem : IUnixFileSystem
+    public class IngestProfileApiProxyFileSystem : IUnixFileSystem
     {
-        private readonly Action<string, string, Stream> _OnFileUploaded;
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public InMemoryFileSystem(int groupId, Action<string, string, Stream> onFileUploaded)
+
+        private readonly AuthenticatedKalturaOttUser _AuthenticatedKalturaOttUser;
+        private readonly Action<string, string, Stream> _OnFileUploaded;
+        private readonly Kaltura.Client _KalturaClient;
+
+        public IngestProfileApiProxyFileSystem(AuthenticatedKalturaOttUser authenticatedKalturaOttUser, Action<string, string, Stream> onFileUploaded, Kaltura.Client kalturaClient)
         {
             FileSystemEntryComparer = StringComparer.OrdinalIgnoreCase;
-            var ingestProfileFolders = new Dictionary<string, IUnixFileSystemEntry>(StringComparer.OrdinalIgnoreCase);
-            var rootFolder = new InMemoryDirectoryEntry(this, null, string.Empty, ingestProfileFolders);
-            var ingestProfiles = Core.Profiles.IngestProfileManager.GetIngestProfiles(groupId);
-            foreach (var profile in ingestProfiles.Objects)
+            _KalturaClient = kalturaClient;
+            _AuthenticatedKalturaOttUser =authenticatedKalturaOttUser;
+            var rootFolder = new InMemoryDirectoryEntry(this, null, string.Empty, new Dictionary<string, IUnixFileSystemEntry>(StringComparer.OrdinalIgnoreCase));
+            var ingestProfiles = GetIngestProfiles(authenticatedKalturaOttUser.Ks);
+            foreach (var profile in ingestProfiles)
             {
-                var folderName = profile.ExternalId;
-                var profiledirectory = new InMemoryDirectoryEntry(this, rootFolder, folderName, new Dictionary<string, IUnixFileSystemEntry>());
-                ingestProfileFolders.Add(folderName, profiledirectory);
+                var profiledirectory = new InMemoryDirectoryEntry(this, rootFolder, profile.ExternalId, new Dictionary<string, IUnixFileSystemEntry>());
+                rootFolder.Children.Add(profile.ExternalId, profiledirectory);
             }
 
             Root = rootFolder;
             _OnFileUploaded = onFileUploaded;
         }
 
-        /// <inheritdoc />
+        private IList<IngestProfile> GetIngestProfiles(string authenticateduserKs)
+        {
+            try
+            {
+                var ingestProfiles = IngestProfileService.List().WithKs(authenticateduserKs).ExecuteAndWaitForResponse(_KalturaClient)?.Objects;
+                if (ingestProfiles == null)
+                {
+                    _Logger.Error($"Could not find any ingest profiles");
+                    return new List<IngestProfile>();
+                }
+                return ingestProfiles;
+            }
+            catch (Exception e)
+            {
+                _Logger.Error($"KalturaIngestProfileApiProxyFileSystem > Error while trying to list ingest profiles", e);
+                return new List<IngestProfile>();
+            }
+        }
+
         public bool SupportsAppend { get; } = true;
 
-        /// <inheritdoc />
         public bool SupportsNonEmptyDirectoryDelete { get; } = true;
 
-        /// <inheritdoc />
         public StringComparer FileSystemEntryComparer { get; }
 
-        /// <inheritdoc />
+
         public IUnixDirectoryEntry Root { get; }
 
-        /// <inheritdoc />
         public Task<IReadOnlyList<IUnixFileSystemEntry>> GetEntriesAsync(IUnixDirectoryEntry directoryEntry, CancellationToken cancellationToken)
         {
             var entry = (InMemoryDirectoryEntry)directoryEntry;
@@ -56,7 +83,6 @@ namespace FtpApiServer.InMemoryFtp
             return Task.FromResult<IReadOnlyList<IUnixFileSystemEntry>>(children);
         }
 
-        /// <inheritdoc />
         public Task<IUnixFileSystemEntry> GetEntryByNameAsync(IUnixDirectoryEntry directoryEntry, string name, CancellationToken cancellationToken)
         {
             var entry = (InMemoryDirectoryEntry)directoryEntry;
@@ -68,7 +94,6 @@ namespace FtpApiServer.InMemoryFtp
             return Task.FromResult<IUnixFileSystemEntry>(null);
         }
 
-        /// <inheritdoc />
         public Task<IUnixFileSystemEntry> MoveAsync(IUnixDirectoryEntry parent, IUnixFileSystemEntry source, IUnixDirectoryEntry target, string fileName, CancellationToken cancellationToken)
         {
             var parentEntry = (InMemoryDirectoryEntry)parent;
@@ -92,7 +117,6 @@ namespace FtpApiServer.InMemoryFtp
             return Task.FromResult(source);
         }
 
-        /// <inheritdoc />
         public Task UnlinkAsync(IUnixFileSystemEntry entry, CancellationToken cancellationToken)
         {
             var fsEntry = (InMemoryFileSystemEntry)entry;
@@ -105,18 +129,16 @@ namespace FtpApiServer.InMemoryFtp
             return Task.CompletedTask;
         }
 
-        /// <inheritdoc />
         public Task<IUnixDirectoryEntry> CreateDirectoryAsync(IUnixDirectoryEntry targetDirectory, string directoryName, CancellationToken cancellationToken)
         {
-            var dirEntry = (InMemoryDirectoryEntry)targetDirectory;
-            var childEntry = new InMemoryDirectoryEntry(this, dirEntry, directoryName, new Dictionary<string, IUnixFileSystemEntry>(FileSystemEntryComparer));
-            dirEntry.Children.Add(directoryName, childEntry);
-            var now = DateTimeOffset.Now;
-            dirEntry.SetLastWriteTime(now).SetCreateTime(now);
-            return Task.FromResult<IUnixDirectoryEntry>(childEntry);
+            //var dirEntry = (InMemoryDirectoryEntry)targetDirectory;
+            //var childEntry = new InMemoryDirectoryEntry(this, dirEntry, directoryName, new Dictionary<string, IUnixFileSystemEntry>(FileSystemEntryComparer));
+            //dirEntry.Children.Add(directoryName, childEntry);
+            //var now = DateTimeOffset.Now;
+            //dirEntry.SetLastWriteTime(now).SetCreateTime(now);
+            throw new UnauthorizedAccessException("Directory creation is no allowed.");
         }
 
-        /// <inheritdoc />
         public Task<Stream> OpenReadAsync(IUnixFileEntry fileEntry, long startPosition, CancellationToken cancellationToken)
         {
             var entry = (InMemoryFileEntry)fileEntry;
@@ -128,7 +150,6 @@ namespace FtpApiServer.InMemoryFtp
             return Task.FromResult<Stream>(stream);
         }
 
-        /// <inheritdoc />
         public async Task<IBackgroundTransfer> AppendAsync(IUnixFileEntry fileEntry, long? startPosition, Stream data, CancellationToken cancellationToken)
         {
             var entry = (InMemoryFileEntry)fileEntry;
@@ -154,7 +175,6 @@ namespace FtpApiServer.InMemoryFtp
             return null;
         }
 
-        /// <inheritdoc />
         public async Task<IBackgroundTransfer> CreateAsync(IUnixDirectoryEntry targetDirectory, string fileName, Stream data, CancellationToken cancellationToken)
         {
             _OnFileUploaded(targetDirectory.Name, fileName, data);
@@ -176,7 +196,6 @@ namespace FtpApiServer.InMemoryFtp
             return null;
         }
 
-        /// <inheritdoc />
         public async Task<IBackgroundTransfer> ReplaceAsync(IUnixFileEntry fileEntry, Stream data, CancellationToken cancellationToken)
         {
             var temp = new MemoryStream();
@@ -192,7 +211,6 @@ namespace FtpApiServer.InMemoryFtp
             return null;
         }
 
-        /// <inheritdoc />
         public Task<IUnixFileSystemEntry> SetMacTimeAsync(IUnixFileSystemEntry entry, DateTimeOffset? modify, DateTimeOffset? access, DateTimeOffset? create, CancellationToken cancellationToken)
         {
             var fsEntry = (InMemoryFileSystemEntry)entry;
