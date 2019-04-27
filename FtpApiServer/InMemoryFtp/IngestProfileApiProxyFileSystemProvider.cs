@@ -17,28 +17,22 @@ namespace FtpApiServer.InMemoryFtp
 {
     public class IngestProfileApiProxyFileSystemProvider : IFileSystemClassFactory
     {
-        private Action<string, string, Stream> _OnFileUploaded;
         private readonly IFtpConnectionAccessor _ConnectionAccessor;
         private readonly Client _KalturaClient;
-        private readonly IFtpUser _User;
 
-      
-        public IngestProfileApiProxyFileSystemProvider(IOptions<InMemoryFileSystemOptions> options, 
-            Kaltura.Client kalturaClient, 
-            IFtpConnectionAccessor connectionAccessor
-            )
+
+        public IngestProfileApiProxyFileSystemProvider(Client kalturaClient, IFtpConnectionAccessor connectionAccessor)
         {
-            _OnFileUploaded = options.Value.OnFileUpload;
             _ConnectionAccessor = connectionAccessor;
             _KalturaClient = kalturaClient;
         }
 
-      
+
         public Task<IUnixFileSystem> Create(string userId, bool isAnonymous)
         {
             var authenticatedOttUser = (AuthenticatedKalturaOttUser)_ConnectionAccessor.FtpConnection.Data.User;
 
-            var fileSystem = new IngestProfileApiProxyFileSystem(authenticatedOttUser, _OnFileUploaded, _KalturaClient);
+            var fileSystem = new IngestProfileApiProxyFileSystem(authenticatedOttUser, _KalturaClient);
             return Task.FromResult<IUnixFileSystem>(fileSystem);
         }
     }

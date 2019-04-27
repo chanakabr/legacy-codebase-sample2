@@ -31,7 +31,6 @@ namespace FtpApiServer
 
             // Setup dependency injection
             var services = new ServiceCollection();
-            services.Configure<InMemoryFileSystemOptions>(o => o.OnFileUpload = OnFileUploaded);
             services.Configure<FtpServerOptions>(opt =>  {
                 opt.ServerAddress = ApplicationConfiguration.FtpApiServerConfiguration.FtpServerAddress.Value;
                 opt.Port = ApplicationConfiguration.FtpApiServerConfiguration.FtpServerPort.IntValue;
@@ -79,12 +78,6 @@ namespace FtpApiServer
         {
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, error) => true;
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls | SecurityProtocolType.SystemDefault;
-        }
-
-
-        private static void OnFileUploaded(string folderName, string fileName, Stream fileDataStream)
-        {
-            _Logger.Info($"Sending bulkUpload to profilExternalId:[{folderName}], fileName:[{fileName}]");
         }
 
         // TODO: move this to a common Klogger function

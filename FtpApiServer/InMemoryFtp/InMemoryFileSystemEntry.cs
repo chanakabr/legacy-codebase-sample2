@@ -20,10 +20,10 @@ namespace FtpApiServer.InMemoryFtp
         /// <param name="parent">The parent entry.</param>
         /// <param name="name">The name of this entry.</param>
         /// <param name="permissions">The permissions of this entry.</param>
-        protected InMemoryFileSystemEntry(IUnixFileSystem fileSystem, InMemoryDirectoryEntry parent, string name, IUnixPermissions permissions)
+        protected InMemoryFileSystemEntry(IUnixFileSystem fileSystem, IngestProfileDirectoryEntry parent, string name, IUnixPermissions permissions)
         {
             FileSystem = fileSystem;
-            Name = name;
+            Name = name?? string.Empty;
             Permissions = permissions;
             Parent = parent;
             Owner = "owner";
@@ -58,7 +58,7 @@ namespace FtpApiServer.InMemoryFtp
         /// <summary>
         /// Gets or sets the parent entry.
         /// </summary>
-        public InMemoryDirectoryEntry Parent { get; set; }
+        public IngestProfileDirectoryEntry Parent { get; set; }
 
         /// <summary>
         /// Configure directory entry as owned by given <paramref name="user"/>.

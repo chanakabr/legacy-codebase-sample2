@@ -26,7 +26,7 @@ namespace FtpApiServer.InMemoryFtp
         /// <param name="data">The file data.</param>
         public InMemoryFileEntry(
             IUnixFileSystem fileSystem,
-            InMemoryDirectoryEntry parent,
+            IngestProfileDirectoryEntry parent,
             string name,
             byte[] data)
             : base(fileSystem, parent, name, _defaultPermissions)
