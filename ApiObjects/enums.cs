@@ -143,7 +143,10 @@ namespace ApiObjects
         [EnumMember]
         Rebuild = 4,
         [EnumMember]
-        Rebase = 5
+        Rebase = 5,
+        [EnumMember]
+        GeoUpdate = 6
+
     }
 
     [Serializable]

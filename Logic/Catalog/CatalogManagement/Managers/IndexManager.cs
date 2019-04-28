@@ -36,6 +36,167 @@ namespace Core.Catalog.CatalogManagement
 
         #region Public Methods
 
+        public static bool GetMetasAndTagsForMapping(int groupId, bool? doesGroupUsesTemplates, ref Dictionary<string, KeyValuePair<eESFieldType, string>> metas, ref List<string> tags,
+            ref HashSet<string> metasToPad,
+            BaseESSeralizer serializer, Group group = null, CatalogGroupCache catalogGroupCache = null, bool isEpg = false)
+        {
+            bool result = true;
+            tags = new List<string>();
+            metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
+            metasToPad = new HashSet<string>();
+
+            if (!doesGroupUsesTemplates.HasValue)
+            {
+                doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            }
+
+            if (doesGroupUsesTemplates.Value && catalogGroupCache != null)
+            {
+                try
+                {
+                    HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
+                    tags = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()) && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key.ToLower()).ToList();
+
+                    foreach (KeyValuePair<string, Dictionary<string, Topic>> topics in catalogGroupCache.TopicsMapBySystemNameAndByType)
+                    {
+                        if (topics.Value.Keys.Any(x => x != ApiObjects.MetaType.Tag.ToString()))
+                        {
+                            string nullValue = string.Empty;
+                            eESFieldType metaType;
+
+                            if (isEpg)
+                            {
+                                metaType = eESFieldType.STRING;
+                            }
+                            else
+                            {
+                                ApiObjects.MetaType topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
+                                serializer.GetMetaType(topicMetaType, out metaType, out nullValue);
+                            }
+
+                            if (!metas.ContainsKey(topics.Key.ToLower()))
+                            {
+                                metas.Add(topics.Key.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Duplicate topic found for group {0} name {1}", groupId, topics.Key.ToLower());
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Failed BuildIndex for groupId: {0} because CatalogGroupCache", groupId), ex);
+                    return false;
+                }
+            }
+            else if (group != null)
+            {
+                try
+                {
+                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lTagsName != null)
+                    {
+                        foreach (var item in group.m_oEpgGroupSettings.m_lTagsName)
+                        {
+                            if (!tags.Contains(item.ToLower()))
+                            {
+                                tags.Add(item.ToLower());
+                            }
+                        }
+                    }
+
+                    if (group.m_oGroupTags != null)
+                    {
+                        foreach (var item in group.m_oGroupTags.Values)
+                        {
+                            if (!tags.Contains(item.ToLower()))
+                            {
+                                tags.Add(item.ToLower());
+                            }
+                        }
+                    }
+
+                    if (group.m_oMetasValuesByGroupId != null)
+                    {
+                        foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
+                        {
+                            foreach (KeyValuePair<string, string> meta in metaMap)
+                            {
+                                string nullValue = string.Empty;
+                                eESFieldType metaType;
+
+                                if (isEpg)
+                                {
+                                    metaType = eESFieldType.STRING;
+                                }
+                                else
+                                {
+                                    serializer.GetMetaType(meta.Key, out metaType, out nullValue);
+                                }
+
+                                if (!metas.ContainsKey(meta.Value.ToLower()))
+                                {
+                                    metas.Add(meta.Value.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                                }
+                                else
+                                {
+                                    log.WarnFormat("Duplicate media meta found for group {0} name {1}", groupId, meta.Value);
+                                }
+                            }
+                        }
+                    }
+
+                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
+                    {
+                        foreach (string epgMeta in group.m_oEpgGroupSettings.m_lMetasName)
+                        {
+                            string nullValue = string.Empty;
+                            eESFieldType metaType;
+
+                            if (isEpg)
+                            {
+                                metaType = eESFieldType.STRING;
+                            }
+                            else
+                            {
+                                serializer.GetMetaType(epgMeta, out metaType, out nullValue);
+                            }
+
+                            if (!metas.ContainsKey(epgMeta.ToLower()))
+                            {
+                                metas.Add(epgMeta.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            }
+                            else
+                            {
+                                var mediaMetaType = metas[epgMeta].Key;
+
+                                // If the metas is numeric for media and it exists also for epg, we will have problems with sorting 
+                                // (since epg metas are string and there will be a type mismatch)
+                                // the solution is to add another field of a padded string to the indices and sort by it
+                                if (mediaMetaType == eESFieldType.INTEGER ||
+                                    mediaMetaType == eESFieldType.DOUBLE ||
+                                    mediaMetaType == eESFieldType.LONG)
+                                {
+                                    metasToPad.Add(epgMeta.ToLower());
+                                }
+                                else
+                                {
+                                    log.WarnFormat("Duplicate epg meta found for group {0} name {1}", groupId, epgMeta);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Failed get metas and tags for mapping for group {0} ex = {1}", groupId, ex);
+                }
+            }
+
+            return result;
+        }
+
         public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int groupId, long mediaId)
         {
             //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
@@ -178,7 +339,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         public static bool DeleteMedia(int groupId, int assetId)
         {
             bool result = false;

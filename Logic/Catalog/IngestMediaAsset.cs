@@ -2,9 +2,10 @@
 using System.Xml;
 using System.Collections.Generic;
 using ApiObjects.Response;
-using System;
 using System.Linq;
+using System;
 using ApiObjects;
+using ApiObjects.Catalog;
 
 namespace Core.Catalog
 {
@@ -84,7 +85,7 @@ namespace Core.Catalog
         [XmlElement("value")]
         public List<IngestLanguageValue> Values { get; set; }
 
-        internal Status Validate(string parameterName, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
+        public Status Validate(string parameterName, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
@@ -205,7 +206,7 @@ namespace Core.Catalog
         [XmlElement("metas")]
         public IngestMetas Metas { get; set; }
 
-        internal Status ValidateStrings(Dictionary<string, Dictionary<string, Topic>> TopicsMapBySystemNameAndByType, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
+        public Status ValidateStrings(Dictionary<string, Dictionary<string, Topic>> TopicsMapBySystemNameAndByType, string defaultLanguageCode, Dictionary<string, LanguageObj> languageMapByCode)
         {
             if (Strings != null && Strings.MetaStrings != null && Strings.MetaStrings.Count > 0)
             {
@@ -214,7 +215,7 @@ namespace Core.Catalog
                     if (TopicsMapBySystemNameAndByType.ContainsKey(metaString.Name) && TopicsMapBySystemNameAndByType[metaString.Name].ContainsKey(ApiObjects.MetaType.MultilingualString.ToString()))
                     {
                         Status status = metaString.Validate("media.structure.strings.meta", defaultLanguageCode, languageMapByCode);
-                        if (status != null && status.Code != (int)eResponseStatus.OK)
+                        if (!status.IsOkStatusCode())
                         {
                             return status;
                         }
@@ -222,115 +223,127 @@ namespace Core.Catalog
                 }
             }
 
-            return new Status((int)eResponseStatus.OK);
+            return Status.Ok;
         }
-
-        internal Status ValidateMetaTags(string defaultLanguageCode,
-                                         Dictionary<string, LanguageObj> languageMapByCode, 
-                                         out Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>> tagNameToTranslations)
+        
+        public GenericListResponse<Tags> ValidateMetaTags(LanguageObj defaultLanguage, Dictionary<string, LanguageObj> languageMapByCode)
         {
-            Status status = new Status((int)eResponseStatus.OK);
-                                        //         genre   drama in main lang:          <other lang code, other lang value>
-            tagNameToTranslations = new Dictionary<string, Dictionary<string, Dictionary<string, LanguageContainer>>>();
+            var response = new GenericListResponse<Tags>();
+            response.SetStatus(eResponseStatus.OK);
+            string parameterName = "media.structure.metas.meta";
 
             if (Metas != null && Metas.MetaTags != null && Metas.MetaTags.Count > 0)
             {
-                string parameterName = "media.structure.metas.meta";
-                int defaultLangCodeCounter = 0;
-                int containersCounter = 0;
-
+                var metaTagsToContainers = new List<Tuple<string, List<IngestLanguageValue>, int>>();
+                var metaTagsContainersToDefaultValue = new Dictionary<string, Dictionary<int, string>>();
+                var metaTagsContainersToOtherValue = new Dictionary<string, Dictionary<int, Dictionary<string, string>>>();
                 foreach (var metaTag in Metas.MetaTags)
                 {
+                    var containersCounter = 0;
                     if (metaTag.Containers != null && metaTag.Containers.Count > 0)
                     {
-                        // add metaTag name (Genre)
-                        if (!tagNameToTranslations.ContainsKey(metaTag.Name))
+                        if (metaTagsContainersToDefaultValue.ContainsKey(metaTag.Name))
                         {
-                            tagNameToTranslations.Add(metaTag.Name, new Dictionary<string, Dictionary<string, LanguageContainer>>());
+                            response.SetStatus(eResponseStatus.Error, string.Format("meta: {0} has been sent more than once.", metaTag.Name));
+                            return response;
                         }
                         
-                        foreach (var container in metaTag.Containers)
+                        metaTagsToContainers.AddRange(metaTag.Containers.Select(y => new Tuple<string, List<IngestLanguageValue>, int>(metaTag.Name, y.Values, containersCounter++)));
+                        metaTagsContainersToDefaultValue.Add(metaTag.Name, new Dictionary<int, string>());
+                        metaTagsContainersToOtherValue.Add(metaTag.Name, new Dictionary<int, Dictionary<string, string>>());
+                    }
+                }
+                
+                var metaTagsToLanguages = new List<Tuple<string, IngestLanguageValue, int>>();
+                foreach (var metaTagContainer in metaTagsToContainers)
+                {
+                    var metaTagName = metaTagContainer.Item1;
+                    var languagesValues = metaTagContainer.Item2;
+                    var containerIndex = metaTagContainer.Item3;
+
+                    if (languagesValues == null || languagesValues.Count == 0)
+                    {
+                        response.SetStatus(eResponseStatus.NameRequired, parameterName + " cannot be empty");
+                        return response;
+                    }
+                    
+                    metaTagsToLanguages.AddRange(languagesValues.Select(y => new Tuple<string, IngestLanguageValue, int>(metaTagName, y, containerIndex)));
+                }
+
+                var defaultValuesCount = 0;
+                foreach (var metaTagLanguage in metaTagsToLanguages)
+                {
+                    var metaTagName = metaTagLanguage.Item1;
+                    var languageValue = metaTagLanguage.Item2;
+                    var containerIndex = metaTagLanguage.Item3;
+
+                    // Validate LangCode
+                    if (languageMapByCode != null && !languageMapByCode.ContainsKey(languageValue.LangCode))
+                    {
+                        response.SetStatus(eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", languageValue.LangCode));
+                        return response;
+                    }
+
+                    if (string.IsNullOrEmpty(languageValue.Text))
+                    {
+                        response.SetStatus(eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
+                        return response;
+                    }
+
+                    // add default value
+                    if (defaultLanguage.Code.Equals(languageValue.LangCode))
+                    {
+                        // check if default language allready have this value
+                        if (metaTagsContainersToDefaultValue[metaTagName].ContainsKey(containerIndex))
                         {
-                            if (container.Values == null || container.Values.Count == 0)
-                            {
-                                status.Set((int)eResponseStatus.NameRequired, parameterName + " cannot be empty");
-                                return status;
-                            }
-                            
-                            Dictionary<string, LanguageContainer> valuesInOtherLanguages = new Dictionary<string, LanguageContainer>();
-                            string defaultValue = null;
-                            containersCounter++;
-
-                            foreach (IngestLanguageValue languageValue in container.Values)
-                            {
-                                // Validate LangCode
-                                if (languageMapByCode != null && !languageMapByCode.ContainsKey(languageValue.LangCode))
-                                {
-                                    status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", languageValue.LangCode));
-                                    return status;
-                                }
-
-                                if (string.IsNullOrEmpty(languageValue.Text))
-                                {
-                                    return new Status((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
-                                }
-
-                                // add default value
-                                if (defaultLanguageCode.Equals(languageValue.LangCode))
-                                {
-                                    // check if default language allready have this value
-                                    if (tagNameToTranslations[metaTag.Name].ContainsKey(languageValue.Text))
-                                    {
-                                        return new Status((int)eResponseStatus.Error, string.Format("For meta: {0} the value: {1} has been sent more than once default language: {2}",
-                                                                                                    metaTag.Name, languageValue.Text, languageValue.LangCode));
-                                    }
-                                    
-                                    // add metaTag value (Drama)
-                                    tagNameToTranslations[metaTag.Name].Add(languageValue.Text, valuesInOtherLanguages);
-                                    defaultLangCodeCounter++;
-                                    defaultValue = languageValue.Text;
-                                }
-                                else
-                                {
-                                    if (defaultValue == null)
-                                    {
-                                        // Validate Value
-                                        if (valuesInOtherLanguages.ContainsKey(languageValue.LangCode))
-                                        {
-                                            return new Status((int)eResponseStatus.Error, string.Format("For meta: {0} the language: {1} has been sent more than once in the same container",
-                                                                                                        metaTag.Name, languageValue.LangCode));
-                                        }
-
-                                        valuesInOtherLanguages.Add(languageValue.LangCode, new LanguageContainer(languageValue.LangCode, languageValue.Text));
-                                    }
-                                    else
-                                    {
-                                        // Validate Value
-                                        if (tagNameToTranslations[metaTag.Name][defaultValue].ContainsKey(languageValue.LangCode))
-                                        {
-                                            return new Status((int)eResponseStatus.Error, string.Format("For meta: {0} the language: {1} has been sent more than once in the same container",
-                                                                                                        metaTag.Name, languageValue.LangCode));
-                                        }
-
-                                        tagNameToTranslations[metaTag.Name][defaultValue].Add(languageValue.LangCode, new LanguageContainer(languageValue.LangCode, languageValue.Text));
-                                    }
-                                }
-                            }
+                            response.SetStatus(eResponseStatus.Error, string.Format("For meta: {0} the value: {1} has been sent more than once default language: {2}",
+                                                                                    metaTagName, languageValue.Text, languageValue.LangCode));
+                            return response;
                         }
+                        
+                        metaTagsContainersToDefaultValue[metaTagName].Add(containerIndex, languageValue.Text);
+                        defaultValuesCount++;
+                    }
+                    else
+                    {
+                        if (!metaTagsContainersToOtherValue[metaTagName].ContainsKey(containerIndex))
+                        {
+                            metaTagsContainersToOtherValue[metaTagName].Add(containerIndex, new Dictionary<string, string>());
+                        }
+
+                        // Validate Value
+                        if (metaTagsContainersToOtherValue[metaTagName][containerIndex].ContainsKey(languageValue.LangCode))
+                        {
+                            response.SetStatus(eResponseStatus.Error, string.Format("For meta: {0} the language: {1} has been sent more than once in the same container",
+                                                                                    metaTagName, languageValue.LangCode));
+                            return response;
+                        }
+                        metaTagsContainersToOtherValue[metaTagName][containerIndex].Add(languageValue.LangCode, languageValue.Text);
                     }
                 }
 
                 // Check Default Language Is Sent
-                if (containersCounter != defaultLangCodeCounter)
+                if (metaTagsToContainers.Count != defaultValuesCount)
                 {
-                    status.Set((int)eResponseStatus.Error, "Every meta must have at least one value with default language");
-                    return status;
+                    response.SetStatus(eResponseStatus.Error, "Every meta must have at least one value with default language");
+                    return response;
+                }
+
+                response.Objects = new List<Tags>();
+                var metaTypeTag = MetaType.Tag.ToString();
+                foreach (var metaTagContainer in metaTagsContainersToDefaultValue)
+                {
+                    var metaTagName = metaTagContainer.Key;
+                    var tagMeta = new TagMeta(metaTagName, metaTypeTag);
+                    var defaultValues = new List<string>(metaTagContainer.Value.Select(x => x.Value));
+                    var otherValues = metaTagsContainersToOtherValue[metaTagName].Select(x => x.Value.Select(y => new LanguageContainer(y.Key, y.Value)).ToArray());
+                    response.Objects.Add(new Tags(tagMeta, defaultValues, otherValues));
                 }
             }
 
-            return status;
+            return response;
         }
-
+        
         private Status ValidateMetaTagValue(HashSet<string> currentValues, string newValue, string metaTagName, string LangCode, string parameterName)
         {
             if (currentValues.Contains(newValue))

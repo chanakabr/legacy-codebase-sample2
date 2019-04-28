@@ -11,6 +11,7 @@ using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
 using ApiObjects.Response;
+using Core.GroupManagers;
 using Core.Profiles;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -42,7 +43,7 @@ namespace Core.Catalog
                 return response;
             }
 
-            var epgData = DeserializeXmlTvEpgData(xmlTvString);
+            var epgData = DeserializeXmlTvEpgData(bulkUploadId, xmlTvString);
             response.Objects = epgData;
             response.SetStatus(eResponseStatus.OK);
             return response;
@@ -83,7 +84,7 @@ namespace Core.Catalog
             return xmlTvString;
         }
 
-        private List<BulkUploadResult> DeserializeXmlTvEpgData(string Data)
+        private List<BulkUploadResult> DeserializeXmlTvEpgData(long bulkUploadId, string Data)
         {
             EpgChannels xmlTvEpgData = null;
             try
@@ -98,7 +99,7 @@ namespace Core.Catalog
                 // TODO: Arthur, Should we use this or the group id came with the builk request ?
                 var groupId = xmlTvEpgData.groupid;
                 var parentGroupId = xmlTvEpgData.parentgroupid;
-                var epgPrograms = MapXmlTvProgramToCBEpgProgram(parentGroupId, groupId, xmlTvEpgData);
+                var epgPrograms = MapXmlTvProgramToCBEpgProgram(bulkUploadId, parentGroupId, groupId, xmlTvEpgData);
                 return epgPrograms;
             }
             catch (Exception ex)
@@ -108,49 +109,64 @@ namespace Core.Catalog
             }
         }
 
-        private List<BulkUploadResult> MapXmlTvProgramToCBEpgProgram(int parentGroupId, int groupId, EpgChannels xmlTvEpgData)
+        private List<BulkUploadResult> MapXmlTvProgramToCBEpgProgram(long bulkUploadId, int parentGroupId, int groupId, EpgChannels xmlTvEpgData)
         {
-            var response = new List<BulkUploadResult>();
 
             //var fieldEntityMapping = EpgIngest.Utils.GetMappingFields(parentGroupId);
             var channelExternalIds = xmlTvEpgData.channel.Select(s => s.id).ToList();
+            
             _Logger.Debug($"MapXmlTvProgramToCBEpgProgram > Retriving kaltura channels for external IDs [{string.Join(",", channelExternalIds)}] ");
             var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
-            //var languages = Core.Catalog.CatalogManagement.CatalogManager.GetGroupLanguages(groupId);
-            var languages = new List<LanguageObj>();
+            var languages = GroupLanguageManager.GetGroupLanguages(groupId);
             var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
-            var itemIndex = 0;
             if (defaultLanguage == null)
             {
                 throw new Exception($"No main language defined for group:[{groupId}], ingest failed");
             }
 
+            var response = new List<BulkUploadResult>();
+            var programIndex = 0;
             foreach (var prog in xmlTvEpgData.programme)
             {
+                programIndex++;
+                var channelExternalId = prog.channel;
                 // Every channel external id can point to mulitple interbal channels that have to have the same EPG
                 // like channel per region or HD channel vs SD channel etc..
-                var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalId.Equals(prog.channel, StringComparison.OrdinalIgnoreCase));
-
-                foreach (var channel in channelsToIngestProgramInto)
+                var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalId.Equals(channelExternalId, StringComparison.OrdinalIgnoreCase));
+                var programResults = new List<BulkUploadProgramAssetResult>();
+                foreach (var innerChannel in channelsToIngestProgramInto)
                 {
                     foreach (var lang in languages)
                     {
-                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, channel.ChannelId, prog, lang.Code, defaultLanguage.Code);
-                        newEpgAssetResult.Index = itemIndex++;
-                        response.Add(newEpgAssetResult);
+                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, innerChannel.ChannelId, prog, lang.Code, defaultLanguage.Code);
+                        newEpgAssetResult.BulkUploadId = bulkUploadId;
+                        if (newEpgAssetResult.Errors?.Any() == true)
+                        {
+                            newEpgAssetResult.Status = BulkUploadResultStatus.Error;
+                        }
+                        else
+                        {
+                            newEpgAssetResult.Status = BulkUploadResultStatus.InProgress;
+                        }
+
+                        newEpgAssetResult.Index = programIndex;
+                        newEpgAssetResult.LiveAssetExternalId = innerChannel.ChannelExternalId;
+                        newEpgAssetResult.LiveAssetId = innerChannel.ChannelId;
+                        programResults.Add(newEpgAssetResult);
                     }
                 }
+
+                response.AddRange(programResults);
             }
 
-            return response;
+            return response.ToList();
         }
 
-        private BulkUploadEpgAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode)
+
+        private BulkUploadProgramAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode)
         {
             // TODO: Arthur\ sunny make this code pretty, break into methods .. looks too long. :\
-            var response = new BulkUploadEpgAssetResult();
-            response.Status = BulkUploadResultStatus.InProgress;
-            response.Type = 0; // EPG Type
+            var response = new BulkUploadProgramAssetResult();
             var epgItem = new EpgCB();
 
             epgItem.Language = langCode;
@@ -162,14 +178,14 @@ namespace Core.Catalog
             if (ParseXmlTvDateString(prog.start, out var progStartDate)) { epgItem.StartDate = progStartDate; }
             else
             {
-                response.AddError(eResponseStatus.EPGSProgramDatesError, 
+                response.AddError(eResponseStatus.EPGSProgramDatesError,
                     $"programExternalId:[{prog.external_id}], Start date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
             }
 
             if (ParseXmlTvDateString(prog.stop, out var progEndDate)) { epgItem.EndDate = progEndDate; }
             else
             {
-                response.AddError(eResponseStatus.EPGSProgramDatesError, 
+                response.AddError(eResponseStatus.EPGSProgramDatesError,
                     $"programExternalId:[{prog.external_id}], End date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
             }
 
@@ -205,12 +221,12 @@ namespace Core.Catalog
 
             epgItem.Metas = ParseMetas(prog, langCode, defaultLangCode, response);
             epgItem.Tags = ParseTags(prog, langCode, defaultLangCode, response);
-            response.ExternalId = epgItem.EpgIdentifier;
+            response.ProgramExternalId = epgItem.EpgIdentifier;
             response.Object = epgItem;
             return response;
         }
 
-        private Dictionary<string, List<string>> ParseTags(programme prog, string langCode, string defaultLangCode, BulkUploadEpgAssetResult response)
+        private Dictionary<string, List<string>> ParseTags(programme prog, string langCode, string defaultLangCode, BulkUploadProgramAssetResult response)
         {
             var tagsToSet = new Dictionary<string, List<string>>();
             foreach (var tag in prog.tags)
@@ -226,7 +242,7 @@ namespace Core.Catalog
             return tagsToSet;
         }
 
-        private Dictionary<string, List<string>> ParseMetas(programme prog, string langCode, string defaultLangCode, BulkUploadEpgAssetResult response)
+        private Dictionary<string, List<string>> ParseMetas(programme prog, string langCode, string defaultLangCode, BulkUploadProgramAssetResult response)
         {
             var metasToSet = new Dictionary<string, List<string>>();
             foreach (var meta in prog.metas)

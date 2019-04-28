@@ -1,7 +1,10 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkExport;
-using Core.Api;
+using ApiObjects.Catalog;
+using ApiObjects.Epg;
+using ConfigurationManager;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
@@ -14,10 +17,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
-using ApiObjects.Epg;
-using ConfigurationManager;
-using Core.Catalog.CatalogManagement;
 using TVinciShared;
 
 namespace APILogic
@@ -835,7 +834,7 @@ namespace APILogic
                 // images
                 if (asset.Images != null)
                 {
-                    Dictionary<long, string> ratiosMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                    Dictionary<long, string> ratiosMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId);
 
                     xml.Append("<images>");
                     foreach (var image in asset.Images)
@@ -1031,7 +1030,7 @@ namespace APILogic
                 // images
                 if (program.Images != null)
                 {
-                    Dictionary<long, string> ratiosMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                    Dictionary<long, string> ratiosMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId);
 
                     xml.Append("<images>");
                     foreach (var image in program.Images)

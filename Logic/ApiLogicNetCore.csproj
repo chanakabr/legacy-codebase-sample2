@@ -1,12 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>ApiLogic</AssemblyName>
     <Version>5.2.0.3673</Version>
     <Description>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</Description>
   </PropertyGroup>
 
-  <PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
     <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,31 +25,76 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Catalog\BulkUpload\BulkUploadAssetResult.cs" />
+    <!--<Compile Include="Catalog\BulkUpload\BulkUploadAssetData.cs" />-->
+    <Compile Include="Catalog\BulkUpload\BulkUploadEpgAssetData.cs" />
     <Compile Include="Catalog\BulkUpload\BulkUploadIngestJobData.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\BulkUploadManager.cs" />
+    <Compile Include="GroupManagers\GroupSettingsManager.cs" />
+    <Compile Include="GroupManagers\GroupLanguageManager.cs" />
     <Compile Include="FileHandler.cs" />
     <Compile Include="Profiles\IngestProfileManager.cs" />
   </ItemGroup>
- 
+
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <Reference Include="System.Web" />
+    <PackageReference Include="LinqToTwitter" Version="2.1.11" />
+    <PackageReference Include="SimpleInjector.Integration.Wcf" Version="4.4.3" />
+    <PackageReference Include="EnyimMemcached" Version="2.11" />
+    <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="LinqToTwitter" Version="5.0.0" />
+    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.Core" Version="3.3.100.5" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.101.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="SimpleInjector" Version="4.4.3" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.5.3" />
   </ItemGroup>
+
   <ItemGroup>
+    <ProjectReference Include="..\..\TvmCore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj" />
+    <ProjectReference Include="..\..\TvmCore\CachingHelpers\CachingHelpers.csproj" />
+    <ProjectReference Include="..\..\TvmCore\CachingManager\CachingManager.csproj" />
+    <ProjectReference Include="..\..\TvmCore\CachingProvider\CachingProvider.csproj" />
+    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\..\TvmCore\DalCB\DalCB.csproj" />
     <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj" />
-    <ProjectReference Include="..\..\tvmcore\QueueWrapper\QueueWrapper.csproj" />
+    <ProjectReference Include="..\..\TvmCore\ElasticSearch\ElasticSearch.csproj" />
+    <ProjectReference Include="..\..\TvmCore\EpgBL\EpgBL.csproj" />
+    <ProjectReference Include="..\..\TvmCore\GroupsCacheManager\GroupsCacheManager.csproj" />
+    <ProjectReference Include="..\..\TvmCore\QueueWrapper\QueueWrapper.csproj" />
+    <ProjectReference Include="..\..\TvmCore\KlogMonitorHelper\KlogMonitorHelper.csproj" />
+    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\..\TvmCore\MCGroupRules\MCGroupRules.csproj" />
+    <ProjectReference Include="..\..\TvmCore\NPVR\NPVR.csproj" />
+    <ProjectReference Include="..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\..\TvmCore\StaticticsBL\StaticticsBL.csproj" />
+    <ProjectReference Include="..\..\TvmCore\Synchronizer\Synchronizer.csproj" />
+    <ProjectReference Include="..\..\TvmCore\TvinciCache\TvinciCache.csproj" />
+    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\IngestTransformationAdapterClient\IngestTransformationAdapterClient.csproj" />
+    <ProjectReference Include="..\RestAdaptersCommon\RestAdaptersCommon.csproj" />
     <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <Folder Include="Api\" />
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
 

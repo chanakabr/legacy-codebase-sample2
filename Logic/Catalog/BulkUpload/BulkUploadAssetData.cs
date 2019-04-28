@@ -12,13 +12,13 @@ namespace Core.Catalog
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadAssetData : BulkUploadObjectData
+    public abstract class BulkUploadAssetData : BulkUploadObjectData
     {
         protected AssetStruct structure { get; private set; }
 
         [JsonProperty("TypeId")]
         public long TypeId { get; set; }
-        
+
         public override IBulkUploadStructure GetStructure()
         {
             if (structure == null)
@@ -42,7 +42,12 @@ namespace Core.Catalog
 
             return structure;
         }
+    }
 
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class BulkUploadMediaAssetData : BulkUploadAssetData
+    {
         public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_media_asset"; } }
         public override string RoutingKey { get { return "PROCESS_BULK_UPLOAD_MEDIA_ASSET\\{0}"; } }
 
@@ -110,42 +115,6 @@ namespace Core.Catalog
                     }
                 }
             }
-        }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadMediaAssetData : BulkUploadAssetData
-    {
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadEpgAssetData : BulkUploadAssetData
-    {
-        // TODO: Arthur, remove disterbutedTask and ruting key from media assets and use the event bus instead.
-        public override string DistributedTask { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
-        public override string RoutingKey { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
-
-        public override IBulkUploadObject CreateObjectInstance()
-        {
-            var bulkObject = Activator.CreateInstance(typeof(EpgAsset)) as EpgAsset;
-            return bulkObject;
-        }
-        
-        public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> objects)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Dictionary<string, object> GetMandatoryPropertyToValueMap()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatus)
-        {
-            throw new NotImplementedException();
         }
     }
 }

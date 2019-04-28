@@ -9,7 +9,6 @@ using System.Security.Cryptography;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
-using System.Security.Cryptography.Xml;
 using Core.Users.Saml;
 using System.IO;
 using System.Web;

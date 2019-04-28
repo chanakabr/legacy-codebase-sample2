@@ -271,7 +271,7 @@ namespace Core.Catalog
 
             HashSet<string> fileTypesSystemName = new HashSet<string>();
             Dictionary<string, List<LanguageContainer>> dicMetas = new Dictionary<string, List<LanguageContainer>>();
-            Dictionary<string, ImageType> imageTypesMapBySystemName = ImageManager.GetImageTypesMapBySystemName(groupId);
+            Dictionary<string, ImageType> imageTypesMapBySystemName = Core.Catalog.CatalogManagement.ImageManager.GetImageTypesMapBySystemName(groupId);
 
             foreach (var columnValue in columnNamesToValues)
             {

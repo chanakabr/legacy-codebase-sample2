@@ -7651,7 +7651,16 @@ namespace Core.Api
                 response.ExternalChannel = CatalogDAL.InsertExternalChannel(groupId, externalChannel);
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
-                    CreateVirtualChannel(groupId, userId, response.ExternalChannel);
+                    if (response.ExternalChannel.HasMetadata)
+                    {
+                        CatalogDAL.SaveChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External, externalChannel.MetaData);
+                        response.ExternalChannel.MetaData = externalChannel.MetaData;
+                    }
+
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    {
+                        CreateVirtualChannel(groupId, userId, response.ExternalChannel);
+                    }
 
                     response.Status = new Status((int)eResponseStatus.OK, "new external channel insert");
                 }
@@ -7704,15 +7713,21 @@ namespace Core.Api
                 bool isSet = CatalogDAL.DeleteExternalChannel(groupId, externalChannelId);
                 if (isSet)
                 {
-                    //delete virtual asset
-                    bool needToCreateVirtualAsset = false;
-                    Asset virtualChannel = GetVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
-                    if (virtualChannel != null)
+                    // delete meta data
+                    CatalogDAL.DeleteChannelMetaData(externalChannelId, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
                     {
-                        Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
-                        if (status == null || !status.IsOkStatusCode())
+                        //delete virtual asset
+                        bool needToCreateVirtualAsset = false;
+                        Asset virtualChannel = GetVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
+                        if (virtualChannel != null)
                         {
-                            log.ErrorFormat("Failed delete virtual asset {0}. for external channel {1}", virtualChannel.Id, externalChannelId);
+                            Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
+                            if (status == null || !status.IsOkStatusCode())
+                            {
+                                log.ErrorFormat("Failed delete virtual asset {0}. for external channel {1}", virtualChannel.Id, externalChannelId);
+                            }
                         }
                     }
 
@@ -7821,7 +7836,27 @@ namespace Core.Api
 
                 if (response.ExternalChannel != null && response.ExternalChannel.ID > 0)
                 {
-                    if (!isFromAsset)
+                    var metaData = externalChannel.MetaData;
+
+                    if (metaData != null)
+                    {
+                        if (metaData.Any())
+                        {
+                            CatalogDAL.SaveChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External, metaData);
+                        }
+                        else
+                        {
+                            CatalogDAL.DeleteChannelMetaData(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+                        }
+                    }
+                    else if (response.ExternalChannel.HasMetadata)
+                    {
+                        metaData = CatalogDAL.GetChannelMetadataById(response.ExternalChannel.ID, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+                    }
+
+                    response.ExternalChannel.MetaData = metaData;
+
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId) && !isFromAsset)
                     {
                         UpdateVirtualAsset(groupId, userId, response.ExternalChannel);
                     }
@@ -7900,6 +7935,8 @@ namespace Core.Api
                         response.ExternalChannels = response.ExternalChannels.Where(x => x.AssetUserRuleId == ruleId).ToList();
                     }
 
+                    AddMetaData(response.ExternalChannels);
+
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -7912,6 +7949,26 @@ namespace Core.Api
 
             return response;
         }
+
+        private static void AddMetaData(List<ExternalChannel> externalChannels)
+        {
+            var channelsWithMetadata = externalChannels.Where(ec => ec.HasMetadata).ToList();
+            var ids = channelsWithMetadata.Select(ec => ec.ID).ToList();
+
+            if (ids.Any())
+            {
+                var metadatas = CatalogDAL.GetChannelsMetadataByIds(ids, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
+
+                foreach (var cwm in channelsWithMetadata)
+                {
+                    if (metadatas.ContainsKey(cwm.ID))
+                    {
+                        cwm.MetaData = metadatas[cwm.ID];
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Bulk Export
@@ -8383,7 +8440,7 @@ namespace Core.Api
             return result;
         }
 
-        public static ApiObjects.Roles.PermissionsResponse GetGroupPermissions(int groupId)
+        public static ApiObjects.Roles.PermissionsResponse GetGroupPermissions(int groupId, long? roleIdIn)
         {
             PermissionsResponse response = new PermissionsResponse()
             {
@@ -8392,7 +8449,7 @@ namespace Core.Api
 
             try
             {
-                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId);
+                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
                 if (response.Permissions != null)
                 {
                     response.Permissions = response.Permissions.OrderBy(x => x.Id).ToList();

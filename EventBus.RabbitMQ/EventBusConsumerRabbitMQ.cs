@@ -30,14 +30,14 @@ namespace EventBus.RabbitMQ
         private string _QueueName;
         private bool _Disposed;
 
-        public static EventBusConsumerRabbitMQ GetInstanceUsingTCMConfiguration(IServiceProvider serviceProvide, IRabbitMQPersistentConnection persistentConnection, string queueName)
+        public static EventBusConsumerRabbitMQ GetInstanceUsingTCMConfiguration(IServiceProvider serviceProvide, IRabbitMQPersistentConnection persistentConnection, string queueName, int concurrentConsumers)
         {
             var eventBusConsumer = new EventBusConsumerRabbitMQ(
-                serviceProvide, 
+                serviceProvide,
                 persistentConnection,
-                ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value, 
-                queueName, 
-                4); // TODO: Make concurrent consumers configurable from TCM
+                ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value,
+                queueName,
+                concurrentConsumers);
 
             return eventBusConsumer;
         }
@@ -130,7 +130,7 @@ namespace EventBus.RabbitMQ
             {
                 _Logger.Info($"Handlers list is empty, closing connection");
                 _QueueName = string.Empty;
-                _ConsumerChannels.ForEach(c=>c.Close());
+                _ConsumerChannels.ForEach(c => c.Close());
             }
         }
 
@@ -142,21 +142,20 @@ namespace EventBus.RabbitMQ
             try
             {
                 _Logger.Debug($"Disposing [{_ConsumerChannels?.Count}] consumers...");
-                _ConsumerChannels?.ForEach(c =>
+                foreach (var consumer in _ConsumerChannels)
                 {
-                    _Logger.Debug($"Disposing: [{c.ToString()}]");
-                    c.Dispose();
-                });
+                    _Logger.Debug($"Disposing: [{consumer.ToString()}]");
+                    consumer.Dispose();
+                }
 
                 _Logger.Debug($"Disposing Connection...");
-
                 _PersistentConnection.Dispose();
             }
             catch (Exception e)
             {
                 _Logger.Error("Error while disposing consumer ", e);
             }
-            
+
 
         }
 
@@ -196,7 +195,7 @@ namespace EventBus.RabbitMQ
             currentConsumer.CallbackException += ConsumerOnCallbackException;
 
         }
-      
+
         private void TryRemoveSubscription(SubscriptionInfo subscription, HashSet<SubscriptionInfo> handlersForEvent, string eventName)
         {
             if (handlersForEvent.Remove(subscription))
@@ -281,11 +280,20 @@ namespace EventBus.RabbitMQ
 
                     var eventType = subscription.EventType;
                     var serviceEvent = JsonConvert.DeserializeObject(message, eventType);
-
+                    SetLoggingContext(serviceEvent);
                     await (Task)handleMethod.Invoke(handler, new[] { serviceEvent });
                 }
             }
 
+        }
+
+        private void SetLoggingContext(object serviceEvent)
+        {
+            // TODO: Arthur, Think of the bigger context picture and how should it be managed, for logging and for in memepry data store
+            var eventData = (ServiceEvent)serviceEvent;
+            KLogger.LogContextData[KLogMonitor.Constants.USER_ID] = eventData.UserId;
+            KLogger.LogContextData[KLogMonitor.Constants.GROUP_ID] = eventData.GroupId;
+            KLogger.LogContextData[KLogMonitor.Constants.REQUEST_ID_KEY] = eventData.RequestId;
         }
 
         private void InitializeNewEventBinding(string eventName)
@@ -295,6 +303,6 @@ namespace EventBus.RabbitMQ
             {
                 channel.QueueBind(_QueueName, _ExchangeName, eventName);
             }
-        }     
+        }
     }
 }

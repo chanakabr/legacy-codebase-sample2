@@ -234,7 +234,6 @@ namespace Core.Catalog.Cache
                         return groupRatioIdToPicSize;
                     }
 
-                    groupRatioIdToPicSize = new Dictionary<long, List<PicSize>>();
                     foreach (DataRow row in picsSizeRows)
                     {
                         var picSize = new PicSize()

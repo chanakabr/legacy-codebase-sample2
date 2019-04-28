@@ -1922,6 +1922,7 @@ namespace Core.Catalog
                 searchObj.m_bUseStartDate = request.m_oFilter.m_bUseStartDate;
                 searchObj.m_bUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 searchObj.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
+                searchObj.m_bUseActive = request.m_oFilter.m_bOnlyActiveMedia;
 
                 searchObj.m_nMediaID = request.m_nMediaID;
                 if (request.m_nMediaTypes != null && request.m_nMediaTypes.Count > 0)
@@ -3221,9 +3222,12 @@ namespace Core.Catalog
                     case eObjectType.Unknown:
                         break;
                     case eObjectType.Media:
-                        foreach (long id in ids)
+                        if (action != eAction.GeoUpdate)
                         {
-                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
+                            foreach (long id in ids)
+                            {
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
+                            }
                         }
                         break;
                     case eObjectType.Channel:
@@ -6167,12 +6171,13 @@ namespace Core.Catalog
                         groupId = request.m_nGroupID,
                         permittedWatchRules = watchRules,
                         specificAssets = new Dictionary<eAssetTypes, List<string>>(),
-                        shouldUseEndDateForEpg = true,
-                        shouldUseStartDateForEpg = true,
                         shouldUseFinalEndDate = true,
                         shouldUseStartDateForMedia = true,
                         shouldAddIsActiveTerm = true,
-                        shouldIgnoreDeviceRuleID = true
+                        shouldIgnoreDeviceRuleID = true,
+                        shouldUseSearchEndDate = true,
+                        shouldUseEndDateForEpg = false,
+                        shouldUseStartDateForEpg = false
                     };
 
                     int elasticSearchPageSize = 0;
@@ -8105,7 +8110,7 @@ namespace Core.Catalog
                             }
                         }
                     }
-                    else if (definitions.isInternalSearch && internalReservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
+                    else if (internalReservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.shouldLowercase = false;
 
@@ -8565,7 +8570,7 @@ namespace Core.Catalog
 
             #region Geo Availability
 
-            if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
+            if (!definitions.isAllowedToViewInactiveAssets && doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
             {
                 definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
             }

@@ -1,10 +1,7 @@
-﻿using ApiObjects.BulkUpload;
-using Core.Catalog;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
-namespace Core.Catalog
+namespace ApiObjects.BulkUpload
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
@@ -25,14 +22,11 @@ namespace Core.Catalog
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadEpgAssetResult : BulkUploadAssetResult
+    public class BulkUploadProgramAssetResult : BulkUploadResult
     {
-        public List<BulkUploadChannelResult> Channels { get; set; }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadChannelResult : BulkUploadResult
-    {
+        public int? ProgramId { get; set; }
+        public int LiveAssetId { get; set; }
+        public string LiveAssetExternalId { get; set; }
+        public string ProgramExternalId { get; set; }
     }
 }
