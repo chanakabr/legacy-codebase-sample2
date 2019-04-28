@@ -23,7 +23,7 @@
     <PackageReference Include="FubarDev.FtpServer" Version="2.2.1" />
     <PackageReference Include="FubarDev.FtpServer.Abstractions" Version="2.2.1" />
     <PackageReference Include="FubarDev.FtpServer.FileSystem.DotNet" Version="2.2.1" />
-    <PackageReference Include="KalturaClient.Net.Core" Version="5.2.2.1424" />
+    <PackageReference Include="KalturaClient.Net.Core" Version="5.2.2.1426" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
