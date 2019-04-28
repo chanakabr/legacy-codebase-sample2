@@ -1239,7 +1239,7 @@ namespace Core.Catalog.CatalogManagement
                             Asset virtualChannel = GetVirtualAsset(groupId, userId, channelResponse.Object, out needToCreateVirtualAsset);
                             if (virtualChannel != null)
                             {
-                                Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
+                                Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId, true);
                                 if (status == null || !status.IsOkStatusCode())
                                 {
                                     log.ErrorFormat("Failed delete virtual asset {0}. for channel {1}", virtualChannel.Id, channelId);

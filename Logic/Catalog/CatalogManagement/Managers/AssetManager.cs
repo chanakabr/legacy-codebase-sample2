@@ -2657,7 +2657,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status DeleteAsset(int groupId, long id, eAssetTypes assetType, long userId)
+        public static Status DeleteAsset(int groupId, long id, eAssetTypes assetType, long userId, bool isFromChannel = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -2679,7 +2679,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.NPVR:
                         break;
                     case eAssetTypes.MEDIA:
-                        result = DeleteMediaAsset(groupId, id, userId, assets[0] as MediaAsset);                        
+                        result = DeleteMediaAsset(groupId, id, userId, assets[0] as MediaAsset, isFromChannel);                        
                         break;
                     default:
                     case eAssetTypes.UNKNOWN:
