@@ -55,7 +55,7 @@ namespace Uploader
                     if (!string.IsNullOrEmpty(m_sRegion))
                         amazonS3Config.RegionEndpoint = RegionEndpoint.GetBySystemName(m_sRegion);
 
-                    using (IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
+                    using (IAmazonS3 client = new AmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
                     {
                         PutObjectRequest request = new PutObjectRequest
                         {
@@ -65,7 +65,7 @@ namespace Uploader
                             CannedACL = S3CannedACL.PublicRead
                         };
 
-                        PutObjectResponse putObjectResponse = client.PutObject(request);
+                        PutObjectResponse putObjectResponse = client.PutObjectAsync(request).GetAwaiter().GetResult();
 
                         using (var md5Hasher = MD5.Create())
                         {
@@ -186,7 +186,7 @@ namespace Uploader
                         if (!string.IsNullOrEmpty(m_sRegion))
                             amazonS3Config.RegionEndpoint = RegionEndpoint.GetBySystemName(m_sRegion);
 
-                        using (IAmazonS3 client = Amazon.AWSClientFactory.CreateAmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
+                        using (IAmazonS3 client = new AmazonS3Client(m_sUserName, m_sPass, amazonS3Config))
                         {
                             PutObjectRequest request = new PutObjectRequest();
 
@@ -196,7 +196,7 @@ namespace Uploader
                             request.Key = m_sPrefix + "/" + fileInf.Name;
                             request.CannedACL = S3CannedACL.PublicRead;
 
-                            PutObjectResponse putObjectResponse = client.PutObject(request);
+                            PutObjectResponse putObjectResponse = client.PutObjectAsync(request).GetAwaiter().GetResult();
 
                             using (var md5Hasher = MD5.Create())
                             {
