@@ -128,7 +128,7 @@ namespace AdapterControllers.CDVR
             return result;
         }
 
-        public RecordResult Record(int partnerId, long startTimeSeconds, long durationSeconds, string channelId, int adapterId)
+        public RecordResult Record(int partnerId, long startTimeSeconds, long durationSeconds, string epgId, string channelId, int adapterId, List<long> domainIds)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -166,7 +166,7 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         //call Adapter Record
-                        adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.Record(startTimeSeconds, durationSeconds, epgId, channelId, domainIds, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -198,7 +198,7 @@ namespace AdapterControllers.CDVR
                         try
                         {
                             //call Adapter Record - after it is configured
-                            adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.Record(startTimeSeconds, durationSeconds, epgId, channelId, domainIds, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
@@ -235,7 +235,7 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult GetRecordingStatus(int partnerId, string channelId, string recordingId, int adapterId)
+        public RecordResult GetRecordingStatus(int partnerId, string channelId, string recordingId, int adapterId, List<long> domainIds)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -273,7 +273,7 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         //call Adapter GetRecordingStatus
-                        adapterResponse = client.GetRecordingStatus(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.GetRecordingStatus(recordingId, channelId, domainIds, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -304,7 +304,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingStatus - after it is configured
                         try
                         {
-                            adapterResponse = client.GetRecordingStatus(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.GetRecordingStatus(recordingId, channelId, domainIds, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
@@ -341,7 +341,7 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult UpdateRecordingSchedule(int partnerId, string channelId, string recordingId, int adapterId, long startDateSeconds, long durationSeconds)
+        public RecordResult UpdateRecordingSchedule(int partnerId, string epgId, string channelId, string recordingId, int adapterId, long startDateSeconds, long durationSeconds)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -379,7 +379,7 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         adapterResponse =
-                            client.UpdateRecordingSchedule(recordingId, channelId, adapterId, startDateSeconds, durationSeconds, 
+                            client.UpdateRecordingSchedule(recordingId, epgId, channelId, adapterId, startDateSeconds, durationSeconds, 
                             timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
@@ -412,7 +412,7 @@ namespace AdapterControllers.CDVR
                         try
                         {
                             adapterResponse =
-                                client.UpdateRecordingSchedule(recordingId, channelId, adapterId, startDateSeconds, durationSeconds,
+                                client.UpdateRecordingSchedule(recordingId, epgId, channelId, adapterId, startDateSeconds, durationSeconds,
                                 timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
@@ -456,7 +456,7 @@ namespace AdapterControllers.CDVR
         /// <param name="recordingId">External recording ID</param>
         /// <param name="adapterId"></param>
         /// <returns></returns>
-        public RecordResult CancelRecording(int partnerId, string channelId, string recordingId, int adapterId)
+        public RecordResult CancelRecording(int partnerId, string epgId, string channelId, string recordingId, int adapterId, long domainId)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -494,7 +494,7 @@ namespace AdapterControllers.CDVR
                     //call Adapter CancelRecording
                     try
                     {
-                        adapterResponse = client.CancelRecording(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.CancelRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -525,7 +525,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter CancelRecording - after it is configured
                         try
                         {
-                            adapterResponse = client.CancelRecording(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.CancelRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
@@ -562,7 +562,7 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult DeleteRecording(int partnerId, string channelId, string recordingId, int adapterId)
+        public RecordResult DeleteRecording(int partnerId, string epgId, string channelId, string recordingId, int adapterId, long domainId)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -600,7 +600,7 @@ namespace AdapterControllers.CDVR
                     //call Adapter DeleteRecording
                     try
                     {
-                        adapterResponse = client.DeleteRecording(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.DeleteRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -631,7 +631,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter - DeleteRecording after it is configured
                         try
                         {
-                            adapterResponse = client.DeleteRecording(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.DeleteRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
@@ -668,7 +668,7 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult GetRecordingLinks(int partnerId, string channelId, string recordingId, int adapterId)
+        public RecordResult GetRecordingLinks(int partnerId, string channelId, string recordingId, int adapterId, long domainId)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -706,7 +706,7 @@ namespace AdapterControllers.CDVR
                     //call Adapter GetRecordingLinks
                     try
                     {
-                        adapterResponse = client.GetRecordingLinks(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.GetRecordingLinks(recordingId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -737,7 +737,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingLinks - after it is configured
                         try
                         {
-                            adapterResponse = client.GetRecordingLinks(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.GetRecordingLinks(recordingId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
@@ -781,6 +781,7 @@ namespace AdapterControllers.CDVR
         private static RecordResult CreateRecordResult(cdvrAdap.RecordingResponse adapterResponse)
         {
             List<ApiObjects.TimeShiftedTv.RecordingLink> links = new List<ApiObjects.TimeShiftedTv.RecordingLink>();
+            List<long> failedDomainIds = new List<long>();
 
             if (adapterResponse.Recording.Links != null)
             {
@@ -792,6 +793,11 @@ namespace AdapterControllers.CDVR
                         }).ToList();
             }
 
+            if (adapterResponse.Recording.FailedDomainIds != null)
+            {
+                failedDomainIds.AddRange(adapterResponse.Recording.FailedDomainIds);
+            }
+
             bool actionSuccess = adapterResponse.Recording.RecordingState == 0;
 
             RecordResult recordResult = new RecordResult()
@@ -801,8 +807,10 @@ namespace AdapterControllers.CDVR
                 ActionSuccess = actionSuccess,
                 FailReason = adapterResponse.Recording.FailReason,
                 ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
+                ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage,
+                FailedDomainIds = failedDomainIds
             };
+
             return recordResult;
         }
 
