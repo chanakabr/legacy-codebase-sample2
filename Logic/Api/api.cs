@@ -7677,7 +7677,7 @@ namespace Core.Api
             return response;
         }
 
-        public static Status DeleteExternalChannel(int groupId, int externalChannelId, long userId)
+        public static Status DeleteExternalChannel(int groupId, int externalChannelId, long userId, bool isFromAsset = false)
         {
             Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
@@ -7716,7 +7716,7 @@ namespace Core.Api
                     // delete meta data
                     CatalogDAL.DeleteChannelMetaData(externalChannelId, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
 
-                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId) && !isFromAsset)
                     {
                         //delete virtual asset
                         bool needToCreateVirtualAsset = false;
