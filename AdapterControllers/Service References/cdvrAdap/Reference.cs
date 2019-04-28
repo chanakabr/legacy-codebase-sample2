@@ -209,6 +209,9 @@ namespace AdapterControllers.cdvrAdap {
         private int FailReasonField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<long> FailedDomainIdsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<AdapterControllers.cdvrAdap.RecordingLink> LinksField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -242,6 +245,19 @@ namespace AdapterControllers.cdvrAdap {
                 if ((this.FailReasonField.Equals(value) != true)) {
                     this.FailReasonField = value;
                     this.RaisePropertyChanged("FailReason");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<long> FailedDomainIds {
+            get {
+                return this.FailedDomainIdsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FailedDomainIdsField, value) != true)) {
+                    this.FailedDomainIdsField = value;
+                    this.RaisePropertyChanged("FailedDomainIds");
                 }
             }
         }
@@ -393,40 +409,40 @@ namespace AdapterControllers.cdvrAdap {
         System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.AdapterStatus> SetConfigurationAsync(int adapterId, System.Collections.Generic.List<AdapterControllers.cdvrAdap.KeyValue> settings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Record", ReplyAction="http://tempuri.org/IService/RecordResponse")]
-        AdapterControllers.cdvrAdap.RecordingResponse Record(long startTimeSeconds, long durationSeconds, string channelId, int adapterId, long timeStamp, string signature);
+        AdapterControllers.cdvrAdap.RecordingResponse Record(long startTimeSeconds, long durationSeconds, string epgId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Record", ReplyAction="http://tempuri.org/IService/RecordResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> RecordAsync(long startTimeSeconds, long durationSeconds, string channelId, int adapterId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> RecordAsync(long startTimeSeconds, long durationSeconds, string epgId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingStatus", ReplyAction="http://tempuri.org/IService/GetRecordingStatusResponse")]
-        AdapterControllers.cdvrAdap.RecordingResponse GetRecordingStatus(string recordingId, string channelId, int adapterId, long timeStamp, string signature);
+        AdapterControllers.cdvrAdap.RecordingResponse GetRecordingStatus(string recordingId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingStatus", ReplyAction="http://tempuri.org/IService/GetRecordingStatusResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingStatusAsync(string recordingId, string channelId, int adapterId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingStatusAsync(string recordingId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/UpdateRecordingSchedule", ReplyAction="http://tempuri.org/IService/UpdateRecordingScheduleResponse")]
-        AdapterControllers.cdvrAdap.RecordingResponse UpdateRecordingSchedule(string recordingId, string channelId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature);
+        AdapterControllers.cdvrAdap.RecordingResponse UpdateRecordingSchedule(string recordingId, string epgId, string channelId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/UpdateRecordingSchedule", ReplyAction="http://tempuri.org/IService/UpdateRecordingScheduleResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> UpdateRecordingScheduleAsync(string recordingId, string channelId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> UpdateRecordingScheduleAsync(string recordingId, string epgId, string channelId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/CancelRecording", ReplyAction="http://tempuri.org/IService/CancelRecordingResponse")]
-        AdapterControllers.cdvrAdap.RecordingResponse CancelRecording(string recordingId, string channelId, int adapterId, long timeStamp, string signature);
+        AdapterControllers.cdvrAdap.RecordingResponse CancelRecording(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/CancelRecording", ReplyAction="http://tempuri.org/IService/CancelRecordingResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> CancelRecordingAsync(string recordingId, string channelId, int adapterId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> CancelRecordingAsync(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/DeleteRecording", ReplyAction="http://tempuri.org/IService/DeleteRecordingResponse")]
-        AdapterControllers.cdvrAdap.RecordingResponse DeleteRecording(string recordingId, string channelId, int adapterId, long timeStamp, string signature);
+        AdapterControllers.cdvrAdap.RecordingResponse DeleteRecording(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/DeleteRecording", ReplyAction="http://tempuri.org/IService/DeleteRecordingResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> DeleteRecordingAsync(string recordingId, string channelId, int adapterId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> DeleteRecordingAsync(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingLinks", ReplyAction="http://tempuri.org/IService/GetRecordingLinksResponse")]
-        AdapterControllers.cdvrAdap.RecordingResponse GetRecordingLinks(string recordingId, string channelId, int adapterId, long timeStamp, string signature);
+        AdapterControllers.cdvrAdap.RecordingResponse GetRecordingLinks(string recordingId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingLinks", ReplyAction="http://tempuri.org/IService/GetRecordingLinksResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingLinksAsync(string recordingId, string channelId, int adapterId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingLinksAsync(string recordingId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -464,52 +480,52 @@ namespace AdapterControllers.cdvrAdap {
             return base.Channel.SetConfigurationAsync(adapterId, settings, partnerId, timeStamp, signature);
         }
         
-        public AdapterControllers.cdvrAdap.RecordingResponse Record(long startTimeSeconds, long durationSeconds, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.Record(startTimeSeconds, durationSeconds, channelId, adapterId, timeStamp, signature);
+        public AdapterControllers.cdvrAdap.RecordingResponse Record(long startTimeSeconds, long durationSeconds, string epgId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature) {
+            return base.Channel.Record(startTimeSeconds, durationSeconds, epgId, channelId, domainIds, adapterId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> RecordAsync(long startTimeSeconds, long durationSeconds, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.RecordAsync(startTimeSeconds, durationSeconds, channelId, adapterId, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> RecordAsync(long startTimeSeconds, long durationSeconds, string epgId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature) {
+            return base.Channel.RecordAsync(startTimeSeconds, durationSeconds, epgId, channelId, domainIds, adapterId, timeStamp, signature);
         }
         
-        public AdapterControllers.cdvrAdap.RecordingResponse GetRecordingStatus(string recordingId, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.GetRecordingStatus(recordingId, channelId, adapterId, timeStamp, signature);
+        public AdapterControllers.cdvrAdap.RecordingResponse GetRecordingStatus(string recordingId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetRecordingStatus(recordingId, channelId, domainIds, adapterId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingStatusAsync(string recordingId, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.GetRecordingStatusAsync(recordingId, channelId, adapterId, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingStatusAsync(string recordingId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetRecordingStatusAsync(recordingId, channelId, domainIds, adapterId, timeStamp, signature);
         }
         
-        public AdapterControllers.cdvrAdap.RecordingResponse UpdateRecordingSchedule(string recordingId, string channelId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature) {
-            return base.Channel.UpdateRecordingSchedule(recordingId, channelId, adapterId, startDateSeconds, durationSeconds, timeStamp, signature);
+        public AdapterControllers.cdvrAdap.RecordingResponse UpdateRecordingSchedule(string recordingId, string epgId, string channelId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature) {
+            return base.Channel.UpdateRecordingSchedule(recordingId, epgId, channelId, adapterId, startDateSeconds, durationSeconds, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> UpdateRecordingScheduleAsync(string recordingId, string channelId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature) {
-            return base.Channel.UpdateRecordingScheduleAsync(recordingId, channelId, adapterId, startDateSeconds, durationSeconds, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> UpdateRecordingScheduleAsync(string recordingId, string epgId, string channelId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature) {
+            return base.Channel.UpdateRecordingScheduleAsync(recordingId, epgId, channelId, adapterId, startDateSeconds, durationSeconds, timeStamp, signature);
         }
         
-        public AdapterControllers.cdvrAdap.RecordingResponse CancelRecording(string recordingId, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.CancelRecording(recordingId, channelId, adapterId, timeStamp, signature);
+        public AdapterControllers.cdvrAdap.RecordingResponse CancelRecording(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.CancelRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> CancelRecordingAsync(string recordingId, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.CancelRecordingAsync(recordingId, channelId, adapterId, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> CancelRecordingAsync(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.CancelRecordingAsync(recordingId, epgId, channelId, domainId, adapterId, timeStamp, signature);
         }
         
-        public AdapterControllers.cdvrAdap.RecordingResponse DeleteRecording(string recordingId, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.DeleteRecording(recordingId, channelId, adapterId, timeStamp, signature);
+        public AdapterControllers.cdvrAdap.RecordingResponse DeleteRecording(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.DeleteRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> DeleteRecordingAsync(string recordingId, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.DeleteRecordingAsync(recordingId, channelId, adapterId, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> DeleteRecordingAsync(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.DeleteRecordingAsync(recordingId, epgId, channelId, domainId, adapterId, timeStamp, signature);
         }
         
-        public AdapterControllers.cdvrAdap.RecordingResponse GetRecordingLinks(string recordingId, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.GetRecordingLinks(recordingId, channelId, adapterId, timeStamp, signature);
+        public AdapterControllers.cdvrAdap.RecordingResponse GetRecordingLinks(string recordingId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetRecordingLinks(recordingId, channelId, domainId, adapterId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingLinksAsync(string recordingId, string channelId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.GetRecordingLinksAsync(recordingId, channelId, adapterId, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingLinksAsync(string recordingId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetRecordingLinksAsync(recordingId, channelId, domainId, adapterId, timeStamp, signature);
         }
     }
 }
