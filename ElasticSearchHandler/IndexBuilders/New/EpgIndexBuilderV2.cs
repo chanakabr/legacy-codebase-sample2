@@ -438,7 +438,7 @@ namespace ElasticSearchHandler.IndexBuilders
             }
 
             // Run on all programs
-                foreach (ulong epgID in programs.Keys)
+            foreach (ulong epgID in programs.Keys)
             {
                 foreach (string languageCode in programs[epgID].Keys)
                 {

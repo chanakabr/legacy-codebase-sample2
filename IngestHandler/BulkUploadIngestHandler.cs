@@ -88,7 +88,7 @@ namespace IngestHandler
         {
             if (serviceEvent.ProgramsToIngest == null)
             {
-                throw new Exception($"Received bulk upload ingest event with null programs to insert. group id ={serviceEvent.GroupId} id = {serviceEvent.BulkUploadId}");
+                throw new Exception($"Received bulk upload ingest event with null programs to insert. group id = {serviceEvent.GroupId} id = {serviceEvent.BulkUploadId}");
             }
 
             long bulkUploadId = serviceEvent.BulkUploadId;
