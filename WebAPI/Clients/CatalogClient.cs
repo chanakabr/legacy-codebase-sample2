@@ -156,7 +156,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaDataType? type, KalturaMetaOrderBy? orderBy,
-                                                bool? multipleValue = null, long assetStructId = 0)
+                                                bool? multipleValue = null, long? assetStructId = null)
         {
             KalturaMetaListResponse result = new KalturaMetaListResponse() { TotalCount = 0 };
 
@@ -168,9 +168,9 @@ namespace WebAPI.Clients
                     metaType = CatalogMappings.ConvertToMetaType(type, multipleValue);
                 }
 
-                if (assetStructId > 0)
+                if (assetStructId.HasValue)
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByAssetStructId(groupId, assetStructId, metaType);
+                    return Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByAssetStructId(groupId, assetStructId.Value, metaType);
                 }
                 else
                 {
@@ -3196,8 +3196,9 @@ namespace WebAPI.Clients
 
         internal KalturaTag UpdateTag(int groupId, long id, KalturaTag tag, long userId)
         {
+            tag.Id = id;
             Func<TagValue, GenericResponse<TagValue>> updateTagFunc = (TagValue tagToUpdate) =>
-                Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId, id, tagToUpdate, userId);
+                Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId, tagToUpdate, userId);
 
             KalturaTag result =
                 ClientUtils.GetResponseFromWS<KalturaTag, TagValue>(tag, updateTagFunc);

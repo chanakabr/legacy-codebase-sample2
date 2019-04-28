@@ -78,6 +78,11 @@ namespace Reflector
             else if (propertyType.IsEnum)
             {
                 file.WriteLine("                    " + property.Name + " = (" + propertyType.Name + ") Enum.Parse(typeof(" + propertyType.Name + "), parameters[\"" + apiName + "\"].ToString(), true);");
+                file.WriteLine();
+                file.WriteLine("                    if (!Enum.IsDefined(typeof(" + propertyType.Name + "), " + property.Name + "))");
+                file.WriteLine("                    {");
+                file.WriteLine("                        throw new ArgumentException(string.Format(\"Invalid enum parameter value {0} was sent for enum type {1}\", " + property.Name + ", typeof(" + propertyType.Name + ")));");
+                file.WriteLine("                    }");
             }
             else if (propertyType == typeof(DateTime))
             {

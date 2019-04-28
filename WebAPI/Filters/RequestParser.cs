@@ -247,7 +247,11 @@ namespace WebAPI.Filters
                 HttpContext.Current.Items.Add(REQUEST_CURRENCY, HttpContext.Current.Items[REQUEST_GLOBAL_CURRENCY]);
             }
 
-            // format                        
+            // format    
+            if (HttpContext.Current.Items.Contains(REQUEST_FORMAT))
+            {
+                HttpContext.Current.Items.Remove(REQUEST_FORMAT);
+            } 
             if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[REQUEST_FORMAT]))
             {
                 HttpContext.Current.Items.Add(REQUEST_FORMAT, HttpContext.Current.Request.QueryString[REQUEST_FORMAT]);
@@ -913,6 +917,11 @@ namespace WebAPI.Filters
                         if (paramAsString != null)
                         {
                             value = Enum.Parse(methodArg.Type, paramAsString, true);
+
+                            if (!Enum.IsDefined(methodArg.Type, value))
+                            {
+                                throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", value, methodArg.Type));
+                            }
                         }
                     }
 

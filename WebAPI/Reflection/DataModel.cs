@@ -977,6 +977,32 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBulkUploadLiveAssetResult":
+                    switch(property.Name)
+                    {
+                        case "ExternalEpgIngestId":
+                            return "externalEpgIngestId";
+                        case "Id":
+                            return "id";
+                        case "Programs":
+                            return "programs";
+                    }
+                    break;
+                    
+                case "KalturaBulkUploadProgramAssetResult":
+                    switch(property.Name)
+                    {
+                        case "LiveAssetExternalId":
+                            return "liveAssetExternalId";
+                        case "LiveAssetId":
+                            return "liveAssetId";
+                        case "ProgramExternalId":
+                            return "programExternalId";
+                        case "ProgramId":
+                            return "programId";
+                    }
+                    break;
+                    
                 case "KalturaBulkUploadResult":
                     switch(property.Name)
                     {
@@ -1180,6 +1206,8 @@ namespace WebAPI.Reflection
                             return "isActive";
                         case "MediaTypes":
                             return "media_types";
+                        case "MetaData":
+                            return "metaData";
                         case "Name":
                             return "name";
                         case "OldDescription":
@@ -2252,6 +2280,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IsActive":
                             return "isActive";
+                        case "MetaData":
+                            return "metaData";
                         case "Name":
                             return "name";
                         case "RecommendationEngineId":
@@ -3964,6 +3994,8 @@ namespace WebAPI.Reflection
                     {
                         case "CurrentUserPermissionsContains":
                             return "currentUserPermissionsContains";
+                        case "RoleIDIn":
+                            return "roleIdIn";
                     }
                     break;
                     

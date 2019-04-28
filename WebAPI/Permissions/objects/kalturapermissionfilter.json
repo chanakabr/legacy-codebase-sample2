@@ -5,9 +5,9 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaSession_Privileges_Read",
-      "object": "KalturaSession",
-      "parameter": "Privileges",
+      "name": "KalturaPermissionFilter_RoleIDIn_Read",
+      "object": "KalturaPermissionFilter",
+      "parameter": "RoleIDIn",
       "action": "READ",
       "type": "Parameter"
     }

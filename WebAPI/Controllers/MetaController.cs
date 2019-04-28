@@ -124,9 +124,9 @@ namespace WebAPI.Controllers
                 if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                 {
                     filter.Validate();
-                    if (filter.AssetStructIdEqual.HasValue && filter.AssetStructIdEqual.Value > 0)
+                    if (filter.AssetStructIdEqual.HasValue)
                     {
-                        response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValueEqual, filter.AssetStructIdEqual.Value);
+                        response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValueEqual, filter.AssetStructIdEqual);
                     }
                     else
                     {

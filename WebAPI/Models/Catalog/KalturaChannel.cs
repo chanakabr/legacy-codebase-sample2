@@ -203,6 +203,14 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public long? AssetUserRuleId { get; set; }
 
+        /// <summary>
+        /// key/value map field for extra data
+        /// </summary>
+        [DataMember(Name = "metaData")]
+        [JsonProperty("metaData")]
+        [XmlElement(ElementName = "metaData")]
+        public SerializableDictionary<string, KalturaStringValue> MetaData { get; set; }
+
         internal virtual void ValidateForInsert()
         {
             if (string.IsNullOrEmpty(SystemName))

@@ -4986,6 +4986,16 @@
             <param name="silent">Fail silently</param>
             <returns>True if the property is permitted, false otherwise</returns>
         </member>
+        <member name="M:WebAPI.Managers.RolesManager.IsPropertyPermitted(System.String,System.String,WebAPI.Filters.RequestType,System.Boolean)">
+            <summary>
+            Checks if a property of an object is allowed
+            </summary>
+            <param name="type">Type name</param>
+            <param name="property">Property name</param>
+            <param name="action">Required action</param>
+            <param name="silent">Fail silently</param>
+            <returns>True if the property is permitted, false otherwise</returns>
+        </member>
         <member name="M:WebAPI.Managers.RolesManager.ValidateArgumentPermitted(System.String,System.String,System.String,System.Boolean)">
             <summary>
             Checks if a property of an object is allowed
@@ -4995,6 +5005,22 @@
             <param name="argument">Argument name</param>
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaIngestProfileAutofillPolicy">
+            <summary>
+            0 - reject input with holes
+            1 - autofill holes
+            2 - keep holes and don’t autofill
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaIngestProfileOverlapPolicy">
+            <summary>
+            indicates how overlaps in EPG should be managed
+            (a setting per liniar media id will also be avaiable)
+            0 - reject input with overlap
+            1 - cut source
+            2 - cut target
+            </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaIngestProfile">
             <summary>
@@ -6129,6 +6155,11 @@
             Indicates whether the results should be filtered by userId using the current
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaPermissionFilter.RoleIDIn">
+            <summary>
+            Return permissions by role ID
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaExportFilter">
             <summary>
             Bulk export tasks filter
@@ -6268,6 +6299,11 @@
         <member name="P:WebAPI.Models.API.KalturaExternalChannelProfile.AssetUserRuleId">
             <summary>
             Asset user rule identifier 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaExternalChannelProfile.MetaData">
+            <summary>
+            key/value map field for extra data
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaGenericRule">
@@ -8589,6 +8625,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.AssetUserRuleId">
             <summary>
             Asset user rule identifier 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.MetaData">
+            <summary>
+            key/value map field for extra data
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaIAssetable">
@@ -13182,6 +13223,41 @@
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadAssetResult.ExternalId">
             <summary>
             External identifier for the asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadLiveAssetResult.Id">
+            <summary>
+            The internal kaltura channel id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadLiveAssetResult.ExternalEpgIngestId">
+            <summary>
+            Indicates the epg asset object id in the bulk file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadLiveAssetResult.Programs">
+            <summary>
+            List of programs that were ingested to the channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.ProgramId">
+            <summary>
+            The programID that was created
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.ProgramExternalId">
+            <summary>
+            The external program Id as was sent in the bulk xml file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.LiveAssetId">
+            <summary>
+            The  live asset Id that was identified according liveAssetExternalId that was sent in bulk xml file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.LiveAssetExternalId">
+            <summary>
+            The external live asset Id as was sent in bulk xml file
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">

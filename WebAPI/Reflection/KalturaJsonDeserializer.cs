@@ -302,7 +302,7 @@ namespace WebAPI.Reflection
                     return new KalturaBulkUpload(parameters);
                     
                 case "KalturaBulkUploadAssetData":
-                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    return new KalturaBulkUploadMediaAssetData(parameters);
                     
                 case "KalturaBulkUploadAssetResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -321,6 +321,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBulkUploadListResponse":
                     return new KalturaBulkUploadListResponse(parameters);
+                    
+                case "KalturaBulkUploadLiveAssetResult":
+                    return new KalturaBulkUploadLiveAssetResult(parameters);
                     
                 case "KalturaBulkUploadMediaAssetData":
                     return new KalturaBulkUploadMediaAssetData(parameters);
@@ -1769,6 +1772,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("adsPolicy") && parameters["adsPolicy"] != null)
                 {
                     AdsPolicy = (KalturaAdsPolicy) Enum.Parse(typeof(KalturaAdsPolicy), parameters["adsPolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAdsPolicy), AdsPolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AdsPolicy, typeof(KalturaAdsPolicy)));
+                    }
                 }
                 if (parameters.ContainsKey("adsParam") && parameters["adsParam"] != null)
                 {
@@ -2165,6 +2173,11 @@ namespace WebAPI.Models.ConditionalAccess
                         itemTypeSchemaProperty.Validate("itemType", parameters["itemType"]);
                     }
                     itemType = (KalturaBillingItemsType) Enum.Parse(typeof(KalturaBillingItemsType), parameters["itemType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBillingItemsType), itemType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", itemType, typeof(KalturaBillingItemsType)));
+                    }
                 }
                 if (parameters.ContainsKey("item_type") && parameters["item_type"] != null && isOldVersion)
                 {
@@ -2173,6 +2186,11 @@ namespace WebAPI.Models.ConditionalAccess
                         itemTypeSchemaProperty.Validate("item_type", parameters["item_type"]);
                     }
                     itemType = (KalturaBillingItemsType) Enum.Parse(typeof(KalturaBillingItemsType), parameters["item_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBillingItemsType), itemType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", itemType, typeof(KalturaBillingItemsType)));
+                    }
                 }
                 if (parameters.ContainsKey("billingAction") && parameters["billingAction"] != null)
                 {
@@ -2181,6 +2199,11 @@ namespace WebAPI.Models.ConditionalAccess
                         billingActionSchemaProperty.Validate("billingAction", parameters["billingAction"]);
                     }
                     billingAction = (KalturaBillingAction) Enum.Parse(typeof(KalturaBillingAction), parameters["billingAction"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBillingAction), billingAction))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", billingAction, typeof(KalturaBillingAction)));
+                    }
                 }
                 if (parameters.ContainsKey("billing_action") && parameters["billing_action"] != null && isOldVersion)
                 {
@@ -2189,6 +2212,11 @@ namespace WebAPI.Models.ConditionalAccess
                         billingActionSchemaProperty.Validate("billing_action", parameters["billing_action"]);
                     }
                     billingAction = (KalturaBillingAction) Enum.Parse(typeof(KalturaBillingAction), parameters["billing_action"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBillingAction), billingAction))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", billingAction, typeof(KalturaBillingAction)));
+                    }
                 }
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
@@ -2260,6 +2288,11 @@ namespace WebAPI.Models.ConditionalAccess
                         paymentMethodSchemaProperty.Validate("paymentMethod", parameters["paymentMethod"]);
                     }
                     paymentMethod = (KalturaPaymentMethodType) Enum.Parse(typeof(KalturaPaymentMethodType), parameters["paymentMethod"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPaymentMethodType), paymentMethod))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", paymentMethod, typeof(KalturaPaymentMethodType)));
+                    }
                 }
                 if (parameters.ContainsKey("payment_method") && parameters["payment_method"] != null && isOldVersion)
                 {
@@ -2268,6 +2301,11 @@ namespace WebAPI.Models.ConditionalAccess
                         paymentMethodSchemaProperty.Validate("payment_method", parameters["payment_method"]);
                     }
                     paymentMethod = (KalturaPaymentMethodType) Enum.Parse(typeof(KalturaPaymentMethodType), parameters["payment_method"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPaymentMethodType), paymentMethod))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", paymentMethod, typeof(KalturaPaymentMethodType)));
+                    }
                 }
                 if (parameters.ContainsKey("paymentMethodExtraDetails") && parameters["paymentMethodExtraDetails"] != null)
                 {
@@ -2348,6 +2386,11 @@ namespace WebAPI.Models.ConditionalAccess
                         billingPriceTypeSchemaProperty.Validate("billingPriceType", parameters["billingPriceType"]);
                     }
                     billingPriceType = (KalturaBillingPriceType) Enum.Parse(typeof(KalturaBillingPriceType), parameters["billingPriceType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBillingPriceType), billingPriceType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", billingPriceType, typeof(KalturaBillingPriceType)));
+                    }
                 }
                 if (parameters.ContainsKey("externalTransactionId") && parameters["externalTransactionId"] != null)
                 {
@@ -2631,6 +2674,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("compensationType") && parameters["compensationType"] != null)
                 {
                     CompensationType = (KalturaCompensationType) Enum.Parse(typeof(KalturaCompensationType), parameters["compensationType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaCompensationType), CompensationType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", CompensationType, typeof(KalturaCompensationType)));
+                    }
                 }
                 if (parameters.ContainsKey("amount") && parameters["amount"] != null)
                 {
@@ -2685,6 +2733,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("scheme") && parameters["scheme"] != null)
                 {
                     Scheme = (KalturaDrmSchemeName) Enum.Parse(typeof(KalturaDrmSchemeName), parameters["scheme"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaDrmSchemeName), Scheme))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Scheme, typeof(KalturaDrmSchemeName)));
+                    }
                 }
                 if (parameters.ContainsKey("licenseURL") && parameters["licenseURL"] != null)
                 {
@@ -2952,6 +3005,11 @@ namespace WebAPI.Models.ConditionalAccess
                         TypeSchemaProperty.Validate("type", parameters["type"]);
                     }
                     Type = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("entitlementId") && parameters["entitlementId"] != null)
                 {
@@ -3080,6 +3138,11 @@ namespace WebAPI.Models.ConditionalAccess
                         PaymentMethodSchemaProperty.Validate("paymentMethod", parameters["paymentMethod"]);
                     }
                     PaymentMethod = (KalturaPaymentMethodType) Enum.Parse(typeof(KalturaPaymentMethodType), parameters["paymentMethod"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPaymentMethodType), PaymentMethod))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PaymentMethod, typeof(KalturaPaymentMethodType)));
+                    }
                 }
                 if (parameters.ContainsKey("payment_method") && parameters["payment_method"] != null && isOldVersion)
                 {
@@ -3088,6 +3151,11 @@ namespace WebAPI.Models.ConditionalAccess
                         PaymentMethodSchemaProperty.Validate("payment_method", parameters["payment_method"]);
                     }
                     PaymentMethod = (KalturaPaymentMethodType) Enum.Parse(typeof(KalturaPaymentMethodType), parameters["payment_method"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPaymentMethodType), PaymentMethod))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PaymentMethod, typeof(KalturaPaymentMethodType)));
+                    }
                 }
                 if (parameters.ContainsKey("deviceUdid") && parameters["deviceUdid"] != null)
                 {
@@ -3341,6 +3409,11 @@ namespace WebAPI.Models.ConditionalAccess
                         TypeSchemaProperty.Validate("type", parameters["type"]);
                     }
                     Type = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("productId") && parameters["productId"] != null)
                 {
@@ -3380,18 +3453,38 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("entitlementTypeEqual") && parameters["entitlementTypeEqual"] != null)
                 {
                     EntitlementTypeEqual = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["entitlementTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), EntitlementTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EntitlementTypeEqual, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("entitlement_type") && parameters["entitlement_type"] != null && isOldVersion)
                 {
                     EntitlementTypeEqual = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["entitlement_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), EntitlementTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EntitlementTypeEqual, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("productTypeEqual") && parameters["productTypeEqual"] != null)
                 {
                     ProductTypeEqual = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["productTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), ProductTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ProductTypeEqual, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("entityReferenceEqual") && parameters["entityReferenceEqual"] != null)
                 {
                     EntityReferenceEqual = (KalturaEntityReferenceBy) Enum.Parse(typeof(KalturaEntityReferenceBy), parameters["entityReferenceEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityReferenceBy), EntityReferenceEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EntityReferenceEqual, typeof(KalturaEntityReferenceBy)));
+                    }
                 }
                 if (parameters.ContainsKey("isExpiredEqual") && parameters["isExpiredEqual"] != null)
                 {
@@ -3488,14 +3581,29 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("entitlementType") && parameters["entitlementType"] != null)
                 {
                     EntitlementType = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["entitlementType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), EntitlementType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EntitlementType, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("entitlement_type") && parameters["entitlement_type"] != null && isOldVersion)
                 {
                     EntitlementType = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["entitlement_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), EntitlementType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EntitlementType, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
                 {
                     By = (KalturaEntityReferenceBy) Enum.Parse(typeof(KalturaEntityReferenceBy), parameters["by"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityReferenceBy), By))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", By, typeof(KalturaEntityReferenceBy)));
+                    }
                 }
             }
         }
@@ -3754,6 +3862,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("streamType") && parameters["streamType"] != null)
                 {
                     StreamType = (KalturaStreamType) Enum.Parse(typeof(KalturaStreamType), parameters["streamType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaStreamType), StreamType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", StreamType, typeof(KalturaStreamType)));
+                    }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
@@ -3930,10 +4043,20 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("context") && parameters["context"] != null)
                 {
                     Context = (KalturaPlaybackContextType) Enum.Parse(typeof(KalturaPlaybackContextType), parameters["context"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPlaybackContextType), Context))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Context, typeof(KalturaPlaybackContextType)));
+                    }
                 }
                 if (parameters.ContainsKey("urlType") && parameters["urlType"] != null)
                 {
                     UrlType = (KalturaUrlType) Enum.Parse(typeof(KalturaUrlType), parameters["urlType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUrlType), UrlType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", UrlType, typeof(KalturaUrlType)));
+                    }
                 }
             }
         }
@@ -3972,6 +4095,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("adsPolicy") && parameters["adsPolicy"] != null)
                 {
                     AdsPolicy = (KalturaAdsPolicy) Enum.Parse(typeof(KalturaAdsPolicy), parameters["adsPolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAdsPolicy), AdsPolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AdsPolicy, typeof(KalturaAdsPolicy)));
+                    }
                 }
                 if (parameters.ContainsKey("adsParam") && parameters["adsParam"] != null)
                 {
@@ -4283,6 +4411,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("productType") && parameters["productType"] != null)
                 {
                     ProductType = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["productType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), ProductType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ProductType, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
                 {
@@ -4391,6 +4524,11 @@ namespace WebAPI.Models.ConditionalAccess
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaRecordingStatus) Enum.Parse(typeof(KalturaRecordingStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRecordingStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaRecordingStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
                 {
@@ -4407,6 +4545,11 @@ namespace WebAPI.Models.ConditionalAccess
                         TypeSchemaProperty.Validate("type", parameters["type"]);
                     }
                     Type = (KalturaRecordingType) Enum.Parse(typeof(KalturaRecordingType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRecordingType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaRecordingType)));
+                    }
                 }
                 if (parameters.ContainsKey("viewableUntilDate") && parameters["viewableUntilDate"] != null)
                 {
@@ -4615,6 +4758,11 @@ namespace WebAPI.Models.ConditionalAccess
                         TypeSchemaProperty.Validate("type", parameters["type"]);
                     }
                     Type = (KalturaRuleActionType) Enum.Parse(typeof(KalturaRuleActionType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleActionType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaRuleActionType)));
+                    }
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
@@ -4698,6 +4846,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaRecordingType) Enum.Parse(typeof(KalturaRecordingType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRecordingType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaRecordingType)));
+                    }
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
                 {
@@ -5049,6 +5202,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("entityReferenceEqual") && parameters["entityReferenceEqual"] != null)
                 {
                     EntityReferenceEqual = (KalturaEntityReferenceBy) Enum.Parse(typeof(KalturaEntityReferenceBy), parameters["entityReferenceEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityReferenceBy), EntityReferenceEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EntityReferenceEqual, typeof(KalturaEntityReferenceBy)));
+                    }
                 }
                 if (parameters.ContainsKey("startDateGreaterThanOrEqual") && parameters["startDateGreaterThanOrEqual"] != null)
                 {
@@ -5072,6 +5230,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
                 {
                     By = (KalturaEntityReferenceBy) Enum.Parse(typeof(KalturaEntityReferenceBy), parameters["by"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityReferenceBy), By))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", By, typeof(KalturaEntityReferenceBy)));
+                    }
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
@@ -5101,6 +5264,11 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("adapterTransactionStatus") && parameters["adapterTransactionStatus"] != null)
                 {
                     AdapterStatus = (KalturaTransactionAdapterStatus) Enum.Parse(typeof(KalturaTransactionAdapterStatus), parameters["adapterTransactionStatus"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionAdapterStatus), AdapterStatus))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AdapterStatus, typeof(KalturaTransactionAdapterStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
@@ -5287,6 +5455,11 @@ namespace WebAPI.Models.Social
                         NetworkSchemaProperty.Validate("network", parameters["network"]);
                     }
                     Network = (KalturaSocialNetwork) Enum.Parse(typeof(KalturaSocialNetwork), parameters["network"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSocialNetwork), Network))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Network, typeof(KalturaSocialNetwork)));
+                    }
                 }
                 if (parameters.ContainsKey("actionPrivacy") && parameters["actionPrivacy"] != null)
                 {
@@ -5295,6 +5468,11 @@ namespace WebAPI.Models.Social
                         ActionPrivacySchemaProperty.Validate("actionPrivacy", parameters["actionPrivacy"]);
                     }
                     ActionPrivacy = (KalturaSocialActionPrivacy) Enum.Parse(typeof(KalturaSocialActionPrivacy), parameters["actionPrivacy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSocialActionPrivacy), ActionPrivacy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ActionPrivacy, typeof(KalturaSocialActionPrivacy)));
+                    }
                 }
                 if (parameters.ContainsKey("privacy") && parameters["privacy"] != null)
                 {
@@ -5303,6 +5481,11 @@ namespace WebAPI.Models.Social
                         PrivacySchemaProperty.Validate("privacy", parameters["privacy"]);
                     }
                     Privacy = (KalturaSocialPrivacy) Enum.Parse(typeof(KalturaSocialPrivacy), parameters["privacy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSocialPrivacy), Privacy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Privacy, typeof(KalturaSocialPrivacy)));
+                    }
                 }
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
@@ -5354,10 +5537,20 @@ namespace WebAPI.Models.Social
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
                     Status = (KalturaSocialStatus) Enum.Parse(typeof(KalturaSocialStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSocialStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaSocialStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("network") && parameters["network"] != null)
                 {
                     Network = (KalturaSocialNetwork) Enum.Parse(typeof(KalturaSocialNetwork), parameters["network"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSocialNetwork), Network))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Network, typeof(KalturaSocialNetwork)));
+                    }
                 }
             }
         }
@@ -5494,6 +5687,11 @@ namespace WebAPI.Models.Social
                 if (parameters.ContainsKey("actionType") && parameters["actionType"] != null)
                 {
                     ActionType = (KalturaSocialActionType) Enum.Parse(typeof(KalturaSocialActionType), parameters["actionType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSocialActionType), ActionType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ActionType, typeof(KalturaSocialActionType)));
+                    }
                 }
                 if (parameters.ContainsKey("time") && parameters["time"] != null)
                 {
@@ -5506,6 +5704,11 @@ namespace WebAPI.Models.Social
                 if (parameters.ContainsKey("assetType") && parameters["assetType"] != null)
                 {
                     AssetType = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetType, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("url") && parameters["url"] != null)
                 {
@@ -5531,6 +5734,11 @@ namespace WebAPI.Models.Social
                 if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
                 {
                     AssetTypeEqual = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("actionTypeIn") && parameters["actionTypeIn"] != null)
                 {
@@ -5610,10 +5818,20 @@ namespace WebAPI.Models.Social
                 if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
                 {
                     AssetTypeEqual = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("socialPlatformEqual") && parameters["socialPlatformEqual"] != null)
                 {
                     SocialPlatformEqual = (KalturaSocialPlatform) Enum.Parse(typeof(KalturaSocialPlatform), parameters["socialPlatformEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSocialPlatform), SocialPlatformEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", SocialPlatformEqual, typeof(KalturaSocialPlatform)));
+                    }
                 }
                 if (parameters.ContainsKey("createDateGreaterThan") && parameters["createDateGreaterThan"] != null)
                 {
@@ -5712,6 +5930,11 @@ namespace WebAPI.Models.Social
                 if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
                 {
                     AssetTypeEqual = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("actionTypeIn") && parameters["actionTypeIn"] != null)
                 {
@@ -5963,6 +6186,11 @@ namespace WebAPI.Models.MultiRequest
                 if (parameters.ContainsKey("aggregationType") && parameters["aggregationType"] != null)
                 {
                     AggregationType = (KalturaAggregationType) Enum.Parse(typeof(KalturaAggregationType), parameters["aggregationType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAggregationType), AggregationType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AggregationType, typeof(KalturaAggregationType)));
+                    }
                 }
             }
         }
@@ -5980,6 +6208,11 @@ namespace WebAPI.Models.MultiRequest
                 if (parameters.ContainsKey("operator") && parameters["operator"] != null)
                 {
                     Operator = (KalturaSkipOperators) Enum.Parse(typeof(KalturaSkipOperators), parameters["operator"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSkipOperators), Operator))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Operator, typeof(KalturaSkipOperators)));
+                    }
                 }
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
@@ -6003,6 +6236,11 @@ namespace WebAPI.Models.MultiRequest
                 if (parameters.ContainsKey("condition") && parameters["condition"] != null)
                 {
                     Condition = (KalturaSkipOptions) Enum.Parse(typeof(KalturaSkipOptions), parameters["condition"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSkipOptions), Condition))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Condition, typeof(KalturaSkipOptions)));
+                    }
                 }
             }
         }
@@ -6072,6 +6310,11 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
                     Action = (KalturaApiParameterPermissionItemAction) Enum.Parse(typeof(KalturaApiParameterPermissionItemAction), parameters["action"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaApiParameterPermissionItemAction), Action))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Action, typeof(KalturaApiParameterPermissionItemAction)));
+                    }
                 }
             }
         }
@@ -6218,6 +6461,11 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("hashType") && parameters["hashType"] != null)
                 {
                     HashType = (KalturaAppTokenHashType) Enum.Parse(typeof(KalturaAppTokenHashType), parameters["hashType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAppTokenHashType), HashType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", HashType, typeof(KalturaAppTokenHashType)));
+                    }
                 }
                 if (parameters.ContainsKey("sessionPrivileges") && parameters["sessionPrivileges"] != null)
                 {
@@ -6234,6 +6482,11 @@ namespace WebAPI.Models.General
                         SessionTypeSchemaProperty.Validate("sessionType", parameters["sessionType"]);
                     }
                     SessionType = (KalturaSessionType) Enum.Parse(typeof(KalturaSessionType), parameters["sessionType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSessionType), SessionType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", SessionType, typeof(KalturaSessionType)));
+                    }
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
@@ -6242,6 +6495,11 @@ namespace WebAPI.Models.General
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaAppTokenStatus) Enum.Parse(typeof(KalturaAppTokenStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAppTokenStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaAppTokenStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("token") && parameters["token"] != null)
                 {
@@ -6405,6 +6663,11 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
                 {
                     By = (KalturaIdentifierTypeBy) Enum.Parse(typeof(KalturaIdentifierTypeBy), parameters["by"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaIdentifierTypeBy), By))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", By, typeof(KalturaIdentifierTypeBy)));
+                    }
                 }
             }
         }
@@ -6589,6 +6852,11 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("eventType") && parameters["eventType"] != null)
                 {
                     eventType = (KalturaEventAction) Enum.Parse(typeof(KalturaEventAction), parameters["eventType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEventAction), eventType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", eventType, typeof(KalturaEventAction)));
+                    }
                 }
                 if (parameters.ContainsKey("eventObjectType") && parameters["eventObjectType"] != null)
                 {
@@ -6841,10 +7109,20 @@ namespace WebAPI.Models.Notifications
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaAnnouncementStatus) Enum.Parse(typeof(KalturaAnnouncementStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAnnouncementStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaAnnouncementStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("recipients") && parameters["recipients"] != null)
                 {
                     Recipients = (KalturaAnnouncementRecipientsType) Enum.Parse(typeof(KalturaAnnouncementRecipientsType), parameters["recipients"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAnnouncementRecipientsType), Recipients))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Recipients, typeof(KalturaAnnouncementRecipientsType)));
+                    }
                 }
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
@@ -6937,6 +7215,11 @@ namespace WebAPI.Models.Notifications
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaReminderType) Enum.Parse(typeof(KalturaReminderType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaReminderType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaReminderType)));
+                    }
                 }
             }
         }
@@ -7128,6 +7411,11 @@ namespace WebAPI.Models.Notification
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaEngagementType) Enum.Parse(typeof(KalturaEngagementType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEngagementType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaEngagementType)));
+                    }
                 }
                 if (parameters.ContainsKey("adapterId") && parameters["adapterId"] != null)
                 {
@@ -7580,10 +7868,20 @@ namespace WebAPI.Models.Notification
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaInboxMessageStatus) Enum.Parse(typeof(KalturaInboxMessageStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaInboxMessageStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaInboxMessageStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaInboxMessageType) Enum.Parse(typeof(KalturaInboxMessageType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaInboxMessageType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaInboxMessageType)));
+                    }
                 }
                 if (parameters.ContainsKey("createdAt") && parameters["createdAt"] != null)
                 {
@@ -7670,6 +7968,11 @@ namespace WebAPI.Models.Notification
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     type = (KalturaInboxMessageType) Enum.Parse(typeof(KalturaInboxMessageType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaInboxMessageType), type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", type, typeof(KalturaInboxMessageType)));
+                    }
                 }
             }
         }
@@ -7737,14 +8040,29 @@ namespace WebAPI.Models.Notification
                 if (parameters.ContainsKey("messageType") && parameters["messageType"] != null)
                 {
                     MessageType = (KalturaMessageTemplateType) Enum.Parse(typeof(KalturaMessageTemplateType), parameters["messageType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMessageTemplateType), MessageType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", MessageType, typeof(KalturaMessageTemplateType)));
+                    }
                 }
                 if (parameters.ContainsKey("asset_type") && parameters["asset_type"] != null && isOldVersion)
                 {
                     MessageType = (KalturaMessageTemplateType) Enum.Parse(typeof(KalturaMessageTemplateType), parameters["asset_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMessageTemplateType), MessageType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", MessageType, typeof(KalturaMessageTemplateType)));
+                    }
                 }
                 if (parameters.ContainsKey("assetType") && parameters["assetType"] != null && (isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0))
                 {
                     MessageType = (KalturaMessageTemplateType) Enum.Parse(typeof(KalturaMessageTemplateType), parameters["assetType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMessageTemplateType), MessageType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", MessageType, typeof(KalturaMessageTemplateType)));
+                    }
                 }
                 if (parameters.ContainsKey("sound") && parameters["sound"] != null)
                 {
@@ -8215,6 +8533,11 @@ namespace WebAPI.Models.Notification
                 if (parameters.ContainsKey("automaticIssueNotification") && parameters["automaticIssueNotification"] != null)
                 {
                     AutomaticIssueNotification = (KalturaTopicAutomaticIssueNotification) Enum.Parse(typeof(KalturaTopicAutomaticIssueNotification), parameters["automaticIssueNotification"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTopicAutomaticIssueNotification), AutomaticIssueNotification))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AutomaticIssueNotification, typeof(KalturaTopicAutomaticIssueNotification)));
+                    }
                 }
                 if (parameters.ContainsKey("lastMessageSentDateSec") && parameters["lastMessageSentDateSec"] != null)
                 {
@@ -8507,10 +8830,20 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("positionOwner") && parameters["positionOwner"] != null)
                 {
                     PositionOwner = (KalturaPositionOwner) Enum.Parse(typeof(KalturaPositionOwner), parameters["positionOwner"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPositionOwner), PositionOwner))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PositionOwner, typeof(KalturaPositionOwner)));
+                    }
                 }
                 if (parameters.ContainsKey("position_owner") && parameters["position_owner"] != null && isOldVersion)
                 {
                     PositionOwner = (KalturaPositionOwner) Enum.Parse(typeof(KalturaPositionOwner), parameters["position_owner"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPositionOwner), PositionOwner))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PositionOwner, typeof(KalturaPositionOwner)));
+                    }
                 }
                 if (parameters.ContainsKey("finishedWatching") && parameters["finishedWatching"] != null)
                 {
@@ -8577,6 +8910,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("assetType") && parameters["assetType"] != null)
                 {
                     AssetType = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetType, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("subHeader") && parameters["subHeader"] != null)
                 {
@@ -8615,6 +8953,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
                 {
                     AssetTypeEqual = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaAssetType)));
+                    }
                 }
             }
         }
@@ -8700,6 +9043,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
                     Value = (KalturaGroupByField) Enum.Parse(typeof(KalturaGroupByField), parameters["value"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaGroupByField), Value))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Value, typeof(KalturaGroupByField)));
+                    }
                 }
             }
         }
@@ -8826,6 +9174,11 @@ namespace WebAPI.Models.Catalog
                         AssetTypeSchemaProperty.Validate("assetType", parameters["assetType"]);
                     }
                     AssetType = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetType, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("position") && parameters["position"] != null)
                 {
@@ -8903,10 +9256,20 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("statusEqual") && parameters["statusEqual"] != null)
                 {
                     StatusEqual = (KalturaWatchStatus) Enum.Parse(typeof(KalturaWatchStatus), parameters["statusEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaWatchStatus), StatusEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", StatusEqual, typeof(KalturaWatchStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("filter_status") && parameters["filter_status"] != null && isOldVersion)
                 {
                     StatusEqual = (KalturaWatchStatus) Enum.Parse(typeof(KalturaWatchStatus), parameters["filter_status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaWatchStatus), StatusEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", StatusEqual, typeof(KalturaWatchStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("daysLessThanOrEqual") && parameters["daysLessThanOrEqual"] != null)
                 {
@@ -9027,10 +9390,20 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("referenceType") && parameters["referenceType"] != null)
                 {
                     ReferenceType = (KalturaCatalogReferenceBy) Enum.Parse(typeof(KalturaCatalogReferenceBy), parameters["referenceType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaCatalogReferenceBy), ReferenceType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ReferenceType, typeof(KalturaCatalogReferenceBy)));
+                    }
                 }
                 if (parameters.ContainsKey("reference_type") && parameters["reference_type"] != null && isOldVersion)
                 {
                     ReferenceType = (KalturaCatalogReferenceBy) Enum.Parse(typeof(KalturaCatalogReferenceBy), parameters["reference_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaCatalogReferenceBy), ReferenceType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ReferenceType, typeof(KalturaCatalogReferenceBy)));
+                    }
                 }
                 if (parameters.ContainsKey("filter_tags") && parameters["filter_tags"] != null)
                 {
@@ -9042,6 +9415,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("cut_with") && parameters["cut_with"] != null)
                 {
                     cutWith = (KalturaCutWith) Enum.Parse(typeof(KalturaCutWith), parameters["cut_with"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaCutWith), cutWith))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", cutWith, typeof(KalturaCutWith)));
+                    }
                 }
             }
         }
@@ -9280,6 +9658,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
                 {
                     AssetTypeEqual = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("startDateGreaterThanOrEqual") && parameters["startDateGreaterThanOrEqual"] != null)
                 {
@@ -9836,6 +10219,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("groupOrderBy") && parameters["groupOrderBy"] != null)
                 {
                     GroupByOrder = (KalturaGroupByOrder) Enum.Parse(typeof(KalturaGroupByOrder), parameters["groupOrderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaGroupByOrder), GroupByOrder))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", GroupByOrder, typeof(KalturaGroupByOrder)));
+                    }
                 }
             }
         }
@@ -9922,6 +10310,11 @@ namespace WebAPI.Models.Catalog
                         PositionOwnerSchemaProperty.Validate("positionOwner", parameters["positionOwner"]);
                     }
                     PositionOwner = (KalturaPositionOwner) Enum.Parse(typeof(KalturaPositionOwner), parameters["positionOwner"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPositionOwner), PositionOwner))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PositionOwner, typeof(KalturaPositionOwner)));
+                    }
                 }
                 if (parameters.ContainsKey("finishedWatching") && parameters["finishedWatching"] != null)
                 {
@@ -9977,6 +10370,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
                 {
                     AssetTypeEqual = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaAssetType)));
+                    }
                 }
             }
         }
@@ -10010,6 +10408,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
                     action = (KalturaBookmarkActionType) Enum.Parse(typeof(KalturaBookmarkActionType), parameters["action"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBookmarkActionType), action))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", action, typeof(KalturaBookmarkActionType)));
+                    }
                 }
                 if (parameters.ContainsKey("averageBitrate") && parameters["averageBitrate"] != null)
                 {
@@ -10064,6 +10467,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("bundleTypeEqual") && parameters["bundleTypeEqual"] != null)
                 {
                     BundleTypeEqual = (KalturaBundleType) Enum.Parse(typeof(KalturaBundleType), parameters["bundleTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBundleType), BundleTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BundleTypeEqual, typeof(KalturaBundleType)));
+                    }
                 }
             }
         }
@@ -10112,6 +10520,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     type = (KalturaCatalogWith) Enum.Parse(typeof(KalturaCatalogWith), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaCatalogWith), type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", type, typeof(KalturaCatalogWith)));
+                    }
                 }
             }
         }
@@ -10297,6 +10710,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("order") && parameters["order"] != null)
                 {
                     Order = (KalturaAssetOrderBy) Enum.Parse(typeof(KalturaAssetOrderBy), parameters["order"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetOrderBy), Order))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Order, typeof(KalturaAssetOrderBy)));
+                    }
                 }
                 if (parameters.ContainsKey("groupBy") && parameters["groupBy"] != null)
                 {
@@ -10351,6 +10769,13 @@ namespace WebAPI.Models.Catalog
                         AssetUserRuleIdSchemaProperty.Validate("assetUserRuleId", parameters["assetUserRuleId"]);
                     }
                     AssetUserRuleId = (Int64) Convert.ChangeType(parameters["assetUserRuleId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
+                {
+                    if (parameters["metaData"] is JObject)
+                    {
+                        MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
+                    }
                 }
             }
         }
@@ -10447,6 +10872,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
                 {
                     OrderBy = (KalturaAssetOrderBy) Enum.Parse(typeof(KalturaAssetOrderBy), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetOrderBy), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaAssetOrderBy)));
+                    }
                 }
             }
         }
@@ -10504,6 +10934,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
                 {
                     orderBy = (KalturaChannelOrderBy) Enum.Parse(typeof(KalturaChannelOrderBy), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaChannelOrderBy), orderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", orderBy, typeof(KalturaChannelOrderBy)));
+                    }
                 }
                 if (parameters.ContainsKey("period") && parameters["period"] != null)
                 {
@@ -10627,6 +11062,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("orderBy") && parameters["orderBy"] != null)
                 {
                     OrderBy = (KalturaMetaTagOrderBy) Enum.Parse(typeof(KalturaMetaTagOrderBy), parameters["orderBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaTagOrderBy), OrderBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", OrderBy, typeof(KalturaMetaTagOrderBy)));
+                    }
                 }
             }
         }
@@ -10857,6 +11297,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("imageObjectType") && parameters["imageObjectType"] != null)
                 {
                     ImageObjectType = (KalturaImageObjectType) Enum.Parse(typeof(KalturaImageObjectType), parameters["imageObjectType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaImageObjectType), ImageObjectType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ImageObjectType, typeof(KalturaImageObjectType)));
+                    }
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
@@ -10865,6 +11310,11 @@ namespace WebAPI.Models.Catalog
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaImageStatus) Enum.Parse(typeof(KalturaImageStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaImageStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaImageStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("url") && parameters["url"] != null)
                 {
@@ -10927,6 +11377,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("imageObjectTypeEqual") && parameters["imageObjectTypeEqual"] != null)
                 {
                     ImageObjectTypeEqual = (KalturaImageObjectType) Enum.Parse(typeof(KalturaImageObjectType), parameters["imageObjectTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaImageObjectType), ImageObjectTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ImageObjectTypeEqual, typeof(KalturaImageObjectType)));
+                    }
                 }
                 if (parameters.ContainsKey("isDefaultEqual") && parameters["isDefaultEqual"] != null)
                 {
@@ -11170,6 +11625,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("position_owner") && parameters["position_owner"] != null)
                 {
                     PositionOwner = (KalturaPositionOwner) Enum.Parse(typeof(KalturaPositionOwner), parameters["position_owner"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPositionOwner), PositionOwner))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PositionOwner, typeof(KalturaPositionOwner)));
+                    }
                 }
             }
         }
@@ -11194,10 +11654,20 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaLastPositionAssetType) Enum.Parse(typeof(KalturaLastPositionAssetType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaLastPositionAssetType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaLastPositionAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
                 {
                     By = (KalturaEntityReferenceBy) Enum.Parse(typeof(KalturaEntityReferenceBy), parameters["by"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityReferenceBy), By))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", By, typeof(KalturaEntityReferenceBy)));
+                    }
                 }
             }
         }
@@ -11399,6 +11869,11 @@ namespace WebAPI.Models.Catalog
                         EnableCdvrStateSchemaProperty.Validate("enableCdvrState", parameters["enableCdvrState"]);
                     }
                     EnableCdvrState = (KalturaTimeShiftedTvState) Enum.Parse(typeof(KalturaTimeShiftedTvState), parameters["enableCdvrState"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTimeShiftedTvState), EnableCdvrState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EnableCdvrState, typeof(KalturaTimeShiftedTvState)));
+                    }
                 }
                 if (parameters.ContainsKey("enableCatchUpState") && parameters["enableCatchUpState"] != null)
                 {
@@ -11407,6 +11882,11 @@ namespace WebAPI.Models.Catalog
                         EnableCatchUpStateSchemaProperty.Validate("enableCatchUpState", parameters["enableCatchUpState"]);
                     }
                     EnableCatchUpState = (KalturaTimeShiftedTvState) Enum.Parse(typeof(KalturaTimeShiftedTvState), parameters["enableCatchUpState"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTimeShiftedTvState), EnableCatchUpState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EnableCatchUpState, typeof(KalturaTimeShiftedTvState)));
+                    }
                 }
                 if (parameters.ContainsKey("enableStartOverState") && parameters["enableStartOverState"] != null)
                 {
@@ -11415,6 +11895,11 @@ namespace WebAPI.Models.Catalog
                         EnableStartOverStateSchemaProperty.Validate("enableStartOverState", parameters["enableStartOverState"]);
                     }
                     EnableStartOverState = (KalturaTimeShiftedTvState) Enum.Parse(typeof(KalturaTimeShiftedTvState), parameters["enableStartOverState"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTimeShiftedTvState), EnableStartOverState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EnableStartOverState, typeof(KalturaTimeShiftedTvState)));
+                    }
                 }
                 if (parameters.ContainsKey("bufferCatchUpSetting") && parameters["bufferCatchUpSetting"] != null)
                 {
@@ -11439,6 +11924,11 @@ namespace WebAPI.Models.Catalog
                         EnableRecordingPlaybackNonEntitledChannelStateSchemaProperty.Validate("enableRecordingPlaybackNonEntitledChannelState", parameters["enableRecordingPlaybackNonEntitledChannelState"]);
                     }
                     EnableRecordingPlaybackNonEntitledChannelState = (KalturaTimeShiftedTvState) Enum.Parse(typeof(KalturaTimeShiftedTvState), parameters["enableRecordingPlaybackNonEntitledChannelState"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTimeShiftedTvState), EnableRecordingPlaybackNonEntitledChannelState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EnableRecordingPlaybackNonEntitledChannelState, typeof(KalturaTimeShiftedTvState)));
+                    }
                 }
                 if (parameters.ContainsKey("enableTrickPlayState") && parameters["enableTrickPlayState"] != null)
                 {
@@ -11447,6 +11937,11 @@ namespace WebAPI.Models.Catalog
                         EnableTrickPlayStateSchemaProperty.Validate("enableTrickPlayState", parameters["enableTrickPlayState"]);
                     }
                     EnableTrickPlayState = (KalturaTimeShiftedTvState) Enum.Parse(typeof(KalturaTimeShiftedTvState), parameters["enableTrickPlayState"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTimeShiftedTvState), EnableTrickPlayState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EnableTrickPlayState, typeof(KalturaTimeShiftedTvState)));
+                    }
                 }
                 if (parameters.ContainsKey("externalEpgIngestId") && parameters["externalEpgIngestId"] != null)
                 {
@@ -11523,6 +12018,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("channelType") && parameters["channelType"] != null)
                 {
                     ChannelType = (KalturaLinearChannelType) Enum.Parse(typeof(KalturaLinearChannelType), parameters["channelType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaLinearChannelType), ChannelType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ChannelType, typeof(KalturaLinearChannelType)));
+                    }
                 }
             }
         }
@@ -11669,6 +12169,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("inheritancePolicy") && parameters["inheritancePolicy"] != null)
                 {
                     InheritancePolicy = (KalturaAssetInheritancePolicy) Enum.Parse(typeof(KalturaAssetInheritancePolicy), parameters["inheritancePolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetInheritancePolicy), InheritancePolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", InheritancePolicy, typeof(KalturaAssetInheritancePolicy)));
+                    }
                 }
             }
         }
@@ -12067,6 +12572,11 @@ namespace WebAPI.Models.Catalog
                         StreamerTypeSchemaProperty.Validate("streamerType", parameters["streamerType"]);
                     }
                     StreamerType = (KalturaMediaFileStreamerType) Enum.Parse(typeof(KalturaMediaFileStreamerType), parameters["streamerType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMediaFileStreamerType), StreamerType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", StreamerType, typeof(KalturaMediaFileStreamerType)));
+                    }
                 }
                 if (parameters.ContainsKey("drmProfileId") && parameters["drmProfileId"] != null)
                 {
@@ -12079,6 +12589,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("quality") && parameters["quality"] != null)
                 {
                     Quality = (KalturaMediaFileTypeQuality) Enum.Parse(typeof(KalturaMediaFileTypeQuality), parameters["quality"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMediaFileTypeQuality), Quality))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Quality, typeof(KalturaMediaFileTypeQuality)));
+                    }
                 }
                 if (parameters.ContainsKey("videoCodecs") && parameters["videoCodecs"] != null)
                 {
@@ -12274,6 +12789,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("bookmarks") && parameters["bookmarks"] != null)
                 {
@@ -12339,6 +12859,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("fileIds") && parameters["fileIds"] != null)
                 {
@@ -12374,6 +12899,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     type = (KalturaPersonalAssetWith) Enum.Parse(typeof(KalturaPersonalAssetWith), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPersonalAssetWith), type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", type, typeof(KalturaPersonalAssetWith)));
+                    }
                 }
             }
         }
@@ -12703,6 +13233,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("recordingType") && parameters["recordingType"] != null)
                 {
                     RecordingType = (KalturaRecordingType) Enum.Parse(typeof(KalturaRecordingType), parameters["recordingType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRecordingType), RecordingType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", RecordingType, typeof(KalturaRecordingType)));
+                    }
                 }
             }
         }
@@ -12809,6 +13344,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("recordingTypeEqual") && parameters["recordingTypeEqual"] != null)
                 {
                     RecordingTypeEqual = (KalturaScheduledRecordingAssetType) Enum.Parse(typeof(KalturaScheduledRecordingAssetType), parameters["recordingTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaScheduledRecordingAssetType), RecordingTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", RecordingTypeEqual, typeof(KalturaScheduledRecordingAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("channelsIn") && parameters["channelsIn"] != null)
                 {
@@ -12923,6 +13463,11 @@ namespace WebAPI.Models.Catalog
                         TypeSchemaProperty.Validate("type", parameters["type"]);
                     }
                     Type = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaAssetType)));
+                    }
                 }
             }
         }
@@ -13223,6 +13768,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("conditionsContainType") && parameters["conditionsContainType"] != null)
                 {
                     ConditionsContainType = (KalturaRuleConditionType) Enum.Parse(typeof(KalturaRuleConditionType), parameters["conditionsContainType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleConditionType), ConditionsContainType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ConditionsContainType, typeof(KalturaRuleConditionType)));
+                    }
                 }
                 if (parameters.ContainsKey("assetApplied") && parameters["assetApplied"] != null)
                 {
@@ -13238,6 +13788,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("actionsContainType") && parameters["actionsContainType"] != null)
                 {
                     ActionsContainType = (KalturaRuleActionType) Enum.Parse(typeof(KalturaRuleActionType), parameters["actionsContainType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleActionType), ActionsContainType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ActionsContainType, typeof(KalturaRuleActionType)));
+                    }
                 }
             }
         }
@@ -13306,6 +13861,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("actionsContainType") && parameters["actionsContainType"] != null)
                 {
                     ActionsContainType = (KalturaRuleActionType) Enum.Parse(typeof(KalturaRuleActionType), parameters["actionsContainType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleActionType), ActionsContainType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ActionsContainType, typeof(KalturaRuleActionType)));
+                    }
                 }
             }
         }
@@ -13339,6 +13899,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("businessModuleType") && parameters["businessModuleType"] != null)
                 {
                     BusinessModuleType = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["businessModuleType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), BusinessModuleType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BusinessModuleType, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("businessModuleId") && parameters["businessModuleId"] != null)
                 {
@@ -13425,6 +13990,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("businessModuleTypeApplied") && parameters["businessModuleTypeApplied"] != null)
                 {
                     BusinessModuleTypeApplied = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["businessModuleTypeApplied"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), BusinessModuleTypeApplied))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BusinessModuleTypeApplied, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("businessModuleIdApplied") && parameters["businessModuleIdApplied"] != null)
                 {
@@ -13609,6 +14179,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     type = (KalturaChannelEnrichment) Enum.Parse(typeof(KalturaChannelEnrichment), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaChannelEnrichment), type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", type, typeof(KalturaChannelEnrichment)));
+                    }
                 }
             }
         }
@@ -13674,6 +14249,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("order") && parameters["order"] != null)
                 {
                     Order = (KalturaOrder) Enum.Parse(typeof(KalturaOrder), parameters["order"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaOrder), Order))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Order, typeof(KalturaOrder)));
+                    }
                 }
             }
         }
@@ -13691,6 +14271,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("concurrencyLimitationType") && parameters["concurrencyLimitationType"] != null)
                 {
                     ConcurrencyLimitationType = (KalturaConcurrencyLimitationType) Enum.Parse(typeof(KalturaConcurrencyLimitationType), parameters["concurrencyLimitationType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ConcurrencyLimitationType, typeof(KalturaConcurrencyLimitationType)));
+                    }
                 }
             }
         }
@@ -13720,6 +14305,11 @@ namespace WebAPI.Models.API
                         TypeSchemaProperty.Validate("type", parameters["type"]);
                     }
                     Type = (KalturaRuleConditionType) Enum.Parse(typeof(KalturaRuleConditionType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleConditionType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaRuleConditionType)));
+                    }
                 }
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
@@ -14067,10 +14657,20 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("dataType") && parameters["dataType"] != null)
                 {
                     DataType = (KalturaExportDataType) Enum.Parse(typeof(KalturaExportDataType), parameters["dataType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaExportDataType), DataType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DataType, typeof(KalturaExportDataType)));
+                    }
                 }
                 if (parameters.ContainsKey("data_type") && parameters["data_type"] != null && isOldVersion)
                 {
                     DataType = (KalturaExportDataType) Enum.Parse(typeof(KalturaExportDataType), parameters["data_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaExportDataType), DataType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DataType, typeof(KalturaExportDataType)));
+                    }
                 }
                 if (parameters.ContainsKey("filter") && parameters["filter"] != null)
                 {
@@ -14079,10 +14679,20 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("exportType") && parameters["exportType"] != null)
                 {
                     ExportType = (KalturaExportType) Enum.Parse(typeof(KalturaExportType), parameters["exportType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaExportType), ExportType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ExportType, typeof(KalturaExportType)));
+                    }
                 }
                 if (parameters.ContainsKey("export_type") && parameters["export_type"] != null && isOldVersion)
                 {
                     ExportType = (KalturaExportType) Enum.Parse(typeof(KalturaExportType), parameters["export_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaExportType), ExportType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ExportType, typeof(KalturaExportType)));
+                    }
                 }
                 if (parameters.ContainsKey("frequency") && parameters["frequency"] != null)
                 {
@@ -14253,6 +14863,13 @@ namespace WebAPI.Models.API
                     }
                     AssetUserRuleId = (Int64) Convert.ChangeType(parameters["assetUserRuleId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
+                {
+                    if (parameters["metaData"] is JObject)
+                    {
+                        MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
             }
         }
     }
@@ -14291,10 +14908,20 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("ruleType") && parameters["ruleType"] != null)
                 {
                     RuleType = (KalturaRuleType) Enum.Parse(typeof(KalturaRuleType), parameters["ruleType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleType), RuleType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", RuleType, typeof(KalturaRuleType)));
+                    }
                 }
                 if (parameters.ContainsKey("rule_type") && parameters["rule_type"] != null && isOldVersion)
                 {
                     RuleType = (KalturaRuleType) Enum.Parse(typeof(KalturaRuleType), parameters["rule_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleType), RuleType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", RuleType, typeof(KalturaRuleType)));
+                    }
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
@@ -14426,11 +15053,21 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("defaultAutoFillPolicy") && parameters["defaultAutoFillPolicy"] != null)
                 {
-                    DefaultAutoFillPolicy = (Int32) Convert.ChangeType(parameters["defaultAutoFillPolicy"], typeof(Int32));
+                    DefaultAutoFillPolicy = (KalturaIngestProfileAutofillPolicy) Enum.Parse(typeof(KalturaIngestProfileAutofillPolicy), parameters["defaultAutoFillPolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaIngestProfileAutofillPolicy), DefaultAutoFillPolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DefaultAutoFillPolicy, typeof(KalturaIngestProfileAutofillPolicy)));
+                    }
                 }
                 if (parameters.ContainsKey("defaultOverlapPolicy") && parameters["defaultOverlapPolicy"] != null)
                 {
-                    DefaultOverlapPolicy = (Int32) Convert.ChangeType(parameters["defaultOverlapPolicy"], typeof(Int32));
+                    DefaultOverlapPolicy = (KalturaIngestProfileOverlapPolicy) Enum.Parse(typeof(KalturaIngestProfileOverlapPolicy), parameters["defaultOverlapPolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaIngestProfileOverlapPolicy), DefaultOverlapPolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DefaultOverlapPolicy, typeof(KalturaIngestProfileOverlapPolicy)));
+                    }
                 }
             }
         }
@@ -14559,6 +15196,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("concurrencyLimitationType") && parameters["concurrencyLimitationType"] != null)
                 {
                     ConcurrencyLimitationType = (KalturaConcurrencyLimitationType) Enum.Parse(typeof(KalturaConcurrencyLimitationType), parameters["concurrencyLimitationType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaConcurrencyLimitationType), ConcurrencyLimitationType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ConcurrencyLimitationType, typeof(KalturaConcurrencyLimitationType)));
+                    }
                 }
                 if (parameters.ContainsKey("limitation") && parameters["limitation"] != null)
                 {
@@ -14706,10 +15348,20 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("fieldName") && parameters["fieldName"] != null)
                 {
                     FieldName = (KalturaMetaFieldName) Enum.Parse(typeof(KalturaMetaFieldName), parameters["fieldName"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaFieldName), FieldName))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", FieldName, typeof(KalturaMetaFieldName)));
+                    }
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaMetaType) Enum.Parse(typeof(KalturaMetaType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaMetaType)));
+                    }
                 }
                 if (parameters.ContainsKey("dataType") && parameters["dataType"] != null)
                 {
@@ -14718,6 +15370,11 @@ namespace WebAPI.Models.API
                         DataTypeSchemaProperty.Validate("dataType", parameters["dataType"]);
                     }
                     DataType = (KalturaMetaDataType) Enum.Parse(typeof(KalturaMetaDataType), parameters["dataType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaDataType), DataType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DataType, typeof(KalturaMetaDataType)));
+                    }
                 }
                 if (parameters.ContainsKey("multipleValue") && parameters["multipleValue"] != null)
                 {
@@ -14742,6 +15399,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("assetType") && parameters["assetType"] != null)
                 {
                     AssetType = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetType, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("features") && parameters["features"] != null)
                 {
@@ -14800,7 +15462,7 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
+            MinLong = 0,
         };
         public KalturaMetaFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -14827,18 +15489,38 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("fieldNameEqual") && parameters["fieldNameEqual"] != null)
                 {
                     FieldNameEqual = (KalturaMetaFieldName) Enum.Parse(typeof(KalturaMetaFieldName), parameters["fieldNameEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaFieldName), FieldNameEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", FieldNameEqual, typeof(KalturaMetaFieldName)));
+                    }
                 }
                 if (parameters.ContainsKey("fieldNameNotEqual") && parameters["fieldNameNotEqual"] != null)
                 {
                     FieldNameNotEqual = (KalturaMetaFieldName) Enum.Parse(typeof(KalturaMetaFieldName), parameters["fieldNameNotEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaFieldName), FieldNameNotEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", FieldNameNotEqual, typeof(KalturaMetaFieldName)));
+                    }
                 }
                 if (parameters.ContainsKey("typeEqual") && parameters["typeEqual"] != null)
                 {
                     TypeEqual = (KalturaMetaType) Enum.Parse(typeof(KalturaMetaType), parameters["typeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaType), TypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", TypeEqual, typeof(KalturaMetaType)));
+                    }
                 }
                 if (parameters.ContainsKey("dataTypeEqual") && parameters["dataTypeEqual"] != null)
                 {
                     DataTypeEqual = (KalturaMetaDataType) Enum.Parse(typeof(KalturaMetaDataType), parameters["dataTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMetaDataType), DataTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DataTypeEqual, typeof(KalturaMetaDataType)));
+                    }
                 }
                 if (parameters.ContainsKey("multipleValueEqual") && parameters["multipleValueEqual"] != null)
                 {
@@ -14847,6 +15529,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
                 {
                     AssetTypeEqual = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("featuresIn") && parameters["featuresIn"] != null)
                 {
@@ -15169,10 +15856,20 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("ruleType") && parameters["ruleType"] != null)
                 {
                     ruleType = (KalturaParentalRuleType) Enum.Parse(typeof(KalturaParentalRuleType), parameters["ruleType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaParentalRuleType), ruleType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ruleType, typeof(KalturaParentalRuleType)));
+                    }
                 }
                 if (parameters.ContainsKey("rule_type") && parameters["rule_type"] != null && isOldVersion)
                 {
                     ruleType = (KalturaParentalRuleType) Enum.Parse(typeof(KalturaParentalRuleType), parameters["rule_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaParentalRuleType), ruleType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ruleType, typeof(KalturaParentalRuleType)));
+                    }
                 }
                 if (parameters.ContainsKey("mediaTagValues") && parameters["mediaTagValues"] != null)
                 {
@@ -15241,6 +15938,11 @@ namespace WebAPI.Models.API
                         OriginSchemaProperty.Validate("origin", parameters["origin"]);
                     }
                     Origin = (KalturaRuleLevel) Enum.Parse(typeof(KalturaRuleLevel), parameters["origin"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleLevel), Origin))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Origin, typeof(KalturaRuleLevel)));
+                    }
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
@@ -15274,6 +15976,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("entityReferenceEqual") && parameters["entityReferenceEqual"] != null)
                 {
                     EntityReferenceEqual = (KalturaEntityReferenceBy) Enum.Parse(typeof(KalturaEntityReferenceBy), parameters["entityReferenceEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityReferenceBy), EntityReferenceEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EntityReferenceEqual, typeof(KalturaEntityReferenceBy)));
+                    }
                 }
             }
         }
@@ -15337,13 +16044,33 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionFilter
     {
+        private static RuntimeSchemePropertyAttribute RoleIDInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermissionFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaPermissionFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("currentUserPermissionsContains") && parameters["currentUserPermissionsContains"] != null)
                 {
                     CurrentUserPermissionsContains = (Boolean) Convert.ChangeType(parameters["currentUserPermissionsContains"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("roleIdIn") && parameters["roleIdIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        RoleIDInSchemaProperty.Validate("roleIdIn", parameters["roleIdIn"]);
+                    }
+                    RoleIDIn = (Int64) Convert.ChangeType(parameters["roleIdIn"], typeof(Int64));
                 }
             }
         }
@@ -15418,10 +16145,20 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("origin") && parameters["origin"] != null)
                 {
                     Origin = (KalturaRuleLevel) Enum.Parse(typeof(KalturaRuleLevel), parameters["origin"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleLevel), Origin))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Origin, typeof(KalturaRuleLevel)));
+                    }
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaPinType) Enum.Parse(typeof(KalturaPinType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPinType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaPinType)));
+                    }
                 }
             }
         }
@@ -15439,10 +16176,20 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("origin") && parameters["origin"] != null)
                 {
                     Origin = (KalturaRuleLevel) Enum.Parse(typeof(KalturaRuleLevel), parameters["origin"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleLevel), Origin))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Origin, typeof(KalturaRuleLevel)));
+                    }
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaPinType) Enum.Parse(typeof(KalturaPinType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPinType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaPinType)));
+                    }
                 }
             }
         }
@@ -15556,6 +16303,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("permission") && parameters["permission"] != null)
                 {
                     Permission = (KalturaPurchaseSettingsType) Enum.Parse(typeof(KalturaPurchaseSettingsType), parameters["permission"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPurchaseSettingsType), Permission))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Permission, typeof(KalturaPurchaseSettingsType)));
+                    }
                 }
             }
         }
@@ -15571,10 +16323,20 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("purchaseSettingsType") && parameters["purchaseSettingsType"] != null)
                 {
                     PurchaseSettingsType = (KalturaPurchaseSettingsType) Enum.Parse(typeof(KalturaPurchaseSettingsType), parameters["purchaseSettingsType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPurchaseSettingsType), PurchaseSettingsType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PurchaseSettingsType, typeof(KalturaPurchaseSettingsType)));
+                    }
                 }
                 if (parameters.ContainsKey("purchase_settings_type") && parameters["purchase_settings_type"] != null && isOldVersion)
                 {
                     PurchaseSettingsType = (KalturaPurchaseSettingsType) Enum.Parse(typeof(KalturaPurchaseSettingsType), parameters["purchase_settings_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPurchaseSettingsType), PurchaseSettingsType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PurchaseSettingsType, typeof(KalturaPurchaseSettingsType)));
+                    }
                 }
             }
         }
@@ -15865,6 +16627,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
                 {
                     By = (KalturaEntityReferenceBy) Enum.Parse(typeof(KalturaEntityReferenceBy), parameters["by"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityReferenceBy), By))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", By, typeof(KalturaEntityReferenceBy)));
+                    }
                 }
             }
         }
@@ -16084,6 +16851,7 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
+            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -16091,10 +16859,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
+            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -16102,7 +16870,6 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute ProtectionPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -16297,10 +17064,20 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("quotaOveragePolicy") && parameters["quotaOveragePolicy"] != null)
                 {
                     QuotaOveragePolicy = (KalturaQuotaOveragePolicy) Enum.Parse(typeof(KalturaQuotaOveragePolicy), parameters["quotaOveragePolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaQuotaOveragePolicy), QuotaOveragePolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", QuotaOveragePolicy, typeof(KalturaQuotaOveragePolicy)));
+                    }
                 }
                 if (parameters.ContainsKey("protectionPolicy") && parameters["protectionPolicy"] != null)
                 {
                     ProtectionPolicy = (KalturaProtectionPolicy) Enum.Parse(typeof(KalturaProtectionPolicy), parameters["protectionPolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaProtectionPolicy), ProtectionPolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ProtectionPolicy, typeof(KalturaProtectionPolicy)));
+                    }
                 }
                 if (parameters.ContainsKey("recoveryGracePeriod") && parameters["recoveryGracePeriod"] != null)
                 {
@@ -16402,6 +17179,11 @@ namespace WebAPI.Models.API
                         RuleTypeSchemaProperty.Validate("ruleType", parameters["ruleType"]);
                     }
                     RuleType = (KalturaTvmRuleType) Enum.Parse(typeof(KalturaTvmRuleType), parameters["ruleType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTvmRuleType), RuleType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", RuleType, typeof(KalturaTvmRuleType)));
+                    }
                 }
             }
         }
@@ -16415,6 +17197,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("ruleTypeEqual") && parameters["ruleTypeEqual"] != null)
                 {
                     RuleTypeEqual = (KalturaTvmRuleType) Enum.Parse(typeof(KalturaTvmRuleType), parameters["ruleTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTvmRuleType), RuleTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", RuleTypeEqual, typeof(KalturaTvmRuleType)));
+                    }
                 }
                 if (parameters.ContainsKey("nameEqual") && parameters["nameEqual"] != null)
                 {
@@ -16472,6 +17259,11 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("ruleType") && parameters["ruleType"] != null)
                 {
                     RuleType = (KalturaRuleType) Enum.Parse(typeof(KalturaRuleType), parameters["ruleType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleType), RuleType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", RuleType, typeof(KalturaRuleType)));
+                    }
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
@@ -16692,6 +17484,7 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute AssetIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
         {
+            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -16699,10 +17492,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
         };
         private static RuntimeSchemePropertyAttribute AssetFileIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
         {
+            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -16710,7 +17503,6 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 1,
         };
         public KalturaAssetFilePpvFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -16770,6 +17562,11 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("asset_type") && parameters["asset_type"] != null)
                 {
                     AssetType = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["asset_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetType, typeof(KalturaAssetType)));
+                    }
                 }
                 if (parameters.ContainsKey("file_prices") && parameters["file_prices"] != null)
                 {
@@ -17063,6 +17860,11 @@ namespace WebAPI.Models.Pricing
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaCouponStatus) Enum.Parse(typeof(KalturaCouponStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaCouponStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaCouponStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("totalUses") && parameters["totalUses"] != null)
                 {
@@ -17236,6 +18038,11 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("couponGroupType") && parameters["couponGroupType"] != null)
                 {
                     CouponGroupType = (KalturaCouponGroupType) Enum.Parse(typeof(KalturaCouponGroupType), parameters["couponGroupType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaCouponGroupType), CouponGroupType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", CouponGroupType, typeof(KalturaCouponGroupType)));
+                    }
                 }
                 if (parameters.ContainsKey("maxHouseholdUses") && parameters["maxHouseholdUses"] != null)
                 {
@@ -17689,10 +18496,20 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("purchaseStatus") && parameters["purchaseStatus"] != null)
                 {
                     PurchaseStatus = (KalturaPurchaseStatus) Enum.Parse(typeof(KalturaPurchaseStatus), parameters["purchaseStatus"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPurchaseStatus), PurchaseStatus))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PurchaseStatus, typeof(KalturaPurchaseStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("purchase_status") && parameters["purchase_status"] != null && isOldVersion)
                 {
                     PurchaseStatus = (KalturaPurchaseStatus) Enum.Parse(typeof(KalturaPurchaseStatus), parameters["purchase_status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPurchaseStatus), PurchaseStatus))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PurchaseStatus, typeof(KalturaPurchaseStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("subscriptionId") && parameters["subscriptionId"] != null)
                 {
@@ -18405,10 +19222,20 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("productType") && parameters["productType"] != null)
                 {
                     ProductType = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["productType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), ProductType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ProductType, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("product_type") && parameters["product_type"] != null && isOldVersion)
                 {
                     ProductType = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["product_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), ProductType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ProductType, typeof(KalturaTransactionType)));
+                    }
                 }
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
@@ -18424,6 +19251,11 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("purchaseStatus") && parameters["purchaseStatus"] != null)
                 {
                     PurchaseStatus = (KalturaPurchaseStatus) Enum.Parse(typeof(KalturaPurchaseStatus), parameters["purchaseStatus"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPurchaseStatus), PurchaseStatus))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PurchaseStatus, typeof(KalturaPurchaseStatus)));
+                    }
                 }
             }
         }
@@ -18879,6 +19711,11 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("dependencyType") && parameters["dependencyType"] != null)
                 {
                     DependencyType = (KalturaSubscriptionDependencyType) Enum.Parse(typeof(KalturaSubscriptionDependencyType), parameters["dependencyType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSubscriptionDependencyType), DependencyType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DependencyType, typeof(KalturaSubscriptionDependencyType)));
+                    }
                 }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
@@ -19014,10 +19851,20 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("purchaseStatus") && parameters["purchaseStatus"] != null)
                 {
                     PurchaseStatus = (KalturaPurchaseStatus) Enum.Parse(typeof(KalturaPurchaseStatus), parameters["purchaseStatus"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPurchaseStatus), PurchaseStatus))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PurchaseStatus, typeof(KalturaPurchaseStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("purchase_status") && parameters["purchase_status"] != null && isOldVersion)
                 {
                     PurchaseStatus = (KalturaPurchaseStatus) Enum.Parse(typeof(KalturaPurchaseStatus), parameters["purchase_status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPurchaseStatus), PurchaseStatus))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PurchaseStatus, typeof(KalturaPurchaseStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
@@ -19073,6 +19920,11 @@ namespace WebAPI.Models.Pricing
                         TypeSchemaProperty.Validate("type", parameters["type"]);
                     }
                     Type = (KalturaSubscriptionSetType) Enum.Parse(typeof(KalturaSubscriptionSetType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSubscriptionSetType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaSubscriptionSetType)));
+                    }
                 }
                 if (parameters.ContainsKey("subscriptionIds") && parameters["subscriptionIds"] != null)
                 {
@@ -19098,6 +19950,11 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("typeEqual") && parameters["typeEqual"] != null)
                 {
                     TypeEqual = (KalturaSubscriptionSetType) Enum.Parse(typeof(KalturaSubscriptionSetType), parameters["typeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSubscriptionSetType), TypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", TypeEqual, typeof(KalturaSubscriptionSetType)));
+                    }
                 }
             }
         }
@@ -19142,6 +19999,11 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
                 {
                     By = (KalturaSubscriptionsFilterBy) Enum.Parse(typeof(KalturaSubscriptionsFilterBy), parameters["by"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSubscriptionsFilterBy), By))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", By, typeof(KalturaSubscriptionsFilterBy)));
+                    }
                 }
             }
         }
@@ -19958,6 +20820,11 @@ namespace WebAPI.Models.Users
                         SuspentionStateSchemaProperty.Validate("suspentionState", parameters["suspentionState"]);
                     }
                     SuspentionState = (KalturaHouseholdSuspentionState) Enum.Parse(typeof(KalturaHouseholdSuspentionState), parameters["suspentionState"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdSuspentionState), SuspentionState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", SuspentionState, typeof(KalturaHouseholdSuspentionState)));
+                    }
                 }
                 if (parameters.ContainsKey("suspention_state") && parameters["suspention_state"] != null && isOldVersion)
                 {
@@ -19966,6 +20833,11 @@ namespace WebAPI.Models.Users
                         SuspentionStateSchemaProperty.Validate("suspention_state", parameters["suspention_state"]);
                     }
                     SuspentionState = (KalturaHouseholdSuspentionState) Enum.Parse(typeof(KalturaHouseholdSuspentionState), parameters["suspention_state"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdSuspentionState), SuspentionState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", SuspentionState, typeof(KalturaHouseholdSuspentionState)));
+                    }
                 }
                 if (parameters.ContainsKey("suspensionState") && parameters["suspensionState"] != null)
                 {
@@ -19974,6 +20846,11 @@ namespace WebAPI.Models.Users
                         SuspensionStateSchemaProperty.Validate("suspensionState", parameters["suspensionState"]);
                     }
                     SuspensionState = (KalturaHouseholdSuspensionState) Enum.Parse(typeof(KalturaHouseholdSuspensionState), parameters["suspensionState"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdSuspensionState), SuspensionState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", SuspensionState, typeof(KalturaHouseholdSuspensionState)));
+                    }
                 }
                 if (parameters.ContainsKey("userState") && parameters["userState"] != null)
                 {
@@ -19982,6 +20859,11 @@ namespace WebAPI.Models.Users
                         UserStateSchemaProperty.Validate("userState", parameters["userState"]);
                     }
                     UserState = (KalturaUserState) Enum.Parse(typeof(KalturaUserState), parameters["userState"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserState), UserState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", UserState, typeof(KalturaUserState)));
+                    }
                 }
                 if (parameters.ContainsKey("user_state") && parameters["user_state"] != null && isOldVersion)
                 {
@@ -19990,6 +20872,11 @@ namespace WebAPI.Models.Users
                         UserStateSchemaProperty.Validate("user_state", parameters["user_state"]);
                     }
                     UserState = (KalturaUserState) Enum.Parse(typeof(KalturaUserState), parameters["user_state"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserState), UserState))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", UserState, typeof(KalturaUserState)));
+                    }
                 }
                 if (parameters.ContainsKey("roleIds") && parameters["roleIds"] != null)
                 {
@@ -20067,9 +20954,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserDynamicDataList")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20103,9 +20990,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UsernameEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
+            RequiresPermission = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 1,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20113,9 +21000,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute ExternalIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
+            RequiresPermission = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 1,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20123,9 +21010,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
+            RequiresPermission = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 1,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20133,9 +21020,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute RoleIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
+            RequiresPermission = 6,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 6,
             IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
@@ -20207,9 +21094,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserType")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20237,10 +21124,22 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaSession
     {
+        private static RuntimeSchemePropertyAttribute privilegesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSession")
+        {
+            ReadOnly = false,
+            RequiresPermission = 1,
+            InsertOnly = false,
+            WriteOnly = false,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaSession(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("ks") && parameters["ks"] != null)
                 {
                     ks = (String) Convert.ChangeType(parameters["ks"], typeof(String));
@@ -20248,6 +21147,11 @@ namespace WebAPI.Models.Users
                 if (parameters.ContainsKey("sessionType") && parameters["sessionType"] != null)
                 {
                     sessionType = (KalturaSessionType) Enum.Parse(typeof(KalturaSessionType), parameters["sessionType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSessionType), sessionType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", sessionType, typeof(KalturaSessionType)));
+                    }
                 }
                 if (parameters.ContainsKey("partnerId") && parameters["partnerId"] != null)
                 {
@@ -20263,6 +21167,10 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("privileges") && parameters["privileges"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        privilegesSchemaProperty.Validate("privileges", parameters["privileges"]);
+                    }
                     privileges = (String) Convert.ChangeType(parameters["privileges"], typeof(String));
                 }
                 if (parameters.ContainsKey("udid") && parameters["udid"] != null)
@@ -20287,9 +21195,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSSOAdapterProfile")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20380,10 +21288,20 @@ namespace WebAPI.Models.Users
                 if (parameters.ContainsKey("listType") && parameters["listType"] != null)
                 {
                     ListType = (KalturaUserAssetsListType) Enum.Parse(typeof(KalturaUserAssetsListType), parameters["listType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserAssetsListType), ListType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ListType, typeof(KalturaUserAssetsListType)));
+                    }
                 }
                 if (parameters.ContainsKey("list_type") && parameters["list_type"] != null && isOldVersion)
                 {
                     ListType = (KalturaUserAssetsListType) Enum.Parse(typeof(KalturaUserAssetsListType), parameters["list_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserAssetsListType), ListType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ListType, typeof(KalturaUserAssetsListType)));
+                    }
                 }
             }
         }
@@ -20399,22 +21317,47 @@ namespace WebAPI.Models.Users
                 if (parameters.ContainsKey("by") && parameters["by"] != null)
                 {
                     By = (KalturaEntityReferenceBy) Enum.Parse(typeof(KalturaEntityReferenceBy), parameters["by"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityReferenceBy), By))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", By, typeof(KalturaEntityReferenceBy)));
+                    }
                 }
                 if (parameters.ContainsKey("listTypeEqual") && parameters["listTypeEqual"] != null)
                 {
                     ListTypeEqual = (KalturaUserAssetsListType) Enum.Parse(typeof(KalturaUserAssetsListType), parameters["listTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserAssetsListType), ListTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ListTypeEqual, typeof(KalturaUserAssetsListType)));
+                    }
                 }
                 if (parameters.ContainsKey("list_type") && parameters["list_type"] != null && isOldVersion)
                 {
                     ListTypeEqual = (KalturaUserAssetsListType) Enum.Parse(typeof(KalturaUserAssetsListType), parameters["list_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserAssetsListType), ListTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ListTypeEqual, typeof(KalturaUserAssetsListType)));
+                    }
                 }
                 if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
                 {
                     AssetTypeEqual = (KalturaUserAssetsListItemType) Enum.Parse(typeof(KalturaUserAssetsListItemType), parameters["assetTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserAssetsListItemType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaUserAssetsListItemType)));
+                    }
                 }
                 if (parameters.ContainsKey("asset_type") && parameters["asset_type"] != null && isOldVersion)
                 {
                     AssetTypeEqual = (KalturaUserAssetsListItemType) Enum.Parse(typeof(KalturaUserAssetsListItemType), parameters["asset_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserAssetsListItemType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaUserAssetsListItemType)));
+                    }
                 }
             }
         }
@@ -20424,9 +21367,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserAssetsListItem")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20452,6 +21395,11 @@ namespace WebAPI.Models.Users
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaUserAssetsListItemType) Enum.Parse(typeof(KalturaUserAssetsListItemType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserAssetsListItemType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaUserAssetsListItemType)));
+                    }
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
@@ -20472,10 +21420,20 @@ namespace WebAPI.Models.Users
                 if (parameters.ContainsKey("listType") && parameters["listType"] != null)
                 {
                     ListType = (KalturaUserAssetsListType) Enum.Parse(typeof(KalturaUserAssetsListType), parameters["listType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserAssetsListType), ListType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ListType, typeof(KalturaUserAssetsListType)));
+                    }
                 }
                 if (parameters.ContainsKey("list_type") && parameters["list_type"] != null && isOldVersion)
                 {
                     ListType = (KalturaUserAssetsListType) Enum.Parse(typeof(KalturaUserAssetsListType), parameters["list_type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserAssetsListType), ListType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ListType, typeof(KalturaUserAssetsListType)));
+                    }
                 }
             }
         }
@@ -20485,9 +21443,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserInterest")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20573,9 +21531,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserLoginPin")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20642,9 +21600,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20652,9 +21610,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute LengthSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20662,9 +21620,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute LengthTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20672,9 +21630,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MultiplierSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20692,6 +21650,11 @@ namespace WebAPI.Models.Segmentation
                         ActionSchemaProperty.Validate("action", parameters["action"]);
                     }
                     Action = (KalturaContentAction) Enum.Parse(typeof(KalturaContentAction), parameters["action"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaContentAction), Action))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Action, typeof(KalturaContentAction)));
+                    }
                 }
                 if (parameters.ContainsKey("length") && parameters["length"] != null)
                 {
@@ -20708,6 +21671,11 @@ namespace WebAPI.Models.Segmentation
                         LengthTypeSchemaProperty.Validate("lengthType", parameters["lengthType"]);
                     }
                     LengthType = (KalturaContentActionConditionLengthType) Enum.Parse(typeof(KalturaContentActionConditionLengthType), parameters["lengthType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaContentActionConditionLengthType), LengthType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", LengthType, typeof(KalturaContentActionConditionLengthType)));
+                    }
                 }
                 if (parameters.ContainsKey("multiplier") && parameters["multiplier"] != null)
                 {
@@ -20725,9 +21693,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MinScoreSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20735,9 +21703,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MaxScoreSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20745,9 +21713,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20755,9 +21723,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20765,9 +21733,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20775,9 +21743,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ActionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20858,9 +21826,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentSource")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20887,9 +21855,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MinValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20897,9 +21865,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MaxValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20907,9 +21875,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20917,9 +21885,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20927,9 +21895,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute OperatorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20971,6 +21939,11 @@ namespace WebAPI.Models.Segmentation
                         TypeSchemaProperty.Validate("type", parameters["type"]);
                     }
                     Type = (KalturaMonetizationType) Enum.Parse(typeof(KalturaMonetizationType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMonetizationType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaMonetizationType)));
+                    }
                 }
                 if (parameters.ContainsKey("operator") && parameters["operator"] != null)
                 {
@@ -20979,6 +21952,11 @@ namespace WebAPI.Models.Segmentation
                         OperatorSchemaProperty.Validate("operator", parameters["operator"]);
                     }
                     Operator = (KalturaMathemticalOperatorType) Enum.Parse(typeof(KalturaMathemticalOperatorType), parameters["operator"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMathemticalOperatorType), Operator))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Operator, typeof(KalturaMathemticalOperatorType)));
+                    }
                 }
             }
         }
@@ -20988,9 +21966,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20998,9 +21976,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute OperatorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21008,9 +21986,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21028,6 +22006,11 @@ namespace WebAPI.Models.Segmentation
                         TypeSchemaProperty.Validate("type", parameters["type"]);
                     }
                     Type = (KalturaMonetizationType) Enum.Parse(typeof(KalturaMonetizationType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMonetizationType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaMonetizationType)));
+                    }
                 }
                 if (parameters.ContainsKey("operator") && parameters["operator"] != null)
                 {
@@ -21036,6 +22019,11 @@ namespace WebAPI.Models.Segmentation
                         OperatorSchemaProperty.Validate("operator", parameters["operator"]);
                     }
                     Operator = (KalturaMathemticalOperatorType) Enum.Parse(typeof(KalturaMathemticalOperatorType), parameters["operator"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaMathemticalOperatorType), Operator))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Operator, typeof(KalturaMathemticalOperatorType)));
+                    }
                 }
                 if (parameters.ContainsKey("days") && parameters["days"] != null)
                 {
@@ -21053,9 +22041,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute NameFormatSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentAllValues")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21082,9 +22070,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21092,9 +22080,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21102,9 +22090,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute VersionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21190,9 +22178,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SegmentationTypesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationTypeListResponse")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21226,9 +22214,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21236,9 +22224,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21246,9 +22234,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21256,9 +22244,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute GreaterThanOrEqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21266,9 +22254,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute GreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21276,9 +22264,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute LessThanOrEqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21286,9 +22274,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute LessThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21296,9 +22284,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute EqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21381,9 +22369,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SourceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRanges")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21391,9 +22379,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute RangesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRanges")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21448,9 +22436,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21458,9 +22446,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21468,9 +22456,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21478,9 +22466,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21531,9 +22519,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SourceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValues")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21541,9 +22529,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValues")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21592,9 +22580,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSingleSegmentValue")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21602,9 +22590,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute AffectedUsersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSingleSegmentValue")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21639,9 +22627,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDataCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21649,9 +22637,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDataCondition")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21686,9 +22674,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDynamicDataSource")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21715,9 +22703,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SegmentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21725,9 +22713,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = true,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21762,9 +22750,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute UserIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegmentFilter")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
@@ -21791,9 +22779,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SegmentsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegmentListResponse")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21863,6 +22851,11 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     Type = (KalturaPartnerConfigurationType) Enum.Parse(typeof(KalturaPartnerConfigurationType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPartnerConfigurationType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaPartnerConfigurationType)));
+                    }
                 }
             }
         }
@@ -21880,6 +22873,11 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("evictionPolicy") && parameters["evictionPolicy"] != null)
                 {
                     EvictionPolicy = (KalturaEvictionPolicyType) Enum.Parse(typeof(KalturaEvictionPolicyType), parameters["evictionPolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEvictionPolicyType), EvictionPolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EvictionPolicy, typeof(KalturaEvictionPolicyType)));
+                    }
                 }
             }
         }
@@ -21905,6 +22903,11 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("deleteMediaPolicy") && parameters["deleteMediaPolicy"] != null)
                 {
                     DeleteMediaPolicy = (KalturaDeleteMediaPolicy) Enum.Parse(typeof(KalturaDeleteMediaPolicy), parameters["deleteMediaPolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaDeleteMediaPolicy), DeleteMediaPolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DeleteMediaPolicy, typeof(KalturaDeleteMediaPolicy)));
+                    }
                 }
                 if (parameters.ContainsKey("mainCurrency") && parameters["mainCurrency"] != null)
                 {
@@ -21917,6 +22920,11 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("downgradePolicy") && parameters["downgradePolicy"] != null)
                 {
                     DowngradePolicy = (KalturaDowngradePolicy) Enum.Parse(typeof(KalturaDowngradePolicy), parameters["downgradePolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaDowngradePolicy), DowngradePolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DowngradePolicy, typeof(KalturaDowngradePolicy)));
+                    }
                 }
                 if (parameters.ContainsKey("mailSettings") && parameters["mailSettings"] != null)
                 {
@@ -21948,6 +22956,11 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("partnerConfigurationTypeEqual") && parameters["partnerConfigurationTypeEqual"] != null)
                 {
                     PartnerConfigurationTypeEqual = (KalturaPartnerConfigurationType) Enum.Parse(typeof(KalturaPartnerConfigurationType), parameters["partnerConfigurationTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPartnerConfigurationType), PartnerConfigurationTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PartnerConfigurationTypeEqual, typeof(KalturaPartnerConfigurationType)));
+                    }
                 }
             }
         }
@@ -21961,6 +22974,11 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     type = (KalturaPartnerConfigurationType) Enum.Parse(typeof(KalturaPartnerConfigurationType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPartnerConfigurationType), type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", type, typeof(KalturaPartnerConfigurationType)));
+                    }
                 }
             }
         }
@@ -21994,9 +23012,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22004,9 +23022,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute FileNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22014,9 +23032,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22024,9 +23042,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22034,9 +23052,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute NumOfObjectsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22044,9 +23062,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22054,9 +23072,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22064,9 +23082,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UploadedByUserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22074,9 +23092,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ResultsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22110,6 +23128,11 @@ namespace WebAPI.Models.Upload
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaBulkUploadJobStatus) Enum.Parse(typeof(KalturaBulkUploadJobStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBulkUploadJobStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaBulkUploadJobStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("action") && parameters["action"] != null)
                 {
@@ -22118,6 +23141,11 @@ namespace WebAPI.Models.Upload
                         ActionSchemaProperty.Validate("action", parameters["action"]);
                     }
                     Action = (KalturaBulkUploadJobAction) Enum.Parse(typeof(KalturaBulkUploadJobAction), parameters["action"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBulkUploadJobAction), Action))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Action, typeof(KalturaBulkUploadJobAction)));
+                    }
                 }
                 if (parameters.ContainsKey("numOfObjects") && parameters["numOfObjects"] != null)
                 {
@@ -22174,9 +23202,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute TypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetData")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22204,9 +23232,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22214,9 +23242,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22257,9 +23285,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadFilter")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             DynamicType = typeof(KalturaBulkUploadJobStatus),
             MaxLength = -1,
@@ -22299,9 +23327,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadIngestJobData")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22350,6 +23378,78 @@ namespace WebAPI.Models.Upload
             }
         }
     }
+    public partial class KalturaBulkUploadLiveAssetResult
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadLiveAssetResult")
+        {
+            ReadOnly = true,
+            RequiresPermission = 0,
+            InsertOnly = false,
+            WriteOnly = false,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ExternalEpgIngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadLiveAssetResult")
+        {
+            ReadOnly = true,
+            RequiresPermission = 0,
+            InsertOnly = false,
+            WriteOnly = false,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ProgramsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadLiveAssetResult")
+        {
+            ReadOnly = true,
+            RequiresPermission = 0,
+            InsertOnly = false,
+            WriteOnly = false,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaBulkUploadLiveAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("externalEpgIngestId") && parameters["externalEpgIngestId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ExternalEpgIngestIdSchemaProperty.Validate("externalEpgIngestId", parameters["externalEpgIngestId"]);
+                    }
+                    ExternalEpgIngestId = (String) Convert.ChangeType(parameters["externalEpgIngestId"], typeof(String));
+                }
+                if (parameters.ContainsKey("programs") && parameters["programs"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ProgramsSchemaProperty.Validate("programs", parameters["programs"]);
+                    }
+                    if (parameters["programs"] is JArray)
+                    {
+                        Programs = buildList<KalturaBulkUploadProgramAssetResult>(typeof(KalturaBulkUploadProgramAssetResult), (JArray) parameters["programs"]);
+                    }
+                    else if (parameters["programs"] is IList)
+                    {
+                        Programs = buildList(typeof(KalturaBulkUploadProgramAssetResult), parameters["programs"] as object[]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaBulkUploadMediaAssetData
     {
         public KalturaBulkUploadMediaAssetData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -22376,8 +23476,85 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadProgramAssetResult
     {
+        private static RuntimeSchemePropertyAttribute ProgramIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
+        {
+            ReadOnly = true,
+            RequiresPermission = 0,
+            InsertOnly = false,
+            WriteOnly = false,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ProgramExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
+        {
+            ReadOnly = true,
+            RequiresPermission = 0,
+            InsertOnly = false,
+            WriteOnly = false,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute LiveAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
+        {
+            ReadOnly = true,
+            RequiresPermission = 0,
+            InsertOnly = false,
+            WriteOnly = false,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute LiveAssetExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
+        {
+            ReadOnly = true,
+            RequiresPermission = 0,
+            InsertOnly = false,
+            WriteOnly = false,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaBulkUploadProgramAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
         {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("programId") && parameters["programId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ProgramIdSchemaProperty.Validate("programId", parameters["programId"]);
+                    }
+                    ProgramId = (Int32) Convert.ChangeType(parameters["programId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("programExternalId") && parameters["programExternalId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ProgramExternalIdSchemaProperty.Validate("programExternalId", parameters["programExternalId"]);
+                    }
+                    ProgramExternalId = (String) Convert.ChangeType(parameters["programExternalId"], typeof(String));
+                }
+                if (parameters.ContainsKey("liveAssetId") && parameters["liveAssetId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        LiveAssetIdSchemaProperty.Validate("liveAssetId", parameters["liveAssetId"]);
+                    }
+                    LiveAssetId = (Int32) Convert.ChangeType(parameters["liveAssetId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("liveAssetExternalId") && parameters["liveAssetExternalId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        LiveAssetExternalIdSchemaProperty.Validate("liveAssetExternalId", parameters["liveAssetExternalId"]);
+                    }
+                    LiveAssetExternalId = (String) Convert.ChangeType(parameters["liveAssetExternalId"], typeof(String));
+                }
+            }
         }
     }
     public partial class KalturaBulkUploadResult
@@ -22385,9 +23562,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22395,9 +23572,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IndexSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22405,9 +23582,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute BulkUploadIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22415,9 +23592,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22425,9 +23602,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22435,9 +23612,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute WarningsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22479,6 +23656,11 @@ namespace WebAPI.Models.Upload
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaBulkUploadResultStatus) Enum.Parse(typeof(KalturaBulkUploadResultStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBulkUploadResultStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaBulkUploadResultStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("errors") && parameters["errors"] != null)
                 {
@@ -22518,9 +23700,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22528,9 +23710,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22538,9 +23720,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute FileSizeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22548,9 +23730,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22558,9 +23740,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22586,6 +23768,11 @@ namespace WebAPI.Models.Upload
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaUploadTokenStatus) Enum.Parse(typeof(KalturaUploadTokenStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUploadTokenStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaUploadTokenStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("fileSize") && parameters["fileSize"] != null)
                 {
@@ -22623,9 +23810,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22633,9 +23820,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22643,9 +23830,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = false,
+            RequiresPermission = 0,
             InsertOnly = true,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22653,9 +23840,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute TagsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22663,9 +23850,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute NumberOfDevicesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22673,9 +23860,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute ConfigurationIdentifiersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
+            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22991,6 +24178,11 @@ namespace WebAPI.Models.DMS
                 if (parameters.ContainsKey("platform") && parameters["platform"] != null)
                 {
                     Platform = (KalturaPlatform) Enum.Parse(typeof(KalturaPlatform), parameters["platform"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPlatform), Platform))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Platform, typeof(KalturaPlatform)));
+                    }
                 }
                 if (parameters.ContainsKey("externalPushId") && parameters["externalPushId"] != null)
                 {
@@ -23076,6 +24268,11 @@ namespace WebAPI.Models.DMS
                 if (parameters.ContainsKey("versionPlatform") && parameters["versionPlatform"] != null)
                 {
                     VersionPlatform = (KalturaPlatform) Enum.Parse(typeof(KalturaPlatform), parameters["versionPlatform"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPlatform), VersionPlatform))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", VersionPlatform, typeof(KalturaPlatform)));
+                    }
                 }
                 if (parameters.ContainsKey("versionAppName") && parameters["versionAppName"] != null)
                 {
@@ -23282,6 +24479,11 @@ namespace WebAPI.Models.Domains
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
                     Status = (KalturaDeviceRegistrationStatus) Enum.Parse(typeof(KalturaDeviceRegistrationStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaDeviceRegistrationStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaDeviceRegistrationStatus)));
+                    }
                 }
             }
         }
@@ -23693,6 +24895,11 @@ namespace WebAPI.Models.Domains
                         StateSchemaProperty.Validate("state", parameters["state"]);
                     }
                     State = (KalturaHouseholdState) Enum.Parse(typeof(KalturaHouseholdState), parameters["state"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdState), State))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", State, typeof(KalturaHouseholdState)));
+                    }
                 }
                 if (parameters.ContainsKey("isFrequencyEnabled") && parameters["isFrequencyEnabled"] != null)
                 {
@@ -23749,6 +24956,11 @@ namespace WebAPI.Models.Domains
                         RestrictionSchemaProperty.Validate("restriction", parameters["restriction"]);
                     }
                     Restriction = (KalturaHouseholdRestriction) Enum.Parse(typeof(KalturaHouseholdRestriction), parameters["restriction"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdRestriction), Restriction))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Restriction, typeof(KalturaHouseholdRestriction)));
+                    }
                 }
                 if (parameters.ContainsKey("deviceFamilies") && parameters["deviceFamilies"] != null)
                 {
@@ -23898,6 +25110,11 @@ namespace WebAPI.Models.Domains
                         StateSchemaProperty.Validate("state", parameters["state"]);
                     }
                     State = (KalturaDeviceState) Enum.Parse(typeof(KalturaDeviceState), parameters["state"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaDeviceState), State))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", State, typeof(KalturaDeviceState)));
+                    }
                 }
                 if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
@@ -23906,6 +25123,11 @@ namespace WebAPI.Models.Domains
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaDeviceStatus) Enum.Parse(typeof(KalturaDeviceStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaDeviceStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaDeviceStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("deviceFamilyId") && parameters["deviceFamilyId"] != null)
                 {
@@ -24425,6 +25647,11 @@ namespace WebAPI.Models.Domains
                         StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
                     Status = (KalturaHouseholdUserStatus) Enum.Parse(typeof(KalturaHouseholdUserStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdUserStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaHouseholdUserStatus)));
+                    }
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
                 {
@@ -24495,6 +25722,11 @@ namespace WebAPI.Models.Domains
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
                     type = (KalturaHouseholdWith) Enum.Parse(typeof(KalturaHouseholdWith), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdWith), type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", type, typeof(KalturaHouseholdWith)));
+                    }
                 }
             }
         }
@@ -24540,6 +25772,11 @@ namespace WebAPI.Models.Billing
                 if (parameters.ContainsKey("selectedBy") && parameters["selectedBy"] != null)
                 {
                     selectedBy = (KalturaHouseholdPaymentGatewaySelectedBy) Enum.Parse(typeof(KalturaHouseholdPaymentGatewaySelectedBy), parameters["selectedBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", selectedBy, typeof(KalturaHouseholdPaymentGatewaySelectedBy)));
+                    }
                 }
             }
         }
@@ -24693,6 +25930,11 @@ namespace WebAPI.Models.Billing
                 if (parameters.ContainsKey("selected_by") && parameters["selected_by"] != null)
                 {
                     selectedBy = (KalturaHouseholdPaymentGatewaySelectedBy) Enum.Parse(typeof(KalturaHouseholdPaymentGatewaySelectedBy), parameters["selected_by"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", selectedBy, typeof(KalturaHouseholdPaymentGatewaySelectedBy)));
+                    }
                 }
             }
         }
@@ -24738,10 +25980,20 @@ namespace WebAPI.Models.Billing
                 if (parameters.ContainsKey("selectedBy") && parameters["selectedBy"] != null)
                 {
                     selectedBy = (KalturaHouseholdPaymentGatewaySelectedBy) Enum.Parse(typeof(KalturaHouseholdPaymentGatewaySelectedBy), parameters["selectedBy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", selectedBy, typeof(KalturaHouseholdPaymentGatewaySelectedBy)));
+                    }
                 }
                 if (parameters.ContainsKey("selected_by") && parameters["selected_by"] != null && isOldVersion)
                 {
                     selectedBy = (KalturaHouseholdPaymentGatewaySelectedBy) Enum.Parse(typeof(KalturaHouseholdPaymentGatewaySelectedBy), parameters["selected_by"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", selectedBy, typeof(KalturaHouseholdPaymentGatewaySelectedBy)));
+                    }
                 }
                 if (parameters.ContainsKey("paymentMethods") && parameters["paymentMethods"] != null)
                 {
